@@ -7,6 +7,7 @@
 set -euo pipefail
 
 REPO_DIR="/c/tmp/kamg-client-reports"
+REPO_REMOTE="https://github.com/kasandzz/kamg-client-reports.git"
 BASE_URL="https://kasandzz.github.io/kamg-client-reports"
 
 SOURCE="$1"
@@ -16,17 +17,28 @@ FILENAME="${3:-$(date +%Y%m%d-%H%M%S)}"
 # Ensure .html extension
 [[ "$FILENAME" != *.html ]] && FILENAME="${FILENAME}.html"
 
+# Auto-recover: if local clone is missing, re-clone
+if [[ ! -d "${REPO_DIR}/.git" ]]; then
+  echo "Local clone missing, re-cloning..."
+  rm -rf "$REPO_DIR"
+  git clone "$REPO_REMOTE" "$REPO_DIR"
+fi
+
+cd "$REPO_DIR"
+
+# Pull latest to avoid conflicts
+git pull --rebase origin main 2>/dev/null || true
+
 # Create client directory
-mkdir -p "${REPO_DIR}/${CLIENT}"
+mkdir -p "${CLIENT}"
 
 # Copy file
-cp "$SOURCE" "${REPO_DIR}/${CLIENT}/${FILENAME}"
+cp "$SOURCE" "${CLIENT}/${FILENAME}"
 
 # Commit and push
-cd "$REPO_DIR"
 git add "${CLIENT}/${FILENAME}"
 git commit -m "publish(${CLIENT}): ${FILENAME}"
 git push origin main
 
-# Output the live URL
+# Output the live URL (takes ~30s for Pages to deploy)
 echo "${BASE_URL}/${CLIENT}/${FILENAME}"

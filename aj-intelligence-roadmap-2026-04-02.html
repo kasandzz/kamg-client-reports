@@ -786,8 +786,8 @@ body::after {
       <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
         <div class="ws-letter">A</div>
         <div class="ws-title-block">
-          <h3>Agent/Skill Consolidation</h3>
-          <div class="ws-subtitle">200 scattered artifacts &rarr; 7 role-based bundles with model routing</div>
+          <h3>Agent/Skill Audit + Dedup</h3>
+          <div class="ws-subtitle">Map all ~200 artifacts, find duplicates, merge best versions, fill gaps. No forced role structure.</div>
         </div>
         <div class="ws-badges">
           <span class="badge badge-priority">P1</span>
@@ -797,20 +797,20 @@ body::after {
       </div>
       <div class="ws-body">
         <div class="ws-body-inner">
+          <div class="ws-sub" style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+            <p style="font-size: 13px; color: var(--accent-amber); margin: 0;">NOT adopting AJ's 7-role structure. Kas has more roles and different ones. AJ's team is a reference for model-routing ideas, not an org chart to copy. Orchestration already handled by the <strong>Workflow Planner</strong> spec.</p>
+          </div>
           <div class="ws-sub">
-            <h4>Target: 7 Role Bundles</h4>
+            <h4>What the Audit Produces</h4>
             <table class="ws-table">
               <thead>
-                <tr><th>Role</th><th>Model Tier</th><th>Consolidates</th><th>Gap?</th></tr>
+                <tr><th>Output</th><th>Description</th></tr>
               </thead>
               <tbody>
-                <tr><td class="role-name">Orchestrator</td><td><span class="model-tag">Opus</span></td><td>Manual dispatch + 6 strategy agents</td><td class="gap-no">No</td></tr>
-                <tr><td class="role-name">Content Drafter</td><td><span class="model-tag">Sonnet</span></td><td>~20 marketing agents + content creator</td><td class="gap-no">No</td></tr>
-                <tr><td class="role-name">SEO Operator</td><td><span class="model-tag">Sonnet + Haiku</span></td><td>ads-competitor (partial)</td><td class="gap-yes">YES</td></tr>
-                <tr><td class="role-name">Data Analyst</td><td><span class="model-tag">Haiku + Opus</span></td><td>Analytics reporter + analysis agents</td><td class="gap-no">No</td></tr>
-                <tr><td class="role-name">Content Critic</td><td><span class="model-tag">Opus</span></td><td>Nothing exists</td><td class="gap-yes">YES</td></tr>
-                <tr><td class="role-name">Competitive Intel</td><td><span class="model-tag">Sonnet</span></td><td>ads-competitor + phantom</td><td class="gap-no">Formalize</td></tr>
-                <tr><td class="role-name">Client Ops</td><td><span class="model-tag">Sonnet + Haiku</span></td><td>Sync skills + client reporting</td><td class="gap-no">No</td></tr>
+                <tr><td class="role-name">Duplicate Cluster Map</td><td>Groups of agents/skills doing the same thing (e.g., 15+ CRO-adjacent artifacts)</td></tr>
+                <tr><td class="role-name">Best-of-Breed Picks</td><td>For each cluster, which has the best prompt, framework, or coverage</td></tr>
+                <tr><td class="role-name">Gap Report</td><td>What Corey Haines or AJ has that we genuinely don't (SEO, content critic, email, podcast ops)</td></tr>
+                <tr><td class="role-name">Model Routing Recs</td><td>Per-agent recommendations: <span class="model-tag">Haiku</span> data, <span class="model-tag">Sonnet</span> drafting, <span class="model-tag">Opus</span> strategy/judgment</td></tr>
               </tbody>
             </table>
           </div>
@@ -818,10 +818,17 @@ body::after {
             <h4>Actions</h4>
             <ol class="action-list">
               <li><span class="action-num">1</span>Install external packs: <code>npx skills add coreyhaines31/marketingskills</code> + <code>slavingia/skills</code></li>
-              <li><span class="action-num">2</span>Deploy 3 parallel audit agents (Haiku): map existing &rarr; 7 roles, flag duplicates, extract best frameworks</li>
-              <li><span class="action-num">3</span>Merge into consolidated role definitions</li>
-              <li><span class="action-num">4</span>Build gap agents: SEO Operator, Content Critic, Email Marketing</li>
-              <li><span class="action-num">5</span>Archive redundant agents to <code>04-Archive/deprecated-agents/</code></li>
+              <li><span class="action-num">2</span>Deploy 3 parallel audit agents (Haiku): inventory agency agents, skill files, and external packs</li>
+              <li><span class="action-num">3</span>Synthesize: identify duplicate clusters, pick best version, flag gaps</li>
+              <li><span class="action-num">4</span>Build gap fills: SEO agent, Content Critic (Autoreason), Email Marketing, Podcast Ops</li>
+              <li><span class="action-num">5</span>Archive true duplicates to <code>04-Archive/deprecated-agents/</code></li>
+            </ol>
+          </div>
+          <div class="ws-sub">
+            <h4>Patterns to Adopt</h4>
+            <ol class="action-list">
+              <li><span class="action-num" style="background: var(--accent-cyan-dim); color: var(--bg);">C</span><strong style="color:var(--text)">Foundation context</strong> (Corey Haines) &mdash; every client-work agent reads <code>client-intel/{slug}/</code> first</li>
+              <li><span class="action-num" style="background: var(--accent-green-dim); color: var(--bg);">A</span><strong style="color:var(--text)">Model routing</strong> (AJ) &mdash; Haiku=data, Sonnet=drafting, Opus=judgment. Applied per-agent, not per-role.</li>
             </ol>
           </div>
         </div>

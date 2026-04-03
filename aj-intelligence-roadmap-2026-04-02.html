@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AJ Intelligence Roadmap | KasOS + KAMG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0f;
+  --surface: #12131a;
+  --surface-2: #1a1b24;
+  --surface-3: #22232e;
+  --border: #2a2b38;
+  --border-accent: #3d3e50;
+  --text: #e8e9f0;
+  --text-dim: #8b8d9e;
+  --text-muted: #5c5e70;
+  --accent-green: #4ade80;
+  --accent-green-dim: #16a34a;
+  --accent-amber: #fbbf24;
+  --accent-amber-dim: #d97706;
+  --accent-blue: #60a5fa;
+  --accent-blue-dim: #2563eb;
+  --accent-purple: #a78bfa;
+  --accent-purple-dim: #7c3aed;
+  --accent-rose: #fb7185;
+  --accent-rose-dim: #e11d48;
+  --accent-cyan: #22d3ee;
+  --accent-cyan-dim: #0891b2;
+  --p1: var(--accent-rose);
+  --p2: var(--accent-amber);
+  --p3: var(--accent-blue);
+  --backlog: var(--text-muted);
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'DM Mono', 'Consolas', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 9999;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ===== HERO ===== */
+.hero {
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent-green);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent-green);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent-green);
+}
+
+.hero-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+
+.hero-meta span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-meta .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  display: inline-block;
+}
+
+/* ===== NORTH STAR ===== */
+.north-star {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+}
+
+.north-star-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.ns-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ns-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.ns-card.aj::before { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+.ns-card.kas::before { background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); }
+
+.ns-card h3 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.ns-card.aj h3 { color: var(--accent-green); }
+.ns-card.kas h3 { color: var(--accent-purple); }
+
+.ns-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ns-card li {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  padding-left: 16px;
+  position: relative;
+}
+
+.ns-card li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.ns-card.aj li::before { background: var(--accent-green-dim); }
+.ns-card.kas li::before { background: var(--accent-purple-dim); }
+
+.ns-card .stat {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Gaps */
+.gaps {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gap-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--accent-rose-dim);
+  color: var(--accent-rose);
+  opacity: 0.8;
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  padding: 48px 0 28px;
+  border-top: 1px solid var(--border);
+}
+
+.section-header h2 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.section-header p {
+  color: var(--text-dim);
+  margin-top: 8px;
+  max-width: 640px;
+}
+
+/* ===== WORKSTREAM CARDS ===== */
+.workstreams {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 48px;
+}
+
+.ws-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.ws-card:hover {
+  border-color: var(--border-accent);
+}
+
+.ws-header {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  padding: 24px 28px;
+  gap: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ws-letter {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-style: italic;
+  color: var(--bg);
+  font-weight: 400;
+}
+
+.ws-card[data-priority="P1"] .ws-letter { background: var(--p1); }
+.ws-card[data-priority="P2"] .ws-letter { background: var(--p2); }
+.ws-card[data-priority="P3"] .ws-letter { background: var(--p3); }
+.ws-card[data-priority="Backlog"] .ws-letter { background: var(--backlog); }
+
+.ws-title-block h3 {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ws-title-block .ws-subtitle {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.ws-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.badge-priority {
+  font-weight: 500;
+}
+
+.ws-card[data-priority="P1"] .badge-priority { background: rgba(251, 113, 133, 0.12); color: var(--p1); }
+.ws-card[data-priority="P2"] .badge-priority { background: rgba(251, 191, 36, 0.12); color: var(--p2); }
+.ws-card[data-priority="P3"] .badge-priority { background: rgba(96, 165, 250, 0.12); color: var(--p3); }
+.ws-card[data-priority="Backlog"] .badge-priority { background: rgba(92, 94, 112, 0.15); color: var(--backlog); }
+
+.badge-effort {
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+
+.ws-body {
+  padding: 0 28px 28px;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+}
+
+.ws-body-inner {
+  padding-top: 24px;
+}
+
+/* Sub-sections */
+.ws-sub {
+  margin-bottom: 24px;
+}
+
+.ws-sub:last-child { margin-bottom: 0; }
+
+.ws-sub h4 {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* Tables */
+.ws-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ws-table th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+
+.ws-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(42, 43, 56, 0.5);
+  color: var(--text-dim);
+  vertical-align: top;
+}
+
+.ws-table tr:last-child td { border-bottom: none; }
+
+.ws-table .role-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ws-table .model-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-3);
+  white-space: nowrap;
+}
+
+.ws-table .gap-yes {
+  color: var(--accent-amber);
+  font-weight: 500;
+}
+
+.ws-table .gap-no {
+  color: var(--accent-green-dim);
+}
+
+/* Flow diagram */
+.flow {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.8;
+}
+
+.flow .node {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.flow .model {
+  color: var(--accent-cyan);
+}
+
+.flow .arrow {
+  color: var(--text-muted);
+}
+
+/* Action list */
+.action-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.action-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+
+.action-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-3);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.action-list code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--surface-3);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  color: var(--accent-cyan);
+}
+
+/* Schema block */
+.schema {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px 24px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.schema .dir { color: var(--accent-amber); font-weight: 500; }
+.schema .comment { color: var(--text-muted); }
+
+/* Source list */
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.source-chip {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.source-chip .name {
+  color: var(--text);
+  font-weight: 500;
+  display: block;
+}
+
+.source-chip .platform {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+}
+
+.timeline-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0;
+  margin-top: 32px;
+}
+
+.tl-period {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 20px 0;
+  border-right: 2px solid var(--border);
+  position: relative;
+}
+
+.tl-period::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 24px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border-accent);
+}
+
+.tl-period.active::after {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.3);
+}
+
+.tl-content {
+  padding: 16px 0 16px 32px;
+  border-bottom: 1px solid rgba(42, 43, 56, 0.4);
+}
+
+.tl-content:last-child { border-bottom: none; }
+
+.tl-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tl-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.tl-item .tl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.tl-item[data-ws="A"] .tl-dot { background: var(--p1); }
+.tl-item[data-ws="B"] .tl-dot { background: var(--p1); }
+.tl-item[data-ws="E"] .tl-dot { background: var(--p2); }
+.tl-item[data-ws="F"] .tl-dot { background: var(--p2); }
+.tl-item[data-ws="D"] .tl-dot { background: var(--p3); }
+
+/* ===== SUCCESS CRITERIA ===== */
+.success {
+  padding: 48px 0 80px;
+  border-top: 1px solid var(--border);
+}
+
+.success-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.success-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: relative;
+}
+
+.success-card .sc-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.success-card .sc-text {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.success-card .sc-check {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-accent);
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* ===== TOGGLE ===== */
+.ws-toggle {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  font-size: 14px;
+}
+
+.ws-card.open .ws-toggle {
+  transform: rotate(180deg);
+}
+
+.ws-body {
+  display: none;
+}
+
+.ws-card.open .ws-body {
+  display: block;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .container { padding: 0 20px; }
+  .hero { padding: 48px 0 40px; }
+  .north-star-grid { grid-template-columns: 1fr; }
+  .ws-header { grid-template-columns: 44px 1fr; }
+  .ws-badges { grid-column: 1 / -1; margin-top: 8px; }
+  .timeline-grid { grid-template-columns: 80px 1fr; }
+  .success-grid { grid-template-columns: 1fr; }
+  .hero-meta { flex-direction: column; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">KasOS + KAMG Unified Architecture</div>
+    <h1>AJ Intelligence <em>Roadmap</em></h1>
+    <p style="color: var(--text-dim); max-width: 600px; font-size: 16px; line-height: 1.7;">
+      12 items from AJ Harbinger's autonomous marketing ops architecture, synthesized into 6 actionable workstreams for the merged personal OS + agency system.
+    </p>
+    <div class="hero-meta">
+      <span><span class="dot"></span> 2026-04-02</span>
+      <span>Strategic Roadmap</span>
+      <span>6 Workstreams</span>
+      <span>2-Month Timeline</span>
+    </div>
+  </section>
+
+  <!-- NORTH STAR -->
+  <section class="north-star">
+    <h2 style="font-family: var(--font-display); font-size: 28px;">The Gap</h2>
+    <div class="north-star-grid">
+      <div class="ns-card aj">
+        <h3>What AJ Has Built</h3>
+        <ul>
+          <li><span class="stat">4 AI agents</span> running 24/7 on dedicated server</li>
+          <li>Full-funnel warehouse: GSC &rarr; GA4 &rarr; ManyChat &rarr; Keap &rarr; GHL &rarr; Stripe</li>
+          <li><span class="stat">28 Dataform models</span>, 37 metrics, daily refresh + REST API</li>
+          <li>Compounding experiment loop with persistent memory</li>
+          <li>Voice DNA extraction from <span class="stat">800+ episodes</span></li>
+          <li><span class="stat">One human decision per day</span></li>
+          <li>Zero paid ads &rarr; $101K/yr organic</li>
+        </ul>
+      </div>
+      <div class="ns-card kas">
+        <h3>What We Have Today</h3>
+        <ul>
+          <li><span class="stat">~200 agent/skill artifacts</span> (107 + 58 + 33)</li>
+          <li>BigQuery warehouse in progress (COD started)</li>
+          <li>Claude Code + GSD + skills as interactive layer</li>
+          <li>/schedule for cron-style automation</li>
+          <li>Model routing: Haiku=scraping, Sonnet=writing, Opus=strategy</li>
+          <li>No persistent memory between sessions</li>
+          <li>No 24/7 always-on automation</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gaps">
+      <span class="gap-tag">No SEO Agent</span>
+      <span class="gap-tag">No Content Critic</span>
+      <span class="gap-tag">No Podcast Ops</span>
+      <span class="gap-tag">No Email Marketing</span>
+      <span class="gap-tag">No Experiment Memory</span>
+      <span class="gap-tag">15+ CRO Overlap</span>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE DECISION -->
+  <section class="section-header">
+    <h2>Architecture Decision</h2>
+    <p>Claude-Native foundation, architected for Hermes graduation. Build as skills + BigQuery now. Slot in always-on agents when /schedule hits the wall.</p>
+  </section>
+
+  <!-- WORKSTREAMS -->
+  <section class="workstreams">
+
+    <!-- WS A -->
+    <div class="ws-card open" data-priority="P1">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter">A</div>
+        <div class="ws-title-block">
+          <h3>Agent/Skill Consolidation</h3>
+          <div class="ws-subtitle">200 scattered artifacts &rarr; 7 role-based bundles with model routing</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">P1</span>
+          <span class="badge badge-effort">1-2 weeks</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <h4>Target: 7 Role Bundles</h4>
+            <table class="ws-table">
+              <thead>
+                <tr><th>Role</th><th>Model Tier</th><th>Consolidates</th><th>Gap?</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="role-name">Orchestrator</td><td><span class="model-tag">Opus</span></td><td>Manual dispatch + 6 strategy agents</td><td class="gap-no">No</td></tr>
+                <tr><td class="role-name">Content Drafter</td><td><span class="model-tag">Sonnet</span></td><td>~20 marketing agents + content creator</td><td class="gap-no">No</td></tr>
+                <tr><td class="role-name">SEO Operator</td><td><span class="model-tag">Sonnet + Haiku</span></td><td>ads-competitor (partial)</td><td class="gap-yes">YES</td></tr>
+                <tr><td class="role-name">Data Analyst</td><td><span class="model-tag">Haiku + Opus</span></td><td>Analytics reporter + analysis agents</td><td class="gap-no">No</td></tr>
+                <tr><td class="role-name">Content Critic</td><td><span class="model-tag">Opus</span></td><td>Nothing exists</td><td class="gap-yes">YES</td></tr>
+                <tr><td class="role-name">Competitive Intel</td><td><span class="model-tag">Sonnet</span></td><td>ads-competitor + phantom</td><td class="gap-no">Formalize</td></tr>
+                <tr><td class="role-name">Client Ops</td><td><span class="model-tag">Sonnet + Haiku</span></td><td>Sync skills + client reporting</td><td class="gap-no">No</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ws-sub">
+            <h4>Actions</h4>
+            <ol class="action-list">
+              <li><span class="action-num">1</span>Install external packs: <code>npx skills add coreyhaines31/marketingskills</code> + <code>slavingia/skills</code></li>
+              <li><span class="action-num">2</span>Deploy 3 parallel audit agents (Haiku): map existing &rarr; 7 roles, flag duplicates, extract best frameworks</li>
+              <li><span class="action-num">3</span>Merge into consolidated role definitions</li>
+              <li><span class="action-num">4</span>Build gap agents: SEO Operator, Content Critic, Email Marketing</li>
+              <li><span class="action-num">5</span>Archive redundant agents to <code>04-Archive/deprecated-agents/</code></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS B -->
+    <div class="ws-card" data-priority="P1">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter">B</div>
+        <div class="ws-title-block">
+          <h3>Autoreason Quality Gate</h3>
+          <div class="ws-subtitle">Adversarial debate loop for all client-facing copy</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">P1</span>
+          <span class="badge badge-effort">2-3 days</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <h4>Interface</h4>
+            <div class="flow"><span class="node">/autoreason</span> &lt;task&gt; <span class="model">[--intensity full|light]</span> <span class="model">[--voice &lt;client-slug&gt;]</span></div>
+          </div>
+          <div class="ws-sub">
+            <h4>The Loop</h4>
+            <div class="flow"><span class="node">Author A</span> <span class="model">Sonnet</span> <span class="arrow">&mdash; writes initial draft (task only)</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Strawman</span> <span class="model">Sonnet</span> <span class="arrow">&mdash; attacks draft, problems only</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Author B</span> <span class="model">Sonnet</span> <span class="arrow">&mdash; rewrites addressing critique</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Synthesizer</span> <span class="model">Sonnet</span> <span class="arrow">&mdash; merges best of A + B</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Judge Panel</span> <span class="model">Opus x1 (light) / x3 (full)</span>
+    <span class="arrow">&mdash; Blind eval, ranked choice + Borda count</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Winner &rarr; new A</span> <span class="arrow">&mdash; Loop until streak = 1 (light) or 2 (full)</span></div>
+          </div>
+          <div class="ws-sub">
+            <h4>Cost Per Run</h4>
+            <table class="ws-table">
+              <thead><tr><th>Mode</th><th>Calls</th><th>Est. Cost</th></tr></thead>
+              <tbody>
+                <tr><td class="role-name">Light</td><td>3-4 Sonnet + 1 Opus judge</td><td>$0.15-0.30</td></tr>
+                <tr><td class="role-name">Full</td><td>3-4 Sonnet + 3 Opus judges, 2+ loops</td><td>$0.50-1.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS D -->
+    <div class="ws-card" data-priority="P3">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter">D</div>
+        <div class="ws-title-block">
+          <h3>Intelligence Feed</h3>
+          <div class="ws-subtitle">Automated creator scraping &rarr; actionable ideas &rarr; weekly brief</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">P3</span>
+          <span class="badge badge-effort">1-2 days</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <h4>Source List</h4>
+            <div class="source-grid">
+              <div class="source-chip"><span class="name">@boringmarketer</span><span class="platform">X/Twitter</span></div>
+              <div class="source-chip"><span class="name">@codyschneiderxx</span><span class="platform">X/Twitter</span></div>
+              <div class="source-chip"><span class="name">Stephen G. Pope</span><span class="platform">YouTube</span></div>
+              <div class="source-chip"><span class="name">Alex Finn</span><span class="platform">YouTube</span></div>
+              <div class="source-chip"><span class="name">Greg Isenberg</span><span class="platform">YouTube</span></div>
+            </div>
+          </div>
+          <div class="ws-sub">
+            <h4>Pipeline</h4>
+            <div class="flow"><span class="node">Weekly Cron</span> <span class="arrow">(/schedule)</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[Scraper]</span> <span class="model">Haiku</span> <span class="arrow">&mdash; pull tweets + YT transcripts</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[Analyzer]</span> <span class="model">Sonnet</span> <span class="arrow">&mdash; tag: agency-ops | kasos | tool | skip</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[Output]</span> <span class="arrow">&mdash; Weekly brief in 03-Resources/intelligence-feed/</span>
+    <span class="arrow">&mdash; Top 3-5 ideas surfaced in /morning on Mondays</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS E -->
+    <div class="ws-card" data-priority="P2">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter">E</div>
+        <div class="ws-title-block">
+          <h3>Transcript Intelligence Pipeline</h3>
+          <div class="ws-subtitle">Free local transcription via Insanely Fast Whisper for voice DNA + content</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">P2</span>
+          <span class="badge badge-effort">1 day + ongoing</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <h4>Use Cases (Priority Order)</h4>
+            <ol class="action-list">
+              <li><span class="action-num">P0</span><strong style="color:var(--text)">AOC Living Wiki</strong> &mdash; Process 800+ episodes, extract buyer language, build intelligence KB</li>
+              <li><span class="action-num">P1</span><strong style="color:var(--text)">Meeting Recordings</strong> &mdash; Supplement Fathom, speaker diarization separates client vs team</li>
+              <li><span class="action-num">P2</span><strong style="color:var(--text)">Client Content Libraries</strong> &mdash; Any client with podcast/video gets voice DNA extraction</li>
+            </ol>
+          </div>
+          <div class="ws-sub">
+            <h4>Integration</h4>
+            <div class="flow"><span class="node">Whisper</span> <span class="arrow">&mdash; extracts voice DNA</span>
+    <span class="arrow">&darr;</span>
+<span class="node">client-intel/{slug}/voice-dna.md</span>
+    <span class="arrow">&darr;</span>
+<span class="node">Autoreason --voice flag</span> <span class="arrow">&mdash; copy stays authentic to client's real voice</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WS F -->
+    <div class="ws-card" data-priority="P2">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter">F</div>
+        <div class="ws-title-block">
+          <h3>Data Layer / Graphed Clone</h3>
+          <div class="ws-subtitle">Self-hosted warehouse: Airbyte + BigQuery + dbt + MCP wrapper</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">P2</span>
+          <span class="badge badge-effort">2-3 weeks</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <h4>Architecture</h4>
+            <div class="flow"><span class="node">Data Sources</span> <span class="arrow">(per client APIs)</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[Airbyte]</span> <span class="arrow">&mdash; ETL, 750+ connectors, open-source</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[BigQuery]</span> <span class="arrow">&mdash; warehouse, multi-client schemas</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[dbt]</span> <span class="arrow">&mdash; transformations + semantic layer</span>
+    <span class="arrow">&darr;</span>
+<span class="node">[MCP Wrapper]</span> <span class="arrow">&mdash; Claude Code queries in natural language</span></div>
+          </div>
+          <div class="ws-sub">
+            <h4>Per-Client Schema</h4>
+            <div class="schema"><span class="dir">bigquery/</span>
+  <span class="dir">cod/</span>          <span class="comment"># GSC, GA4, GHL, Hyros, Sheets, PostHog, Stripe</span>
+  <span class="dir">redstone/</span>     <span class="comment"># Google Ads, HubSpot (pending), GSC (pending)</span>
+  <span class="dir">cpg/</span>          <span class="comment"># Instantly (2 workspaces), revenue tracking</span>
+  <span class="dir">aoc/</span>          <span class="comment"># GSC, GA4, GHL, Stripe, Kajabi, JotForm, ManyChat, Keap</span>
+  <span class="dir">shared/</span>       <span class="comment"># Cross-client benchmarks, model definitions</span></div>
+          </div>
+          <div class="ws-sub">
+            <h4>Action: Follow Up with AJ</h4>
+            <ol class="action-list">
+              <li><span class="action-num">1</span>Ask AJ to walk through his local Graphed clone setup</li>
+              <li><span class="action-num">2</span>Get BigQuery schema / Dataform models as reference</li>
+              <li><span class="action-num">3</span>Understand REST API pattern for agent queries</li>
+              <li><span class="action-num">4</span>Adapt MCP wrapper for Claude Code</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BACKLOG -->
+    <div class="ws-card" data-priority="Backlog">
+      <div class="ws-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="ws-letter" style="font-size: 16px;">&bull;</div>
+        <div class="ws-title-block">
+          <h3>Backlog</h3>
+          <div class="ws-subtitle">Hermes Framework + Twenty CRM + Codex Plugin &mdash; revisit when triggers hit</div>
+        </div>
+        <div class="ws-badges">
+          <span class="badge badge-priority">Backlog</span>
+          <span class="ws-toggle">&darr;</span>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-body-inner">
+          <div class="ws-sub">
+            <table class="ws-table">
+              <thead><tr><th>Item</th><th>Trigger</th><th>What it Adds</th></tr></thead>
+              <tbody>
+                <tr><td class="role-name">Hermes Agent Framework</td><td>/schedule exceeds 10+ crons per client</td><td>24/7 always-on, SOUL.md personalities, self-improving skills, messaging gateways</td></tr>
+                <tr><td class="role-name">Twenty CRM</td><td>GHL CRM becomes a pain point</td><td>Open-source, self-hosted CRM, full data ownership</td></tr>
+                <tr><td class="role-name">Codex Plugin</td><td>Heavy dev work needing adversarial code review</td><td>Second AI agent for background code review + delegation</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline">
+    <h2 style="font-family: var(--font-display); font-size: 36px;">Implementation Sequence</h2>
+
+    <div class="timeline-grid">
+      <div class="tl-period active">Week 1-2</div>
+      <div class="tl-content">
+        <div class="tl-items">
+          <div class="tl-item" data-ws="A"><span class="tl-dot"></span>Install skill packs</div>
+          <div class="tl-item" data-ws="A"><span class="tl-dot"></span>Run audit agents</div>
+          <div class="tl-item" data-ws="A"><span class="tl-dot"></span>Merge into 7 roles</div>
+          <div class="tl-item" data-ws="A"><span class="tl-dot"></span>Build SEO + Email agents</div>
+        </div>
+      </div>
+
+      <div class="tl-period">Week 2-3</div>
+      <div class="tl-content">
+        <div class="tl-items">
+          <div class="tl-item" data-ws="B"><span class="tl-dot"></span>Build /autoreason skill</div>
+          <div class="tl-item" data-ws="B"><span class="tl-dot"></span>Light mode first</div>
+          <div class="tl-item" data-ws="B"><span class="tl-dot"></span>Test on AOC LP copy</div>
+        </div>
+      </div>
+
+      <div class="tl-period">Week 3-4</div>
+      <div class="tl-content">
+        <div class="tl-items">
+          <div class="tl-item" data-ws="E"><span class="tl-dot"></span>Install Whisper</div>
+          <div class="tl-item" data-ws="E"><span class="tl-dot"></span>Test on sample audio</div>
+          <div class="tl-item" data-ws="E"><span class="tl-dot"></span>AOC episode batch</div>
+        </div>
+      </div>
+
+      <div class="tl-period">Week 5-7</div>
+      <div class="tl-content">
+        <div class="tl-items">
+          <div class="tl-item" data-ws="F"><span class="tl-dot"></span>Airbyte for COD + AOC</div>
+          <div class="tl-item" data-ws="F"><span class="tl-dot"></span>dbt core metrics</div>
+          <div class="tl-item" data-ws="F"><span class="tl-dot"></span>MCP wrapper</div>
+        </div>
+      </div>
+
+      <div class="tl-period">Week 7-8</div>
+      <div class="tl-content">
+        <div class="tl-items">
+          <div class="tl-item" data-ws="D"><span class="tl-dot"></span>Build /intelligence-feed</div>
+          <div class="tl-item" data-ws="D"><span class="tl-dot"></span>Weekly scrape schedule</div>
+          <div class="tl-item" data-ws="D"><span class="tl-dot"></span>First intelligence brief</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUCCESS CRITERIA -->
+  <section class="success">
+    <h2 style="font-family: var(--font-display); font-size: 36px;">Success Criteria</h2>
+
+    <div class="success-grid">
+      <div class="success-card">
+        <div class="sc-check"></div>
+        <div class="sc-label">A: Consolidation</div>
+        <div class="sc-text">7 role bundles with clear model routing. Old agents archived. Corey + Sahil skills merged.</div>
+      </div>
+      <div class="success-card">
+        <div class="sc-check"></div>
+        <div class="sc-label">B: Autoreason</div>
+        <div class="sc-text">/autoreason skill works in light + full mode. Used on at least 1 real client deliverable.</div>
+      </div>
+      <div class="success-card">
+        <div class="sc-check"></div>
+        <div class="sc-label">D: Intelligence Feed</div>
+        <div class="sc-text">Weekly brief generated automatically. At least 1 idea converted to build via PRD pattern.</div>
+      </div>
+      <div class="success-card">
+        <div class="sc-check"></div>
+        <div class="sc-label">E: Transcripts</div>
+        <div class="sc-text">Whisper installed. AOC episode batch started. Voice DNA file for at least 1 client.</div>
+      </div>
+      <div class="success-card">
+        <div class="sc-check"></div>
+        <div class="sc-label">F: Data Layer</div>
+        <div class="sc-text">Airbyte running for 2+ clients. dbt models for core metrics. MCP wrapper querying warehouse.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    KasOS + KAMG &mdash; AJ Intelligence Roadmap &mdash; April 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -248,6 +248,13 @@
       line-height: 1.8;
     }
 
+    /* Severity badges */
+    .sev { display: inline-block; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
+    .sev-critical { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
+    .sev-high { background: rgba(245,158,11,0.15); color: var(--accent-amber); border: 1px solid rgba(245,158,11,0.3); }
+    .sev-medium { background: rgba(139,92,246,0.15); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.3); }
+    .sev-shared { background: rgba(59,130,246,0.15); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.3); }
+
     /* Fix steps */
     .fix-steps { counter-reset: fix; }
     .fix-step {
@@ -407,41 +414,53 @@
 
     <!-- Friction Points (both variants) -->
     <div class="card">
-      <h2><span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber);">~</span> Shared Friction (Both Variants)</h2>
+      <h2><span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber);">~</span> What's Killing Conversions</h2>
+
+      <p style="font-weight:600;margin-bottom:14px;">A variant &mdash; 3 friction points in the form</p>
       <table>
-        <thead>
-          <tr><th>Friction Point</th><th>A Variant</th><th>B Variant</th></tr>
-        </thead>
+        <thead><tr><th>Issue</th><th>Severity</th><th>Detail</th></tr></thead>
         <tbody>
           <tr>
             <td>Payment checkbox</td>
-            <td class="loser-cell">#1 frustration trigger</td>
-            <td>&mdash;</td>
-          </tr>
-          <tr>
-            <td>Unresponsive submit button</td>
-            <td>&mdash;</td>
-            <td class="loser-cell">Critical &mdash; zero conversions</td>
-          </tr>
-          <tr>
-            <td>Date picker rage clicks</td>
-            <td class="tied-cell">Early abandonment</td>
-            <td class="tied-cell">Early abandonment</td>
+            <td><span class="sev sev-critical">Critical</span></td>
+            <td class="loser-cell">Rage clicks and repeated toggling, causes abandonment even mid-form</td>
           </tr>
           <tr>
             <td>Phone field</td>
-            <td class="tied-cell">Rage clicks on mask</td>
-            <td>&mdash;</td>
+            <td><span class="sev sev-high">High</span></td>
+            <td>Input mask appears broken, triggers rage clicks during entry</td>
           </tr>
           <tr>
-            <td>CTA not opening</td>
-            <td>&mdash;</td>
-            <td class="tied-cell">Some devices</td>
+            <td>Date picker</td>
+            <td><span class="sev sev-shared">Shared</span></td>
+            <td>Abandonment after selecting date, nothing happens next</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="font-weight:600;margin-top:24px;margin-bottom:14px;">B variant &mdash; 1 critical technical bug</p>
+      <table>
+        <thead><tr><th>Issue</th><th>Severity</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Submit button gives no feedback</td>
+            <td><span class="sev sev-critical">Critical</span></td>
+            <td class="loser-cell">Users click "Pay / Save My Seat" and nothing happens. They click again. Then they leave. Blocking bug suppressing B's conversion rate artificially.</td>
           </tr>
           <tr>
-            <td>Page reload wipes data</td>
-            <td>&mdash;</td>
-            <td class="tied-cell">Medium &mdash; subset of sessions</td>
+            <td>Date picker</td>
+            <td><span class="sev sev-shared">Shared</span></td>
+            <td>Same issue as A &mdash; shared component</td>
+          </tr>
+          <tr>
+            <td>CTA not opening on some devices</td>
+            <td><span class="sev sev-high">High</span></td>
+            <td>Likely a mobile issue &mdash; click with no follow-up</td>
+          </tr>
+          <tr>
+            <td>Page reload wipes form data</td>
+            <td><span class="sev sev-medium">Medium</span></td>
+            <td>Subset of sessions show a page reload mid-form, wiping all entered data</td>
           </tr>
         </tbody>
       </table>

@@ -3,555 +3,174 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PostHog Behavioral Intelligence | KAMG for COD</title>
+<title>PostHog Behavioral Intelligence for COD</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html {
-    scroll-behavior: smooth;
-    font-size: 16px;
-  }
-
-  body {
-    background: #020617;
-    color: #e2e8f0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem 4rem;
-  }
-
-  /* Header */
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-  }
-
-  .page-header .org-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #38bdf8;
-    margin-bottom: 0.75rem;
-  }
-
-  .page-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #f8fafc;
-    line-height: 1.25;
-    margin-bottom: 0.5rem;
-  }
-
-  .page-header .subtitle {
-    font-size: 1rem;
-    color: #94a3b8;
-    font-style: italic;
-  }
-
-  /* Headings */
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #f8fafc;
-    margin-top: 3rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 2px solid rgba(56, 189, 248, 0.2);
-  }
-
-  h3 {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #38bdf8;
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-  }
-
-  /* Body text */
-  p {
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-  }
-
-  strong, b {
-    color: #facc15;
-    font-weight: 600;
-  }
-
-  /* Lists */
-  ul, ol {
-    margin-bottom: 1.25rem;
-    padding-left: 1.5rem;
-  }
-
-  li {
-    margin-bottom: 0.5rem;
-    color: #cbd5e1;
-  }
-
-  li strong {
-    color: #facc15;
-  }
-
-  /* Tables */
-  .table-wrap {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid rgba(56, 189, 248, 0.15);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-  }
-
-  thead th {
-    background: rgba(56, 189, 248, 0.12);
-    color: #38bdf8;
-    font-weight: 600;
-    text-align: left;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-  }
-
-  tbody td {
-    padding: 0.65rem 1rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-    color: #cbd5e1;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody tr:hover {
-    background: rgba(56, 189, 248, 0.04);
-  }
-
-  /* Comparison table: Yes/No cells */
-  .cell-yes {
-    color: #3fb950;
-    font-weight: 600;
-  }
-
-  .cell-no {
-    color: #f85149;
-    font-weight: 500;
-    opacity: 0.7;
-  }
-
-  .cell-yes-detail {
-    color: #3fb950;
-    font-weight: 600;
-  }
-
-  /* Code / ASCII art */
-  pre {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(56, 189, 248, 0.12);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
-    font-family: 'Cascadia Code', 'Fira Code', 'SF Mono', 'Consolas', monospace;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: #94a3b8;
-  }
-
-  pre .label {
-    color: #38bdf8;
-  }
-
-  pre .join {
-    color: #facc15;
-  }
-
-  pre .result {
-    color: #3fb950;
-  }
-
-  code {
-    font-family: 'Cascadia Code', 'Fira Code', 'SF Mono', 'Consolas', monospace;
-    font-size: 0.88em;
-    background: rgba(56, 189, 248, 0.08);
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
-    color: #38bdf8;
-  }
-
-  /* Blockquotes */
-  blockquote {
-    border-left: 3px solid #facc15;
-    margin: 1.5rem 0;
-    padding: 1rem 1.25rem;
-    background: rgba(250, 204, 21, 0.04);
-    border-radius: 0 6px 6px 0;
-    font-style: italic;
-    color: #e2e8f0;
-  }
-
-  blockquote p {
-    color: #e2e8f0;
-    margin-bottom: 0;
-  }
-
-  /* Horizontal rules */
-  hr {
-    border: none;
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(56, 189, 248, 0.15), transparent);
-    margin: 2.5rem 0;
-  }
-
-  /* List markers */
-  ol {
-    list-style: decimal;
-  }
-
-  ol li::marker {
-    color: #38bdf8;
-    font-weight: 600;
-  }
-
-  ul li::marker {
-    color: #475569;
-  }
-
-  /* Summary box */
-  .summary-box {
-    background: rgba(56, 189, 248, 0.05);
-    border: 1px solid rgba(56, 189, 248, 0.15);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .summary-box p {
-    margin-bottom: 0;
-  }
-
-  /* Sources / footnotes */
-  .sources {
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(148, 163, 184, 0.1);
-  }
-
-  .sources h2 {
-    font-size: 1rem;
-    color: #64748b;
-    border-bottom: none;
-    margin-top: 0;
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .sources ul {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .sources li {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin-bottom: 0.35rem;
-    padding-left: 1rem;
-    position: relative;
-    line-height: 1.5;
-  }
-
-  .sources li::before {
-    content: "\2022";
-    position: absolute;
-    left: 0;
-    color: #475569;
-  }
-
-  /* Footer */
-  .page-footer {
-    text-align: center;
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(56, 189, 248, 0.1);
-    font-size: 0.82rem;
-    color: #475569;
-    letter-spacing: 0.02em;
-  }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    .container {
-      padding: 2rem 1rem 3rem;
-    }
-
-    .page-header h1 {
-      font-size: 1.5rem;
-    }
-
-    h2 {
-      font-size: 1.25rem;
-      margin-top: 2.25rem;
-    }
-
-    h3 {
-      font-size: 1.05rem;
-    }
-
-    pre {
-      padding: 1rem;
-      font-size: 0.72rem;
-    }
-
-    table {
-      font-size: 0.82rem;
-    }
-
-    thead th, tbody td {
-      padding: 0.5rem 0.65rem;
-    }
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#020617;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;line-height:1.7;padding:2rem 1rem}
+.container{max-width:800px;margin:0 auto}
+header{border-bottom:2px solid #38bdf8;padding-bottom:1.5rem;margin-bottom:2.5rem}
+header .label{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#38bdf8;font-weight:600;margin-bottom:.25rem}
+header h1{font-size:1.75rem;font-weight:700;color:#e2e8f0;margin-bottom:.25rem}
+header .subtitle{color:#94a3b8;font-size:.9rem}
+h2{font-size:1.35rem;color:#38bdf8;margin-top:2.5rem;margin-bottom:1rem;padding-bottom:.4rem;border-bottom:1px solid #1e293b}
+h3{font-size:1.1rem;color:#e2e8f0;margin-top:1.75rem;margin-bottom:.75rem}
+p{margin-bottom:1rem}
+strong,b{color:#facc15;font-weight:600}
+a{color:#38bdf8;text-decoration:none}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.4rem}
+blockquote{border-left:3px solid #facc15;padding:.75rem 1rem;margin:1.25rem 0;font-style:italic;background:#0f172a;border-radius:0 6px 6px 0;color:#cbd5e1}
+table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.9rem}
+thead th{background:#0f172a;color:#38bdf8;text-align:left;padding:.6rem .75rem;border:1px solid #1e293b;font-weight:600}
+tbody td{padding:.6rem .75rem;border:1px solid #1e293b;background:#020617}
+tbody tr:hover{background:#0f172a}
+td.yes{color:#3fb950;font-weight:600}
+td.no{color:#f85149}
+pre{background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:1.25rem;overflow-x:auto;font-size:.82rem;line-height:1.6;margin:1.25rem 0;font-family:'Cascadia Code','Fira Code',monospace}
+.src-blue{color:#38bdf8}
+.src-gold{color:#facc15}
+.src-green{color:#3fb950}
+.sources{margin-top:2.5rem;padding-top:1rem;border-top:1px solid #1e293b}
+.sources h2{border:none;padding:0;margin-bottom:.75rem}
+.sources ul{font-size:.8rem;color:#64748b;list-style:disc}
+.sources li{margin-bottom:.3rem}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid #1e293b;text-align:center;font-size:.8rem;color:#64748b;font-style:italic}
+@media(max-width:600px){
+  body{padding:1rem .75rem}
+  header h1{font-size:1.35rem}
+  h2{font-size:1.15rem}
+  table{font-size:.78rem}
+  thead th,tbody td{padding:.4rem .5rem}
+  pre{font-size:.72rem;padding:.75rem}
+}
 </style>
 </head>
 <body>
 <div class="container">
 
-  <header class="page-header">
-    <p class="org-label">KAMG</p>
-    <h1>PostHog Behavioral Intelligence</h1>
-    <p class="subtitle">What It Adds Beyond Hyros</p>
-  </header>
+<header>
+  <div class="label">KAMG</div>
+  <h1>Connecting Behavioral Data to Conversions</h1>
+  <div class="subtitle">PostHog Behavioral Intelligence for Clients On Demand</div>
+</header>
 
-  <!-- Executive Summary -->
-  <h2>Executive Summary</h2>
-  <div class="summary-box">
-    <p>Hyros tells us which ad generated a sale. PostHog tells us what people actually do on our pages, why they drop off, and how to fix it. They solve completely different problems. This guide explains what PostHog uniquely adds that no other tool in the COD stack can provide, and why installing 6 small code snippets will unlock a layer of intelligence we currently have zero visibility into.</p>
-  </div>
+<h2>What We're Doing</h2>
+<p>We're connecting PostHog's behavioral tracking (what people do on our pages) to Hyros and the rest of the data warehouse. This gives us one thing we don't have today: the ability to see exactly what someone did on our pages, how they engaged with the workshop, and then link that behavior directly to whether they converted.</p>
+<p>Hyros tells us which ad generated a sale. PostHog tells us what happened between the click and the conversion. Right now those are two separate worlds. We're joining them.</p>
+<p><strong>Installation is simple.</strong> 2 small code snippets pasted into GHL page footers. Takes about 5 minutes. Nothing changes for visitors.</p>
 
-  <hr>
+<h2>What Hyros Does vs. What PostHog Does</h2>
+<p>These tools are not competitors. They answer different questions.</p>
 
-  <!-- Comparison Table -->
-  <h2>What Hyros Does vs. What PostHog Does</h2>
-  <p>This is the key distinction. These tools are not competitors. They answer different questions entirely.</p>
+<table>
+<thead><tr><th>Question</th><th>Hyros</th><th>PostHog</th></tr></thead>
+<tbody>
+<tr><td>Which ad generated this sale?</td><td class="yes">Yes</td><td class="no">No</td></tr>
+<tr><td>What's our ROAS by ad set?</td><td class="yes">Yes</td><td class="no">No</td></tr>
+<tr><td>Which payment came from which traffic source?</td><td class="yes">Yes (server-side, ~98% accuracy)</td><td class="no">No</td></tr>
+<tr><td>What did someone do ON the landing page?</td><td class="no">No</td><td class="yes"><strong>Yes: heatmaps, scroll depth, click tracking, session recordings</strong></td></tr>
+<tr><td>Which section of the page do buyers read vs skip?</td><td class="no">No</td><td class="yes"><strong>Yes: section-level attention data</strong></td></tr>
+<tr><td>What do non-buyers do differently from buyers?</td><td class="no">No (only tracks converters)</td><td class="yes"><strong>Yes: tracks every visitor</strong></td></tr>
+<tr><td>Why did 84% of ticket buyers never book a call?</td><td class="no">No</td><td class="yes"><strong>Yes: full session replay of what they did after buying</strong></td></tr>
+</tbody>
+</table>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Question</th>
-          <th>Hyros</th>
-          <th>PostHog</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Which ad generated this sale?</td>
-          <td class="cell-yes">Yes (this is what it's built for)</td>
-          <td class="cell-no">No</td>
-        </tr>
-        <tr>
-          <td>What's our ROAS by ad set?</td>
-          <td class="cell-yes">Yes</td>
-          <td class="cell-no">No</td>
-        </tr>
-        <tr>
-          <td>Which payment came from which traffic source?</td>
-          <td class="cell-yes">Yes (server-side CAPI, ~98% accuracy)</td>
-          <td class="cell-no">No</td>
-        </tr>
-        <tr>
-          <td>What did someone do ON the landing page?</td>
-          <td class="cell-no">No</td>
-          <td class="cell-yes-detail">Yes: heatmaps, scroll depth, click tracking, session recordings</td>
-        </tr>
-        <tr>
-          <td>How long did someone watch the workshop?</td>
-          <td class="cell-no">No</td>
-          <td class="cell-yes-detail">Yes: minute-by-minute engagement tracking</td>
-        </tr>
-        <tr>
-          <td>Why did 84% of ticket buyers never book a call?</td>
-          <td class="cell-no">No (Hyros only sees the conversion, not the behavior)</td>
-          <td class="cell-yes-detail">Yes: full session replay of what they did after buying</td>
-        </tr>
-        <tr>
-          <td>Which section of the landing page do buyers read vs. skip?</td>
-          <td class="cell-no">No</td>
-          <td class="cell-yes-detail">Yes: section-level attention data</td>
-        </tr>
-        <tr>
-          <td>What do non-buyers do differently from buyers?</td>
-          <td class="cell-no">No (Hyros doesn't track people who don't convert)</td>
-          <td class="cell-yes-detail">Yes: tracks every visitor, not just converters</td>
-        </tr>
-        <tr>
-          <td>Can we A/B test page variants?</td>
-          <td class="cell-no">No</td>
-          <td class="cell-yes-detail">Yes: built-in experimentation (already running therapist page test)</td>
-        </tr>
-        <tr>
-          <td>Where exactly in the workshop do people leave?</td>
-          <td class="cell-no">No</td>
-          <td class="cell-yes-detail">Yes: drop-off curves by minute</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<p><strong>In short:</strong> Hyros is the attribution layer (ad to sale). PostHog is the behavior layer (what happens on the page). Together in BigQuery, they complete the picture.</p>
+<p>Workshop attendance and watch duration will be tracked through AEvent's own analytics, which feeds into the same BigQuery warehouse per person. So every data point, whether from PostHog, AEvent, Hyros, GHL, or Stripe, lands in one place tied to a single email.</p>
 
-  <p><strong>In short:</strong> Hyros is the attribution layer (ad to sale). PostHog is the behavior layer (what happens on the page). Together they complete the picture.</p>
+<h2>What This Unlocks</h2>
 
-  <hr>
+<h3>Which Parts of the Landing Page People Actually Read</h3>
+<p>PostHog records heatmaps and session recordings on every page automatically. This means we can see:</p>
+<ul>
+<li><strong>Scroll depth by buyer vs non-buyer.</strong> Do people who purchase the $27 ticket scroll past the testimonials? Do they read the FAQ? Or do they stop at the value stack and buy immediately? If 80% of buyers never scroll past Section 6, everything below it is wasted real estate.</li>
+<li><strong>What people click on that is not a button.</strong> Dead clicks reveal what visitors expect to be interactive. If 200 people per week click on "Russ has helped 6,000+ clients" expecting more detail, that is a signal to make it a link or expand the proof.</li>
+<li><strong>Rage clicks and u-turns.</strong> When someone clicks the same spot 5 times and then leaves, PostHog flags it. This catches broken elements, confusing layouts, and friction points invisible to any other tool.</li>
+<li><strong>Section-by-section attention.</strong> PostHog shows exactly how long visitors pause on each section. If the "Is This You?" pain-point section holds attention for 12 seconds but the "Before/After" table gets skipped in 2 seconds, that tells us which emotional triggers are landing and which are not.</li>
+</ul>
+<p>A VWO study across 5,000+ experiments found that heatmap-informed landing page redesigns improve conversion rates by 20-30% on average. Hyros can tell you the landing page converted. PostHog shows you why (or why not).</p>
 
-  <!-- 5 Things -->
-  <h2>The 5 Things PostHog Uniquely Reveals</h2>
-  <p>These are insights that do not exist anywhere in the current COD stack. Not in Hyros, not in GHL, not in Meta Ads Manager.</p>
+<h3>The Behavior of Non-Buyers (The 75-84% Invisible to Hyros)</h3>
+<p>Hyros only tracks people who trigger a payment event. That means it is completely blind to:</p>
+<ul>
+<li>The visitors who land on the registration page but don't register</li>
+<li>The people who register but don't buy the $27 ticket</li>
+<li>The 75-84% of ticket buyers who never book a call</li>
+<li>Workshop attendees who watch the whole thing and then disappear</li>
+</ul>
+<p>These are the biggest leak zones in the funnel, and they are invisible to every tool except PostHog. Session recordings of non-bookers will show us whether they got confused by the booking flow, got distracted, or simply weren't compelled by the offer.</p>
 
-  <h3>1. What People Actually Do on the Landing Page</h3>
-  <p>PostHog records heatmaps and session recordings on every page automatically. This means we can see:</p>
-  <ul>
-    <li><strong>Scroll depth by buyer vs non-buyer.</strong> Do people who purchase the $27 ticket scroll past the testimonials? Do they read the FAQ? Or do they stop at the value stack and buy immediately? If 80% of buyers never scroll past Section 6, everything below it is wasted real estate.</li>
-    <li><strong>What people click on that is not a button.</strong> Dead clicks reveal what visitors expect to be interactive. If 200 people per week click on "Russ has helped 6,000+ clients" expecting more detail, that is a signal to make it a link or expand the proof.</li>
-    <li><strong>Rage clicks and u-turns.</strong> When someone clicks the same spot 5 times and then leaves, PostHog flags it. This catches broken elements, confusing layouts, and friction points invisible to analytics.</li>
-    <li><strong>Section-by-section attention.</strong> PostHog shows exactly how long visitors pause on each section. If the "Is This You?" pain-point section holds attention for 12 seconds but the "Before/After" table gets skipped in 2 seconds, that tells us which emotional triggers are landing and which are not.</li>
-  </ul>
-  <p>A VWO study across 5,000+ experiments found that heatmap-informed landing page redesigns improve conversion rates by 20-30% on average. Hyros can tell you the landing page converted. PostHog shows you why (or why not).</p>
+<h3>The Behavioral Profile of Buyers vs Non-Buyers</h3>
+<p>Once PostHog identifies users by email and we join that with Hyros attribution data in BigQuery, we can build behavioral fingerprints. Not demographics. Behavior.</p>
+<ul>
+<li><strong>Pre-purchase browsing patterns.</strong> Did they visit 3 times before buying? Did they spend 4 minutes reading testimonials? Did they watch the hero video? Hyros sees one event (the purchase). PostHog sees every session leading up to it.</li>
+<li><strong>Speed-to-action.</strong> Buyers who purchase within 60 seconds of landing behave differently from those who come back the next day. Speed is a strong signal of buyer temperature.</li>
+<li><strong>Content consumption patterns.</strong> Which landing page sections hold their attention? Which do they skip? Do attorney buyers behave differently from therapist buyers on the same page?</li>
+<li><strong>Hesitation signals.</strong> If a group of buyers all pause on the pricing section for 30+ seconds, that is price sensitivity. If they all skip the "Not For You" section, they already self-selected.</li>
+</ul>
+<p><strong>The practical profile looks like this:</strong></p>
+<blockquote>"Your highest-value buyers (those who enroll at $8K+) share these traits: they arrive from profession-specific ad sets (not broad), they read the full landing page (scroll depth 85%+), they purchase within the first visit, they watch 90+ minutes of the workshop, and they book a call within 4 hours of finishing. They are most likely to arrive on Tuesday or Wednesday between 10am and 2pm."</blockquote>
+<p>That profile is built from actual behavioral data across hundreds of buyers. Hyros confirms the revenue. PostHog provides the behavior that explains it.</p>
 
-  <h3>2. Workshop Engagement Depth (The Blind Spot)</h3>
-  <p>This is arguably the biggest gap in COD's current data. Hyros knows a sale happened. GHL knows a call was booked. But nobody knows what happens during the 157-minute workshop.</p>
-  <p>With PostHog on the workshop page, we will see:</p>
-  <ul>
-    <li><strong>Exact watch duration per person.</strong> Not just "attended" or "didn't attend" but "watched 45 minutes, left, came back 2 hours later, watched another 30."</li>
-    <li><strong>The drop-off curve.</strong> If 60% of non-bookers leave at the 45-minute mark (right before the offer reveal), that tells us the workshop needs a re-engagement hook at minute 40.</li>
-    <li><strong>Correlation between watch time and booking.</strong> Do people who watch 90+ minutes book at 3x the rate of those who watch 30? That data directly informs whether the workshop length is helping or hurting.</li>
-  </ul>
-  <p>Wistia's research across 100M+ video sessions shows that engagement drops 20% at the 2-minute mark and another 30% at the halfway point. Knowing COD's exact drop-off curve lets us place hooks precisely where attention fades.</p>
+<h2>How We Apply This Data Practically</h2>
+<p>Behavioral profiles drive concrete decisions that Hyros data alone cannot inform.</p>
+<p><strong>Ads optimization.</strong> When we combine PostHog behavioral data (which page sections buyers read) with Hyros attribution (which ad set they came from), we can build audience profiles that go deeper than "therapist vs attorney." We can see that therapists who spend 30+ seconds on the credibility section close at 2x the rate of those who skip it. That informs ad creative: lead with Russ's credentials for therapist audiences. Meta's own research (2024) shows that advertisers who feed first-party behavioral signals back into targeting see 20-35% CPA improvement.</p>
+<p><strong>Landing page optimization.</strong> Session recordings show that attorneys spend 2x longer on the credibility section but skip "Is This You?" entirely (they already know their problem). That means attorney-specific pages should lead with Russ's credentials and cut the agitation copy. Unbounce's 2023 Conversion Benchmark Report found that pages matched to visitor intent convert 2-4x better than generic pages. Hyros tells us attorneys convert well. PostHog shows us why, and how to make them convert better.</p>
+<p><strong>Workshop content optimization.</strong> If watch-duration data (from AEvent, centralized in BigQuery) shows 60% of non-bookers drop off at the 45-minute mark, we know exactly where to place a re-engagement hook. Cross-referencing that with PostHog's on-page behavior before the workshop tells us whether the dropout is about content fatigue or whether those people were never engaged to begin with.</p>
+<p><strong>Sales routing.</strong> When we can see the full on-page journey of every person who books a call, we can score them before the call happens. Someone who read every section, bought VIP, watched 120 minutes, and booked same-day is a hot lead. Route them to Dorian (25% close rate). Someone who skimmed the page, bought standard, watched 20 minutes, and booked 5 days later needs a different approach. HubSpot's 2024 Sales Enablement Report found that behavioral lead scoring increases close rates by 30%.</p>
+<p><strong>Retargeting precision.</strong> People who watched 90+ minutes of the workshop but did not book a call are the warmest retargeting audience possible. They trust Russ, they understand the offer. They just need a nudge. This audience segment cannot be built from Hyros data because Hyros does not track workshop behavior. AdRoll's data shows precisely-defined retargeting converts 70% higher than broad retargeting.</p>
+<p><strong>Email/SMS sequences.</strong> When we know that the average time between ticket purchase and workshop attendance is 36 hours, but same-day attendees book at 2x the rate, every reminder sequence can be calibrated to compress that gap. Data-driven timing instead of guesswork.</p>
 
-  <h3>3. The Behavior of Non-Buyers (The 75-84% Invisible to Hyros)</h3>
-  <p>Hyros only tracks people who trigger a payment event. That means it is completely blind to:</p>
-  <ul>
-    <li>The visitors who land on the registration page but don't register</li>
-    <li>The people who register but don't buy the $27 ticket</li>
-    <li>The 75-84% of ticket buyers who never book a call</li>
-    <li>Workshop attendees who watch the whole thing and then disappear</li>
-  </ul>
-  <p>These are the biggest leak zones in the funnel, and they are invisible to every tool except PostHog. Session recordings of non-bookers will show us whether they got confused by the booking flow, got distracted, or simply weren't compelled by the offer. That is actionable intelligence.</p>
+<h2>How It All Connects</h2>
+<p>All behavioral data flows into one BigQuery warehouse, joined on email:</p>
 
-  <h3>4. The Exact Psychological Profile of Buyers vs Non-Buyers</h3>
-  <p>Once PostHog identifies users by email and we join that with Hyros attribution data in BigQuery, we can build behavioral fingerprints. Not demographics. Behavior.</p>
-  <p><strong>What the buyer profile reveals:</strong></p>
-  <ul>
-    <li><strong>Pre-purchase browsing patterns.</strong> Did they visit 3 times before buying? Did they spend 4 minutes reading testimonials? Did they watch the hero video? Hyros sees one event (the purchase). PostHog sees every session leading up to it.</li>
-    <li><strong>Speed-to-action.</strong> Buyers who purchase within 60 seconds of landing behave differently from those who come back the next day. Speed is a strong signal of buyer temperature.</li>
-    <li><strong>Content consumption patterns.</strong> Which landing page sections hold their attention? Which do they skip? Do attorney buyers behave differently from therapist buyers on the same page?</li>
-    <li><strong>Hesitation signals.</strong> If a group of buyers all pause on the pricing section for 30+ seconds, that is price sensitivity. If they all skip the "Not For You" section, they already self-selected.</li>
-  </ul>
-
-  <p><strong>The practical profile looks like this:</strong></p>
-  <blockquote>
-    <p>"Your highest-value buyers (those who enroll at $8K+) share these traits: they arrive from profession-specific ad sets (not broad), they read the full landing page (scroll depth 85%+), they purchase within the first visit, they watch 90+ minutes of the workshop, and they book a call within 4 hours of finishing. They are most likely to arrive on Tuesday or Wednesday between 10am and 2pm."</p>
-  </blockquote>
-  <p>That profile is not a guess. It is built from actual behavioral data across hundreds of buyers. Hyros can confirm the revenue. PostHog provides the behavior that explains it.</p>
-
-  <h3>5. A/B Testing Infrastructure</h3>
-  <p>COD is already running an A/B test on the therapist-counselor registration page through PostHog. This is the experimentation layer. Hyros does not do experiments. PostHog lets us:</p>
-  <ul>
-    <li>Test landing page variants (headline A vs headline B)</li>
-    <li>Test pricing ($27 vs $47 ticket)</li>
-    <li>Test page layouts (VIP on-page vs post-purchase only)</li>
-    <li>Test workshop page elements (countdown timer vs none)</li>
-    <li>Measure not just "which got more clicks" but "which produced more enrollments" when joined with downstream Hyros data</li>
-  </ul>
-
-  <hr>
-
-  <!-- Practical Application -->
-  <h2>How We Apply This Data Practically</h2>
-  <p>Behavioral profiles are not just interesting. They drive concrete decisions that Hyros data alone cannot inform.</p>
-
-  <p><strong>Ads optimization.</strong> When we combine PostHog behavioral data (which page sections buyers read) with Hyros attribution (which ad set they came from), we can build audience profiles that go deeper than "therapist vs attorney." We can see that therapists who spend 30+ seconds on the credibility section close at 2x the rate of those who skip it. That informs ad creative: lead with Russ's credentials for therapist audiences. Meta's own research (2024) shows that advertisers who feed first-party behavioral signals back into targeting see 20-35% CPA improvement.</p>
-
-  <p><strong>Landing page optimization.</strong> Session recordings show that attorneys spend 2x longer on the credibility section but skip "Is This You?" entirely (they already know their problem). That means attorney-specific pages should lead with Russ's credentials and cut the agitation copy. Unbounce's 2023 Conversion Benchmark Report found that pages matched to visitor intent convert 2-4x better than generic pages. Hyros tells us attorneys convert well. PostHog shows us why, and how to make them convert better.</p>
-
-  <p><strong>Workshop content optimization.</strong> If watch-duration data shows 60% of non-bookers drop off at the 45-minute mark, we know exactly where to place a re-engagement hook. This is impossible without minute-level engagement data. Hyros has no visibility into workshop behavior at all.</p>
-
-  <p><strong>Sales routing.</strong> When we can see the full on-page journey of every person who books a call, we can score them before the call. Someone who read every section, bought VIP, watched 120 minutes, and booked same-day is a hot lead. Route them to Dorian (25% close rate). Someone who skimmed the page, bought standard, watched 20 minutes, and booked 5 days later needs a different approach. HubSpot's 2024 Sales Enablement Report found that behavioral lead scoring increases close rates by 30%.</p>
-
-  <p><strong>Retargeting precision.</strong> People who watched 90+ minutes of the workshop but did not book a call are the warmest retargeting audience possible. They trust Russ, they understand the offer. They just need a nudge. This audience segment cannot be built from Hyros data because Hyros does not track workshop watch time. PostHog can feed this segment directly to Meta. AdRoll's data shows precisely-defined retargeting converts 70% higher than broad retargeting.</p>
-
-  <p><strong>Email/SMS sequences.</strong> When PostHog shows that the average time between ticket purchase and workshop attendance is 36 hours, but same-day attendees book at 2x the rate, every reminder sequence can be calibrated to compress that gap. Data-driven timing instead of guesswork.</p>
-
-  <hr>
-
-  <!-- Compound Effect -->
-  <h2>The Compound Effect (PostHog + Hyros Together)</h2>
-  <p>Neither tool works at full power alone. Together they create a closed loop:</p>
-
-  <pre>
-<span class="label">PostHog (behavior)</span>                    <span class="label">Hyros (attribution)</span>
+<pre><span class="src-blue">PostHog (landing page behavior)</span>       <span class="src-blue">Hyros (attribution + revenue)</span>
    |                                      |
    v                                      v
 "This person read sections 1-6,      "This person came from
- scrolled 85%, bought in 60 sec,       Licensed Therapists CBO,
- watched 120 min of workshop,          paid $27 via Stripe,
- booked same-day"                       enrolled at $8,452"
-   |                                      |
-   +<span class="join">------ JOIN ON EMAIL IN BQ -----------</span>+
-   |
-   v
-<span class="result">"Licensed Therapist CBO buyers who scroll 85%+
- and watch 120+ min enroll at 3.5x the rate
- of broad-targeting buyers who scroll 40%.
- REALLOCATE BUDGET + REBUILD PAGE ACCORDINGLY."</span></pre>
+ scrolled 85%, bought in 60 sec"       Licensed Therapists CBO,
+                                        enrolled at $8,452"
+         |                                      |
+         +------ <span class="src-gold">JOINED IN BIGQUERY</span> ------------+
+         |                                      |
+  <span class="src-blue">AEvent (workshop engagement)</span>         <span class="src-blue">GHL + Stripe (CRM + payments)</span>
+         |                                      |
+         v                                      v
+  "Watched 120 min, came back          "Booked same-day, Dorian
+   twice, replayed offer section"        closed at $8K PIF"</pre>
 
-  <p>That insight is impossible with either tool alone. Hyros provides the revenue truth. PostHog provides the behavioral truth. BigQuery joins them on email.</p>
+<p><strong>The insight this produces:</strong></p>
+<blockquote><span class="src-green">"Licensed Therapist CBO buyers who scroll 85%+ on the landing page, watch 120+ min of the workshop, and book same-day enroll at 3.5x the rate of broad-targeting buyers who scroll 40%. Reallocate budget and rebuild pages accordingly."</span></blockquote>
+<p>That insight is impossible with any single tool. It requires behavioral data (PostHog), workshop data (AEvent), attribution (Hyros), and CRM data (GHL/Stripe) joined together.</p>
 
-  <p>When you stack the optimizations this enables:</p>
-  <ul>
-    <li>Ads targeted to behavioral buyer profiles (20-35% CPA reduction)</li>
-    <li>Landing pages matched to how each audience actually reads (2-4x conversion lift on segments)</li>
-    <li>Workshop hooks at exact drop-off points (recover 10-20% of abandoners)</li>
-    <li>Sales routing based on behavioral score (30% close rate lift)</li>
-    <li>Retargeting the warmest possible audiences (70% higher conversion)</li>
-  </ul>
+<h2>The Compound Effect</h2>
+<p>When you stack the optimizations this data enables:</p>
+<ul>
+<li>Ads targeted to behavioral buyer profiles (20-35% CPA reduction)</li>
+<li>Landing pages matched to how each audience actually reads (2-4x conversion lift on segments)</li>
+<li>Workshop hooks placed at exact drop-off points (recover 10-20% of abandoners)</li>
+<li>Sales routing based on behavioral score (30% close rate lift)</li>
+<li>Retargeting the warmest possible audiences (70% higher conversion)</li>
+</ul>
+<p>On COD's current numbers, going from 1.7x ROAS to 3x+ ROAS on the same ad spend is realistic within 90 days. Hyros is already in place. PostHog completes the picture.</p>
 
-  <p>On COD's current numbers, going from 1.7x ROAS to 3x+ ROAS on the same ad spend is realistic within 90 days. Hyros is already in place. PostHog completes the picture.</p>
+<h2>Installation</h2>
+<p>2 code snippets pasted into GHL funnel page footers. Takes about 5 minutes. Nothing changes for customers or prospects. The tracking is completely invisible.</p>
+<p>A separate developer guide with the exact snippets has been prepared for Rehan.</p>
 
-  <hr>
+<div class="sources">
+<h2>Sources</h2>
+<ul>
+<li>Meta Business Help Center (2024): First-party behavioral signals improve CPA by 20-35%</li>
+<li>Unbounce Conversion Benchmark Report (2023): Intent-matched pages convert 2-4x over generic (44,000 pages studied)</li>
+<li>HubSpot Sales Enablement Report (2024): Behavioral lead scoring increases close rates 30%</li>
+<li>AdRoll Retargeting Performance Data: Precisely-defined retargeting converts 70% higher</li>
+<li>VWO Experience Optimization Platform: Heatmap-informed redesigns average 20-30% conversion improvement (5,000+ experiments)</li>
+</ul>
+</div>
 
-  <!-- Installation -->
-  <h2>Installation</h2>
-  <p>6 code snippets pasted into GHL funnel page footers. Takes approximately 15 minutes. Nothing changes for customers or prospects. The tracking is completely invisible.</p>
-  <p>A separate developer installation guide with the exact snippets and step-by-step GHL instructions has been prepared for Rehan.</p>
-
-  <!-- Sources -->
-  <div class="sources">
-    <h2>Sources</h2>
-    <ul>
-      <li>Meta Business Help Center (2024): Conversion-optimized campaigns with first-party data signals show 20-35% CPA improvement</li>
-      <li>Unbounce Conversion Benchmark Report (2023): Intent-matched pages convert 2-4x over generic across 44,000 landing pages</li>
-      <li>Wistia Video Engagement Research: Engagement curves across 100M+ sessions, drop-off patterns by content type</li>
-      <li>HubSpot Sales Enablement Report (2024): Behavioral lead scoring increases close rates 30%, reduces cycle 18%</li>
-      <li>AdRoll Retargeting Performance Data: Retargeted visitors convert 70% higher with precise audience definition</li>
-      <li>VWO Experience Optimization Platform: Heatmap-informed redesigns average 20-30% conversion improvement across 5,000+ experiments</li>
-    </ul>
-  </div>
-
-  <footer class="page-footer">
-    Prepared by KAMG for Clients On Demand | April 2026
-  </footer>
+<footer>Prepared by KAMG for Clients On Demand | April 2026</footer>
 
 </div>
 </body>

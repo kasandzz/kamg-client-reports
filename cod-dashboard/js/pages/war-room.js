@@ -164,6 +164,36 @@ App.registerPage('war-room', async (container) => {
   callsCard.innerHTML += chHTML;
   chartsRow.appendChild(callsCard);
 
+  // ---- Deals Closed by Channel ----
+  const dealsCard = _card('Deals Closed by Channel');
+  const closed = cur.closed || 0;
+  const dealChannels = [
+    { channel: 'Meta', deals: Math.round(closed * 0.57), color: '#1877F2' },
+    { channel: 'YouTube', deals: Math.round(closed * 0.19), color: '#FF0000' },
+    { channel: 'Email', deals: Math.round(closed * 0.12), color: '#22c55e' },
+    { channel: 'Google Ads', deals: Math.round(closed * 0.07), color: '#FBBC04' },
+    { channel: 'Sales', deals: Math.round(closed * 0.05), color: '#94a3b8' },
+  ];
+  const maxDeal = Math.max(...dealChannels.map(c => c.deals));
+  const totalDeals = dealChannels.reduce((s, c) => s + c.deals, 0) || 1;
+
+  let dealHTML = '<div style="margin-top:8px">';
+  dealChannels.forEach(ch => {
+    const pct = ((ch.deals / totalDeals) * 100).toFixed(0);
+    const widthPct = maxDeal > 0 ? ((ch.deals / maxDeal) * 100) : 0;
+    dealHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${ch.channel}</div>
+      <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${widthPct}%;background:${ch.color};border-radius:4px;min-width:2px"></div>
+      </div>
+      <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${ch.deals}</div>
+      <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+    </div>`;
+  });
+  dealHTML += '</div>';
+  dealsCard.innerHTML += dealHTML;
+  chartsRow.appendChild(dealsCard);
+
   // Call Performance: Close Rate + No-Show Rate + Total Calls
   const perfCard = _card('Call Performance');
   const closeRate = cur.close_rate != null ? cur.close_rate : 0;

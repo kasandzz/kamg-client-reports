@@ -196,7 +196,7 @@ App.registerPage('journey-map', async (container) => {
       card.style.transform     = 'translateY(0)';
     });
     card.addEventListener('click', () => {
-      App.navigate('journey-stage', { stage: stage.num });
+      _showStageDetail(stage.num, days);
     });
 
     stageRow.appendChild(card);
@@ -303,6 +303,12 @@ App.registerPage('journey-map', async (container) => {
     `
   ));
 
+  // ---- Stage Detail Section (inline deep-dive) ----
+  const stageDetailSection = document.createElement('div');
+  stageDetailSection.id = 'stage-detail-section';
+  stageDetailSection.style.cssText = 'margin-top:16px';
+  container.appendChild(stageDetailSection);
+
   // ---- Data gap callout ----
   const gapCard = document.createElement('div');
   gapCard.className = 'card';
@@ -322,3 +328,96 @@ App.registerPage('journey-map', async (container) => {
   `;
   container.appendChild(gapCard);
 });
+
+// ---- Stage Detail inline renderer ----
+const _STAGE_DEFS = {
+  1:  { title: 'Ad Exposure',     color: '#4F9CF9', icon: '&#128226;' },
+  2:  { title: 'Landing Page',    color: '#6E56CF', icon: '&#128187;' },
+  3:  { title: 'Ticket Purchase', color: '#3b82f6', icon: '&#127903;' },
+  4:  { title: 'Workshop',        color: '#06b6d4', icon: '&#127916;' },
+  5:  { title: 'VIP Upsell',      color: '#14b8a6', icon: '&#11088;' },
+  6:  { title: 'Call Booking',    color: '#22c55e', icon: '&#128222;' },
+  7:  { title: 'Sales Call',      color: '#84cc16', icon: '&#129309;' },
+  8:  { title: 'Enrollment',      color: '#eab308', icon: '&#127891;' },
+  9:  { title: 'Onboarding',      color: '#f97316', icon: '&#128203;' },
+  10: { title: 'Delivery',        color: '#ef4444', icon: '&#128230;' },
+  11: { title: 'Retention',       color: '#ec4899', icon: '&#128260;' },
+  12: { title: 'Advocacy',        color: '#a855f7', icon: '&#128227;' },
+};
+
+async function _showStageDetail(stageNum, days) {
+  const section = document.getElementById('stage-detail-section');
+  if (!section) return;
+
+  const cfg = _STAGE_DEFS[stageNum];
+  section.innerHTML = '';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'card';
+  header.style.cssText = `padding:16px 20px;border-top:3px solid ${cfg.color};`;
+  header.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:24px">${cfg.icon}</span>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:${cfg.color};text-transform:uppercase;letter-spacing:.08em">Stage ${stageNum} of 12</div>
+        <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary}">${cfg.title}</div>
+      </div>
+      <button onclick="document.getElementById('stage-detail-section').innerHTML=''" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:${Theme.COLORS.textSecondary};padding:4px 10px;font-size:12px;cursor:pointer">&times; Close</button>
+    </div>
+  `;
+  section.appendChild(header);
+
+  // Stages 9-12: no data
+  if (stageNum >= 9) {
+    const noData = document.createElement('div');
+    noData.className = 'card';
+    noData.style.cssText = 'padding:20px;margin-top:8px;border-left:3px solid ' + cfg.color;
+    noData.innerHTML = `
+      <p style="margin:0 0 8px;font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Data collection not yet active</p>
+      <p style="margin:0;font-size:13px;color:${Theme.COLORS.textMuted};line-height:1.6">This stage is tracked conceptually but data collection is not yet active. PostHog identification and GHL tagging are the primary data sources needed.</p>
+      <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:4px 10px;border-radius:999px;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.3)">
+        <span style="color:#eab308;font-size:12px">&#9888;</span>
+        <span style="font-size:11px;font-weight:600;color:#eab308;text-transform:uppercase;letter-spacing:.06em">Tracking Gap</span>
+      </div>
+    `;
+    section.appendChild(noData);
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  // Loading state
+  const loading = document.createElement('div');
+  loading.className = 'card';
+  loading.style.cssText = 'padding:24px;margin-top:8px;text-align:center';
+  loading.innerHTML = '<div class="spinner" style="margin:0 auto"></div>';
+  section.appendChild(loading);
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Fetch data
+  let rows;
+  try {
+    rows = await API.query('journey-stage', 'default', { days, stage: stageNum });
+  } catch (err) {
+    loading.innerHTML = `<p class="text-muted">Failed to load stage ${stageNum}: ${err.message}</p>`;
+    return;
+  }
+
+  loading.remove();
+
+  if (!rows || rows.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:24px;margin-top:8px';
+    empty.innerHTML = '<div class="empty-state"><span class="empty-state-icon">&#9888;</span><p>No data for the selected period</p></div>';
+    section.appendChild(empty);
+    return;
+  }
+
+  // Render the stage data as a table (universal approach)
+  const tableCard = document.createElement('div');
+  tableCard.className = 'card';
+  tableCard.style.cssText = 'padding:16px 20px;margin-top:8px;overflow-x:auto';
+  tableCard.innerHTML = Components.renderTable(rows, { limit: 50 });
+  section.appendChild(tableCard);
+}

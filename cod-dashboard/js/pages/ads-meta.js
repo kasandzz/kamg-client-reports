@@ -340,3 +340,206 @@ function _renderCampaignTable(card, campaigns) {
 
   card.appendChild(wrapper);
 }
+
+// ---------------------------------------------------------------------------
+// Unit Economics Panel
+// ---------------------------------------------------------------------------
+
+const UE_LS_KEY = 'cod_unit_econ';
+
+function _ueLoadPrefs() {
+  try {
+    return JSON.parse(localStorage.getItem(UE_LS_KEY) || '{}');
+  } catch (_) { return {}; }
+}
+
+function _ueSavePrefs(prefs) {
+  try { localStorage.setItem(UE_LS_KEY, JSON.stringify(prefs)); } catch (_) {}
+}
+
+function _ueMoney(n) {
+  if (isNaN(n) || n === null) return '--';
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function _ueNum(n, decimals) {
+  if (isNaN(n) || n === null) return '--';
+  return Number(n).toFixed(decimals !== undefined ? decimals : 2);
+}
+
+function _renderUnitEcon(container, rawData, fallbackSpend) {
+  const ue = (rawData && rawData.length > 0) ? rawData[0] : {};
+  const prefs = _ueLoadPrefs();
+
+  // Live data from BQ (or 0 if unavailable)
+  const orderCount = +(ue.order_count || 0);
+  const aov        = +(ue.aov        || 103);   // COD benchmark fallback
+  const revenue    = +(ue.revenue    || 0);
+  const adSpend    = +(ue.total_spend || fallbackSpend || 0);
+  const liveCpa    = +(ue.cpa        || 0);
+
+  // User-adjustable defaults (localStorage or hardcoded benchmarks)
+  const cogsPctDefault   = prefs.cogsPct    !== undefined ? prefs.cogsPct    : 35;
+  const fixedCostDefault = prefs.fixedCost  !== undefined ? prefs.fixedCost  : 13503;
+  const ltvDefault       = prefs.ltv        !== undefined ? prefs.ltv        : 140;
+
+  // ---- Section header ----
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-top:32px;margin-bottom:12px';
+  header.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary};letter-spacing:-.01em">Unit Economics</div>
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Live breakeven model powered by BQ data &mdash; ${orderCount > 0 ? orderCount.toLocaleString() + ' orders in window' : 'BQ data unavailable, using fallbacks'}</div>
+  `;
+  container.appendChild(header);
+
+  // ---- Two-column grid ----
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px';
+  container.appendChild(grid);
+
+  // ---- Input style helper ----
+  const inputStyle = `
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:6px;
+    color:${Theme.COLORS.textPrimary};
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    padding:4px 8px;
+    width:90px;
+    outline:none;
+    transition:border-color .15s;
+  `.replace(/\n\s*/g, '');
+
+  // ---- Row helper ----
+  function ueRow(label, valueHtml, muted) {
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span style="font-size:12px;color:${muted ? Theme.COLORS.textMuted : Theme.COLORS.textSecondary}">${label}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:${Theme.COLORS.textPrimary}">${valueHtml}</span>
+      </div>`;
+  }
+
+  function ueInputRow(label, inputId) {
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <span style="font-size:12px;color:${Theme.COLORS.textSecondary}">${label}</span>
+        <input id="${inputId}" style="${inputStyle}" />
+      </div>`;
+  }
+
+  // ---- Left card: Breakeven Model ----
+  const leftCard = document.createElement('div');
+  leftCard.className = 'card';
+  leftCard.style.cssText = 'padding:20px';
+  leftCard.innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">Breakeven Model</div>
+    <div id="ue-breakeven-rows"></div>
+  `;
+  grid.appendChild(leftCard);
+
+  // ---- Right card: 12-Month Gravy Value ----
+  const rightCard = document.createElement('div');
+  rightCard.className = 'card';
+  rightCard.style.cssText = 'padding:20px';
+  rightCard.innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px">12-Month Gravy Value</div>
+    <div id="ue-gravy-rows"></div>
+  `;
+  grid.appendChild(rightCard);
+
+  // ---- Render breakeven rows (with inputs) ----
+  const breakevenContainer = leftCard.querySelector('#ue-breakeven-rows');
+  breakevenContainer.innerHTML = `
+    ${ueRow('Orders (BQ)', orderCount > 0 ? orderCount.toLocaleString() : '--', true)}
+    ${ueRow('AOV (BQ)',    _ueMoney(aov), true)}
+    ${ueRow('Revenue (BQ)', _ueMoney(revenue), true)}
+    ${ueRow('Ad Spend (BQ)', _ueMoney(adSpend), true)}
+    ${ueRow('CPA (BQ)',     _ueMoney(liveCpa), true)}
+    ${ueInputRow('COGS %',      'ue-cogs-pct')}
+    ${ueInputRow('Fixed Costs', 'ue-fixed-cost')}
+    <div id="ue-computed-rows"></div>
+  `;
+
+  // ---- Render gravy rows (with LTV input) ----
+  const gravyContainer = rightCard.querySelector('#ue-gravy-rows');
+  gravyContainer.innerHTML = `
+    ${ueInputRow('LTV ($)', 'ue-ltv')}
+    <div id="ue-gravy-computed-rows"></div>
+  `;
+
+  // ---- Wire up inputs ----
+  const cogsPctInput  = leftCard.querySelector('#ue-cogs-pct');
+  const fixedCostInput = leftCard.querySelector('#ue-fixed-cost');
+  const ltvInput       = rightCard.querySelector('#ue-ltv');
+
+  cogsPctInput.value   = cogsPctDefault;
+  fixedCostInput.value = fixedCostDefault;
+  ltvInput.value       = ltvDefault;
+
+  // Focus highlight
+  [cogsPctInput, fixedCostInput, ltvInput].forEach(inp => {
+    inp.addEventListener('focus',  () => inp.style.borderColor = Theme.COLORS.accent || '#6c8fff');
+    inp.addEventListener('blur',   () => inp.style.borderColor = 'rgba(255,255,255,0.12)');
+  });
+
+  function recompute() {
+    const cogsPct   = parseFloat(cogsPctInput.value)   || 0;
+    const fixedCost = parseFloat(fixedCostInput.value) || 0;
+    const ltv       = parseFloat(ltvInput.value)       || 140;
+
+    // Save prefs
+    _ueSavePrefs({ cogsPct, fixedCost, ltv });
+
+    // Breakeven calculations
+    const cogsAmt      = revenue * (cogsPct / 100);
+    const grossMargin  = revenue - cogsAmt;
+    const profit       = grossMargin - fixedCost - adSpend;
+    const breakevenRoi = adSpend > 0 ? revenue / adSpend : 0;
+    const breakevenCpa = orderCount > 0 ? adSpend / orderCount : liveCpa;
+    const adSpendPct   = revenue > 0 ? (adSpend / revenue) * 100 : 0;
+
+    const profitColor  = profit >= 0 ? Theme.COLORS.success : Theme.COLORS.danger;
+
+    leftCard.querySelector('#ue-computed-rows').innerHTML = `
+      <div style="height:8px"></div>
+      ${ueRow('COGS $',            _ueMoney(cogsAmt))}
+      ${ueRow('Gross Margin',      _ueMoney(grossMargin))}
+      ${ueRow('Profit', `<span style="color:${profitColor}">${_ueMoney(profit)}</span>`)}
+      ${ueRow('Breakeven ROI',     _ueNum(breakevenRoi) + 'x')}
+      ${ueRow('Breakeven CPA',     _ueMoney(breakevenCpa))}
+      ${ueRow('Ad Spend %',        _ueNum(adSpendPct, 1) + '%')}
+    `;
+
+    // Gravy calculations
+    const cpa         = breakevenCpa || liveCpa || 0;
+    const ltvMultiple = aov > 0   ? ltv / aov   : 0;
+    const ltvCac      = cpa > 0   ? ltv / cpa   : 0;
+    const ltRevenue   = orderCount * ltv;
+    const ltProfit    = ltRevenue - (orderCount * cpa) - fixedCost - (ltRevenue * (cogsPct / 100));
+    const ltProfitColor = ltProfit >= 0 ? Theme.COLORS.success : Theme.COLORS.danger;
+
+    rightCard.querySelector('#ue-gravy-computed-rows').innerHTML = `
+      <div style="height:8px"></div>
+      ${ueRow('AOV',              _ueMoney(aov), true)}
+      ${ueRow('LTV Multiple',    _ueNum(ltvMultiple) + 'x')}
+      ${ueRow('LTV:CAC',         _ueNum(ltvCac) + 'x')}
+      ${ueRow('LT Revenue',      _ueMoney(ltRevenue))}
+      ${ueRow('LT Profit', `<span style="color:${ltProfitColor}">${_ueMoney(ltProfit)}</span>`)}
+    `;
+  }
+
+  // Initial render + wire events
+  recompute();
+  [cogsPctInput, fixedCostInput, ltvInput].forEach(inp => {
+    inp.addEventListener('input', recompute);
+  });
+
+  // ---- Responsive: stack on mobile ----
+  const mq = window.matchMedia('(max-width: 768px)');
+  function onResize(e) {
+    grid.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
+  }
+  onResize(mq);
+  mq.addEventListener('change', onResize);
+}

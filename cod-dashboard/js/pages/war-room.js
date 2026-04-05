@@ -1,7 +1,6 @@
 /* ============================================
    War Room -- CEO 5-second pulse page
-   KPI strip, revenue waterfall, funnel gauge,
-   team zone, biggest lever callout
+   KPI strip with period comparison, charts
    ============================================ */
 
 App.registerPage('war-room', async (container) => {
@@ -20,39 +19,70 @@ App.registerPage('war-room', async (container) => {
     return;
   }
 
-  const d = Array.isArray(data) ? data[0] : data;
+  // Current = first row (ORDER BY period DESC -> 'current' first), Previous = second
+  const cur = data[0] || {};
+  const prev = data[1] || {};
   container.innerHTML = '';
+
+  // ---- Helper: compute delta % ----
+  function _delta(curVal, prevVal) {
+    if (!prevVal || prevVal === 0) return null;
+    return ((curVal - prevVal) / Math.abs(prevVal)) * 100;
+  }
 
   // ---- KPI Strip ----
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
-  const funnelHealth = _computeFunnelHealth(d);
-
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Revenue (Collected)', value: d.gross_revenue || 0, format: 'money' },
-    { label: 'ROAS', value: d.roas || 0, format: 'num' },
-    { label: 'Enrollments', value: d.enrollments || 0, format: 'num' },
-    { label: 'Cost Per Enrollment', value: d.cost_per_enrollment || 0, format: 'money', invertCost: true },
-    { label: 'Funnel Health Score', value: funnelHealth, format: 'num' },
-    { label: 'Net Revenue', value: d.net_revenue || 0, format: 'money' },
+    {
+      label: 'Revenue (Collected)',
+      value: cur.gross_revenue || 0,
+      format: 'money',
+      delta: _delta(cur.gross_revenue, prev.gross_revenue),
+    },
+    {
+      label: 'ROAS',
+      value: cur.roas || 0,
+      format: 'num',
+      delta: _delta(cur.roas, prev.roas),
+    },
+    {
+      label: 'Enrollments',
+      value: cur.enrollments || 0,
+      format: 'num',
+      delta: _delta(cur.enrollments, prev.enrollments),
+    },
+    {
+      label: 'CPB',
+      value: cur.cpb || 0,
+      format: 'money',
+      invertCost: true,
+      delta: _delta(cur.cpb, prev.cpb),
+    },
+    {
+      label: 'CPA',
+      value: cur.cost_per_enrollment || 0,
+      format: 'money',
+      invertCost: true,
+      delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
+    },
+    {
+      label: 'CPM',
+      value: cur.cpm || 0,
+      format: 'money',
+      invertCost: true,
+      delta: _delta(cur.cpm, prev.cpm),
+    },
   ]);
 
   // ---- Charts Row ----
   const chartsRow = document.createElement('div');
-  chartsRow.className = 'grid-2';
   chartsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
   container.appendChild(chartsRow);
 
-  // Revenue Waterfall
-  const waterfallCard = _card('Revenue Waterfall');
-  const waterfallDiv = document.createElement('div');
-  waterfallDiv.id = 'war-room-waterfall';
-  waterfallDiv.style.height = '320px';
-  waterfallCard.appendChild(waterfallDiv);
-  chartsRow.appendChild(waterfallCard);
-
   // Funnel Health Gauge
+  const funnelHealth = _computeFunnelHealth(cur);
   const gaugeCard = _card('Funnel Health');
   const gaugeDiv = document.createElement('div');
   gaugeDiv.id = 'war-room-gauge';
@@ -60,38 +90,73 @@ App.registerPage('war-room', async (container) => {
   gaugeCard.appendChild(gaugeDiv);
   chartsRow.appendChild(gaugeCard);
 
-  // Render Plotly charts after DOM insert
+  // Close Rate + Calls summary
+  const callsCard = _card('Calls Summary');
+  const closeRate = cur.close_rate != null ? cur.close_rate : 0;
+  const prevCloseRate = prev.close_rate != null ? prev.close_rate : 0;
+  const crDelta = _delta(closeRate, prevCloseRate);
+  const crClass = Theme.deltaClass(crDelta);
+  const crArrow = crDelta > 0 ? '&#9650;' : crDelta < 0 ? '&#9660;' : '';
+  const crDeltaStr = crDelta != null ? (crDelta >= 0 ? '+' : '') + crDelta.toFixed(1) + '%' : '';
+
+  callsCard.innerHTML += `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px">
+      <div>
+        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Total Calls</div>
+        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.num(cur.total_calls || 0)}</div>
+      </div>
+      <div>
+        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Close Rate</div>
+        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.pct(closeRate)}</div>
+        ${crDeltaStr ? `<span class="kpi-delta ${crClass}" style="font-size:12px">${crArrow} ${crDeltaStr}</span>` : ''}
+      </div>
+      <div>
+        <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Shows</div>
+        <div style="font-size:28px;font-weight:700;color:${(cur.no_shows || 0) > 10 ? Theme.COLORS.danger : Theme.COLORS.textPrimary}">${cur.no_shows || 0}</div>
+      </div>
+    </div>
+  `;
+  chartsRow.appendChild(callsCard);
+
+  // Render Plotly gauge after DOM insert
   requestAnimationFrame(() => {
-    _renderWaterfall(waterfallDiv, d);
     _renderGauge(gaugeDiv, funnelHealth);
   });
 
-  // ---- Team Zone ----
-  const teamRow = document.createElement('div');
-  teamRow.style.cssText = 'margin-top:16px';
-  container.appendChild(teamRow);
-
-  const noShows = d.no_shows || 0;
+  // ---- Waste Monitor ----
+  const noShows = cur.no_shows || 0;
   const noShowCost = noShows * 877;
+  const prevNoShows = prev.no_shows || 0;
+  const prevNoShowCost = prevNoShows * 877;
 
   const wasteCard = _card('Waste Monitor');
+  const nsDelta = _delta(noShowCost, prevNoShowCost);
+  const nsClass = Theme.deltaClass(nsDelta, true);
+  const nsArrow = nsDelta > 0 ? '&#9650;' : nsDelta < 0 ? '&#9660;' : '';
+  const nsDeltaStr = nsDelta != null ? (nsDelta >= 0 ? '+' : '') + nsDelta.toFixed(1) + '%' : '';
+
   wasteCard.innerHTML += `
-    <div style="display:flex;align-items:baseline;gap:16px;margin-top:8px">
+    <div style="display:flex;align-items:baseline;gap:24px;margin-top:8px">
       <div>
         <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Show Cost</div>
         <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.danger}">${Theme.money(noShowCost)}</div>
+        ${nsDeltaStr ? `<span class="kpi-delta ${nsClass}" style="font-size:12px">${nsArrow} ${nsDeltaStr}</span>` : ''}
       </div>
       <div>
         <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Shows</div>
         <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${noShows}</div>
       </div>
+      <div>
+        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Ad Spend</div>
+        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.money(cur.total_spend || 0)}</div>
+      </div>
     </div>
     <div class="text-muted" style="font-size:11px;margin-top:8px">Estimated at $877 per missed call opportunity</div>
   `;
-  teamRow.appendChild(wasteCard);
+  container.appendChild(wasteCard);
 
   // ---- Biggest Lever Callout ----
-  const leverText = _computeBiggestLever(d);
+  const leverText = _computeBiggestLever(cur);
   const leverCard = document.createElement('div');
   leverCard.className = 'card';
   leverCard.style.cssText = 'margin-top:16px;padding:20px 24px;border:2px solid transparent;border-image:linear-gradient(135deg, ' + Theme.COLORS.accent + ', ' + Theme.COLORS.accentLight + ') 1;position:relative;overflow:hidden';
@@ -101,7 +166,7 @@ App.registerPage('war-room', async (container) => {
   `;
   container.appendChild(leverCard);
 
-  // ---- Responsive: stack charts on mobile ----
+  // ---- Responsive ----
   const mq = window.matchMedia('(max-width: 768px)');
   function handleMobile(e) {
     chartsRow.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
@@ -129,7 +194,6 @@ function _computeFunnelHealth(d) {
   const roasComponent = Math.min(((d.roas || 0) / 5) * 25, 25);
   const closeRate = d.close_rate || 0;
   const closeComponent = Math.min((closeRate / 25) * 25, 25);
-  // Remaining 50 points: baseline 25+25 (show/booking rates need separate queries)
   const baseline = 50;
   const total = Math.min(Math.round(roasComponent + closeComponent + baseline), 100);
   return total;
@@ -153,49 +217,6 @@ function _computeBiggestLever(d) {
   return `Close rate at ${closeRate} -- equalizing closers could add significant revenue.`;
 }
 
-function _renderWaterfall(el, d) {
-  if (typeof Plotly === 'undefined') return;
-
-  const ticketRev = d.ticket_revenue || 0;
-  const enrollmentRev = d.enrollment_revenue || 0;
-  const vipRev = (d.gross_revenue || 0) - ticketRev - enrollmentRev;
-  const refunds = d.refunds || 0;
-  const netRev = d.net_revenue || 0;
-
-  const trace = {
-    type: 'waterfall',
-    orientation: 'v',
-    x: ['Tickets', 'VIP', 'Enrollments', 'Refunds', 'Net Revenue'],
-    y: [ticketRev, vipRev > 0 ? vipRev : 0, enrollmentRev, -refunds, netRev],
-    measure: ['relative', 'relative', 'relative', 'relative', 'total'],
-    connector: { line: { color: Theme.COLORS.border, width: 1 } },
-    increasing: { marker: { color: Theme.FUNNEL.green } },
-    decreasing: { marker: { color: Theme.FUNNEL.red } },
-    totals: { marker: { color: Theme.FUNNEL.blue } },
-    textposition: 'outside',
-    text: [
-      Theme.money(ticketRev),
-      Theme.money(vipRev > 0 ? vipRev : 0),
-      Theme.money(enrollmentRev),
-      refunds ? '-' + Theme.money(refunds) : '$0',
-      Theme.money(netRev),
-    ],
-    textfont: { color: Theme.COLORS.textSecondary, size: 11 },
-  };
-
-  const layout = {
-    ...Theme.PLOTLY_LAYOUT,
-    margin: { t: 20, r: 20, b: 40, l: 60 },
-    showlegend: false,
-    yaxis: {
-      ...Theme.PLOTLY_LAYOUT.yaxis,
-      tickformat: '$,.0f',
-    },
-  };
-
-  Plotly.newPlot(el, [trace], layout, Theme.PLOTLY_CONFIG);
-}
-
 function _renderGauge(el, score) {
   if (typeof Plotly === 'undefined') return;
 
@@ -205,7 +226,6 @@ function _renderGauge(el, score) {
     value: score,
     number: {
       font: { size: 48, color: Theme.COLORS.textPrimary },
-      suffix: '',
     },
     gauge: {
       axis: {

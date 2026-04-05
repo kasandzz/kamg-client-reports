@@ -39,14 +39,23 @@ const Components = (() => {
       // Formatted value
       const formattedValue = Theme.formatValue(kpi.value, kpi.format);
 
-      // Delta
+      // Delta + previous period comparison
       let deltaHTML = '';
+      let prevHTML = '';
       if (kpi.delta != null) {
         const deltaNum = typeof kpi.delta === 'string' ? Theme.parseDelta(kpi.delta) : kpi.delta;
         const cls = Theme.deltaClass(deltaNum, kpi.invertCost);
         const arrow = deltaNum > 0 ? '&#9650;' : deltaNum < 0 ? '&#9660;' : '';
-        const deltaStr = typeof kpi.delta === 'string' ? kpi.delta : Theme.delta(kpi.value, kpi.value / (1 + deltaNum / 100));
-        deltaHTML = `<span class="kpi-delta ${cls}">${arrow} ${deltaStr || ''}</span>`;
+        const sign = deltaNum >= 0 ? '+' : '';
+        const deltaStr = sign + deltaNum.toFixed(1) + '%';
+        deltaHTML = `<span class="kpi-delta ${cls}">${arrow} ${deltaStr}</span>`;
+      }
+      if (kpi.prevValue != null) {
+        const prevFormatted = Theme.formatValue(kpi.prevValue, kpi.format);
+        const cls = kpi.delta != null
+          ? Theme.deltaClass(typeof kpi.delta === 'string' ? Theme.parseDelta(kpi.delta) : kpi.delta, kpi.invertCost)
+          : 'neutral';
+        prevHTML = `<div class="kpi-prev"><span class="kpi-prev-label">prev</span> <span class="kpi-prev-value ${cls}">${prevFormatted}</span></div>`;
       }
 
       // Sparkline canvas id
@@ -58,6 +67,7 @@ const Components = (() => {
           <span class="kpi-value">${formattedValue}</span>
           ${deltaHTML}
         </div>
+        ${prevHTML}
         ${kpi.sparkData ? `<div class="kpi-spark-container"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
       `;
 

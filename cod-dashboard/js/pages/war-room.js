@@ -149,25 +149,71 @@ App.registerPage('war-room', async (container) => {
   `;
   container.appendChild(leverCard);
 
-  // ---- Daily Metrics Table ----
-  const tableCard = _card('Daily Metrics');
-  tableCard.style.marginTop = '16px';
-  tableCard.style.overflowX = 'auto';
-  tableCard.innerHTML += '<div id="war-room-daily-table"><div class="page-placeholder"><div class="spinner"></div></div></div>';
+  // ---- Daily/Weekly Metrics Table ----
+  const tableCard = document.createElement('div');
+  tableCard.className = 'card';
+  tableCard.style.cssText = 'padding:16px 20px;margin-top:16px;overflow-x:auto';
+
+  const tableHeader = document.createElement('div');
+  tableHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px';
+
+  const tableTitle = document.createElement('div');
+  tableTitle.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary;
+  tableTitle.textContent = 'Daily Metrics';
+
+  const toggleWrap = document.createElement('div');
+  toggleWrap.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:6px;padding:2px';
+  const btnDaily = document.createElement('button');
+  btnDaily.textContent = 'Daily';
+  btnDaily.className = 'filter-btn active';
+  btnDaily.style.cssText = 'padding:4px 12px;font-size:11px';
+  const btnWeekly = document.createElement('button');
+  btnWeekly.textContent = 'Weekly';
+  btnWeekly.className = 'filter-btn';
+  btnWeekly.style.cssText = 'padding:4px 12px;font-size:11px';
+  toggleWrap.appendChild(btnDaily);
+  toggleWrap.appendChild(btnWeekly);
+
+  tableHeader.appendChild(tableTitle);
+  tableHeader.appendChild(toggleWrap);
+  tableCard.appendChild(tableHeader);
+
+  const tableContent = document.createElement('div');
+  tableContent.id = 'war-room-daily-table';
+  tableContent.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+  tableCard.appendChild(tableContent);
   container.appendChild(tableCard);
 
-  // Fetch daily data async (don't block the page)
+  // Store raw daily rows for toggling
+  let _dailyRows = null;
+
   API.query('war-room', 'dailyTable', { days }).then(rows => {
-    const tableEl = document.getElementById('war-room-daily-table');
-    if (!tableEl) return;
+    _dailyRows = rows;
     if (!rows || rows.length === 0) {
-      tableEl.innerHTML = '<p class="text-muted" style="padding:16px">No daily data available</p>';
+      tableContent.innerHTML = '<p class="text-muted" style="padding:16px">No daily data available</p>';
       return;
     }
-    tableEl.innerHTML = _renderDailyTable(rows);
+    tableContent.innerHTML = _renderDailyTable(rows);
   }).catch(() => {
-    const tableEl = document.getElementById('war-room-daily-table');
-    if (tableEl) tableEl.innerHTML = '<p class="text-muted" style="padding:16px">Failed to load daily data</p>';
+    tableContent.innerHTML = '<p class="text-muted" style="padding:16px">Failed to load daily data</p>';
+  });
+
+  btnDaily.addEventListener('click', () => {
+    btnDaily.classList.add('active');
+    btnWeekly.classList.remove('active');
+    tableTitle.textContent = 'Daily Metrics';
+    if (_dailyRows && _dailyRows.length > 0) {
+      tableContent.innerHTML = _renderDailyTable(_dailyRows);
+    }
+  });
+
+  btnWeekly.addEventListener('click', () => {
+    btnWeekly.classList.add('active');
+    btnDaily.classList.remove('active');
+    tableTitle.textContent = 'Weekly Averages';
+    if (_dailyRows && _dailyRows.length > 0) {
+      tableContent.innerHTML = _renderDailyTable(_aggregateWeekly(_dailyRows));
+    }
   });
 
   // ---- Responsive ----
@@ -219,6 +265,36 @@ function _computeBiggestLever(d) {
 
   const closeRate = d.close_rate != null ? Theme.pct(d.close_rate) : 'N/A';
   return `Close rate at ${closeRate} -- equalizing closers could add significant revenue.`;
+}
+
+function _aggregateWeekly(dailyRows) {
+  const weeks = {};
+  dailyRows.forEach(row => {
+    const rawDate = typeof row.date === 'object' && row.date !== null ? row.date.value : row.date;
+    if (!rawDate) return;
+    const d = new Date(rawDate);
+    // ISO week: Monday-based
+    const dayOfWeek = (d.getDay() + 6) % 7;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - dayOfWeek);
+    const weekKey = monday.toISOString().slice(0, 10);
+
+    if (!weeks[weekKey]) weeks[weekKey] = { rows: [], weekStart: weekKey };
+    weeks[weekKey].rows.push(row);
+  });
+
+  const numKeys = ['traffic', 'all_tickets', 'vip', 'calls_booked', 'vip_upgrade_pct', 'booking_pct', 'ad_spend', 'cost_per_booked_call', 'paid_tickets', 'cost_per_ticket_purchase', 'ticket_revenue', 'cost_per_call_after_ticket_rev'];
+
+  return Object.values(weeks)
+    .sort((a, b) => b.weekStart.localeCompare(a.weekStart))
+    .map(w => {
+      const avg = { date: { value: w.weekStart } };
+      numKeys.forEach(k => {
+        const vals = w.rows.map(r => parseFloat(r[k]) || 0).filter(v => v !== 0);
+        avg[k] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      });
+      return avg;
+    });
 }
 
 function _renderDailyTable(rows) {

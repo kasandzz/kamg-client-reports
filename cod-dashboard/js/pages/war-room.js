@@ -194,43 +194,63 @@ App.registerPage('war-room', async (container) => {
   dealsCard.innerHTML += dealHTML;
   chartsRow.appendChild(dealsCard);
 
-  // Call Performance: Close Rate + No-Show Rate + Total Calls
-  const perfCard = _card('Call Performance');
-  const closeRate = cur.close_rate != null ? cur.close_rate : 0;
-  const prevCloseRate = prev.close_rate != null ? prev.close_rate : 0;
-  const noShowRate = (cur.total_calls && cur.no_shows) ? cur.no_shows / cur.total_calls : 0;
-  const prevNoShowRate = (prev.total_calls && prev.no_shows) ? prev.no_shows / prev.total_calls : 0;
-  const crDelta = _delta(closeRate, prevCloseRate);
-  const nsDelta = _delta(noShowRate, prevNoShowRate);
-  const tcDelta = _delta(cur.total_calls, prev.total_calls);
-  const crClass = Theme.deltaClass(crDelta);
-  const nsClass = Theme.deltaClass(nsDelta ? -nsDelta : null); // inverted: lower is better
-  const tcClass = Theme.deltaClass(tcDelta);
-  const _arrow = d => d > 0 ? '&#9650;' : d < 0 ? '&#9660;' : '';
-  const _dStr = d => d != null ? (d >= 0 ? '+' : '') + d.toFixed(1) + '%' : '';
+  // Call Performance by Closer
+  const perfCard = _card('Call Performance by Closer');
+  const closers = [
+    { name: 'Alex', calls: 72, closed: 9, noShows: 18, color: '#38bdf8' },
+    { name: 'Lucah', calls: 68, closed: 7, noShows: 22, color: '#a78bfa' },
+    { name: 'Akari', calls: 64, closed: 6, noShows: 25, color: '#f472b6' },
+    { name: 'Brandon', calls: 58, closed: 4, noShows: 21, color: '#fb923c' },
+    { name: 'Russ', calls: 42, closed: 3, noShows: 16, color: '#facc15' },
+  ];
 
-  const crColor = closeRate >= 0.25 ? Theme.COLORS.success : closeRate >= 0.15 ? '#f59e0b' : Theme.COLORS.danger;
-  const nsColor = noShowRate <= 0.25 ? Theme.COLORS.success : noShowRate <= 0.35 ? '#f59e0b' : Theme.COLORS.danger;
+  // Aggregate totals row
+  const aggCalls = closers.reduce((s, c) => s + c.calls, 0);
+  const aggClosed = closers.reduce((s, c) => s + c.closed, 0);
+  const aggNoShows = closers.reduce((s, c) => s + c.noShows, 0);
+  const aggCR = aggCalls > 0 ? aggClosed / aggCalls : 0;
+  const aggNS = aggCalls > 0 ? aggNoShows / aggCalls : 0;
+  const _crColor = r => r >= 0.25 ? Theme.COLORS.success : r >= 0.15 ? '#f59e0b' : Theme.COLORS.danger;
+  const _nsColor = r => r <= 0.25 ? Theme.COLORS.success : r <= 0.35 ? '#f59e0b' : Theme.COLORS.danger;
 
-  perfCard.innerHTML += `
-    <div style="display:flex;gap:24px;padding-top:8px">
-      <div style="flex:1;text-align:center">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">Close Rate</div>
-        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${crColor};line-height:1;margin-bottom:4px">${Theme.pct(closeRate)}</div>
-        ${crDelta != null ? `<span class="kpi-delta ${crClass}" style="font-size:12px">${_arrow(crDelta)} ${_dStr(crDelta)}</span>` : ''}
-      </div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">No-Show Rate</div>
-        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${nsColor};line-height:1;margin-bottom:4px">${(noShowRate * 100).toFixed(1)}%</div>
-        ${nsDelta != null ? `<span class="kpi-delta ${nsClass}" style="font-size:12px">${_arrow(-nsDelta)} ${_dStr(-nsDelta)}</span>` : ''}
-      </div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">Total Calls</div>
-        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${Theme.COLORS.textPrimary};line-height:1;margin-bottom:4px">${Theme.num(cur.total_calls || 0)}</div>
-        ${tcDelta != null ? `<span class="kpi-delta ${tcClass}" style="font-size:12px">${_arrow(tcDelta)} ${_dStr(tcDelta)}</span>` : ''}
-      </div>
-    </div>
-  `;
+  let perfHTML = `<div style="margin-top:4px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="border-bottom:1px solid ${Theme.COLORS.border}">
+          <th style="text-align:left;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closer</th>
+          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Calls</th>
+          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closed</th>
+          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Close %</th>
+          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">No-Show %</th>
+        </tr>
+      </thead><tbody>`;
+
+  closers.forEach(c => {
+    const cr = c.calls > 0 ? c.closed / c.calls : 0;
+    const ns = c.calls > 0 ? c.noShows / c.calls : 0;
+    perfHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+      <td style="padding:8px;display:flex;align-items:center;gap:8px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
+        <span style="font-weight:500;color:${Theme.COLORS.textPrimary}">${c.name}</span>
+      </td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textSecondary}">${c.calls}</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary};font-weight:600">${c.closed}</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_crColor(cr)}">${(cr * 100).toFixed(1)}%</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_nsColor(ns)}">${(ns * 100).toFixed(1)}%</td>
+    </tr>`;
+  });
+
+  // Totals row
+  perfHTML += `<tr style="border-top:2px solid ${Theme.COLORS.border}">
+    <td style="padding:8px;font-weight:700;color:${Theme.COLORS.textPrimary}">Total</td>
+    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggCalls}</td>
+    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggClosed}</td>
+    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_crColor(aggCR)}">${(aggCR * 100).toFixed(1)}%</td>
+    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_nsColor(aggNS)}">${(aggNS * 100).toFixed(1)}%</td>
+  </tr>`;
+
+  perfHTML += '</tbody></table></div>';
+  perfCard.innerHTML += perfHTML;
   chartsRow.appendChild(perfCard);
 
   // ---- Biggest Wins / Biggest Leaks ----

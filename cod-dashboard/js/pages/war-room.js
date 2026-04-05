@@ -181,6 +181,27 @@ App.registerPage('war-room', async (container) => {
   `;
   container.appendChild(leverCard);
 
+  // ---- Daily Metrics Table ----
+  const tableCard = _card('Daily Metrics');
+  tableCard.style.marginTop = '16px';
+  tableCard.style.overflowX = 'auto';
+  tableCard.innerHTML += '<div id="war-room-daily-table"><div class="page-placeholder"><div class="spinner"></div></div></div>';
+  container.appendChild(tableCard);
+
+  // Fetch daily data async (don't block the page)
+  API.query('war-room', 'dailyTable', { days }).then(rows => {
+    const tableEl = document.getElementById('war-room-daily-table');
+    if (!tableEl) return;
+    if (!rows || rows.length === 0) {
+      tableEl.innerHTML = '<p class="text-muted" style="padding:16px">No daily data available</p>';
+      return;
+    }
+    tableEl.innerHTML = _renderDailyTable(rows);
+  }).catch(() => {
+    const tableEl = document.getElementById('war-room-daily-table');
+    if (tableEl) tableEl.innerHTML = '<p class="text-muted" style="padding:16px">Failed to load daily data</p>';
+  });
+
   // ---- Responsive ----
   const mq = window.matchMedia('(max-width: 768px)');
   function handleMobile(e) {
@@ -230,6 +251,78 @@ function _computeBiggestLever(d) {
 
   const closeRate = d.close_rate != null ? Theme.pct(d.close_rate) : 'N/A';
   return `Close rate at ${closeRate} -- equalizing closers could add significant revenue.`;
+}
+
+function _renderDailyTable(rows) {
+  const cols = [
+    { key: 'date', label: 'Date', fmt: v => v ? new Date(v).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '' },
+    { key: 'all_tickets', label: 'Tickets', fmt: v => Math.round(v || 0), heatmap: true },
+    { key: 'vip', label: 'VIP', fmt: v => Math.round(v || 0) },
+    { key: 'calls_booked', label: 'Calls Booked', fmt: v => Math.round(v || 0), heatmap: true },
+    { key: 'vip_upgrade_pct', label: 'VIP %', fmt: v => (v || 0).toFixed(1) + '%', pctColor: true, good: 40 },
+    { key: 'booking_pct', label: 'Booking %', fmt: v => (v || 0).toFixed(1) + '%', pctColor: true, good: 20 },
+    { key: 'week', label: 'Week', fmt: v => v || '' },
+    { key: 'ad_spend', label: 'Ad Spend', fmt: v => Theme.money(v || 0), align: 'right' },
+    { key: 'cost_per_booked_call', label: 'Cost/Call', fmt: v => Theme.money(v || 0), align: 'right', invertColor: true, warn: 3000 },
+    { key: 'free_tickets', label: 'Free', fmt: v => Math.round(v || 0) },
+    { key: 'paid_tickets', label: 'Paid', fmt: v => Math.round(v || 0) },
+    { key: 'cost_per_ticket_purchase', label: 'Cost/Ticket', fmt: v => Theme.money(v || 0), align: 'right' },
+    { key: 'ticket_revenue', label: 'Ticket Rev', fmt: v => Theme.money(v || 0), align: 'right' },
+    { key: 'cost_per_call_after_ticket_rev', label: 'Net Cost/Call', fmt: v => Theme.money(v || 0), align: 'right', invertColor: true, warn: 2000 },
+  ];
+
+  // Compute column ranges for heatmap coloring
+  const ranges = {};
+  cols.forEach(c => {
+    if (c.heatmap) {
+      const vals = rows.map(r => r[c.key] || 0);
+      ranges[c.key] = { min: Math.min(...vals), max: Math.max(...vals) };
+    }
+  });
+
+  let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
+  cols.forEach(c => {
+    html += `<th${c.align === 'right' ? ' class="num"' : ''} style="white-space:nowrap">${c.label}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(row => {
+    html += '<tr>';
+    cols.forEach(c => {
+      const raw = row[c.key];
+      const val = c.fmt(raw);
+      let style = c.align === 'right' ? 'text-align:right;' : '';
+      let cls = '';
+
+      // Percentage color coding
+      if (c.pctColor && raw != null) {
+        if (raw >= (c.good || 30)) style += 'color:#22c55e;';
+        else if (raw >= (c.good || 30) * 0.5) style += 'color:#eab308;';
+        else style += 'color:#ef4444;';
+      }
+
+      // Inverted cost color (lower = green)
+      if (c.invertColor && raw != null && raw > 0) {
+        if (raw > (c.warn || 2000)) style += 'color:#ef4444;';
+        else if (raw > (c.warn || 2000) * 0.6) style += 'color:#eab308;';
+        else style += 'color:#22c55e;';
+      }
+
+      // Heatmap intensity
+      if (c.heatmap && ranges[c.key]) {
+        const { min, max } = ranges[c.key];
+        const pct = max > min ? (raw - min) / (max - min) : 0;
+        const alpha = (0.05 + pct * 0.2).toFixed(2);
+        style += `background:rgba(59,130,246,${alpha});`;
+      }
+
+      html += `<td style="${style}font-family:var(--font-mono);font-size:12px">${val}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  return html;
 }
 
 function _renderWaterfall(el, d) {

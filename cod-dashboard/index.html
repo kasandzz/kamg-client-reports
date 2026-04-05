@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COD Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <!-- Auth Gate -->
+  <div id="auth-gate" class="auth-gate">
+    <div class="auth-card card">
+      <h2 class="auth-title">COD Command Center</h2>
+      <p class="auth-subtitle">Enter password to continue</p>
+      <form id="auth-form" autocomplete="off">
+        <input type="password" id="auth-password" class="auth-input" placeholder="Password" autofocus>
+        <button type="submit" class="auth-btn">Enter</button>
+        <p id="auth-error" class="auth-error" hidden>Incorrect password</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App Shell -->
+  <div id="app-shell" class="app-shell" hidden>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-logo">&#127919;</span>
+        <span class="sidebar-title">COD Command</span>
+      </div>
+
+      <button id="sidebar-search-btn" class="sidebar-search-btn" aria-label="Search pages (Ctrl+K)">
+        <span class="sidebar-search-icon">&#128269;</span>
+        <span class="sidebar-search-text">Search...</span>
+        <kbd class="sidebar-kbd">&#8984;K</kbd>
+      </button>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <!-- COMMAND -->
+        <div class="nav-section-label">COMMAND</div>
+        <a class="nav-item" data-page="war-room"><span class="nav-icon">&#127919;</span><span class="nav-label">War Room</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="live-feed"><span class="nav-icon">&#9889;</span><span class="nav-label">Live Feed</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="insights"><span class="nav-icon">&#128161;</span><span class="nav-label">Insights</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="leaks"><span class="nav-icon">&#9888;&#65039;</span><span class="nav-label">Leaks</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="opportunities"><span class="nav-icon">&#128142;</span><span class="nav-label">Opportunities</span><span class="nav-dot" hidden></span></a>
+
+        <!-- ACQUISITION -->
+        <div class="nav-section-label">ACQUISITION</div>
+        <a class="nav-item" data-page="ads-meta"><span class="nav-icon">&#128227;</span><span class="nav-label">Ads Meta</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item dimmed" data-page="ads-google"><span class="nav-icon">&#128270;</span><span class="nav-label">Google Ads</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item dimmed" data-page="cold-email"><span class="nav-icon">&#9993;&#65039;</span><span class="nav-label">Cold Email</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="tickets"><span class="nav-icon">&#127915;</span><span class="nav-label">Tickets</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="landing-pages"><span class="nav-icon">&#128196;</span><span class="nav-label">Landing Pages</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="funnels"><span class="nav-icon">&#127744;</span><span class="nav-label">Funnels</span><span class="nav-dot" hidden></span></a>
+
+        <!-- CONVERSION -->
+        <div class="nav-section-label">CONVERSION</div>
+        <a class="nav-item" data-page="workshop"><span class="nav-icon">&#127916;</span><span class="nav-label">Workshop</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="calls"><span class="nav-icon">&#128222;</span><span class="nav-label">Calls</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="enrollment"><span class="nav-icon">&#128176;</span><span class="nav-label">Enrollment</span><span class="nav-dot" hidden></span></a>
+
+        <!-- CUSTOMER JOURNEY -->
+        <div class="nav-section-label">CUSTOMER JOURNEY</div>
+        <a class="nav-item" data-page="journey-map"><span class="nav-icon">&#128506;</span><span class="nav-label">Journey Map</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item nav-collapsible" id="nav-stages-toggle"><span class="nav-icon">&#128203;</span><span class="nav-label">Stage Deep-Dives</span><span class="nav-chevron">&#9654;</span></a>
+        <div class="nav-submenu" id="nav-stages-submenu" hidden>
+          <a class="nav-item nav-sub" data-page="stage-1"><span class="nav-sub-num">1</span><span class="nav-label">Ad Click</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-2"><span class="nav-sub-num">2</span><span class="nav-label">Registration</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-3"><span class="nav-sub-num">3</span><span class="nav-label">Workshop</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-4"><span class="nav-sub-num">4</span><span class="nav-label">Application</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-5"><span class="nav-sub-num">5</span><span class="nav-label">Call Booked</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-6"><span class="nav-sub-num">6</span><span class="nav-label">Call Held</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-7"><span class="nav-sub-num">7</span><span class="nav-label">Enrollment</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-8"><span class="nav-sub-num">8</span><span class="nav-label">VIP Upgrade</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-9"><span class="nav-sub-num">9</span><span class="nav-label">Onboarding</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-10"><span class="nav-sub-num">10</span><span class="nav-label">Engagement</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-11"><span class="nav-sub-num">11</span><span class="nav-label">Renewal</span><span class="nav-dot" hidden></span></a>
+          <a class="nav-item nav-sub" data-page="stage-12"><span class="nav-sub-num">12</span><span class="nav-label">Referral</span><span class="nav-dot" hidden></span></a>
+        </div>
+
+        <!-- INTELLIGENCE -->
+        <div class="nav-section-label">INTELLIGENCE</div>
+        <a class="nav-item" data-page="behavioral"><span class="nav-icon">&#129504;</span><span class="nav-label">Behavioral</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="email-intel"><span class="nav-icon">&#128236;</span><span class="nav-label">Email</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="hyros"><span class="nav-icon">&#128269;</span><span class="nav-label">Hyros</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="experiments"><span class="nav-icon">&#129514;</span><span class="nav-label">Experiments</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item dimmed" data-page="competitors"><span class="nav-icon">&#9876;&#65039;</span><span class="nav-label">Competitors</span><span class="nav-dot" hidden></span></a>
+
+        <!-- OPERATIONS -->
+        <div class="nav-section-label">OPERATIONS</div>
+        <a class="nav-item" data-page="sales-team"><span class="nav-icon">&#128101;</span><span class="nav-label">Sales Team</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="churn"><span class="nav-icon">&#128200;</span><span class="nav-label">Churn</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="worklists"><span class="nav-icon">&#128203;</span><span class="nav-label">Worklists</span><span class="nav-dot" hidden></span></a>
+        <a class="nav-item" data-page="geo-intel"><span class="nav-icon">&#127760;</span><span class="nav-label">Geo Intel</span><span class="nav-dot" hidden></span></a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+        <h1 id="page-title" class="page-title">War Room</h1>
+        <div id="global-controls" class="global-controls"></div>
+      </header>
+
+      <!-- Page Container -->
+      <div id="page-container" class="page-container">
+        <div class="page-placeholder">
+          <div class="spinner"></div>
+          <p class="text-muted">Loading...</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Drill-Down Panel -->
+    <div id="drill-down-panel" class="drill-down-panel" hidden>
+      <div class="drill-down-header">
+        <h3 id="drill-down-title" class="drill-down-title"></h3>
+        <button id="drill-down-close" class="drill-down-close" aria-label="Close panel">&times;</button>
+      </div>
+      <div id="drill-down-content" class="drill-down-content"></div>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="search-modal" hidden>
+      <div class="search-backdrop"></div>
+      <div class="search-dialog card">
+        <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off">
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CDN Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+  <!-- Core JS -->
+  <script src="js/api.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/notifications.js"></script>
+  <!-- Page scripts loaded here -->
+  <!-- <script src="js/pages/war-room.js"></script> -->
+  <!-- App init (must be last) -->
+  <script src="js/app.js"></script>
+</body>
+</html>

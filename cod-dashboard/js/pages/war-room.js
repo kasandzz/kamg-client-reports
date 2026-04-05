@@ -87,22 +87,53 @@ App.registerPage('war-room', async (container) => {
   chartsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
   container.appendChild(chartsRow);
 
-  // Revenue Waterfall
-  const waterfallCard = _card('Revenue Waterfall');
-  const waterfallDiv = document.createElement('div');
-  waterfallDiv.id = 'war-room-waterfall';
-  waterfallDiv.style.height = '320px';
-  waterfallCard.appendChild(waterfallDiv);
-  chartsRow.appendChild(waterfallCard);
+  // Revenue Breakdown (horizontal stacked bar)
+  const revenueCard = _card('Revenue Breakdown');
+  const ticketRev = cur.ticket_revenue || 0;
+  const enrollmentRev = cur.enrollment_revenue || 0;
+  const vipRev = Math.max((cur.gross_revenue || 0) - ticketRev - enrollmentRev, 0);
+  const adSpend = cur.total_spend || 0;
+  const refunds = cur.refunds || 0;
+  const netRev = (cur.gross_revenue || 0) - refunds - adSpend;
 
-  // Funnel Health Gauge
-  const funnelHealth = _computeFunnelHealth(cur);
-  const gaugeCard = _card('Funnel Health');
-  const gaugeDiv = document.createElement('div');
-  gaugeDiv.id = 'war-room-gauge';
-  gaugeDiv.style.height = '320px';
-  gaugeCard.appendChild(gaugeDiv);
-  chartsRow.appendChild(gaugeCard);
+  const segments = [
+    { label: 'Tickets', value: ticketRev, color: '#6366f1' },
+    { label: 'VIP', value: vipRev, color: '#8b5cf6' },
+    { label: 'Enrollments', value: enrollmentRev, color: '#22c55e' },
+  ];
+  const grossTotal = segments.reduce((s, seg) => s + seg.value, 0) || 1;
+
+  let barHTML = '<div style="margin-top:8px">';
+  // Stacked bar
+  barHTML += '<div style="display:flex;height:32px;border-radius:6px;overflow:hidden;margin-bottom:12px">';
+  segments.forEach(seg => {
+    const pct = ((seg.value / grossTotal) * 100).toFixed(1);
+    if (seg.value > 0) {
+      barHTML += `<div style="width:${pct}%;background:${seg.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;min-width:30px" title="${seg.label}: ${Theme.money(seg.value)} (${pct}%)">${pct}%</div>`;
+    }
+  });
+  barHTML += '</div>';
+
+  // Legend + numbers
+  barHTML += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
+  segments.forEach(seg => {
+    barHTML += `<div style="display:flex;align-items:center;gap:6px">
+      <div style="width:10px;height:10px;border-radius:2px;background:${seg.color};flex-shrink:0"></div>
+      <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">${seg.label}</div><div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary}">${Theme.money(seg.value)}</div></div>
+    </div>`;
+  });
+  barHTML += '</div>';
+
+  // Deductions row
+  barHTML += `<div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid ${Theme.COLORS.border}">
+    <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Ad Spend</div><div style="font-size:14px;font-weight:600;color:${Theme.COLORS.danger}">-${Theme.money(adSpend)}</div></div>
+    <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Refunds</div><div style="font-size:14px;font-weight:600;color:${Theme.COLORS.danger}">-${Theme.money(refunds)}</div></div>
+    <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Net Profit</div><div style="font-size:16px;font-weight:700;color:${netRev >= 0 ? Theme.COLORS.success : Theme.COLORS.danger}">${Theme.money(netRev)}</div></div>
+  </div>`;
+  barHTML += '</div>';
+
+  revenueCard.innerHTML += barHTML;
+  chartsRow.appendChild(revenueCard);
 
   // Close Rate + Calls summary
   const callsCard = _card('Calls Summary');
@@ -131,12 +162,6 @@ App.registerPage('war-room', async (container) => {
     </div>
   `;
   chartsRow.appendChild(callsCard);
-
-  // Render Plotly charts after DOM insert
-  requestAnimationFrame(() => {
-    _renderWaterfall(waterfallDiv, cur);
-    _renderGauge(gaugeDiv, funnelHealth);
-  });
 
   // ---- Biggest Lever Callout ----
   const leverText = _computeBiggestLever(cur);
@@ -240,14 +265,6 @@ function _card(title) {
   return card;
 }
 
-function _computeFunnelHealth(d) {
-  const roasComponent = Math.min(((d.roas || 0) / 5) * 25, 25);
-  const closeRate = d.close_rate || 0;
-  const closeComponent = Math.min((closeRate / 25) * 25, 25);
-  const baseline = 50;
-  const total = Math.min(Math.round(roasComponent + closeComponent + baseline), 100);
-  return total;
-}
 
 function _computeBiggestLever(d) {
   const noShows = d.no_shows || 0;
@@ -385,91 +402,3 @@ function _renderDailyTable(rows) {
   return html;
 }
 
-function _renderWaterfall(el, d) {
-  if (typeof Plotly === 'undefined') return;
-
-  const ticketRev = d.ticket_revenue || 0;
-  const enrollmentRev = d.enrollment_revenue || 0;
-  const vipRev = (d.gross_revenue || 0) - ticketRev - enrollmentRev;
-  const adSpend = d.total_spend || 0;
-  const refunds = d.refunds || 0;
-  const netRev = (d.gross_revenue || 0) - refunds - adSpend;
-
-  const trace = {
-    type: 'waterfall',
-    orientation: 'v',
-    x: ['Tickets', 'VIP', 'Enrollments', 'Ad Spend', 'Refunds', 'Net Profit'],
-    y: [ticketRev, vipRev > 0 ? vipRev : 0, enrollmentRev, -adSpend, -refunds, netRev],
-    measure: ['relative', 'relative', 'relative', 'relative', 'relative', 'total'],
-    connector: { line: { color: Theme.COLORS.border, width: 1 } },
-    increasing: { marker: { color: Theme.FUNNEL.green } },
-    decreasing: { marker: { color: Theme.FUNNEL.red } },
-    totals: { marker: { color: netRev >= 0 ? Theme.FUNNEL.blue : Theme.FUNNEL.red } },
-    textposition: 'outside',
-    text: [
-      Theme.money(ticketRev),
-      Theme.money(vipRev > 0 ? vipRev : 0),
-      Theme.money(enrollmentRev),
-      '-' + Theme.money(adSpend),
-      refunds ? '-' + Theme.money(refunds) : '$0',
-      Theme.money(netRev),
-    ],
-    textfont: { color: Theme.COLORS.textSecondary, size: 11 },
-  };
-
-  const layout = {
-    ...Theme.PLOTLY_LAYOUT,
-    margin: { t: 20, r: 20, b: 40, l: 60 },
-    showlegend: false,
-    yaxis: {
-      ...Theme.PLOTLY_LAYOUT.yaxis,
-      tickformat: '$,.0f',
-    },
-  };
-
-  Plotly.newPlot(el, [trace], layout, Theme.PLOTLY_CONFIG);
-}
-
-function _renderGauge(el, score) {
-  if (typeof Plotly === 'undefined') return;
-
-  const label = score >= 70 ? 'Healthy' : score >= 40 ? 'Warning' : 'Critical';
-  const color = score >= 70 ? Theme.FUNNEL.green : score >= 40 ? Theme.FUNNEL.yellow : Theme.FUNNEL.red;
-
-  const trace = {
-    type: 'indicator',
-    mode: 'gauge+number',
-    value: score,
-    title: { text: label, font: { size: 14, color: color } },
-    number: {
-      font: { size: 48, color: Theme.COLORS.textPrimary },
-      suffix: '/100',
-      valueformat: '.0f',
-    },
-    gauge: {
-      axis: {
-        range: [0, 100],
-        tickwidth: 1,
-        tickcolor: Theme.COLORS.textMuted,
-        dtick: 20,
-        tickfont: { color: Theme.COLORS.textMuted, size: 10 },
-      },
-      bar: { color: color, thickness: 0.3 },
-      bgcolor: 'transparent',
-      borderwidth: 0,
-      steps: [
-        { range: [0, 40], color: 'rgba(239,68,68,0.15)' },
-        { range: [40, 70], color: 'rgba(234,179,8,0.15)' },
-        { range: [70, 100], color: 'rgba(34,197,94,0.15)' },
-      ],
-    },
-  };
-
-  const layout = {
-    ...Theme.PLOTLY_LAYOUT,
-    margin: { t: 30, r: 30, b: 10, l: 30 },
-    showlegend: false,
-  };
-
-  Plotly.newPlot(el, [trace], layout, Theme.PLOTLY_CONFIG);
-}

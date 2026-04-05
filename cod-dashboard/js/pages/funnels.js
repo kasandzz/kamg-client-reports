@@ -87,6 +87,99 @@ App.registerPage('funnels', async (container) => {
     _renderSankey(sankeyDiv, d);
     _renderConversionWaterfall(waterfallDiv, d);
   });
+
+  // ---- Journey Stage Cards ----
+  const STAGES = [
+    { num: 1,  name: 'Ad Exposure',    color: '#4F9CF9', field: null,         tracking: 'partial'  },
+    { num: 2,  name: 'Landing Page',   color: '#6E56CF', field: null,         tracking: 'partial'  },
+    { num: 3,  name: 'Ticket Purchase',color: '#3b82f6', field: 'total_tickets', tracking: 'full'  },
+    { num: 4,  name: 'Workshop',       color: '#06b6d4', field: 'attended',   tracking: 'partial'  },
+    { num: 5,  name: 'VIP Upsell',     color: '#14b8a6', field: null,         tracking: 'full'     },
+    { num: 6,  name: 'Call Booking',   color: '#22c55e', field: 'booked',     tracking: 'full'     },
+    { num: 7,  name: 'Sales Call',     color: '#84cc16', field: 'calls_completed', tracking: 'full' },
+    { num: 8,  name: 'Enrollment',     color: '#eab308', field: 'enrolled',   tracking: 'full'     },
+    { num: 9,  name: 'Onboarding',     color: '#f97316', field: null,         tracking: 'missing'  },
+    { num: 10, name: 'Delivery',       color: '#ef4444', field: null,         tracking: 'missing'  },
+    { num: 11, name: 'Retention',      color: '#ec4899', field: null,         tracking: 'missing'  },
+    { num: 12, name: 'Advocacy',       color: '#a855f7', field: null,         tracking: 'missing'  },
+  ];
+
+  const stageHeader = document.createElement('div');
+  stageHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px';
+  stageHeader.innerHTML = `
+    <div>
+      <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Customer Journey Stages</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Click any stage to drill into detail.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:${Theme.COLORS.textSecondary}">
+      <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:${Theme.COLORS.success};display:inline-block"></span>Full</span>
+      <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:${Theme.COLORS.warning};display:inline-block"></span>Partial</span>
+      <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:${Theme.COLORS.danger};display:inline-block"></span>Missing</span>
+    </div>
+  `;
+  container.appendChild(stageHeader);
+
+  const scrollWrap = document.createElement('div');
+  scrollWrap.style.cssText = 'overflow-x:auto;padding-bottom:8px';
+  const stageRow = document.createElement('div');
+  stageRow.style.cssText = 'display:flex;align-items:stretch;gap:0;min-width:max-content;padding:16px 4px';
+
+  STAGES.forEach((stage, idx) => {
+    const vol = stage.field ? (d[stage.field] || 0) : null;
+    const isRetention = stage.num >= 9;
+    const cardOpacity = isRetention ? '0.65' : '1';
+
+    let badgeBg, badgeColor, badgeBorder, badgeLabel;
+    if (stage.tracking === 'full') { badgeBg='rgba(34,197,94,0.12)'; badgeColor=Theme.COLORS.success; badgeBorder='1px solid rgba(34,197,94,0.3)'; badgeLabel='Full'; }
+    else if (stage.tracking === 'partial') { badgeBg='rgba(234,179,8,0.12)'; badgeColor=Theme.COLORS.warning; badgeBorder='1px solid rgba(234,179,8,0.3)'; badgeLabel='Partial'; }
+    else { badgeBg='rgba(239,68,68,0.08)'; badgeColor=Theme.COLORS.danger; badgeBorder='1px dashed rgba(239,68,68,0.4)'; badgeLabel='Missing'; }
+
+    const card = document.createElement('div');
+    card.style.cssText = `width:148px;min-width:148px;min-height:180px;background:${Theme.COLORS.bgCard};border:1px solid ${isRetention?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.08)'};border-top:3px solid ${stage.color};border-radius:8px;padding:14px 12px 12px;opacity:${cardOpacity};transition:opacity .15s,border-color .15s,transform .15s;display:flex;flex-direction:column;gap:8px;flex-shrink:0`;
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:10px;font-weight:700;color:${stage.color};text-transform:uppercase;letter-spacing:.06em">Stage ${stage.num}</span>
+        <span style="font-size:11px;padding:2px 7px;border-radius:10px;background:${badgeBg};color:${badgeColor};border:${badgeBorder};font-weight:500">${badgeLabel}</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textPrimary};line-height:1.3">${stage.name}</div>
+      <div style="margin-top:auto">
+        <div style="font-size:22px;font-weight:700;color:${vol !== null ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted}">${vol !== null ? Theme.num(vol) : '--'}</div>
+        <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:1px">${vol !== null ? 'last ' + days + 'd' : 'no data'}</div>
+      </div>
+    `;
+    card.addEventListener('mouseenter', () => { card.style.opacity='1'; card.style.borderColor=stage.color; card.style.transform='translateY(-2px)'; });
+    card.addEventListener('mouseleave', () => { card.style.opacity=cardOpacity; card.style.borderColor=isRetention?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.08)'; card.style.transform='translateY(0)'; });
+    stageRow.appendChild(card);
+
+    if (idx < STAGES.length - 1) {
+      const arrow = document.createElement('div');
+      const isWaist = idx === 7;
+      arrow.style.cssText = `display:flex;align-items:center;justify-content:center;width:${isWaist?'28px':'20px'};min-width:${isWaist?'28px':'20px'};flex-shrink:0;color:${isWaist?Theme.COLORS.warning:Theme.COLORS.textMuted};font-size:${isWaist?'16px':'12px'};opacity:${isWaist?'0.9':'0.5'}`;
+      arrow.innerHTML = isWaist ? '&#10234;' : '&#10142;';
+      stageRow.appendChild(arrow);
+    }
+  });
+
+  scrollWrap.appendChild(stageRow);
+  container.appendChild(scrollWrap);
+
+  // ---- Tracking Coverage ----
+  const fullCount = STAGES.filter(s => s.tracking === 'full').length;
+  const partialCount = STAGES.filter(s => s.tracking === 'partial').length;
+  const coverageCard = _funnelCard('Tracking Coverage');
+  coverageCard.style.marginTop = '16px';
+  const trackingBars = STAGES.map(s => {
+    const bg = s.tracking === 'full' ? Theme.COLORS.success : s.tracking === 'partial' ? Theme.COLORS.warning : 'rgba(239,68,68,0.35)';
+    return `<span title="Stage ${s.num}: ${s.name} (${s.tracking})" style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${bg};margin:1px;cursor:default"></span>`;
+  }).join('');
+  coverageCard.innerHTML += `
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="font-size:28px;font-weight:700;color:${fullCount >= 8 ? Theme.COLORS.success : Theme.COLORS.warning}">${fullCount} <span style="font-size:14px;font-weight:400;color:${Theme.COLORS.textMuted}">of 12 full</span></div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${partialCount} partial, ${12-fullCount-partialCount} missing</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px;margin-left:auto">${trackingBars}</div>
+    </div>
+  `;
+  container.appendChild(coverageCard);
 });
 
 // ---- Helpers ----

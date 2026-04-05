@@ -56,13 +56,17 @@ const Theme = (() => {
       return null;
     }
 
-    // Chart.js responsive mode sizes from PARENT, not canvas.
-    // Ensure parent has height constraint to prevent infinite growth.
-    const parent = canvas.parentElement;
-    if (parent && !parent.style.height) {
-      const h = canvas.style.height || '300px';
-      parent.style.position = parent.style.position || 'relative';
-      parent.style.height = h;
+    // Chart.js responsive mode sizes from the DIRECT PARENT, not the canvas.
+    // Wrap canvas in a height-constrained div so charts don't grow infinitely.
+    let parent = canvas.parentElement;
+    if (!parent.classList.contains('cjs-wrap')) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'cjs-wrap';
+      wrapper.style.position = 'relative';
+      wrapper.style.height = canvas.style.height || '300px';
+      wrapper.style.width = '100%';
+      parent.insertBefore(wrapper, canvas);
+      wrapper.appendChild(canvas);
     }
 
     const ctx = canvas.getContext('2d');

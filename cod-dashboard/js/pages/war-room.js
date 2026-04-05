@@ -138,38 +138,6 @@ App.registerPage('war-room', async (container) => {
     _renderGauge(gaugeDiv, funnelHealth);
   });
 
-  // ---- Waste Monitor ----
-  const noShows = cur.no_shows || 0;
-  const noShowCost = noShows * 877;
-  const prevNoShows = prev.no_shows || 0;
-  const prevNoShowCost = prevNoShows * 877;
-
-  const wasteCard = _card('Waste Monitor');
-  const nsDelta = _delta(noShowCost, prevNoShowCost);
-  const nsClass = Theme.deltaClass(nsDelta, true);
-  const nsArrow = nsDelta > 0 ? '&#9650;' : nsDelta < 0 ? '&#9660;' : '';
-  const nsDeltaStr = nsDelta != null ? (nsDelta >= 0 ? '+' : '') + nsDelta.toFixed(1) + '%' : '';
-
-  wasteCard.innerHTML += `
-    <div style="display:flex;align-items:baseline;gap:24px;margin-top:8px">
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Show Cost</div>
-        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.danger}">${Theme.money(noShowCost)}</div>
-        ${nsDeltaStr ? `<span class="kpi-delta ${nsClass}" style="font-size:12px">${nsArrow} ${nsDeltaStr}</span>` : ''}
-      </div>
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Shows</div>
-        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${noShows}</div>
-      </div>
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Ad Spend</div>
-        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.money(cur.total_spend || 0)}</div>
-      </div>
-    </div>
-    <div class="text-muted" style="font-size:11px;margin-top:8px">Estimated at $877 per missed call opportunity</div>
-  `;
-  container.appendChild(wasteCard);
-
   // ---- Biggest Lever Callout ----
   const leverText = _computeBiggestLever(cur);
   const leverCard = document.createElement('div');
@@ -255,30 +223,51 @@ function _computeBiggestLever(d) {
 
 function _renderDailyTable(rows) {
   const cols = [
-    { key: 'date', label: 'Date', fmt: v => v ? new Date(v).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }) : '' },
-    { key: 'all_tickets', label: 'Tickets', fmt: v => Math.round(v || 0), heatmap: true },
-    { key: 'vip', label: 'VIP', fmt: v => Math.round(v || 0) },
-    { key: 'calls_booked', label: 'Calls Booked', fmt: v => Math.round(v || 0), heatmap: true },
-    { key: 'vip_upgrade_pct', label: 'VIP %', fmt: v => (v || 0).toFixed(1) + '%', pctColor: true, good: 40 },
-    { key: 'booking_pct', label: 'Booking %', fmt: v => (v || 0).toFixed(1) + '%', pctColor: true, good: 20 },
-    { key: 'week', label: 'Week', fmt: v => v || '' },
-    { key: 'ad_spend', label: 'Ad Spend', fmt: v => Theme.money(v || 0), align: 'right' },
-    { key: 'cost_per_booked_call', label: 'Cost/Call', fmt: v => Theme.money(v || 0), align: 'right', invertColor: true, warn: 3000 },
-    { key: 'free_tickets', label: 'Free', fmt: v => Math.round(v || 0) },
-    { key: 'paid_tickets', label: 'Paid', fmt: v => Math.round(v || 0) },
-    { key: 'cost_per_ticket_purchase', label: 'Cost/Ticket', fmt: v => Theme.money(v || 0), align: 'right' },
-    { key: 'ticket_revenue', label: 'Ticket Rev', fmt: v => Theme.money(v || 0), align: 'right' },
-    { key: 'cost_per_call_after_ticket_rev', label: 'Net Cost/Call', fmt: v => Theme.money(v || 0), align: 'right', invertColor: true, warn: 2000 },
+    { key: 'date', label: 'Date', fmt: v => { if (!v) return ''; const d = typeof v === 'object' && v.value ? v.value : v; return new Date(d).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }); }},
+    { key: 'traffic', label: 'Traffic', fmt: v => Theme.num(v || 0), higherBetter: true },
+    { key: 'all_tickets', label: 'Tickets', fmt: v => Math.round(v || 0), higherBetter: true },
+    { key: 'vip', label: 'VIP', fmt: v => Math.round(v || 0), higherBetter: true },
+    { key: 'calls_booked', label: 'Calls Booked', fmt: v => Math.round(v || 0), higherBetter: true, hasTooltip: true },
+    { key: 'vip_upgrade_pct', label: 'VIP %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true },
+    { key: 'booking_pct', label: 'Booking %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true },
+    { key: 'ad_spend', label: 'Ad Spend', fmt: v => Theme.money(v || 0), align: 'right', higherBetter: false },
+    { key: 'cost_per_booked_call', label: 'Cost/Call', fmt: v => v ? Theme.money(v) : '--', align: 'right', higherBetter: false },
+    { key: 'paid_tickets', label: 'Paid', fmt: v => Math.round(v || 0), higherBetter: true },
+    { key: 'cost_per_ticket_purchase', label: 'Cost/Ticket', fmt: v => Theme.money(v || 0), align: 'right', higherBetter: false },
+    { key: 'ticket_revenue', label: 'Ticket Rev', fmt: v => Theme.money(v || 0), align: 'right', higherBetter: true },
+    { key: 'cost_per_call_after_ticket_rev', label: 'Net Cost/Call', fmt: v => v ? Theme.money(v) : '--', align: 'right', higherBetter: false },
   ];
 
-  // Compute column ranges for heatmap coloring
-  const ranges = {};
+  // Compute mean + stddev per column for deviation-based coloring
+  const stats = {};
   cols.forEach(c => {
-    if (c.heatmap) {
-      const vals = rows.map(r => r[c.key] || 0);
-      ranges[c.key] = { min: Math.min(...vals), max: Math.max(...vals) };
+    if (c.higherBetter !== undefined) {
+      const vals = rows.map(r => parseFloat(r[c.key]) || 0).filter(v => v !== 0);
+      if (vals.length > 0) {
+        const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+        const variance = vals.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / vals.length;
+        const stddev = Math.sqrt(variance) || 1;
+        stats[c.key] = { mean, stddev };
+      }
     }
   });
+
+  // Color function: deviation from mean -> red/green with intensity
+  function _deviationColor(value, key, higherBetter) {
+    if (!stats[key] || !value) return '';
+    const { mean, stddev } = stats[key];
+    const zScore = (value - mean) / stddev;
+    const clamped = Math.max(-2, Math.min(2, zScore));
+    const intensity = Math.abs(clamped) / 2;
+    const alpha = (0.08 + intensity * 0.25).toFixed(2);
+
+    const isGood = higherBetter ? clamped > 0.3 : clamped < -0.3;
+    const isBad = higherBetter ? clamped < -0.3 : clamped > 0.3;
+
+    if (isGood) return `background:rgba(34,197,94,${alpha});color:#22c55e;`;
+    if (isBad) return `background:rgba(239,68,68,${alpha});color:#ef4444;`;
+    return '';
+  }
 
   let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
   cols.forEach(c => {
@@ -289,34 +278,29 @@ function _renderDailyTable(rows) {
   rows.forEach(row => {
     html += '<tr>';
     cols.forEach(c => {
-      const raw = row[c.key];
+      const raw = typeof row[c.key] === 'object' && row[c.key] !== null ? row[c.key].value || row[c.key] : row[c.key];
+      const numVal = parseFloat(raw) || 0;
       const val = c.fmt(raw);
       let style = c.align === 'right' ? 'text-align:right;' : '';
-      let cls = '';
 
-      // Percentage color coding
-      if (c.pctColor && raw != null) {
-        if (raw >= (c.good || 30)) style += 'color:#22c55e;';
-        else if (raw >= (c.good || 30) * 0.5) style += 'color:#eab308;';
-        else style += 'color:#ef4444;';
+      // Deviation-based coloring
+      if (c.higherBetter !== undefined && c.key !== 'date') {
+        style += _deviationColor(numVal, c.key, c.higherBetter);
       }
 
-      // Inverted cost color (lower = green)
-      if (c.invertColor && raw != null && raw > 0) {
-        if (raw > (c.warn || 2000)) style += 'color:#ef4444;';
-        else if (raw > (c.warn || 2000) * 0.6) style += 'color:#eab308;';
-        else style += 'color:#22c55e;';
+      // Source tooltip for calls_booked
+      let tooltip = '';
+      if (c.hasTooltip && row.source_breakdown) {
+        const parts = row.source_breakdown.split('|').map(p => {
+          const [src, cnt] = p.split(':');
+          return `${src}: ${cnt}`;
+        }).join('&#10;');
+        tooltip = ` title="${parts}" style="${style}font-family:var(--font-mono);font-size:12px;cursor:help;text-decoration:underline dotted"`;
+      } else {
+        tooltip = ` style="${style}font-family:var(--font-mono);font-size:12px"`;
       }
 
-      // Heatmap intensity
-      if (c.heatmap && ranges[c.key]) {
-        const { min, max } = ranges[c.key];
-        const pct = max > min ? (raw - min) / (max - min) : 0;
-        const alpha = (0.05 + pct * 0.2).toFixed(2);
-        style += `background:rgba(59,130,246,${alpha});`;
-      }
-
-      html += `<td style="${style}font-family:var(--font-mono);font-size:12px">${val}</td>`;
+      html += `<td${tooltip}>${val}</td>`;
     });
     html += '</tr>';
   });

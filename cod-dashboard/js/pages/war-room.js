@@ -162,7 +162,7 @@ App.registerPage('war-room', async (container) => {
   });
   chHTML += '</div>';
   callsCard.innerHTML += chHTML;
-  chartsRow.appendChild(callsCard);
+  // (appended after perfCard below)
 
   // ---- Deals Closed by Channel ----
   const dealsCard = _card('Deals Closed by Channel');
@@ -192,66 +192,72 @@ App.registerPage('war-room', async (container) => {
   });
   dealHTML += '</div>';
   dealsCard.innerHTML += dealHTML;
-  chartsRow.appendChild(dealsCard);
 
-  // Call Performance by Closer
+  // Call Performance by Closer (live from BQ)
   const perfCard = _card('Call Performance by Closer');
-  const closers = [
-    { name: 'Alex', calls: 72, closed: 9, noShows: 18, color: '#38bdf8' },
-    { name: 'Lucah', calls: 68, closed: 7, noShows: 22, color: '#a78bfa' },
-    { name: 'Akari', calls: 64, closed: 6, noShows: 25, color: '#f472b6' },
-    { name: 'Brandon', calls: 58, closed: 4, noShows: 21, color: '#fb923c' },
-    { name: 'Russ', calls: 42, closed: 3, noShows: 16, color: '#facc15' },
-  ];
-
-  // Aggregate totals row
-  const aggCalls = closers.reduce((s, c) => s + c.calls, 0);
-  const aggClosed = closers.reduce((s, c) => s + c.closed, 0);
-  const aggNoShows = closers.reduce((s, c) => s + c.noShows, 0);
-  const aggCR = aggCalls > 0 ? aggClosed / aggCalls : 0;
-  const aggNS = aggCalls > 0 ? aggNoShows / aggCalls : 0;
-  const _crColor = r => r >= 0.25 ? Theme.COLORS.success : r >= 0.15 ? '#f59e0b' : Theme.COLORS.danger;
-  const _nsColor = r => r <= 0.25 ? Theme.COLORS.success : r <= 0.35 ? '#f59e0b' : Theme.COLORS.danger;
-
-  let perfHTML = `<div style="margin-top:4px">
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="border-bottom:1px solid ${Theme.COLORS.border}">
-          <th style="text-align:left;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closer</th>
-          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Calls</th>
-          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closed</th>
-          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Close %</th>
-          <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">No-Show %</th>
-        </tr>
-      </thead><tbody>`;
-
-  closers.forEach(c => {
-    const cr = c.calls > 0 ? c.closed / c.calls : 0;
-    const ns = c.calls > 0 ? c.noShows / c.calls : 0;
-    perfHTML += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-      <td style="padding:8px;display:flex;align-items:center;gap:8px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
-        <span style="font-weight:500;color:${Theme.COLORS.textPrimary}">${c.name}</span>
-      </td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textSecondary}">${c.calls}</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary};font-weight:600">${c.closed}</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_crColor(cr)}">${(cr * 100).toFixed(1)}%</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_nsColor(ns)}">${(ns * 100).toFixed(1)}%</td>
-    </tr>`;
-  });
-
-  // Totals row
-  perfHTML += `<tr style="border-top:2px solid ${Theme.COLORS.border}">
-    <td style="padding:8px;font-weight:700;color:${Theme.COLORS.textPrimary}">Total</td>
-    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggCalls}</td>
-    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggClosed}</td>
-    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_crColor(aggCR)}">${(aggCR * 100).toFixed(1)}%</td>
-    <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_nsColor(aggNS)}">${(aggNS * 100).toFixed(1)}%</td>
-  </tr>`;
-
-  perfHTML += '</tbody></table></div>';
-  perfCard.innerHTML += perfHTML;
+  perfCard.innerHTML += '<div id="closer-table-wrap"><div class="page-placeholder"><div class="spinner"></div></div></div>';
   chartsRow.appendChild(perfCard);
+
+  const closerColors = ['#38bdf8', '#a78bfa', '#f472b6', '#fb923c', '#facc15', '#34d399', '#f87171', '#60a5fa'];
+  const _crColor = r => r >= 25 ? Theme.COLORS.success : r >= 15 ? '#f59e0b' : Theme.COLORS.danger;
+  const _nsColor = r => r <= 25 ? Theme.COLORS.success : r <= 35 ? '#f59e0b' : Theme.COLORS.danger;
+
+  API.query('war-room', 'closers', { days }).then(rows => {
+    const wrap = document.getElementById('closer-table-wrap');
+    if (!rows || rows.length === 0) {
+      wrap.innerHTML = '<p class="text-muted" style="padding:16px">No closer data available</p>';
+      return;
+    }
+
+    const aggCalls = rows.reduce((s, r) => s + (r.total_calls || 0), 0);
+    const aggClosed = rows.reduce((s, r) => s + (r.closed || 0), 0);
+    const aggNoShows = rows.reduce((s, r) => s + (r.no_shows || 0), 0);
+    const aggCR = aggCalls > 0 ? (aggClosed / aggCalls) * 100 : 0;
+    const aggNS = aggCalls > 0 ? (aggNoShows / aggCalls) * 100 : 0;
+
+    let html = `<div style="margin-top:4px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1px solid ${Theme.COLORS.border}">
+            <th style="text-align:left;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closer</th>
+            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Calls</th>
+            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closed</th>
+            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Close %</th>
+            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">No-Show %</th>
+          </tr>
+        </thead><tbody>`;
+
+    rows.forEach((r, i) => {
+      const cr = r.close_rate || 0;
+      const ns = r.noshow_rate || 0;
+      const color = closerColors[i % closerColors.length];
+      html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+        <td style="padding:8px;display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <span style="font-weight:500;color:${Theme.COLORS.textPrimary}">${r.closer || 'Unknown'}</span>
+        </td>
+        <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textSecondary}">${r.total_calls || 0}</td>
+        <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary};font-weight:600">${r.closed || 0}</td>
+        <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_crColor(cr)}">${cr.toFixed(1)}%</td>
+        <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_nsColor(ns)}">${ns.toFixed(1)}%</td>
+      </tr>`;
+    });
+
+    html += `<tr style="border-top:2px solid ${Theme.COLORS.border}">
+      <td style="padding:8px;font-weight:700;color:${Theme.COLORS.textPrimary}">Total</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggCalls}</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggClosed}</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_crColor(aggCR)}">${aggCR.toFixed(1)}%</td>
+      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_nsColor(aggNS)}">${aggNS.toFixed(1)}%</td>
+    </tr>`;
+
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }).catch(() => {
+    document.getElementById('closer-table-wrap').innerHTML = '<p class="text-muted" style="padding:16px">Failed to load closer data</p>';
+  });
+  chartsRow.appendChild(callsCard);
+  chartsRow.appendChild(dealsCard);
 
   // ---- Biggest Wins / Biggest Leaks ----
   const signals = _detectSignals(cur, prev);

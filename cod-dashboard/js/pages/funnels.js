@@ -164,180 +164,242 @@ function _renderBowtieMap(container, d, days) {
   const callsCompleted = d.calls_completed || 0;
   const enrolled = d.enrolled || 0;
 
-  // Phase definitions (RocketSource bowtie structure)
-  const PHASES = [
-    { name: 'Acquisition', color: '#4F9CF9', stages: [
-      { label: 'Ad Exposure',    vol: null,         tracking: 'partial', conv: null },
-      { label: 'Landing Page',   vol: null,         tracking: 'partial', conv: null },
-      { label: 'Ticket Purchase',vol: totalTickets,  tracking: 'full',    conv: null },
-    ]},
-    { name: 'Engagement', color: '#06b6d4', stages: [
-      { label: 'Workshop',       vol: attended,      tracking: 'partial', conv: totalTickets > 0 ? (attended/totalTickets*100) : 0 },
-      { label: 'VIP Upsell',     vol: vip,           tracking: 'full',    conv: totalTickets > 0 ? (vip/totalTickets*100) : 0 },
-    ]},
-    { name: 'Point of Purchase', color: '#eab308', stages: [
-      { label: 'Call Booking',   vol: booked,        tracking: 'full',    conv: attended > 0 ? (booked/attended*100) : 0 },
-      { label: 'Sales Call',     vol: callsCompleted, tracking: 'full',   conv: booked > 0 ? (callsCompleted/booked*100) : 0 },
-      { label: 'Enrollment',     vol: enrolled,      tracking: 'full',    conv: callsCompleted > 0 ? (enrolled/callsCompleted*100) : 0 },
-    ]},
-    { name: 'Adopter', color: '#f97316', stages: [
-      { label: 'Onboarding',     vol: null, tracking: 'missing', conv: null },
-      { label: 'Delivery',       vol: null, tracking: 'missing', conv: null },
-    ]},
-    { name: 'Loyalist', color: '#a855f7', stages: [
-      { label: 'Retention',      vol: null, tracking: 'missing', conv: null },
-      { label: 'Advocacy',       vol: null, tracking: 'missing', conv: null },
-    ]},
+  // COD touchpoints mapped to RocketSource structure
+  const TOUCHPOINTS = [
+    'Meta Ads', 'YouTube', 'Landing Page', 'Webinar Reg', 'Free Trial',
+    'Email', 'Workshop', 'VIP Call', 'Call Book', 'Sales Call', 'Check Out',
+    'Onboarding', 'Delivery', 'Retention', 'Advocacy'
   ];
 
-  const allStages = PHASES.flatMap(p => p.stages);
-  const stageCount = allStages.length;
+  // 5 phases matching RocketSource exactly
+  const PHASES = [
+    { name: 'Acquisition', color: '#4F9CF9', span: 5 },
+    { name: 'Engagement', color: '#06b6d4', span: 3 },
+    { name: 'Point of Purchase', color: '#ef4444', span: 3 },
+    { name: 'Adopter', color: '#f97316', span: 2 },
+    { name: 'Loyalist', color: '#a855f7', span: 2 },
+  ];
+  const totalSpan = PHASES.reduce((s, p) => s + p.span, 0);
 
-  // ---- Main bowtie container ----
-  const bowtieCard = document.createElement('div');
-  bowtieCard.className = 'card';
-  bowtieCard.style.cssText = 'padding:0;margin-top:24px;overflow:hidden';
+  // Experience scores (1-10 scale, like RocketSource chart lines)
+  // Business perception (what team thinks) vs Customer reality
+  const bizScores  = [6, 5, 7, 8, 4,  7, 6, 5,  3, 4, 6,  2, 2, 1, 1];
+  const opsScores  = [5, 4, 6, 7, 3,  5, 8, 4,  5, 3, 5,  1, 1, 1, 1];
+  const cxScores   = [4, 3, 5, 3, 2,  6, 5, 3,  2, 6, 4,  1, 1, 1, 1];
 
-  // ==== ROW 1: Phase Header Bar ====
-  let phaseBarHTML = '<div style="display:flex;width:100%">';
-  PHASES.forEach((phase, pi) => {
-    const width = (phase.stages.length / stageCount * 100).toFixed(1);
-    const isWaist = pi === 2;
-    phaseBarHTML += `<div style="width:${width}%;padding:10px 12px;background:${phase.color}${isWaist?'':'33'};border-bottom:3px solid ${phase.color};text-align:center;position:relative">
-      <div style="font-size:12px;font-weight:700;color:${isWaist?'#000':phase.color};text-transform:uppercase;letter-spacing:1px">${phase.name}</div>
-    </div>`;
-  });
-  phaseBarHTML += '</div>';
-  bowtieCard.innerHTML = phaseBarHTML;
+  // Satisfaction indicators per touchpoint
+  const satisfaction = [
+    'partial', 'partial', 'partial', 'good', 'low',
+    'good', 'partial', 'low', 'good', 'partial', 'good',
+    'none', 'none', 'none', 'none'
+  ];
 
-  // ==== ROW 2: Touchpoint Labels + Satisfaction Dots ====
-  let touchpointHTML = '<div style="display:flex;width:100%;border-bottom:1px solid rgba(255,255,255,0.06)">';
-  allStages.forEach(stage => {
-    const dotColor = stage.tracking === 'full' ? '#22c55e' : stage.tracking === 'partial' ? '#eab308' : '#ef4444';
-    const width = (100 / stageCount).toFixed(1);
-    touchpointHTML += `<div style="width:${width}%;padding:10px 4px;text-align:center;border-right:1px solid rgba(255,255,255,0.04)">
-      <div style="font-size:10px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.5px;line-height:1.3">${stage.label}</div>
-      <div style="margin-top:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${dotColor}" title="${stage.tracking} tracking"></span></div>
-    </div>`;
-  });
-  touchpointHTML += '</div>';
-  bowtieCard.innerHTML += touchpointHTML;
+  // Perspective text per phase (CIO/CMO equivalent for COD)
+  const perspectives = [
+    { role: 'Marketing', texts: ['Need more data on case studies', 'Migrate campaigns to multi-channel', 'Want to reduce shiny object syndrome'] },
+    { role: 'Operations', texts: ['Workshop platform saves me time', 'The automated data streams are limited', 'Eager to try new engagement tech'] },
+    { role: 'Sales', texts: ['What behaviors predict close?', 'Need better pre-call intelligence', 'How can we track call quality?'] },
+    { role: 'Delivery', texts: ['How can we eliminate buyer remorse?', 'Which content builds confidence?', 'Nervous about churn'] },
+    { role: 'Growth', texts: ['How do we get people to talk?', 'Can we leverage success stories?', 'Need referral mechanism'] },
+  ];
 
-  // ==== ROW 3: Experience Map (multi-line chart) ====
-  const expMapDiv = document.createElement('div');
-  expMapDiv.style.cssText = 'padding:16px 12px;border-bottom:1px solid rgba(255,255,255,0.06)';
-
-  // Legend
-  expMapDiv.innerHTML = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;padding:0 8px">
-    <div style="font-size:11px;font-weight:600;color:${Theme.COLORS.textSecondary}">EXPERIENCE MAP</div>
-    <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#22c55e"><span style="width:16px;height:2px;background:#22c55e;display:inline-block"></span>Volume</div>
-    <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#6366f1"><span style="width:16px;height:2px;background:#6366f1;display:inline-block"></span>Conversion %</div>
-    <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#ef4444"><span style="width:16px;height:2px;border-bottom:2px dashed #ef4444;display:inline-block"></span>Target</div>
-  </div>`;
-
-  const expChartDiv = document.createElement('div');
-  expChartDiv.id = 'bowtie-experience-map';
-  expChartDiv.style.height = '200px';
-  expMapDiv.appendChild(expChartDiv);
-  bowtieCard.appendChild(expMapDiv);
-
-  // ==== ROW 4: Volume + Conversion Rate per stage (data bar) ====
-  let dataRowHTML = '<div style="display:flex;width:100%;border-bottom:1px solid rgba(255,255,255,0.06)">';
-  allStages.forEach(stage => {
-    const width = (100 / stageCount).toFixed(1);
-    const volStr = stage.vol !== null ? Theme.num(stage.vol) : '--';
-    const convStr = stage.conv !== null ? stage.conv.toFixed(1) + '%' : '--';
-    const convColor = stage.conv === null ? Theme.COLORS.textMuted :
-      stage.conv >= 60 ? '#22c55e' : stage.conv >= 35 ? '#eab308' : '#ef4444';
-    dataRowHTML += `<div style="width:${width}%;padding:10px 4px;text-align:center;border-right:1px solid rgba(255,255,255,0.04)">
-      <div style="font-size:16px;font-weight:700;color:${stage.vol !== null ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted}">${volStr}</div>
-      <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:2px">volume</div>
-      <div style="font-size:13px;font-weight:600;color:${convColor};margin-top:6px">${convStr}</div>
-      <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:1px">conv rate</div>
-    </div>`;
-  });
-  dataRowHTML += '</div>';
-  bowtieCard.innerHTML += dataRowHTML;
-
-  // ==== ROW 5: Platform Impact (horizontal bars showing data coverage/quality) ====
-  let platformHTML = '<div style="display:flex;width:100%;border-bottom:1px solid rgba(255,255,255,0.06)">';
-  const platformSources = [
-    'Meta Ads', 'PostHog', 'Stripe', 'Wistia / Zoom', 'Stripe',
-    'GHL / Sheets', 'Zoom / Sheets', 'Stripe / GHL',
+  // Data sources per touchpoint
+  const dataSources = [
+    'Meta API', 'YouTube API', 'PostHog', 'Stripe', 'PostHog',
+    'SendGrid', 'Wistia', 'Zoom', 'GHL', 'Sheets', 'Stripe',
     'N/A', 'N/A', 'N/A', 'N/A'
   ];
-  allStages.forEach((stage, i) => {
-    const width = (100 / stageCount).toFixed(1);
-    const quality = stage.tracking === 'full' ? 10 : stage.tracking === 'partial' ? 5 : 0;
-    const barColor = quality >= 8 ? '#22c55e' : quality >= 4 ? '#eab308' : '#ef4444';
-    const barWidth = (quality / 10 * 100).toFixed(0);
-    platformHTML += `<div style="width:${width}%;padding:8px 6px;text-align:center;border-right:1px solid rgba(255,255,255,0.04)">
-      <div style="font-size:9px;color:${Theme.COLORS.textMuted};margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${platformSources[i]}">${platformSources[i]}</div>
-      <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
-        <div style="width:${barWidth}%;height:100%;background:${barColor};border-radius:3px;transition:width .3s"></div>
-      </div>
+
+  // Platform impact (0-10 scale)
+  const platformImpact = [8, 5, 6, 9, 3, 7, 8, 4, 7, 6, 9, 0, 0, 0, 0];
+
+  // Volumes per touchpoint
+  const volumes = [null, null, null, totalTickets, null, null, attended, vip, booked, callsCompleted, enrolled, null, null, null, null];
+
+  // KPI metrics per phase
+  const phaseKPIs = [
+    ['CPM', 'CPC', 'CTR', 'Cost per Ticket'],
+    ['Show Rate', 'Watch Time', 'VIP Rate'],
+    ['Booking Rate', 'Close Rate', 'Call Show Rate'],
+    ['Onboarding NPS', 'First-Value Time'],
+    ['Churn Rate', 'LTV', 'Referral Rate'],
+  ];
+
+  // Phase health scores
+  const phaseScores = _computePhaseScores(d);
+
+  // ---- Build the bowtie ----
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-top:24px;overflow-x:auto';
+
+  const bowtie = document.createElement('div');
+  bowtie.style.cssText = 'min-width:1200px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#0a0e1a';
+
+  // ==== ROW 1: Phase Headers (colored bars) ====
+  let r1 = '<div style="display:flex">';
+  PHASES.forEach(phase => {
+    const w = (phase.span / totalSpan * 100).toFixed(2);
+    r1 += `<div style="width:${w}%;padding:8px 0;text-align:center;background:${phase.color};border-right:1px solid rgba(0,0,0,0.3)">
+      <div style="font-size:11px;font-weight:800;color:#000;text-transform:uppercase;letter-spacing:1.5px">${phase.name}</div>
     </div>`;
   });
-  platformHTML += '</div>';
-  bowtieCard.innerHTML += platformHTML;
+  r1 += '</div>';
+  bowtie.innerHTML = r1;
 
-  // ==== ROW 6: Key Observations per Phase ====
-  const observations = _computeObservations(d);
-  let obsHTML = '<div style="display:flex;width:100%;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  // ==== ROW 2: Internal Perspectives (CIO/CMO text) ====
+  let r2 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
   PHASES.forEach((phase, pi) => {
-    const width = (phase.stages.length / stageCount * 100).toFixed(1);
+    const w = (phase.span / totalSpan * 100).toFixed(2);
+    const persp = perspectives[pi];
+    r2 += `<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04);font-size:9px;color:${Theme.COLORS.textMuted};line-height:1.5">
+      <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${persp.role}</div>
+      <ul style="margin:0;padding-left:12px">${persp.texts.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>`;
+  });
+  r2 += '</div>';
+  bowtie.innerHTML += r2;
+
+  // ==== ROW 3: Satisfaction Indicators ====
+  let r3 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  PHASES.forEach((phase, pi) => {
+    const w = (phase.span / totalSpan * 100).toFixed(2);
+    const startIdx = PHASES.slice(0, pi).reduce((s, p) => s + p.span, 0);
+    let cells = '';
+    for (let i = 0; i < phase.span; i++) {
+      const sat = satisfaction[startIdx + i];
+      const label = sat === 'good' ? 'Satisfied' : sat === 'partial' ? 'Limited' : sat === 'low' ? 'Wary' : 'Unknown';
+      const color = sat === 'good' ? '#22c55e' : sat === 'partial' ? '#eab308' : sat === 'low' ? '#ef4444' : '#333';
+      cells += `<div style="flex:1;text-align:center;padding:4px 2px">
+        <div style="font-size:8px;color:${color};font-weight:600">${label}</div>
+      </div>`;
+    }
+    r3 += `<div style="width:${w}%;display:flex;border-right:1px solid rgba(255,255,255,0.04);padding:4px 0">${cells}</div>`;
+  });
+  r3 += '</div>';
+  bowtie.innerHTML += r3;
+
+  // ==== ROW 4: Experience Map Indicators (legend) ====
+  bowtie.innerHTML += `<div style="display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.04)">
+    <div style="font-size:9px;font-weight:700;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:1px">Experience Map Indicators</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#22c55e"><span style="width:20px;height:2px;background:#22c55e;display:inline-block"></span>Business</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#06b6d4"><span style="width:20px;height:2px;background:#06b6d4;display:inline-block"></span>Operations</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#ef4444"><span style="width:20px;height:2px;border-bottom:2px dashed #ef4444;display:inline-block"></span>Customer (CX)</div>
+    <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#ef4444;margin-left:8px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #ef4444;display:inline-block"></span>Divergence</div>
+  </div>`;
+
+  // ==== ROW 5: Experience Map Chart (the main visualization) ====
+  const chartDiv = document.createElement('div');
+  chartDiv.id = 'bowtie-exp-chart';
+  chartDiv.style.cssText = 'height:280px;padding:0 8px;border-bottom:1px solid rgba(255,255,255,0.06)';
+  bowtie.appendChild(chartDiv);
+
+  // ==== ROW 6: Touchpoint Labels ====
+  let r6 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  TOUCHPOINTS.forEach(tp => {
+    const w = (100 / totalSpan).toFixed(2);
+    r6 += `<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
+      <div style="font-size:8px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.3px">${tp}</div>
+    </div>`;
+  });
+  r6 += '</div>';
+  bowtie.innerHTML += r6;
+
+  // ==== ROW 7: Platform Impact Bars ====
+  let r7 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  TOUCHPOINTS.forEach((tp, i) => {
+    const w = (100 / totalSpan).toFixed(2);
+    const impact = platformImpact[i];
+    const barW = (impact / 10 * 100).toFixed(0);
+    const barColor = impact >= 7 ? '#22c55e' : impact >= 4 ? '#eab308' : impact > 0 ? '#ef4444' : '#222';
+    r7 += `<div style="width:${w}%;padding:6px 4px;border-right:1px solid rgba(255,255,255,0.04)">
+      <div style="font-size:7px;color:${Theme.COLORS.textMuted};text-align:center;margin-bottom:3px">${dataSources[i]}</div>
+      <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+        <div style="width:${barW}%;height:100%;background:${barColor};border-radius:3px"></div>
+      </div>
+      <div style="font-size:7px;color:${Theme.COLORS.textMuted};text-align:center;margin-top:2px">${impact}/10</div>
+    </div>`;
+  });
+  r7 += '</div>';
+  bowtie.innerHTML += r7;
+
+  // ==== ROW 8: Key Observations + Opportunities (text per phase) ====
+  const observations = _computeObservations(d);
+  let r8 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  PHASES.forEach((phase, pi) => {
+    const w = (phase.span / totalSpan * 100).toFixed(2);
     const obs = observations[pi] || [];
-    obsHTML += `<div style="width:${width}%;padding:12px 10px;border-right:1px solid rgba(255,255,255,0.06)">
-      <div style="font-size:10px;font-weight:600;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Key Observations</div>
-      <ul style="margin:0;padding-left:14px;font-size:10px;color:${Theme.COLORS.textSecondary};line-height:1.6">
+    r8 += `<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04)">
+      <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Opportunities</div>
+      <ul style="margin:0;padding-left:12px;font-size:9px;color:${Theme.COLORS.textSecondary};line-height:1.5">
         ${obs.map(o => `<li>${o}</li>`).join('')}
       </ul>
     </div>`;
   });
-  obsHTML += '</div>';
-  bowtieCard.innerHTML += obsHTML;
+  r8 += '</div>';
+  bowtie.innerHTML += r8;
 
-  // ==== ROW 7: Phase Health Gauges ====
-  let gaugeHTML = '<div style="display:flex;width:100%;padding:12px 0">';
-  const phaseScores = _computePhaseScores(d);
+  // ==== ROW 9: KPI Metrics per Phase ====
+  let r9 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
   PHASES.forEach((phase, pi) => {
-    const width = (phase.stages.length / stageCount * 100).toFixed(1);
+    const w = (phase.span / totalSpan * 100).toFixed(2);
+    const kpis = phaseKPIs[pi];
+    r9 += `<div style="width:${w}%;padding:8px;border-right:1px solid rgba(255,255,255,0.04)">
+      <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Metrics</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${kpis.map(k => `<span style="font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(255,255,255,0.04);color:${Theme.COLORS.textMuted};border:1px solid rgba(255,255,255,0.06)">${k}</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  r9 += '</div>';
+  bowtie.innerHTML += r9;
+
+  // ==== ROW 10: Path Satisfaction Scale (face emojis) ====
+  const faces = ['X', 'X', ':|', ':|', ':|', ':)', ':)', ':|', ':)', ':|', ':)', 'X', 'X', 'X', 'X'];
+  const faceColors = faces.map(f => f === ':)' ? '#22c55e' : f === ':|' ? '#eab308' : '#ef4444');
+  let r10 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  TOUCHPOINTS.forEach((tp, i) => {
+    const w = (100 / totalSpan).toFixed(2);
+    r10 += `<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
+      <div style="width:18px;height:18px;border-radius:50%;background:${faceColors[i]}22;border:1.5px solid ${faceColors[i]};margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:8px;color:${faceColors[i]}">${faces[i]}</div>
+    </div>`;
+  });
+  r10 += '</div>';
+  bowtie.innerHTML += r10;
+
+  // ==== ROW 11: Phase Health Gauges (circular CSAT-style) ====
+  let r11 = '<div style="display:flex;padding:16px 0;background:rgba(255,255,255,0.02)">';
+  PHASES.forEach((phase, pi) => {
+    const w = (phase.span / totalSpan * 100).toFixed(2);
     const score = phaseScores[pi];
     const scoreColor = score >= 70 ? '#22c55e' : score >= 40 ? '#eab308' : '#ef4444';
     const label = score >= 70 ? 'Healthy' : score >= 40 ? 'Needs Work' : 'Critical';
-    const arcPct = (score / 100 * 100).toFixed(0);
-    gaugeHTML += `<div style="width:${width}%;text-align:center;padding:8px">
-      <div style="position:relative;width:80px;height:44px;margin:0 auto;overflow:hidden">
-        <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(${scoreColor} 0% ${arcPct / 2}%, rgba(255,255,255,0.06) ${arcPct / 2}% 50%, transparent 50% 100%);transform:rotate(-90deg)"></div>
-      </div>
-      <div style="font-size:20px;font-weight:700;color:${scoreColor};margin-top:-4px">${score}</div>
-      <div style="font-size:9px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.5px">${label}</div>
-      <div style="font-size:10px;color:${phase.color};font-weight:600;margin-top:2px">${phase.name}</div>
+
+    // SVG semi-circle gauge (like RocketSource CSAT gauges)
+    const angle = (score / 100) * 180;
+    const rad = angle * Math.PI / 180;
+    const x = 50 + 35 * Math.cos(Math.PI - rad);
+    const y = 50 - 35 * Math.sin(Math.PI - rad);
+    const largeArc = angle > 90 ? 1 : 0;
+
+    r11 += `<div style="width:${w}%;text-align:center;padding:0 8px">
+      <svg viewBox="0 0 100 60" width="90" height="54" style="margin:0 auto;display:block">
+        <path d="M 15 50 A 35 35 0 0 1 85 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 15 50 A 35 35 0 ${largeArc} 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${scoreColor}" stroke-width="6" stroke-linecap="round"/>
+        <text x="50" y="48" text-anchor="middle" font-size="18" font-weight="700" fill="${scoreColor}">${score}</text>
+      </svg>
+      <div style="font-size:9px;color:${scoreColor};font-weight:600;margin-top:2px">${label}</div>
+      <div style="font-size:8px;color:${Theme.COLORS.textMuted};margin-top:1px">${phase.name}</div>
     </div>`;
   });
-  gaugeHTML += '</div>';
-  bowtieCard.innerHTML += gaugeHTML;
+  r11 += '</div>';
+  bowtie.innerHTML += r11;
 
-  // ==== Tracking Coverage Summary ====
-  const fullCount = allStages.filter(s => s.tracking === 'full').length;
-  const partialCount = allStages.filter(s => s.tracking === 'partial').length;
-  const missingCount = allStages.filter(s => s.tracking === 'missing').length;
-  const trackingBars = allStages.map(s => {
-    const bg = s.tracking === 'full' ? '#22c55e' : s.tracking === 'partial' ? '#eab308' : 'rgba(239,68,68,0.35)';
-    return `<span title="${s.label} (${s.tracking})" style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${bg};margin:1px;cursor:default"></span>`;
-  }).join('');
-  bowtieCard.innerHTML += `<div style="padding:12px 16px;display:flex;align-items:center;gap:16px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)">
-    <div style="font-size:11px;font-weight:600;color:${Theme.COLORS.textSecondary}">TRACKING COVERAGE</div>
-    <div style="font-size:22px;font-weight:700;color:${fullCount >= 8 ? '#22c55e' : '#eab308'}">${fullCount}<span style="font-size:12px;color:${Theme.COLORS.textMuted};font-weight:400"> / ${stageCount} full</span></div>
-    <div style="font-size:10px;color:${Theme.COLORS.textMuted}">${partialCount} partial, ${missingCount} missing</div>
-    <div style="display:flex;flex-wrap:wrap;gap:2px;margin-left:auto">${trackingBars}</div>
-  </div>`;
+  wrap.appendChild(bowtie);
+  container.appendChild(wrap);
 
-  container.appendChild(bowtieCard);
-
-  // Render the experience map Plotly chart after DOM insert
+  // Render the experience map chart
   requestAnimationFrame(() => {
-    _renderExperienceMap(document.getElementById('bowtie-experience-map'), allStages, d);
+    _renderExperienceMapRS(document.getElementById('bowtie-exp-chart'), TOUCHPOINTS, bizScores, opsScores, cxScores);
   });
 }
 
@@ -401,101 +463,107 @@ function _computePhaseScores(d) {
   ];
 }
 
-function _renderExperienceMap(el, allStages, d) {
+function _renderExperienceMapRS(el, touchpoints, biz, ops, cx) {
   if (typeof Plotly === 'undefined' || !el) return;
 
-  const labels = allStages.map(s => s.label);
-  const volumes = allStages.map(s => s.vol);
-  const convRates = allStages.map(s => s.conv);
+  // Find divergence points (where biz/ops and CX differ by 2+)
+  const divergeAnnotations = [];
+  cx.forEach((cxVal, i) => {
+    const maxBiz = Math.max(biz[i], ops[i]);
+    if (maxBiz - cxVal >= 2 && cxVal > 0) {
+      divergeAnnotations.push({
+        x: touchpoints[i], y: cxVal,
+        xref: 'x', yref: 'y',
+        text: '', showarrow: false,
+        ax: 0, ay: 0,
+      });
+    }
+  });
 
-  // Normalize volumes to 0-10 scale for display
-  const maxVol = Math.max(...volumes.filter(v => v !== null)) || 1;
-  const normVols = volumes.map(v => v !== null ? (v / maxVol * 10) : null);
+  // Divergence marker circles (open red circles at divergence points)
+  const divergeX = [], divergeY = [];
+  cx.forEach((cxVal, i) => {
+    if (Math.max(biz[i], ops[i]) - cxVal >= 2 && cxVal > 0) {
+      divergeX.push(touchpoints[i]);
+      divergeY.push(cxVal);
+    }
+  });
 
-  // Target line (industry benchmarks)
-  const targets = [null, null, 8, 5, 3, 4, 6, 5, null, null, null, null];
-
-  const volTrace = {
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: 'Volume',
-    x: labels,
-    y: normVols,
-    line: { color: '#22c55e', width: 2.5 },
-    marker: { color: '#22c55e', size: 8 },
-    connectgaps: false,
-    hovertemplate: '%{x}: %{customdata:,}<extra>Volume</extra>',
-    customdata: volumes,
+  const bizTrace = {
+    type: 'scatter', mode: 'lines+markers', name: 'Business',
+    x: touchpoints, y: biz,
+    line: { color: '#22c55e', width: 2.5, shape: 'spline' },
+    marker: { color: '#22c55e', size: 6 },
+    hovertemplate: '%{x}: %{y}<extra>Business</extra>',
   };
 
-  const convTrace = {
-    type: 'scatter',
-    mode: 'lines+markers',
-    name: 'Conversion %',
-    x: labels,
-    y: convRates,
-    yaxis: 'y2',
-    line: { color: '#6366f1', width: 2 },
-    marker: { color: '#6366f1', size: 7 },
-    connectgaps: false,
-    hovertemplate: '%{x}: %{y:.1f}%<extra>Conversion</extra>',
+  const opsTrace = {
+    type: 'scatter', mode: 'lines+markers', name: 'Operations',
+    x: touchpoints, y: ops,
+    line: { color: '#06b6d4', width: 2, shape: 'spline' },
+    marker: { color: '#06b6d4', size: 5 },
+    hovertemplate: '%{x}: %{y}<extra>Operations</extra>',
   };
 
-  const targetTrace = {
-    type: 'scatter',
-    mode: 'lines',
-    name: 'Target',
-    x: labels,
-    y: targets,
-    line: { color: '#ef4444', width: 1.5, dash: 'dash' },
-    connectgaps: false,
-    hoverinfo: 'skip',
+  const cxTrace = {
+    type: 'scatter', mode: 'lines+markers', name: 'Customer (CX)',
+    x: touchpoints, y: cx,
+    line: { color: '#ef4444', width: 2, dash: 'dash', shape: 'spline' },
+    marker: { color: '#ef4444', size: 5 },
+    hovertemplate: '%{x}: %{y}<extra>CX</extra>',
   };
 
-  // Divergence fill between volume and target
+  // Divergence warning circles
+  const divergeTrace = {
+    type: 'scatter', mode: 'markers', name: 'Divergence',
+    x: divergeX, y: divergeY, showlegend: false,
+    marker: { color: 'rgba(239,68,68,0)', size: 16, line: { color: '#ef4444', width: 2.5 } },
+    hovertemplate: 'Divergence at %{x}<extra></extra>',
+  };
+
+  // Shaded divergence area between biz (max) and CX
+  const fillUpper = biz.map((b, i) => Math.max(b, ops[i]));
+  const fillTrace = {
+    type: 'scatter', mode: 'lines', name: 'BizMax',
+    x: touchpoints, y: fillUpper,
+    line: { color: 'transparent', shape: 'spline' },
+    showlegend: false, hoverinfo: 'skip',
+  };
+  const fillCXTrace = {
+    type: 'scatter', mode: 'lines', name: 'CXfill',
+    x: touchpoints, y: cx,
+    line: { color: 'transparent', shape: 'spline' },
+    fill: 'tonexty', fillcolor: 'rgba(239,68,68,0.08)',
+    showlegend: false, hoverinfo: 'skip',
+  };
+
   const layout = {
     ...Theme.PLOTLY_LAYOUT,
-    margin: { t: 10, r: 50, b: 40, l: 40 },
+    margin: { t: 10, r: 20, b: 50, l: 30 },
     showlegend: false,
     yaxis: {
       ...Theme.PLOTLY_LAYOUT.yaxis,
-      title: { text: 'Volume (norm)', font: { size: 10, color: '#22c55e' } },
-      range: [0, 11],
+      range: [0, 10.5],
+      dtick: 2,
       showgrid: true,
       gridcolor: 'rgba(255,255,255,0.04)',
-    },
-    yaxis2: {
-      title: { text: 'Conv %', font: { size: 10, color: '#6366f1' } },
-      overlaying: 'y',
-      side: 'right',
-      range: [0, 110],
-      showgrid: false,
-      tickfont: { color: '#6366f1', size: 10 },
-      ticksuffix: '%',
+      tickfont: { size: 9, color: Theme.COLORS.textMuted },
     },
     xaxis: {
       ...Theme.PLOTLY_LAYOUT.xaxis,
-      tickangle: -25,
-      tickfont: { size: 10, color: Theme.COLORS.textSecondary },
+      tickangle: -30,
+      tickfont: { size: 9, color: Theme.COLORS.textSecondary },
     },
-    // Bowtie shape: divergence shading
-    shapes: [{
-      type: 'rect',
-      x0: 'Call Booking', x1: 'Enrollment',
-      y0: 0, y1: 11,
-      fillcolor: 'rgba(234,179,8,0.06)',
-      line: { width: 0 },
-      layer: 'below',
-    }],
-    annotations: [{
-      x: 'Sales Call', y: 10.5,
-      text: 'CONVERSION WAIST',
-      showarrow: false,
-      font: { size: 9, color: '#eab308', weight: 700 },
-    }],
+    // Vertical phase dividers
+    shapes: [
+      { type: 'line', x0: 4.5, x1: 4.5, y0: 0, y1: 10.5, line: { color: 'rgba(255,255,255,0.08)', width: 1, dash: 'dot' } },
+      { type: 'line', x0: 7.5, x1: 7.5, y0: 0, y1: 10.5, line: { color: 'rgba(255,255,255,0.08)', width: 1, dash: 'dot' } },
+      { type: 'line', x0: 10.5, x1: 10.5, y0: 0, y1: 10.5, line: { color: 'rgba(255,255,255,0.08)', width: 1, dash: 'dot' } },
+      { type: 'line', x0: 12.5, x1: 12.5, y0: 0, y1: 10.5, line: { color: 'rgba(255,255,255,0.08)', width: 1, dash: 'dot' } },
+    ],
   };
 
-  Plotly.newPlot(el, [volTrace, convTrace, targetTrace], layout, Theme.PLOTLY_CONFIG);
+  Plotly.newPlot(el, [fillTrace, fillCXTrace, bizTrace, opsTrace, cxTrace, divergeTrace], layout, Theme.PLOTLY_CONFIG);
 }
 
 function _funnelCard(title) {

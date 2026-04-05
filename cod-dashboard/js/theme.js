@@ -55,6 +55,16 @@ const Theme = (() => {
       console.warn(`[Theme] canvas #${canvasId} not found`);
       return null;
     }
+
+    // Chart.js responsive mode sizes from PARENT, not canvas.
+    // Ensure parent has height constraint to prevent infinite growth.
+    const parent = canvas.parentElement;
+    if (parent && !parent.style.height) {
+      const h = canvas.style.height || '300px';
+      parent.style.position = parent.style.position || 'relative';
+      parent.style.height = h;
+    }
+
     const ctx = canvas.getContext('2d');
     const chart = new Chart(ctx, config);
     _charts.set(canvasId, chart);

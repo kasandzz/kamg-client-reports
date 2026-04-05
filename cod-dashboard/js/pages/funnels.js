@@ -7,11 +7,19 @@
 App.registerPage('funnels', async (container) => {
   const days = Filters.getDays();
   let kpis, weekly;
+  const SHOPIFY_METRICS = [
+    { key: 'tickets', label: 'Tickets', color: '#6366f1' },
+    { key: 'attended', label: 'Attended', color: '#06b6d4' },
+    { key: 'booked', label: 'Booked', color: '#22c55e' },
+    { key: 'enrolled', label: 'Enrolled', color: '#a855f7' },
+  ];
 
+  let daily;
   try {
-    [kpis, weekly] = await Promise.all([
+    [kpis, weekly, daily] = await Promise.all([
       API.query('funnels', 'default', { days }),
-      API.query('funnels', 'weekly', { days: Math.max(days, 90) })
+      API.query('funnels', 'weekly', { days: Math.max(days, 90) }),
+      API.query('funnels', 'daily', { days }).catch(() => null)
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Funnels: ${err.message}</p></div>`;
@@ -42,6 +50,105 @@ App.registerPage('funnels', async (container) => {
     { label: 'Enrolled', value: enrolled, format: 'num' },
     { label: 'Overall Conversion', value: overallConv, format: 'pct' },
   ]);
+
+  // ---- Shopify-Style Analytics Chart ----
+  if (daily && daily.length > 0) {
+    const curRows = daily.filter(r => r.period === 'current').sort((a, b) => String(a.dt?.value || a.dt).localeCompare(String(b.dt?.value || b.dt)));
+    const prevRows = daily.filter(r => r.period === 'previous').sort((a, b) => String(a.dt?.value || a.dt).localeCompare(String(b.dt?.value || b.dt)));
+
+    // Compute totals for the mini-KPI strip
+    const sum = (rows, key) => rows.reduce((s, r) => s + (parseFloat(r[key]) || 0), 0);
+    const curTotals = {};
+    const prevTotals = {};
+    SHOPIFY_METRICS.forEach(m => {
+      curTotals[m.key] = sum(curRows, m.key);
+      prevTotals[m.key] = sum(prevRows, m.key);
+    });
+    const curConvRate = curTotals.tickets > 0 ? (curTotals.enrolled / curTotals.tickets * 100) : 0;
+    const prevConvRate = prevTotals.tickets > 0 ? (prevTotals.enrolled / prevTotals.tickets * 100) : 0;
+
+    function _shopifyDelta(cur, prev) {
+      if (!prev || prev === 0) return null;
+      return ((cur - prev) / Math.abs(prev)) * 100;
+    }
+
+    const shopifyCard = document.createElement('div');
+    shopifyCard.className = 'card';
+    shopifyCard.style.cssText = 'padding:16px 20px;margin-top:16px';
+
+    // Mini KPI row (Shopify style)
+    const miniKpis = [
+      { label: 'Tickets', cur: curTotals.tickets, prev: prevTotals.tickets },
+      { label: 'Attended', cur: curTotals.attended, prev: prevTotals.attended },
+      { label: 'Booked', cur: curTotals.booked, prev: prevTotals.booked },
+      { label: 'Enrolled', cur: curTotals.enrolled, prev: prevTotals.enrolled },
+      { label: 'Conversion', cur: curConvRate, prev: prevConvRate, isPct: true },
+    ];
+
+    let miniHTML = '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid ' + Theme.COLORS.border + '">';
+    let activeMetricIdx = 0;
+
+    miniKpis.forEach((mk, idx) => {
+      const delta = _shopifyDelta(mk.cur, mk.prev);
+      const deltaStr = delta != null ? (delta >= 0 ? '+' : '') + delta.toFixed(0) + '%' : '';
+      const deltaColor = delta > 0 ? Theme.COLORS.success : delta < 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+      const valStr = mk.isPct ? mk.cur.toFixed(2) + '%' : Theme.num(Math.round(mk.cur));
+
+      miniHTML += `<div class="shopify-metric" data-idx="${idx}" style="cursor:pointer;padding:4px 8px;border-radius:6px;transition:background .15s${idx === 0 ? ';background:rgba(255,255,255,0.06)' : ''}">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:2px">${mk.label}</div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary}">${valStr}</span>
+          ${deltaStr ? `<span style="font-size:11px;font-weight:600;color:${deltaColor}">${deltaStr}</span>` : ''}
+        </div>
+      </div>`;
+    });
+    miniHTML += '</div>';
+    shopifyCard.innerHTML = miniHTML;
+
+    // Chart canvas
+    const chartWrap = document.createElement('div');
+    chartWrap.style.cssText = 'position:relative;height:220px;width:100%';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'funnels-shopify-chart';
+    chartWrap.appendChild(canvas);
+    shopifyCard.appendChild(chartWrap);
+
+    // Legend
+    const legendDiv = document.createElement('div');
+    legendDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px;font-size:11px;color:' + Theme.COLORS.textMuted;
+    const curStart = curRows.length > 0 ? String(curRows[0].dt?.value || curRows[0].dt).substring(5) : '';
+    const curEnd = curRows.length > 0 ? String(curRows[curRows.length - 1].dt?.value || curRows[curRows.length - 1].dt).substring(5) : '';
+    const prevStart = prevRows.length > 0 ? String(prevRows[0].dt?.value || prevRows[0].dt).substring(5) : '';
+    const prevEnd = prevRows.length > 0 ? String(prevRows[prevRows.length - 1].dt?.value || prevRows[prevRows.length - 1].dt).substring(5) : '';
+    legendDiv.innerHTML = `
+      <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:currentColor;display:inline-block"></span>${curStart} - ${curEnd}</span>
+      <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span>${prevStart} - ${prevEnd}</span>
+    `;
+    shopifyCard.appendChild(legendDiv);
+    container.appendChild(shopifyCard);
+
+    // Render Chart.js line chart
+    requestAnimationFrame(() => {
+      const metricKey = SHOPIFY_METRICS[activeMetricIdx].key;
+      const metricColor = SHOPIFY_METRICS[activeMetricIdx].color;
+      _renderShopifyChart(canvas, curRows, prevRows, metricKey, metricColor);
+    });
+
+    // Click metric to change chart
+    shopifyCard.querySelectorAll('.shopify-metric').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        if (idx === 4) return; // Conversion rate doesn't have a daily series
+        activeMetricIdx = idx;
+        shopifyCard.querySelectorAll('.shopify-metric').forEach(m => m.style.background = 'transparent');
+        el.style.background = 'rgba(255,255,255,0.06)';
+        const metricKey = SHOPIFY_METRICS[idx].key;
+        const metricColor = SHOPIFY_METRICS[idx].color;
+        Theme.destroyChart('funnels-shopify-chart');
+        _renderShopifyChart(canvas, curRows, prevRows, metricKey, metricColor);
+      });
+    });
+  }
 
   // ---- Hero: Funnel Sankey (full width) ----
   const sankeyCard = _funnelCard('Funnel Flow');
@@ -443,6 +550,72 @@ function _renderDropoutFlow(d) {
   wrapper.appendChild(summary);
 
   return wrapper;
+}
+
+function _renderShopifyChart(canvas, curRows, prevRows, metricKey, color) {
+  // Normalize to same-length arrays by day index (day 0..N)
+  const curVals = curRows.map(r => parseFloat(r[metricKey]) || 0);
+  const prevVals = prevRows.map(r => parseFloat(r[metricKey]) || 0);
+  const curLabels = curRows.map(r => {
+    const d = r.dt?.value || r.dt;
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+
+  // Pad shorter array
+  const maxLen = Math.max(curVals.length, prevVals.length);
+  while (curVals.length < maxLen) curVals.push(0);
+  while (prevVals.length < maxLen) prevVals.push(0);
+  while (curLabels.length < maxLen) curLabels.push('');
+
+  const config = {
+    type: 'line',
+    data: {
+      labels: curLabels,
+      datasets: [
+        {
+          label: 'Current',
+          data: curVals,
+          borderColor: color,
+          backgroundColor: color + '18',
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+        },
+        {
+          label: 'Previous',
+          data: prevVals,
+          borderColor: color + '60',
+          borderDash: [5, 4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { mode: 'index' } },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 0, autoSkipPadding: 20 },
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#64748b', font: { size: 10 } },
+        },
+      },
+    },
+  };
+
+  Theme.createChart(canvas.id, config);
 }
 
 function _renderWeeklyTrend(el, weekly) {

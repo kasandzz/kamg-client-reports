@@ -14,6 +14,12 @@
       metrics: ['Emails Sent', 'Open Rate', 'Reply Rate', 'Booking Rate', 'Sequences Active', 'Deliverability'],
       charts: ['Sequence Comparison', 'Reply Rate Trend', 'Domain Health', 'A/B Test Results'],
     },
+    'wistia': {
+      title: 'Wistia',
+      description: 'Workshop video analytics, watch time, engagement heatmaps',
+      metrics: ['Total Plays', 'Avg Watch Time', 'Completion Rate', 'Engagement Score', 'Drop-Off Points', 'Replay Rate'],
+      charts: ['Watch Time Distribution', 'Engagement Heatmap', 'Drop-Off Funnel', 'Viewer Segments'],
+    },
   };
 
   Object.entries(PLACEHOLDERS).forEach(([pageName, config]) => {

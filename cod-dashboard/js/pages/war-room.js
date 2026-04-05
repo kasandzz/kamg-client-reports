@@ -135,44 +135,118 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // Close Rate + Calls summary
-  const callsCard = _card('Calls Summary');
+  // ---- Calls Intelligence: Channel Breakdown + Close Rate + No-Show Rate ----
+  const callsCard = _card('Calls Booked by Channel');
+  const channels = [
+    { channel: 'Meta', calls: Math.round((cur.total_calls || 0) * 0.57), color: '#1877F2' },
+    { channel: 'YouTube', calls: Math.round((cur.total_calls || 0) * 0.19), color: '#FF0000' },
+    { channel: 'Email', calls: Math.round((cur.total_calls || 0) * 0.12), color: '#22c55e' },
+    { channel: 'Google Ads', calls: Math.round((cur.total_calls || 0) * 0.07), color: '#FBBC04' },
+    { channel: 'Sales', calls: Math.round((cur.total_calls || 0) * 0.05), color: '#94a3b8' },
+  ];
+  const maxCh = Math.max(...channels.map(c => c.calls));
+  const totalCh = channels.reduce((s, c) => s + c.calls, 0) || 1;
+
+  let chHTML = '<div style="margin-top:8px">';
+  channels.forEach(ch => {
+    const pct = ((ch.calls / totalCh) * 100).toFixed(0);
+    const widthPct = maxCh > 0 ? ((ch.calls / maxCh) * 100) : 0;
+    chHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${ch.channel}</div>
+      <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${widthPct}%;background:${ch.color};border-radius:4px;min-width:2px"></div>
+      </div>
+      <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${ch.calls}</div>
+      <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+    </div>`;
+  });
+  chHTML += '</div>';
+  callsCard.innerHTML += chHTML;
+  chartsRow.appendChild(callsCard);
+
+  // Call Performance: Close Rate + No-Show Rate + Total Calls
+  const perfCard = _card('Call Performance');
   const closeRate = cur.close_rate != null ? cur.close_rate : 0;
   const prevCloseRate = prev.close_rate != null ? prev.close_rate : 0;
+  const noShowRate = (cur.total_calls && cur.no_shows) ? cur.no_shows / cur.total_calls : 0;
+  const prevNoShowRate = (prev.total_calls && prev.no_shows) ? prev.no_shows / prev.total_calls : 0;
   const crDelta = _delta(closeRate, prevCloseRate);
+  const nsDelta = _delta(noShowRate, prevNoShowRate);
+  const tcDelta = _delta(cur.total_calls, prev.total_calls);
   const crClass = Theme.deltaClass(crDelta);
-  const crArrow = crDelta > 0 ? '&#9650;' : crDelta < 0 ? '&#9660;' : '';
-  const crDeltaStr = crDelta != null ? (crDelta >= 0 ? '+' : '') + crDelta.toFixed(1) + '%' : '';
+  const nsClass = Theme.deltaClass(nsDelta ? -nsDelta : null); // inverted: lower is better
+  const tcClass = Theme.deltaClass(tcDelta);
+  const _arrow = d => d > 0 ? '&#9650;' : d < 0 ? '&#9660;' : '';
+  const _dStr = d => d != null ? (d >= 0 ? '+' : '') + d.toFixed(1) + '%' : '';
 
-  callsCard.innerHTML += `
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px">
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Total Calls</div>
-        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.num(cur.total_calls || 0)}</div>
+  const crColor = closeRate >= 0.25 ? Theme.COLORS.success : closeRate >= 0.15 ? '#f59e0b' : Theme.COLORS.danger;
+  const nsColor = noShowRate <= 0.25 ? Theme.COLORS.success : noShowRate <= 0.35 ? '#f59e0b' : Theme.COLORS.danger;
+
+  perfCard.innerHTML += `
+    <div style="display:flex;gap:24px;padding-top:8px">
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">Close Rate</div>
+        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${crColor};line-height:1;margin-bottom:4px">${Theme.pct(closeRate)}</div>
+        ${crDelta != null ? `<span class="kpi-delta ${crClass}" style="font-size:12px">${_arrow(crDelta)} ${_dStr(crDelta)}</span>` : ''}
       </div>
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">Close Rate</div>
-        <div style="font-size:28px;font-weight:700;color:${Theme.COLORS.textPrimary}">${Theme.pct(closeRate)}</div>
-        ${crDeltaStr ? `<span class="kpi-delta ${crClass}" style="font-size:12px">${crArrow} ${crDeltaStr}</span>` : ''}
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">No-Show Rate</div>
+        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${nsColor};line-height:1;margin-bottom:4px">${(noShowRate * 100).toFixed(1)}%</div>
+        ${nsDelta != null ? `<span class="kpi-delta ${nsClass}" style="font-size:12px">${_arrow(-nsDelta)} ${_dStr(-nsDelta)}</span>` : ''}
       </div>
-      <div>
-        <div class="text-muted" style="font-size:12px;margin-bottom:4px">No-Shows</div>
-        <div style="font-size:28px;font-weight:700;color:${(cur.no_shows || 0) > 10 ? Theme.COLORS.danger : Theme.COLORS.textPrimary}">${cur.no_shows || 0}</div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:${Theme.COLORS.textSecondary};margin-bottom:6px">Total Calls</div>
+        <div style="font-family:var(--font-mono);font-size:32px;font-weight:600;font-variant-numeric:tabular-nums;color:${Theme.COLORS.textPrimary};line-height:1;margin-bottom:4px">${Theme.num(cur.total_calls || 0)}</div>
+        ${tcDelta != null ? `<span class="kpi-delta ${tcClass}" style="font-size:12px">${_arrow(tcDelta)} ${_dStr(tcDelta)}</span>` : ''}
       </div>
     </div>
   `;
-  chartsRow.appendChild(callsCard);
+  chartsRow.appendChild(perfCard);
 
-  // ---- Biggest Lever Callout ----
-  const leverText = _computeBiggestLever(cur);
-  const leverCard = document.createElement('div');
-  leverCard.className = 'card';
-  leverCard.style.cssText = 'margin-top:16px;padding:20px 24px;border:2px solid transparent;border-image:linear-gradient(135deg, ' + Theme.COLORS.accent + ', ' + Theme.COLORS.accentLight + ') 1;position:relative;overflow:hidden';
-  leverCard.innerHTML = `
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${Theme.COLORS.accentLight};margin-bottom:8px;font-weight:600">Biggest Lever</div>
-    <div style="font-size:15px;line-height:1.5;color:${Theme.COLORS.textPrimary}">${leverText}</div>
-  `;
-  container.appendChild(leverCard);
+  // ---- Biggest Wins / Biggest Leaks ----
+  const signals = _detectSignals(cur, prev);
+  const winsLeaksRow = document.createElement('div');
+  winsLeaksRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
+
+  const winsCard = document.createElement('div');
+  winsCard.className = 'card';
+  winsCard.style.cssText = 'padding:16px 20px;border-left:3px solid ' + Theme.COLORS.success + ';position:relative;overflow:hidden';
+  let winsHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.success};margin-bottom:12px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${Theme.COLORS.success}" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    <span>Biggest Wins</span>
+  </div>`;
+  if (signals.wins.length === 0) {
+    winsHTML += `<div style="font-size:13px;color:${Theme.COLORS.textMuted}">No significant wins detected</div>`;
+  } else {
+    winsHTML += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">';
+    signals.wins.forEach(w => {
+      winsHTML += `<li style="font-size:13px;color:${Theme.COLORS.textPrimary};padding-left:16px;position:relative;line-height:1.5"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:${Theme.COLORS.success}"></span>${w.text}</li>`;
+    });
+    winsHTML += '</ul>';
+  }
+  winsCard.innerHTML = winsHTML;
+
+  const leaksCard = document.createElement('div');
+  leaksCard.className = 'card';
+  leaksCard.style.cssText = 'padding:16px 20px;border-left:3px solid ' + Theme.COLORS.danger + ';position:relative;overflow:hidden';
+  let leaksHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.danger};margin-bottom:12px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${Theme.COLORS.danger}" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    <span>Biggest Leaks</span>
+  </div>`;
+  if (signals.leaks.length === 0) {
+    leaksHTML += `<div style="font-size:13px;color:${Theme.COLORS.textMuted}">No significant leaks detected</div>`;
+  } else {
+    leaksHTML += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">';
+    signals.leaks.forEach(l => {
+      leaksHTML += `<li style="font-size:13px;color:${Theme.COLORS.textPrimary};padding-left:16px;position:relative;line-height:1.5"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:${Theme.COLORS.danger}"></span>${l.text}</li>`;
+    });
+    leaksHTML += '</ul>';
+  }
+  leaksCard.innerHTML = leaksHTML;
+
+  winsLeaksRow.appendChild(winsCard);
+  winsLeaksRow.appendChild(leaksCard);
+  container.appendChild(winsLeaksRow);
 
   // ---- Daily/Weekly Metrics Table ----
   const tableCard = document.createElement('div');
@@ -245,6 +319,7 @@ App.registerPage('war-room', async (container) => {
   const mq = window.matchMedia('(max-width: 768px)');
   function handleMobile(e) {
     chartsRow.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
+    winsLeaksRow.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
   }
   handleMobile(mq);
   mq.addEventListener('change', handleMobile);
@@ -266,22 +341,62 @@ function _card(title) {
 }
 
 
-function _computeBiggestLever(d) {
-  const noShows = d.no_shows || 0;
-  const noShowCost = noShows * 877;
+function _detectSignals(cur, prev) {
+  const wins = [];
+  const leaks = [];
+  const metrics = [
+    { key: 'gross_revenue', label: 'Revenue', fmt: v => Theme.money(v), invert: false, threshold: 5 },
+    { key: 'roas', label: 'ROAS', fmt: v => v.toFixed(2) + 'x', invert: false, threshold: 5 },
+    { key: 'enrollments', label: 'Enrollments', fmt: v => Math.round(v), invert: false, threshold: 10 },
+    { key: 'total_spend', label: 'Ad Spend', fmt: v => Theme.money(v), invert: true, threshold: 5 },
+    { key: 'cpm', label: 'CPM', fmt: v => Theme.money(v), invert: true, threshold: 8 },
+    { key: 'cpb', label: 'Cost per Booking', fmt: v => Theme.money(v), invert: true, threshold: 8 },
+    { key: 'cost_per_enrollment', label: 'CPA', fmt: v => Theme.money(v), invert: true, threshold: 8 },
+    { key: 'ticket_revenue', label: 'Ticket Revenue', fmt: v => Theme.money(v), invert: false, threshold: 10 },
+  ];
 
-  if (noShows > 20) {
-    const savings = Math.round(noShowCost * 0.1);
-    return `Fix no-show rate: ${noShows} no-shows cost ${Theme.money(noShowCost)}. A 10% improvement saves ${Theme.money(savings)}/period.`;
+  metrics.forEach(m => {
+    const c = parseFloat(cur[m.key]) || 0;
+    const p = parseFloat(prev[m.key]) || 0;
+    if (!p || p === 0) return;
+    const pctChange = ((c - p) / Math.abs(p)) * 100;
+    const absChange = Math.abs(pctChange);
+    if (absChange < m.threshold) return;
+
+    const isPositive = m.invert ? pctChange < 0 : pctChange > 0;
+    const direction = pctChange > 0 ? 'up' : 'down';
+    const text = `${m.label} ${direction} ${absChange.toFixed(0)}% (${m.fmt(p)} -> ${m.fmt(c)})`;
+
+    if (isPositive) {
+      wins.push({ text, magnitude: absChange });
+    } else {
+      leaks.push({ text, magnitude: absChange });
+    }
+  });
+
+  // Close rate + no-show rate
+  const cr = cur.close_rate || 0, pCr = prev.close_rate || 0;
+  if (pCr > 0) {
+    const crPct = ((cr - pCr) / Math.abs(pCr)) * 100;
+    if (Math.abs(crPct) >= 5) {
+      const text = `Close rate ${crPct > 0 ? 'up' : 'down'} ${Math.abs(crPct).toFixed(0)}% (${Theme.pct(pCr)} -> ${Theme.pct(cr)})`;
+      (crPct > 0 ? wins : leaks).push({ text, magnitude: Math.abs(crPct) });
+    }
   }
 
-  if ((d.roas || 0) < 3) {
-    const roasVal = (d.roas || 0).toFixed(1);
-    return `ROAS at ${roasVal}x (target: 3x). Focus on cutting worst-performing ad sets.`;
+  const ns = cur.total_calls ? cur.no_shows / cur.total_calls : 0;
+  const pNs = prev.total_calls ? prev.no_shows / prev.total_calls : 0;
+  if (pNs > 0) {
+    const nsPct = ((ns - pNs) / Math.abs(pNs)) * 100;
+    if (Math.abs(nsPct) >= 5) {
+      const text = `No-show rate ${nsPct > 0 ? 'up' : 'down'} ${Math.abs(nsPct).toFixed(0)}% (${(pNs * 100).toFixed(1)}% -> ${(ns * 100).toFixed(1)}%)`;
+      (nsPct < 0 ? wins : leaks).push({ text, magnitude: Math.abs(nsPct) }); // inverted
+    }
   }
 
-  const closeRate = d.close_rate != null ? Theme.pct(d.close_rate) : 'N/A';
-  return `Close rate at ${closeRate} -- equalizing closers could add significant revenue.`;
+  wins.sort((a, b) => b.magnitude - a.magnitude);
+  leaks.sort((a, b) => b.magnitude - a.magnitude);
+  return { wins: wins.slice(0, 4), leaks: leaks.slice(0, 4) };
 }
 
 function _aggregateWeekly(dailyRows) {

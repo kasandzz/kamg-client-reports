@@ -135,8 +135,8 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // ---- Sales by Source (from Hyros -- uses existing deployed 'hyros/sources' query) ----
-  const dealsCard = _card('Sales by Source (Hyros)');
+  // ---- Ticket Sales by Source (from Hyros -- uses existing deployed 'hyros/sources' query) ----
+  const dealsCard = _card('Ticket Sales by Source');
   dealsCard.innerHTML += `<div id="wr-sales-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
   API.query('hyros', 'sources', { days }).then(rows => {
@@ -195,57 +195,45 @@ App.registerPage('war-room', async (container) => {
     dealsCard.querySelector('#wr-sales-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
-  // ---- Calls by Source (from Hyros -- uses existing 'hyros/lastSources' as proxy) ----
-  const callsCard = _card('Leads by Source (Hyros)');
-  callsCard.innerHTML += `<div id="wr-calls-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
+  // ---- Ticket Sales by Ad (from Hyros -- granular ad-level, no channel grouping) ----
+  const adCard = _card('Ticket Sales by Ad');
+  adCard.innerHTML += `<div id="wr-sales-by-ad" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
-  API.query('hyros', 'lastSources', { days }).then(rows => {
-    const el = callsCard.querySelector('#wr-calls-channel');
+  API.query('hyros', 'sources', { days }).then(rows => {
+    const el = adCard.querySelector('#wr-sales-by-ad');
     if (!rows || rows.length === 0) {
-      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros lead data for this period</p>`;
+      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
       return;
     }
-    // Normalize into channels
-    const channelMap = {};
-    rows.forEach(r => {
-      const src = (r.last_source || 'Unknown').toLowerCase();
-      let channel;
-      if (src.includes('fb') || src.includes('facebook') || src.includes('meta')) channel = 'Meta';
-      else if (src.includes('youtube') || src.includes('yt')) channel = 'YouTube';
-      else if (src.includes('google')) channel = 'Google';
-      else if (src.includes('email') || src.includes('sendgrid')) channel = 'Email';
-      else if (src.includes('tiktok')) channel = 'TikTok';
-      else if (src.includes('direct')) channel = 'Direct';
-      else if (src === 'unknown') channel = 'Unattributed';
-      else channel = r.last_source;
-      if (!channelMap[channel]) channelMap[channel] = { leads: 0 };
-      channelMap[channel].leads += (r.leads || 0);
-    });
-    const channels = Object.entries(channelMap)
-      .map(([ch, d]) => ({ channel: ch, ...d }))
-      .sort((a, b) => b.leads - a.leads);
-
-    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', Google: '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
-    const maxCh = Math.max(...channels.map(r => r.leads || 0));
-    const totalCh = channels.reduce((s, r) => s + r.leads, 0) || 1;
+    const barColors = ['#6366f1', '#8b5cf6', '#a855f7', '#38bdf8', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#94a3b8'];
+    const maxSales = Math.max(...rows.map(r => r.sales || 0));
+    const totalSales = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
+    const totalRev = rows.reduce((s, r) => s + (r.revenue || 0), 0);
     let html = '';
-    channels.forEach(r => {
-      const pct = ((r.leads / totalCh) * 100).toFixed(0);
-      const widthPct = maxCh > 0 ? ((r.leads / maxCh) * 100) : 0;
-      const color = channelColors[r.channel] || '#6366f1';
+    rows.forEach((r, i) => {
+      const sales = r.sales || 0;
+      const rev = r.revenue || 0;
+      const pct = ((sales / totalSales) * 100).toFixed(0);
+      const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
+      const color = barColors[i % barColors.length];
       html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
+        <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.source}">${r.source}</div>
         <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
           <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
         </div>
-        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.leads}</div>
-        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+        <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
+        <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(rev)}</div>
       </div>`;
     });
-    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros last-click attribution</div>`;
+    html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+      <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalSales} sales</span>
+      <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span>
+    </div>`;
+    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution (ad-level)</div>`;
     el.innerHTML = html;
   }).catch(err => {
-    callsCard.querySelector('#wr-calls-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
+    adCard.querySelector('#wr-sales-by-ad').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
   // DPL (Dollars Per Lead) & Cost Per Ticket
@@ -332,8 +320,8 @@ App.registerPage('war-room', async (container) => {
     </div>
   `;
   chartsRow.appendChild(dplCptCard);
-  chartsRow.appendChild(callsCard);
   chartsRow.appendChild(dealsCard);
+  chartsRow.appendChild(adCard);
 
   // ---- Biggest Wins / Biggest Leaks ----
   const signals = _detectSignals(cur, prev);

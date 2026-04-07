@@ -323,6 +323,7 @@ const App = (() => {
 
     // Listen for filter changes to reload current page
     Filters.onChange(() => {
+      API.clearCache(); // Force fresh data on filter change
       if (_currentPage && _pages[_currentPage]) {
         navigate(_currentPage);
       }

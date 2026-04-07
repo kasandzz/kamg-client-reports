@@ -137,6 +137,13 @@ App.registerPage('war-room', async (container) => {
 
   // ---- Ticket Sales by Source (from Hyros -- uses existing deployed 'hyros/sources' query) ----
   const dealsCard = _card('Ticket Sales by Source');
+  dealsCard.innerHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">
+    <div style="width:120px;flex-shrink:0"></div>
+    <div style="flex:1"></div>
+    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Sales</div>
+    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">%</div>
+    <div style="width:64px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Revenue</div>
+  </div>`;
   dealsCard.innerHTML += `<div id="wr-sales-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
   API.query('hyros', 'sources', { days }).then(rows => {
@@ -145,19 +152,21 @@ App.registerPage('war-room', async (container) => {
       el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
       return;
     }
-    // Normalize source names into channels
+    // Normalize source names into channels (aggregate everything into high-level buckets)
     const channelMap = {};
     rows.forEach(r => {
       const src = (r.source || 'Unknown').toLowerCase();
       let channel;
-      if (src.includes('fb') || src.includes('facebook') || src.includes('meta')) channel = 'Meta';
-      else if (src.includes('youtube') || src.includes('yt')) channel = 'YouTube';
-      else if (src.includes('google')) channel = 'Google';
+      if (src.includes('fb') || src.includes('facebook') || src.includes('meta') || src.includes('broad') || src.includes('lla') || src.includes('interest stack') || src.includes('cbo') || src.includes('stacked') || src.includes('client testimonial') || src.includes('advantage')) channel = 'Meta Ads';
+      else if (src.includes('youtube') || src.includes('yt') || src.includes('tof |')) channel = 'YouTube';
+      else if (src.includes('google')) channel = 'Google Ads';
       else if (src.includes('email') || src.includes('sendgrid')) channel = 'Email';
       else if (src.includes('tiktok')) channel = 'TikTok';
+      else if (src.includes('franzi') || src.includes('setter') || src.includes('appointment') || src.includes('book call')) channel = 'Franzi (Setter)';
+      else if (src.includes('leads |') || src.includes('lead') || src.includes('max')) channel = 'Lead Campaigns';
       else if (src.includes('direct')) channel = 'Direct';
-      else if (src === 'unknown') channel = 'Unattributed';
-      else channel = r.source; // keep original source name for granular view
+      else if (src === 'unknown' || src === '') channel = 'Unattributed';
+      else channel = 'Other';
       if (!channelMap[channel]) channelMap[channel] = { sales: 0, revenue: 0 };
       channelMap[channel].sales += (r.sales || 0);
       channelMap[channel].revenue += (r.revenue || 0);
@@ -166,7 +175,7 @@ App.registerPage('war-room', async (container) => {
       .map(([ch, d]) => ({ channel: ch, ...d }))
       .sort((a, b) => b.revenue - a.revenue);
 
-    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', Google: '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+    const channelColors = { 'Meta Ads': '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569', 'Franzi (Setter)': '#a855f7', 'Lead Campaigns': '#f59e0b', Other: '#64748b' };
     const maxDeal = Math.max(...channels.map(r => r.sales || 0));
     const totalDeals = channels.reduce((s, r) => s + r.sales, 0) || 1;
     const totalRev = channels.reduce((s, r) => s + r.revenue, 0);
@@ -197,6 +206,13 @@ App.registerPage('war-room', async (container) => {
 
   // ---- Ticket Sales by Ad (from Hyros -- granular ad-level, no channel grouping) ----
   const adCard = _card('Ticket Sales by Ad');
+  adCard.innerHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">
+    <div style="width:160px;flex-shrink:0"></div>
+    <div style="flex:1"></div>
+    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Sales</div>
+    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">%</div>
+    <div style="width:64px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Revenue</div>
+  </div>`;
   adCard.innerHTML += `<div id="wr-sales-by-ad" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
   API.query('hyros', 'sources', { days }).then(rows => {
@@ -209,6 +225,14 @@ App.registerPage('war-room', async (container) => {
     const maxSales = Math.max(...rows.map(r => r.sales || 0));
     const totalSales = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
     const totalRev = rows.reduce((s, r) => s + (r.revenue || 0), 0);
+    // Inject tooltip styles once
+    if (!document.getElementById('wr-ad-tooltip-style')) {
+      const style = document.createElement('style');
+      style.id = 'wr-ad-tooltip-style';
+      style.textContent = `.wr-ad-row{position:relative}.wr-ad-tip{display:none;position:absolute;left:0;bottom:100%;margin-bottom:6px;z-index:100;background:#1e1e32;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;min-width:280px;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:auto}.wr-ad-row:hover .wr-ad-tip{display:block}.wr-ad-tip-name{font-size:12px;color:#e0e0f0;font-weight:600;margin-bottom:6px;word-break:break-word}.wr-ad-tip-link{font-size:11px;color:#3b82f6;text-decoration:none;display:inline-flex;align-items:center;gap:4px}.wr-ad-tip-link:hover{text-decoration:underline}`;
+      document.head.appendChild(style);
+    }
+
     let html = '';
     rows.forEach((r, i) => {
       const sales = r.sales || 0;
@@ -216,8 +240,17 @@ App.registerPage('war-room', async (container) => {
       const pct = ((sales / totalSales) * 100).toFixed(0);
       const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
       const color = barColors[i % barColors.length];
-      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.source}">${r.source}</div>
+      const srcName = r.source || 'Unknown';
+      const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=259493877269332&search=' + encodeURIComponent(srcName);
+      html += `<div class="wr-ad-row" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:default">
+        <div class="wr-ad-tip">
+          <div class="wr-ad-tip-name">${srcName}</div>
+          <div style="display:flex;gap:8px;font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">
+            <span>${sales} sales</span><span>${pct}%</span><span style="color:${Theme.COLORS.success}">${Theme.money(rev)}</span>
+          </div>
+          <a class="wr-ad-tip-link" href="${fbSearchUrl}" target="_blank" rel="noopener">Open in Ads Manager &#8599;</a>
+        </div>
+        <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${srcName}">${srcName}</div>
         <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
           <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
         </div>

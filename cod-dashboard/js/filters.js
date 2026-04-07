@@ -80,29 +80,7 @@ const Filters = (() => {
     compareLabel.appendChild(document.createTextNode('Compare'));
     container.appendChild(compareLabel);
 
-    // Divider
-    container.appendChild(_el('div', 'filter-divider'));
-
-    // Closer dropdown
-    container.appendChild(_buildSelect('closer', CLOSERS, _closer, val => {
-      _closer = val;
-      _syncToURL();
-      _notify();
-    }));
-
-    // Channel dropdown
-    container.appendChild(_buildSelect('channel', CHANNELS, _channel, val => {
-      _channel = val;
-      _syncToURL();
-      _notify();
-    }));
-
-    // VIP dropdown
-    container.appendChild(_buildSelect('vip', VIP_OPTIONS, _vip, val => {
-      _vip = val;
-      _syncToURL();
-      _notify();
-    }));
+    // (Dropdowns removed -- closer/channel/vip filters not connected to BQ queries)
   }
 
   function _setDays(preset, group) {

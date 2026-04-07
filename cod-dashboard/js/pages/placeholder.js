@@ -8,12 +8,6 @@
       metrics: ['Total Spend', 'ROAS', 'CPC', 'CTR', 'Conversions', 'Cost/Conv'],
       charts: ['Campaign Performance', 'Keyword Analysis', 'Quality Score Trend', 'Search Terms'],
     },
-    'cold-email': {
-      title: 'Cold Email',
-      description: 'Instantly + Vovik outreach metrics',
-      metrics: ['Emails Sent', 'Open Rate', 'Reply Rate', 'Booking Rate', 'Sequences Active', 'Deliverability'],
-      charts: ['Sequence Comparison', 'Reply Rate Trend', 'Domain Health', 'A/B Test Results'],
-    },
     'wistia': {
       title: 'Wistia',
       description: 'Workshop video analytics, watch time, engagement heatmaps',

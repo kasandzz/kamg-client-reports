@@ -135,69 +135,54 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // ---- Calls Intelligence: Channel Breakdown (from Hyros) ----
-  const callsCard = _card('Calls Booked by Channel');
-  callsCard.innerHTML += `<div id="wr-calls-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
-
-  API.query('war-room', 'callsByChannel', { days }).then(rows => {
-    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
-    const el = callsCard.querySelector('#wr-calls-channel');
-    if (!rows || rows.length === 0) {
-      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros call data for this period</p>`;
-      return;
-    }
-    const maxCh = Math.max(...rows.map(r => r.calls || 0));
-    const totalCh = rows.reduce((s, r) => s + (r.calls || 0), 0) || 1;
-    let html = '';
-    rows.forEach(r => {
-      const calls = r.calls || 0;
-      const pct = ((calls / totalCh) * 100).toFixed(0);
-      const widthPct = maxCh > 0 ? ((calls / maxCh) * 100) : 0;
-      const color = channelColors[r.channel] || '#6366f1';
-      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${r.channel}</div>
-        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
-          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
-        </div>
-        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${calls}</div>
-        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-      </div>`;
-    });
-    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
-    el.innerHTML = html;
-  }).catch(() => {
-    callsCard.querySelector('#wr-calls-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load Hyros call data</p>`;
-  });
-
-  // ---- Sales by Channel (from Hyros) ----
-  const dealsCard = _card('Sales by Channel');
+  // ---- Sales by Source (from Hyros -- uses existing deployed 'hyros/sources' query) ----
+  const dealsCard = _card('Sales by Source (Hyros)');
   dealsCard.innerHTML += `<div id="wr-sales-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
-  API.query('war-room', 'salesByChannel', { days }).then(rows => {
-    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+  API.query('hyros', 'sources', { days }).then(rows => {
     const el = dealsCard.querySelector('#wr-sales-channel');
     if (!rows || rows.length === 0) {
       el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
       return;
     }
-    const maxDeal = Math.max(...rows.map(r => r.sales || 0));
-    const totalDeals = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
-    const totalRev = rows.reduce((s, r) => s + (r.revenue || 0), 0);
-    let html = '';
+    // Normalize source names into channels
+    const channelMap = {};
     rows.forEach(r => {
-      const sales = r.sales || 0;
-      const rev = r.revenue || 0;
-      const pct = ((sales / totalDeals) * 100).toFixed(0);
-      const widthPct = maxDeal > 0 ? ((sales / maxDeal) * 100) : 0;
+      const src = (r.source || 'Unknown').toLowerCase();
+      let channel;
+      if (src.includes('fb') || src.includes('facebook') || src.includes('meta')) channel = 'Meta';
+      else if (src.includes('youtube') || src.includes('yt')) channel = 'YouTube';
+      else if (src.includes('google')) channel = 'Google';
+      else if (src.includes('email') || src.includes('sendgrid')) channel = 'Email';
+      else if (src.includes('tiktok')) channel = 'TikTok';
+      else if (src.includes('direct')) channel = 'Direct';
+      else if (src === 'unknown') channel = 'Unattributed';
+      else channel = r.source; // keep original source name for granular view
+      if (!channelMap[channel]) channelMap[channel] = { sales: 0, revenue: 0 };
+      channelMap[channel].sales += (r.sales || 0);
+      channelMap[channel].revenue += (r.revenue || 0);
+    });
+    const channels = Object.entries(channelMap)
+      .map(([ch, d]) => ({ channel: ch, ...d }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', Google: '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+    const maxDeal = Math.max(...channels.map(r => r.sales || 0));
+    const totalDeals = channels.reduce((s, r) => s + r.sales, 0) || 1;
+    const totalRev = channels.reduce((s, r) => s + r.revenue, 0);
+    let html = '';
+    channels.forEach(r => {
+      const pct = ((r.sales / totalDeals) * 100).toFixed(0);
+      const widthPct = maxDeal > 0 ? ((r.sales / maxDeal) * 100) : 0;
       const color = channelColors[r.channel] || '#6366f1';
       html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${r.channel}</div>
+        <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
         <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
           <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
         </div>
-        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
-        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(rev)}</div>
+        <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.sales}</div>
+        <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.revenue)}</div>
       </div>`;
     });
     html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
@@ -206,63 +191,117 @@ App.registerPage('war-room', async (container) => {
     </div>`;
     html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
     el.innerHTML = html;
-  }).catch(() => {
-    dealsCard.querySelector('#wr-sales-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load Hyros sales data</p>`;
+  }).catch(err => {
+    dealsCard.querySelector('#wr-sales-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
-  // DPL (Days Payback Length) & CAC Charts
-  const dplCacCard = _card('');
+  // ---- Calls by Source (from Hyros -- uses existing 'hyros/lastSources' as proxy) ----
+  const callsCard = _card('Leads by Source (Hyros)');
+  callsCard.innerHTML += `<div id="wr-calls-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
+
+  API.query('hyros', 'lastSources', { days }).then(rows => {
+    const el = callsCard.querySelector('#wr-calls-channel');
+    if (!rows || rows.length === 0) {
+      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros lead data for this period</p>`;
+      return;
+    }
+    // Normalize into channels
+    const channelMap = {};
+    rows.forEach(r => {
+      const src = (r.last_source || 'Unknown').toLowerCase();
+      let channel;
+      if (src.includes('fb') || src.includes('facebook') || src.includes('meta')) channel = 'Meta';
+      else if (src.includes('youtube') || src.includes('yt')) channel = 'YouTube';
+      else if (src.includes('google')) channel = 'Google';
+      else if (src.includes('email') || src.includes('sendgrid')) channel = 'Email';
+      else if (src.includes('tiktok')) channel = 'TikTok';
+      else if (src.includes('direct')) channel = 'Direct';
+      else if (src === 'unknown') channel = 'Unattributed';
+      else channel = r.last_source;
+      if (!channelMap[channel]) channelMap[channel] = { leads: 0 };
+      channelMap[channel].leads += (r.leads || 0);
+    });
+    const channels = Object.entries(channelMap)
+      .map(([ch, d]) => ({ channel: ch, ...d }))
+      .sort((a, b) => b.leads - a.leads);
+
+    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', Google: '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+    const maxCh = Math.max(...channels.map(r => r.leads || 0));
+    const totalCh = channels.reduce((s, r) => s + r.leads, 0) || 1;
+    let html = '';
+    channels.forEach(r => {
+      const pct = ((r.leads / totalCh) * 100).toFixed(0);
+      const widthPct = maxCh > 0 ? ((r.leads / maxCh) * 100) : 0;
+      const color = channelColors[r.channel] || '#6366f1';
+      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
+        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
+        </div>
+        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.leads}</div>
+        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+      </div>`;
+    });
+    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros last-click attribution</div>`;
+    el.innerHTML = html;
+  }).catch(err => {
+    callsCard.querySelector('#wr-calls-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
+  });
+
+  // CPL (Cost Per Lead) & CAC Charts
+  const cplCacCard = _card('');
   const totalSpend = cur.total_spend || 0;
   const grossRev = cur.gross_revenue || 0;
   const enrollments = cur.enrollments || 0;
-  const dailyRev = days > 0 ? grossRev / days : 0;
-  const curDPL = dailyRev > 0 ? Math.ceil(totalSpend / dailyRev) : 0;
+  const ticketRev2 = cur.ticket_revenue || 0;
+  const totalLeads = ticketRev2 > 0 ? Math.round(ticketRev2 / 27) : 0;
+  const curCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
   const curCAC = enrollments > 0 ? totalSpend / enrollments : 0;
 
   const prevSpend = prev.total_spend || 0;
-  const prevRev = prev.gross_revenue || 0;
+  const prevTicketRev = prev.ticket_revenue || 0;
+  const prevLeads = prevTicketRev > 0 ? Math.round(prevTicketRev / 27) : 0;
+  const prevCPL = prevLeads > 0 ? prevSpend / prevLeads : 0;
   const prevEnroll = prev.enrollments || 0;
-  const prevDailyRev = days > 0 ? prevRev / days : 0;
-  const prevDPL = prevDailyRev > 0 ? Math.ceil(prevSpend / prevDailyRev) : 0;
   const prevCAC = prevEnroll > 0 ? prevSpend / prevEnroll : 0;
 
-  const dplColor = curDPL <= 30 ? Theme.COLORS.success : curDPL <= 60 ? '#f59e0b' : Theme.COLORS.danger;
-  const dplDelta = _delta(curDPL, prevDPL);
-  const dplArrow = dplDelta !== null ? (dplDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(dplDelta).toFixed(1)}%</span>` : dplDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${dplDelta.toFixed(1)}%</span>` : '') : '';
+  const cplColor = curCPL <= 300 ? Theme.COLORS.success : curCPL <= 500 ? '#f59e0b' : Theme.COLORS.danger;
+  const cplDelta = _delta(curCPL, prevCPL);
+  const cplArrow = cplDelta !== null ? (cplDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cplDelta).toFixed(1)}%</span>` : cplDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cplDelta.toFixed(1)}%</span>` : '') : '';
 
   const cacDelta = _delta(curCAC, prevCAC);
   const cacArrow = cacDelta !== null ? (cacDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cacDelta).toFixed(1)}%</span>` : cacDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cacDelta.toFixed(1)}%</span>` : '') : '';
 
-  // DPL gauge: bar fills proportionally (60 days = full)
-  const dplPct = Math.min((curDPL / 60) * 100, 100);
+  // CPL gauge: bar fills proportionally ($600 = full)
+  const cplTarget = 600;
+  const cplPct = Math.min((curCPL / cplTarget) * 100, 100);
 
   // CAC gauge bar (target $5000 = full)
   const cacTarget = 5000;
   const cacPct = Math.min((curCAC / cacTarget) * 100, 100);
   const cacColor = curCAC <= 2000 ? Theme.COLORS.success : curCAC <= 3500 ? '#f59e0b' : Theme.COLORS.danger;
 
-  dplCacCard.innerHTML = `
+  cplCacCard.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-      <!-- DPL -->
+      <!-- CPL -->
       <div>
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Days Payback Length (DPL)</div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Cost Per Lead (CPL)</div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
-          <span style="font-size:32px;font-weight:800;color:${dplColor};font-family:var(--font-mono)">${curDPL}</span>
-          <span style="font-size:14px;color:${Theme.COLORS.textMuted}">days</span>
-          ${dplArrow}
+          <span style="font-size:32px;font-weight:800;color:${cplColor};font-family:var(--font-mono)">${Theme.money(curCPL)}</span>
+          ${cplArrow}
         </div>
         <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
-          <div style="height:100%;width:${dplPct}%;background:${dplColor};border-radius:4px;transition:width 0.6s ease"></div>
+          <div style="height:100%;width:${cplPct}%;background:${cplColor};border-radius:4px;transition:width 0.6s ease"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
-          <span>0d</span>
-          <span style="color:${Theme.COLORS.success}">30d target</span>
-          <span>60d</span>
+          <span>$0</span>
+          <span style="color:${Theme.COLORS.success}">$300 target</span>
+          <span>$600</span>
         </div>
         <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
           <span style="color:${Theme.COLORS.textSecondary}">Spend:</span> ${Theme.money(totalSpend)} &middot;
-          <span style="color:${Theme.COLORS.textSecondary}">Daily Rev:</span> ${Theme.money(dailyRev)}
-          ${prevDPL > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${prevDPL} days</span>` : ''}
+          <span style="color:${Theme.COLORS.textSecondary}">Leads:</span> ${totalLeads}
+          ${prevCPL > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevCPL)}</span>` : ''}
         </div>
       </div>
 
@@ -289,7 +328,7 @@ App.registerPage('war-room', async (container) => {
       </div>
     </div>
   `;
-  chartsRow.appendChild(dplCacCard);
+  chartsRow.appendChild(cplCacCard);
   chartsRow.appendChild(callsCard);
   chartsRow.appendChild(dealsCard);
 

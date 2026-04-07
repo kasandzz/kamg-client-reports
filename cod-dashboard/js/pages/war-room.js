@@ -135,127 +135,161 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // ---- Calls Intelligence: Channel Breakdown + Close Rate + No-Show Rate ----
+  // ---- Calls Intelligence: Channel Breakdown (from Hyros) ----
   const callsCard = _card('Calls Booked by Channel');
-  const channels = [
-    { channel: 'Meta', calls: Math.round((cur.total_calls || 0) * 0.57), color: '#1877F2' },
-    { channel: 'YouTube', calls: Math.round((cur.total_calls || 0) * 0.19), color: '#FF0000' },
-    { channel: 'Email', calls: Math.round((cur.total_calls || 0) * 0.12), color: '#22c55e' },
-    { channel: 'Google Ads', calls: Math.round((cur.total_calls || 0) * 0.07), color: '#FBBC04' },
-    { channel: 'Sales', calls: Math.round((cur.total_calls || 0) * 0.05), color: '#94a3b8' },
-  ];
-  const maxCh = Math.max(...channels.map(c => c.calls));
-  const totalCh = channels.reduce((s, c) => s + c.calls, 0) || 1;
+  callsCard.innerHTML += `<div id="wr-calls-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
 
-  let chHTML = '<div style="margin-top:8px">';
-  channels.forEach(ch => {
-    const pct = ((ch.calls / totalCh) * 100).toFixed(0);
-    const widthPct = maxCh > 0 ? ((ch.calls / maxCh) * 100) : 0;
-    chHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${ch.channel}</div>
-      <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${widthPct}%;background:${ch.color};border-radius:4px;min-width:2px"></div>
-      </div>
-      <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${ch.calls}</div>
-      <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-    </div>`;
-  });
-  chHTML += '</div>';
-  callsCard.innerHTML += chHTML;
-  // (appended after perfCard below)
-
-  // ---- Deals Closed by Channel ----
-  const dealsCard = _card('Deals Closed by Channel');
-  const closed = cur.closed || 0;
-  const dealChannels = [
-    { channel: 'Meta', deals: Math.round(closed * 0.57), color: '#1877F2' },
-    { channel: 'YouTube', deals: Math.round(closed * 0.19), color: '#FF0000' },
-    { channel: 'Email', deals: Math.round(closed * 0.12), color: '#22c55e' },
-    { channel: 'Google Ads', deals: Math.round(closed * 0.07), color: '#FBBC04' },
-    { channel: 'Sales', deals: Math.round(closed * 0.05), color: '#94a3b8' },
-  ];
-  const maxDeal = Math.max(...dealChannels.map(c => c.deals));
-  const totalDeals = dealChannels.reduce((s, c) => s + c.deals, 0) || 1;
-
-  let dealHTML = '<div style="margin-top:8px">';
-  dealChannels.forEach(ch => {
-    const pct = ((ch.deals / totalDeals) * 100).toFixed(0);
-    const widthPct = maxDeal > 0 ? ((ch.deals / maxDeal) * 100) : 0;
-    dealHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${ch.channel}</div>
-      <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${widthPct}%;background:${ch.color};border-radius:4px;min-width:2px"></div>
-      </div>
-      <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${ch.deals}</div>
-      <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-    </div>`;
-  });
-  dealHTML += '</div>';
-  dealsCard.innerHTML += dealHTML;
-
-  // Call Performance by Closer (live from BQ)
-  const perfCard = _card('Call Performance by Closer');
-  perfCard.innerHTML += '<div id="closer-table-wrap"><div class="page-placeholder"><div class="spinner"></div></div></div>';
-  chartsRow.appendChild(perfCard);
-
-  const closerColors = ['#38bdf8', '#a78bfa', '#f472b6', '#fb923c', '#facc15', '#34d399', '#f87171', '#60a5fa'];
-  const _crColor = r => r >= 25 ? Theme.COLORS.success : r >= 15 ? '#f59e0b' : Theme.COLORS.danger;
-  const _nsColor = r => r <= 25 ? Theme.COLORS.success : r <= 35 ? '#f59e0b' : Theme.COLORS.danger;
-
-  API.query('war-room', 'closers', { days }).then(rows => {
-    const wrap = document.getElementById('closer-table-wrap');
+  API.query('war-room', 'callsByChannel', { days }).then(rows => {
+    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+    const el = callsCard.querySelector('#wr-calls-channel');
     if (!rows || rows.length === 0) {
-      wrap.innerHTML = '<p class="text-muted" style="padding:16px">No closer data available</p>';
+      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros call data for this period</p>`;
       return;
     }
-
-    const aggCalls = rows.reduce((s, r) => s + (r.total_calls || 0), 0);
-    const aggClosed = rows.reduce((s, r) => s + (r.closed || 0), 0);
-    const aggNoShows = rows.reduce((s, r) => s + (r.no_shows || 0), 0);
-    const aggCR = aggCalls > 0 ? (aggClosed / aggCalls) * 100 : 0;
-    const aggNS = aggCalls > 0 ? (aggNoShows / aggCalls) * 100 : 0;
-
-    let html = `<div style="margin-top:4px">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="border-bottom:1px solid ${Theme.COLORS.border}">
-            <th style="text-align:left;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closer</th>
-            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Calls</th>
-            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Closed</th>
-            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">Close %</th>
-            <th style="text-align:center;padding:6px 8px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};font-weight:500">No-Show %</th>
-          </tr>
-        </thead><tbody>`;
-
-    rows.forEach((r, i) => {
-      const cr = r.close_rate || 0;
-      const ns = r.noshow_rate || 0;
-      const color = closerColors[i % closerColors.length];
-      html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-        <td style="padding:8px;display:flex;align-items:center;gap:8px">
-          <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
-          <span style="font-weight:500;color:${Theme.COLORS.textPrimary}">${r.closer || 'Unknown'}</span>
-        </td>
-        <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textSecondary}">${r.total_calls || 0}</td>
-        <td style="text-align:center;padding:8px;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary};font-weight:600">${r.closed || 0}</td>
-        <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_crColor(cr)}">${cr.toFixed(1)}%</td>
-        <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:600;color:${_nsColor(ns)}">${ns.toFixed(1)}%</td>
-      </tr>`;
+    const maxCh = Math.max(...rows.map(r => r.calls || 0));
+    const totalCh = rows.reduce((s, r) => s + (r.calls || 0), 0) || 1;
+    let html = '';
+    rows.forEach(r => {
+      const calls = r.calls || 0;
+      const pct = ((calls / totalCh) * 100).toFixed(0);
+      const widthPct = maxCh > 0 ? ((calls / maxCh) * 100) : 0;
+      const color = channelColors[r.channel] || '#6366f1';
+      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${r.channel}</div>
+        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
+        </div>
+        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${calls}</div>
+        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+      </div>`;
     });
-
-    html += `<tr style="border-top:2px solid ${Theme.COLORS.border}">
-      <td style="padding:8px;font-weight:700;color:${Theme.COLORS.textPrimary}">Total</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggCalls}</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${Theme.COLORS.textPrimary}">${aggClosed}</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_crColor(aggCR)}">${aggCR.toFixed(1)}%</td>
-      <td style="text-align:center;padding:8px;font-family:var(--font-mono);font-weight:700;color:${_nsColor(aggNS)}">${aggNS.toFixed(1)}%</td>
-    </tr>`;
-
-    html += '</tbody></table></div>';
-    wrap.innerHTML = html;
+    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
+    el.innerHTML = html;
   }).catch(() => {
-    document.getElementById('closer-table-wrap').innerHTML = '<p class="text-muted" style="padding:16px">Failed to load closer data</p>';
+    callsCard.querySelector('#wr-calls-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load Hyros call data</p>`;
   });
+
+  // ---- Sales by Channel (from Hyros) ----
+  const dealsCard = _card('Sales by Channel');
+  dealsCard.innerHTML += `<div id="wr-sales-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
+
+  API.query('war-room', 'salesByChannel', { days }).then(rows => {
+    const channelColors = { Meta: '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569' };
+    const el = dealsCard.querySelector('#wr-sales-channel');
+    if (!rows || rows.length === 0) {
+      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
+      return;
+    }
+    const maxDeal = Math.max(...rows.map(r => r.sales || 0));
+    const totalDeals = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
+    const totalRev = rows.reduce((s, r) => s + (r.revenue || 0), 0);
+    let html = '';
+    rows.forEach(r => {
+      const sales = r.sales || 0;
+      const rev = r.revenue || 0;
+      const pct = ((sales / totalDeals) * 100).toFixed(0);
+      const widthPct = maxDeal > 0 ? ((sales / maxDeal) * 100) : 0;
+      const color = channelColors[r.channel] || '#6366f1';
+      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:90px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0">${r.channel}</div>
+        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
+        </div>
+        <div style="width:48px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
+        <div style="width:44px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(rev)}</div>
+      </div>`;
+    });
+    html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+      <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalDeals} sales</span>
+      <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span>
+    </div>`;
+    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
+    el.innerHTML = html;
+  }).catch(() => {
+    dealsCard.querySelector('#wr-sales-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load Hyros sales data</p>`;
+  });
+
+  // DPL (Days Payback Length) & CAC Charts
+  const dplCacCard = _card('');
+  const totalSpend = cur.total_spend || 0;
+  const grossRev = cur.gross_revenue || 0;
+  const enrollments = cur.enrollments || 0;
+  const dailyRev = days > 0 ? grossRev / days : 0;
+  const curDPL = dailyRev > 0 ? Math.ceil(totalSpend / dailyRev) : 0;
+  const curCAC = enrollments > 0 ? totalSpend / enrollments : 0;
+
+  const prevSpend = prev.total_spend || 0;
+  const prevRev = prev.gross_revenue || 0;
+  const prevEnroll = prev.enrollments || 0;
+  const prevDailyRev = days > 0 ? prevRev / days : 0;
+  const prevDPL = prevDailyRev > 0 ? Math.ceil(prevSpend / prevDailyRev) : 0;
+  const prevCAC = prevEnroll > 0 ? prevSpend / prevEnroll : 0;
+
+  const dplColor = curDPL <= 30 ? Theme.COLORS.success : curDPL <= 60 ? '#f59e0b' : Theme.COLORS.danger;
+  const dplDelta = _delta(curDPL, prevDPL);
+  const dplArrow = dplDelta !== null ? (dplDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(dplDelta).toFixed(1)}%</span>` : dplDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${dplDelta.toFixed(1)}%</span>` : '') : '';
+
+  const cacDelta = _delta(curCAC, prevCAC);
+  const cacArrow = cacDelta !== null ? (cacDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cacDelta).toFixed(1)}%</span>` : cacDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cacDelta.toFixed(1)}%</span>` : '') : '';
+
+  // DPL gauge: bar fills proportionally (60 days = full)
+  const dplPct = Math.min((curDPL / 60) * 100, 100);
+
+  // CAC gauge bar (target $5000 = full)
+  const cacTarget = 5000;
+  const cacPct = Math.min((curCAC / cacTarget) * 100, 100);
+  const cacColor = curCAC <= 2000 ? Theme.COLORS.success : curCAC <= 3500 ? '#f59e0b' : Theme.COLORS.danger;
+
+  dplCacCard.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <!-- DPL -->
+      <div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Days Payback Length (DPL)</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
+          <span style="font-size:32px;font-weight:800;color:${dplColor};font-family:var(--font-mono)">${curDPL}</span>
+          <span style="font-size:14px;color:${Theme.COLORS.textMuted}">days</span>
+          ${dplArrow}
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;width:${dplPct}%;background:${dplColor};border-radius:4px;transition:width 0.6s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
+          <span>0d</span>
+          <span style="color:${Theme.COLORS.success}">30d target</span>
+          <span>60d</span>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
+          <span style="color:${Theme.COLORS.textSecondary}">Spend:</span> ${Theme.money(totalSpend)} &middot;
+          <span style="color:${Theme.COLORS.textSecondary}">Daily Rev:</span> ${Theme.money(dailyRev)}
+          ${prevDPL > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${prevDPL} days</span>` : ''}
+        </div>
+      </div>
+
+      <!-- CAC -->
+      <div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Customer Acquisition Cost (CAC)</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
+          <span style="font-size:32px;font-weight:800;color:${cacColor};font-family:var(--font-mono)">${Theme.money(curCAC)}</span>
+          ${cacArrow}
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;width:${cacPct}%;background:${cacColor};border-radius:4px;transition:width 0.6s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
+          <span>$0</span>
+          <span style="color:${Theme.COLORS.success}">$2K target</span>
+          <span>$5K</span>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
+          <span style="color:${Theme.COLORS.textSecondary}">Spend:</span> ${Theme.money(totalSpend)} &middot;
+          <span style="color:${Theme.COLORS.textSecondary}">Enrollments:</span> ${enrollments}
+          ${prevCAC > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevCAC)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  chartsRow.appendChild(dplCacCard);
   chartsRow.appendChild(callsCard);
   chartsRow.appendChild(dealsCard);
 

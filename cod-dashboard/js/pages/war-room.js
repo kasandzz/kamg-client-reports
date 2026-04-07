@@ -91,7 +91,7 @@ App.registerPage('war-room', async (container) => {
   const revenueCard = _card('Revenue Breakdown');
   const ticketRev = cur.ticket_revenue || 0;
   const enrollmentRev = cur.enrollment_revenue || 0;
-  const vipRev = Math.max((cur.gross_revenue || 0) - ticketRev - enrollmentRev, 0);
+  const vipRev = cur.vip_revenue || 0;
   const adSpend = cur.total_spend || 0;
   const refunds = cur.refunds || 0;
   const netRev = (cur.gross_revenue || 0) - refunds - adSpend;
@@ -248,50 +248,75 @@ App.registerPage('war-room', async (container) => {
     callsCard.querySelector('#wr-calls-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
-  // CPL (Cost Per Lead) & CAC Charts
-  const cplCacCard = _card('');
+  // DPL (Dollars Per Lead) & Cost Per Ticket
+  const dplCptCard = _card('');
   const totalSpend = cur.total_spend || 0;
   const grossRev = cur.gross_revenue || 0;
-  const enrollments = cur.enrollments || 0;
+  const totalCalls = cur.total_calls || 0;
   const ticketRev2 = cur.ticket_revenue || 0;
-  const totalLeads = ticketRev2 > 0 ? Math.round(ticketRev2 / 27) : 0;
-  const curCPL = totalLeads > 0 ? totalSpend / totalLeads : 0;
-  const curCAC = enrollments > 0 ? totalSpend / enrollments : 0;
+  const totalTickets = ticketRev2 > 0 ? Math.round(ticketRev2 / 27) : 0;
+  const curDPL = totalCalls > 0 ? grossRev / totalCalls : 0;
+  const curCPT = totalTickets > 0 ? totalSpend / totalTickets : 0;
 
   const prevSpend = prev.total_spend || 0;
+  const prevRev = prev.gross_revenue || 0;
+  const prevCalls = prev.total_calls || 0;
   const prevTicketRev = prev.ticket_revenue || 0;
-  const prevLeads = prevTicketRev > 0 ? Math.round(prevTicketRev / 27) : 0;
-  const prevCPL = prevLeads > 0 ? prevSpend / prevLeads : 0;
-  const prevEnroll = prev.enrollments || 0;
-  const prevCAC = prevEnroll > 0 ? prevSpend / prevEnroll : 0;
+  const prevTickets = prevTicketRev > 0 ? Math.round(prevTicketRev / 27) : 0;
+  const prevDPL = prevCalls > 0 ? prevRev / prevCalls : 0;
+  const prevCPT = prevTickets > 0 ? prevSpend / prevTickets : 0;
 
-  const cplColor = curCPL <= 300 ? Theme.COLORS.success : curCPL <= 500 ? '#f59e0b' : Theme.COLORS.danger;
-  const cplDelta = _delta(curCPL, prevCPL);
-  const cplArrow = cplDelta !== null ? (cplDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cplDelta).toFixed(1)}%</span>` : cplDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cplDelta.toFixed(1)}%</span>` : '') : '';
+  const dplColor = curDPL >= 5000 ? Theme.COLORS.success : curDPL >= 2000 ? '#f59e0b' : Theme.COLORS.danger;
+  const dplDelta = _delta(curDPL, prevDPL);
+  // DPL higher = better (more revenue per booking)
+  const dplArrow = dplDelta !== null ? (dplDelta > 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9650; ${Math.abs(dplDelta).toFixed(1)}%</span>` : dplDelta < 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9660; ${Math.abs(dplDelta).toFixed(1)}%</span>` : '') : '';
 
-  const cacDelta = _delta(curCAC, prevCAC);
-  const cacArrow = cacDelta !== null ? (cacDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cacDelta).toFixed(1)}%</span>` : cacDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cacDelta.toFixed(1)}%</span>` : '') : '';
+  const cptDelta = _delta(curCPT, prevCPT);
+  // CPT lower = better
+  const cptArrow = cptDelta !== null ? (cptDelta < 0 ? `<span style="color:${Theme.COLORS.success};font-size:11px;margin-left:6px">&#9660; ${Math.abs(cptDelta).toFixed(1)}%</span>` : cptDelta > 0 ? `<span style="color:${Theme.COLORS.danger};font-size:11px;margin-left:6px">&#9650; ${cptDelta.toFixed(1)}%</span>` : '') : '';
 
-  // CPL gauge: bar fills proportionally ($600 = full)
-  const cplTarget = 600;
-  const cplPct = Math.min((curCPL / cplTarget) * 100, 100);
+  // DPL gauge: $10K = full (higher is better)
+  const dplMax = 10000;
+  const dplPct = Math.min((curDPL / dplMax) * 100, 100);
 
-  // CAC gauge bar (target $5000 = full)
-  const cacTarget = 5000;
-  const cacPct = Math.min((curCAC / cacTarget) * 100, 100);
-  const cacColor = curCAC <= 2000 ? Theme.COLORS.success : curCAC <= 3500 ? '#f59e0b' : Theme.COLORS.danger;
+  // CPT gauge: $600 = full (lower is better)
+  const cptMax = 600;
+  const cptPct = Math.min((curCPT / cptMax) * 100, 100);
+  const cptColor = curCPT <= 300 ? Theme.COLORS.success : curCPT <= 450 ? '#f59e0b' : Theme.COLORS.danger;
 
-  cplCacCard.innerHTML = `
+  dplCptCard.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-      <!-- CPL -->
+      <!-- DPL -->
       <div>
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Cost Per Lead (CPL)</div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Dollars Per Lead (DPL)</div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
-          <span style="font-size:32px;font-weight:800;color:${cplColor};font-family:var(--font-mono)">${Theme.money(curCPL)}</span>
-          ${cplArrow}
+          <span style="font-size:32px;font-weight:800;color:${dplColor};font-family:var(--font-mono)">${Theme.money(curDPL)}</span>
+          ${dplArrow}
         </div>
         <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
-          <div style="height:100%;width:${cplPct}%;background:${cplColor};border-radius:4px;transition:width 0.6s ease"></div>
+          <div style="height:100%;width:${dplPct}%;background:${dplColor};border-radius:4px;transition:width 0.6s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
+          <span>$0</span>
+          <span style="color:${Theme.COLORS.success}">$5K target</span>
+          <span>$10K</span>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
+          <span style="color:${Theme.COLORS.textSecondary}">Revenue:</span> ${Theme.money(grossRev)} &middot;
+          <span style="color:${Theme.COLORS.textSecondary}">Bookings:</span> ${totalCalls}
+          ${prevDPL > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevDPL)}</span>` : ''}
+        </div>
+      </div>
+
+      <!-- Cost Per Ticket -->
+      <div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Cost Per Workshop Ticket</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
+          <span style="font-size:32px;font-weight:800;color:${cptColor};font-family:var(--font-mono)">${Theme.money(curCPT)}</span>
+          ${cptArrow}
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;width:${cptPct}%;background:${cptColor};border-radius:4px;transition:width 0.6s ease"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
           <span>$0</span>
@@ -300,35 +325,13 @@ App.registerPage('war-room', async (container) => {
         </div>
         <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
           <span style="color:${Theme.COLORS.textSecondary}">Spend:</span> ${Theme.money(totalSpend)} &middot;
-          <span style="color:${Theme.COLORS.textSecondary}">Leads:</span> ${totalLeads}
-          ${prevCPL > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevCPL)}</span>` : ''}
-        </div>
-      </div>
-
-      <!-- CAC -->
-      <div>
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.textMuted};margin-bottom:10px">Customer Acquisition Cost (CAC)</div>
-        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:12px">
-          <span style="font-size:32px;font-weight:800;color:${cacColor};font-family:var(--font-mono)">${Theme.money(curCAC)}</span>
-          ${cacArrow}
-        </div>
-        <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:8px">
-          <div style="height:100%;width:${cacPct}%;background:${cacColor};border-radius:4px;transition:width 0.6s ease"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:${Theme.COLORS.textMuted}">
-          <span>$0</span>
-          <span style="color:${Theme.COLORS.success}">$2K target</span>
-          <span>$5K</span>
-        </div>
-        <div style="margin-top:12px;font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.5">
-          <span style="color:${Theme.COLORS.textSecondary}">Spend:</span> ${Theme.money(totalSpend)} &middot;
-          <span style="color:${Theme.COLORS.textSecondary}">Enrollments:</span> ${enrollments}
-          ${prevCAC > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevCAC)}</span>` : ''}
+          <span style="color:${Theme.COLORS.textSecondary}">Tickets:</span> ${totalTickets}
+          ${prevCPT > 0 ? `<br><span style="color:${Theme.COLORS.textMuted}">Prev period: ${Theme.money(prevCPT)}</span>` : ''}
         </div>
       </div>
     </div>
   `;
-  chartsRow.appendChild(cplCacCard);
+  chartsRow.appendChild(dplCptCard);
   chartsRow.appendChild(callsCard);
   chartsRow.appendChild(dealsCard);
 

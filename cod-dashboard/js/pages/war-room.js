@@ -229,7 +229,7 @@ App.registerPage('war-room', async (container) => {
     if (!document.getElementById('wr-ad-tooltip-style')) {
       const style = document.createElement('style');
       style.id = 'wr-ad-tooltip-style';
-      style.textContent = `.wr-ad-row{position:relative}.wr-ad-tip{display:none;position:absolute;left:0;bottom:100%;margin-bottom:6px;z-index:100;background:#1e1e32;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;min-width:280px;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:auto}.wr-ad-row:hover .wr-ad-tip{display:block}.wr-ad-tip-name{font-size:12px;color:#e0e0f0;font-weight:600;margin-bottom:6px;word-break:break-word}.wr-ad-tip-link{font-size:11px;color:#3b82f6;text-decoration:none;display:inline-flex;align-items:center;gap:4px}.wr-ad-tip-link:hover{text-decoration:underline}`;
+      style.textContent = `.wr-ad-row{position:relative}.wr-ad-tip{opacity:0;visibility:hidden;position:absolute;left:0;bottom:100%;margin-bottom:6px;z-index:100;background:#1e1e32;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;min-width:280px;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:auto;transition:opacity .15s ease,visibility 0s linear .5s}.wr-ad-row:hover .wr-ad-tip{opacity:1;visibility:visible;transition:opacity .15s ease,visibility 0s linear 0s}.wr-ad-tip:hover{opacity:1;visibility:visible;transition:opacity .15s ease,visibility 0s linear 0s}.wr-ad-tip-name{font-size:12px;color:#e0e0f0;font-weight:600;margin-bottom:6px;word-break:break-word}.wr-ad-tip-link{font-size:11px;color:#3b82f6;text-decoration:none;display:inline-flex;align-items:center;gap:4px}.wr-ad-tip-link:hover{text-decoration:underline}`;
       document.head.appendChild(style);
     }
 

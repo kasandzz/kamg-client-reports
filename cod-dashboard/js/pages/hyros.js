@@ -288,42 +288,25 @@ App.registerPage('hyros', async (container) => {
     Theme.PLOTLY_CONFIG
   );
 
-  // ---- Deep Analysis Reports ----
-  const reportsSection = document.createElement('div');
-  reportsSection.style.cssText = 'margin-top:16px';
-  container.appendChild(reportsSection);
-
+  // ---- Row 3: Example Reports ----
   const reportsCard = document.createElement('div');
   reportsCard.className = 'card';
-  reportsCard.style.cssText = 'padding:20px';
+  reportsCard.style.cssText = 'padding:20px;margin-top:16px';
   reportsCard.innerHTML = `
-    <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Deep Analysis Reports</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-      <a href="https://kasandzz.github.io/kamg-client-reports/cod/segment-performance-2026-04-06.html" target="_blank" rel="noopener"
-         style="display:block;padding:16px;background:rgba(108,92,231,0.08);border:1px solid rgba(108,92,231,0.25);border-radius:8px;text-decoration:none;transition:border-color .15s,background .15s"
-         onmouseenter="this.style.borderColor='rgba(108,92,231,0.5)';this.style.background='rgba(108,92,231,0.12)'"
-         onmouseleave="this.style.borderColor='rgba(108,92,231,0.25)';this.style.background='rgba(108,92,231,0.08)'">
-        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:4px">Segment Performance</div>
-        <div style="font-size:12px;color:${Theme.COLORS.textMuted};line-height:1.5">Source/audience segment breakdown with revenue attribution, workshop sales, and HT close rates.</div>
-        <div style="margin-top:8px;font-size:11px;color:rgba(108,92,231,0.9);font-weight:500">Apr 6, 2026 &rarr;</div>
-      </a>
-      <a href="https://kasandzz.github.io/kamg-client-reports/cod/ht-buyer-journey-analysis-2026-04-06.html" target="_blank" rel="noopener"
-         style="display:block;padding:16px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);border-radius:8px;text-decoration:none;transition:border-color .15s,background .15s"
-         onmouseenter="this.style.borderColor='rgba(234,179,8,0.5)';this.style.background='rgba(234,179,8,0.12)'"
-         onmouseleave="this.style.borderColor='rgba(234,179,8,0.25)';this.style.background='rgba(234,179,8,0.08)'">
-        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:4px">HT Buyer Journey Analysis</div>
-        <div style="font-size:12px;color:${Theme.COLORS.textMuted};line-height:1.5">Full event timeline for 10 high-ticket closes -- patterns, creative, nurture lengths, cross-pollination.</div>
-        <div style="margin-top:8px;font-size:11px;color:rgba(234,179,8,0.9);font-weight:500">Apr 6, 2026 &rarr;</div>
-      </a>
+    <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Example Reports</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
       <a href="https://kasandzz.github.io/kamg-client-reports/cod/hyros-7day-performance-2026-04-06.html" target="_blank" rel="noopener"
-         style="display:block;padding:16px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:8px;text-decoration:none;transition:border-color .15s,background .15s"
-         onmouseenter="this.style.borderColor='rgba(34,197,94,0.5)';this.style.background='rgba(34,197,94,0.12)'"
-         onmouseleave="this.style.borderColor='rgba(34,197,94,0.25)';this.style.background='rgba(34,197,94,0.08)'">
-        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:4px">7-Day Performance Report</div>
-        <div style="font-size:12px;color:${Theme.COLORS.textMuted};line-height:1.5">Weekly Hyros attribution -- revenue by day, HT deals, top campaigns, call outcomes, platform mix.</div>
-        <div style="margin-top:8px;font-size:11px;color:rgba(34,197,94,0.9);font-weight:500">Apr 6, 2026 &rarr;</div>
+         style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;text-decoration:none;transition:border-color .15s,background .15s"
+         onmouseenter="this.style.borderColor='rgba(108,92,231,0.4)';this.style.background='rgba(108,92,231,0.06)'"
+         onmouseleave="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+        <div style="width:36px;height:36px;border-radius:8px;background:rgba(108,92,231,0.15);border:1px solid rgba(108,92,231,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">&#128202;</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary}">7-Day Hyros Performance Report</div>
+          <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Segment breakdown, source attribution, daily trends, revenue by tag -- Apr 6 2026</div>
+        </div>
+        <div style="font-size:12px;color:${Theme.COLORS.textMuted};flex-shrink:0">&#8599;</div>
       </a>
     </div>
   `;
-  reportsSection.appendChild(reportsCard);
+  container.appendChild(reportsCard);
 });

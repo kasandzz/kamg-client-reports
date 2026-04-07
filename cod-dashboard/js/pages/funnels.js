@@ -6,7 +6,6 @@
 
 App.registerPage('funnels', async (container) => {
   const days = Filters.getDays();
-  let kpis, weekly;
   const SHOPIFY_METRICS = [
     { key: 'tickets', label: 'Tickets', color: '#6366f1' },
     { key: 'attended', label: 'Attended', color: '#06b6d4' },
@@ -14,11 +13,11 @@ App.registerPage('funnels', async (container) => {
     { key: 'enrolled', label: 'Enrolled', color: '#a855f7' },
   ];
 
-  let daily;
+  // Fast queries first -- don't wait for the slow weekly query
+  let kpis, daily;
   try {
-    [kpis, weekly, daily] = await Promise.all([
+    [kpis, daily] = await Promise.all([
       API.query('funnels', 'default', { days }),
-      API.query('funnels', 'weekly', { days: Math.max(days, 90) }),
       API.query('funnels', 'daily', { days }).catch(() => null)
     ]);
   } catch (err) {
@@ -228,39 +227,39 @@ function _renderBowtieMap(container, d, days) {
   // Phase health scores
   const phaseScores = _computePhaseScores(d);
 
-  // ---- Build the bowtie ----
+  // ---- Build the bowtie (single innerHTML pass to avoid reflows) ----
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'margin-top:24px;overflow-x:auto';
+  wrap.style.cssText = 'margin-top:48px;overflow-x:auto';
 
   const bowtie = document.createElement('div');
   bowtie.style.cssText = 'min-width:1200px;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;background:#0a0e1a';
 
+  const html = [];
+
   // ==== ROW 1: Phase Headers (colored bars) ====
-  let r1 = '<div style="display:flex">';
+  html.push('<div style="display:flex">');
   PHASES.forEach(phase => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
-    r1 += `<div style="width:${w}%;padding:8px 0;text-align:center;background:${phase.color};border-right:1px solid rgba(0,0,0,0.3)">
+    html.push(`<div style="width:${w}%;padding:8px 0;text-align:center;background:${phase.color};border-right:1px solid rgba(0,0,0,0.3)">
       <div style="font-size:11px;font-weight:800;color:#000;text-transform:uppercase;letter-spacing:1.5px">${phase.name}</div>
-    </div>`;
+    </div>`);
   });
-  r1 += '</div>';
-  bowtie.innerHTML = r1;
+  html.push('</div>');
 
   // ==== ROW 2: Internal Perspectives (CIO/CMO text) ====
-  let r2 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   PHASES.forEach((phase, pi) => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
     const persp = perspectives[pi];
-    r2 += `<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04);font-size:9px;color:${Theme.COLORS.textMuted};line-height:1.5">
+    html.push(`<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04);font-size:9px;color:${Theme.COLORS.textMuted};line-height:1.5">
       <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${persp.role}</div>
       <ul style="margin:0;padding-left:12px">${persp.texts.map(t => `<li>${t}</li>`).join('')}</ul>
-    </div>`;
+    </div>`);
   });
-  r2 += '</div>';
-  bowtie.innerHTML += r2;
+  html.push('</div>');
 
   // ==== ROW 3: Satisfaction Indicators ====
-  let r3 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   PHASES.forEach((phase, pi) => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
     const startIdx = PHASES.slice(0, pi).reduce((s, p) => s + p.span, 0);
@@ -273,101 +272,92 @@ function _renderBowtieMap(container, d, days) {
         <div style="font-size:8px;color:${color};font-weight:600">${label}</div>
       </div>`;
     }
-    r3 += `<div style="width:${w}%;display:flex;border-right:1px solid rgba(255,255,255,0.04);padding:4px 0">${cells}</div>`;
+    html.push(`<div style="width:${w}%;display:flex;border-right:1px solid rgba(255,255,255,0.04);padding:4px 0">${cells}</div>`);
   });
-  r3 += '</div>';
-  bowtie.innerHTML += r3;
+  html.push('</div>');
 
   // ==== ROW 4: Experience Map Indicators (legend) ====
-  bowtie.innerHTML += `<div style="display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.04)">
+  html.push(`<div style="display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid rgba(255,255,255,0.04)">
     <div style="font-size:9px;font-weight:700;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:1px">Experience Map Indicators</div>
     <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#22c55e"><span style="width:20px;height:2px;background:#22c55e;display:inline-block"></span>Business</div>
     <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#06b6d4"><span style="width:20px;height:2px;background:#06b6d4;display:inline-block"></span>Operations</div>
     <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#ef4444"><span style="width:20px;height:2px;border-bottom:2px dashed #ef4444;display:inline-block"></span>Customer (CX)</div>
     <div style="display:flex;align-items:center;gap:4px;font-size:9px;color:#ef4444;margin-left:8px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #ef4444;display:inline-block"></span>Divergence</div>
-  </div>`;
+  </div>`);
 
-  // ==== ROW 5: Experience Map Chart (the main visualization) ====
-  const chartDiv = document.createElement('div');
-  chartDiv.id = 'bowtie-exp-chart';
-  chartDiv.style.cssText = 'height:280px;padding:0 8px;border-bottom:1px solid rgba(255,255,255,0.06)';
-  bowtie.appendChild(chartDiv);
+  // ==== ROW 5: Experience Map Chart placeholder ====
+  html.push('<div id="bowtie-exp-chart" style="height:280px;padding:0 8px;border-bottom:1px solid rgba(255,255,255,0.06)"></div>');
 
   // ==== ROW 6: Touchpoint Labels ====
-  let r6 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   TOUCHPOINTS.forEach(tp => {
     const w = (100 / totalSpan).toFixed(2);
-    r6 += `<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
+    html.push(`<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
       <div style="font-size:8px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.3px">${tp}</div>
-    </div>`;
+    </div>`);
   });
-  r6 += '</div>';
-  bowtie.innerHTML += r6;
+  html.push('</div>');
 
   // ==== ROW 7: Platform Impact Bars ====
-  let r7 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   TOUCHPOINTS.forEach((tp, i) => {
     const w = (100 / totalSpan).toFixed(2);
     const impact = platformImpact[i];
     const barW = (impact / 10 * 100).toFixed(0);
     const barColor = impact >= 7 ? '#22c55e' : impact >= 4 ? '#eab308' : impact > 0 ? '#ef4444' : '#222';
-    r7 += `<div style="width:${w}%;padding:6px 4px;border-right:1px solid rgba(255,255,255,0.04)">
+    html.push(`<div style="width:${w}%;padding:6px 4px;border-right:1px solid rgba(255,255,255,0.04)">
       <div style="font-size:7px;color:${Theme.COLORS.textMuted};text-align:center;margin-bottom:3px">${dataSources[i]}</div>
       <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
         <div style="width:${barW}%;height:100%;background:${barColor};border-radius:3px"></div>
       </div>
       <div style="font-size:7px;color:${Theme.COLORS.textMuted};text-align:center;margin-top:2px">${impact}/10</div>
-    </div>`;
+    </div>`);
   });
-  r7 += '</div>';
-  bowtie.innerHTML += r7;
+  html.push('</div>');
 
   // ==== ROW 8: Key Observations + Opportunities (text per phase) ====
   const observations = _computeObservations(d);
-  let r8 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   PHASES.forEach((phase, pi) => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
     const obs = observations[pi] || [];
-    r8 += `<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04)">
+    html.push(`<div style="width:${w}%;padding:10px 8px;border-right:1px solid rgba(255,255,255,0.04)">
       <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Opportunities</div>
       <ul style="margin:0;padding-left:12px;font-size:9px;color:${Theme.COLORS.textSecondary};line-height:1.5">
         ${obs.map(o => `<li>${o}</li>`).join('')}
       </ul>
-    </div>`;
+    </div>`);
   });
-  r8 += '</div>';
-  bowtie.innerHTML += r8;
+  html.push('</div>');
 
   // ==== ROW 9: KPI Metrics per Phase ====
-  let r9 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   PHASES.forEach((phase, pi) => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
     const kpis = phaseKPIs[pi];
-    r9 += `<div style="width:${w}%;padding:8px;border-right:1px solid rgba(255,255,255,0.04)">
+    html.push(`<div style="width:${w}%;padding:8px;border-right:1px solid rgba(255,255,255,0.04)">
       <div style="font-size:8px;font-weight:700;color:${phase.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Metrics</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">
         ${kpis.map(k => `<span style="font-size:8px;padding:2px 5px;border-radius:3px;background:rgba(255,255,255,0.04);color:${Theme.COLORS.textMuted};border:1px solid rgba(255,255,255,0.06)">${k}</span>`).join('')}
       </div>
-    </div>`;
+    </div>`);
   });
-  r9 += '</div>';
-  bowtie.innerHTML += r9;
+  html.push('</div>');
 
   // ==== ROW 10: Path Satisfaction Scale (face emojis) ====
   const faces = ['X', 'X', ':|', ':|', ':|', ':)', ':)', ':|', ':)', ':|', ':)', 'X', 'X', 'X', 'X'];
   const faceColors = faces.map(f => f === ':)' ? '#22c55e' : f === ':|' ? '#eab308' : '#ef4444');
-  let r10 = '<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">';
+  html.push('<div style="display:flex;border-bottom:1px solid rgba(255,255,255,0.06)">');
   TOUCHPOINTS.forEach((tp, i) => {
     const w = (100 / totalSpan).toFixed(2);
-    r10 += `<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
+    html.push(`<div style="width:${w}%;text-align:center;padding:6px 2px;border-right:1px solid rgba(255,255,255,0.04)">
       <div style="width:18px;height:18px;border-radius:50%;background:${faceColors[i]}22;border:1.5px solid ${faceColors[i]};margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:8px;color:${faceColors[i]}">${faces[i]}</div>
-    </div>`;
+    </div>`);
   });
-  r10 += '</div>';
-  bowtie.innerHTML += r10;
+  html.push('</div>');
 
   // ==== ROW 11: Phase Health Gauges (circular CSAT-style) ====
-  let r11 = '<div style="display:flex;padding:16px 0;background:rgba(255,255,255,0.02)">';
+  html.push('<div style="display:flex;padding:16px 0;background:rgba(255,255,255,0.02)">');
   PHASES.forEach((phase, pi) => {
     const w = (phase.span / totalSpan * 100).toFixed(2);
     const score = phaseScores[pi];
@@ -381,7 +371,7 @@ function _renderBowtieMap(container, d, days) {
     const y = 50 - 35 * Math.sin(Math.PI - rad);
     const largeArc = angle > 90 ? 1 : 0;
 
-    r11 += `<div style="width:${w}%;text-align:center;padding:0 8px">
+    html.push(`<div style="width:${w}%;text-align:center;padding:0 8px">
       <svg viewBox="0 0 100 60" width="90" height="54" style="margin:0 auto;display:block">
         <path d="M 15 50 A 35 35 0 0 1 85 50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" stroke-linecap="round"/>
         <path d="M 15 50 A 35 35 0 ${largeArc} 1 ${x.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${scoreColor}" stroke-width="6" stroke-linecap="round"/>
@@ -389,10 +379,12 @@ function _renderBowtieMap(container, d, days) {
       </svg>
       <div style="font-size:9px;color:${scoreColor};font-weight:600;margin-top:2px">${label}</div>
       <div style="font-size:8px;color:${Theme.COLORS.textMuted};margin-top:1px">${phase.name}</div>
-    </div>`;
+    </div>`);
   });
-  r11 += '</div>';
-  bowtie.innerHTML += r11;
+  html.push('</div>');
+
+  // Single DOM write instead of 10+ innerHTML += reflows
+  bowtie.innerHTML = html.join('');
 
   wrap.appendChild(bowtie);
   container.appendChild(wrap);

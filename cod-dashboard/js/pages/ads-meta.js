@@ -19,6 +19,9 @@ App.registerPage('ads-meta', async (container) => {
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Ads (Meta): ${err.message}</p></div>`;
+    // Still render dummy panels below
+    _renderSourceAttribution(container);
+    _renderDemographicIntel(container);
     return;
   }
 
@@ -82,16 +85,22 @@ App.registerPage('ads-meta', async (container) => {
   tableCard.style.marginTop  = '0';
   container.appendChild(tableCard);
 
-  _renderCampaignTable(tableCard, campaigns || []);
+  try { _renderCampaignTable(tableCard, campaigns || []); } catch (e) { console.warn('Campaign table error:', e); }
 
   // ---- Render charts after DOM settles ----
   requestAnimationFrame(() => {
-    _renderRoasChart(roasDiv, adsets || []);
-    _renderDailyChart(trendCanvas, daily || []);
+    try { _renderRoasChart(roasDiv, adsets || []); } catch (e) { console.warn('ROAS chart error:', e); }
+    try { _renderDailyChart(trendCanvas, daily || []); } catch (e) { console.warn('Daily chart error:', e); }
   });
 
   // ---- Unit Economics Panel ----
-  _renderUnitEcon(container, unitEconData, totalSpend);
+  try { _renderUnitEcon(container, unitEconData, totalSpend); } catch (e) { console.warn('Unit econ error:', e); }
+
+  // ---- Source Attribution Table ----
+  try { _renderSourceAttribution(container); } catch (e) { console.warn('Source attribution error:', e); }
+
+  // ---- Demographic Intelligence Panel ----
+  try { _renderDemographicIntel(container); } catch (e) { console.warn('Demographic intel error:', e); }
 });
 
 // ---------------------------------------------------------------------------
@@ -542,4 +551,422 @@ function _renderUnitEcon(container, rawData, fallbackSpend) {
   }
   onResize(mq);
   mq.addEventListener('change', onResize);
+}
+
+// ---------------------------------------------------------------------------
+// Source Attribution Table (Hyros-style)
+// ---------------------------------------------------------------------------
+
+function _renderSourceAttribution(container) {
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-top:32px;margin-bottom:12px';
+  header.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary}">Purchase Source Attribution</div>
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Source, cost, revenue, profit from Hyros + Meta data</div>
+  `;
+  container.appendChild(header);
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'padding:20px 24px;overflow-x:auto';
+
+  const data = [
+    { source: 'Main Interest Stack - FB - Coa', cost: 6606, revenue: 18378, profit: 11772, sales: 13, creative: { type: 'image', thumb: 'https://placehold.co/300x300/1a1f2e/38bdf8?text=Interest+Stack', headline: 'Transform Your Practice in 90 Days' } },
+    { source: 'LLA Stack - FB - Coaches Con', cost: 5047, revenue: 12378, profit: 7331, sales: 14, creative: { type: 'video', thumb: 'https://placehold.co/300x300/1a1f2e/a855f7?text=LLA+Coaches+Video', headline: 'How Coaches Are Scaling to $50K/mo' } },
+    { source: 'Broad + CBO Licensed Therap', cost: 10483, revenue: 9729, profit: -754, sales: 21, creative: { type: 'image', thumb: 'https://placehold.co/300x300/1a1f2e/22c55e?text=Therapist+CBO', headline: 'Licensed Therapist? Your Practice Deserves More' } },
+    { source: 'FB. 3064 Broad - Educator / Te', cost: 2749, revenue: 9243, profit: 6494, sales: 8, creative: { type: 'image', thumb: 'https://placehold.co/300x300/1a1f2e/f59e0b?text=Educator+3064', headline: 'Educators: Build a Business That Matches Your Impact' } },
+    { source: 'TOF | Video | MC | KW', cost: 0, revenue: 9000, profit: 9000, sales: 1, creative: { type: 'video', thumb: 'https://placehold.co/300x300/1a1f2e/38bdf8?text=TOF+Video', headline: 'Watch: Client Success Story' } },
+    { source: 'Direct Traffic', cost: 0, revenue: 6162, profit: 0, sales: 6, creative: null },
+    { source: 'Fb. Broad - Attorney Only - Co', cost: 4659, revenue: 297, profit: -4362, sales: 8, creative: { type: 'image', thumb: 'https://placehold.co/300x300/1a1f2e/ef4444?text=Attorney+Broad', headline: 'Attorneys: Stop Trading Time for Money' } },
+    { source: 'FB. 3564 Broad - Educator / Te', cost: 3802, revenue: 297, profit: -3505, sales: 6, creative: { type: 'image', thumb: 'https://placehold.co/300x300/1a1f2e/ef4444?text=Educator+3564', headline: 'Your Teaching Skills Are Worth More' } }
+  ];
+
+  const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+  const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;font-family:'JetBrains Mono',monospace`;
+
+  const rows = data.map((r, i) => {
+    const profitColor = r.profit > 0 ? Theme.COLORS.success : (r.profit < 0 ? Theme.COLORS.danger : Theme.COLORS.textSecondary);
+    const creativeCell = r.creative
+      ? `<td style="${tdStyle};position:relative;cursor:pointer" class="src-creative-cell" data-idx="${i}">
+           <div style="display:flex;align-items:center;gap:8px">
+             <div style="width:32px;height:32px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+               <img src="${r.creative.thumb}" style="width:100%;height:100%;object-fit:cover;border-radius:3px" loading="lazy" />
+             </div>
+             <span style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase">${r.creative.type === 'video' ? '&#9654; Video' : 'Image'}</span>
+           </div>
+         </td>`
+      : `<td style="${tdStyle};color:${Theme.COLORS.textMuted};font-size:11px">--</td>`;
+    return `<tr>
+      <td style="${tdStyle};color:${Theme.COLORS.textPrimary};font-weight:500;font-family:Inter,sans-serif">${r.source}</td>
+      ${creativeCell}
+      <td style="${tdStyle}">${Theme.money(r.cost)}</td>
+      <td style="${tdStyle}">${Theme.money(r.revenue)}</td>
+      <td style="${tdStyle};color:${profitColor};font-weight:600">${r.profit < 0 ? '-' : ''}${Theme.money(Math.abs(r.profit))}</td>
+      <td style="${tdStyle};text-align:center">${r.sales}</td>
+    </tr>`;
+  }).join('');
+
+  card.innerHTML = `
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="${thStyle}">Source</th>
+        <th style="${thStyle}">Creative</th>
+        <th style="${thStyle}">Cost</th>
+        <th style="${thStyle}">Total Revenue</th>
+        <th style="${thStyle}">Profit</th>
+        <th style="${thStyle};text-align:center">Sales</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div id="src-creative-tooltip" style="
+      display:none;position:fixed;z-index:9999;pointer-events:none;
+      background:#141824;border:1px solid rgba(255,255,255,0.15);border-radius:10px;
+      padding:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5);max-width:280px;
+    ">
+      <img id="src-tooltip-img" style="width:250px;border-radius:6px;margin-bottom:8px" />
+      <div id="src-tooltip-headline" style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};line-height:1.4"></div>
+      <div id="src-tooltip-type" style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:4px;text-transform:uppercase;letter-spacing:0.05em"></div>
+    </div>
+  `;
+
+  // Creative hover expand
+  const tooltip = card.querySelector('#src-creative-tooltip');
+  const tooltipImg = card.querySelector('#src-tooltip-img');
+  const tooltipHead = card.querySelector('#src-tooltip-headline');
+  const tooltipType = card.querySelector('#src-tooltip-type');
+
+  card.addEventListener('mouseover', (e) => {
+    const cell = e.target.closest('.src-creative-cell');
+    if (!cell) return;
+    const idx = +cell.dataset.idx;
+    const cr = data[idx]?.creative;
+    if (!cr) return;
+    tooltipImg.src = cr.thumb;
+    tooltipHead.textContent = cr.headline;
+    tooltipType.textContent = cr.type === 'video' ? 'Video Ad' : 'Image Ad';
+    tooltip.style.display = 'block';
+  });
+
+  card.addEventListener('mousemove', (e) => {
+    if (tooltip.style.display === 'block') {
+      tooltip.style.left = (e.clientX + 16) + 'px';
+      tooltip.style.top = (e.clientY - 80) + 'px';
+    }
+  });
+
+  card.addEventListener('mouseout', (e) => {
+    const cell = e.target.closest('.src-creative-cell');
+    if (cell && !cell.contains(e.relatedTarget)) {
+      tooltip.style.display = 'none';
+    }
+    if (!e.relatedTarget?.closest('.src-creative-cell')) {
+      tooltip.style.display = 'none';
+    }
+  });
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Demographic Intelligence Panel
+// ---------------------------------------------------------------------------
+
+let _demoActiveStat = 'enroll_rate';
+
+function _renderDemographicIntel(container) {
+
+  const STAT_LABELS = {
+    ticket_rate: 'Ticket Rate',
+    vip_rate: 'VIP Rate',
+    show_rate: 'Show Rate',
+    book_rate: 'Book Rate',
+    call_show: 'Call Show',
+    enroll_rate: 'Enroll Rate',
+    ltv: 'LTV',
+  };
+
+  const STAT_KEYS = Object.keys(STAT_LABELS);
+
+  const DEMO_DATA = {
+    gender: {
+      title: 'Gender',
+      segments: ['Women', 'Men'],
+      stats: {
+        ticket_rate: [4.2, 3.8],
+        vip_rate: [36, 24],
+        show_rate: [74, 68],
+        book_rate: [34, 28],
+        call_show: [82, 76],
+        enroll_rate: [8.2, 3.1],
+        ltv: [11200, 8400],
+      },
+    },
+    age: {
+      title: 'Age',
+      segments: ['25-34', '35-44', '45-54', '55-64'],
+      stats: {
+        ticket_rate: [3.1, 4.6, 4.2, 2.9],
+        vip_rate: [22, 34, 31, 19],
+        show_rate: [62, 76, 72, 64],
+        book_rate: [24, 36, 32, 22],
+        call_show: [70, 84, 80, 72],
+        enroll_rate: [4.1, 8.8, 7.2, 3.9],
+        ltv: [7800, 12400, 10800, 7200],
+      },
+    },
+    profession: {
+      title: 'Profession / Segment',
+      segments: ['Therapists', 'Attorneys', 'Coaches', 'Educators'],
+      stats: {
+        ticket_rate: [5.1, 4.4, 3.6, 3.2],
+        vip_rate: [38, 32, 26, 22],
+        show_rate: [78, 74, 68, 64],
+        book_rate: [38, 34, 28, 24],
+        call_show: [86, 82, 76, 72],
+        enroll_rate: [9.1, 7.8, 5.2, 4.1],
+        ltv: [13200, 11800, 9200, 7600],
+      },
+    },
+    device: {
+      title: 'Device Platform',
+      segments: ['Mobile', 'Desktop'],
+      stats: {
+        ticket_rate: [4.0, 4.3],
+        vip_rate: [28, 34],
+        show_rate: [70, 76],
+        book_rate: [30, 36],
+        call_show: [78, 84],
+        enroll_rate: [5.8, 8.4],
+        ltv: [9400, 11600],
+      },
+    },
+    location: {
+      title: 'Location (Top States)',
+      segments: ['California', 'Texas', 'Florida', 'New York', 'Illinois'],
+      stats: {
+        ticket_rate: [4.4, 4.1, 4.6, 3.8, 3.9],
+        vip_rate: [32, 30, 34, 28, 29],
+        show_rate: [74, 72, 76, 70, 71],
+        book_rate: [34, 32, 36, 30, 31],
+        call_show: [82, 80, 84, 78, 79],
+        enroll_rate: [7.2, 6.8, 8.1, 5.9, 6.3],
+        ltv: [11400, 10800, 12200, 9800, 10200],
+      },
+    },
+    placement: {
+      title: 'Placement',
+      segments: ['Instagram Feed', 'Facebook Feed', 'Instagram Reels', 'Facebook Reels'],
+      stats: {
+        ticket_rate: [4.6, 3.8, 5.1, 2.9],
+        vip_rate: [34, 28, 38, 20],
+        show_rate: [76, 70, 78, 64],
+        book_rate: [36, 30, 38, 24],
+        call_show: [84, 78, 86, 72],
+        enroll_rate: [7.4, 5.1, 8.9, 3.2],
+        ltv: [11600, 9400, 13000, 7400],
+      },
+    },
+  };
+
+  // Cross-tab data: profession x gender for each stat
+  const CROSS_TAB = {
+    segments: ['Therapists', 'Attorneys', 'Coaches', 'Educators'],
+    genders: ['Women', 'Men'],
+    stats: {
+      ticket_rate: [[5.4, 4.6], [4.8, 3.9], [3.9, 3.1], [3.5, 2.8]],
+      vip_rate: [[42, 32], [36, 27], [30, 21], [26, 17]],
+      show_rate: [[82, 72], [78, 68], [72, 62], [68, 58]],
+      book_rate: [[42, 32], [38, 28], [32, 22], [28, 18]],
+      call_show: [[90, 80], [86, 76], [80, 70], [76, 66]],
+      enroll_rate: [[11.2, 6.4], [9.6, 5.2], [6.8, 3.2], [5.4, 2.4]],
+      ltv: [[14800, 10600], [13200, 9800], [10800, 7200], [9200, 5600]],
+    },
+  };
+
+  // ---- Inject responsive style ----
+  const styleId = 'demo-intel-responsive';
+  if (!document.getElementById(styleId)) {
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `
+      @media (max-width: 768px) {
+        .demo-intel-grid { grid-template-columns: 1fr !important; }
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  // ---- Section header ----
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-top:32px;margin-bottom:12px';
+  header.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary};letter-spacing:-.01em">Demographic Intelligence</div>
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Buyer profiles from enrolled customers -- mirrors Facebook targeting dimensions</div>
+  `;
+  container.appendChild(header);
+
+  // ---- 3x2 grid ----
+  const grid = document.createElement('div');
+  grid.className = 'demo-intel-grid';
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px';
+  container.appendChild(grid);
+
+  const funnelColors = [
+    Theme.FUNNEL.blue,
+    Theme.FUNNEL.cyan,
+    Theme.FUNNEL.green,
+    Theme.FUNNEL.orange,
+    Theme.FUNNEL.purple,
+  ];
+
+  // Track all card render functions for global re-render
+  const cardRenderers = [];
+  let crossTabEl;
+
+  function formatStatValue(statKey, value) {
+    if (statKey === 'ltv') return Theme.money(value);
+    return value.toFixed(1) + '%';
+  }
+
+  // ---- Build each dimension card ----
+  Object.keys(DEMO_DATA).forEach((dimKey) => {
+    const dim = DEMO_DATA[dimKey];
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'padding:20px';
+
+    // Card title
+    const titleDiv = document.createElement('div');
+    titleDiv.style.cssText = `font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px`;
+    titleDiv.textContent = dim.title;
+    card.appendChild(titleDiv);
+
+    // Toggle row
+    const toggleRow = document.createElement('div');
+    toggleRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px';
+    card.appendChild(toggleRow);
+
+    // Bar container
+    const barContainer = document.createElement('div');
+    card.appendChild(barContainer);
+
+    function renderBars() {
+      const statKey = _demoActiveStat;
+      const values = dim.stats[statKey];
+      const maxVal = Math.max(...values);
+
+      let html = '';
+      dim.segments.forEach((seg, i) => {
+        const pct = maxVal > 0 ? (values[i] / maxVal) * 100 : 0;
+        const color = funnelColors[i % funnelColors.length];
+        const formattedVal = formatStatValue(statKey, values[i]);
+        html += `
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+              <span style="font-size:11px;color:${Theme.COLORS.textSecondary}">${seg}</span>
+              <span style="font-size:11px;font-weight:600;color:${Theme.COLORS.textPrimary};font-family:'JetBrains Mono',monospace">${formattedVal}</span>
+            </div>
+            <div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+              <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width .3s ease"></div>
+            </div>
+          </div>
+        `;
+      });
+      barContainer.innerHTML = html;
+    }
+
+    function renderToggles() {
+      toggleRow.innerHTML = '';
+      STAT_KEYS.forEach((sk) => {
+        const btn = document.createElement('button');
+        const isActive = sk === _demoActiveStat;
+        btn.textContent = STAT_LABELS[sk];
+        btn.style.cssText = `
+          font-size:10px;
+          padding:3px 8px;
+          border-radius:4px;
+          cursor:pointer;
+          font-weight:${isActive ? '600' : '400'};
+          border:1px solid ${isActive ? 'transparent' : Theme.COLORS.border};
+          background:${isActive ? Theme.COLORS.accent : 'transparent'};
+          color:${isActive ? '#fff' : Theme.COLORS.textMuted};
+          transition:all .15s;
+          outline:none;
+          line-height:1.4;
+        `.replace(/\n\s*/g, '');
+        btn.addEventListener('click', () => {
+          _demoActiveStat = sk;
+          // Re-render all cards and cross-tab
+          cardRenderers.forEach((fn) => fn());
+          renderCrossTab();
+        });
+        toggleRow.appendChild(btn);
+      });
+    }
+
+    function renderCard() {
+      renderToggles();
+      renderBars();
+    }
+
+    cardRenderers.push(renderCard);
+    renderCard();
+    grid.appendChild(card);
+  });
+
+  // ---- Cross-Tab Summary Matrix ----
+  const crossTabCard = document.createElement('div');
+  crossTabCard.className = 'card';
+  crossTabCard.style.cssText = 'padding:20px;margin-top:16px';
+  container.appendChild(crossTabCard);
+
+  const crossTabTitle = document.createElement('div');
+  crossTabTitle.style.cssText = `font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px`;
+  crossTabTitle.textContent = 'Cross-Tab: Profession x Gender';
+  crossTabCard.appendChild(crossTabTitle);
+
+  crossTabEl = document.createElement('div');
+  crossTabEl.style.cssText = 'overflow-x:auto';
+  crossTabCard.appendChild(crossTabEl);
+
+  function renderCrossTab() {
+    const statKey = _demoActiveStat;
+    const data = CROSS_TAB.stats[statKey];
+
+    // Compute overall average for color coding
+    const allVals = data.flat();
+    const avg = allVals.reduce((s, v) => s + v, 0) / allVals.length;
+
+    const thStyle = `padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+    const thLeftStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+
+    let html = `<table style="width:100%;border-collapse:collapse">`;
+    html += `<thead><tr>
+      <th style="${thLeftStyle}">Segment</th>
+      ${CROSS_TAB.genders.map((g) => `<th style="${thStyle}">${g}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+    CROSS_TAB.segments.forEach((seg, ri) => {
+      html += `<tr>`;
+      html += `<td style="padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500">${seg}</td>`;
+      CROSS_TAB.genders.forEach((_, ci) => {
+        const val = data[ri][ci];
+        const aboveAvg = val >= avg;
+        const color = aboveAvg ? Theme.COLORS.success : Theme.COLORS.danger;
+        const formatted = formatStatValue(statKey, val);
+        html += `<td style="padding:10px 12px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;color:${color};text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)">${formatted}</td>`;
+      });
+      html += `</tr>`;
+    });
+
+    html += `</tbody></table>`;
+    html += `<div style="margin-top:8px;font-size:10px;color:${Theme.COLORS.textMuted}">
+      <span style="color:${Theme.COLORS.success}">&#9632;</span> Above average (${formatStatValue(statKey, avg)})
+      &nbsp;&nbsp;
+      <span style="color:${Theme.COLORS.danger}">&#9632;</span> Below average
+    </div>`;
+
+    crossTabEl.innerHTML = html;
+  }
+
+  renderCrossTab();
 }

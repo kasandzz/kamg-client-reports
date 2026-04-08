@@ -7,6 +7,9 @@ App.registerPage('segments', async (container) => {
 
   container.innerHTML = '';
 
+  // ==== DEMOGRAPHIC INTELLIGENCE (top of page) ====
+  _renderDemographicIntel(container);
+
   // ---- Segment data (from Hyros API full pull: 531 calls, 628 sales, 641 leads) ----
   const SEGMENTS = [
     { name: 'Therapists',           color: '#3b82f6', calls: 152, showRate: 90.1, sales: 219, leads: 172, costCall: 683,  costSale: 474,  slRatio: 1.27, adSets: ['Broad + CBO Licensed Therapists (147)', '0.1 LLA Stack 01 - Licensed Therapists Counselors (142)', '01. Broad + - Licensed Therapists Counselors (99)', '03. Broad - Therapists 3065 (59)', 'Broad + - Psychologist PsyD / PhD (32)'] },
@@ -214,41 +217,7 @@ App.registerPage('segments', async (container) => {
   uItem.appendChild(uContent);
   accordion.appendChild(uItem);
 
-  // ==== SECTION 6: HEALTHCARE PROVIDERS HIGHLIGHT ====
-  const s6 = _section(container, '6', 'Healthcare Providers -- Hidden Opportunity');
-  const highlight = document.createElement('div');
-  highlight.style.cssText = 'background:linear-gradient(135deg,rgba(6,182,212,0.08),rgba(99,102,241,0.08));border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:24px;margin:12px 0';
-  highlight.innerHTML = `
-    <div style="font-size:16px;font-weight:700;color:#06b6d4;margin-bottom:12px">This Segment Was Not Tracked by Pedro</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:16px 0">
-      ${[{v:'20',l:'Calls'},{v:'95.0%',l:'Show Rate (Highest)'},{v:'37',l:'Sales'},{v:'27',l:'Unique Leads'},{v:'1.37x',l:'Sales / Lead Ratio'}].map(s => `<div style="text-align:center;padding:12px;background:rgba(0,0,0,0.2);border-radius:10px"><div style="font-size:20px;font-weight:700;color:#06b6d4">${s.v}</div><div style="font-size:11px;color:${T.textMuted};margin-top:2px;text-transform:uppercase;letter-spacing:.04em">${s.l}</div></div>`).join('')}
-    </div>
-    <p style="color:${T.textSecondary};font-size:13px;margin:12px 0">Top ad sets: <strong style="color:${T.textPrimary}">Physician / DO / NP</strong> and <strong style="color:${T.textPrimary}">Other Licensed Healthcare Provider</strong>. 37 sales from only 27 unique leads -- second-highest sales-per-lead ratio.</p>
-    <div style="margin-top:14px;padding:12px 16px;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:13px;color:${T.textPrimary}"><strong style="color:#f59e0b">RECOMMENDATION:</strong> Break out Healthcare Provider spend separately in Facebook Ads Manager. The 95% show rate signals extremely high intent -- this audience deserves its own budget line.</div>
-  `;
-  s6.appendChild(highlight);
 
-  // ==== SECTION 7: DATA QUALITY NOTES ====
-  const s7 = _section(container, '7', 'Data Quality Notes');
-  const notes = [
-    'Source: Hyros API, pageSize=200, fromDate/toDate windowed pulls',
-    'CAPI installed Feb 22-26, 2026 -- data before this date is sparse and unreliable',
-    '3 records from Dec 2025 / Jan 2026 are pre-CAPI outliers',
-    'Hyros "sales" are mostly $27 workshop purchases (scientific attribution)',
-    '"Unattributed" = 194 calls + 130 sales from broad/generic ad sets',
-    'Spend data from Pedro\'s table (Facebook Ads Manager) -- not from Hyros',
-    'Health Coaches has only 5 calls -- too small for reliable conclusions',
-    'Sales/Lead ratios above 1.0x reflect Hyros multi-touch attribution',
-  ];
-  let notesHtml = '<ul style="list-style:none;padding:0">';
-  notes.forEach(n => {
-    notesHtml += `<li style="padding:5px 0 5px 20px;position:relative;color:${T.textSecondary};font-size:13px"><span style="position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:${T.textMuted}"></span>${n}</li>`;
-  });
-  notesHtml += '</ul>';
-  s7.innerHTML += notesHtml;
-
-  // ==== DEMOGRAPHIC INTELLIGENCE (copied from ads-meta.js) ====
-  _renderDemographicIntel(container);
 
   // ---- Footer ----
   const footer = document.createElement('div');

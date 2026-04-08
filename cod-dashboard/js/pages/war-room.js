@@ -135,24 +135,18 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // ---- Ticket Sales by Source (from Hyros -- uses existing deployed 'hyros/sources' query) ----
+  // ---- Ticket Sales by Source (sortable) ----
   const dealsCard = _card('Ticket Sales by Source');
-  dealsCard.innerHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">
-    <div style="width:120px;flex-shrink:0"></div>
-    <div style="flex:1"></div>
-    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Sales</div>
-    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">%</div>
-    <div style="width:64px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Revenue</div>
-  </div>`;
-  dealsCard.innerHTML += `<div id="wr-sales-channel" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
+  const srcHeaderEl = document.createElement('div');
+  srcHeaderEl.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)';
+  dealsCard.appendChild(srcHeaderEl);
+  const srcBodyEl = document.createElement('div');
+  srcBodyEl.id = 'wr-sales-channel';
+  srcBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+  dealsCard.appendChild(srcBodyEl);
 
   API.query('hyros', 'sources', { days }).then(rows => {
-    const el = dealsCard.querySelector('#wr-sales-channel');
-    if (!rows || rows.length === 0) {
-      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
-      return;
-    }
-    // Normalize source names into channels (aggregate everything into high-level buckets)
+    if (!rows || rows.length === 0) { srcBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data</p>`; return; }
     const channelMap = {};
     rows.forEach(r => {
       const src = (r.source || 'Unknown').toLowerCase();
@@ -171,60 +165,87 @@ App.registerPage('war-room', async (container) => {
       channelMap[channel].sales += (r.sales || 0);
       channelMap[channel].revenue += (r.revenue || 0);
     });
-    const channels = Object.entries(channelMap)
-      .map(([ch, d]) => ({ channel: ch, ...d }))
-      .sort((a, b) => b.revenue - a.revenue);
-
+    const channels = Object.entries(channelMap).map(([ch, d]) => ({ channel: ch, ...d }));
     const channelColors = { 'Meta Ads': '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569', 'Franzi (Setter)': '#a855f7', 'Lead Campaigns': '#f59e0b', Other: '#64748b' };
-    const maxDeal = Math.max(...channels.map(r => r.sales || 0));
     const totalDeals = channels.reduce((s, r) => s + r.sales, 0) || 1;
     const totalRev = channels.reduce((s, r) => s + r.revenue, 0);
-    let html = '';
-    channels.forEach(r => {
-      const pct = ((r.sales / totalDeals) * 100).toFixed(0);
-      const widthPct = maxDeal > 0 ? ((r.sales / maxDeal) * 100) : 0;
-      const color = channelColors[r.channel] || '#6366f1';
-      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-        <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
-        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
-          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
-        </div>
-        <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.sales}</div>
-        <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.revenue)}</div>
-      </div>`;
-    });
-    html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
-      <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalDeals} sales</span>
-      <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span>
-    </div>`;
-    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
-    el.innerHTML = html;
+
+    const srcSort = { key: 'revenue', dir: 'desc' };
+    const srcCols = [
+      { key: 'sales', label: 'Sales', w: '36px' },
+      { key: '_pct', label: '%', w: '36px' },
+      { key: 'revenue', label: 'Revenue', w: '64px' },
+    ];
+
+    function renderSrcHeaders() {
+      srcHeaderEl.innerHTML = `<div style="width:120px;flex-shrink:0"></div><div style="flex:1"></div>`;
+      srcCols.forEach(col => {
+        const isActive = srcSort.key === col.key;
+        const arrow = isActive ? (srcSort.dir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
+        srcHeaderEl.innerHTML += `<div class="wr-sort-col" data-sort="${col.key}" style="width:${col.w};font-size:10px;font-weight:600;color:${isActive ? '#e2e8f0' : Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none">${col.label}${arrow}</div>`;
+      });
+      srcHeaderEl.querySelectorAll('.wr-sort-col').forEach(el => {
+        el.addEventListener('click', () => {
+          const k = el.dataset.sort;
+          if (k === '_pct') return;
+          if (srcSort.key === k) srcSort.dir = srcSort.dir === 'desc' ? 'asc' : 'desc';
+          else { srcSort.key = k; srcSort.dir = 'desc'; }
+          renderSrcHeaders();
+          renderSrcRows();
+        });
+      });
+    }
+
+    function renderSrcRows() {
+      const sorted = [...channels].sort((a, b) => {
+        const va = a[srcSort.key] || 0, vb = b[srcSort.key] || 0;
+        return srcSort.dir === 'desc' ? vb - va : va - vb;
+      });
+      const maxDeal = Math.max(...sorted.map(r => r.sales || 0));
+      let html = '';
+      sorted.forEach(r => {
+        const pct = ((r.sales / totalDeals) * 100).toFixed(0);
+        const widthPct = maxDeal > 0 ? ((r.sales / maxDeal) * 100) : 0;
+        const color = channelColors[r.channel] || '#6366f1';
+        html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
+          <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div></div>
+          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.sales}</div>
+          <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+          <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.revenue)}</div>
+        </div>`;
+      });
+      html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)"><span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalDeals} sales</span><span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span></div>`;
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
+      srcBodyEl.innerHTML = html;
+    }
+
+    renderSrcHeaders();
+    renderSrcRows();
   }).catch(err => {
-    dealsCard.querySelector('#wr-sales-channel').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
+    srcBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
-  // ---- Ticket Sales by Ad (from Hyros -- granular ad-level, no channel grouping) ----
+  // ---- Total Sales by Ad (from Hyros -- granular ad-level, sortable) ----
   const adCard = _card('Total Sales by Ad');
-  adCard.innerHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">
-    <div style="width:160px;flex-shrink:0"></div>
-    <div style="flex:1"></div>
-    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Sales</div>
-    <div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">%</div>
-    <div style="width:64px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Revenue</div>
-  </div>`;
-  adCard.innerHTML += `<div id="wr-sales-by-ad" style="margin-top:8px"><div class="page-placeholder"><div class="spinner"></div></div></div>`;
+  const adHeaderEl = document.createElement('div');
+  adHeaderEl.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)';
+  adCard.appendChild(adHeaderEl);
+  const adBodyEl = document.createElement('div');
+  adBodyEl.id = 'wr-sales-by-ad';
+  adBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+  adCard.appendChild(adBodyEl);
 
   API.query('hyros', 'sources', { days }).then(rows => {
-    const el = adCard.querySelector('#wr-sales-by-ad');
     if (!rows || rows.length === 0) {
-      el.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
+      adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
       return;
     }
     const barColors = ['#6366f1', '#8b5cf6', '#a855f7', '#38bdf8', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#94a3b8'];
-    const maxSales = Math.max(...rows.map(r => r.sales || 0));
     const totalSales = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
-    const totalRev = rows.reduce((s, r) => s + (r.revenue || 0), 0);
+    const totalTicketRev = rows.reduce((s, r) => s + (r.ticket_revenue || 0), 0);
+    const totalEnrollRev = rows.reduce((s, r) => s + (r.enrollment_revenue || 0), 0);
+
     // Inject tooltip styles once
     if (!document.getElementById('wr-ad-tooltip-style')) {
       const style = document.createElement('style');
@@ -233,40 +254,80 @@ App.registerPage('war-room', async (container) => {
       document.head.appendChild(style);
     }
 
-    let html = '';
-    rows.forEach((r, i) => {
-      const sales = r.sales || 0;
-      const rev = r.revenue || 0;
-      const pct = ((sales / totalSales) * 100).toFixed(0);
-      const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
-      const color = barColors[i % barColors.length];
-      const srcName = r.source || 'Unknown';
-      const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=206306693361622&search=' + encodeURIComponent(srcName);
-      html += `<div class="wr-ad-row" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:default">
-        <div class="wr-ad-tip">
-          <div class="wr-ad-tip-name">${srcName}</div>
-          <div style="display:flex;gap:8px;font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">
-            <span>${sales} sales</span><span>${pct}%</span><span style="color:${Theme.COLORS.success}">${Theme.money(rev)}</span>
+    const adSort = { key: 'sales', dir: 'desc' };
+    const adCols = [
+      { key: 'sales', label: 'Sales', w: '36px' },
+      { key: '_pct', label: '%', w: '36px' },
+      { key: 'ticket_revenue', label: 'Tickets', w: '64px' },
+      { key: 'enrollment_revenue', label: 'Enroll', w: '64px' },
+    ];
+
+    function renderAdHeaders() {
+      adHeaderEl.innerHTML = `<div style="width:160px;flex-shrink:0"></div><div style="flex:1"></div>`;
+      adCols.forEach(col => {
+        const isActive = adSort.key === col.key;
+        const arrow = isActive ? (adSort.dir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
+        adHeaderEl.innerHTML += `<div class="wr-ad-sort-col" data-sort="${col.key}" style="width:${col.w};font-size:10px;font-weight:600;color:${isActive ? '#e2e8f0' : Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none">${col.label}${arrow}</div>`;
+      });
+      adHeaderEl.querySelectorAll('.wr-ad-sort-col').forEach(el => {
+        el.addEventListener('click', () => {
+          const k = el.dataset.sort;
+          if (k === '_pct') return;
+          if (adSort.key === k) adSort.dir = adSort.dir === 'desc' ? 'asc' : 'desc';
+          else { adSort.key = k; adSort.dir = 'desc'; }
+          renderAdHeaders();
+          renderAdRows();
+        });
+      });
+    }
+
+    function renderAdRows() {
+      const sorted = [...rows].sort((a, b) => {
+        const va = a[adSort.key] || 0, vb = b[adSort.key] || 0;
+        return adSort.dir === 'desc' ? vb - va : va - vb;
+      });
+      const maxSales = Math.max(...sorted.map(r => r.sales || 0));
+      let html = '';
+      sorted.forEach((r, i) => {
+        const sales = r.sales || 0;
+        const ticketRev = r.ticket_revenue || 0;
+        const enrollRev = r.enrollment_revenue || 0;
+        const pct = ((sales / totalSales) * 100).toFixed(0);
+        const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
+        const color = barColors[i % barColors.length];
+        const srcName = r.source || 'Unknown';
+        const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=206306693361622&search=' + encodeURIComponent(srcName);
+        html += `<div class="wr-ad-row" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:default">
+          <div class="wr-ad-tip">
+            <div class="wr-ad-tip-name">${srcName}</div>
+            <div style="display:flex;gap:8px;font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">
+              <span>${sales} sales</span><span>${pct}%</span><span style="color:#6366f1">Tickets: ${Theme.money(ticketRev)}</span><span style="color:${Theme.COLORS.success}">Enroll: ${Theme.money(enrollRev)}</span>
+            </div>
+            <a class="wr-ad-tip-link" href="${fbSearchUrl}" target="_blank" rel="noopener">Open in Ads Manager &#8599;</a>
           </div>
-          <a class="wr-ad-tip-link" href="${fbSearchUrl}" target="_blank" rel="noopener">Open in Ads Manager &#8599;</a>
-        </div>
-        <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${srcName}">${srcName}</div>
-        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
-          <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
-        </div>
-        <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
-        <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-        <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(rev)}</div>
+          <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${srcName}">${srcName}</div>
+          <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
+          </div>
+          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
+          <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
+          <div style="width:64px;font-size:11px;color:#6366f1;text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(ticketRev)}</div>
+          <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(enrollRev)}</div>
+        </div>`;
+      });
+      html += `<div style="display:flex;justify-content:flex-end;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalSales} sales</span>
+        <span style="font-size:12px;color:#6366f1;font-weight:600;font-family:var(--font-mono)">${Theme.money(totalTicketRev)}</span>
+        <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalEnrollRev)}</span>
       </div>`;
-    });
-    html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
-      <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalSales} sales</span>
-      <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span>
-    </div>`;
-    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution (ad-level)</div>`;
-    el.innerHTML = html;
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution (ad-level)</div>`;
+      adBodyEl.innerHTML = html;
+    }
+
+    renderAdHeaders();
+    renderAdRows();
   }).catch(err => {
-    adCard.querySelector('#wr-sales-by-ad').innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
+    adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
 
   // DPL (Dollars Per Lead) & Cost Per Ticket

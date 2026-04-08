@@ -767,21 +767,6 @@ function _renderDemographicIntel(container) {
     },
   };
 
-  // Cross-tab data: profession x gender for each stat
-  const CROSS_TAB = {
-    segments: ['Therapists', 'Attorneys', 'Coaches', 'Educators'],
-    genders: ['Women', 'Men'],
-    stats: {
-      ticket_rate: [[5.4, 4.6], [4.8, 3.9], [3.9, 3.1], [3.5, 2.8]],
-      vip_rate: [[42, 32], [36, 27], [30, 21], [26, 17]],
-      show_rate: [[82, 72], [78, 68], [72, 62], [68, 58]],
-      book_rate: [[42, 32], [38, 28], [32, 22], [28, 18]],
-      call_show: [[90, 80], [86, 76], [80, 70], [76, 66]],
-      enroll_rate: [[11.2, 6.4], [9.6, 5.2], [6.8, 3.2], [5.4, 2.4]],
-      ltv: [[14800, 10600], [13200, 9800], [10800, 7200], [9200, 5600]],
-    },
-  };
-
   // ---- Inject responsive style ----
   const styleId = 'demo-intel-responsive';
   if (!document.getElementById(styleId)) {
@@ -820,8 +805,6 @@ function _renderDemographicIntel(container) {
 
   // Track all card render functions for global re-render
   const cardRenderers = [];
-  let crossTabEl;
-
   function formatStatValue(statKey, value) {
     if (statKey === 'ltv') return Theme.money(value);
     return value.toFixed(1) + '%';
@@ -913,60 +896,4 @@ function _renderDemographicIntel(container) {
     grid.appendChild(card);
   });
 
-  // ---- Cross-Tab Summary Matrix ----
-  const crossTabCard = document.createElement('div');
-  crossTabCard.className = 'card';
-  crossTabCard.style.cssText = 'padding:20px;margin-top:16px';
-  container.appendChild(crossTabCard);
-
-  const crossTabTitle = document.createElement('div');
-  crossTabTitle.style.cssText = `font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px`;
-  crossTabTitle.textContent = 'Cross-Tab: Profession x Gender';
-  crossTabCard.appendChild(crossTabTitle);
-
-  crossTabEl = document.createElement('div');
-  crossTabEl.style.cssText = 'overflow-x:auto';
-  crossTabCard.appendChild(crossTabEl);
-
-  function renderCrossTab() {
-    const statKey = _demoActiveStat;
-    const data = CROSS_TAB.stats[statKey];
-
-    // Compute overall average for color coding
-    const allVals = data.flat();
-    const avg = allVals.reduce((s, v) => s + v, 0) / allVals.length;
-
-    const thStyle = `padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-    const thLeftStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-
-    let html = `<table style="width:100%;border-collapse:collapse">`;
-    html += `<thead><tr>
-      <th style="${thLeftStyle}">Segment</th>
-      ${CROSS_TAB.genders.map((g) => `<th style="${thStyle}">${g}</th>`).join('')}
-    </tr></thead><tbody>`;
-
-    CROSS_TAB.segments.forEach((seg, ri) => {
-      html += `<tr>`;
-      html += `<td style="padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500">${seg}</td>`;
-      CROSS_TAB.genders.forEach((_, ci) => {
-        const val = data[ri][ci];
-        const aboveAvg = val >= avg;
-        const color = aboveAvg ? Theme.COLORS.success : Theme.COLORS.danger;
-        const formatted = formatStatValue(statKey, val);
-        html += `<td style="padding:10px 12px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;color:${color};text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)">${formatted}</td>`;
-      });
-      html += `</tr>`;
-    });
-
-    html += `</tbody></table>`;
-    html += `<div style="margin-top:8px;font-size:10px;color:${Theme.COLORS.textMuted}">
-      <span style="color:${Theme.COLORS.success}">&#9632;</span> Above average (${formatStatValue(statKey, avg)})
-      &nbsp;&nbsp;
-      <span style="color:${Theme.COLORS.danger}">&#9632;</span> Below average
-    </div>`;
-
-    crossTabEl.innerHTML = html;
-  }
-
-  renderCrossTab();
 }

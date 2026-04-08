@@ -4,7 +4,7 @@
 
 const Filters = (() => {
   // State
-  let _days = 30;
+  let _days = 14;
   let _closer = '';
   let _channel = '';
   let _vip = '';
@@ -132,7 +132,7 @@ const Filters = (() => {
   // ---- URL sync ----
   function _readFromURL() {
     const params = new URLSearchParams(window.location.search);
-    if (params.has('days')) _days = parseInt(params.get('days'), 10) || 30;
+    if (params.has('days')) _days = parseInt(params.get('days'), 10) || 14;
     if (params.has('closer')) _closer = params.get('closer');
     if (params.has('channel')) _channel = params.get('channel');
     if (params.has('vip')) _vip = params.get('vip');

@@ -274,46 +274,69 @@ function _renderCampaignTable(card, campaigns) {
     return;
   }
 
-  // Sort by spend descending
-  const rows = [...campaigns].sort((a, b) => (b.spend || 0) - (a.spend || 0));
+  // ---- Niche detection from campaign name ----
+  const NICHE_RULES = [
+    { key: 'therapists', label: 'THERAPISTS', color: '#22c55e', keywords: ['therap', 'counselor', 'psycholog', 'licensed', 'clinical', 'lmft', 'lcsw', 'lpc'] },
+    { key: 'attorneys',  label: 'ATTORNEYS',  color: '#f59e0b', keywords: ['attorney', 'lawyer', 'law ', 'legal'] },
+    { key: 'coaches',    label: 'COACHES',    color: '#3b82f6', keywords: ['coach', 'consultant', 'transformation'] },
+    { key: 'educators',  label: 'EDUCATORS',  color: '#a855f7', keywords: ['educator', 'teacher', 'course creator', 'trainer'] },
+    { key: 'broad',      label: 'BROAD / MIXED', color: '#64748b', keywords: ['broad', 'cbo', 'stacked', 'interest stack', 'lla stack', 'advantage'] },
+  ];
 
-  if (typeof Components.renderTable === 'function') {
-    Components.renderTable(card, rows, {
-      columns: [
-        { key: 'campaign_name', label: 'Campaign' },
-        { key: 'spend',        label: 'Spend',       format: 'money' },
-        { key: 'impressions',  label: 'Impressions',  format: 'num' },
-        { key: 'clicks',       label: 'Clicks',       format: 'num' },
-        { key: 'ctr',          label: 'CTR',          format: 'pct' },
-        { key: 'cpc',          label: 'CPC',          format: 'money' },
-        { key: 'cpm',          label: 'CPM',          format: 'money' },
-        { key: 'conversions',  label: 'Conversions',  format: 'num' },
-        { key: 'revenue',      label: 'Revenue',      format: 'money' },
-        { key: 'roas',         label: 'ROAS',         format: 'num' },
-      ],
-      onRowClick: (row) => {
-        Components.openDrillDown(`Campaign: ${row.campaign_name}`, async () => {
-          return [row];
-        });
-      },
-    });
-    return;
+  function detectNiche(name) {
+    const lower = (name || '').toLowerCase();
+    for (const rule of NICHE_RULES) {
+      if (rule.keywords.some(kw => lower.includes(kw))) return rule;
+    }
+    return { key: 'other', label: 'OTHER', color: '#475569', keywords: [] };
   }
 
-  // Fallback styled table
+  // Group campaigns by niche
+  const nicheGroups = {};
+  const rows = [...campaigns].sort((a, b) => (b.spend || 0) - (a.spend || 0));
+  rows.forEach(row => {
+    const niche = detectNiche(row.campaign_name);
+    if (!nicheGroups[niche.key]) nicheGroups[niche.key] = { niche, campaigns: [] };
+    nicheGroups[niche.key].campaigns.push(row);
+  });
+
+  // Order: therapists, attorneys, coaches, educators, broad, other
+  const nicheOrder = ['therapists', 'attorneys', 'coaches', 'educators', 'broad', 'other'];
+  const sortedGroups = nicheOrder
+    .filter(k => nicheGroups[k])
+    .map(k => nicheGroups[k]);
+
+  // ---- Filter dropdowns ----
+  const filterWrap = document.createElement('div');
+  filterWrap.style.cssText = 'display:flex;gap:10px;margin-bottom:14px';
+
+  const nicheSelect = document.createElement('select');
+  nicheSelect.style.cssText = `background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:${Theme.COLORS.textPrimary};font-size:12px;padding:6px 10px;outline:none`;
+  nicheSelect.innerHTML = `<option value="">All Niches</option>` + sortedGroups.map(g => `<option value="${g.niche.key}">${g.niche.label}</option>`).join('');
+
+  const statusSelect = document.createElement('select');
+  statusSelect.style.cssText = nicheSelect.style.cssText;
+  statusSelect.innerHTML = `<option value="">All Statuses</option><option value="active">Active (spending)</option><option value="paused">Paused (no spend)</option>`;
+
+  filterWrap.appendChild(nicheSelect);
+  filterWrap.appendChild(statusSelect);
+  card.appendChild(filterWrap);
+
+  // ---- Table wrapper ----
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'overflow-x:auto;margin-top:4px';
+  card.appendChild(wrapper);
 
   const cols = [
-    { key: 'campaign_name', label: 'Campaign',    fmt: (v) => `<span style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block">${v || '--'}</span>` },
-    { key: 'spend',         label: 'Spend',       fmt: (v) => Theme.money(v || 0) },
-    { key: 'impressions',   label: 'Impressions', fmt: (v) => Theme.num(v || 0) },
-    { key: 'clicks',        label: 'Clicks',      fmt: (v) => Theme.num(v || 0) },
-    { key: 'ctr',           label: 'CTR',         fmt: (v) => Theme.pct(v || 0) },
-    { key: 'cpc',           label: 'CPC',         fmt: (v) => Theme.money(v || 0) },
-    { key: 'cpm',           label: 'CPM',         fmt: (v) => Theme.money(v || 0) },
-    { key: 'conversions',   label: 'Conv.',       fmt: (v) => Theme.num(v || 0) },
-    { key: 'revenue',       label: 'Revenue',     fmt: (v) => Theme.money(v || 0) },
+    { key: 'campaign_name', label: 'Campaign',    fmt: (v) => `<span style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block">${v || '--'}</span>` },
+    { key: '_niche',        label: 'Niche',        fmt: (v, row) => { const n = detectNiche(row.campaign_name); return `<span style="background:${n.color}22;color:${n.color};padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600">${n.label.split(' ')[0]}</span>`; } },
+    { key: '_status',       label: 'Status',       fmt: (v, row) => { const active = (row.spend || 0) > 0; return `<span style="color:${active ? Theme.COLORS.success : Theme.COLORS.textMuted}">&#9679; ${active ? 'Active' : 'Paused'}</span>`; } },
+    { key: 'spend',         label: 'Spend',        fmt: (v) => Theme.money(v || 0) },
+    { key: 'impressions',   label: 'Impr.',        fmt: (v) => Theme.num(v || 0) },
+    { key: 'clicks',        label: 'Clicks',       fmt: (v) => Theme.num(v || 0) },
+    { key: 'ctr',           label: 'CTR',          fmt: (v) => (+(v || 0)).toFixed(2) + '%' },
+    { key: 'cpc',           label: 'CPC',          fmt: (v) => Theme.money(v || 0) },
+    { key: 'cpm',           label: 'CPM',          fmt: (v) => Theme.money(v || 0) },
     {
       key: 'roas', label: 'ROAS',
       fmt: (v) => {
@@ -326,28 +349,49 @@ function _renderCampaignTable(card, campaigns) {
 
   const thStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
   const tdStyle = `padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap`;
-  const trHover = `background:rgba(255,255,255,0.03);cursor:pointer`;
 
-  const thead = `<thead><tr>${cols.map(c => `<th style="${thStyle}">${c.label}</th>`).join('')}</tr></thead>`;
-  const tbody = rows.map(row => {
-    const cells = cols.map(c => `<td style="${tdStyle}">${c.fmt(row[c.key])}</td>`).join('');
-    return `<tr onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''" style="cursor:pointer">${cells}</tr>`;
-  }).join('');
+  function renderTable() {
+    const filterNiche = nicheSelect.value;
+    const filterStatus = statusSelect.value;
+    const groups = filterNiche ? sortedGroups.filter(g => g.niche.key === filterNiche) : sortedGroups;
 
-  wrapper.innerHTML = `<table style="width:100%;border-collapse:collapse">${thead}<tbody>${tbody}</tbody></table>`;
+    const thead = `<thead><tr>${cols.map(c => `<th style="${thStyle}">${c.label}</th>`).join('')}</tr></thead>`;
+    let tbody = '';
 
-  // Row click -> drill-down
-  const trs = wrapper.querySelectorAll('tbody tr');
-  trs.forEach((tr, i) => {
-    tr.addEventListener('click', () => {
-      const row = rows[i];
-      if (typeof Components.openDrillDown === 'function') {
-        Components.openDrillDown(`Campaign: ${row.campaign_name}`, async () => [row]);
-      }
+    groups.forEach(group => {
+      const filtered = group.campaigns.filter(row => {
+        if (filterStatus === 'active' && (row.spend || 0) <= 0) return false;
+        if (filterStatus === 'paused' && (row.spend || 0) > 0) return false;
+        return true;
+      });
+      if (filtered.length === 0) return;
+
+      // Niche section header
+      tbody += `<tr><td colspan="${cols.length}" style="padding:14px 12px 6px;font-size:12px;font-weight:700;color:${group.niche.color};letter-spacing:.06em;border-bottom:1px solid ${group.niche.color}33">${group.niche.label}</td></tr>`;
+
+      filtered.forEach(row => {
+        const cells = cols.map(c => `<td style="${tdStyle};font-family:${c.key === 'campaign_name' ? 'Inter,sans-serif' : 'var(--font-mono)'};font-weight:${c.key === 'campaign_name' ? '500' : '400'}">${c.fmt(row[c.key], row)}</td>`).join('');
+        tbody += `<tr onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''" style="cursor:pointer" data-campaign="${(row.campaign_name || '').replace(/"/g, '&quot;')}">${cells}</tr>`;
+      });
     });
-  });
 
-  card.appendChild(wrapper);
+    wrapper.innerHTML = `<table style="width:100%;border-collapse:collapse">${thead}<tbody>${tbody}</tbody></table>`;
+
+    // Row click -> drill-down
+    wrapper.querySelectorAll('tbody tr[data-campaign]').forEach(tr => {
+      tr.addEventListener('click', () => {
+        const name = tr.dataset.campaign;
+        const row = rows.find(r => r.campaign_name === name);
+        if (row && typeof Components.openDrillDown === 'function') {
+          Components.openDrillDown(`Campaign: ${row.campaign_name}`, async () => [row]);
+        }
+      });
+    });
+  }
+
+  nicheSelect.addEventListener('change', renderTable);
+  statusSelect.addEventListener('change', renderTable);
+  renderTable();
 }
 
 // ---------------------------------------------------------------------------

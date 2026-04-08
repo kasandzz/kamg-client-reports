@@ -205,7 +205,7 @@ App.registerPage('war-room', async (container) => {
   });
 
   // ---- Ticket Sales by Ad (from Hyros -- granular ad-level, no channel grouping) ----
-  const adCard = _card('Ticket Sales by Ad');
+  const adCard = _card('Total Sales by Ad');
   adCard.innerHTML += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">
     <div style="width:160px;flex-shrink:0"></div>
     <div style="flex:1"></div>

@@ -30,150 +30,103 @@ const _CE_STATUS_COLORS = {
 };
 
 // ---------------------------------------------------------------------------
-// Seed Data
+// Live Data (populated from BQ via API on page load)
 // ---------------------------------------------------------------------------
-
-const _CE_CAMPAIGNS = [
-  // -- Therapists --
-  { id: 'camp_001', name: 'Therapists - Clinical Psychologists', niche: 'therapists', status: 'active', leads: 2450, sent: 1823, opened: 894, replied: 47, interested: 18, bounced: 32, unsubscribed: 5,
-    steps: [
-      { step: 1, subject: 'Your practice deserves more', sent: 1823, opened: 894, replied: 28,
-        variant_a: { subject: 'Your practice deserves more', sent: 912, opened: 458, replied: 17 },
-        variant_b: { subject: 'Thought about scaling beyond sessions?', sent: 911, opened: 436, replied: 11 } },
-      { step: 2, subject: 'Quick follow-up on my last note', sent: 1450, opened: 624, replied: 12, variant_a: null, variant_b: null },
-      { step: 3, subject: 'Last note - the video I mentioned', sent: 980, opened: 382, replied: 7, variant_a: null, variant_b: null },
-    ],
-  },
-  { id: 'camp_002', name: 'Therapists - Licensed Counselors (LCSW)', niche: 'therapists', status: 'active', leads: 1890, sent: 1342, opened: 631, replied: 34, interested: 14, bounced: 22, unsubscribed: 3,
-    steps: [
-      { step: 1, subject: 'Beyond the session-based grind', sent: 1342, opened: 631, replied: 21,
-        variant_a: { subject: 'Beyond the session-based grind', sent: 671, opened: 322, replied: 13 },
-        variant_b: { subject: 'What if your income wasn\'t tied to sessions?', sent: 671, opened: 309, replied: 8 } },
-      { step: 2, subject: 'Following up', sent: 1080, opened: 432, replied: 9, variant_a: null, variant_b: null },
-      { step: 3, subject: 'One last thing', sent: 720, opened: 252, replied: 4, variant_a: null, variant_b: null },
-    ],
-  },
-  // -- Attorneys --
-  { id: 'camp_003', name: 'Attorneys - Solo Practitioners', niche: 'attorneys', status: 'active', leads: 1650, sent: 1180, opened: 496, replied: 22, interested: 8, bounced: 28, unsubscribed: 4,
-    steps: [
-      { step: 1, subject: 'Scaling a law practice without more billable hours', sent: 1180, opened: 496, replied: 14,
-        variant_a: { subject: 'Scaling a law practice without more billable hours', sent: 590, opened: 254, replied: 9 },
-        variant_b: { subject: 'Most attorneys miss this revenue lever', sent: 590, opened: 242, replied: 5 } },
-      { step: 2, subject: 'Quick follow-up', sent: 940, opened: 338, replied: 5, variant_a: null, variant_b: null },
-      { step: 3, subject: 'Last note', sent: 610, opened: 195, replied: 3, variant_a: null, variant_b: null },
-    ],
-  },
-  { id: 'camp_004', name: 'Attorneys - Family Law Focus', niche: 'attorneys', status: 'paused', leads: 980, sent: 720, opened: 288, replied: 11, interested: 3, bounced: 19, unsubscribed: 2,
-    steps: [
-      { step: 1, subject: 'Family law attorneys - a different model', sent: 720, opened: 288, replied: 7, variant_a: null, variant_b: null },
-      { step: 2, subject: 'Following up on my note', sent: 580, opened: 203, replied: 3, variant_a: null, variant_b: null },
-      { step: 3, subject: 'Last reach-out', sent: 380, opened: 114, replied: 1, variant_a: null, variant_b: null },
-    ],
-  },
-  // -- Coaches --
-  { id: 'camp_005', name: 'Coaches - Life & Transformation', niche: 'coaches', status: 'active', leads: 2100, sent: 1560, opened: 718, replied: 38, interested: 15, bounced: 25, unsubscribed: 6,
-    steps: [
-      { step: 1, subject: 'Coaching beyond 1-on-1 sessions', sent: 1560, opened: 718, replied: 24,
-        variant_a: { subject: 'Coaching beyond 1-on-1 sessions', sent: 780, opened: 366, replied: 15 },
-        variant_b: { subject: 'What top coaches know about scaling', sent: 780, opened: 352, replied: 9 } },
-      { step: 2, subject: 'Circling back', sent: 1240, opened: 496, replied: 10, variant_a: null, variant_b: null },
-      { step: 3, subject: 'Final note', sent: 830, opened: 282, replied: 4, variant_a: null, variant_b: null },
-    ],
-  },
-  // -- Educators --
-  { id: 'camp_006', name: 'Educators - Online Course Creators', niche: 'educators', status: 'completed', leads: 1200, sent: 1180, opened: 496, replied: 19, interested: 6, bounced: 18, unsubscribed: 3,
-    steps: [
-      { step: 1, subject: 'Your teaching skills are worth more', sent: 1180, opened: 496, replied: 12,
-        variant_a: { subject: 'Your teaching skills are worth more', sent: 590, opened: 254, replied: 8 },
-        variant_b: { subject: 'Educators: build a business that matches your impact', sent: 590, opened: 242, replied: 4 } },
-      { step: 2, subject: 'Quick follow-up', sent: 940, opened: 338, replied: 5, variant_a: null, variant_b: null },
-      { step: 3, subject: 'Last note from me', sent: 620, opened: 186, replied: 2, variant_a: null, variant_b: null },
-    ],
-  },
-  { id: 'camp_007', name: 'Educators - Corporate Trainers', niche: 'educators', status: 'draft', leads: 850, sent: 0, opened: 0, replied: 0, interested: 0, bounced: 0, unsubscribed: 0,
-    steps: [],
-  },
-];
-
-const _CE_REPLIES = [
-  { contact: { name: 'Dr. Sarah Chen', company: 'Mindful Therapy Group' }, campaign_id: 'camp_001', niche: 'therapists', reply_date: '2026-04-06', sentiment: 'interested', reply_preview: 'Yes, I would love to see that video. I\'ve been thinking about this for a while.', conversions: { workshop_reg: true, vip: false, call_booked: true, call_showed: false, enrolled: false }, current_stage: 'Call Booked' },
-  { contact: { name: 'Dr. Michael Rivera', company: 'Rivera Counseling PLLC' }, campaign_id: 'camp_001', niche: 'therapists', reply_date: '2026-04-06', sentiment: 'interested', reply_preview: 'This sounds interesting. Can you tell me more about the time commitment?', conversions: { workshop_reg: true, vip: true, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'VIP Registered' },
-  { contact: { name: 'Jennifer Walsh, LCSW', company: 'Healing Horizons' }, campaign_id: 'camp_002', niche: 'therapists', reply_date: '2026-04-05', sentiment: 'interested', reply_preview: 'Please send the video. I\'m interested in learning more.', conversions: { workshop_reg: true, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'Workshop Registered' },
-  { contact: { name: 'Dr. Amanda Torres', company: 'Torres Psychology' }, campaign_id: 'camp_001', niche: 'therapists', reply_date: '2026-04-05', sentiment: 'not_interested', reply_preview: 'Thanks but I\'m not looking to change my practice model right now.', conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'Declined' },
-  { contact: { name: 'Robert Kim, JD', company: 'Kim & Associates Law' }, campaign_id: 'camp_003', niche: 'attorneys', reply_date: '2026-04-05', sentiment: 'interested', reply_preview: 'I\'m intrigued. I\'ve been looking for ways to scale without adding associates.', conversions: { workshop_reg: true, vip: true, call_booked: true, call_showed: true, enrolled: true }, current_stage: 'Enrolled' },
-  { contact: { name: 'Lisa Park, Esq.', company: 'Park Family Law' }, campaign_id: 'camp_004', niche: 'attorneys', reply_date: '2026-04-04', sentiment: 'ooo', reply_preview: 'I\'m out of office until April 14th. I\'ll review when I return.', conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'OOO' },
-  { contact: { name: 'David Brooks', company: 'Transformative Coaching Co' }, campaign_id: 'camp_005', niche: 'coaches', reply_date: '2026-04-04', sentiment: 'interested', reply_preview: 'Yes! Send me the video. I\'ve been doing 1-on-1 for 5 years and ready for a change.', conversions: { workshop_reg: true, vip: true, call_booked: true, call_showed: true, enrolled: false }, current_stage: 'Call Completed' },
-  { contact: { name: 'Maria Gonzalez', company: 'MG Life Coaching' }, campaign_id: 'camp_005', niche: 'coaches', reply_date: '2026-04-04', sentiment: 'interested', reply_preview: 'Very interested. What\'s the investment look like?', conversions: { workshop_reg: true, vip: false, call_booked: true, call_showed: false, enrolled: false }, current_stage: 'Call Booked' },
-  { contact: { name: 'Tom Sullivan', company: 'Sullivan Training Academy' }, campaign_id: 'camp_006', niche: 'educators', reply_date: '2026-04-03', sentiment: 'auto_reply', reply_preview: 'Thanks for reaching out! I receive many emails and will respond if interested.', conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'Auto-Reply' },
-  { contact: { name: 'Dr. Karen Wright', company: 'Wright Counseling' }, campaign_id: 'camp_002', niche: 'therapists', reply_date: '2026-04-03', sentiment: 'interested', reply_preview: 'I watched a similar webinar last year but didn\'t follow through. I\'m ready now.', conversions: { workshop_reg: true, vip: true, call_booked: true, call_showed: true, enrolled: true }, current_stage: 'Enrolled' },
-  { contact: { name: 'James Carter, JD', company: 'Carter Legal Group' }, campaign_id: 'camp_003', niche: 'attorneys', reply_date: '2026-04-03', sentiment: 'not_interested', reply_preview: 'Not interested. Please remove me from your list.', conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'Unsubscribed' },
-  { contact: { name: 'Patricia Lane', company: 'Lane Wellness Center' }, campaign_id: 'camp_001', niche: 'therapists', reply_date: '2026-04-02', sentiment: 'interested', reply_preview: 'Send me the video please. My practice has been stagnant for two years.', conversions: { workshop_reg: true, vip: false, call_booked: false, call_showed: false, enrolled: false }, current_stage: 'Workshop Registered' },
-];
-
-const _CE_SENDERS = [
-  { email: 'russ@clientsondemand.co', domain: 'clientsondemand.co', status: 'active', sent_30d: 4200, bounce_rate: 1.2, warmup: 100 },
-  { email: 'info@codcoaching.com', domain: 'codcoaching.com', status: 'active', sent_30d: 3800, bounce_rate: 1.8, warmup: 100 },
-  { email: 'team@clientsondemand.co', domain: 'clientsondemand.co', status: 'active', sent_30d: 2900, bounce_rate: 0.9, warmup: 100 },
-  { email: 'outreach@codbusiness.com', domain: 'codbusiness.com', status: 'warming', sent_30d: 480, bounce_rate: 0.4, warmup: 62 },
-  { email: 'connect@codresults.com', domain: 'codresults.com', status: 'warming', sent_30d: 320, bounce_rate: 0.2, warmup: 45 },
-  { email: 'hello@codpractice.com', domain: 'codpractice.com', status: 'error', sent_30d: 150, bounce_rate: 4.8, warmup: 30 },
-];
-
-const _CE_DAILY = [
-  { date: '2026-03-08', sent: 120, opened: 54, replied: 2, bounced: 3 },
-  { date: '2026-03-09', sent: 135, opened: 62, replied: 3, bounced: 2 },
-  { date: '2026-03-10', sent: 180, opened: 83, replied: 4, bounced: 4 },
-  { date: '2026-03-11', sent: 210, opened: 97, replied: 5, bounced: 3 },
-  { date: '2026-03-12', sent: 195, opened: 88, replied: 3, bounced: 5 },
-  { date: '2026-03-13', sent: 240, opened: 115, replied: 6, bounced: 4 },
-  { date: '2026-03-14', sent: 85, opened: 38, replied: 1, bounced: 1 },
-  { date: '2026-03-15', sent: 260, opened: 125, replied: 7, bounced: 3 },
-  { date: '2026-03-16', sent: 275, opened: 132, replied: 5, bounced: 4 },
-  { date: '2026-03-17', sent: 310, opened: 149, replied: 8, bounced: 5 },
-  { date: '2026-03-18', sent: 290, opened: 136, replied: 6, bounced: 3 },
-  { date: '2026-03-19', sent: 320, opened: 150, replied: 7, bounced: 4 },
-  { date: '2026-03-20', sent: 305, opened: 143, replied: 9, bounced: 3 },
-  { date: '2026-03-21', sent: 100, opened: 45, replied: 2, bounced: 1 },
-  { date: '2026-03-22', sent: 340, opened: 163, replied: 8, bounced: 5 },
-  { date: '2026-03-23', sent: 355, opened: 170, replied: 10, bounced: 4 },
-  { date: '2026-03-24', sent: 380, opened: 182, replied: 9, bounced: 6 },
-  { date: '2026-03-25', sent: 365, opened: 175, replied: 11, bounced: 4 },
-  { date: '2026-03-26', sent: 390, opened: 187, replied: 8, bounced: 5 },
-  { date: '2026-03-27', sent: 370, opened: 174, replied: 10, bounced: 3 },
-  { date: '2026-03-28', sent: 110, opened: 50, replied: 3, bounced: 2 },
-  { date: '2026-03-29', sent: 410, opened: 197, replied: 12, bounced: 5 },
-  { date: '2026-03-30', sent: 425, opened: 204, replied: 9, bounced: 6 },
-  { date: '2026-03-31', sent: 440, opened: 211, replied: 13, bounced: 4 },
-  { date: '2026-04-01', sent: 420, opened: 198, replied: 11, bounced: 5 },
-  { date: '2026-04-02', sent: 450, opened: 216, replied: 14, bounced: 4 },
-  { date: '2026-04-03', sent: 435, opened: 205, replied: 10, bounced: 6 },
-  { date: '2026-04-04', sent: 130, opened: 58, replied: 3, bounced: 2 },
-  { date: '2026-04-05', sent: 460, opened: 221, replied: 15, bounced: 5 },
-  { date: '2026-04-06', sent: 475, opened: 228, replied: 12, bounced: 4 },
-];
-
-// Segment performance (cross-channel insights seed)
-const _CE_SEGMENT_PERF = {
-  therapists: { reply_rate: 2.6, book_rate: 38, show_rate: 76, enroll_rate: 8.4, avg_ltv: 12800, revenue: 38400 },
-  attorneys:  { reply_rate: 1.7, book_rate: 32, show_rate: 72, enroll_rate: 6.2, avg_ltv: 11200, revenue: 22400 },
-  coaches:    { reply_rate: 2.3, book_rate: 28, show_rate: 68, enroll_rate: 5.1, avg_ltv: 9600,  revenue: 19200 },
-  educators:  { reply_rate: 1.6, book_rate: 22, show_rate: 64, enroll_rate: 3.8, avg_ltv: 7800,  revenue: 7800 },
-};
-
-// Meta Ads comparison data (for conversion bridge)
-const _CE_META_CPA_TREND = [
-  { date: '2026-03-W1', cold_email: null, meta: 342 },
-  { date: '2026-03-W2', cold_email: null, meta: 328 },
-  { date: '2026-03-W3', cold_email: 285, meta: 351 },
-  { date: '2026-03-W4', cold_email: 248, meta: 338 },
-  { date: '2026-04-W1', cold_email: 212, meta: 345 },
-];
+let _CE_CAMPAIGNS = [];
+let _CE_REPLIES = [];
+let _CE_SENDERS = [];
+let _CE_DAILY = [];
+let _CE_KPI = {};
+let _CE_BRIDGE = [];
+let _CE_INDUSTRY = [];
 
 // ---------------------------------------------------------------------------
 // Page Registration
 // ---------------------------------------------------------------------------
 
 App.registerPage('cold-email', async (container) => {
+  const days = Filters.getDays();
+  container.innerHTML = `<div class="card" style="padding:24px;text-align:center"><p style="color:${Theme.COLORS.textMuted}">Loading cold outbound data...</p></div>`;
+
+  try {
+    const [kpiData, campData, replyData, senderData, dailyData, bridgeData, industryData] = await Promise.all([
+      API.query('cold-email', 'kpis',          { days }),
+      API.query('cold-email', 'campaigns',     { days }),
+      API.query('cold-email', 'replies',       { days }),
+      API.query('cold-email', 'sender_health', { days }),
+      API.query('cold-email', 'daily',         { days }),
+      API.query('cold-email', 'bridge',        { days }),
+      API.query('cold-email', 'lead_breakdown',{ days }),
+    ]);
+
+    _CE_KPI = (kpiData && kpiData.length > 0) ? kpiData[0] : {};
+    _CE_BRIDGE = bridgeData || [];
+    _CE_INDUSTRY = industryData || [];
+
+    // Helper: BQ returns dates as {value: "..."} objects
+    const _bqVal = (v) => v && typeof v === 'object' && v.value ? v.value : v;
+
+    // Transform BQ campaigns -> shape render functions expect
+    _CE_CAMPAIGNS = (campData || []).map(c => ({
+      id: c.campaign_id || '',
+      name: c.name || '',
+      niche: null, // EmailBison doesn't track niche
+      status: (c.status || 'active').toLowerCase(),
+      leads: c.total_leads || 0,
+      sent: c.emails_sent || 0,
+      opened: 0, // EmailBison doesn't track opens
+      replied: c.unique_replies || 0,
+      interested: c.interested || 0,
+      bounced: c.bounced || 0,
+      unsubscribed: 0,
+      steps: [], // No step-level data from EmailBison
+    }));
+
+    // Transform BQ replies -> shape render functions expect
+    _CE_REPLIES = (replyData || []).filter(r => !r.is_automated && r.reply_type !== 'Bounced').map(r => ({
+      contact: { name: r.from_name || r.from_email || 'Unknown', company: r.lead_company || '' },
+      campaign_id: r.campaign_id || '',
+      niche: null,
+      reply_date: _bqVal(r.date_received),
+      sentiment: r.reply_sentiment || 'neutral',
+      reply_preview: (r.text_body || '').replace(/<[^>]*>/g, '').substring(0, 200),
+      conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false },
+      current_stage: r.is_interested ? 'Interested' : 'Replied',
+      // Extra BQ fields for display
+      _title: r.lead_title || '',
+      _industry: r.lead_industry || '',
+      _campaign_name: r.campaign_name || '',
+    }));
+
+    // Transform BQ senders -> shape render functions expect
+    _CE_SENDERS = (senderData || []).map(s => ({
+      email: s.sender_email || '',
+      domain: (s.sender_email || '').split('@')[1] || '',
+      status: (s.account_status || 'unknown').toLowerCase(),
+      sent_30d: s.emails_sent_count || 0,
+      bounce_rate: s.bounce_rate || 0,
+      warmup: s.warmup_enabled ? 100 : 0,
+      // Extra BQ fields
+      _health_score: s.health_score || 0,
+      _health_status: s.health_status || '',
+      _reply_rate: s.reply_rate || 0,
+      _daily_limit: s.daily_limit || 0,
+    }));
+
+    // Transform BQ daily -> shape render functions expect
+    _CE_DAILY = (dailyData || []).map(d => ({
+      date: _bqVal(d.day) || '',
+      sent: d.emails_sent || 0,
+      opened: 0, // EmailBison doesn't track opens
+      replied: d.replies || 0,
+      bounced: 0,
+    }));
+
+  } catch (err) {
+    container.innerHTML = `<div class="card" style="padding:24px"><p style="color:${Theme.COLORS.textMuted}">Failed to load cold email data: ${err.message}</p></div>`;
+    return;
+  }
+
   container.innerHTML = '';
 
   _renderColdEmailKPIs(container);
@@ -249,41 +202,25 @@ function _ceRelativeDate(dateStr) {
 // ---------------------------------------------------------------------------
 
 function _renderColdEmailKPIs(container) {
-  const campaigns = _CE_CAMPAIGNS.filter(c => c.status !== 'draft');
-  const totalSent = campaigns.reduce((s, c) => s + c.sent, 0);
-  const totalOpened = campaigns.reduce((s, c) => s + c.opened, 0);
-  const totalReplied = campaigns.reduce((s, c) => s + c.replied, 0);
-  const totalInterested = campaigns.reduce((s, c) => s + c.interested, 0);
-  const totalBounced = campaigns.reduce((s, c) => s + c.bounced, 0);
+  const k = _CE_KPI;
   const activeCampaigns = _CE_CAMPAIGNS.filter(c => c.status === 'active').length;
 
-  const openRate = totalSent > 0 ? (totalOpened / totalSent) * 100 : 0;
-  const replyRate = totalSent > 0 ? (totalReplied / totalSent) * 100 : 0;
-  const interestedRate = totalReplied > 0 ? (totalInterested / totalReplied) * 100 : 0;
-  const bounceRate = totalSent > 0 ? (totalBounced / totalSent) * 100 : 0;
-  const deliverability = 100 - bounceRate;
-
-  // Meetings booked = replies with call_booked conversion
-  const meetingsBooked = _CE_REPLIES.filter(r => r.conversions.call_booked).length;
-
-  // Sparkline data from daily seed
+  // Sparkline data from daily BQ data
   const dailySent = _CE_DAILY.map(d => d.sent);
-  const dailyOpenRate = _CE_DAILY.map(d => d.sent > 0 ? (d.opened / d.sent) * 100 : 0);
   const dailyReplyRate = _CE_DAILY.map(d => d.sent > 0 ? (d.replied / d.sent) * 100 : 0);
   const dailyReplied = _CE_DAILY.map(d => d.replied);
-  const dailyMeetings = _CE_DAILY.map(d => Math.round(d.replied * 0.35));
 
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Emails Sent',       value: totalSent,       format: 'num',   sparkData: dailySent,       delta: 18.4 },
-    { label: 'Open Rate',         value: openRate,         format: 'pct',   sparkData: dailyOpenRate,   delta: 2.1 },
-    { label: 'Reply Rate',        value: replyRate,        format: 'pct',   sparkData: dailyReplyRate,  delta: 0.8 },
-    { label: 'Interested Rate',   value: interestedRate,   format: 'pct',   sparkData: dailyReplied,    delta: 3.2 },
-    { label: 'Meetings Booked',   value: meetingsBooked,   format: 'num',   sparkData: dailyMeetings,   delta: 12.5 },
-    { label: 'Active Campaigns',  value: activeCampaigns,  format: 'num' },
-    { label: 'Deliverability',    value: deliverability,   format: 'pct',   delta: 0.3 },
+    { label: 'Total Leads',       value: k.total_leads || 0,         format: 'num',   sparkData: dailySent },
+    { label: 'Emails Sent',       value: k.total_sent || 0,          format: 'num',   sparkData: dailySent },
+    { label: 'Reply Rate',        value: k.reply_rate || 0,          format: 'pct',   sparkData: dailyReplyRate },
+    { label: 'Interested',        value: k.total_interested || 0,    format: 'num',   sparkData: dailyReplied },
+    { label: 'Bounce Rate',       value: k.bounce_rate || 0,         format: 'pct' },
+    { label: 'Active Campaigns',  value: activeCampaigns,            format: 'num' },
+    { label: 'Deliverability',    value: k.deliverability_rate || 0, format: 'pct' },
   ]);
 }
 
@@ -291,28 +228,20 @@ function _renderColdEmailKPIs(container) {
 // Section 2: Campaign Performance Table
 // ---------------------------------------------------------------------------
 
-let _ceActiveNiche = 'all';
 let _ceActiveStatus = 'all';
 
 function _renderCampaignTable(container) {
-  _ceSectionHeader(container, 'Campaign Performance', 'EmailBison campaigns grouped by niche segment');
+  _ceSectionHeader(container, 'Campaign Performance', 'Live from EmailBison via BigQuery');
 
-  // Filter bar
+  // Filter bar (status only -- niche not available from EmailBison)
   const filterBar = document.createElement('div');
   filterBar.style.cssText = 'display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap';
 
-  const nicheSelect = document.createElement('select');
-  nicheSelect.style.cssText = `background:${Theme.COLORS.bgCard};color:${Theme.COLORS.textPrimary};border:1px solid ${Theme.COLORS.border};border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer`;
-  nicheSelect.innerHTML = `<option value="all">All Niches</option>` +
-    Object.entries(_CE_NICHE_LABELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
-  nicheSelect.value = _ceActiveNiche;
-
   const statusSelect = document.createElement('select');
-  statusSelect.style.cssText = nicheSelect.style.cssText;
+  statusSelect.style.cssText = `background:${Theme.COLORS.bgCard};color:${Theme.COLORS.textPrimary};border:1px solid ${Theme.COLORS.border};border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer`;
   statusSelect.innerHTML = `<option value="all">All Statuses</option><option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option>`;
   statusSelect.value = _ceActiveStatus;
 
-  filterBar.appendChild(nicheSelect);
   filterBar.appendChild(statusSelect);
   container.appendChild(filterBar);
 
@@ -323,55 +252,38 @@ function _renderCampaignTable(container) {
 
   function renderTable() {
     let filtered = _CE_CAMPAIGNS;
-    if (_ceActiveNiche !== 'all') filtered = filtered.filter(c => c.niche === _ceActiveNiche);
     if (_ceActiveStatus !== 'all') filtered = filtered.filter(c => c.status === _ceActiveStatus);
 
     const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
     const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap`;
 
-    // Group by niche if showing all
-    const niches = _ceActiveNiche === 'all' ? ['therapists', 'attorneys', 'coaches', 'educators'] : [_ceActiveNiche];
     let rowsHtml = '';
 
-    niches.forEach(niche => {
-      const nicheRows = filtered.filter(c => c.niche === niche);
-      if (nicheRows.length === 0) return;
+    filtered.forEach(c => {
+      const replyRate = c.sent > 0 ? ((c.replied / c.sent) * 100).toFixed(1) : '0.0';
+      const intRate = c.replied > 0 ? ((c.interested / c.replied) * 100).toFixed(1) : '0.0';
+      const bounceRate = c.sent > 0 ? ((c.bounced / c.sent) * 100).toFixed(1) : '0.0';
+      const bounceColor = parseFloat(bounceRate) > 3 ? Theme.COLORS.danger : (parseFloat(bounceRate) > 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary);
+      const nameDisplay = c.name.length > 45 ? c.name.slice(0, 45) + '...' : c.name;
 
-      if (_ceActiveNiche === 'all') {
-        rowsHtml += `<tr><td colspan="9" style="padding:14px;font-size:12px;font-weight:700;color:${_CE_NICHE_COLORS[niche]};text-transform:uppercase;letter-spacing:.06em;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.06)">${_CE_NICHE_LABELS[niche]}</td></tr>`;
-      }
-
-      nicheRows.forEach(c => {
-        const openRate = c.sent > 0 ? ((c.opened / c.sent) * 100).toFixed(1) : '0.0';
-        const replyRate = c.sent > 0 ? ((c.replied / c.sent) * 100).toFixed(1) : '0.0';
-        const intRate = c.replied > 0 ? ((c.interested / c.replied) * 100).toFixed(1) : '0.0';
-        const bounceRate = c.sent > 0 ? ((c.bounced / c.sent) * 100).toFixed(1) : '0.0';
-        const bounceColor = parseFloat(bounceRate) > 3 ? Theme.COLORS.danger : (parseFloat(bounceRate) > 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary);
-        const nameDisplay = c.name.length > 35 ? c.name.slice(0, 35) + '...' : c.name;
-
-        rowsHtml += `<tr style="cursor:pointer" class="ce-campaign-row" data-id="${c.id}">
-          <td style="${tdStyle};color:${Theme.COLORS.textPrimary};font-weight:500;font-family:Inter,sans-serif" title="${c.name}">${nameDisplay}</td>
-          <td style="${tdStyle}">${_ceNichePill(c.niche)}</td>
-          <td style="${tdStyle}">${_ceStatusDot(c.status)}</td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.leads)}</td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.sent)}</td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.opened)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${openRate}%</span></td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.replied)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${replyRate}%</span></td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.interested)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${intRate}%</span></td>
-          <td style="${tdStyle};font-family:'JetBrains Mono',monospace;color:${bounceColor}">${bounceRate}%</td>
-        </tr>`;
-      });
+      rowsHtml += `<tr style="cursor:pointer" class="ce-campaign-row" data-id="${c.id}">
+        <td style="${tdStyle};color:${Theme.COLORS.textPrimary};font-weight:500;font-family:Inter,sans-serif" title="${c.name}">${nameDisplay}</td>
+        <td style="${tdStyle}">${_ceStatusDot(c.status)}</td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.leads)}</td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.sent)}</td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.replied)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${replyRate}%</span></td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.interested)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${intRate}%</span></td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace;color:${bounceColor}">${bounceRate}%</td>
+      </tr>`;
     });
 
     tableContainer.innerHTML = `
       <table style="width:100%;border-collapse:collapse">
         <thead><tr>
           <th style="${thStyle}">Campaign</th>
-          <th style="${thStyle}">Niche</th>
           <th style="${thStyle}">Status</th>
           <th style="${thStyle}">Leads</th>
           <th style="${thStyle}">Sent</th>
-          <th style="${thStyle}">Opened</th>
           <th style="${thStyle}">Replied</th>
           <th style="${thStyle}">Interested</th>
           <th style="${thStyle}">Bounced</th>
@@ -411,7 +323,8 @@ function _renderCampaignTable(container) {
             html += `<div style="color:${Theme.COLORS.textMuted};font-size:12px">No replies yet</div>`;
           } else {
             replies.slice(0, 5).forEach(r => {
-              html += `<div style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ${_CE_NICHE_COLORS[r.niche]}">
+              const borderColor = _CE_NICHE_COLORS[r.niche] || Theme.COLORS.accent;
+              html += `<div style="padding:10px;margin-bottom:8px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ${borderColor}">
                 <div style="display:flex;justify-content:space-between;margin-bottom:4px">
                   <span style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary}">${r.contact.name}</span>
                   ${_ceSentimentPill(r.sentiment)}
@@ -431,7 +344,6 @@ function _renderCampaignTable(container) {
 
   renderTable();
 
-  nicheSelect.addEventListener('change', () => { _ceActiveNiche = nicheSelect.value; renderTable(); });
   statusSelect.addEventListener('change', () => { _ceActiveStatus = statusSelect.value; renderTable(); });
 }
 
@@ -462,7 +374,7 @@ function _renderCampaignCharts(container) {
       labels: activeCampaigns.map(c => c.name.length > 25 ? c.name.slice(0, 25) + '...' : c.name),
       datasets: [{
         data: activeCampaigns.map(c => ((c.replied / c.sent) * 100).toFixed(2)),
-        backgroundColor: activeCampaigns.map(c => _CE_NICHE_COLORS[c.niche] + 'cc'),
+        backgroundColor: activeCampaigns.map(c => (_CE_NICHE_COLORS[c.niche] || Theme.COLORS.accent) + 'cc'),
         borderRadius: 4,
         barThickness: 22,
       }],
@@ -550,13 +462,15 @@ function _renderCampaignCharts(container) {
   grid.appendChild(funnelCard);
 
   const campaigns = _CE_CAMPAIGNS.filter(c => c.sent > 0);
+  const bridgeByStage = {};
+  _CE_BRIDGE.forEach(b => { bridgeByStage[b.funnel_stage] = b.lead_count || 0; });
   const funnelStages = [
     { label: 'Sent', value: campaigns.reduce((s, c) => s + c.sent, 0) },
-    { label: 'Opened', value: campaigns.reduce((s, c) => s + c.opened, 0) },
     { label: 'Replied', value: campaigns.reduce((s, c) => s + c.replied, 0) },
     { label: 'Interested', value: campaigns.reduce((s, c) => s + c.interested, 0) },
-    { label: 'Meetings', value: _CE_REPLIES.filter(r => r.conversions.call_booked).length },
-    { label: 'Enrolled', value: _CE_REPLIES.filter(r => r.conversions.enrolled).length },
+    { label: 'Registered', value: bridgeByStage['registered'] || 0 },
+    { label: 'Call Booked', value: bridgeByStage['call_booked'] || 0 },
+    { label: 'Enrolled', value: bridgeByStage['enrolled'] || 0 },
   ];
 
   const funnelColors = ['#3b82f6', '#06b6d4', '#14b8a6', '#22c55e', '#eab308', '#f97316'];
@@ -653,21 +567,19 @@ function _renderReplyTracker(container) {
     };
 
     const rows = filtered.map(r => {
-      const camp = _CE_CAMPAIGNS.find(c => c.id === r.campaign_id);
-      const campName = camp ? (camp.name.length > 20 ? camp.name.slice(0, 20) + '...' : camp.name) : r.campaign_id;
+      const campName = r._campaign_name || r.campaign_id || '--';
+      const campDisplay = campName.length > 25 ? campName.slice(0, 25) + '...' : campName;
+      const title = r._title || '';
 
       return `<tr style="cursor:pointer" class="ce-reply-row" data-contact="${r.contact.name}">
         <td style="${tdStyle}">
           <div style="font-weight:600;color:${Theme.COLORS.textPrimary};font-size:13px">${r.contact.name}</div>
-          <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${r.contact.company}</div>
+          <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${r.contact.company}${title ? ' -- ' + title : ''}</div>
         </td>
-        <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}" title="${camp ? camp.name : ''}">${campName}</td>
-        <td style="${tdStyle}">${_ceNichePill(r.niche)}</td>
+        <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}" title="${campName}">${campDisplay}</td>
         <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}">${_ceRelativeDate(r.reply_date)}</td>
         <td style="${tdStyle}">${_ceSentimentPill(r.sentiment)}</td>
-        <td style="${tdStyle};white-space:nowrap">
-          ${convBadge('Reg', r.conversions.workshop_reg)}${convBadge('VIP', r.conversions.vip)}${convBadge('Booked', r.conversions.call_booked)}${convBadge('Showed', r.conversions.call_showed)}${convBadge('Enrolled', r.conversions.enrolled)}
-        </td>
+        <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary};max-width:300px;overflow:hidden;text-overflow:ellipsis;font-style:italic">${r.reply_preview || '--'}</td>
         <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}">${r.current_stage}</td>
       </tr>`;
     }).join('');
@@ -677,10 +589,9 @@ function _renderReplyTracker(container) {
         <thead><tr>
           <th style="${thStyle}">Contact</th>
           <th style="${thStyle}">Campaign</th>
-          <th style="${thStyle}">Niche</th>
           <th style="${thStyle}">Reply Date</th>
           <th style="${thStyle}">Sentiment</th>
-          <th style="${thStyle}">Conversion Events</th>
+          <th style="${thStyle}">Preview</th>
           <th style="${thStyle}">Stage</th>
         </tr></thead>
         <tbody>${rows}</tbody>
@@ -699,19 +610,11 @@ function _renderReplyTracker(container) {
             <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:4px">${reply.contact.name}</div>
             <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-bottom:16px">${reply.contact.company}</div>
             <div style="font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;margin-bottom:8px">Reply</div>
-            <div style="padding:12px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ${_CE_NICHE_COLORS[reply.niche]};margin-bottom:16px">
+            <div style="padding:12px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ${Theme.COLORS.accent};margin-bottom:16px">
               <div style="font-size:12px;color:${Theme.COLORS.textSecondary};font-style:italic;line-height:1.5">"${reply.reply_preview}"</div>
-              <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px">${reply.reply_date} &middot; ${_CE_NICHE_LABELS[reply.niche]}</div>
+              <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px">${reply.reply_date}${reply._campaign_name ? ' &middot; ' + reply._campaign_name : ''}</div>
             </div>
-            <div style="font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;margin-bottom:8px">Journey</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              ${convBadge('Workshop Reg', reply.conversions.workshop_reg)}
-              ${convBadge('VIP Upgrade', reply.conversions.vip)}
-              ${convBadge('Call Booked', reply.conversions.call_booked)}
-              ${convBadge('Call Showed', reply.conversions.call_showed)}
-              ${convBadge('Enrolled', reply.conversions.enrolled)}
-            </div>
-            <div style="margin-top:16px;font-size:12px;color:${Theme.COLORS.textSecondary}">Current Stage: <span style="font-weight:600;color:${Theme.COLORS.textPrimary}">${reply.current_stage}</span></div>
+            <div style="margin-top:16px;font-size:12px;color:${Theme.COLORS.textSecondary}">Sentiment: <span style="font-weight:600;color:${Theme.COLORS.textPrimary}">${reply.sentiment}</span> &middot; Stage: <span style="font-weight:600;color:${Theme.COLORS.textPrimary}">${reply.current_stage}</span></div>
           </div>`;
         });
       });
@@ -739,8 +642,9 @@ function _renderDomainHealth(container) {
 
   const rows = _CE_SENDERS.map(s => {
     const bounceColor = s.bounce_rate > 3 ? Theme.COLORS.danger : (s.bounce_rate > 2 ? Theme.COLORS.warning : Theme.COLORS.success);
-    const warmupPct = Math.min(s.warmup, 100);
-    const warmupBarColor = warmupPct === 100 ? Theme.COLORS.success : (warmupPct > 50 ? Theme.COLORS.warning : Theme.COLORS.accent);
+    const healthScore = s._health_score || 0;
+    const warmupPct = healthScore > 0 ? Math.min(healthScore, 100) : Math.min(s.warmup, 100);
+    const warmupBarColor = warmupPct >= 70 ? Theme.COLORS.success : (warmupPct >= 40 ? Theme.COLORS.warning : Theme.COLORS.danger);
 
     return `<tr>
       <td style="${tdStyle};font-family:'JetBrains Mono',monospace;font-size:12px;color:${Theme.COLORS.textPrimary}">${s.email}</td>
@@ -781,23 +685,34 @@ function _renderDomainHealth(container) {
 // ---------------------------------------------------------------------------
 
 function _renderConversionBridge(container) {
-  _ceSectionHeader(container, 'Cold Email → Revenue', 'How cold outreach connects to COD\'s funnel');
+  _ceSectionHeader(container, 'Cold Email → COD Funnel', 'How cold outreach prospects enter the pipeline');
 
-  // Derived metrics from replies
-  const workshopRegs = _CE_REPLIES.filter(r => r.conversions.workshop_reg).length;
-  const callsBooked = _CE_REPLIES.filter(r => r.conversions.call_booked).length;
-  const enrolled = _CE_REPLIES.filter(r => r.conversions.enrolled).length;
-  const enrollRevenue = enrolled * 10000; // Seed: assume $10K avg enrollment
+  if (_CE_BRIDGE.length === 0) {
+    const empty = _ceCard('No Bridge Data Yet');
+    empty.innerHTML += `<div style="text-align:center;padding:24px;color:${Theme.COLORS.textMuted};font-size:13px">Cold email leads haven't been matched to the COD funnel yet. Bridge VIEW will populate as leads enter the pipeline.</div>`;
+    container.appendChild(empty);
+    return;
+  }
 
-  // Total baseline (seed: assume 120 total workshop regs, 45 total calls in period)
-  const totalRegs = 120;
-  const totalCalls = 45;
-  const coldEmailCPA = 212; // From seed CPA trend data
-  const metaCPA = 338;
-  const cpaDelta = ((metaCPA - coldEmailCPA) / metaCPA * 100).toFixed(0);
+  const stageColors = {
+    enrolled: Theme.COLORS.success,
+    call_booked: '#06b6d4',
+    ticket: '#a855f7',
+    registered: '#eab308',
+    not_in_funnel: Theme.COLORS.textMuted,
+  };
 
+  const stageLabels = {
+    enrolled: 'Enrolled',
+    call_booked: 'Call Booked',
+    ticket: '$27 Ticket',
+    registered: 'Registered',
+    not_in_funnel: 'Not in Funnel',
+  };
+
+  // Metric cards from bridge data
   const cardGrid = document.createElement('div');
-  cardGrid.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px';
+  cardGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:16px';
 
   const metricCard = (label, value, subtitle) => {
     const card = document.createElement('div');
@@ -811,59 +726,53 @@ function _renderConversionBridge(container) {
     return card;
   };
 
-  cardGrid.appendChild(metricCard('Workshop Regs', workshopRegs, `${((workshopRegs / totalRegs) * 100).toFixed(0)}% of total regs`));
-  cardGrid.appendChild(metricCard('Calls Booked', callsBooked, `${((callsBooked / totalCalls) * 100).toFixed(0)}% of total calls`));
-  cardGrid.appendChild(metricCard('Enrollments', `${enrolled} / ${Theme.money(enrollRevenue)}`, `${Theme.money(enrollRevenue)} revenue`));
-  cardGrid.appendChild(metricCard('Cold Email CPA', Theme.money(coldEmailCPA), `<span style="color:${Theme.COLORS.success}">-${cpaDelta}%</span> vs $338 Meta CPA`));
+  _CE_BRIDGE.forEach(b => {
+    const label = stageLabels[b.funnel_stage] || b.funnel_stage;
+    const color = stageColors[b.funnel_stage] || Theme.COLORS.textMuted;
+    const rev = b.total_revenue > 0 ? Theme.money(b.total_revenue) + ' revenue' : `${b.revenue_leads || 0} with revenue`;
+    cardGrid.appendChild(metricCard(label, Theme.num(b.lead_count || 0), rev));
+  });
 
   container.appendChild(cardGrid);
 
-  // CPA comparison line chart
-  const chartCard = _ceCard('CPA Comparison: Cold Email vs Meta Ads');
+  // Bridge bar chart
+  const chartCard = _ceCard('Funnel Stage Distribution');
   const chartCanvas = document.createElement('canvas');
-  chartCanvas.id = 'ce-cpa-compare-chart';
+  chartCanvas.id = 'ce-bridge-chart';
   chartCanvas.style.height = '220px';
   chartCard.appendChild(chartCanvas);
   container.appendChild(chartCard);
 
-  const validCE = _CE_META_CPA_TREND.filter(d => d.cold_email !== null);
+  const bridgeColors = ['#22c55e', '#06b6d4', '#a855f7', '#eab308', '#64748b', '#ef4444'];
 
-  Theme.createChart('ce-cpa-compare-chart', {
-    type: 'line',
+  Theme.createChart('ce-bridge-chart', {
+    type: 'bar',
     data: {
-      labels: _CE_META_CPA_TREND.map(d => d.date),
-      datasets: [
-        {
-          label: 'Cold Email CPA',
-          data: _CE_META_CPA_TREND.map(d => d.cold_email),
-          borderColor: Theme.COLORS.accent,
-          backgroundColor: Theme.COLORS.accent + '18',
-          tension: 0.3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          spanGaps: false,
-        },
-        {
-          label: 'Meta Ads CPA',
-          data: _CE_META_CPA_TREND.map(d => d.meta),
-          borderColor: Theme.COLORS.warning,
-          backgroundColor: Theme.COLORS.warning + '18',
-          tension: 0.3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
+      labels: _CE_BRIDGE.map(b => stageLabels[b.funnel_stage] || b.funnel_stage),
+      datasets: [{
+        data: _CE_BRIDGE.map(b => b.lead_count || 0),
+        backgroundColor: _CE_BRIDGE.map((_, i) => (bridgeColors[i] || '#64748b') + 'cc'),
+        borderRadius: 4,
+        barThickness: 32,
+      }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
-        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': $' + ctx.raw } },
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const b = _CE_BRIDGE[ctx.dataIndex];
+              return b && b.total_revenue > 0 ? 'Revenue: ' + Theme.money(b.total_revenue) : '';
+            },
+          },
+        },
       },
       scales: {
-        x: { grid: { color: Theme.COLORS.gridLine } },
-        y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => '$' + v } },
+        x: { grid: { display: false } },
+        y: { grid: { color: Theme.COLORS.gridLine } },
       },
     },
   });
@@ -998,123 +907,50 @@ function _renderABTests(container) {
 // ---------------------------------------------------------------------------
 
 function _renderInsights(container) {
-  _ceSectionHeader(container, 'Intelligence', 'Cross-channel performance analysis');
+  _ceSectionHeader(container, 'Intelligence', 'Data-driven insights from live EmailBison data');
 
-  // -- 8a: Segment Performance Matrix (heatmap table) --
-  const matrixCard = _ceCard('Segment Performance Matrix', 'Full-funnel metrics by niche from cold email campaigns');
+  // -- 8a: Industry Performance Matrix (replaces niche matrix with BQ data) --
+  if (_CE_INDUSTRY.length > 0) {
+    const matrixCard = _ceCard('Industry Performance', 'Lead volume and reply rates by industry segment');
 
-  const thStyle = `padding:10px 14px;text-align:center;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-  const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-family:'JetBrains Mono',monospace`;
+    const thStyle = `padding:10px 14px;text-align:center;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+    const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-family:'JetBrains Mono',monospace`;
 
-  // Find max values for heatmap coloring
-  const allVals = {};
-  ['reply_rate', 'book_rate', 'show_rate', 'enroll_rate', 'avg_ltv', 'revenue'].forEach(key => {
-    allVals[key] = Object.values(_CE_SEGMENT_PERF).map(s => s[key]);
-  });
+    const maxLeads = Math.max(..._CE_INDUSTRY.map(i => i.total_leads || 0), 1);
+    const maxRate = Math.max(..._CE_INDUSTRY.map(i => i.reply_rate || 0), 1);
 
-  function heatColor(val, key) {
-    const vals = allVals[key];
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const pct = max > min ? (val - min) / (max - min) : 0.5;
-    const alpha = (0.08 + pct * 0.25).toFixed(2);
-    return `background:rgba(34,197,94,${alpha})`;
+    const matrixRows = _CE_INDUSTRY.slice(0, 12).map(ind => {
+      const leadPct = ((ind.total_leads || 0) / maxLeads);
+      const ratePct = ((ind.reply_rate || 0) / maxRate);
+      const leadAlpha = (0.08 + leadPct * 0.25).toFixed(2);
+      const rateAlpha = (0.08 + ratePct * 0.25).toFixed(2);
+      return `<tr>
+        <td style="${tdStyle};text-align:left;color:${Theme.COLORS.textPrimary}">${ind.industry}</td>
+        <td style="${tdStyle};background:rgba(59,130,246,${leadAlpha})">${Theme.num(ind.total_leads || 0)}</td>
+        <td style="${tdStyle}">${ind.replied_leads || 0}</td>
+        <td style="${tdStyle};background:rgba(34,197,94,${rateAlpha})">${(ind.reply_rate || 0).toFixed(1)}%</td>
+        <td style="${tdStyle}">${(ind.avg_engagement || 0).toFixed(1)}</td>
+      </tr>`;
+    }).join('');
+
+    matrixCard.innerHTML += `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="${thStyle};text-align:left">Industry</th>
+          <th style="${thStyle}">Total Leads</th>
+          <th style="${thStyle}">Replied</th>
+          <th style="${thStyle}">Reply Rate</th>
+          <th style="${thStyle}">Avg Engagement</th>
+        </tr></thead>
+        <tbody>${matrixRows}</tbody>
+      </table>
+    `;
+    container.appendChild(matrixCard);
   }
 
-  const niches = Object.keys(_CE_SEGMENT_PERF);
-  const matrixRows = niches.map(niche => {
-    const s = _CE_SEGMENT_PERF[niche];
-    return `<tr>
-      <td style="${tdStyle};text-align:left">${_ceNichePill(niche)}</td>
-      <td style="${tdStyle};${heatColor(s.reply_rate, 'reply_rate')}">${s.reply_rate.toFixed(1)}%</td>
-      <td style="${tdStyle};${heatColor(s.book_rate, 'book_rate')}">${s.book_rate}%</td>
-      <td style="${tdStyle};${heatColor(s.show_rate, 'show_rate')}">${s.show_rate}%</td>
-      <td style="${tdStyle};${heatColor(s.enroll_rate, 'enroll_rate')}">${s.enroll_rate.toFixed(1)}%</td>
-      <td style="${tdStyle};${heatColor(s.avg_ltv, 'avg_ltv')}">${Theme.money(s.avg_ltv)}</td>
-      <td style="${tdStyle};${heatColor(s.revenue, 'revenue')}">${Theme.money(s.revenue)}</td>
-    </tr>`;
-  }).join('');
-
-  matrixCard.innerHTML += `
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        <th style="${thStyle};text-align:left">Niche</th>
-        <th style="${thStyle}">Reply Rate</th>
-        <th style="${thStyle}">Book Rate</th>
-        <th style="${thStyle}">Show Rate</th>
-        <th style="${thStyle}">Enroll Rate</th>
-        <th style="${thStyle}">Avg LTV</th>
-        <th style="${thStyle}">Revenue</th>
-      </tr></thead>
-      <tbody>${matrixRows}</tbody>
-    </table>
-  `;
-  container.appendChild(matrixCard);
-
-  // -- 8b: Channel Comparison (grouped bar chart) --
-  const compareCard = _ceCard('Channel Comparison: Cold Email vs Meta Ads', 'Enrollment rate by niche across acquisition channels');
-  const compareCanvas = document.createElement('canvas');
-  compareCanvas.id = 'ce-channel-compare-chart';
-  compareCanvas.style.height = '260px';
-  compareCard.appendChild(compareCanvas);
-  container.appendChild(compareCard);
-
-  // Meta Ads comparison data (from demographic intel seed on ads-meta page)
-  const metaEnrollRates = { therapists: 9.1, attorneys: 7.8, coaches: 5.2, educators: 4.1 };
-
-  Theme.createChart('ce-channel-compare-chart', {
-    type: 'bar',
-    data: {
-      labels: niches.map(n => _CE_NICHE_LABELS[n]),
-      datasets: [
-        {
-          label: 'Cold Email',
-          data: niches.map(n => _CE_SEGMENT_PERF[n].enroll_rate),
-          backgroundColor: Theme.COLORS.accent + 'cc',
-          borderRadius: 4,
-        },
-        {
-          label: 'Meta Ads',
-          data: niches.map(n => metaEnrollRates[n]),
-          backgroundColor: Theme.COLORS.warning + 'cc',
-          borderRadius: 4,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
-        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.raw + '% enroll rate' } },
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => v + '%' } },
-      },
-    },
-  });
-
-  // -- 8d: Campaign Intelligence Cards --
+  // -- 8b: Campaign Intelligence Cards (derived from live data) --
   const insightsGrid = document.createElement('div');
   insightsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
-
-  // Generate insights from seed data
-  const bestNiche = niches.reduce((best, n) => _CE_SEGMENT_PERF[n].enroll_rate > _CE_SEGMENT_PERF[best].enroll_rate ? n : best, niches[0]);
-  const worstNiche = niches.reduce((worst, n) => _CE_SEGMENT_PERF[n].enroll_rate < _CE_SEGMENT_PERF[worst].enroll_rate ? n : worst, niches[0]);
-  const bestVsWorst = (_CE_SEGMENT_PERF[bestNiche].enroll_rate / _CE_SEGMENT_PERF[worstNiche].enroll_rate).toFixed(1);
-
-  // Find which step gets most replies
-  let step1Replies = 0, step2Replies = 0, step3Replies = 0;
-  _CE_CAMPAIGNS.forEach(c => {
-    c.steps.forEach(s => {
-      if (s.step === 1) step1Replies += s.replied;
-      if (s.step === 2) step2Replies += s.replied;
-      if (s.step === 3) step3Replies += s.replied;
-    });
-  });
-  const totalStepReplies = step1Replies + step2Replies + step3Replies;
-  const step1Pct = totalStepReplies > 0 ? ((step1Replies / totalStepReplies) * 100).toFixed(0) : 0;
 
   const insightCard = (title, body, accentColor) => {
     const card = document.createElement('div');
@@ -1127,29 +963,51 @@ function _renderInsights(container) {
     return card;
   };
 
-  insightsGrid.appendChild(insightCard(
-    'Top Performing Niche',
-    `<span style="color:${_CE_NICHE_COLORS[bestNiche]};font-weight:700">${_CE_NICHE_LABELS[bestNiche]}</span> produce <span style="color:${Theme.COLORS.success};font-weight:700">${bestVsWorst}x</span> higher enrollment rate than ${_CE_NICHE_LABELS[worstNiche]} campaigns.`,
-    _CE_NICHE_COLORS[bestNiche]
-  ));
+  // Best campaign by reply rate
+  const activeCamps = _CE_CAMPAIGNS.filter(c => c.sent > 0);
+  if (activeCamps.length > 0) {
+    const best = activeCamps.reduce((a, b) => (b.replied / b.sent) > (a.replied / a.sent) ? b : a);
+    const bestRate = ((best.replied / best.sent) * 100).toFixed(1);
+    insightsGrid.appendChild(insightCard(
+      'Top Campaign',
+      `<span style="color:${Theme.COLORS.accent};font-weight:700">${best.name}</span> has the highest reply rate at <span style="color:${Theme.COLORS.success};font-weight:700">${bestRate}%</span> across ${Theme.num(best.sent)} emails sent.`,
+      Theme.COLORS.accent
+    ));
+  }
 
-  insightsGrid.appendChild(insightCard(
-    'First Touch Dominance',
-    `Step 1 emails generate <span style="color:${Theme.COLORS.accent};font-weight:700">${step1Pct}%</span> of all replies. Initial outreach copy is the highest-leverage optimization point.`,
-    Theme.COLORS.accent
-  ));
+  // Reply quality
+  const interestedReplies = _CE_REPLIES.filter(r => r.sentiment === 'interested' || r.current_stage === 'Interested').length;
+  const totalReplies = _CE_REPLIES.length;
+  if (totalReplies > 0) {
+    const intPct = ((interestedReplies / totalReplies) * 100).toFixed(0);
+    insightsGrid.appendChild(insightCard(
+      'Reply Quality',
+      `<span style="color:${Theme.COLORS.success};font-weight:700">${intPct}%</span> of human replies show interest (${interestedReplies} of ${totalReplies}). The rest are declines, OOO, or neutral responses.`,
+      Theme.COLORS.success
+    ));
+  }
 
-  insightsGrid.appendChild(insightCard(
-    'Cold Email vs Meta CPA',
-    `Cold email CPA is <span style="color:${Theme.COLORS.success};font-weight:700">$212</span> vs <span style="color:${Theme.COLORS.warning};font-weight:700">$338</span> from Meta Ads -- <span style="color:${Theme.COLORS.success};font-weight:700">37% cheaper</span> per acquisition.`,
-    Theme.COLORS.success
-  ));
+  // Sender health
+  const healthySenders = _CE_SENDERS.filter(s => s._health_score >= 70).length;
+  const totalSenders = _CE_SENDERS.length;
+  if (totalSenders > 0) {
+    const healthPct = ((healthySenders / totalSenders) * 100).toFixed(0);
+    insightsGrid.appendChild(insightCard(
+      'Sender Infrastructure',
+      `<span style="color:${healthySenders === totalSenders ? Theme.COLORS.success : Theme.COLORS.warning};font-weight:700">${healthySenders}/${totalSenders}</span> sender accounts are healthy (${healthPct}%). Monitor accounts with high bounce rates.`,
+      healthySenders === totalSenders ? Theme.COLORS.success : Theme.COLORS.warning
+    ));
+  }
 
-  insightsGrid.appendChild(insightCard(
-    'Reply-to-Enrollment Speed',
-    `Average time from cold email reply to enrollment: <span style="color:${Theme.COLORS.textPrimary};font-weight:700">11 days</span>. Fastest conversion: attorneys (8 days). Slowest: educators (16 days).`,
-    Theme.COLORS.warning
-  ));
+  // Top industry
+  if (_CE_INDUSTRY.length > 0) {
+    const topInd = _CE_INDUSTRY[0];
+    insightsGrid.appendChild(insightCard(
+      'Largest Industry Segment',
+      `<span style="color:${Theme.COLORS.accent};font-weight:700">${topInd.industry}</span> has ${Theme.num(topInd.total_leads)} leads with a <span style="font-weight:700">${(topInd.reply_rate || 0).toFixed(1)}%</span> reply rate.`,
+      Theme.COLORS.accent
+    ));
+  }
 
   container.appendChild(insightsGrid);
 }

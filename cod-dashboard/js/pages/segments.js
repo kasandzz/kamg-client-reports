@@ -7,9 +7,6 @@ App.registerPage('segments', async (container) => {
 
   container.innerHTML = '';
 
-  // ==== DEMOGRAPHIC INTELLIGENCE (top of page) ====
-  _renderDemographicIntel(container);
-
   // ---- Segment data (from Hyros API full pull: 531 calls, 628 sales, 641 leads) ----
   const SEGMENTS = [
     { name: 'Therapists',           color: '#3b82f6', calls: 152, showRate: 90.1, sales: 219, leads: 172, costCall: 683,  costSale: 474,  slRatio: 1.27, adSets: ['Broad + CBO Licensed Therapists (147)', '0.1 LLA Stack 01 - Licensed Therapists Counselors (142)', '01. Broad + - Licensed Therapists Counselors (99)', '03. Broad - Therapists 3065 (59)', 'Broad + - Psychologist PsyD / PhD (32)'] },
@@ -27,17 +24,8 @@ App.registerPage('segments', async (container) => {
   const T = Theme.COLORS;
   const money = Theme.money;
 
-  // ---- Header ----
-  const header = document.createElement('div');
-  header.className = 'card';
-  header.style.cssText = 'padding:24px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden';
-  header.innerHTML = `
-    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3b82f6,#a855f7,#06b6d4)"></div>
-    <div style="font-size:20px;font-weight:700;color:${T.textPrimary}">COD Segment Performance</div>
-    <div style="font-size:13px;color:${T.textMuted};margin-top:4px">Hyros Attribution Data | ${totalCalls} calls, ${totalSales} sales, ${totalLeads} leads</div>
-    <div style="margin-top:8px"><span style="display:inline-block;padding:4px 14px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:100px;font-size:12px;font-weight:600;color:#22c55e">100% Hyros Data</span></div>
-  `;
-  container.appendChild(header);
+  // ==== DEMOGRAPHIC INTELLIGENCE (top of page) ====
+  _renderDemographicIntel(container);
 
   // ==== SECTION 1: SCORECARD TABLE ====
   const s1 = _section(container, '1', 'Segment Scorecard');

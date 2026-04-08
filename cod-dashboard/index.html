@@ -4,166 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>COD Command Center</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://us-central1-green-segment-491604-j8.cloudfunctions.net" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preconnect" href="https://cdn.plot.ly" crossorigin>
-  <link rel="preload" href="https://cdn.plot.ly/plotly-2.35.2.min.js" as="script">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
+  <script>
+    // Redirect to the appropriate page.
+    // Supports legacy ?page=X URLs from the old SPA.
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page') || 'war-room';
+    params.delete('page');
+    const qs = params.toString();
+    window.location.replace('pages/' + page + '.html' + (qs ? '?' + qs : ''));
+  </script>
 </head>
 <body>
-  <!-- Auth Gate -->
-  <div id="auth-gate" class="auth-gate">
-    <div class="auth-card card">
-      <h2 class="auth-title">COD Command Center</h2>
-      <p class="auth-subtitle">Enter password to continue</p>
-      <form id="auth-form" autocomplete="off">
-        <input type="password" id="auth-password" class="auth-input" placeholder="Password" autofocus>
-        <button type="submit" class="auth-btn">Enter</button>
-        <p id="auth-error" class="auth-error" hidden>Incorrect password</p>
-      </form>
-    </div>
-  </div>
-
-  <!-- Main App Shell -->
-  <div id="app-shell" class="app-shell" hidden>
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-logo">&#127919;</span>
-        <span class="sidebar-title">COD Command</span>
-      </div>
-
-      <button id="sidebar-search-btn" class="sidebar-search-btn" aria-label="Search pages (Ctrl+K)">
-        <span class="sidebar-search-icon">&#128269;</span>
-        <span class="sidebar-search-text">Search...</span>
-        <kbd class="sidebar-kbd">&#8984;K</kbd>
-      </button>
-
-      <nav class="sidebar-nav" id="sidebar-nav">
-        <!-- COMMAND -->
-        <div class="nav-section-label">COMMAND</div>
-        <a class="nav-item" data-page="war-room"><span class="nav-icon">&#127919;</span><span class="nav-label">War Room</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="insights"><span class="nav-icon">&#128161;</span><span class="nav-label">Insights</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="segments"><span class="nav-icon">&#128202;</span><span class="nav-label">Segments</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="live-feed"><span class="nav-icon">&#9889;</span><span class="nav-label">Live Feed</span><span class="nav-dot" hidden></span></a>
-
-        <!-- ACQUISITION -->
-        <div class="nav-section-label">ACQUISITION</div>
-        <a class="nav-item" data-page="ads-meta"><span class="nav-icon">&#128227;</span><span class="nav-label">Meta Ads</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="ads-google"><span class="nav-icon">&#128270;</span><span class="nav-label">Google Ads</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="cold-email"><span class="nav-icon">&#9993;&#65039;</span><span class="nav-label">Cold Email</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="hyros"><span class="nav-icon">&#128269;</span><span class="nav-label">Hyros</span><span class="nav-dot" hidden></span></a>
-
-        <!-- CONVERSION -->
-        <div class="nav-section-label">CONVERSION</div>
-        <a class="nav-item" data-page="funnels"><span class="nav-icon">&#127744;</span><span class="nav-label">$27 Workshop</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="ma-funnel"><span class="nav-icon">&#127891;</span><span class="nav-label">MA Funnel</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="calls"><span class="nav-icon">&#128222;</span><span class="nav-label">Bookings</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="enrollment"><span class="nav-icon">&#128176;</span><span class="nav-label">Enrollment</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="retargeting"><span class="nav-icon">&#127919;</span><span class="nav-label">Retargeting</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="email-intel"><span class="nav-icon">&#128236;</span><span class="nav-label">Email</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="wistia"><span class="nav-icon">&#127909;</span><span class="nav-label">Wistia</span><span class="nav-dot" hidden></span></a>
-
-        <!-- INTELLIGENCE -->
-        <div class="nav-section-label">INTELLIGENCE</div>
-        <a class="nav-item" data-page="behavioral"><span class="nav-icon">&#129504;</span><span class="nav-label">Behavioral</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="experiments"><span class="nav-icon">&#129514;</span><span class="nav-label">Experiments</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="competitors"><span class="nav-icon">&#9876;&#65039;</span><span class="nav-label">Competitors</span><span class="nav-dot" hidden></span></a>
-
-        <!-- OPERATIONS -->
-        <div class="nav-section-label">OPERATIONS</div>
-        <a class="nav-item" data-page="sales-team"><span class="nav-icon">&#128101;</span><span class="nav-label">Sales Team</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="churn"><span class="nav-icon">&#128200;</span><span class="nav-label">Churn</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="worklists"><span class="nav-icon">&#128203;</span><span class="nav-label">Worklists</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="geo-intel"><span class="nav-icon">&#127760;</span><span class="nav-label">Geo Intel</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item dimmed" data-page="email-deliverability"><span class="nav-icon">&#128232;</span><span class="nav-label">Email Deliverability</span><span class="nav-dot" hidden></span></a>
-
-        <!-- COMING SOON -->
-        <div class="nav-section-label" style="opacity:0.4">COMING SOON</div>
-        <a class="nav-item" data-page="leaks" style="opacity:0.35;pointer-events:none;cursor:default"><span class="nav-icon">&#9888;&#65039;</span><span class="nav-label">Leaks</span><span class="nav-dot" hidden></span></a>
-        <a class="nav-item" data-page="opportunities" style="opacity:0.35;pointer-events:none;cursor:default"><span class="nav-icon">&#128142;</span><span class="nav-label">Opportunities</span><span class="nav-dot" hidden></span></a>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Top Bar -->
-      <header class="top-bar">
-        <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
-        <h1 id="page-title" class="page-title">War Room</h1>
-        <div id="global-controls" class="global-controls"></div>
-      </header>
-
-      <!-- Page Container -->
-      <div id="page-container" class="page-container">
-        <div class="page-placeholder">
-          <div class="spinner"></div>
-          <p class="text-muted">Loading...</p>
-        </div>
-      </div>
-    </main>
-
-    <!-- Drill-Down Panel -->
-    <div id="drill-down-panel" class="drill-down-panel" hidden>
-      <div class="drill-down-header">
-        <h3 id="drill-down-title" class="drill-down-title"></h3>
-        <button id="drill-down-close" class="drill-down-close" aria-label="Close panel">&times;</button>
-      </div>
-      <div id="drill-down-content" class="drill-down-content"></div>
-    </div>
-
-    <!-- Search Modal -->
-    <div id="search-modal" class="search-modal" hidden>
-      <div class="search-backdrop"></div>
-      <div class="search-dialog card">
-        <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off">
-        <div id="search-results" class="search-results"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CDN Libraries (async to avoid blocking initial paint) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
-
-  <!-- Core JS -->
-  <script src="js/api.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/components.js"></script>
-  <script src="js/filters.js"></script>
-  <script src="js/notifications.js"></script>
-  <!-- App must load before pages (provides App.registerPage) -->
-  <script src="js/app.js"></script>
-  <!-- Page scripts loaded here -->
-  <script src="js/pages/war-room.js"></script>
-  <script src="js/pages/live-feed.js"></script>
-  <script src="js/pages/insights.js"></script>
-  <script src="js/pages/leaks.js"></script>
-  <script src="js/pages/opportunities.js"></script>
-  <script src="js/pages/ads-meta.js"></script>
-
-
-  <script src="js/pages/funnels.js"></script>
-  <script src="js/pages/calls.js"></script>
-  <script src="js/pages/enrollment.js"></script>
-  <script src="js/pages/journey-map.js"></script>
-  <script src="js/pages/journey-stage.js"></script>
-  <script src="js/pages/behavioral.js"></script>
-  <script src="js/pages/email.js"></script>
-  <script src="js/pages/hyros.js"></script>
-  <script src="js/pages/experiments.js"></script>
-  <script src="js/pages/sales-team.js"></script>
-  <script src="js/pages/churn.js"></script>
-  <script src="js/pages/worklists.js"></script>
-  <script src="js/pages/geo-intel.js"></script>
-  <script src="js/pages/competitors.js"></script>
-  <script src="js/pages/cold-email.js"></script>
-  <script src="js/pages/segments.js"></script>
-  <script src="js/pages/placeholder.js"></script>
+  <p style="font-family:sans-serif;color:#94a3b8;text-align:center;margin-top:40vh">Redirecting...</p>
 </body>
 </html>

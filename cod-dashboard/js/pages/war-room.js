@@ -241,7 +241,7 @@ App.registerPage('war-room', async (container) => {
       const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
       const color = barColors[i % barColors.length];
       const srcName = r.source || 'Unknown';
-      const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=974384766072788&search=' + encodeURIComponent(srcName);
+      const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=206306693361622&search=' + encodeURIComponent(srcName);
       html += `<div class="wr-ad-row" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:default">
         <div class="wr-ad-tip">
           <div class="wr-ad-tip-name">${srcName}</div>

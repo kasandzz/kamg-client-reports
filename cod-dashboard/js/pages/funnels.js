@@ -238,105 +238,6 @@ App.registerPage('funnels', async (container) => {
     }
 
     /* =========================================================
-       Wins / Leaks Row
-       ========================================================= */
-    .wins-leaks-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-4);
-      margin-bottom: var(--space-6);
-    }
-    @media (max-width: 768px) {
-      .wins-leaks-row { grid-template-columns: 1fr; }
-    }
-
-    .summary-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: var(--space-5);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    }
-    .summary-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: var(--shadow-glow);
-    }
-    .summary-card--wins {
-      border-left: 3px solid var(--status-up);
-      background: linear-gradient(135deg, rgba(34,197,94,0.05) 0%, var(--bg-card) 40%);
-    }
-    .summary-card--wins:hover {
-      box-shadow: 0 0 30px rgba(34,197,94,0.08);
-      border-color: rgba(34,197,94,0.3);
-    }
-    .summary-card--leaks {
-      border-left: 3px solid var(--status-down);
-      background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, var(--bg-card) 40%);
-    }
-    .summary-card--leaks:hover {
-      box-shadow: 0 0 30px rgba(239,68,68,0.08);
-      border-color: rgba(239,68,68,0.3);
-    }
-    .summary-card__header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      margin-bottom: var(--space-4);
-    }
-    .summary-card__header svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    .summary-card__title {
-      font-family: var(--font-body);
-      font-weight: 700;
-      font-size: var(--text-base);
-      letter-spacing: -0.01em;
-    }
-    .summary-card--wins .summary-card__title { color: var(--status-up); }
-    .summary-card--leaks .summary-card__title { color: var(--status-down); }
-
-    .summary-card__list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-    .summary-card__list li {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-2);
-      font-size: var(--text-base);
-      line-height: 1.5;
-      color: var(--text-secondary);
-    }
-    .summary-card__list li::before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      margin-top: 8px;
-      flex-shrink: 0;
-    }
-    .summary-card--wins .summary-card__list li::before { background: var(--status-up); }
-    .summary-card--leaks .summary-card__list li::before { background: var(--status-down); }
-    .summary-card__list .highlight-num {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .summary-card__timestamp {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: var(--space-3);
-      padding-top: var(--space-2);
-      border-top: 1px solid rgba(255,255,255,0.04);
-    }
-
-    /* =========================================================
        KPI Cards Grid
        ========================================================= */
     .kpi-grid {
@@ -1032,26 +933,6 @@ App.registerPage('funnels', async (container) => {
   <div id="datePresets" hidden></div>
   <div id="dpWrap" hidden><button id="dpTrigger"></button><div id="dpDropdown" hidden><div id="dpCal"></div><div id="dpSide"></div><span id="dpRangeLabel"></span><button id="dpCancel"></button><button id="dpApply"></button></div></div>
 
-  <!-- ====== 2. Biggest Wins / Biggest Leaks ====== -->
-  <div class="wins-leaks-row">
-    <div class="summary-card summary-card--wins" id="winsCard">
-      <div class="summary-card__header">
-        <svg viewBox="0 0 20 20" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16V4"/><path d="M4 10l6-6 6 6"/></svg>
-        <span class="summary-card__title">Biggest Wins</span>
-      </div>
-      <ul class="summary-card__list" id="winsList"></ul>
-      <div class="summary-card__timestamp" id="winsTimestamp"></div>
-    </div>
-    <div class="summary-card summary-card--leaks" id="leaksCard">
-      <div class="summary-card__header">
-        <svg viewBox="0 0 20 20" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v12"/><path d="M4 10l6 6 6-6"/></svg>
-        <span class="summary-card__title">Biggest Leaks</span>
-      </div>
-      <ul class="summary-card__list" id="leaksList"></ul>
-      <div class="summary-card__timestamp" id="leaksTimestamp"></div>
-    </div>
-  </div>
-
   <!-- ====== 3. KPI Card Grid ====== -->
   <div class="kpi-grid" id="kpiGrid"></div>
 
@@ -1126,6 +1007,22 @@ App.registerPage('funnels', async (container) => {
       <div class="heatmap-legend__bar" style="background:linear-gradient(90deg,rgba(124,58,237,0.2),rgba(124,58,237,0.5),rgba(34,211,238,0.7),rgba(34,197,94,0.85))"></div>
       <span class="heatmap-legend__label">High</span>
     </div>
+  </div>
+
+  <!-- ====== 6c. Sales Dynamic ====== -->
+  <div class="chart-card" style="padding:20px 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700">Sales Dynamic</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px">Hyros First-Click Attribution</div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">REVENUE</div>
+    <div style="position:relative;height:220px;width:100%"><canvas id="salesDynamicRevenueChart"></canvas></div>
+    <div style="display:flex;gap:20px;margin:10px 0 24px 0;font-size:11px;color:var(--text-muted)">
+      <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:3px;background:#6366f1;border-radius:2px;display:inline-block"></span>Ticket Revenue</span>
+      <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:3px;background:#22c55e;border-radius:2px;display:inline-block"></span>Enrollment Revenue</span>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)">AD SPEND BY CHANNEL</div>
+    <div style="position:relative;height:200px;width:100%"><canvas id="salesDynamicAdSpendChart"></canvas></div>
   </div>
 
   <!-- ====== 7. Ticket Sales Velocity & Journey Table ====== -->
@@ -1475,57 +1372,6 @@ function calcDelta(current, previous) {
   if (previous === 0 || previous == null) return { pct: 0, direction: 'neutral' };
   var pct = ((current - previous) / Math.abs(previous)) * 100;
   return { pct: Math.abs(pct), direction: pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral', raw: pct };
-}
-
-// ---- Render: Wins / Leaks ----
-function renderWinsLeaks(cur, prev) {
-  var wins = [];
-  var leaks = [];
-
-  // VIP upgrade rate
-  var vipDelta = calcDelta(cur.vip_upgrade_rate, prev.vip_upgrade_rate);
-  if (vipDelta.direction === 'up') {
-    wins.push('VIP upgrade rate <span class="highlight-num">' + formatPct(cur.vip_upgrade_rate) + '</span> -- nearly doubled from ' + formatPct(prev.vip_upgrade_rate));
-  }
-
-  // Show rate vs target
-  if (cur.show_rate >= 60) {
-    wins.push('Show rate <span class="highlight-num">' + formatPct(cur.show_rate) + '</span> exceeds 60% target');
-  } else {
-    leaks.push('Show rate at <span class="highlight-num">' + formatPct(cur.show_rate) + '</span> below 60% target');
-  }
-
-  // Tuesday 4pm best slot
-  var bestSlot = MOCK_DATA.heatmap_data['4pm']['Tue'];
-  wins.push('Tuesday 4pm sessions show <span class="highlight-num">' + bestSlot + '%</span> show rate');
-
-  // Booking rate improvement
-  var bookDelta = calcDelta(cur.booking_pct, prev.booking_pct);
-  if (bookDelta.direction === 'up' && bookDelta.pct > 5) {
-    wins.push('Booking rate up <span class="highlight-num">' + bookDelta.pct.toFixed(1) + '%</span> vs prior period');
-  }
-
-  // Monday 9am worst
-  var worstSlot = MOCK_DATA.heatmap_data['9am']['Mon'];
-  leaks.push('Monday 9am sessions averaging only <span class="highlight-num">' + worstSlot + '%</span> show rate');
-
-  // Bounced rate
-  leaks.push('<span class="highlight-num">' + cur.completion_rate_bounced + '%</span> of attendees bounce within 30 minutes');
-
-  // Standard vs VIP show rate gap
-  var standardRate = cur.standard_attendees > 0 ? Math.round(cur.standard_attendees / cur.total_attendees * 100) : 0;
-  var vipRate = cur.vip_attendees > 0 ? Math.round(cur.vip_attendees / cur.total_attendees * 100) : 0;
-  leaks.push('Standard ticket show rate (<span class="highlight-num">52%</span>) lagging VIP (<span class="highlight-num">78%</span>)');
-
-  var winsList = document.getElementById('winsList');
-  var leaksList = document.getElementById('leaksList');
-  winsList.innerHTML = wins.length ? wins.map(function(w) { return '<li>' + w + '</li>'; }).join('') : '<li>No significant positive signals detected</li>';
-  leaksList.innerHTML = leaks.length ? leaks.map(function(l) { return '<li>' + l + '</li>'; }).join('') : '<li>No significant negative signals detected</li>';
-
-  var now = new Date();
-  var ts = 'Last updated: ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  document.getElementById('winsTimestamp').textContent = ts;
-  document.getElementById('leaksTimestamp').textContent = ts;
 }
 
 // ---- Render: KPI Cards ----
@@ -2747,6 +2593,65 @@ function renderSankey() {
 }
 
 // ---- Render All ----
+// ---- Render: Sales Dynamic (Revenue + Ad Spend) ----
+var _salesDynamicRendered = false;
+function renderSalesDynamic() {
+  if (_salesDynamicRendered) return;
+  _salesDynamicRendered = true;
+
+  var labels = ['Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9'];
+  var ticketRev  = [2100, 3400, 4800, 5200, 7600, 9100, 11400];
+  var enrollRev  = [8500, 12000, 14200, 16800, 19500, 23000, 28500];
+  var metaSpend  = [1200, 1350, 1500, 1420, 1600, 1750, 1900];
+  var googleSpend = [400, 450, 520, 480, 550, 600, 680];
+  var youtubeSpend = [200, 250, 300, 280, 320, 380, 420];
+
+  var revCtx = document.getElementById('salesDynamicRevenueChart');
+  var adCtx = document.getElementById('salesDynamicAdSpendChart');
+  if (!revCtx || !adCtx) return;
+
+  new Chart(revCtx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Ticket Revenue', data: ticketRev, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#6366f1', tension: 0.3 },
+        { label: 'Enrollment Revenue', data: enrollRev, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#22c55e', tension: 0.3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.raw.toLocaleString(); } } } },
+      scales: {
+        x: { grid: { color: COLORS.gridLine }, ticks: { color: COLORS.textMuted, font: { size: 10 } } },
+        y: { beginAtZero: true, grid: { color: COLORS.gridLine }, ticks: { color: COLORS.textMuted, font: { size: 10 }, callback: function(v) { return '$' + (v >= 1000 ? Math.round(v/1000) + 'k' : v); } } },
+      },
+    },
+  });
+
+  new Chart(adCtx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Meta Ads', data: metaSpend, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.12)', fill: true, borderWidth: 2, pointRadius: 2, tension: 0.3 },
+        { label: 'Google Ads', data: googleSpend, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.12)', fill: true, borderWidth: 2, pointRadius: 2, tension: 0.3 },
+        { label: 'YouTube', data: youtubeSpend, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.12)', fill: true, borderWidth: 2, pointRadius: 2, tension: 0.3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: true, position: 'bottom', labels: { color: COLORS.textMuted, font: { size: 10 }, boxWidth: 12, padding: 12 } }, tooltip: { mode: 'index', callbacks: { label: function(ctx) { return ctx.dataset.label + ': $' + ctx.raw.toLocaleString(); } } } },
+      scales: {
+        x: { grid: { color: COLORS.gridLine }, ticks: { color: COLORS.textMuted, font: { size: 10 } } },
+        y: { beginAtZero: true, stacked: true, grid: { color: COLORS.gridLine }, ticks: { color: COLORS.textMuted, font: { size: 10 }, callback: function(v) { return '$' + (v >= 1000 ? Math.round(v/1000) + 'k' : v); } } },
+      },
+    },
+  });
+}
+
 var currentDays = 30;
 
 function renderAll(days) {
@@ -2755,7 +2660,6 @@ function renderAll(days) {
   var cur = scaled.current;
   var prev = scaled.previous;
 
-  renderWinsLeaks(cur, prev);
   renderKPICards(cur, prev);
   renderFunnelChart(days);
 
@@ -2767,6 +2671,7 @@ function renderAll(days) {
   renderCompletionBreakdown(cur, prev);
   renderHeatmap();
   renderTicketHeatmap();
+  renderSalesDynamic();
   renderSankey();
   renderBookingTable(days);
 

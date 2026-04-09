@@ -948,48 +948,81 @@ function _renderDomainHealth(container) {
   const card = document.createElement('div');
   card.className = 'card';
   card.style.cssText = 'padding:0;overflow-x:auto';
-
-  const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-  const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)`;
-
-  const rows = _CE_SENDERS.map(s => {
-    const bounceColor = s.bounce_rate > 3 ? Theme.COLORS.danger : (s.bounce_rate > 2 ? Theme.COLORS.warning : Theme.COLORS.success);
-    const healthScore = s._health_score || 0;
-    const warmupPct = healthScore > 0 ? Math.min(healthScore, 100) : Math.min(s.warmup, 100);
-    const warmupBarColor = warmupPct >= 70 ? Theme.COLORS.success : (warmupPct >= 40 ? Theme.COLORS.warning : Theme.COLORS.danger);
-
-    return `<tr>
-      <td style="${tdStyle};font-family:'JetBrains Mono',monospace;font-size:12px;color:${Theme.COLORS.textPrimary}">${s.email}</td>
-      <td style="${tdStyle};color:${Theme.COLORS.textSecondary}">${s.domain}</td>
-      <td style="${tdStyle}">${_ceStatusDot(s.status)}</td>
-      <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(s.sent_30d)}</td>
-      <td style="${tdStyle};font-family:'JetBrains Mono',monospace;color:${bounceColor};font-weight:600">${s.bounce_rate.toFixed(1)}%</td>
-      <td style="${tdStyle}">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
-            <div style="width:${warmupPct}%;height:100%;background:${warmupBarColor};border-radius:3px;transition:width 0.3s"></div>
-          </div>
-          <span style="font-size:11px;color:${Theme.COLORS.textMuted};font-family:'JetBrains Mono',monospace;min-width:32px">${warmupPct}%</span>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-
-  card.innerHTML = `
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        <th style="${thStyle}">Sender Account</th>
-        <th style="${thStyle}">Domain</th>
-        <th style="${thStyle}">Status</th>
-        <th style="${thStyle}">Sent (30d)</th>
-        <th style="${thStyle}">Bounce Rate</th>
-        <th style="${thStyle};min-width:160px">Warmup Progress</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
-
   container.appendChild(card);
+
+  // Sort state
+  let sortKey = 'email';
+  let sortAsc = true;
+
+  const columns = [
+    { key: 'email',       label: 'Sender Account',  sortVal: s => s.email },
+    { key: 'domain',      label: 'Domain',           sortVal: s => s.domain },
+    { key: 'status',      label: 'Status',           sortVal: s => s.status },
+    { key: 'sent_30d',    label: 'Sent (30d)',       sortVal: s => s.sent_30d },
+    { key: 'bounce_rate', label: 'Bounce Rate',      sortVal: s => s.bounce_rate },
+    { key: 'warmup',      label: 'Warmup Progress',  sortVal: s => s._health_score || s.warmup },
+  ];
+
+  function renderTable() {
+    const sorted = [..._CE_SENDERS].sort((a, b) => {
+      const col = columns.find(c => c.key === sortKey);
+      const va = col ? col.sortVal(a) : '';
+      const vb = col ? col.sortVal(b) : '';
+      if (typeof va === 'string') return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+      return sortAsc ? va - vb : vb - va;
+    });
+
+    const thBase = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;cursor:pointer;user-select:none`;
+    const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)`;
+
+    const arrow = (key) => sortKey === key ? (sortAsc ? ' &#9650;' : ' &#9660;') : ' <span style="opacity:0.3">&#9650;</span>';
+
+    const headers = columns.map(col => {
+      const minW = col.key === 'warmup' ? ';min-width:160px' : '';
+      return `<th style="${thBase}${minW}" data-sort="${col.key}">${col.label}${arrow(col.key)}</th>`;
+    }).join('');
+
+    const rows = sorted.map(s => {
+      const bounceColor = s.bounce_rate > 3 ? Theme.COLORS.danger : (s.bounce_rate > 2 ? Theme.COLORS.warning : Theme.COLORS.success);
+      const healthScore = s._health_score || 0;
+      const warmupPct = healthScore > 0 ? Math.min(healthScore, 100) : Math.min(s.warmup, 100);
+      const warmupBarColor = warmupPct >= 70 ? Theme.COLORS.success : (warmupPct >= 40 ? Theme.COLORS.warning : Theme.COLORS.danger);
+
+      return `<tr>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace;font-size:12px;color:${Theme.COLORS.textPrimary}">${s.email}</td>
+        <td style="${tdStyle};color:${Theme.COLORS.textSecondary}">${s.domain}</td>
+        <td style="${tdStyle}">${_ceStatusDot(s.status)}</td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(s.sent_30d)}</td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace;color:${bounceColor};font-weight:600">${s.bounce_rate.toFixed(1)}%</td>
+        <td style="${tdStyle}">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+              <div style="width:${warmupPct}%;height:100%;background:${warmupBarColor};border-radius:3px;transition:width 0.3s"></div>
+            </div>
+            <span style="font-size:11px;color:${Theme.COLORS.textMuted};font-family:'JetBrains Mono',monospace;min-width:32px">${warmupPct}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    card.innerHTML = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>${headers}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+
+    // Wire sort clicks
+    card.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) { sortAsc = !sortAsc; } else { sortKey = key; sortAsc = true; }
+        renderTable();
+      });
+    });
+  }
+
+  renderTable();
 }
 
 // ---------------------------------------------------------------------------

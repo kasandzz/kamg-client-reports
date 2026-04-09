@@ -1679,14 +1679,18 @@ function _aggregateWeekly(dailyRows) {
 }
 
 function _renderDailyTable(rows) {
+  const DOW_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const DOW_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
   const cols = [
     { key: 'date', label: 'Date', fmt: v => { if (!v) return ''; const d = typeof v === 'object' && v.value ? v.value : v; return new Date(d).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }); }},
+    { key: '_dow', label: 'Day', fmt: v => v || '' },
     { key: 'traffic', label: 'Traffic', fmt: v => Theme.num(v || 0), higherBetter: true },
     { key: 'all_tickets', label: 'Tickets', fmt: v => Math.round(v || 0), higherBetter: true },
     { key: 'vip', label: 'VIP', fmt: v => Math.round(v || 0), higherBetter: true },
     { key: 'calls_booked', label: 'Calls Booked', fmt: v => Math.round(v || 0), higherBetter: true, hasTooltip: true },
-    { key: 'vip_upgrade_pct', label: 'VIP %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true },
-    { key: 'booking_pct', label: 'Booking %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true },
+    { key: 'vip_upgrade_pct', label: 'VIP %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true, showTrend: true },
+    { key: 'booking_pct', label: 'Booking %', fmt: v => (v || 0).toFixed(1) + '%', higherBetter: true, showTrend: true },
     { key: 'ad_spend', label: 'Ad Spend', fmt: v => Theme.money(v || 0), align: 'right', higherBetter: false },
     { key: 'cost_per_booked_call', label: 'Cost/Call', fmt: v => v ? Theme.money(v) : '--', align: 'right', higherBetter: false },
     { key: 'paid_tickets', label: 'Paid', fmt: v => Math.round(v || 0), higherBetter: true },
@@ -1694,6 +1698,17 @@ function _renderDailyTable(rows) {
     { key: 'ticket_revenue', label: 'Ticket Rev', fmt: v => Theme.money(v || 0), align: 'right', higherBetter: true },
     { key: 'cost_per_call_after_ticket_rev', label: 'Net Cost/Call', fmt: v => v ? Theme.money(v) : '--', align: 'right', higherBetter: false },
   ];
+
+  // Enrich rows with day-of-week
+  rows.forEach(r => {
+    const raw = typeof r.date === 'object' && r.date !== null ? r.date.value || r.date : r.date;
+    if (raw) {
+      const d = new Date(raw);
+      r._dow = DOW_SHORT[d.getDay()];
+      r._dowIdx = d.getDay();
+      r._dateStr = raw.toString().slice(0, 10);
+    }
+  });
 
   // Compute mean + stddev per column for deviation-based coloring
   const stats = {};
@@ -1708,6 +1723,23 @@ function _renderDailyTable(rows) {
       }
     }
   });
+
+  // Trend box: 7 levels from strong-up to strong-down
+  function _trendBox(value, key, higherBetter) {
+    if (!stats[key] || !value) return '';
+    const { mean, stddev } = stats[key];
+    const z = (value - mean) / stddev;
+    const effective = higherBetter ? z : -z;
+    let bg, label;
+    if (effective > 1.2)      { bg = '#16a34a'; label = ''; }
+    else if (effective > 0.5) { bg = '#22c55e'; label = ''; }
+    else if (effective > 0.15){ bg = '#4ade80'; label = ''; }
+    else if (effective > -0.15){ bg = '#475569'; label = ''; }
+    else if (effective > -0.5){ bg = '#f87171'; label = ''; }
+    else if (effective > -1.2){ bg = '#ef4444'; label = ''; }
+    else                      { bg = '#dc2626'; label = ''; }
+    return `<span style="display:inline-block;width:28px;height:16px;border-radius:3px;background:${bg};margin-left:6px;vertical-align:middle;box-shadow:${Math.abs(effective) > 1 ? '0 0 6px ' + bg + '80' : 'none'}"></span>`;
+  }
 
   // Color function: deviation from mean -> red/green with intensity
   function _deviationColor(value, key, higherBetter) {
@@ -1726,23 +1758,84 @@ function _renderDailyTable(rows) {
     return '';
   }
 
+  // ISO week number
+  function _getWeek(dateStr) {
+    const d = new Date(dateStr);
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    const week1 = new Date(d.getFullYear(), 0, 4);
+    return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+  }
+
+  // Separator styles
+  const sepColors = { day: '#3b82f6', week: '#7c3aed' };
+
+  const totalCols = cols.length;
   let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
   cols.forEach(c => {
-    html += `<th${c.align === 'right' ? ' class="num"' : ''} style="white-space:nowrap">${c.label}</th>`;
+    html += `<th${c.align === 'right' ? ' class="num"' : ''} style="white-space:nowrap;text-transform:uppercase;letter-spacing:0.05em;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted}">${c.label}</th>`;
   });
   html += '</tr></thead><tbody>';
 
-  rows.forEach(row => {
-    html += '<tr>';
+  let lastDate = null;
+  let lastWeek = null;
+
+  rows.forEach((row, idx) => {
+    const dateStr = row._dateStr || '';
+    const dowIdx = row._dowIdx || 0;
+    const isWeekend = dowIdx === 0 || dowIdx === 6;
+    const weekNum = dateStr ? _getWeek(dateStr) : null;
+
+    // Week separator
+    if (weekNum !== null && lastWeek !== null && weekNum !== lastWeek) {
+      html += `<tr><td colspan="${totalCols}" style="padding:0;position:relative;height:24px;">
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:${sepColors.week}40"></div>
+        <span style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:${sepColors.week};color:#fff;font-size:9px;font-weight:700;font-family:var(--font-mono);padding:2px 8px;border-radius:0 0 4px 4px;letter-spacing:0.06em;text-transform:uppercase">WEEK ${lastWeek}</span>
+      </td></tr>`;
+    }
+
+    // Day separator (when date changes)
+    if (dateStr && lastDate && dateStr !== lastDate) {
+      const prevDow = new Date(lastDate).getDay();
+      const dayName = DOW_NAMES[prevDow].toUpperCase();
+      html += `<tr><td colspan="${totalCols}" style="padding:0;position:relative;height:20px;">
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:${sepColors.day}30"></div>
+        <span style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:${sepColors.day};color:#fff;font-size:9px;font-weight:600;font-family:var(--font-mono);padding:1px 8px;border-radius:0 0 3px 3px;letter-spacing:0.04em">${dayName}</span>
+      </td></tr>`;
+    }
+
+    lastDate = dateStr;
+    lastWeek = weekNum;
+
+    // Row tinting: weekend = purple
+    let rowStyle = '';
+    if (isWeekend) {
+      rowStyle = 'background:rgba(139,92,246,0.04);';
+    }
+
+    html += `<tr style="${rowStyle}">`;
     cols.forEach(c => {
-      const raw = typeof row[c.key] === 'object' && row[c.key] !== null ? row[c.key].value || row[c.key] : row[c.key];
+      const raw = c.key === '_dow' ? row._dow :
+        (typeof row[c.key] === 'object' && row[c.key] !== null ? row[c.key].value || row[c.key] : row[c.key]);
       const numVal = parseFloat(raw) || 0;
       const val = c.fmt(raw);
       let style = c.align === 'right' ? 'text-align:right;' : '';
 
       // Deviation-based coloring
-      if (c.higherBetter !== undefined && c.key !== 'date') {
+      if (c.higherBetter !== undefined && c.key !== 'date' && c.key !== '_dow') {
         style += _deviationColor(numVal, c.key, c.higherBetter);
+      }
+
+      // Day column styling
+      if (c.key === '_dow') {
+        const dowColor = isWeekend ? '#a78bfa' : Theme.COLORS.textMuted;
+        style += `color:${dowColor};font-weight:500;`;
+      }
+
+      // Trend box for % columns
+      let trend = '';
+      if (c.showTrend && c.higherBetter !== undefined) {
+        trend = _trendBox(numVal, c.key, c.higherBetter);
       }
 
       // Source tooltip for calls_booked
@@ -1757,7 +1850,7 @@ function _renderDailyTable(rows) {
         tooltip = ` style="${style}font-family:var(--font-mono);font-size:12px"`;
       }
 
-      html += `<td${tooltip}>${val}</td>`;
+      html += `<td${tooltip}>${val}${trend}</td>`;
     });
     html += '</tr>';
   });

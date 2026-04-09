@@ -204,7 +204,6 @@ App.registerPage('cold-email', async (container) => {
   _renderColdEmailKPIs(container);
   _renderCampaignTable(container);
   _renderCampaignCharts(container);
-  _renderReplyHours(container);
   _renderReplyTracker(container);
   _renderDomainHealth(container);
   _renderConversionBridge(container);
@@ -444,7 +443,7 @@ function _renderCampaignCharts(container) {
   Theme.createChart('ce-reply-rate-chart', {
     type: 'bar',
     data: {
-      labels: activeCampaigns.map(c => c.name.length > 25 ? c.name.slice(0, 25) + '...' : c.name),
+      labels: activeCampaigns.map(c => c.name.length > 40 ? c.name.slice(0, 40) + '...' : c.name),
       datasets: [{
         data: activeCampaigns.map(c => ((c.replied / c.sent) * 100).toFixed(2)),
         backgroundColor: activeCampaigns.map(c => (_CE_NICHE_COLORS[c.niche] || Theme.COLORS.accent) + 'cc'),
@@ -525,9 +524,8 @@ function _renderCampaignCharts(container) {
     },
   });
 
-  // -- Chart 3: Cold Email Funnel (horizontal stacked bars) --
+  // -- Chart 3: Cold Email Funnel (without Sent -- too large, skews chart) --
   const funnelCard = _ceCard('Cold Email Funnel');
-  funnelCard.style.gridColumn = '1 / -1';
   const funnelCanvas = document.createElement('canvas');
   funnelCanvas.id = 'ce-funnel-chart';
   funnelCanvas.style.height = '200px';
@@ -538,7 +536,6 @@ function _renderCampaignCharts(container) {
   const bridgeByStage = {};
   _CE_BRIDGE.forEach(b => { bridgeByStage[b.funnel_stage] = b.lead_count || 0; });
   const funnelStages = [
-    { label: 'Sent', value: campaigns.reduce((s, c) => s + c.sent, 0) },
     { label: 'Replied', value: campaigns.reduce((s, c) => s + c.replied, 0) },
     { label: 'Interested', value: campaigns.reduce((s, c) => s + c.interested, 0) },
     { label: 'Registered', value: bridgeByStage['registered'] || 0 },
@@ -592,22 +589,9 @@ function _renderCampaignCharts(container) {
     rateRow.innerHTML += `<span style="text-align:center">${rate}</span>`;
   });
   funnelCard.appendChild(rateRow);
-}
 
-// ---------------------------------------------------------------------------
-// Section 3b: Reply Time-of-Day Distribution
-// ---------------------------------------------------------------------------
-
-function _renderReplyHours(container) {
+  // -- Reply Hour Distribution (inline in same grid, next to funnel) --
   if (_CE_REPLY_HOURS.length === 0) return;
-
-  _ceSectionHeader(container, 'Prospect Reply Times', 'When prospects open and reply to cold emails (UTC)');
-
-  const grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px';
-  container.appendChild(grid);
-
-  // -- Reply Hour Distribution (bar chart) --
   const hourCard = _ceCard('Replies by Hour of Day', 'Human replies vs automated/bounced');
   const hourCanvas = document.createElement('canvas');
   hourCanvas.id = 'ce-reply-hours-chart';

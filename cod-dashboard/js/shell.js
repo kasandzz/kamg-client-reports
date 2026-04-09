@@ -12,7 +12,6 @@ const Shell = (() => {
   const NAV = [
     { section: 'COMMAND', items: [
       { page: 'war-room',      icon: '&#127919;', label: 'War Room' },
-      { page: 'insights',      icon: '&#128161;', label: 'Insights' },
       { page: 'segments',      icon: '&#128202;', label: 'Segments' },
       { page: 'live-feed',     icon: '&#9889;',   label: 'Live Feed' },
     ]},

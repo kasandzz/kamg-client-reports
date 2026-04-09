@@ -1017,10 +1017,16 @@ App.registerPage('funnels', async (container) => {
       Compare
     </label>
     <label class="compare-toggle">
-      <input type="checkbox" id="averageToggle">
-      <span class="compare-toggle__box"></span>
-      Average
+      <input type="checkbox" id="averageToggle" checked style="display:none">
+      <span class="compare-toggle__box" style="display:none"></span>
     </label>
+    <div id="avgGroupToggle" style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.04);border-radius:6px;padding:2px">
+      <span style="font-size:11px;color:var(--color-text-muted);padding:0 8px">Avg:</span>
+      <button class="filter-btn active" data-avg="off" style="padding:4px 10px;font-size:11px">Off</button>
+      <button class="filter-btn" data-avg="days" style="padding:4px 10px;font-size:11px">Days</button>
+      <button class="filter-btn" data-avg="weeks" style="padding:4px 10px;font-size:11px">Weeks</button>
+      <button class="filter-btn" data-avg="months" style="padding:4px 10px;font-size:11px">Months</button>
+    </div>
   </div>
   <!-- Hidden elements needed by date picker JS (prevent errors) -->
   <div id="datePresets" hidden></div>
@@ -1604,6 +1610,54 @@ function renderKPICards(cur, prev) {
   });
 }
 
+// ---- Grouped Average Utility ----
+// Given an array of values and matching date strings (YYYY-MM-DD),
+// returns an array of the same length where each value is replaced
+// with the average of its time-group bucket.
+function computeGroupedAvg(vals, dates, mode) {
+  if (!vals || vals.length === 0 || mode === 'off') return null;
+  if (mode === 'days') {
+    // Each day is its own bucket -- flat line per day (same as raw data for daily, useful for hourly)
+    var globalAvg = vals.reduce(function(s,v){return s+v;},0) / vals.length;
+    return vals.map(function(){return globalAvg;});
+  }
+  // Build bucket keys
+  function bucketKey(dateStr, m) {
+    if (!dateStr) return '0';
+    var parts = dateStr.split('-');
+    var y = parseInt(parts[0]), mo = parseInt(parts[1]), d = parseInt(parts[2]);
+    if (m === 'weeks') {
+      // ISO week: get Monday-based week number
+      var dt = new Date(y, mo - 1, d);
+      var dayOfWeek = (dt.getDay() + 6) % 7; // Mon=0
+      var thursday = new Date(dt);
+      thursday.setDate(dt.getDate() - dayOfWeek + 3);
+      var yearStart = new Date(thursday.getFullYear(), 0, 1);
+      var weekNum = Math.ceil(((thursday - yearStart) / 86400000 + 1) / 7);
+      return thursday.getFullYear() + '-W' + weekNum;
+    }
+    if (m === 'months') return y + '-' + mo;
+    return '0';
+  }
+  // Group indices by bucket
+  var buckets = {};
+  for (var i = 0; i < vals.length; i++) {
+    var key = bucketKey(dates[i], mode);
+    if (!buckets[key]) buckets[key] = [];
+    buckets[key].push(i);
+  }
+  // Compute average per bucket and assign
+  var result = new Array(vals.length);
+  Object.keys(buckets).forEach(function(key) {
+    var indices = buckets[key];
+    var sum = 0, count = 0;
+    indices.forEach(function(idx) { if (vals[idx] != null) { sum += vals[idx]; count++; } });
+    var avg = count > 0 ? sum / count : 0;
+    indices.forEach(function(idx) { result[idx] = avg; });
+  });
+  return result;
+}
+
 // ---- Render: Show Rate Trend Chart (Shopify-style) ----
 var trendChartInstance = null;
 var activeShowRateMetric = 0;
@@ -1749,21 +1803,25 @@ function drawShowRateLine(curRows, prevRows, metricKey, color) {
     },
     plugins: [weekendHolidayPlugin]
   };
-  // Average line
-  if (document.getElementById('averageToggle').checked && curVals.length > 0) {
-    var sum = curVals.reduce(function(s, v) { return s + v; }, 0);
-    var avg = sum / curVals.length;
-    chartConfig.data.datasets.push({
-      label: 'Average (' + avg.toFixed(1) + '%)',
-      data: curVals.map(function() { return avg; }),
-      borderColor: '#f59e0b',
-      borderWidth: 1.5,
-      borderDash: [3, 3],
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      tension: 0,
-      fill: false
-    });
+  // Grouped average line
+  if (_avgMode !== 'off' && curVals.length > 0) {
+    var avgData = computeGroupedAvg(curVals, rawDates, _avgMode);
+    if (avgData) {
+      var globalAvg = curVals.reduce(function(s,v){return s+v;},0) / curVals.length;
+      var modeLabels = {days:'Overall',weeks:'Weekly',months:'Monthly'};
+      chartConfig.data.datasets.push({
+        label: (modeLabels[_avgMode]||'') + ' Avg (' + globalAvg.toFixed(1) + '%)',
+        data: avgData,
+        borderColor: '#f59e0b',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        tension: 0,
+        stepped: _avgMode !== 'days' ? 'middle' : false,
+        fill: false
+      });
+    }
   }
 
   trendChartInstance = new Chart(ctx, chartConfig);
@@ -2328,21 +2386,25 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
     plugins: [weekendHolidayPlugin]
   };
 
-  // Average line
-  if (document.getElementById('averageToggle').checked && curVals.length > 0) {
-    var sum = curVals.reduce(function(s, v) { return s + v; }, 0);
-    var avg = sum / curVals.length;
-    chartConfig.data.datasets.push({
-      label: 'Average (' + avg.toFixed(1) + ')',
-      data: curVals.map(function() { return avg; }),
-      borderColor: '#f59e0b',
-      borderWidth: 1.5,
-      borderDash: [3, 3],
-      pointRadius: 0,
-      pointHoverRadius: 0,
-      tension: 0,
-      fill: false
-    });
+  // Grouped average line
+  if (_avgMode !== 'off' && curVals.length > 0) {
+    var avgData = computeGroupedAvg(curVals, rawDates, _avgMode);
+    if (avgData) {
+      var globalAvg = curVals.reduce(function(s,v){return s+v;},0) / curVals.length;
+      var modeLabels = {days:'Overall',weeks:'Weekly',months:'Monthly'};
+      chartConfig.data.datasets.push({
+        label: (modeLabels[_avgMode]||'') + ' Avg (' + globalAvg.toFixed(1) + ')',
+        data: avgData,
+        borderColor: '#f59e0b',
+        borderWidth: 1.5,
+        borderDash: [3, 3],
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        tension: 0,
+        stepped: _avgMode !== 'days' ? 'middle' : false,
+        fill: false
+      });
+    }
   }
 
   funnelChartInstance = new Chart(ctx, chartConfig);
@@ -2727,9 +2789,18 @@ if (typeof Filters !== 'undefined' && Filters.onChange) {
   });
 }
 
-// Average toggle (page-specific, not in shell)
-document.getElementById('averageToggle').addEventListener('change', function() {
-  renderAll(currentDays);
+// Average group toggle (Off | Days | Weeks | Months)
+var _avgMode = 'off';
+document.getElementById('avgGroupToggle').querySelectorAll('button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    _avgMode = btn.dataset.avg;
+    document.getElementById('avgGroupToggle').querySelectorAll('button').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.avg === _avgMode);
+    });
+    // Sync hidden checkbox for backward compat
+    document.getElementById('averageToggle').checked = (_avgMode !== 'off');
+    renderAll(currentDays);
+  });
 });
 
 // Compare toggle (page-specific backup)

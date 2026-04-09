@@ -721,9 +721,92 @@ function _renderReplyTracker(container) {
   sentimentSelect.style.cssText = `background:${Theme.COLORS.bgCard};color:${Theme.COLORS.textPrimary};border:1px solid ${Theme.COLORS.border};border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer`;
   sentimentSelect.innerHTML = `<option value="all">All Sentiments</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="ooo">OOO</option><option value="auto_reply">Auto-Reply</option>`;
 
+  // Notification toggle
+  const notifyLabel = document.createElement('label');
+  notifyLabel.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:12px;color:' + Theme.COLORS.textSecondary + ';cursor:pointer;margin-left:auto';
+  const notifyCb = document.createElement('input');
+  notifyCb.type = 'checkbox';
+  notifyCb.id = 'ce-notify-toggle';
+  notifyCb.style.cssText = 'accent-color:#22c55e;cursor:pointer';
+  notifyLabel.appendChild(notifyCb);
+  notifyLabel.appendChild(document.createTextNode('Notify on interested replies'));
+  // Bell icon
+  const bellIcon = document.createElement('span');
+  bellIcon.textContent = '\uD83D\uDD14';
+  bellIcon.style.fontSize = '14px';
+  notifyLabel.insertBefore(bellIcon, notifyLabel.firstChild);
+
   filterBar.appendChild(searchInput);
   filterBar.appendChild(sentimentSelect);
+  filterBar.appendChild(notifyLabel);
   container.appendChild(filterBar);
+
+  // Notification sound (short ding via Web Audio API)
+  let _audioCtx = null;
+  function _playDing() {
+    try {
+      if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = _audioCtx.createOscillator();
+      const gain = _audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(_audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, _audioCtx.currentTime); // A5
+      gain.gain.setValueAtTime(0.3, _audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.5);
+      osc.start(_audioCtx.currentTime);
+      osc.stop(_audioCtx.currentTime + 0.5);
+    } catch (e) { /* silent fail if audio blocked */ }
+  }
+
+  // Track seen replies to detect new ones
+  let _seenReplyIds = new Set(_CE_REPLIES.map(r => r.contact.name + '|' + r.reply_date));
+
+  // Request notification permission when toggled on
+  notifyCb.addEventListener('change', () => {
+    if (notifyCb.checked && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    if (notifyCb.checked) localStorage.setItem('ce-notify-interested', '1');
+    else localStorage.removeItem('ce-notify-interested');
+  });
+  // Restore state from localStorage
+  if (localStorage.getItem('ce-notify-interested') === '1') notifyCb.checked = true;
+
+  // Poll for new interested replies every 60s
+  let _notifyInterval = null;
+  function _startNotifyPolling() {
+    if (_notifyInterval) return;
+    _notifyInterval = setInterval(async () => {
+      if (!notifyCb.checked) return;
+      try {
+        const freshReplies = await API.query('cold-outbound', 'replies', { days: 1 });
+        if (!freshReplies) return;
+        const JUNK = /mailer-daemon|postmaster|noreply|no-reply|dmarc|abuse@|^google$|^microsoft$|autoresponder/i;
+        freshReplies.forEach(r => {
+          const email = (r.from_email || '').toLowerCase();
+          const name = (r.from_name || '').toLowerCase();
+          if (JUNK.test(email) || JUNK.test(name)) return;
+          const id = (r.from_name || r.from_email) + '|' + (r.date_received && r.date_received.value ? r.date_received.value : r.date_received);
+          if (_seenReplyIds.has(id)) return;
+          _seenReplyIds.add(id);
+          // Check if interested
+          const body = (r.text_body || '').toLowerCase();
+          const isInterested = r.is_interested || /interested|tell me more|schedule|set up a (call|time)|sounds good|let'?s (talk|connect|chat)/i.test(body);
+          if (!isInterested) return;
+          // Fire notification
+          _playDing();
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Interested Reply!', {
+              body: (r.from_name || r.from_email) + (r.lead_company ? ' at ' + r.lead_company : '') + ' replied with interest',
+              icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%2322c55e"/><text x="16" y="22" text-anchor="middle" fill="white" font-size="20">✓</text></svg>',
+            });
+          }
+        });
+      } catch (e) { /* silent */ }
+    }, 60000);
+  }
+  _startNotifyPolling();
 
   const tableContainer = document.createElement('div');
   tableContainer.className = 'card';

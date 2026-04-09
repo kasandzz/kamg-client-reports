@@ -999,233 +999,7 @@ App.registerPage('funnels', async (container) => {
       .split-row { grid-template-columns: 1fr; }
     }
 
-    /* =========================================================
-       Custom Date Picker
-       ========================================================= */
-    .dp-wrap {
-      position: relative;
-      display: inline-block;
-    }
-    .dp-trigger {
-      padding: 6px 14px;
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: 500;
-      color: var(--text-secondary);
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-full);
-      cursor: pointer;
-      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-    }
-    .dp-trigger:hover { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-hover); }
-    .dp-trigger--active {
-      background: rgba(124,58,237,0.15) !important;
-      color: var(--accent-primary-bright) !important;
-      border-color: rgba(124,58,237,0.3) !important;
-    }
-
-    .dp-dropdown {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      z-index: 100;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-elevated);
-      overflow: hidden;
-      min-width: 420px;
-    }
-    .dp-dropdown--open { display: flex; }
-
-    /* Left: calendar */
-    .dp-cal {
-      flex: 1;
-      padding: var(--space-4);
-      border-right: 1px solid var(--border);
-      min-width: 280px;
-    }
-    .dp-cal__nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--space-3);
-    }
-    .dp-cal__nav-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background var(--transition-fast), color var(--transition-fast);
-    }
-    .dp-cal__nav-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-    .dp-cal__month-label {
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: var(--text-base);
-      color: var(--text-primary);
-    }
-    .dp-cal__grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-      text-align: center;
-    }
-    .dp-cal__dow {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-muted);
-      padding: 4px 0;
-      text-transform: uppercase;
-    }
-    .dp-cal__day {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-      padding: 6px 2px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: background var(--transition-fast), color var(--transition-fast);
-      border: none;
-      background: none;
-      width: 100%;
-    }
-    .dp-cal__day:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-    .dp-cal__day--other { color: var(--text-disabled); }
-    .dp-cal__day--today {
-      position: relative;
-    }
-    .dp-cal__day--today::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent-primary-bright);
-    }
-    .dp-cal__day--selected {
-      background: #7c3aed !important;
-      color: #fff !important;
-      border-radius: var(--radius-sm);
-    }
-    .dp-cal__day--in-range {
-      background: rgba(124,58,237,0.12);
-      color: var(--text-primary);
-    }
-    .dp-cal__day--range-start {
-      background: #7c3aed !important;
-      color: #fff !important;
-      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-    }
-    .dp-cal__day--range-end {
-      background: #7c3aed !important;
-      color: #fff !important;
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    }
-
-    /* Right: month/year scroller */
-    .dp-side {
-      width: 140px;
-      max-height: 320px;
-      overflow-y: auto;
-      padding: var(--space-2) 0;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-    .dp-side::-webkit-scrollbar { width: 4px; }
-    .dp-side::-webkit-scrollbar-track { background: transparent; }
-    .dp-side::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    .dp-side__year-label {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: var(--space-2) var(--space-3);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg-card);
-      z-index: 1;
-    }
-    .dp-side__month {
-      display: block;
-      width: 100%;
-      padding: 6px var(--space-3);
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: 500;
-      color: var(--text-secondary);
-      background: none;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-      transition: background var(--transition-fast), color var(--transition-fast);
-    }
-    .dp-side__month:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-    .dp-side__month--active {
-      background: rgba(124,58,237,0.12) !important;
-      color: #c084fc !important;
-    }
-    .dp-side__divider {
-      height: 1px;
-      background: var(--border);
-      margin: var(--space-1) var(--space-3);
-    }
-
-    /* Footer bar */
-    .dp-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-3) var(--space-4);
-      border-top: 1px solid var(--border);
-      background: rgba(15,17,23,0.8);
-    }
-    .dp-footer__label {
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      color: var(--text-secondary);
-    }
-    .dp-footer__actions {
-      display: flex;
-      gap: var(--space-2);
-    }
-    .dp-btn {
-      padding: 5px 14px;
-      font-family: var(--font-body);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: background var(--transition-fast);
-      border: none;
-    }
-    .dp-btn--ghost {
-      background: none;
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
-    }
-    .dp-btn--ghost:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-    .dp-btn--primary {
-      background: #7c3aed;
-      color: #fff;
-    }
-    .dp-btn--primary:hover { background: #6d28d9; }
+    /* Date picker CSS now in shared components.css */
     `;
     document.head.appendChild(style);
   }
@@ -1235,47 +1009,22 @@ App.registerPage('funnels', async (container) => {
 
   // ---- Inject HTML ----
   container.innerHTML = `<div class="funnels-page">
-  <!-- ====== 1. Controls Bar ====== -->
-  <header class="page-header" style="padding-top:0;">
-    <div class="page-header__left">
-    </div>
-    <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;">
-      <div class="date-preset-group" id="datePresets">
-        <button class="date-preset" data-days="7">7D</button>
-        <button class="date-preset" data-days="14">14D</button>
-        <button class="date-preset date-preset--active" data-days="30">30D</button>
-        <button class="date-preset" data-days="90">90D</button>
-        <button class="date-preset" data-days="mtd">MTD</button>
-        <button class="date-preset" data-days="ytd">YTD</button>
-        <label class="compare-toggle">
-          <input type="checkbox" id="compareToggle">
-          <span class="compare-toggle__box"></span>
-          Compare
-        </label>
-        <label class="compare-toggle">
-          <input type="checkbox" id="averageToggle">
-          <span class="compare-toggle__box"></span>
-          Average
-        </label>
-      </div>
-      <div class="dp-wrap" id="dpWrap">
-        <button class="dp-trigger" id="dpTrigger">Custom</button>
-        <div class="dp-dropdown" id="dpDropdown">
-          <div style="display:flex;flex-direction:column;flex:1;">
-            <div class="dp-cal" id="dpCal"></div>
-            <div class="dp-footer">
-              <span class="dp-footer__label" id="dpRangeLabel">Select start date</span>
-              <div class="dp-footer__actions">
-                <button class="dp-btn dp-btn--ghost" id="dpCancel">Cancel</button>
-                <button class="dp-btn dp-btn--primary" id="dpApply">Apply</button>
-              </div>
-            </div>
-          </div>
-          <div class="dp-side" id="dpSide"></div>
-        </div>
-      </div>
-    </div>
-  </header>
+  <!-- ====== Page-specific controls (Average toggle) ====== -->
+  <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);flex-wrap:wrap;">
+    <label class="compare-toggle">
+      <input type="checkbox" id="compareToggle">
+      <span class="compare-toggle__box"></span>
+      Compare
+    </label>
+    <label class="compare-toggle">
+      <input type="checkbox" id="averageToggle">
+      <span class="compare-toggle__box"></span>
+      Average
+    </label>
+  </div>
+  <!-- Hidden elements needed by date picker JS (prevent errors) -->
+  <div id="datePresets" hidden></div>
+  <div id="dpWrap" hidden><button id="dpTrigger"></button><div id="dpDropdown" hidden><div id="dpCal"></div><div id="dpSide"></div><span id="dpRangeLabel"></span><button id="dpCancel"></button><button id="dpApply"></button></div></div>
 
   <!-- ====== 2. Biggest Wins / Biggest Leaks ====== -->
   <div class="wins-leaks-row">
@@ -2960,238 +2709,38 @@ function renderAll(days) {
   document.dispatchEvent(new CustomEvent('dateRangeChanged', { detail: { days: days } }));
 }
 
-// ---- Date Preset Handler ----
-document.getElementById('datePresets').addEventListener('click', function(e) {
-  var btn = e.target.closest('.date-preset');
-  if (!btn) return;
-  var days = btn.dataset.days;
-  if (days === 'mtd') {
-    var now = new Date();
-    days = now.getDate();
-  } else if (days === 'ytd') {
-    var now = new Date();
-    var start = new Date(now.getFullYear(), 0, 1);
-    days = Math.ceil((now - start) / 86400000);
-  } else {
-    days = parseInt(days, 10);
-  }
-  // Update active state
-  this.querySelectorAll('.date-preset').forEach(function(b) { b.classList.remove('date-preset--active'); });
-  btn.classList.add('date-preset--active');
-  renderAll(days);
-});
+// ---- Wire shell Filters to page ----
+// Sync Compare checkbox with shell's Compare state
+if (typeof Filters !== 'undefined' && Filters.getCompare) {
+  document.getElementById('compareToggle').checked = !!Filters.getCompare();
+}
 
-// ---- Compare Toggle ----
-document.getElementById('compareToggle').addEventListener('change', function() {
-  renderAll(currentDays);
-});
+// Listen for shell filter changes (date presets, custom date picker)
+if (typeof Filters !== 'undefined' && Filters.onChange) {
+  Filters.onChange(function(state) {
+    var days = state.days || 30;
+    // Sync compare toggle from shell
+    if (typeof Filters.getCompare === 'function') {
+      document.getElementById('compareToggle').checked = !!Filters.getCompare();
+    }
+    renderAll(days);
+  });
+}
+
+// Average toggle (page-specific, not in shell)
 document.getElementById('averageToggle').addEventListener('change', function() {
   renderAll(currentDays);
 });
 
-// ---- Init ----
-renderAll(30);
+// Compare toggle (page-specific backup)
+document.getElementById('compareToggle').addEventListener('change', function() {
+  renderAll(currentDays);
+});
 
-// ============================================================================
-// Custom Date Picker
-// ============================================================================
-(function() {
-  var dpTrigger = document.getElementById('dpTrigger');
-  var dpDropdown = document.getElementById('dpDropdown');
-  var dpCal = document.getElementById('dpCal');
-  var dpSide = document.getElementById('dpSide');
-  var dpCancel = document.getElementById('dpCancel');
-  var dpApply = document.getElementById('dpApply');
-  var dpRangeLabel = document.getElementById('dpRangeLabel');
-  var presets = document.getElementById('datePresets');
+// ---- Init with shell's current days ----
+var initDays = (typeof Filters !== 'undefined' && Filters.getDays) ? Filters.getDays() : 30;
+renderAll(initDays);
 
-  var viewMonth = new Date().getMonth();
-  var viewYear = new Date().getFullYear();
-  var rangeStart = null;
-  var rangeEnd = null;
-  var today = new Date();
-  today.setHours(0,0,0,0);
-
-  function fmtDate(d) {
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-  function fmtDisplay(d) {
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-  }
-
-  function updateLabel() {
-    if (rangeStart && rangeEnd) {
-      dpRangeLabel.textContent = fmtDisplay(rangeStart) + ' - ' + fmtDisplay(rangeEnd);
-    } else if (rangeStart) {
-      dpRangeLabel.textContent = fmtDisplay(rangeStart) + ' - Select end';
-    } else {
-      dpRangeLabel.textContent = 'Select start date';
-    }
-  }
-
-  // ---- Build month/year sidebar ----
-  function buildSide() {
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var html = '';
-    [2026, 2025].forEach(function(yr, yi) {
-      html += '<div class="dp-side__year-label">' + yr + '</div>';
-      var startM = yr === 2026 ? new Date().getMonth() : 11;
-      for (var m = startM; m >= 0; m--) {
-        var isActive = (viewYear === yr && viewMonth === m);
-        html += '<button class="dp-side__month' + (isActive ? ' dp-side__month--active' : '') + '" data-yr="' + yr + '" data-mo="' + m + '">' + months[m] + '</button>';
-      }
-      if (yi === 0) html += '<div class="dp-side__divider"></div>';
-    });
-    dpSide.innerHTML = html;
-
-    dpSide.querySelectorAll('.dp-side__month').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        viewYear = parseInt(this.dataset.yr);
-        viewMonth = parseInt(this.dataset.mo);
-        buildCal();
-        buildSide();
-      });
-    });
-  }
-
-  // ---- Build calendar grid ----
-  function buildCal() {
-    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    var dows = ['Mo','Tu','We','Th','Fr','Sa','Su'];
-
-    var firstDay = new Date(viewYear, viewMonth, 1);
-    var lastDay = new Date(viewYear, viewMonth + 1, 0);
-    // Monday-based: 0=Mon
-    var startDow = (firstDay.getDay() + 6) % 7;
-    var totalDays = lastDay.getDate();
-
-    var html = '<div class="dp-cal__nav">' +
-      '<button class="dp-cal__nav-btn" id="dpPrev">&#8249;</button>' +
-      '<span class="dp-cal__month-label">' + months[viewMonth] + ' ' + viewYear + '</span>' +
-      '<button class="dp-cal__nav-btn" id="dpNext">&#8250;</button>' +
-    '</div><div class="dp-cal__grid">';
-
-    dows.forEach(function(d) { html += '<div class="dp-cal__dow">' + d + '</div>'; });
-
-    // Previous month fill
-    var prevLastDay = new Date(viewYear, viewMonth, 0).getDate();
-    for (var p = startDow - 1; p >= 0; p--) {
-      var pd = new Date(viewYear, viewMonth - 1, prevLastDay - p);
-      html += '<button class="dp-cal__day dp-cal__day--other" data-date="' + fmtDate(pd) + '">' + (prevLastDay - p) + '</button>';
-    }
-
-    // Current month
-    for (var d = 1; d <= totalDays; d++) {
-      var dt = new Date(viewYear, viewMonth, d);
-      var cls = 'dp-cal__day';
-      var isToday = dt.getTime() === today.getTime();
-      if (isToday) cls += ' dp-cal__day--today';
-      if (rangeStart && rangeEnd) {
-        var t = dt.getTime(), s = rangeStart.getTime(), e = rangeEnd.getTime();
-        if (t === s && t === e) cls += ' dp-cal__day--selected';
-        else if (t === s) cls += ' dp-cal__day--range-start';
-        else if (t === e) cls += ' dp-cal__day--range-end';
-        else if (t > s && t < e) cls += ' dp-cal__day--in-range';
-      } else if (rangeStart && dt.getTime() === rangeStart.getTime()) {
-        cls += ' dp-cal__day--selected';
-      }
-      html += '<button class="' + cls + '" data-date="' + fmtDate(dt) + '">' + d + '</button>';
-    }
-
-    // Next month fill
-    var cells = startDow + totalDays;
-    var remaining = (7 - (cells % 7)) % 7;
-    for (var n = 1; n <= remaining; n++) {
-      var nd = new Date(viewYear, viewMonth + 1, n);
-      html += '<button class="dp-cal__day dp-cal__day--other" data-date="' + fmtDate(nd) + '">' + n + '</button>';
-    }
-
-    html += '</div>';
-    dpCal.innerHTML = html;
-
-    // Nav buttons
-    document.getElementById('dpPrev').addEventListener('click', function() {
-      viewMonth--;
-      if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-      buildCal(); buildSide();
-    });
-    document.getElementById('dpNext').addEventListener('click', function() {
-      viewMonth++;
-      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-      buildCal(); buildSide();
-    });
-
-    // Day clicks
-    dpCal.querySelectorAll('.dp-cal__day').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var parts = this.dataset.date.split('-');
-        var clicked = new Date(+parts[0], +parts[1]-1, +parts[2]);
-        if (!rangeStart || rangeEnd) {
-          rangeStart = clicked;
-          rangeEnd = null;
-        } else {
-          if (clicked < rangeStart) {
-            rangeEnd = rangeStart;
-            rangeStart = clicked;
-          } else {
-            rangeEnd = clicked;
-          }
-        }
-        // If clicked day is in another month, navigate there
-        viewMonth = clicked.getMonth();
-        viewYear = clicked.getFullYear();
-        updateLabel();
-        buildCal();
-        buildSide();
-      });
-    });
-  }
-
-  // ---- Toggle dropdown ----
-  dpTrigger.addEventListener('click', function(e) {
-    e.stopPropagation();
-    var isOpen = dpDropdown.classList.toggle('dp-dropdown--open');
-    dpTrigger.classList.toggle('dp-trigger--active', isOpen);
-    if (isOpen) { buildCal(); buildSide(); }
-  });
-
-  function closeDP() {
-    dpDropdown.classList.remove('dp-dropdown--open');
-    dpTrigger.classList.remove('dp-trigger--active');
-  }
-
-  dpCancel.addEventListener('click', function() {
-    rangeStart = null; rangeEnd = null;
-    updateLabel(); closeDP();
-  });
-
-  dpApply.addEventListener('click', function() {
-    if (!rangeStart || !rangeEnd) return;
-    // Deactivate preset buttons
-    presets.querySelectorAll('.date-preset').forEach(function(b) { b.classList.remove('date-preset--active'); });
-    dpTrigger.classList.add('dp-trigger--active');
-    dpTrigger.textContent = fmtDisplay(rangeStart) + ' - ' + fmtDisplay(rangeEnd);
-    // Calculate days in range and render
-    var diffDays = Math.round((rangeEnd - rangeStart) / 86400000) + 1;
-    renderAll(Math.max(diffDays, 1));
-    closeDP();
-  });
-
-  // Close on outside click
-  document.addEventListener('click', function(e) {
-    if (!dpDropdown.contains(e.target) && e.target !== dpTrigger) closeDP();
-  });
-  dpDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
-
-  // Reset custom trigger when a preset is clicked
-  presets.addEventListener('click', function() {
-    dpTrigger.textContent = 'Custom';
-    dpTrigger.classList.remove('dp-trigger--active');
-    rangeStart = null; rangeEnd = null;
-    updateLabel();
-  });
-})();
   })();
 
 });

@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clients on Demand - Application</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-base: #0a0a0c;
+    --bg-card: #111114;
+    --bg-card-hover: #1a1a1f;
+    --bg-card-selected: #1c1918;
+    --bg-input: #0e0e12;
+    --accent-gold: #c8a96e;
+    --accent-gold-light: #d4ba85;
+    --accent-gold-glow: rgba(200, 169, 110, 0.15);
+    --accent-gold-border: rgba(200, 169, 110, 0.3);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border-default: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --radius-card: 14px;
+    --radius-btn: 8px;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Outfit', system-ui, sans-serif;
+  }
+
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Ambient glow */
+  .ambient {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+  .ambient-1 { top: -200px; right: -200px; background: radial-gradient(circle, rgba(200,169,110,0.08), transparent 70%); }
+  .ambient-2 { bottom: -300px; left: -200px; background: radial-gradient(circle, rgba(124,58,237,0.06), transparent 70%); }
+
+  /* Layout */
+  .app {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+
+  /* Logo */
+  .logo {
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeDown 0.6s ease forwards;
+  }
+  .logo-text {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 6px;
+  }
+  .logo-text span {
+    color: var(--accent-gold);
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    font-size: 14px;
+  }
+
+  /* Header */
+  .form-header {
+    text-align: center;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeDown 0.6s ease 0.15s forwards;
+  }
+  .form-header h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+  .form-header h1 em {
+    font-style: italic;
+    color: var(--accent-gold);
+  }
+  .form-header p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 360px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeDown 0.6s ease 0.25s forwards;
+  }
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .step-dot.active {
+    background: var(--accent-gold);
+    box-shadow: 0 0 12px var(--accent-gold-glow);
+    width: 24px;
+    border-radius: 4px;
+  }
+  .step-dot.completed {
+    background: var(--accent-gold);
+    opacity: 0.5;
+  }
+  .step-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 8px;
+  }
+
+  /* Form container */
+  .form-container {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+
+  /* Steps */
+  .step {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .step.active {
+    display: flex;
+    animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .step.slide-back {
+    display: flex;
+    animation: slideInReverse 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Labels */
+  .step-question {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+    padding-left: 2px;
+  }
+  .step-hint {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-bottom: 8px;
+    padding-left: 2px;
+    font-style: italic;
+  }
+
+  /* === CATEGORY CARDS (bigger, bolder) === */
+  .category-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .category-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .category-card:active { transform: scale(0.985); }
+
+  .cat-icon {
+    width: 44px; height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .cat-content { flex: 1; }
+  .cat-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .cat-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .cat-arrow {
+    width: 20px; height: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .category-card:hover .cat-arrow { transform: translateX(3px); color: var(--accent-gold); }
+
+  /* === SUB-OPTION CARDS (standard size) === */
+  .card-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .card-option:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .card-option:active { transform: scale(0.985); }
+  .card-option.selected {
+    background: var(--bg-card-selected);
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 0 24px var(--accent-gold-glow), inset 0 1px 0 rgba(200,169,110,0.1);
+  }
+  .card-option.selected .card-icon { color: var(--accent-gold); }
+  .card-option.selected .card-check { opacity: 1; transform: scale(1); }
+
+  .card-icon {
+    width: 36px; height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    flex-shrink: 0;
+    transition: color 0.25s ease;
+  }
+  .card-label {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .card-label small {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+  .card-check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+  }
+  .card-check svg { width: 12px; height: 12px; stroke: var(--bg-base); stroke-width: 3; fill: none; }
+
+  /* Back link (inline, minimal) */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-bottom: 10px;
+    padding: 4px 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease;
+  }
+  .back-link:hover { color: var(--text-secondary); }
+  .back-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* Custom input */
+  .card-custom { border-style: dashed; border-color: rgba(255,255,255,0.08); }
+  .card-custom .card-label { color: var(--text-muted); font-weight: 300; }
+  .custom-input {
+    display: none;
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    outline: none;
+    padding: 0;
+  }
+  .custom-input::placeholder { color: var(--text-muted); font-weight: 300; }
+  .card-custom.editing .card-label { display: none; }
+  .card-custom.editing .custom-input { display: block; }
+  .card-custom.editing { border-color: var(--accent-gold-border); border-style: solid; }
+
+  /* Textarea */
+  .text-area-wrap { position: relative; }
+  .text-area-wrap textarea {
+    width: 100%;
+    min-height: 130px;
+    padding: 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    transition: border-color 0.25s ease;
+  }
+  .text-area-wrap textarea:focus {
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 0 20px var(--accent-gold-glow);
+  }
+  .text-area-wrap textarea::placeholder { color: var(--text-muted); font-weight: 300; line-height: 1.6; }
+  .char-count {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .char-count.visible { opacity: 1; }
+
+  /* Contact fields */
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-group + .field-group { margin-top: 6px; }
+  .field-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding-left: 4px;
+  }
+  .field-input {
+    width: 100%;
+    padding: 16px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    -webkit-appearance: none;
+  }
+  .field-input:focus {
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 0 20px var(--accent-gold-glow);
+  }
+  .field-input::placeholder { color: var(--text-muted); font-weight: 300; }
+
+  /* SMS consent */
+  .consent-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; padding: 0 4px; }
+  .consent-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px; height: 20px; min-width: 20px;
+    border: 1px solid var(--border-hover);
+    border-radius: 5px;
+    background: var(--bg-card);
+    cursor: pointer;
+    position: relative;
+    margin-top: 1px;
+    transition: all 0.2s ease;
+  }
+  .consent-check:checked { background: var(--accent-gold); border-color: var(--accent-gold); }
+  .consent-check:checked::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 6px;
+    width: 5px; height: 9px;
+    border: solid var(--bg-base);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .consent-text { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; font-weight: 300; }
+
+  /* Nav row */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-btn);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-back:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+  .btn-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-next {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-primary);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--radius-btn);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    margin-left: auto;
+  }
+  .btn-next:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .btn-next svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .btn-submit {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 28px;
+    border: none;
+    border-radius: var(--radius-btn);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+    color: var(--bg-base);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(200,169,110,0.25); }
+  .btn-submit:active { transform: scale(0.98); }
+  .btn-submit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .btn-submit svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* Success */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 40px 20px;
+    animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .success-screen.active { display: flex; }
+  .success-icon {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px var(--accent-gold-glow);
+  }
+  .success-icon svg { width: 32px; height: 32px; stroke: var(--bg-base); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .success-screen h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; }
+  .success-screen p { font-size: 0.9rem; color: var(--text-secondary); font-weight: 300; line-height: 1.6; max-width: 320px; }
+
+  /* Animations */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-40px); } }
+  @keyframes slideInReverse { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  @keyframes shimmer { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+
+  /* Stagger */
+  .step.active .card-option:nth-child(1), .step.active .category-card:nth-child(1) { animation-delay: 0ms; }
+  .step.active .card-option:nth-child(2), .step.active .category-card:nth-child(2) { animation-delay: 40ms; }
+  .step.active .card-option:nth-child(3), .step.active .category-card:nth-child(3) { animation-delay: 80ms; }
+  .step.active .card-option:nth-child(4), .step.active .category-card:nth-child(4) { animation-delay: 120ms; }
+  .step.active .card-option:nth-child(5), .step.active .category-card:nth-child(5) { animation-delay: 160ms; }
+  .step.active .card-option,
+  .step.active .category-card {
+    opacity: 0;
+    animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Mobile safety */
+  @media screen and (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+  @media (min-width: 640px) {
+    .app { padding: 48px 24px 60px; }
+    .step { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<div class="app">
+  <div class="logo">
+    <div class="logo-text">CLIENTS <span>on</span> DEMAND</div>
+  </div>
+
+  <div class="form-header">
+    <h1>Schedule Your <em>Breakthrough</em> Call</h1>
+    <p>A few quick questions so we can make the most of our time together.</p>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step-dot active" data-dot="0"></div>
+    <div class="step-dot" data-dot="1"></div>
+    <div class="step-dot" data-dot="2"></div>
+    <div class="step-dot" data-dot="3"></div>
+    <span class="step-count">1 of 4</span>
+  </div>
+
+  <div class="form-container">
+
+    <!-- ============ STEP 1a: CATEGORY SELECT ============ -->
+    <div class="step active" data-step="0" id="step-categories">
+      <div class="step-question">What best describes your work?</div>
+      <div class="step-hint">Pick the closest fit. We'll get specific next.</div>
+
+      <div class="category-card" onclick="showSubOptions('healthcare')">
+        <div class="cat-icon">&#x2695;&#xFE0F;</div>
+        <div class="cat-content">
+          <div class="cat-title">Healthcare & Clinical</div>
+          <div class="cat-desc">Therapist, Psychologist, Physician, Chiropractor, Dietitian...</div>
+        </div>
+        <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+      <div class="category-card" onclick="showSubOptions('business')">
+        <div class="cat-icon">&#x1f4c8;</div>
+        <div class="cat-content">
+          <div class="cat-title">Business, Coaching & Leadership</div>
+          <div class="cat-desc">Consultant, Coach, Corporate Executive</div>
+        </div>
+        <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+      <div class="category-card" onclick="showSubOptions('professional')">
+        <div class="cat-icon">&#x2696;&#xFE0F;</div>
+        <div class="cat-content">
+          <div class="cat-title">Legal, Finance & Education</div>
+          <div class="cat-desc">Attorney, Financial Advisor, Educator, Academic</div>
+        </div>
+        <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+
+      <div class="category-card" onclick="showCustomRole()">
+        <div class="cat-icon">&#x270F;&#xFE0F;</div>
+        <div class="cat-content">
+          <div class="cat-title">Something Else</div>
+          <div class="cat-desc">Don't see your role? Tell us directly.</div>
+        </div>
+        <svg class="cat-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ STEP 1b: HEALTHCARE SUB-OPTIONS ============ -->
+    <div class="step" data-step="0" id="sub-healthcare">
+      <div class="back-link" onclick="backToCategories()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Healthcare & Clinical
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Licensed Therapist / Counselor')">
+        <div class="card-icon">&#x1f9e0;</div>
+        <div class="card-label">Licensed Therapist / Counselor<small>LMFT, LCSW, LPC</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Psychologist (PsyD / PhD)')">
+        <div class="card-icon">&#x1f4d6;</div>
+        <div class="card-label">Psychologist<small>PsyD / PhD</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Physician / DO / Nurse Practitioner')">
+        <div class="card-icon">&#x1fa7a;</div>
+        <div class="card-label">Physician / Nurse Practitioner<small>MD, DO, NP</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Other Licensed Healthcare Provider')">
+        <div class="card-icon">&#x1f33f;</div>
+        <div class="card-label">Other Healthcare Provider<small>Acupuncturist, Chiropractor, PT, Dietitian</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ============ STEP 1b: BUSINESS SUB-OPTIONS ============ -->
+    <div class="step" data-step="0" id="sub-business">
+      <div class="back-link" onclick="backToCategories()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Business, Coaching & Leadership
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Business Consultant')">
+        <div class="card-icon">&#x1f4bc;</div>
+        <div class="card-label">Business Consultant<small>Currently serving clients</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Coach')">
+        <div class="card-icon">&#x1f3af;</div>
+        <div class="card-label">Coach<small>Currently serving clients</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Corporate Executive / Senior Leader')">
+        <div class="card-icon">&#x1f4c8;</div>
+        <div class="card-label">Corporate Executive / Senior Leader<small>Exploring a transition</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ============ STEP 1b: PROFESSIONAL SUB-OPTIONS ============ -->
+    <div class="step" data-step="0" id="sub-professional">
+      <div class="back-link" onclick="backToCategories()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Legal, Finance & Education
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Attorney / Financial Advisor')">
+        <div class="card-icon">&#x2696;&#xFE0F;</div>
+        <div class="card-label">Attorney / Financial Advisor<small>Other licensed professional</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Educator / Teacher / Academic Professional')">
+        <div class="card-icon">&#x1f393;</div>
+        <div class="card-label">Educator / Academic Professional<small>Teacher, Professor, Administrator</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ============ STEP 1b: CUSTOM ROLE ============ -->
+    <div class="step" data-step="0" id="sub-custom">
+      <div class="back-link" onclick="backToCategories()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to categories
+      </div>
+      <div class="step-question">What's your professional role?</div>
+
+      <div class="field-group">
+        <input class="field-input" type="text" id="customRoleInput" placeholder="e.g. Real Estate Agent, Nutritionist..." autocomplete="off" onkeydown="if(event.key==='Enter'&&this.value.trim()){selectCustomRole(this.value.trim())}">
+      </div>
+
+      <div class="nav-row" style="justify-content:flex-end">
+        <button class="btn-next" onclick="selectCustomRole(document.getElementById('customRoleInput').value.trim())" id="btn-custom-continue">
+          Continue
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STEP 2: WHAT YOU HELP WITH ============ -->
+    <div class="step" data-step="1">
+      <div class="step-question">In 1-2 sentences, what do you help people with?</div>
+      <div class="step-hint">No perfect answer. Just be specific.</div>
+
+      <div class="text-area-wrap">
+        <textarea id="helpText" placeholder="e.g. I help busy executives overcome burnout and build sustainable leadership habits..." maxlength="300" oninput="updateCharCount(this)"></textarea>
+        <div class="char-count" id="charCount">0 / 300</div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="btn-next" onclick="goNext()">
+          Continue
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STEP 3: DECISION MAKER ============ -->
+    <div class="step" data-step="2">
+      <div class="step-question">When it comes to investing in your growth, which best describes you?</div>
+      <div class="step-hint">Helps us know who to include in the conversation.</div>
+
+      <div class="card-option" onclick="selectDecision(this, 'I make these decisions on my own')">
+        <div class="card-icon">&#x1f464;</div>
+        <div class="card-label">I make these decisions on my own</div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectDecision(this, 'Discuss with spouse/partner first')">
+        <div class="card-icon">&#x1f465;</div>
+        <div class="card-label">I'll discuss with my spouse or partner first</div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectDecision(this, 'Discuss with business partner/co-founder')">
+        <div class="card-icon">&#x1f91d;</div>
+        <div class="card-label">I'll need to discuss with a business partner</div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+    </div>
+
+    <!-- ============ STEP 4: CONTACT INFO ============ -->
+    <div class="step" data-step="3">
+      <div class="step-question">Where should we send your call details?</div>
+      <div class="step-hint">We'll only reach out to confirm your time.</div>
+
+      <div class="field-group">
+        <label class="field-label" for="fullName">Full Name</label>
+        <input class="field-input" type="text" id="fullName" placeholder="Your full name" autocomplete="name" required oninput="validateContactForm()">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="email">Email</label>
+        <input class="field-input" type="email" id="email" placeholder="you@example.com" autocomplete="email" required oninput="validateContactForm()">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="phone">Phone</label>
+        <input class="field-input" type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel" required oninput="formatPhone(this); validateContactForm()">
+      </div>
+
+      <div class="consent-row">
+        <input type="checkbox" class="consent-check" id="smsConsent">
+        <label class="consent-text" for="smsConsent">I consent to receive SMS notifications from Clients on Demand. Reply stop to unsubscribe at any time.</label>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="btn-submit" id="btn-submit" onclick="submitForm()" disabled>
+          Schedule My Call
+          <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="success">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>You're In.</h2>
+      <p>Check your email for next steps. We'll be in touch shortly to confirm your Breakthrough Call.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentStep = 0;
+  const totalSteps = 4;
+  const formData = { role: '', category: '', helpText: '', decisionMaker: '', name: '', email: '', phone: '' };
+
+  // ---- Step 1: Category drill-down ----
+
+  function showSubOptions(category) {
+    formData.category = category;
+    const cats = document.getElementById('step-categories');
+    const sub = document.getElementById('sub-' + category);
+
+    cats.classList.remove('active');
+    cats.style.display = 'none';
+
+    sub.style.display = 'flex';
+    sub.classList.add('active');
+  }
+
+  function showCustomRole() {
+    formData.category = 'custom';
+    const cats = document.getElementById('step-categories');
+    const sub = document.getElementById('sub-custom');
+
+    cats.classList.remove('active');
+    cats.style.display = 'none';
+
+    sub.style.display = 'flex';
+    sub.classList.add('active');
+    setTimeout(() => document.getElementById('customRoleInput').focus(), 100);
+  }
+
+  function backToCategories() {
+    // Hide all sub-option panels
+    ['sub-healthcare','sub-business','sub-professional','sub-custom'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('active', 'slide-back');
+      el.style.display = 'none';
+    });
+
+    const cats = document.getElementById('step-categories');
+    cats.style.display = 'flex';
+    cats.classList.add('active');
+    cats.style.animation = 'none';
+    cats.offsetHeight;
+    cats.style.animation = 'slideInReverse 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+  }
+
+  function selectRole(card, value) {
+    const step = card.closest('.step');
+    step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    formData.role = value;
+
+    setTimeout(() => advanceFromStep1(), 400);
+  }
+
+  function selectCustomRole(value) {
+    if (!value) return;
+    formData.role = value;
+    advanceFromStep1();
+  }
+
+  function advanceFromStep1() {
+    // Hide whichever sub-panel is showing
+    ['sub-healthcare','sub-business','sub-professional','sub-custom','step-categories'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('active','slide-back');
+      el.style.display = 'none';
+    });
+
+    currentStep = 1;
+    showStep(1, 'forward');
+    updateDots();
+  }
+
+  // ---- Step 3: Decision maker (auto-advance) ----
+
+  function selectDecision(card, value) {
+    const step = card.closest('.step');
+    step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    formData.decisionMaker = value;
+
+    setTimeout(() => goNext(), 400);
+  }
+
+  // ---- General navigation ----
+
+  function goNext() {
+    if (currentStep === 1 && !document.getElementById('helpText').value.trim()) {
+      document.getElementById('helpText').focus();
+      return;
+    }
+    if (currentStep === 1) formData.helpText = document.getElementById('helpText').value.trim();
+
+    const currentEl = document.querySelector(`.step[data-step="${currentStep}"]:not([id^="sub-"]):not([id="step-categories"])`);
+    if (!currentEl) {
+      // Find visible step
+      const visible = document.querySelector('.step.active, .step.slide-back');
+      if (visible) { visible.classList.remove('active','slide-back'); visible.style.display = 'none'; }
+    } else {
+      currentEl.classList.remove('active');
+      currentEl.style.display = 'none';
+    }
+
+    currentStep++;
+    showStep(currentStep, 'forward');
+    updateDots();
+  }
+
+  function goBack() {
+    const visible = document.querySelector('.step[style*="flex"]:not([style*="none"])') || document.querySelector('.step.active');
+    if (visible) {
+      visible.classList.remove('active','slide-back');
+      visible.style.display = 'none';
+    }
+
+    currentStep--;
+
+    if (currentStep === 0) {
+      // Go back to categories
+      const cats = document.getElementById('step-categories');
+      cats.style.display = 'flex';
+      cats.classList.add('active');
+      cats.style.animation = 'none';
+      cats.offsetHeight;
+      cats.style.animation = 'slideInReverse 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+    } else {
+      showStep(currentStep, 'backward');
+    }
+    updateDots();
+  }
+
+  function showStep(index, direction) {
+    // Find the main step (not sub-panels)
+    const steps = document.querySelectorAll(`.step[data-step="${index}"]`);
+    let step;
+    if (index === 0) {
+      step = document.getElementById('step-categories');
+    } else {
+      // Get the step that isn't a sub-panel
+      steps.forEach(s => {
+        if (!s.id.startsWith('sub-')) step = s;
+      });
+    }
+    if (!step) return;
+
+    step.style.display = 'flex';
+    step.classList.remove('active', 'slide-back');
+    step.offsetHeight;
+
+    if (direction === 'backward') {
+      step.classList.add('slide-back');
+    } else {
+      step.classList.add('active');
+    }
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.step-dot').forEach((dot, i) => {
+      dot.classList.remove('active', 'completed');
+      if (i === currentStep) dot.classList.add('active');
+      else if (i < currentStep) dot.classList.add('completed');
+    });
+    document.querySelector('.step-count').textContent = `${currentStep + 1} of ${totalSteps}`;
+  }
+
+  // ---- Step 2: Textarea ----
+
+  function updateCharCount(textarea) {
+    const count = textarea.value.length;
+    const el = document.getElementById('charCount');
+    el.textContent = `${count} / 300`;
+    el.classList.toggle('visible', count > 0);
+  }
+
+  // ---- Step 4: Contact ----
+
+  function validateContactForm() {
+    const name = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    document.getElementById('btn-submit').disabled = !(name && emailValid && phone.length >= 10);
+  }
+
+  function formatPhone(input) {
+    let val = input.value.replace(/\D/g, '');
+    if (val.length > 10) val = val.slice(0, 10);
+    if (val.length >= 7) input.value = `(${val.slice(0,3)}) ${val.slice(3,6)}-${val.slice(6)}`;
+    else if (val.length >= 4) input.value = `(${val.slice(0,3)}) ${val.slice(3)}`;
+    else if (val.length > 0) input.value = `(${val}`;
+  }
+
+  function submitForm() {
+    formData.name = document.getElementById('fullName').value.trim();
+    formData.email = document.getElementById('email').value.trim();
+    formData.phone = document.getElementById('phone').value.trim();
+    formData.smsConsent = document.getElementById('smsConsent').checked;
+
+    console.log('Application submitted:', formData);
+
+    document.querySelectorAll('.step').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
+    document.querySelector('.step-indicator').style.display = 'none';
+    document.querySelector('.form-header p').style.display = 'none';
+    document.getElementById('success').classList.add('active');
+  }
+</script>
+
+</body>
+</html>

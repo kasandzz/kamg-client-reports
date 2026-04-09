@@ -88,9 +88,20 @@ App.registerPage('cold-email', async (container) => {
       steps: [], // No step-level data from EmailBison
     }));
 
+    // Strip quoted email content from body for accurate sentiment analysis
+    function _stripQuoted(text) {
+      return (text || '').toLowerCase()
+        .replace(/on\s+\w{3},\s+\w{3,9}\s+\d{1,2},?\s+\d{4}\s+at\s+[\s\S]*/i, '')
+        .replace(/on\s+\d{1,2}\/\d{1,2}\/\d{2,4}[\s\S]*/i, '')
+        .replace(/^>.*$/gm, '')
+        .replace(/-{2,}\s*original message\s*-{2,}[\s\S]*/i, '')
+        .replace(/from:.*sent:[\s\S]*/i, '')
+        .trim();
+    }
+
     // Filter out system/bounce/test emails + negative/ooo/auto before mapping
     const JUNK_PATTERNS = /mailer-daemon|postmaster|noreply|no-reply|dmarc|abuse@|^google$|^microsoft$|autoresponder/i;
-    const NEG_PATTERNS = /unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/i;
+    const NEG_PATTERNS = /^no[.,!\s]|^no$|^pass|^not at this time|^no thanks|^no thank|^nope|^sorry.{0,20}not|please remove|unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/im;
     const OOO_PATTERNS = /out of (the )?office|on vacation|on leave|away from|auto.?reply|automatic reply/i;
     const replyFiltered = (replyData || []).filter(r => {
       if (r.is_automated || r.reply_type === 'Bounced') return false;
@@ -99,8 +110,8 @@ App.registerPage('cold-email', async (container) => {
       if (JUNK_PATTERNS.test(email) || JUNK_PATTERNS.test(name)) return false;
       if ((r.text_body || '').toLowerCase().includes('dmarc aggregate report')) return false;
       if (name === 'dmarc aggregate report') return false;
-      // Exclude negative / OOO / not-interested replies
-      const body = (r.text_body || '').toLowerCase();
+      // Exclude negative / OOO / not-interested replies (strip quoted content first)
+      const body = _stripQuoted(r.text_body);
       if (NEG_PATTERNS.test(body) || OOO_PATTERNS.test(body)) return false;
       return true;
     });
@@ -108,11 +119,11 @@ App.registerPage('cold-email', async (container) => {
     // Client-side sentiment override for obvious patterns
     function _detectSentiment(r) {
       const bqSentiment = r.reply_sentiment || 'neutral';
-      const body = (r.text_body || '').toLowerCase();
+      const body = _stripQuoted(r.text_body);
       // OOO / vacation patterns
-      if (/out of (the )?office|on vacation|on leave|away from|auto.?reply|automatic reply/i.test(body)) return 'ooo';
-      // Unsubscribe / not interested patterns
-      if (/unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/i.test(body)) return 'not_interested';
+      if (OOO_PATTERNS.test(body)) return 'ooo';
+      // Negative / rejection patterns (check BEFORE positive)
+      if (NEG_PATTERNS.test(body)) return 'not_interested';
       // Positive interest patterns
       if (/interested|tell me more|love to (hear|learn|chat)|schedule|set up a (call|time|meeting)|sounds good|let'?s (talk|connect|chat)/i.test(body)) return 'interested';
       return bqSentiment;

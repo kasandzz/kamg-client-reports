@@ -7,265 +7,345 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #F5F5F5; color: #1a1a1a; line-height: 1.7; font-size: 16px; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #EBEBEB;
+            color: #1a1a1a;
+            line-height: 1.7;
+            font-size: 16px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+        }
 
         .form-wrapper {
             background: #fff;
             width: 100%;
-            max-width: 720px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 40px rgba(0,0,0,0.04);
-            border: 1px solid #E0E0E0;
+            max-width: 740px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.06);
+            overflow: hidden;
         }
 
-        /* -- Header -- */
+        /* ---- HEADER ---- */
         .form-header {
-            background: #111;
-            padding: 28px 40px;
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+            padding: 32px 44px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 3px solid #B21E24;
         }
         .form-header h1 {
-            font-size: 1.1em;
-            font-weight: 700;
+            font-size: 1.2em;
+            font-weight: 800;
             color: #fff;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
         }
         .form-header .time-badge {
             font-size: 0.78em;
             font-weight: 500;
-            color: #aaa;
-            background: rgba(255,255,255,0.08);
-            padding: 5px 14px;
+            color: #ccc;
+            background: rgba(255,255,255,0.07);
+            padding: 6px 16px;
             border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* -- Progress Bar -- */
+        /* ---- PROGRESS ---- */
         .form-progress {
             display: flex;
             background: #FAFAFA;
-            border-bottom: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E8E8E8;
         }
         .form-progress .step {
             flex: 1;
             text-align: center;
-            padding: 16px 8px;
-            font-size: 0.78em;
+            padding: 18px 8px 16px;
+            font-size: 0.72em;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #bbb;
+            letter-spacing: 0.1em;
+            color: #ccc;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
+            border-bottom: 2px solid transparent;
         }
-        .form-progress .step.active { color: #B21E24; background: #fff; }
-        .form-progress .step.completed { color: #16a34a; background: #f7fdf9; }
+        .form-progress .step.active {
+            color: #B21E24;
+            background: #fff;
+            border-bottom-color: #B21E24;
+        }
+        .form-progress .step.completed {
+            color: #16a34a;
+            background: #f7fdf9;
+            border-bottom-color: #16a34a;
+        }
         .form-progress .step .step-num {
             display: inline-flex;
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             align-items: center;
             justify-content: center;
             border: 2px solid #ddd;
             border-radius: 50%;
             font-size: 0.85em;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
         }
-        .form-progress .step.active .step-num { border-color: #B21E24; color: #B21E24; }
+        .form-progress .step.active .step-num { border-color: #B21E24; color: #B21E24; background: #fef6f6; }
         .form-progress .step.completed .step-num { border-color: #16a34a; background: #16a34a; color: #fff; }
-        .form-progress .step .step-label { display: block; margin-top: 3px; }
+        .form-progress .step .step-label { display: block; margin-top: 2px; }
 
-        .progress-fill { height: 3px; background: #E0E0E0; }
-        .progress-fill-bar { height: 100%; background: #B21E24; transition: width 0.4s ease; }
+        .progress-fill { height: 3px; background: #E8E8E8; }
+        .progress-fill-bar { height: 100%; background: linear-gradient(90deg, #B21E24, #d4393f); transition: width 0.5s ease; }
 
-        /* -- Form Body -- */
-        .form-body { padding: 36px 40px 28px; }
+        /* ---- FORM BODY ---- */
+        .form-body { padding: 40px 44px 32px; }
         .form-body h2 {
-            font-size: 1.25em;
-            font-weight: 700;
+            font-size: 1.35em;
+            font-weight: 800;
             color: #111;
-            margin: 0 0 4px;
+            margin: 0 0 6px;
+            letter-spacing: -0.02em;
         }
         .form-body .step-desc {
-            font-size: 0.9em;
-            color: #777;
-            margin-bottom: 32px;
-        }
-
-        /* -- Fields -- */
-        .field-group { margin-bottom: 26px; }
-        .field-group label {
-            display: block;
-            font-size: 0.82em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #111;
-            margin-bottom: 8px;
-        }
-        .field-group label .req { color: #B21E24; }
-        .field-group .helper {
-            font-size: 0.82em;
-            color: #888;
-            margin-top: 6px;
+            font-size: 0.92em;
+            color: #8a8a8a;
+            margin-bottom: 36px;
             line-height: 1.5;
         }
+
+        /* ---- FIELD GROUPS ---- */
+        .field-group { margin-bottom: 28px; }
+        .field-group label {
+            display: block;
+            font-size: 0.78em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .field-group label .req { color: #B21E24; font-weight: 800; }
+        .field-group .helper {
+            font-size: 0.82em;
+            color: #a0a0a0;
+            margin-top: 8px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
         .field-group input,
         .field-group select,
         .field-group textarea {
             width: 100%;
-            padding: 13px 16px;
-            font-size: 1em;
+            padding: 14px 18px;
+            font-size: 0.95em;
             font-family: 'Inter', sans-serif;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
             background: #FAFAFA;
             color: #1a1a1a;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
             outline: none;
         }
         .field-group input::placeholder,
-        .field-group textarea::placeholder { color: #b5b5b5; font-weight: 400; }
-        .field-group select option:first-child { color: #b5b5b5; }
+        .field-group textarea::placeholder { color: #c0c0c0; font-weight: 400; }
         .field-group input:focus,
         .field-group select:focus,
         .field-group textarea:focus {
             border-color: #B21E24;
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(178,30,36,0.06);
+            box-shadow: 0 0 0 4px rgba(178,30,36,0.06);
         }
-        .field-group textarea { min-height: 110px; resize: vertical; }
-        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field-group textarea { min-height: 120px; resize: vertical; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        /* -- Option Cards -- */
-        .option-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* ---- OPTION CARDS ---- */
+        .option-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .option-card {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 16px 18px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 18px 20px;
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
+            background: #FAFAFA;
         }
-        .option-card:hover { border-color: #B21E24; background: #fef6f6; }
-        .option-card.selected { border-color: #B21E24; background: #fef6f6; box-shadow: 0 0 0 1px #B21E24; }
-        .option-card .option-title { font-size: 0.9em; font-weight: 600; color: #1a1a1a; }
-        .option-card .option-desc { font-size: 0.8em; color: #888; margin-top: 3px; }
+        .option-card:hover {
+            border-color: #d4393f;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(178,30,36,0.06);
+        }
+        .option-card.selected {
+            border-color: #B21E24;
+            background: #fef6f6;
+            box-shadow: 0 0 0 1px #B21E24, 0 2px 8px rgba(178,30,36,0.08);
+        }
+        .option-card .option-title {
+            font-size: 0.92em;
+            font-weight: 700;
+            color: #222;
+        }
+        .option-card .option-desc {
+            font-size: 0.78em;
+            color: #999;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
         .option-card .check-icon {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ccc;
+            top: 14px;
+            right: 14px;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d0d0d0;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.65em;
+            font-size: 0.6em;
+            transition: all 0.2s;
         }
         .option-card.selected .check-icon { border-color: #B21E24; background: #B21E24; color: #fff; }
 
-        /* -- Upload Zone -- */
+        /* ---- UPLOAD ZONE ---- */
         .upload-zone {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 36px 24px;
+            border: 2px dashed #d0d0d0;
+            border-radius: 12px;
+            padding: 40px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             background: #FAFAFA;
         }
-        .upload-zone:hover { border-color: #B21E24; background: #fef6f6; }
-        .upload-zone .upload-icon { font-size: 2.2em; color: #ccc; margin-bottom: 8px; }
-        .upload-zone .upload-title { font-size: 0.95em; font-weight: 600; color: #1a1a1a; }
-        .upload-zone .upload-sub { font-size: 0.82em; color: #888; margin-top: 4px; }
-        .upload-zone .upload-formats { font-size: 0.8em; color: #B21E24; font-weight: 500; margin-top: 10px; }
+        .upload-zone:hover {
+            border-color: #B21E24;
+            background: #fef6f6;
+        }
+        .upload-zone .upload-icon { font-size: 2.4em; margin-bottom: 10px; opacity: 0.35; }
+        .upload-zone .upload-title { font-size: 0.95em; font-weight: 700; color: #333; }
+        .upload-zone .upload-sub { font-size: 0.82em; color: #aaa; margin-top: 4px; }
+        .upload-zone .upload-formats {
+            display: inline-block;
+            font-size: 0.75em;
+            color: #B21E24;
+            font-weight: 600;
+            margin-top: 12px;
+            background: #fef6f6;
+            padding: 4px 12px;
+            border-radius: 4px;
+            letter-spacing: 0.02em;
+        }
 
-        /* -- Buttons -- */
+        /* ---- SECTION DIVIDER ---- */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 8px 0 28px;
+        }
+
+        /* ---- BUTTONS ---- */
         .form-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px 28px;
+            padding: 24px 44px 32px;
+            background: #FAFAFA;
             border-top: 1px solid #F0F0F0;
         }
         .btn-back {
-            font-size: 0.85em; font-weight: 600; color: #999; background: none;
-            border: 1px solid #E0E0E0; border-radius: 4px; padding: 12px 24px;
+            font-size: 0.82em; font-weight: 600; color: #888; background: #fff;
+            border: 1.5px solid #ddd; border-radius: 8px; padding: 13px 28px;
             cursor: pointer; font-family: 'Inter', sans-serif;
-            text-transform: uppercase; letter-spacing: 0.06em; transition: all 0.2s;
+            letter-spacing: 0.04em; transition: all 0.2s;
         }
-        .btn-back:hover { color: #111; border-color: #111; }
+        .btn-back:hover { color: #333; border-color: #999; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
         .btn-next {
-            font-size: 0.85em; font-weight: 700; color: #fff; background: #B21E24;
-            border: none; border-radius: 4px; padding: 14px 40px;
+            font-size: 0.85em; font-weight: 700; color: #fff;
+            background: linear-gradient(135deg, #B21E24, #c92a30);
+            border: none; border-radius: 8px; padding: 14px 44px;
             cursor: pointer; font-family: 'Inter', sans-serif;
-            text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s;
+            letter-spacing: 0.06em; transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(178,30,36,0.2);
         }
-        .btn-next:hover { background: #8B1519; }
+        .btn-next:hover { background: linear-gradient(135deg, #8B1519, #a51d22); box-shadow: 0 4px 12px rgba(178,30,36,0.3); transform: translateY(-1px); }
         .btn-submit {
-            font-size: 0.85em; font-weight: 700; color: #fff; background: #16a34a;
-            border: none; border-radius: 4px; padding: 14px 48px;
+            font-size: 0.85em; font-weight: 700; color: #fff;
+            background: linear-gradient(135deg, #16a34a, #1db954);
+            border: none; border-radius: 8px; padding: 14px 48px;
             cursor: pointer; font-family: 'Inter', sans-serif;
-            text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s;
+            letter-spacing: 0.06em; transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(22,163,74,0.25);
         }
-        .btn-submit:hover { background: #15803d; }
+        .btn-submit:hover { background: linear-gradient(135deg, #15803d, #16a34a); box-shadow: 0 4px 12px rgba(22,163,74,0.35); transform: translateY(-1px); }
 
-        /* -- Trust Bar -- */
+        /* ---- TRUST BAR ---- */
         .trust-bar {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 24px;
-            padding: 16px 24px;
-            background: #F8F8F8;
+            gap: 28px;
+            padding: 18px 24px;
+            background: #F5F5F5;
             border-top: 1px solid #eee;
             flex-wrap: wrap;
         }
         .trust-item {
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 0.75em;
-            font-weight: 500;
-            color: #777;
+            gap: 6px;
+            font-size: 0.72em;
+            font-weight: 600;
+            color: #999;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
         }
-        .trust-item .t-icon { font-size: 1.2em; }
+        .trust-item .t-icon { font-size: 1.2em; opacity: 0.6; }
 
-        /* -- Reassurance Box -- */
+        /* ---- REASSURANCE ---- */
         .reassurance {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 6px;
-            padding: 16px 20px;
-            margin-top: 8px;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            border: 1.5px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 18px 22px;
+            margin-top: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
         }
+        .reassurance .r-icon { font-size: 1.2em; flex-shrink: 0; margin-top: 1px; }
         .reassurance p {
-            font-size: 0.85em;
+            font-size: 0.88em;
             color: #166534;
             margin: 0;
             font-weight: 500;
+            line-height: 1.5;
         }
 
-        /* -- Steps (hide/show) -- */
+        /* ---- STEPS ---- */
         .form-step { display: none; }
-        .form-step.active { display: block; }
+        .form-step.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* -- Mobile -- */
+        /* ---- MOBILE ---- */
         @media (max-width: 640px) {
             body { padding: 16px; align-items: flex-start; }
-            .form-header { padding: 20px 20px; }
-            .form-body { padding: 28px 20px 20px; }
-            .form-actions { padding: 16px 20px 24px; }
-            .field-row { grid-template-columns: 1fr; }
+            .form-wrapper { border-radius: 10px; }
+            .form-header { padding: 24px 24px; }
+            .form-header h1 { font-size: 1.05em; }
+            .form-body { padding: 32px 24px 24px; }
+            .form-actions { padding: 20px 24px 28px; }
+            .field-row { grid-template-columns: 1fr; gap: 0; }
             .option-cards { grid-template-columns: 1fr; }
-            .form-progress .step { padding: 12px 4px; font-size: 0.7em; }
-            .form-progress .step .step-num { width: 22px; height: 22px; font-size: 0.8em; }
+            .form-progress .step { padding: 14px 4px; font-size: 0.65em; }
+            .form-progress .step .step-num { width: 24px; height: 24px; font-size: 0.8em; }
+            .btn-next, .btn-submit { padding: 14px 28px; }
         }
     </style>
 </head>
@@ -331,6 +411,8 @@
                 <div class="helper">Not sure? Select the closest match -- our engineers will confirm during review.</div>
             </div>
 
+            <div class="section-divider"></div>
+
             <div class="field-group">
                 <label>Main Reason for Requesting a Quote <span class="req">*</span></label>
                 <div class="option-cards">
@@ -356,6 +438,8 @@
                     </div>
                 </div>
             </div>
+
+            <div class="section-divider"></div>
 
             <div class="field-row">
                 <div class="field-group">
@@ -394,6 +478,8 @@
                 <div class="helper">The more detail you provide, the more accurate our estimate. Don't worry if you don't have everything.</div>
             </div>
 
+            <div class="section-divider"></div>
+
             <div class="field-group">
                 <label>Upload Drawings or Documents</label>
                 <div class="upload-zone">
@@ -404,6 +490,8 @@
                 </div>
                 <div class="helper">CAD drawings, spec sheets, photos of existing parts -- anything that helps.</div>
             </div>
+
+            <div class="section-divider"></div>
 
             <div class="field-group">
                 <label>Current Country of Production</label>
@@ -449,6 +537,8 @@
                 </div>
                 <div class="helper">No preference? That's fine -- we'll recommend the best fit.</div>
             </div>
+
+            <div class="section-divider"></div>
 
             <div class="field-group">
                 <label>Experience with Overseas Manufacturing</label>
@@ -511,7 +601,8 @@
             </div>
 
             <div class="reassurance">
-                <p>&#9989; An engineer will review your project and respond within 1 business day. All submissions are protected under NDA.</p>
+                <span class="r-icon">&#9989;</span>
+                <p>An engineer will review your project and respond within 1 business day. All submissions are protected under NDA.</p>
             </div>
         </div>
         <div class="form-actions">

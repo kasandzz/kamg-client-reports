@@ -19,7 +19,7 @@ const Shell = (() => {
       { page: 'ads-meta',      icon: '&#128227;', label: 'Meta Ads' },
       { page: 'ads-google',    icon: '&#128270;', label: 'Google Ads', dimmed: true },
       { page: 'cold-email',    icon: '&#9993;&#65039;', label: 'Cold Email' },
-      { page: 'hyros',         icon: '&#128269;', label: 'Hyros' },
+      { page: 'hyros',         icon: '&#128269;', label: 'Hyros', dimmed: true },
     ]},
     { section: 'CONVERSION', items: [
       { page: 'funnels',       icon: '&#127744;', label: '$27 Workshop' },
@@ -36,10 +36,10 @@ const Shell = (() => {
       { page: 'competitors',   icon: '&#9876;&#65039;', label: 'Competitors', dimmed: true },
     ]},
     { section: 'OPERATIONS', items: [
-      { page: 'sales-team',    icon: '&#128101;', label: 'Sales Team' },
-      { page: 'churn',         icon: '&#128200;', label: 'Churn' },
-      { page: 'worklists',     icon: '&#128203;', label: 'Worklists' },
-      { page: 'geo-intel',     icon: '&#127760;', label: 'Geo Intel' },
+      { page: 'sales-team',    icon: '&#128101;', label: 'Sales Team', dimmed: true },
+      { page: 'churn',         icon: '&#128200;', label: 'Churn', dimmed: true },
+      { page: 'worklists',     icon: '&#128203;', label: 'Worklists', dimmed: true },
+      { page: 'geo-intel',     icon: '&#127760;', label: 'Geo Intel', dimmed: true },
       { page: 'email-deliverability', icon: '&#128232;', label: 'Email Deliverability', dimmed: true },
     ]},
     { section: 'COMING SOON', sectionStyle: 'opacity:0.4', items: [

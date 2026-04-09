@@ -1246,31 +1246,34 @@ var weekendHolidayPlugin = {
 };
 
 // ---- Mock Data ----
+// Data aligned with BQ (Hyros since Mar 10 2026 + War Room KPIs)
+// Current: 452 tickets, 208 calls booked, 16 enrollments, $79.7K rev, $216K spend
+// Previous: 295 calls, 29 enrollments, $190K rev, $231K spend
 var MOCK_DATA = {
   periods: {
     current: {
-      show_rate: 61.1,
-      vip_upgrade_rate: 49.4,
-      completion_rate_full: 62,
-      completion_rate_partial: 24,
-      completion_rate_bounced: 14,
-      booking_pct: 32.1,
-      total_sessions: 121,
-      total_attendees: 1847,
-      vip_attendees: 912,
-      standard_attendees: 935
+      show_rate: 58.3,
+      vip_upgrade_rate: 38.7,
+      completion_rate_full: 57,
+      completion_rate_partial: 26,
+      completion_rate_bounced: 17,
+      booking_pct: 46.0,
+      total_sessions: 90,
+      total_attendees: 452,
+      vip_attendees: 175,
+      standard_attendees: 277
     },
     previous: {
-      show_rate: 55.2,
-      vip_upgrade_rate: 24.9,
-      completion_rate_full: 54,
-      completion_rate_partial: 28,
-      completion_rate_bounced: 18,
-      booking_pct: 28.4,
-      total_sessions: 98,
-      total_attendees: 1420,
-      vip_attendees: 354,
-      standard_attendees: 1066
+      show_rate: 62.1,
+      vip_upgrade_rate: 41.2,
+      completion_rate_full: 61,
+      completion_rate_partial: 24,
+      completion_rate_bounced: 15,
+      booking_pct: 50.2,
+      total_sessions: 96,
+      total_attendees: 628,
+      vip_attendees: 258,
+      standard_attendees: 370
     }
   },
   session_data: [],

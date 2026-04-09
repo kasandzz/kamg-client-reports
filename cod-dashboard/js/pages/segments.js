@@ -7,19 +7,21 @@ App.registerPage('segments', async (container) => {
 
   container.innerHTML = '';
 
-  // ---- Segment data (from Hyros API full pull: 531 calls, 628 sales, 641 leads) ----
+  // ---- Segment data (Hyros attribution since Mar 10 2026 + Meta spend since Mar 10) ----
+  // Source: BQ hyros_sales by source, classified by niche. Bookings from hyros_calls.
+  // Spend: Meta campaigns by niche (CBO niche-specific + ABO Cold split proportionally by sales volume)
+  // ABO Cold ($137K) split: Therapists 35%, Coaches 25%, Attorneys 11%, Educators 6%, Other 23% (by Hyros sales share)
   const SEGMENTS = [
-    { name: 'Therapists',           color: '#3b82f6', calls: 152, showRate: 90.1, sales: 219, leads: 172, costCall: 683,  costSale: 474,  slRatio: 1.27, adSets: ['Broad + CBO Licensed Therapists (147)', '0.1 LLA Stack 01 - Licensed Therapists Counselors (142)', '01. Broad + - Licensed Therapists Counselors (99)', '03. Broad - Therapists 3065 (59)', 'Broad + - Psychologist PsyD / PhD (32)'] },
-    { name: 'Coaches & Consultants', color: '#a855f7', calls: 72,  showRate: 93.1, sales: 113, leads: 58,  costCall: 949,  costSale: 605,  slRatio: 1.95, adSets: ['Main Interest Stack - FB - Coaches Consultants Experts (56)', '02. Broad - Coaches Consultants WITH CASH MONEY (29)', '03. Broad - Coaches Consultants - Video (25)', 'LLA Stack - FB - Coaches Consultants Experts (24)', 'Interest Stack Main - CBO Coaches Consultants (23)'] },
-    { name: 'Attorneys',            color: '#06b6d4', calls: 53,  showRate: 88.7, sales: 64,  leads: 57,  costCall: 797,  costSale: 660,  slRatio: 1.12, adSets: ['Broad + - Attorney / Financial Advisor 1 Facebook (72)', 'LLA Stack - Attorney / Financial Advisor 2 (42)', 'Broad + - Attorney / Financial Advisor 022726 (14)', 'Fb. Broad - Attorney Only (10)', 'Broad + 3564 - Attorney 3 (9)'] },
-    { name: 'Educators',            color: '#f97316', calls: 18,  showRate: 88.9, sales: 32,  leads: 43,  costCall: 1446, costSale: 813,  slRatio: 0.74, adSets: ['Broad + - Educator / Teacher / Academic Professional (52)', 'FB. 3064 Broad - Educator / Teacher (34)', 'FB. 3564 Broad - Educator / Teacher (7)'] },
-    { name: 'Health Coaches',       color: '#ec4899', calls: 5,   showRate: 60.0, sales: 17,  leads: 16,  costCall: 1721, costSale: 506,  slRatio: 1.06, lowSample: true, adSets: ['Fb. Broad 3064 - Health & Wellness Coaches (24)', 'Broad + - Health & Wellness Coaches (5)', 'Fb. Broad - Health & Wellness Coaches 3 (5)', 'Broad + - Health & Wellness Coaches 2 (3)'] },
-    { name: 'Healthcare Providers', color: '#14b8a6', calls: 20,  showRate: 95.0, sales: 37,  leads: 27,  costCall: null, costSale: null, slRatio: 1.37, adSets: ['01. Broad + - Other Licensed Healthcare Provider (35)', 'Broad + - Physician / DO / NP (34)', 'Other Licensed Healthcare Provider 2 (9)', 'LLA Stack - Other Licensed Healthcare Provider (6)'] },
+    { name: 'Therapists',            color: '#3b82f6', calls: 73,  showRate: 91.2, sales: 160, tickets: 157, enrollments: 3, revenue: 22833, bookings: 73, costCall: 1126, costSale: 515,  slRatio: 1.02, adSets: ['Broad + CBO Licensed Therapists (111)', '03. Broad - Therapists 3065 (16)', '0.1 LLA Stack 01 - Licensed Therapists (13)', 'FB. Broad - Therapists 3564 (8)', 'LLA Stack 01 - Licensed Therapists - Copy (6)', '01. Broad + - Licensed Therapists (6)'] },
+    { name: 'Coaches & Consultants', color: '#a855f7', calls: 57,  showRate: 92.8, sales: 115, tickets: 111, enrollments: 4, revenue: 39618, bookings: 57, costCall: 877,  costSale: 435,  slRatio: 1.04, adSets: ['Main Interest Stack - FB - Coaches (31)', 'Interest Stack Main - CBO Coaches (35)', 'LLA Stack - FB - Coaches (22)', '03. Broad - Coaches - Video (10)', '01. Broad - Coaches - Video Ad 6 (9)', '02. Broad - Coaches WITH CASH MONEY (8)'] },
+    { name: 'Attorneys',             color: '#06b6d4', calls: 9,   showRate: 88.9, sales: 51,  tickets: 50, enrollments: 1, revenue: 10566, bookings: 9,  costCall: 1673, costSale: 295,  slRatio: 0.18, adSets: ['Broad + - Attorney / Financial Advisor 1 (35)', 'Fb. Broad - Attorney Only (11)', 'Fb. Broad - Attorney Only v2 (5)'] },
+    { name: 'Educators',             color: '#f97316', calls: 0,   showRate: null, sales: 28,  tickets: 26, enrollments: 2, revenue: 12972, bookings: 0,  costCall: null, costSale: 329,  slRatio: null, adSets: ['FB. 3064 Broad - Educator / Teacher (16)', 'Broad + - Educator / Teacher (7)', 'FB. 3564 Broad - Educator / Teacher (5)'] },
+    { name: 'Health & Wellness',     color: '#ec4899', calls: 0,   showRate: null, sales: 11,  tickets: 11, enrollments: 0, revenue: 297,   bookings: 0,  costCall: null, costSale: null, slRatio: null, lowSample: true, adSets: ['Fb. Broad 3064 - Health & Wellness Coaches (11)'] },
   ];
 
-  const UNATTR = { name: 'Unattributed', color: '#64748b', calls: 194, sales: 130, leads: 252 };
+  const UNATTR = { name: 'Unattributed / Other', color: '#64748b', calls: 69, sales: 87, leads: 87 };
 
-  const totalCalls = 531, totalSales = 628, totalLeads = 641;
+  const totalCalls = 208, totalSales = 452, totalLeads = 452;
 
   const T = Theme.COLORS;
   const money = Theme.money;

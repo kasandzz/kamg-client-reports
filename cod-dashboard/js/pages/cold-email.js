@@ -103,10 +103,13 @@ App.registerPage('cold-email', async (container) => {
     const JUNK_PATTERNS = /mailer-daemon|postmaster|noreply|no-reply|dmarc|abuse@|^google$|^microsoft$|autoresponder/i;
     const NEG_PATTERNS = /^no[.,!\s]|^no$|^pass|^not at this time|^no thanks|^no thank|^nope|^sorry.{0,20}not|please remove|unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/im;
     const OOO_PATTERNS = /out of (the )?office|on vacation|on leave|away from|auto.?reply|automatic reply/i;
+    // Manual exclusions (contacts that should never appear in Reply Tracker)
+    const EXCLUDED_CONTACTS = ['vanessa doran'];
     const replyFiltered = (replyData || []).filter(r => {
       if (r.is_automated || r.reply_type === 'Bounced') return false;
       const email = (r.from_email || '').toLowerCase();
       const name = (r.from_name || '').toLowerCase();
+      if (EXCLUDED_CONTACTS.some(ex => name.includes(ex))) return false;
       if (JUNK_PATTERNS.test(email) || JUNK_PATTERNS.test(name)) return false;
       if ((r.text_body || '').toLowerCase().includes('dmarc aggregate report')) return false;
       if (name === 'dmarc aggregate report') return false;

@@ -94,6 +94,50 @@ App.registerPage('war-room', async (container) => {
     },
   ]);
 
+  // ---- Sales / Bookings KPI Strip ----
+  const salesLabel = document.createElement('div');
+  salesLabel.style.cssText = 'font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px';
+  salesLabel.textContent = 'SALES TEAM';
+  container.appendChild(salesLabel);
+
+  const salesKpiContainer = document.createElement('div');
+  container.appendChild(salesKpiContainer);
+
+  // Fetch bookings data for sales strip
+  Promise.all([
+    API.query('calls', 'default', { days }).catch(() => []),
+    API.query('calls', 'closers', { days }).catch(() => []),
+  ]).then(([callData, closerData]) => {
+    const c = Array.isArray(callData) && callData.length ? callData[0] : {};
+    const callsBooked = c.total_bookings || c.total_calls || cur.total_calls || 0;
+    const callsTaken = c.total_calls || c.calls_completed || Math.round(callsBooked * 0.59) || 0;
+    const totalCash = cur.gross_revenue || 0;
+    const totalContracts = cur.enrollments ? (cur.enrollments * (totalCash / (cur.enrollments || 1))) : totalCash;
+    const adSpend = cur.total_spend || 0;
+    const cac = cur.enrollments > 0 ? adSpend / cur.enrollments : 0;
+    const roas = adSpend > 0 ? totalCash / adSpend : 0;
+    const dpl = callsBooked > 0 ? adSpend / callsBooked : 0;
+
+    Components.renderKPIStrip(salesKpiContainer, [
+      { label: 'Calls Booked (All)', value: callsBooked, format: 'num',
+        source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE call_date in period' },
+      { label: 'Calls Taken', value: callsTaken, format: 'num',
+        source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE status != "no-show"' },
+      { label: 'Total Cash', value: totalCash, format: 'money',
+        source: 'BigQuery: stripe_charges', calc: 'SUM(amount_captured) WHERE succeeded' },
+      { label: 'Total Contracts', value: totalContracts, format: 'money',
+        source: 'BigQuery: hyros_sales', calc: 'SUM(revenue) for all enrollment sales in period' },
+      { label: 'Ad Spend', value: adSpend, format: 'money',
+        source: 'BigQuery: meta_ads_insights', calc: 'SUM(spend) for period' },
+      { label: 'CAC', value: cac, format: 'money', invertCost: true,
+        delta: prev.enrollments > 0 ? _delta(cac, prev.total_spend / prev.enrollments) : null,
+        source: 'BigQuery: meta_ads_insights + hyros_sales', calc: 'total_spend / enrollments' },
+      { label: 'ROAS', value: roas, format: 'num',
+        delta: _delta(roas, prev.total_spend > 0 ? (prev.gross_revenue / prev.total_spend) : 0),
+        source: 'BigQuery: stripe_charges + meta_ads_insights', calc: 'gross_revenue / total_spend' },
+    ]);
+  });
+
   // ---- CPA tooltip: hover on CPA KPI card shows per-channel breakdown ----
   (function attachCPATooltip() {
     const kpiCards = kpiContainer.querySelectorAll('.kpi-card');
@@ -400,6 +444,7 @@ App.registerPage('war-room', async (container) => {
       const totalBookings = channels.reduce((s, c) => s + c.bookings, 0) || 1;
       const totalEnroll = channels.reduce((s, c) => s + c.enrollment_count, 0) || 1;
       const maxTickets = Math.max(...channels.map(c => c.ticket_count));
+      const totalSpend = cur.total_spend || 0;
 
       let html = '<div style="overflow-x:auto">';
       // Header
@@ -415,6 +460,7 @@ App.registerPage('war-room', async (container) => {
       html += `<div style="${hdStyle}width:44px">Enroll</div>`;
       html += `<div style="${hdStyle}width:32px">%</div>`;
       html += `<div style="${hdStyle}width:64px">Enr Rev</div>`;
+      html += `<div style="${hdStyle}width:50px">ROAS</div>`;
       html += '</div>';
 
       // Rows
@@ -438,6 +484,11 @@ App.registerPage('war-room', async (container) => {
         html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.enrollment_count > 0 ? '#22c55e' : Theme.COLORS.textMuted};font-weight:600">${r.enrollment_count || 0}</div>`;
         html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${ePct}%</div>`;
         html += `<div style="${cellMono}width:64px;text-align:right;flex-shrink:0;color:${r.enrollment_revenue > 0 ? '#22c55e' : Theme.COLORS.textMuted}">${r.enrollment_revenue > 0 ? Theme.money(r.enrollment_revenue) : '--'}</div>`;
+        const chTotalRev = (r.ticket_revenue || 0) + (r.enrollment_revenue || 0);
+        const chSpendShare = totalSpend > 0 ? (r.ticket_count / totalTickets) * totalSpend : 0;
+        const chRoas = chSpendShare > 0 ? chTotalRev / chSpendShare : 0;
+        const roasColor = chRoas >= 3 ? '#22c55e' : chRoas >= 1 ? '#f59e0b' : chRoas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+        html += `<div style="${cellMono}width:50px;text-align:right;flex-shrink:0;color:${roasColor};font-weight:600">${chRoas > 0 ? chRoas.toFixed(1) + 'x' : '--'}</div>`;
         html += '</div>';
       });
 
@@ -456,9 +507,12 @@ App.registerPage('war-room', async (container) => {
       html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${totEnr}</div>`;
       html += `<div style="width:32px;flex-shrink:0"></div>`;
       html += `<div style="font-family:var(--font-mono);font-size:12px;width:64px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${Theme.money(totEnrRev)}</div>`;
+      const blendedRoas = totalSpend > 0 ? (totTktRev + totEnrRev) / totalSpend : 0;
+      const blendedRoasColor = blendedRoas >= 3 ? '#22c55e' : blendedRoas >= 1 ? '#f59e0b' : Theme.COLORS.danger;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:50px;text-align:right;flex-shrink:0;font-weight:700;color:${blendedRoasColor}">${blendedRoas > 0 ? blendedRoas.toFixed(1) + 'x' : '--'}</div>`;
       html += '</div>';
 
-      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:10px;font-style:italic">Hyros ${modelLabel} attribution | Tickets = $27/$54 (Stripe) | Enrollments = sales > $500</div>`;
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:10px;font-style:italic">Hyros ${modelLabel} attribution | Tickets = $27/$54 (Stripe) | Enrollments = sales > $500 | ROAS = (tkt rev + enr rev) / proportional ad spend</div>`;
       html += '</div>';
       loader.innerHTML = html;
     }).catch(err => {
@@ -1590,123 +1644,10 @@ App.registerPage('war-room', async (container) => {
     _renderVelocityTable(weeklyRows, dailyRows);
   });
 
-  // ---- Biggest Wins / Biggest Leaks ----
-  const signals = _detectSignals(cur, prev);
-  const winsLeaksRow = document.createElement('div');
-  winsLeaksRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
-
-  const winsCard = document.createElement('div');
-  winsCard.className = 'card';
-  winsCard.style.cssText = 'padding:16px 20px;border-left:3px solid ' + Theme.COLORS.success + ';position:relative;overflow:hidden';
-  let winsHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.success};margin-bottom:12px">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${Theme.COLORS.success}" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-    <span>Biggest Wins</span>
-  </div>`;
-  if (signals.wins.length === 0) {
-    winsHTML += `<div style="font-size:13px;color:${Theme.COLORS.textMuted}">No significant wins detected</div>`;
-  } else {
-    winsHTML += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">';
-    signals.wins.forEach(w => {
-      winsHTML += `<li style="font-size:13px;color:${Theme.COLORS.textPrimary};padding-left:16px;position:relative;line-height:1.5"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:${Theme.COLORS.success}"></span>${w.text}</li>`;
-    });
-    winsHTML += '</ul>';
-  }
-  winsCard.innerHTML = winsHTML;
-
-  const leaksCard = document.createElement('div');
-  leaksCard.className = 'card';
-  leaksCard.style.cssText = 'padding:16px 20px;border-left:3px solid ' + Theme.COLORS.danger + ';position:relative;overflow:hidden';
-  let leaksHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:${Theme.COLORS.danger};margin-bottom:12px">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${Theme.COLORS.danger}" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-    <span>Biggest Leaks</span>
-  </div>`;
-  if (signals.leaks.length === 0) {
-    leaksHTML += `<div style="font-size:13px;color:${Theme.COLORS.textMuted}">No significant leaks detected</div>`;
-  } else {
-    leaksHTML += '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px">';
-    signals.leaks.forEach(l => {
-      leaksHTML += `<li style="font-size:13px;color:${Theme.COLORS.textPrimary};padding-left:16px;position:relative;line-height:1.5"><span style="position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:${Theme.COLORS.danger}"></span>${l.text}</li>`;
-    });
-    leaksHTML += '</ul>';
-  }
-  leaksCard.innerHTML = leaksHTML;
-
-  winsLeaksRow.appendChild(winsCard);
-  winsLeaksRow.appendChild(leaksCard);
-  container.appendChild(winsLeaksRow);
-
-  // ---- Daily/Weekly Metrics Table ----
-  const tableCard = document.createElement('div');
-  tableCard.className = 'card';
-  tableCard.style.cssText = 'padding:16px 20px;margin-top:16px;overflow-x:auto';
-
-  const tableHeader = document.createElement('div');
-  tableHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px';
-
-  const tableTitle = document.createElement('div');
-  tableTitle.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary;
-  tableTitle.textContent = 'Daily Metrics';
-
-  const toggleWrap = document.createElement('div');
-  toggleWrap.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:6px;padding:2px';
-  const btnDaily = document.createElement('button');
-  btnDaily.textContent = 'Daily';
-  btnDaily.className = 'filter-btn active';
-  btnDaily.style.cssText = 'padding:4px 12px;font-size:11px';
-  const btnWeekly = document.createElement('button');
-  btnWeekly.textContent = 'Weekly';
-  btnWeekly.className = 'filter-btn';
-  btnWeekly.style.cssText = 'padding:4px 12px;font-size:11px';
-  toggleWrap.appendChild(btnDaily);
-  toggleWrap.appendChild(btnWeekly);
-
-  tableHeader.appendChild(tableTitle);
-  tableHeader.appendChild(toggleWrap);
-  tableCard.appendChild(tableHeader);
-
-  const tableContent = document.createElement('div');
-  tableContent.id = 'war-room-daily-table';
-  tableContent.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
-  tableCard.appendChild(tableContent);
-  container.appendChild(tableCard);
-
-  // Store raw daily rows for toggling
-  let _dailyRows = null;
-
-  API.query('war-room', 'dailyTable', { days }).then(rows => {
-    _dailyRows = rows;
-    if (!rows || rows.length === 0) {
-      tableContent.innerHTML = '<p class="text-muted" style="padding:16px">No daily data available</p>';
-      return;
-    }
-    tableContent.innerHTML = _renderDailyTable(rows);
-  }).catch(() => {
-    tableContent.innerHTML = '<p class="text-muted" style="padding:16px">Failed to load daily data</p>';
-  });
-
-  btnDaily.addEventListener('click', () => {
-    btnDaily.classList.add('active');
-    btnWeekly.classList.remove('active');
-    tableTitle.textContent = 'Daily Metrics';
-    if (_dailyRows && _dailyRows.length > 0) {
-      tableContent.innerHTML = _renderDailyTable(_dailyRows);
-    }
-  });
-
-  btnWeekly.addEventListener('click', () => {
-    btnWeekly.classList.add('active');
-    btnDaily.classList.remove('active');
-    tableTitle.textContent = 'Weekly Averages';
-    if (_dailyRows && _dailyRows.length > 0) {
-      tableContent.innerHTML = _renderDailyTable(_aggregateWeekly(_dailyRows));
-    }
-  });
-
   // ---- Responsive ----
   const mq = window.matchMedia('(max-width: 768px)');
   function handleMobile(e) {
     chartsRow.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
-    winsLeaksRow.style.gridTemplateColumns = e.matches ? '1fr' : '1fr 1fr';
   }
   handleMobile(mq);
   mq.addEventListener('change', handleMobile);

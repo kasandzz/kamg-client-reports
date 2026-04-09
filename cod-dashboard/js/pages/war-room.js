@@ -340,86 +340,117 @@ App.registerPage('war-room', async (container) => {
   attribBar.appendChild(attribToggle);
   container.appendChild(attribBar);
 
-  // ---- Create 3 channel cards ----
-  const dealsCard = _card('Workshop Ticket Sales by Channel');
-  const enrollCard = _card('Enrollments by Channel');
-  const bookingsCard = _card('Bookings by Channel');
+  // ---- Unified Channel Performance Card ----
+  const channelCard = _card('Channel Performance');
 
-  function _setCardLoading(card) {
-    const existing = card.querySelector('.wr-ch-header');
-    const existingBody = card.querySelector('.wr-ch-body');
+  function _loadChannelCards(model) {
+    const existing = channelCard.querySelector('.wr-ch-body');
     if (existing) existing.remove();
-    if (existingBody) existingBody.remove();
     const loader = document.createElement('div');
     loader.className = 'wr-ch-body';
     loader.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
-    card.appendChild(loader);
-  }
+    channelCard.appendChild(loader);
 
-  function _loadChannelCards(model) {
-    _setCardLoading(dealsCard);
-    _setCardLoading(enrollCard);
-    _setCardLoading(bookingsCard);
     const modelLabel = model === 'first' ? 'first-click' : model === 'last' ? 'last-click' : 'scientific (50/50)';
 
-    // Try new attrib query, fall back to old sources
     const salesPromise = API.query('hyros', 'sourcesAttrib', { days, model }).catch(() =>
       API.query('hyros', 'sources', { days })
     );
     const bookingsPromise = API.query('hyros', 'bookings', { days, model }).catch(() => []);
 
     Promise.all([salesPromise, bookingsPromise]).then(([salesRows, bookingRows]) => {
-      // Sales channels (tickets + enrollments)
-      if (!salesRows || salesRows.length === 0) {
-        [dealsCard, enrollCard].forEach(c => {
-          const body = c.querySelector('.wr-ch-body');
-          if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data</p>`;
-        });
-      } else {
-        const channels = _buildChannelData(salesRows);
-        _renderChannelChart(dealsCard, channels, {
-          countKey: 'ticket_count', revKey: 'ticket_revenue', defaultSort: 'ticket_count',
-          revColor: '#6366f1', countLabel: 'tickets',
-          footnote: `Hyros ${modelLabel} attribution | Tickets = $27 & $54 (Stripe)`,
-          cols: [
-            { key: 'ticket_count', label: 'Tickets', w: '36px' },
-            { key: '_pct', label: '%', w: '36px' },
-            { key: 'ticket_revenue', label: 'Revenue', w: '64px' },
-          ],
-        });
-        _renderChannelChart(enrollCard, channels, {
-          countKey: 'enrollment_count', revKey: 'enrollment_revenue', defaultSort: 'enrollment_revenue',
-          revColor: Theme.COLORS.success, countLabel: 'enrollments',
-          footnote: `Hyros ${modelLabel} attribution | Enrollments = sales > $500`,
-          cols: [
-            { key: 'enrollment_count', label: 'Enrolled', w: '36px' },
-            { key: '_pct', label: '%', w: '36px' },
-            { key: 'enrollment_revenue', label: 'Revenue', w: '64px' },
-          ],
-        });
+      // Merge all data by channel
+      const channelMap = {};
+      (salesRows || []).forEach(r => {
+        const ch = _classifyChannel(r.source);
+        if (!channelMap[ch]) channelMap[ch] = { channel: ch, ticket_count: 0, ticket_revenue: 0, enrollment_count: 0, enrollment_revenue: 0, bookings: 0 };
+        channelMap[ch].ticket_count += (r.ticket_count || 0);
+        channelMap[ch].ticket_revenue += (r.ticket_revenue || 0);
+        channelMap[ch].enrollment_count += (r.enrollment_count || 0);
+        channelMap[ch].enrollment_revenue += (r.enrollment_revenue || 0);
+      });
+      (bookingRows || []).forEach(r => {
+        const ch = _classifyChannel(r.source);
+        if (!channelMap[ch]) channelMap[ch] = { channel: ch, ticket_count: 0, ticket_revenue: 0, enrollment_count: 0, enrollment_revenue: 0, bookings: 0 };
+        channelMap[ch].bookings += (r.bookings || 0);
+      });
+
+      const channels = Object.values(channelMap).filter(c => c.ticket_count > 0 || c.bookings > 0 || c.enrollment_count > 0);
+      if (channels.length === 0) {
+        loader.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No channel data</p>`;
+        return;
       }
 
-      // Bookings
-      if (!bookingRows || bookingRows.length === 0) {
-        const body = bookingsCard.querySelector('.wr-ch-body');
-        if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No booking data</p>`;
-      } else {
-        const bChannels = _buildBookingChannelData(bookingRows);
-        _renderChannelChart(bookingsCard, bChannels, {
-          countKey: 'bookings', revKey: null, defaultSort: 'bookings',
-          revColor: null, countLabel: 'bookings',
-          footnote: `Hyros ${modelLabel} attribution | Call bookings`,
-          cols: [
-            { key: 'bookings', label: 'Bookings', w: '36px' },
-            { key: '_pct', label: '%', w: '36px' },
-          ],
-        });
-      }
-    }).catch(err => {
-      [dealsCard, enrollCard, bookingsCard].forEach(c => {
-        const body = c.querySelector('.wr-ch-body');
-        if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed: ${err.message}</p>`;
+      // Sort by ticket_count descending
+      channels.sort((a, b) => b.ticket_count - a.ticket_count);
+
+      const totalTickets = channels.reduce((s, c) => s + c.ticket_count, 0) || 1;
+      const totalBookings = channels.reduce((s, c) => s + c.bookings, 0) || 1;
+      const totalEnroll = channels.reduce((s, c) => s + c.enrollment_count, 0) || 1;
+      const maxTickets = Math.max(...channels.map(c => c.ticket_count));
+
+      let html = '<div style="overflow-x:auto">';
+      // Header
+      html += '<div style="display:flex;align-items:center;gap:0;padding:0 0 8px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px">';
+      html += '<div style="width:110px;flex-shrink:0"></div>';
+      html += '<div style="flex:1;min-width:80px"></div>';
+      const hdStyle = 'font-size:9px;font-weight:700;color:' + Theme.COLORS.textMuted + ';text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;';
+      html += `<div style="${hdStyle}width:44px">Tickets</div>`;
+      html += `<div style="${hdStyle}width:32px">%</div>`;
+      html += `<div style="${hdStyle}width:60px">Tkt Rev</div>`;
+      html += `<div style="${hdStyle}width:44px">Books</div>`;
+      html += `<div style="${hdStyle}width:32px">%</div>`;
+      html += `<div style="${hdStyle}width:44px">Enroll</div>`;
+      html += `<div style="${hdStyle}width:32px">%</div>`;
+      html += `<div style="${hdStyle}width:64px">Enr Rev</div>`;
+      html += '</div>';
+
+      // Rows
+      channels.forEach(r => {
+        const color = _channelColors[r.channel] || '#6366f1';
+        const barW = maxTickets > 0 ? ((r.ticket_count / maxTickets) * 100) : 0;
+        const tPct = ((r.ticket_count / totalTickets) * 100).toFixed(0);
+        const bPct = r.bookings > 0 ? ((r.bookings / totalBookings) * 100).toFixed(0) : '0';
+        const ePct = r.enrollment_count > 0 ? ((r.enrollment_count / totalEnroll) * 100).toFixed(0) : '0';
+        const cellMono = 'font-family:var(--font-mono);font-size:12px;';
+        const mutedCell = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';';
+
+        html += `<div style="display:flex;align-items:center;gap:0;margin-bottom:8px">`;
+        html += `<div style="width:110px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px" title="${r.channel}">${r.channel}</div>`;
+        html += `<div style="flex:1;min-width:80px;height:22px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barW}%;background:${color};border-radius:4px;min-width:2px"></div></div>`;
+        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${Theme.COLORS.textPrimary};font-weight:500">${r.ticket_count}</div>`;
+        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${tPct}%</div>`;
+        html += `<div style="${cellMono}width:60px;text-align:right;flex-shrink:0;color:#6366f1">${Theme.money(r.ticket_revenue)}</div>`;
+        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.bookings > 0 ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted};font-weight:500">${r.bookings || 0}</div>`;
+        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${bPct}%</div>`;
+        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.enrollment_count > 0 ? '#22c55e' : Theme.COLORS.textMuted};font-weight:600">${r.enrollment_count || 0}</div>`;
+        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${ePct}%</div>`;
+        html += `<div style="${cellMono}width:64px;text-align:right;flex-shrink:0;color:${r.enrollment_revenue > 0 ? '#22c55e' : Theme.COLORS.textMuted}">${r.enrollment_revenue > 0 ? Theme.money(r.enrollment_revenue) : '--'}</div>`;
+        html += '</div>';
       });
+
+      // Totals row
+      const totTktRev = channels.reduce((s, c) => s + c.ticket_revenue, 0);
+      const totEnrRev = channels.reduce((s, c) => s + c.enrollment_revenue, 0);
+      const totBooks = channels.reduce((s, c) => s + c.bookings, 0);
+      const totEnr = channels.reduce((s, c) => s + c.enrollment_count, 0);
+      html += `<div style="display:flex;align-items:center;gap:0;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px">`;
+      html += `<div style="width:110px;flex-shrink:0"></div><div style="flex:1;min-width:80px"></div>`;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totalTickets}</div>`;
+      html += `<div style="width:32px;flex-shrink:0"></div>`;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:60px;text-align:right;flex-shrink:0;font-weight:700;color:#6366f1">${Theme.money(totTktRev)}</div>`;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totBooks}</div>`;
+      html += `<div style="width:32px;flex-shrink:0"></div>`;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${totEnr}</div>`;
+      html += `<div style="width:32px;flex-shrink:0"></div>`;
+      html += `<div style="font-family:var(--font-mono);font-size:12px;width:64px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${Theme.money(totEnrRev)}</div>`;
+      html += '</div>';
+
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:10px;font-style:italic">Hyros ${modelLabel} attribution | Tickets = $27/$54 (Stripe) | Enrollments = sales > $500</div>`;
+      html += '</div>';
+      loader.innerHTML = html;
+    }).catch(err => {
+      loader.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed: ${err.message}</p>`;
     });
   }
 
@@ -889,9 +920,7 @@ App.registerPage('war-room', async (container) => {
     </div>
   `;
   chartsRow.appendChild(dplCptCard);
-  chartsRow.appendChild(dealsCard);
-  chartsRow.appendChild(bookingsCard);
-  chartsRow.appendChild(enrollCard);
+  chartsRow.appendChild(channelCard);
 
   // ---- CPA by Channel ----
   const cpaCard = _card('CPA by Channel');

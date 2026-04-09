@@ -88,16 +88,20 @@ App.registerPage('cold-email', async (container) => {
       steps: [], // No step-level data from EmailBison
     }));
 
-    // Filter out system/bounce/test emails before mapping
+    // Filter out system/bounce/test emails + negative/ooo/auto before mapping
     const JUNK_PATTERNS = /mailer-daemon|postmaster|noreply|no-reply|dmarc|abuse@|^google$|^microsoft$|autoresponder/i;
+    const NEG_PATTERNS = /unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/i;
+    const OOO_PATTERNS = /out of (the )?office|on vacation|on leave|away from|auto.?reply|automatic reply/i;
     const replyFiltered = (replyData || []).filter(r => {
       if (r.is_automated || r.reply_type === 'Bounced') return false;
       const email = (r.from_email || '').toLowerCase();
       const name = (r.from_name || '').toLowerCase();
       if (JUNK_PATTERNS.test(email) || JUNK_PATTERNS.test(name)) return false;
-      // Filter out DMARC aggregate reports
       if ((r.text_body || '').toLowerCase().includes('dmarc aggregate report')) return false;
       if (name === 'dmarc aggregate report') return false;
+      // Exclude negative / OOO / not-interested replies
+      const body = (r.text_body || '').toLowerCase();
+      if (NEG_PATTERNS.test(body) || OOO_PATTERNS.test(body)) return false;
       return true;
     });
 
@@ -703,7 +707,7 @@ function _renderReplyTracker(container) {
 
   const sentimentSelect = document.createElement('select');
   sentimentSelect.style.cssText = `background:${Theme.COLORS.bgCard};color:${Theme.COLORS.textPrimary};border:1px solid ${Theme.COLORS.border};border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer`;
-  sentimentSelect.innerHTML = `<option value="all">All Sentiments</option><option value="interested">Interested</option><option value="not_interested">Not Interested</option><option value="ooo">OOO</option><option value="auto_reply">Auto-Reply</option>`;
+  sentimentSelect.innerHTML = `<option value="all">All Sentiments</option><option value="interested">Interested</option><option value="positive">Positive</option><option value="neutral">Neutral</option>`;
 
   // Notification toggle
   const notifyLabel = document.createElement('label');
@@ -797,11 +801,32 @@ function _renderReplyTracker(container) {
   tableContainer.style.cssText = 'padding:0;overflow-x:auto';
   container.appendChild(tableContainer);
 
+  // Pagination state
+  const PAGE_SIZE = 15;
+  let _replyPage = 1;
+
+  // Pagination controls container
+  const paginationBar = document.createElement('div');
+  paginationBar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.06)';
+  container.appendChild(paginationBar);
+
   function renderReplies() {
-    let filtered = [..._CE_REPLIES];
+    // Sort by most recent first
+    let filtered = [..._CE_REPLIES].sort((a, b) => {
+      const da = a.reply_date ? new Date(a.reply_date).getTime() : 0;
+      const db = b.reply_date ? new Date(b.reply_date).getTime() : 0;
+      return db - da;
+    });
+
     const q = searchInput.value.toLowerCase();
     if (q) filtered = filtered.filter(r => r.contact.name.toLowerCase().includes(q) || r.contact.company.toLowerCase().includes(q));
     if (sentimentSelect.value !== 'all') filtered = filtered.filter(r => r.sentiment === sentimentSelect.value);
+
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if (_replyPage > totalPages) _replyPage = totalPages;
+    const start = (_replyPage - 1) * PAGE_SIZE;
+    const pageRows = filtered.slice(start, start + PAGE_SIZE);
 
     const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
     const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)`;
@@ -813,7 +838,7 @@ function _renderReplyTracker(container) {
       return `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600;background:${bg};color:${color};margin-right:3px" title="${label}">${icon} ${label}</span>`;
     };
 
-    const rows = filtered.map(r => {
+    const rows = pageRows.map(r => {
       const campName = r._campaign_name || r.campaign_id || '--';
       const campDisplay = campName.length > 25 ? campName.slice(0, 25) + '...' : campName;
       const title = r._title || '';
@@ -847,6 +872,23 @@ function _renderReplyTracker(container) {
       </table>
     `;
 
+    // Pagination bar
+    const btnStyle = `background:${Theme.COLORS.bgCard};color:${Theme.COLORS.textPrimary};border:1px solid ${Theme.COLORS.border};border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:Manrope,sans-serif`;
+    const btnDisabled = `background:transparent;color:${Theme.COLORS.textMuted};border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:5px 12px;font-size:12px;cursor:default;opacity:0.4;font-family:Manrope,sans-serif`;
+
+    paginationBar.innerHTML = `
+      <span style="font-size:12px;color:${Theme.COLORS.textMuted}">${filtered.length} replies &middot; Page ${_replyPage} of ${totalPages}</span>
+      <div style="display:flex;gap:6px">
+        <button id="ce-pg-prev" style="${_replyPage <= 1 ? btnDisabled : btnStyle}" ${_replyPage <= 1 ? 'disabled' : ''}>&lsaquo; Prev</button>
+        <button id="ce-pg-next" style="${_replyPage >= totalPages ? btnDisabled : btnStyle}" ${_replyPage >= totalPages ? 'disabled' : ''}>Next &rsaquo;</button>
+      </div>
+    `;
+
+    const prevBtn = document.getElementById('ce-pg-prev');
+    const nextBtn = document.getElementById('ce-pg-next');
+    if (prevBtn && _replyPage > 1) prevBtn.addEventListener('click', () => { _replyPage--; renderReplies(); });
+    if (nextBtn && _replyPage < totalPages) nextBtn.addEventListener('click', () => { _replyPage++; renderReplies(); });
+
     // Drill-down on reply row click
     tableContainer.querySelectorAll('.ce-reply-row').forEach(row => {
       row.addEventListener('click', () => {
@@ -878,8 +920,8 @@ function _renderReplyTracker(container) {
   }
 
   renderReplies();
-  searchInput.addEventListener('input', renderReplies);
-  sentimentSelect.addEventListener('change', renderReplies);
+  searchInput.addEventListener('input', () => { _replyPage = 1; renderReplies(); });
+  sentimentSelect.addEventListener('change', () => { _replyPage = 1; renderReplies(); });
 }
 
 // ---------------------------------------------------------------------------

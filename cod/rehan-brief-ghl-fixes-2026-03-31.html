@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rehan Brief: COD GHL Fixes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.6; padding: 2rem; }
+  .container { max-width: 800px; margin: 0 auto; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 2rem 2.5rem; border-radius: 16px 16px 0 0; }
+  .header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .header .subtitle { font-size: 0.95rem; opacity: 0.8; }
+  .header-meta { display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.85rem; }
+  .header-meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+  .alert-bar { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem 1.5rem; font-size: 0.9rem; font-weight: 600; }
+  .alert-bar em { font-weight: 400; }
+
+  .content { background: white; padding: 2rem 2.5rem; border-radius: 0 0 16px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .task-section { margin-bottom: 2.5rem; }
+  .task-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e5e5ea; }
+  .task-number { background: #1a1a2e; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+  .task-title { font-size: 1.2rem; font-weight: 700; }
+
+  .link-box { background: #f0f4ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .link-box .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6366f1; font-weight: 700; margin-bottom: 0.25rem; }
+  .link-box a { color: #4f46e5; font-weight: 600; word-break: break-all; text-decoration: none; }
+  .link-box a:hover { text-decoration: underline; }
+
+  .context-box { background: #fafafa; border-left: 3px solid #a78bfa; border-radius: 0 10px 10px 0; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.9rem; }
+  .context-box .context-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7c3aed; font-weight: 700; margin-bottom: 0.5rem; }
+  .context-box blockquote { font-style: italic; color: #555; border-left: 2px solid #ddd; padding-left: 0.75rem; margin: 0.5rem 0; }
+
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: #1a1a2e; }
+  h4 { font-size: 0.9rem; font-weight: 700; margin: 1.25rem 0 0.4rem; color: #374151; }
+
+  ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+  li { margin-bottom: 0.35rem; font-size: 0.92rem; }
+
+  .pipeline-stages { display: flex; align-items: center; gap: 0; margin: 1rem 0; flex-wrap: wrap; }
+  .stage { padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600; border: 1px solid #e5e5ea; background: white; }
+  .stage:first-child { border-radius: 8px 0 0 8px; }
+  .stage:last-child { border-radius: 0 8px 8px 0; }
+  .stage.past { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .stage.trigger { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+  .stage.arrow { background: transparent; border: none; padding: 0 0.15rem; font-size: 0.7rem; color: #9ca3af; }
+  .stage.dim { background: #f9fafb; color: #9ca3af; }
+
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6; display: flex; gap: 0.5rem; align-items: flex-start; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-num { background: #e5e7eb; color: #374151; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .warn { color: #dc2626; font-weight: 700; }
+  .highlight { background: #fef9c3; padding: 0 0.2rem; border-radius: 3px; }
+
+  .divider { height: 1px; background: #e5e5ea; margin: 2rem 0; }
+
+  .footer { margin-top: 2rem; padding: 1.25rem 1.5rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; }
+  .footer h3 { color: #dc2626; margin-top: 0; font-size: 0.95rem; }
+  .footer ul { margin-bottom: 0; }
+  .footer li { font-size: 0.9rem; }
+
+  .sub-section { background: #fafafa; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+  .sub-section h4 { margin-top: 0; }
+  .sub-label { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.15rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; }
+  .sub-label.must { background: #fee2e2; color: #dc2626; }
+  .sub-label.explore { background: #e0e7ff; color: #4f46e5; }
+  .sub-label.nice { background: #dcfce7; color: #166534; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>COD GHL Fixes Brief</h1>
+    <div class="subtitle">Two tasks: Workflow Fix + Checkout Improvements</div>
+    <div class="header-meta">
+      <span>From: Kas</span>
+      <span>To: Rehan</span>
+      <span>Date: March 31, 2026</span>
+      <span>Priority: HIGH</span>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-bar">
+    RULE: Nothing goes live without my sign-off. <em>Screenshot or Loom every change before activating.</em>
+  </div>
+
+  <div class="content">
+
+    <!-- TASK 1 -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">1</div>
+        <div class="task-title">Fix "Sync Deal Stage to Custom Field" Workflow</div>
+      </div>
+
+      <div class="link-box">
+        <div class="label">GHL Workflow Link</div>
+        <a href="https://app.gohighlevel.com/location/h83O4TKy09yLLdfnIw3K/workflow/053c744c-38db-4ec4-9b1f-826f02a84a3c" target="_blank">Open Workflow in GHL</a>
+      </div>
+
+      <h3>What It Should Do</h3>
+      <p>Akari requested this on March 20. When a contact moves <strong>past "Showed"</strong> in the sales pipeline, the <strong>"Appointment Status"</strong> custom field on their contact record should automatically update to mirror the new pipeline stage.</p>
+      <p style="margin-top:0.5rem;"><strong>Pipeline stages and Appointment Status must always stay in sync.</strong></p>
+
+      <h3>Pipeline Stages (anything past "Showed" needs syncing)</h3>
+      <div class="pipeline-stages">
+        <div class="stage dim">Booked</div>
+        <div class="stage arrow">&#9654;</div>
+        <div class="stage trigger">Showed <span style="font-size:0.7rem; opacity:0.7;">(trigger point)</span></div>
+        <div class="stage arrow">&#9654;</div>
+        <div class="stage past">No Show</div>
+        <div class="stage arrow">&#9654;</div>
+        <div class="stage past">Offered</div>
+        <div class="stage arrow">&#9654;</div>
+        <div class="stage past">Closed/Enrolled</div>
+        <div class="stage arrow">&#9654;</div>
+        <div class="stage past">Cancelled</div>
+      </div>
+      <p style="font-size:0.85rem; color:#666; margin-top:0.25rem;">Green stages = must update Appointment Status to match. Verify exact stage names inside GHL as Akari sent screenshots (check DMs if needed).</p>
+
+      <div class="context-box">
+        <div class="context-label">Akari's Exact Words (Slack DM, March 20)</div>
+        <blockquote>"if they get moved to anything past showed in the pipeline"</blockquote>
+        <blockquote>"this logic should also be reflected" (sent screenshot of pipeline stages)</blockquote>
+        <blockquote>"appointment status" (sent screenshot of the field)</blockquote>
+        <blockquote>"so if they move in the pipeline, this should also change"</blockquote>
+      </div>
+
+      <h3>What's Currently Broken</h3>
+      <p>I built the workflow but hit a blocker: <span class="highlight"><strong>"Appointment Status" doesn't appear as a custom field</strong></span> in GHL's workflow builder. I tried 3 separate times. As I told Matt on the March 24 call:</p>
+      <div class="context-box">
+        <div class="context-label">What Kas said on the March 24 Zoom</div>
+        <blockquote>"I'm trying to - last week, three different times, tried to build an automation for Akari in the custom fields just don't appear in the custom fields area. Just outright. So I can't do the thing where if you drag the deal, I've got the automation built, I just can't do that last step."</blockquote>
+      </div>
+
+      <p>The workflow currently has:</p>
+      <ul>
+        <li><strong>Trigger:</strong> Pipeline Stage Changed (no filters, fires on everything)</li>
+        <li><strong>Filter:</strong> Deal Stage Change Filter (JavaScript block)</li>
+        <li><strong>4-way branch</strong>, but only Branch 1 has an action, and it has a <span class="warn">red error</span></li>
+        <li>Branches 2-3 just END with no actions (incomplete)</li>
+      </ul>
+
+      <h3>Steps to Fix</h3>
+      <ol class="checklist">
+        <li><span class="check-num">1</span> <span>Figure out why "Appointment Status" doesn't show as a custom field. Is it a system field? Does it need to be recreated as a proper custom field?</span></li>
+        <li><span class="check-num">2</span> <span>Fix the red error on the "Update Deal Stage Custom Field" action in Branch 1</span></li>
+        <li><span class="check-num">3</span> <span>Complete ALL branches so each pipeline stage past "Showed" correctly updates the Appointment Status field</span></li>
+        <li><span class="check-num">4</span> <span>Add a <strong>pipeline filter on the trigger</strong> so it only fires for the Sales Pipeline (not all pipelines)</span></li>
+        <li><span class="check-num">5</span> <span>Test with a contact move to verify the Appointment Status actually updates</span></li>
+        <li><span class="check-num">6</span> <span class="warn">Show Kas before activating</span></li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TASK 2 -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">2</div>
+        <div class="task-title">Checkout Improvements</div>
+      </div>
+
+      <div class="link-box">
+        <div class="label">GHL Funnel / Checkout Link</div>
+        <a href="https://app.gohighlevel.com/v2/location/h83O4TKy09yLLdfnIw3K/funnels-websites/funnels/UnV1OwBV9nhtpKemkcOR/steps/5fa08a23-6dc1-4fb4-a63b-60ea610eb6f0/overview" target="_blank">Open Checkout in GHL</a>
+      </div>
+
+      <p>We discussed these on the March 20 and March 23 calls with the full COD team. These are quality-of-life improvements to reduce checkout friction. Matt Freeman already approved all of these.</p>
+
+      <!-- 2a -->
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>2a. Shrink the Checkout (20-30% height reduction)</h4>
+        <ul>
+          <li><strong>Remove the order summary line items</strong> (Workshop, PyTicket, Offer, subtotal). Keep ONLY the total.</li>
+          <li>When someone ticks the VIP box, they should just see the total go up. That's it.</li>
+          <li>Remove unnecessary padding, spacing, and visual clutter</li>
+          <li>Goal: the checkout should feel fast and light, not like a long form</li>
+        </ul>
+        <div class="context-box">
+          <div class="context-label">From March 23 call</div>
+          <blockquote>"To give you an example of a quality of life improvement, my proposal is that we actually shrink the checkout by, like, 20%, 30% in height."</blockquote>
+          <blockquote>Matt: "Just the total." / "That, I don't mind, yeah."</blockquote>
+        </div>
+      </div>
+
+      <!-- 2b -->
+      <div class="sub-section">
+        <span class="sub-label explore">Explore</span>
+        <h4>2b. Merge First Name + Last Name into One Field</h4>
+        <ul>
+          <li>GHL separates first/last name by default</li>
+          <li><strong>Historical approach:</strong> I've done this before. We had code on the backend that collects "Full Name" as a single field and splits it automatically with a script (Python or JS). Use this as your starting reference.</li>
+          <li>One fewer field = less friction = higher completion rate</li>
+          <li>If GHL makes this too painful to implement cleanly, flag it to me. But try first.</li>
+        </ul>
+        <div class="context-box">
+          <div class="context-label">From March 20 call</div>
+          <blockquote>"First name, last name, you have to separate it out, Go High Level doesn't like it. We had written some code on the backend that just collects full name, full stop, and automatically with code separates it."</blockquote>
+        </div>
+      </div>
+
+      <!-- 2c -->
+      <div class="sub-section">
+        <span class="sub-label explore">Explore</span>
+        <h4>2c. Desktop QuickPay Options</h4>
+        <ul>
+          <li>Explore adding <strong>ShopPay</strong>, <strong>LinkPay</strong> (Link by Stripe), <strong>Apple Pay on web</strong>, <strong>Google Pay</strong>, or similar one-tap options</li>
+          <li><strong>Historical approach:</strong> I tested this on a previous client and it had a nice passive conversion lift across all sales. Consider this as a suggested direction.</li>
+          <li>Check what GHL + Stripe supports natively for desktop quick-pay right now</li>
+          <li>This isn't really a test. If it's available, we just turn it on. It only helps.</li>
+        </ul>
+        <div class="context-box">
+          <div class="context-label">From March 20 call</div>
+          <blockquote>"I also want to look at implementation of ShopPay or LinkPay. It's like Apple Pay, but for... We did that as one of the tests I did historically. That had a pretty nice passive benefit across all sales."</blockquote>
+        </div>
+      </div>
+
+      <!-- 2d -->
+      <div class="sub-section">
+        <span class="sub-label nice">Nice to Have</span>
+        <h4>2d. General Cleanup</h4>
+        <ul>
+          <li>Make sure the checkout renders cleanly on both mobile and desktop</li>
+          <li>Remove any visual clutter, redundant labels, or unnecessary fields</li>
+          <li>Check for anything else that looks off while you're in there</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <h3>Reminders</h3>
+      <ul>
+        <li><strong>Nothing goes live without showing me first.</strong> Screenshot or Loom every change before activating.</li>
+        <li>If you hit a GHL limitation on any of these, flag it to me and we'll figure out a workaround together.</li>
+        <li>The historical approaches I mentioned (name merge, quickpay) worked well. Use them as your starting suggestion, then adapt to GHL's current capabilities.</li>
+        <li>Confirm with Akari that Task 1 is working correctly once we activate.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

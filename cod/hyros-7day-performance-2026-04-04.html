@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Hyros Performance | Mar 28 - Apr 4, 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e4e4ec;
+    --text-muted: #8888a0;
+    --gold: #f0b429;
+    --gold-dim: #f0b42930;
+    --green: #34d399;
+    --green-dim: #34d39920;
+    --red: #f87171;
+    --red-dim: #f8717120;
+    --blue: #60a5fa;
+    --blue-dim: #60a5fa20;
+    --purple: #a78bfa;
+    --purple-dim: #a78bfa20;
+    --cyan: #22d3ee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--gold), #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header-left .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+  .header-right {
+    text-align: right;
+  }
+  .header-right .date-range {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .header-right .source-tag {
+    display: inline-block;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--purple);
+    margin-top: 0.35rem;
+  }
+
+  /* HERO STATS */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+  .stat-card.gold::before { background: linear-gradient(90deg, var(--gold), #fbbf24); }
+  .stat-card.green::before { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+  .stat-card.blue::before { background: linear-gradient(90deg, var(--blue), #93c5fd); }
+  .stat-card.purple::before { background: linear-gradient(90deg, var(--purple), #c4b5fd); }
+  .stat-card .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .stat-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .stat-card.gold .value { color: var(--gold); }
+  .stat-card.green .value { color: var(--green); }
+  .stat-card.blue .value { color: var(--blue); }
+  .stat-card.purple .value { color: var(--purple); }
+  .stat-card .detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 2rem;
+  }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title .icon {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  thead th {
+    background: var(--surface-2);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface-2); }
+  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem; }
+  .revenue { color: var(--green); font-weight: 700; }
+  .deal-big { color: var(--gold); font-weight: 700; font-size: 1rem; }
+  .platform-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .platform-facebook { background: #1877f220; color: #4a9eff; }
+  .platform-google { background: #ea433520; color: #ea4335; }
+  .platform-retargeting { background: var(--purple-dim); color: var(--purple); }
+  .platform-unknown { background: var(--surface-2); color: var(--text-muted); }
+  .platform-youtube { background: #ff000020; color: #ff4444; }
+  .platform-tiktok { background: #00f2ea20; color: #00f2ea; }
+  .no-attr { color: var(--red); font-style: italic; font-size: 0.8rem; }
+
+  /* DAILY CHART */
+  .daily-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    transition: transform 0.15s;
+  }
+  .day-card:hover { transform: translateY(-2px); }
+  .day-card.best {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px var(--gold-dim);
+  }
+  .day-card .day-name {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.15rem;
+  }
+  .day-card .day-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+  .day-card .day-rev {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .day-card.best .day-rev { color: var(--gold); }
+  .day-card .day-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin: 0.6rem 0 0.4rem;
+    overflow: hidden;
+  }
+  .day-card .day-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--blue), var(--purple));
+    transition: width 0.5s ease;
+  }
+  .day-card.best .day-bar-fill {
+    background: linear-gradient(90deg, var(--gold), #fbbf24);
+  }
+  .day-card .day-detail {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .day-card .ht-badge {
+    display: inline-block;
+    background: var(--gold-dim);
+    color: var(--gold);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-top: 0.3rem;
+  }
+
+  /* CAMPAIGN CARDS */
+  .campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .campaign-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .campaign-card .campaign-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  .campaign-card .campaign-stats {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .campaign-card .campaign-stat {
+    display: flex;
+    flex-direction: column;
+  }
+  .campaign-card .campaign-stat .cs-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+  .campaign-card .campaign-stat .cs-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  /* CALL STATS */
+  .call-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .call-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .call-card .call-count {
+    font-size: 2.2rem;
+    font-weight: 800;
+  }
+  .call-card.qualified .call-count { color: var(--green); }
+  .call-card.cancelled .call-count { color: var(--red); }
+  .call-card.noshow .call-count { color: var(--gold); }
+  .call-card .call-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* TAKEAWAYS */
+  .takeaways {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+  .takeaway {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .takeaway:last-child { border-bottom: none; }
+  .takeaway .tw-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .takeaway .tw-text {
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .takeaway .tw-text strong { color: var(--gold); }
+  .takeaway .tw-text .highlight-green { color: var(--green); font-weight: 600; }
+  .takeaway .tw-text .highlight-red { color: var(--red); font-weight: 600; }
+  .takeaway .tw-text .highlight-blue { color: var(--blue); font-weight: 600; }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 900px) {
+    body { padding: 1rem; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .daily-grid { grid-template-columns: repeat(4, 1fr); }
+    .campaign-grid { grid-template-columns: 1fr; }
+    .call-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .daily-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-stats { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 0.75rem; }
+    .header-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>COD Hyros Performance</h1>
+    <div class="subtitle">7-Day Attribution Report</div>
+  </div>
+  <div class="header-right">
+    <div class="date-range">Mar 28 - Apr 4, 2026</div>
+    <div class="source-tag">Hyros via BigQuery</div>
+  </div>
+</div>
+
+<!-- HERO STATS -->
+<div class="hero-stats">
+  <div class="stat-card gold">
+    <div class="label">Total Revenue</div>
+    <div class="value">$46,323</div>
+    <div class="detail">122 total transactions</div>
+  </div>
+  <div class="stat-card green">
+    <div class="label">High-Ticket Closes</div>
+    <div class="value">7</div>
+    <div class="detail">$42,000 from enrollments</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="label">Workshop Sales</div>
+    <div class="value">115</div>
+    <div class="detail">$4,323 at $27-$54 avg</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="label">Qualified Calls</div>
+    <div class="value">32</div>
+    <div class="detail">6 cancelled, 2 no-shows</div>
+  </div>
+</div>
+
+<!-- DAILY BREAKDOWN -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--blue)"></span> Revenue by Day</div>
+  <div class="daily-grid">
+    <div class="day-card">
+      <div class="day-name">Sat</div>
+      <div class="day-date">Mar 28</div>
+      <div class="day-rev">$162</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:0.9%"></div></div>
+      <div class="day-detail">6 sales, 0 HT</div>
+    </div>
+    <div class="day-card">
+      <div class="day-name">Sun</div>
+      <div class="day-date">Mar 29</div>
+      <div class="day-rev">$972</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:5.2%"></div></div>
+      <div class="day-detail">24 workshop sales</div>
+    </div>
+    <div class="day-card">
+      <div class="day-name">Mon</div>
+      <div class="day-date">Mar 30</div>
+      <div class="day-rev">$5,594</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:30%"></div></div>
+      <div class="day-detail">16 sales</div>
+      <div class="ht-badge">1x $5K</div>
+    </div>
+    <div class="day-card">
+      <div class="day-name">Tue</div>
+      <div class="day-date">Mar 31</div>
+      <div class="day-rev">$9,756</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:53%"></div></div>
+      <div class="day-detail">22 sales</div>
+      <div class="ht-badge">1x $9K</div>
+    </div>
+    <div class="day-card best">
+      <div class="day-name">Wed</div>
+      <div class="day-date">Apr 1</div>
+      <div class="day-rev">$18,540</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:100%"></div></div>
+      <div class="day-detail">14 sales</div>
+      <div class="ht-badge">2x $9K</div>
+    </div>
+    <div class="day-card">
+      <div class="day-name">Thu</div>
+      <div class="day-date">Apr 2</div>
+      <div class="day-rev">$1,713</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:9.2%"></div></div>
+      <div class="day-detail">22 sales</div>
+      <div class="ht-badge">1x $1K</div>
+    </div>
+    <div class="day-card">
+      <div class="day-name">Fri</div>
+      <div class="day-date">Apr 3-4</div>
+      <div class="day-rev">$9,586</div>
+      <div class="day-bar"><div class="day-bar-fill" style="width:52%"></div></div>
+      <div class="day-detail">18 sales</div>
+      <div class="ht-badge">1x $6K + 1x $3K</div>
+    </div>
+  </div>
+</div>
+
+<!-- HIGH TICKET DEALS -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--gold)"></span> High-Ticket Closes ($1K+)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Buyer</th>
+          <th>Product</th>
+          <th>Value</th>
+          <th>Platform</th>
+          <th>Campaign</th>
+          <th>Ad Set / Audience</th>
+          <th>Ad Creative</th>
+          <th>1st Click</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">Apr 1</td>
+          <td>barry@findersquad.com</td>
+          <td>8-Week Workshop</td>
+          <td class="deal-big">$9,000</td>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>ABO Cold - Industry Winning</td>
+          <td>LLA Stack - Coaches/Consultants 3064</td>
+          <td>Static Reel 4</td>
+          <td class="mono">Mar 30</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 1</td>
+          <td>debra@sedonasouladventures.com</td>
+          <td>8-Week Workshop</td>
+          <td class="deal-big">$9,000</td>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>ABO Cold - Industry Winning</td>
+          <td>Main Interest Stack - Coaches/Consultants 3064</td>
+          <td>Static Reel 2</td>
+          <td class="mono">Mar 28</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 31</td>
+          <td>northstarclinicalconsulting@</td>
+          <td>8-Week Workshop</td>
+          <td class="deal-big">$9,000</td>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>CBO Licensed Therapists</td>
+          <td>Broad + CBO Licensed Therapists</td>
+          <td>Licensed Therapists Ad 2</td>
+          <td class="mono">Mar 22</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 3</td>
+          <td>terri.tyson@territyson.com</td>
+          <td>$6,000 Payment</td>
+          <td class="deal-big">$6,000</td>
+          <td><span class="platform-badge platform-unknown">Unknown</span></td>
+          <td class="no-attr">No attribution</td>
+          <td class="no-attr">--</td>
+          <td class="no-attr">--</td>
+          <td class="no-attr">--</td>
+        </tr>
+        <tr>
+          <td class="mono">Mar 30</td>
+          <td>richkid1232000@gmail.com</td>
+          <td>Workshop 5000</td>
+          <td class="deal-big">$5,000</td>
+          <td><span class="platform-badge platform-retargeting">Retargeting</span></td>
+          <td>VSL Book Call (COD#5)</td>
+          <td>Client Testimonials - HOT $5/Day</td>
+          <td>Client Testimonials - Schedules</td>
+          <td class="mono">Feb 20</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 4</td>
+          <td>lauriecichocki@mac.com</td>
+          <td>COD 3000</td>
+          <td class="deal-big">$3,000</td>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>ABO Cold - Industry Winning</td>
+          <td>Educator / Teacher / Academic</td>
+          <td>Educator Ad 4</td>
+          <td class="mono">Feb 16</td>
+        </tr>
+        <tr>
+          <td class="mono">Apr 2</td>
+          <td>728lalita@gmail.com</td>
+          <td>COD 1000</td>
+          <td class="deal-big">$1,000</td>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>ABO Cold - LLAs/Broad/Interest 2</td>
+          <td>Broad + Static Reels ALL</td>
+          <td>BurningMoney4</td>
+          <td class="mono">Jan 20</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TOP CAMPAIGNS -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--green)"></span> Top Campaigns</div>
+  <div class="campaign-grid">
+    <div class="campaign-card" style="border-left: 3px solid var(--gold);">
+      <div class="campaign-name">ABO Cold - Industry Adsets - Winning</div>
+      <div style="margin-bottom:0.5rem"><span class="platform-badge platform-facebook">Facebook</span></div>
+      <div class="campaign-stats">
+        <div class="campaign-stat">
+          <span class="cs-label">Revenue</span>
+          <span class="cs-value revenue">~$22K</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">HT Closes</span>
+          <span class="cs-value" style="color:var(--gold)">3</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Workshop Sales</span>
+          <span class="cs-value" style="color:var(--blue)">48</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Qual. Calls</span>
+          <span class="cs-value" style="color:var(--purple)">14</span>
+        </div>
+      </div>
+    </div>
+    <div class="campaign-card" style="border-left: 3px solid var(--green);">
+      <div class="campaign-name">CBO Licensed Therapists Counselors Winning</div>
+      <div style="margin-bottom:0.5rem"><span class="platform-badge platform-facebook">Facebook</span></div>
+      <div class="campaign-stats">
+        <div class="campaign-stat">
+          <span class="cs-label">Revenue</span>
+          <span class="cs-value revenue">$9,945</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">HT Closes</span>
+          <span class="cs-value" style="color:var(--gold)">1</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Workshop Sales</span>
+          <span class="cs-value" style="color:var(--blue)">27</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Qual. Calls</span>
+          <span class="cs-value" style="color:var(--purple)">9</span>
+        </div>
+      </div>
+    </div>
+    <div class="campaign-card" style="border-left: 3px solid var(--purple);">
+      <div class="campaign-name">Retargeting - VSL Book Call (COD#5)</div>
+      <div style="margin-bottom:0.5rem"><span class="platform-badge platform-retargeting">Retargeting</span></div>
+      <div class="campaign-stats">
+        <div class="campaign-stat">
+          <span class="cs-label">Revenue</span>
+          <span class="cs-value revenue">$5,000</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">HT Closes</span>
+          <span class="cs-value" style="color:var(--gold)">1</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Note</span>
+          <span class="cs-value" style="color:var(--text-muted);font-size:0.75rem">38-day nurture</span>
+        </div>
+      </div>
+    </div>
+    <div class="campaign-card" style="border-left: 3px solid var(--blue);">
+      <div class="campaign-name">ABO Cold - LLAs / Broad / Interest Stack 2</div>
+      <div style="margin-bottom:0.5rem"><span class="platform-badge platform-facebook">Facebook</span></div>
+      <div class="campaign-stats">
+        <div class="campaign-stat">
+          <span class="cs-label">Revenue</span>
+          <span class="cs-value revenue">$1,000</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">HT Closes</span>
+          <span class="cs-value" style="color:var(--gold)">1</span>
+        </div>
+        <div class="campaign-stat">
+          <span class="cs-label">Note</span>
+          <span class="cs-value" style="color:var(--text-muted);font-size:0.75rem">73-day nurture</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP AUDIENCES -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--purple)"></span> Top Audiences / Targeting</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Audience / Ad Set</th>
+          <th>Workshop Sales</th>
+          <th>HT Closes</th>
+          <th>Qual. Calls</th>
+          <th>Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">1</td>
+          <td><strong>Broad + CBO Licensed Therapists</strong></td>
+          <td>27</td>
+          <td style="color:var(--gold);font-weight:700">1 ($9K)</td>
+          <td>9</td>
+          <td class="revenue">$9,945</td>
+        </tr>
+        <tr>
+          <td class="mono">2</td>
+          <td><strong>Main Interest Stack - Coaches/Consultants 3064</strong></td>
+          <td>18</td>
+          <td style="color:var(--gold);font-weight:700">1 ($9K)</td>
+          <td>7</td>
+          <td class="revenue">$9,648</td>
+        </tr>
+        <tr>
+          <td class="mono">3</td>
+          <td><strong>LLA Stack - Coaches/Consultants 3064</strong></td>
+          <td>7</td>
+          <td style="color:var(--gold);font-weight:700">1 ($9K)</td>
+          <td>2</td>
+          <td class="revenue">$9,216</td>
+        </tr>
+        <tr>
+          <td class="mono">4</td>
+          <td><strong>Client Testimonials - HOT $5/Day</strong> <span class="platform-badge platform-retargeting" style="font-size:0.6rem">Retargeting</span></td>
+          <td>0</td>
+          <td style="color:var(--gold);font-weight:700">1 ($5K)</td>
+          <td>--</td>
+          <td class="revenue">$5,000</td>
+        </tr>
+        <tr>
+          <td class="mono">5</td>
+          <td><strong>Educator / Teacher / Academic Professional</strong></td>
+          <td>13</td>
+          <td style="color:var(--gold);font-weight:700">1 ($3K)</td>
+          <td>1</td>
+          <td class="revenue">$3,297</td>
+        </tr>
+        <tr>
+          <td class="mono">6</td>
+          <td><strong>Broad + Static Reels ALL</strong></td>
+          <td>0</td>
+          <td style="color:var(--gold);font-weight:700">1 ($1K)</td>
+          <td>--</td>
+          <td class="revenue">$1,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CALLS -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--cyan)"></span> Breakthrough Call Outcomes</div>
+  <div class="call-grid">
+    <div class="call-card qualified">
+      <div class="call-count">32</div>
+      <div class="call-label">Qualified</div>
+    </div>
+    <div class="call-card cancelled">
+      <div class="call-count">6</div>
+      <div class="call-label">Cancelled</div>
+    </div>
+    <div class="call-card noshow">
+      <div class="call-count">2</div>
+      <div class="call-label">No-Show</div>
+    </div>
+  </div>
+  <div class="table-wrap" style="margin-top:1rem">
+    <table>
+      <thead>
+        <tr>
+          <th>Campaign</th>
+          <th>Ad Set</th>
+          <th>Qualified</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CBO Licensed Therapists Winning</td>
+          <td>Broad + CBO Licensed Therapists</td>
+          <td style="color:var(--green);font-weight:700;font-size:1.1rem">9</td>
+        </tr>
+        <tr>
+          <td>ABO Cold - Industry Winning</td>
+          <td>Main Interest Stack - Coaches/Consultants 3064</td>
+          <td style="color:var(--green);font-weight:700;font-size:1.1rem">7</td>
+        </tr>
+        <tr>
+          <td><span class="no-attr">Unattributed</span></td>
+          <td>--</td>
+          <td style="color:var(--green);font-weight:700;font-size:1.1rem">4</td>
+        </tr>
+        <tr>
+          <td>ABO Cold - Industry Winning</td>
+          <td>LLA Stack - Coaches/Consultants 3064</td>
+          <td style="color:var(--green);font-weight:700;font-size:1.1rem">2</td>
+        </tr>
+        <tr>
+          <td>ABO Cold - LLAs/Broad/Interest 2</td>
+          <td>Broad + Fixed Reels</td>
+          <td style="color:var(--green);font-weight:700;font-size:1.1rem">2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PLATFORM MIX -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--blue)"></span> Platform Mix (Workshop Sales)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Workshop Sales</th>
+          <th>Revenue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="platform-badge platform-facebook">Facebook</span></td>
+          <td>99</td>
+          <td class="revenue">$3,834</td>
+        </tr>
+        <tr>
+          <td><span class="platform-badge platform-unknown">Unattributed</span></td>
+          <td>6</td>
+          <td class="revenue">$246</td>
+        </tr>
+        <tr>
+          <td><span class="platform-badge platform-google">Google</span></td>
+          <td>5</td>
+          <td class="revenue">$162</td>
+        </tr>
+        <tr>
+          <td><span class="platform-badge platform-youtube">YouTube Organic</span></td>
+          <td>1</td>
+          <td class="revenue">$54</td>
+        </tr>
+        <tr>
+          <td><span class="platform-badge platform-tiktok">TikTok</span></td>
+          <td>1</td>
+          <td class="revenue">$54</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAKEAWAYS -->
+<div class="section">
+  <div class="section-title"><span class="icon" style="background:var(--gold)"></span> Key Takeaways</div>
+  <div class="takeaways">
+    <div class="takeaway">
+      <div class="tw-num">1</div>
+      <div class="tw-text"><strong>100% of attributed high-ticket deals came from Facebook.</strong> Google, YouTube, and TikTok only generated workshop-level revenue. All real money is FB cold + retargeting.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">2</div>
+      <div class="tw-text"><strong>"Industry Adsets - Winning" is the workhorse campaign</strong> -- 3 of 7 HT closes, highest workshop volume (48 sales), and 14 qualified calls. This campaign alone drove ~$22K.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">3</div>
+      <div class="tw-text"><strong>Licensed Therapists vertical is punching hard.</strong> One $9K close, 27 workshop sales, and <span class="highlight-green">9 qualified calls</span> (highest of any single ad set). Strong ICP signal.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">4</div>
+      <div class="tw-text"><strong>Static Reels are the winning creative format.</strong> "Static Reel 2" and "Static Reel 4" each drove a $9K close. The reel creative framework is validated.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">5</div>
+      <div class="tw-text"><span class="highlight-red">$6K deal (terri.tyson) has zero attribution.</span> Worth investigating the source -- could be organic, referral, or a tracking gap.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">6</div>
+      <div class="tw-text"><strong>Long nurture cycles are converting.</strong> The $5K retargeting close had a <span class="highlight-blue">38-day lag</span> (first click Feb 20). The $3K Educator close had a <span class="highlight-blue">47-day lag</span> (Feb 16). The $1K Broad close: <span class="highlight-blue">73 days</span>.</div>
+    </div>
+    <div class="takeaway">
+      <div class="tw-num">7</div>
+      <div class="tw-text"><strong>Educator/Teacher is an emerging vertical.</strong> Closed $3K today + 13 workshop sales across ad sets. Consider scaling this audience with dedicated creative.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>KAMG -- Clients on Demand</span>
+  <span>Generated Apr 4, 2026 -- Hyros via BigQuery (cod_warehouse)</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostHog Identify - Dev Brief for Rehan</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#020617;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;line-height:1.7;padding:2rem 1rem}
+.container{max-width:800px;margin:0 auto}
+header{border-bottom:2px solid #38bdf8;padding-bottom:1.5rem;margin-bottom:2.5rem}
+header .label{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#38bdf8;font-weight:600;margin-bottom:.25rem}
+header h1{font-size:1.75rem;font-weight:700;color:#e2e8f0;margin-bottom:.25rem}
+header .subtitle{color:#94a3b8;font-size:.9rem}
+header .meta{display:flex;gap:1.5rem;margin-top:.75rem;font-size:.8rem;color:#64748b}
+header .meta span{display:flex;align-items:center;gap:.3rem}
+.priority{background:#facc15;color:#020617;padding:.15rem .5rem;border-radius:3px;font-weight:700;font-size:.7rem;letter-spacing:.05em}
+h2{font-size:1.35rem;color:#38bdf8;margin-top:2.5rem;margin-bottom:1rem;padding-bottom:.4rem;border-bottom:1px solid #1e293b}
+h3{font-size:1.1rem;color:#e2e8f0;margin-top:1.75rem;margin-bottom:.75rem}
+p{margin-bottom:1rem}
+strong,b{color:#facc15;font-weight:600}
+a{color:#38bdf8;text-decoration:none}
+ul,ol{margin:0 0 1rem 1.5rem}
+li{margin-bottom:.4rem}
+.callout{border-left:3px solid #facc15;padding:.75rem 1rem;margin:1.25rem 0;background:#0f172a;border-radius:0 6px 6px 0;color:#cbd5e1}
+.callout-blue{border-left-color:#38bdf8}
+pre{background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:1.25rem;overflow-x:auto;font-size:.82rem;line-height:1.6;margin:1.25rem 0;font-family:'Cascadia Code','Fira Code',monospace;color:#e2e8f0}
+code{font-family:'Cascadia Code','Fira Code',monospace;font-size:.85em}
+.inline-code{background:#0f172a;padding:.15rem .4rem;border-radius:3px;font-size:.82rem;border:1px solid #1e293b}
+.comment{color:#64748b}
+.string{color:#3fb950}
+.keyword{color:#38bdf8}
+.func{color:#facc15}
+.step{display:flex;gap:1rem;margin:1.5rem 0;align-items:flex-start}
+.step-num{background:#38bdf8;color:#020617;width:2rem;height:2rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:.2rem}
+.step-content{flex:1}
+.checklist{list-style:none;margin-left:0;padding-left:0}
+.checklist li{padding:.4rem 0;padding-left:1.5rem;position:relative}
+.checklist li::before{content:"";position:absolute;left:0;top:.65rem;width:1rem;height:1rem;border:2px solid #38bdf8;border-radius:3px}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid #1e293b;text-align:center;font-size:.8rem;color:#64748b;font-style:italic}
+@media(max-width:600px){body{padding:1rem .75rem}pre{padding:.75rem;font-size:.75rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<div class="label">COD / Dev Brief</div>
+<h1>PostHog Identify Integration</h1>
+<div class="subtitle">Link anonymous browsing behavior to real people</div>
+<div class="meta">
+<span><span class="priority">HIGH PRIORITY</span></span>
+<span>Effort: ~30 min</span>
+<span>2 locations</span>
+</div>
+</header>
+
+<h2>The Problem</h2>
+<p>PostHog is tracking every click, pageview, and CTA interaction on the funnel pages. But right now every visitor is just an anonymous device ID like <span class="inline-code">0196a13e-7bfc-7f6c-...</span>. We can see <em>what</em> happens on each page, but not <em>who</em> did it.</p>
+
+<div class="callout">
+<strong>Result:</strong> We have 62,000+ events in our data warehouse but can't connect them to actual COD customers. One small code change fixes this.
+</div>
+
+<h2>The Fix</h2>
+<p>Add one <span class="inline-code">posthog.identify()</span> call when a form is submitted. PostHog will <strong>retroactively link</strong> all that person's anonymous browsing to their email. One line of code, two locations.</p>
+
+<h2>Location 1: Registration Page</h2>
+<p><strong>Page:</strong> codworkshop.com (GHL form submit)</p>
+<p>On the reg page form submit callback, add this <strong>before</strong> the redirect/thank-you:</p>
+
+<pre><span class="comment">// GHL form submit listener</span>
+document.querySelector(<span class="string">'form'</span>).addEventListener(<span class="string">'submit'</span>, <span class="keyword">function</span>(e) {
+  <span class="keyword">var</span> email = document.querySelector(<span class="string">'input[name="email"]'</span>).value;
+  <span class="keyword">var</span> firstName = document.querySelector(<span class="string">'input[name="first_name"]'</span>).value;
+
+  <span class="keyword">if</span> (email) {
+    <span class="func">posthog.identify</span>(email.toLowerCase().trim(), {
+      first_name: firstName,
+      source: <span class="string">'registration'</span>
+    });
+  }
+});</pre>
+
+<div class="callout callout-blue">
+<strong>Note:</strong> Check the actual input field names in GHL -- they might be <span class="inline-code">email</span>, <span class="inline-code">Email</span>, or <span class="inline-code">contact.email</span>. Inspect the form HTML to confirm.
+</div>
+
+<h2>Location 2: Application / Thank You Page</h2>
+<p><strong>Page:</strong> codworkshop.com/thankyou/</p>
+<p>The <span class="inline-code">SubmitApplication</span> event already fires here. Add identify right before it:</p>
+
+<pre><span class="comment">// Before the existing SubmitApplication event</span>
+<span class="func">posthog.identify</span>(email.toLowerCase().trim(), {
+  source: <span class="string">'application'</span>
+});
+
+<span class="comment">// Existing event (already working)</span>
+<span class="func">posthog.capture</span>(<span class="string">'SubmitApplication'</span>);</pre>
+
+<h2>Fallback: Email from URL</h2>
+<p>Some GHL pages pre-fill email from URL params (like <span class="inline-code">he=jennifer@example.com</span>). If the form field isn't accessible, grab it from the URL:</p>
+
+<pre><span class="comment">// Fallback: grab email from URL if form field is empty</span>
+<span class="keyword">var</span> urlParams = <span class="keyword">new</span> URLSearchParams(window.location.search);
+<span class="keyword">var</span> email = urlParams.get(<span class="string">'he'</span>) || urlParams.get(<span class="string">'email'</span>);
+
+<span class="keyword">if</span> (email) {
+  <span class="func">posthog.identify</span>(email.toLowerCase().trim());
+}</pre>
+
+<h2>Important Rules</h2>
+<ul>
+<li><strong>Use email as the ID</strong> (lowercased, trimmed) -- this matches our BigQuery warehouse key</li>
+<li><span class="inline-code">posthog.identify()</span> must be called <strong>after</strong> the PostHog snippet has loaded</li>
+<li>PostHog will automatically merge all previous anonymous events with this person</li>
+<li>This does <strong>NOT</strong> affect any existing tracking -- it only adds identity on top</li>
+</ul>
+
+<h2>How to Test</h2>
+
+<div class="step">
+<div class="step-num">1</div>
+<div class="step-content">Open the reg page in an <strong>incognito window</strong></div>
+</div>
+
+<div class="step">
+<div class="step-num">2</div>
+<div class="step-content">Open browser console, type <span class="inline-code">posthog.get_distinct_id()</span> -- should show an anonymous UUID</div>
+</div>
+
+<div class="step">
+<div class="step-num">3</div>
+<div class="step-content">Submit the form with a <strong>test email</strong></div>
+</div>
+
+<div class="step">
+<div class="step-num">4</div>
+<div class="step-content">Check PostHog dashboard > <strong>Persons</strong> -- the test email should appear with all pageviews attached</div>
+</div>
+
+<div class="step">
+<div class="step-num">5</div>
+<div class="step-content">Run <span class="inline-code">posthog.get_distinct_id()</span> again -- should now return the email instead of the UUID</div>
+</div>
+
+<h2>What This Unlocks</h2>
+<ul>
+<li>Full journey: which ad > which page > how long on workshop > booked > bought</li>
+<li>Match PostHog behavior with GHL CRM data (same email key)</li>
+<li>Per-person funnel conversion rates, not just page-level aggregates</li>
+<li>Session recordings tied to real customers (replay exactly what a buyer did)</li>
+</ul>
+
+<footer>
+Generated by KAMG Intelligence System | April 2026
+</footer>
+
+</div>
+</body>
+</html>

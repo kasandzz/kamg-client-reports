@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOC x COD | Marketing Affiliate Jam Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --bg3: #18181f;
+  --card: #1a1a22;
+  --border: rgba(200,169,110,0.12);
+  --border-h: rgba(200,169,110,0.25);
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.1);
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --teal: #2dd4bf;
+  --font: 'Outfit', system-ui, sans-serif;
+  --display: 'Cormorant Garamond', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 64px 0; }
+section:nth-child(even) { background: var(--bg2); }
+
+/* Hero */
+.hero {
+  padding: 100px 0 60px;
+  background: linear-gradient(135deg, var(--bg) 0%, #0f0f18 50%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.hero-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: var(--display); font-size: clamp(32px, 5vw, 56px); font-weight: 600;
+  line-height: 1.1; margin-bottom: 16px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; }
+.hero-sub { font-size: 17px; color: var(--text2); max-width: 650px; margin: 0 auto 32px; line-height: 1.7; }
+.hero-meta { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+.hero-meta-item { text-align: center; }
+.hero-meta-item strong { display: block; font-family: var(--display); font-size: 28px; font-weight: 700; color: var(--gold); }
+.hero-meta-item span { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* Section headers */
+.sh { margin-bottom: 32px; }
+.sh-label { font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.sh h2 { font-family: var(--display); font-size: clamp(26px, 3.5vw, 40px); font-weight: 600; line-height: 1.2; }
+.sh h2 em { color: var(--gold); font-style: italic; }
+.sh p { font-size: 14px; color: var(--text2); margin-top: 8px; max-width: 600px; }
+
+/* Stats strip */
+.stats-strip {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; text-align: center;
+}
+.stat-card .num { font-family: var(--display); font-size: 32px; font-weight: 700; color: var(--gold); }
+.stat-card .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* Two column comparison */
+.comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+.company-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 32px; position: relative; overflow: hidden;
+}
+.company-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.company-card.aoc::before { background: linear-gradient(90deg, var(--teal), transparent); }
+.company-card.cod::before { background: linear-gradient(90deg, var(--gold), transparent); }
+.company-card h3 { font-family: var(--display); font-size: 28px; font-weight: 600; margin-bottom: 16px; }
+.company-card .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; margin-bottom: 16px; }
+.tag-teal { background: rgba(45,212,191,0.12); color: var(--teal); }
+.tag-gold { background: var(--gold-dim); color: var(--gold); }
+.company-card table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.company-card td { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.company-card td:first-child { color: var(--text2); width: 40%; }
+.company-card td:last-child { font-weight: 500; }
+
+/* Needs / Brings */
+.nb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+@media (max-width: 768px) { .nb-grid { grid-template-columns: 1fr; } }
+.nb-item { font-size: 13px; color: var(--text2); padding: 10px 14px; background: rgba(255,255,255,0.02); border-radius: 8px; border-left: 3px solid; }
+.nb-need { border-color: var(--red); }
+.nb-bring { border-color: var(--green); }
+.nb-item strong { color: var(--text); font-weight: 500; }
+
+/* Angle cards */
+.angles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.angle-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; transition: border-color 0.3s;
+}
+.angle-card:hover { border-color: var(--border-h); }
+.angle-num { font-family: var(--display); font-size: 42px; font-weight: 700; color: var(--gold); opacity: 0.3; line-height: 1; }
+.angle-card h3 { font-size: 16px; font-weight: 600; margin: 4px 0 8px; }
+.angle-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.angle-card .potential { font-size: 12px; color: var(--green); margin-top: 10px; font-weight: 500; }
+
+/* Talking points */
+.tp-list { display: flex; flex-direction: column; gap: 12px; max-width: 800px; }
+.tp-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 24px; display: flex; gap: 16px; align-items: flex-start;
+}
+.tp-num { font-family: var(--display); font-size: 28px; font-weight: 700; color: var(--gold); min-width: 32px; opacity: 0.5; }
+.tp-item h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.tp-item p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* Watch-for */
+.watch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.watch-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px; border-left: 3px solid var(--amber);
+}
+.watch-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--amber); }
+.watch-card p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+/* Questions */
+.q-group { margin-bottom: 24px; }
+.q-group h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: var(--gold); }
+.q-group ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.q-group li {
+  font-size: 14px; color: var(--text2); padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  line-height: 1.5;
+}
+.q-group li::before { content: '?'; color: var(--gold); font-weight: 700; margin-right: 10px; }
+
+/* Footer */
+.footer { padding: 40px 0; text-align: center; border-top: 1px solid var(--border); }
+.footer p { font-size: 12px; color: var(--text3); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-label">Meeting Prep Brief</div>
+    <h1>AOC x COD<br><em>Marketing Affiliate Jam</em></h1>
+    <div class="hero-sub">Exploratory collaboration session between Art of Charm and Clients on Demand. Finding the overlap between organic authority and paid acquisition infrastructure.</div>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><strong>Wed Apr 8</strong><span>Date</span></div>
+      <div class="hero-meta-item"><strong>11:00 AM</strong><span>CST</span></div>
+      <div class="hero-meta-item"><strong>7</strong><span>Attendees</span></div>
+      <div class="hero-meta-item"><strong>1 hr</strong><span>Duration</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Context -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">Context</div>
+      <h2>How We <em>Got Here</em></h2>
+    </div>
+    <div class="tp-list">
+      <div class="tp-item">
+        <div class="tp-num">1</div>
+        <div><h4>Kas introduced AJ Harbinger to Russ Ruffino</h4><p>March 11, 2026. Strategic bridge connecting organic authority (AOC) with paid acquisition infrastructure (COD).</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">2</div>
+        <div><h4>45-min partnership brainstorm</h4><p>March 18. Russ sees synergy with his "Commanding Charisma" product. AJ sees a path to qualified leads.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">3</div>
+        <div><h4>This meeting: operational people in the room</h4><p>Johnny Dzubak (AOC closer), Matthew Freeman, plus COD reps. Time to figure out what a real collaboration looks like.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">The Two Businesses</div>
+      <h2>Side by <em>Side</em></h2>
+    </div>
+
+    <div class="comparison">
+      <div class="company-card aoc">
+        <span class="tag tag-teal">Art of Charm</span>
+        <h3>AOC</h3>
+        <table>
+          <tr><td>Revenue</td><td>~$8.5K/mo (declining)</td></tr>
+          <tr><td>Flagship</td><td>X-Factor Accelerator ($3,700)</td></tr>
+          <tr><td>Growth</td><td>100% organic</td></tr>
+          <tr><td>Podcast</td><td>250M+ downloads</td></tr>
+          <tr><td>Alumni</td><td>12,200+ over 18 years</td></tr>
+          <tr><td>Paid Ads</td><td style="color: var(--red);">Zero. Never run them.</td></tr>
+          <tr><td>Avg Buyer</td><td>39yo, $10K+/mo income</td></tr>
+        </table>
+        <div class="nb-grid" style="margin-top: 20px;">
+          <div class="nb-item nb-need"><strong>Needs:</strong> Qualified lead volume, funnel rebuild, pre-call nurture</div>
+          <div class="nb-item nb-bring"><strong>Brings:</strong> 250M+ podcast downloads, 18yr brand equity, high-trust professional audience</div>
+        </div>
+      </div>
+
+      <div class="company-card cod">
+        <span class="tag tag-gold">Clients on Demand</span>
+        <h3>COD</h3>
+        <table>
+          <tr><td>Model</td><td>$27 workshop funnel</td></tr>
+          <tr><td>Enrollment</td><td>$5K first month, $2-2.5K/mo</td></tr>
+          <tr><td>High Tiers</td><td>$3K-5K/mo, DFY $50-100K</td></tr>
+          <tr><td>Target</td><td>Coaches, consultants, therapists</td></tr>
+          <tr><td>Ads</td><td style="color: var(--green);">Active Meta campaigns + niche testing</td></tr>
+          <tr><td>Sales</td><td>Full closer team, 2-call process</td></tr>
+          <tr><td>Niche LPs</td><td>Therapist vertical proving model</td></tr>
+        </table>
+        <div class="nb-grid" style="margin-top: 20px;">
+          <div class="nb-item nb-need"><strong>Needs:</strong> Traffic beyond Meta, audience diversification, content authority</div>
+          <div class="nb-item nb-bring"><strong>Brings:</strong> Proven $27 funnel, paid traffic machine, full sales infrastructure</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Key Insight -->
+<section>
+  <div class="container">
+    <div class="stats-strip">
+      <div class="stat-card"><div class="num">250M+</div><div class="label">AOC Podcast Downloads</div></div>
+      <div class="stat-card"><div class="num">$0</div><div class="label">AOC Paid Ad Spend (Ever)</div></div>
+      <div class="stat-card"><div class="num">$27</div><div class="label">COD Workshop Ticket</div></div>
+      <div class="stat-card"><div class="num">87%</div><div class="label">AOC Buyers Motivated by Relationships</div></div>
+      <div class="stat-card"><div class="num">$8.5K</div><div class="label">COD Avg PIF Enrollment</div></div>
+    </div>
+    <div class="tp-item" style="border-left: 3px solid var(--gold); max-width: 700px;">
+      <div>
+        <h4 style="color: var(--gold);">The Core Thesis</h4>
+        <p>AOC's audience of $10K+/mo analytical professionals is exactly COD's ICP. AOC has distribution that COD can't buy (organic authority). COD has infrastructure that AOC can't build (paid funnels + closers). This isn't a stretch partnership -- the overlap is real.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Collaboration Angles -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">Opportunities</div>
+      <h2>Collaboration <em>Angles</em></h2>
+    </div>
+    <div class="angles-grid">
+      <div class="angle-card">
+        <div class="angle-num">1</div>
+        <h3>Affiliate Rev-Share</h3>
+        <p>AOC promotes COD's $27 workshop to their audience via podcast mention + dedicated email blast with tracked link. COD pays 20-25% rev-share on enrollments.</p>
+        <div class="potential">Even 100 workshop regs/mo at COD's conversion rates = significant for both sides</div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-num">2</div>
+        <h3>Co-Branded Workshop</h3>
+        <p>Russ + AJ co-host targeting "high-performing professionals who want to build a high-ticket coaching business." AJ provides audience + credibility, Russ provides sales infrastructure.</p>
+        <div class="potential">Combines "charisma + influence" with "build your empire" positioning</div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-num">3</div>
+        <h3>Niche LP for AOC Audience</h3>
+        <p>COD builds a custom landing page for AOC's audience using the niche LP model (like therapist vertical). "You've mastered influence -- now monetize it."</p>
+        <div class="potential">Leverages COD's existing niche LP infrastructure -- fast to deploy</div>
+      </div>
+      <div class="angle-card">
+        <div class="angle-num">4</div>
+        <h3>Content Swap / Podcast</h3>
+        <p>AJ appears on COD content. Russ does AOC podcast. Both audiences get warm, high-trust exposure. Low-risk starting point before money changes hands.</p>
+        <div class="potential">Zero cost, builds trust before committing to rev-share structures</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Talking Points -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">Your Playbook</div>
+      <h2>Talking <em>Points</em></h2>
+    </div>
+    <div class="tp-list">
+      <div class="tp-item">
+        <div class="tp-num">1</div>
+        <div><h4>Lead with the data overlap</h4><p>AOC's buyer profile (39yo, $10K+/mo, analytical professionals) maps almost perfectly to COD's ICP. This isn't a stretch partnership.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">2</div>
+        <div><h4>AOC's organic reach is the asset</h4><p>250M+ podcast downloads with zero paid ads means AOC has distribution that COD can't buy. Frame this as COD getting access to a warm, high-trust channel.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">3</div>
+        <div><h4>COD's funnel solves AOC's #1 problem</h4><p>AOC has never run paid ads and their organic funnel is broken (0.10% CTA click rate, 73% quiz drop-off). COD's $27 model is proven.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">4</div>
+        <div><h4>Propose a 30-day pilot</h4><p>AOC sends traffic to COD's workshop via tracked link. Measure registrations, show rate, and close rate from AOC-sourced leads. De-risks both sides.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">5</div>
+        <div><h4>"Commanding Charisma" angle</h4><p>Russ already flagged this. AJ is literally the world expert on charisma. There's a product collaboration opportunity beyond affiliate traffic.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">6</div>
+        <div><h4>Ask Johnny about ideal leads</h4><p>He sees lead quality issues firsthand as AOC's closer. His perspective shapes the targeting for any joint campaign.</p></div>
+      </div>
+      <div class="tp-item">
+        <div class="tp-num">7</div>
+        <div><h4>LP rebuild as proof of concept</h4><p>You already delivered a full audit + rebuilt LP for AOC. Demonstrates the CRO work KAMG can layer on top. Mention but don't oversell -- this meeting is AOC-COD, not KAMG.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Watch-Fors -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">Risks</div>
+      <h2>Watch-For <em>Items</em></h2>
+    </div>
+    <div class="watch-grid">
+      <div class="watch-card">
+        <h4>AJ's Engagement Level</h4>
+        <p>He was heading to Europe (noted Apr 2). If not on call, Johnny + Matt drive decisions. AJ must bless any financial commitments.</p>
+      </div>
+      <div class="watch-card">
+        <h4>Johnny's Close Rate</h4>
+        <p>23.8% win rate vs Armando's 48.6%. Don't bring up the gap -- but "lead quality" complaints from Johnny may actually be a closing methodology issue.</p>
+      </div>
+      <div class="watch-card">
+        <h4>Revenue Expectations</h4>
+        <p>AOC doing $8.5K/mo and declining. No budget for paid experiments. Keep partnership performance-based (rev-share), not upfront cost.</p>
+      </div>
+      <div class="watch-card">
+        <h4>Power Dynamics</h4>
+        <p>COD has infrastructure + money. AOC is weaker financially. Make sure deal structure isn't lopsided. You're the honest broker.</p>
+      </div>
+      <div class="watch-card">
+        <h4>Scope Creep</h4>
+        <p>This is a jam, not a contract negotiation. Goal: identify 1-2 testable ideas + next steps. Don't let it spiral into 90 min with no actions.</p>
+      </div>
+      <div class="watch-card">
+        <h4>Unsent Items</h4>
+        <p>You still have unsent draft reply to AJ (Mar 29) and a WhatsApp wiki draft. If AJ's on the call, be ready.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Questions -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <div class="sh-label">Discovery</div>
+      <h2>Questions to <em>Ask</em></h2>
+    </div>
+
+    <div class="q-group">
+      <h3>For Johnny (AOC Closer)</h3>
+      <ul>
+        <li>What does your ideal inbound lead look like right now? What makes the difference between a lead you can close and one that wastes your time?</li>
+        <li>How many calls are you booking per week currently, and what's the show rate?</li>
+        <li>Have you ever closed leads that came through a paid workshop or webinar (vs organic/podcast)?</li>
+      </ul>
+    </div>
+
+    <div class="q-group">
+      <h3>For Matt (COD)</h3>
+      <ul>
+        <li>What does COD's current affiliate/partner program look like? Is there an existing rev-share structure?</li>
+        <li>How do COD-sourced leads from non-Meta channels typically perform vs Meta ad leads?</li>
+        <li>What would a pilot look like from COD's operational side -- what's the minimum viable test?</li>
+      </ul>
+    </div>
+
+    <div class="q-group">
+      <h3>For the Room</h3>
+      <ul>
+        <li>If we ran a 30-day test with AOC sending traffic to COD's workshop, what does success look like for each side?</li>
+        <li>Is there appetite for a co-branded workshop (Russ + AJ), or should we start simpler with an affiliate link test?</li>
+        <li>What's the timeline pressure? Is anyone trying to hit specific numbers this quarter?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="container">
+    <p>KAMG Internal Brief | Generated 2026-04-08 | Not for external distribution</p>
+  </div>
+</div>
+
+</body>
+</html>

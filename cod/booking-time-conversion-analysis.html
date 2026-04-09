@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Booking Time vs Conversion -- Jan-Apr 2026 (Hyros-Backfilled)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0e1a; --bg-card: rgba(255,255,255,0.05); --border-card: rgba(255,255,255,0.1);
+    --text: #e2e8f0; --text-dim: #94a3b8; --text-bright: #f8fafc;
+    --red: #ef4444; --orange: #f59e0b; --green: #22c55e; --blue: #3b82f6; --purple: #a855f7;
+    --red-bg: rgba(239,68,68,0.12); --orange-bg: rgba(245,158,11,0.12); --green-bg: rgba(34,197,94,0.12);
+    --blue-bg: rgba(59,130,246,0.12); --purple-bg: rgba(168,85,247,0.12);
+    --sidebar-w: 260px;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+  .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh; background: rgba(11,14,26,0.95); border-right: 1px solid var(--border-card); backdrop-filter: blur(20px); padding: 24px 0; overflow-y: auto; z-index: 100; transition: transform 0.3s ease; }
+  .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid var(--border-card); margin-bottom: 16px; }
+  .sidebar-header h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 4px; }
+  .sidebar-header .brand { font-size: 18px; font-weight: 800; color: var(--text-bright); }
+  .sidebar nav a { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: var(--text-dim); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+  .sidebar nav a:hover, .sidebar nav a.active { color: var(--text-bright); background: rgba(255,255,255,0.04); border-left-color: var(--blue); }
+  .sidebar nav a .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .sidebar nav a .nav-dot.red { background: var(--red); } .sidebar nav a .nav-dot.orange { background: var(--orange); }
+  .sidebar nav a .nav-dot.blue { background: var(--blue); } .sidebar nav a .nav-dot.green { background: var(--green); }
+  .sidebar nav a .nav-dot.purple { background: var(--purple); }
+  .sidebar-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text); padding: 10px 14px; border-radius: 8px; cursor: pointer; backdrop-filter: blur(10px); font-size: 18px; }
+  .main { margin-left: var(--sidebar-w); padding: 40px 48px 80px; max-width: 1200px; }
+  .hero { margin-bottom: 48px; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 8px; font-size: 12px; color: var(--text-dim); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; }
+  .hero-meta span { background: var(--bg-card); border: 1px solid var(--border-card); padding: 4px 12px; border-radius: 6px; }
+  .hero h1 { font-size: 32px; font-weight: 900; color: var(--text-bright); margin: 20px 0 8px; line-height: 1.2; }
+  .hero .subtitle { font-size: 17px; color: var(--text-dim); font-weight: 400; margin-bottom: 12px; }
+  .hero .classification { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; border-radius: 6px; }
+  .hero .classification.green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+  .tldr { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 32px 0 48px; }
+  .stat-card { background: var(--bg-card); border: 1px solid var(--border-card); backdrop-filter: blur(10px); border-radius: 12px; padding: 24px 20px; text-align: center; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .stat-card.red::before { background: var(--red); } .stat-card.orange::before { background: var(--orange); }
+  .stat-card.green::before { background: var(--green); } .stat-card.blue::before { background: var(--blue); }
+  .stat-card .stat-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--text-bright); line-height: 1; margin-bottom: 8px; }
+  .stat-card.green .stat-value { color: var(--green); } .stat-card.red .stat-value { color: var(--red); }
+  .stat-card.orange .stat-value { color: var(--orange); } .stat-card.blue .stat-value { color: var(--blue); }
+  .stat-card .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
+  .stat-card .stat-context { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-family: var(--font-mono); }
+  .section { margin-bottom: 48px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-card); }
+  .section-header h2 { font-size: 22px; font-weight: 700; color: var(--text-bright); }
+  .section-number { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--blue); background: var(--blue-bg); padding: 4px 10px; border-radius: 6px; }
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 999px; }
+  .badge-p0 { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-p1 { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-p2 { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .finding { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+  .finding:hover { border-color: rgba(255,255,255,0.18); }
+  .finding summary { display: flex; align-items: center; gap: 12px; padding: 18px 24px; cursor: pointer; list-style: none; font-weight: 600; font-size: 15px; color: var(--text-bright); }
+  .finding summary::-webkit-details-marker { display: none; }
+  .finding summary::before { content: '\25B6'; font-size: 10px; color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0; }
+  .finding[open] summary::before { transform: rotate(90deg); }
+  .finding .finding-body { padding: 0 24px 20px; font-size: 14px; line-height: 1.7; }
+  .finding .finding-body ul { margin: 8px 0; padding-left: 20px; } .finding .finding-body li { margin-bottom: 6px; }
+  .finding .finding-body strong { color: var(--text-bright); }
+  .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--border-card); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: rgba(255,255,255,0.06); padding: 12px 16px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); border-bottom: 1px solid var(--border-card); white-space: nowrap; }
+  thead th.right { text-align: right; }
+  tbody td { padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: var(--font-mono); font-size: 12px; }
+  tbody td.right { text-align: right; } tbody td.name { font-family: var(--font-body); font-weight: 500; color: var(--text-bright); }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); } tbody tr:hover { background: rgba(255,255,255,0.05); }
+  tbody tr.row-best { background: rgba(34,197,94,0.06); } tbody tr.row-best:hover { background: rgba(34,197,94,0.1); }
+  tbody tr.row-worst { background: rgba(239,68,68,0.06); } tbody tr.row-worst:hover { background: rgba(239,68,68,0.1); }
+  .callout { padding: 16px 20px; border-radius: 10px; margin: 16px 0; font-size: 14px; line-height: 1.6; }
+  .callout.info { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); }
+  .callout.warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); }
+  .callout.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+  .callout.success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); }
+  .callout-title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .callout.info .callout-title { color: var(--blue); } .callout.warn .callout-title { color: var(--orange); }
+  .callout.danger .callout-title { color: var(--red); } .callout.success .callout-title { color: var(--green); }
+  .vs-box { display: inline-block; font-size: 11px; font-family: var(--font-mono); padding: 2px 8px; border-radius: 4px; }
+  .vs-better { background: var(--green-bg); color: var(--green); }
+  .vs-worse { background: var(--red-bg); color: var(--red); }
+  .chart-container { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .chart-container canvas { max-height: 400px; }
+  .priority-item { display: flex; gap: 16px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .priority-item .priority-badge { flex-shrink: 0; margin-top: 2px; }
+  .priority-item .priority-content h4 { font-size: 15px; font-weight: 600; color: var(--text-bright); margin-bottom: 4px; }
+  .priority-item .priority-content p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .assessment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .assess-col { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 12px; padding: 24px; }
+  .assess-col h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-card); }
+  .assess-col.wins h3 { color: var(--green); } .assess-col.leaks h3 { color: var(--red); }
+  .assess-col ul { list-style: none; padding: 0; }
+  .assess-col li { padding: 8px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; gap: 8px; }
+  .assess-col li::before { flex-shrink: 0; font-size: 12px; margin-top: 2px; }
+  .assess-col.wins li::before { content: '+'; color: var(--green); font-weight: 700; }
+  .assess-col.leaks li::before { content: '-'; color: var(--red); font-weight: 700; }
+  @media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { display: block; } .main { margin-left: 0; padding: 24px; }
+    .tldr { grid-template-columns: repeat(2, 1fr); } .assessment-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) { .tldr { grid-template-columns: 1fr; } .hero h1 { font-size: 24px; } }
+</style>
+</head>
+<body>
+
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>KAMG Intelligence</h2>
+    <div class="brand">Booking Analysis</div>
+  </div>
+  <nav>
+    <a href="#exec"><span class="nav-dot green"></span> Executive Summary</a>
+    <a href="#headtohead"><span class="nav-dot orange"></span> Head-to-Head</a>
+    <a href="#momentum"><span class="nav-dot blue"></span> Momentum Segments</a>
+    <a href="#hourly"><span class="nav-dot green"></span> Hourly Show Rates</a>
+    <a href="#method"><span class="nav-dot purple"></span> Methodology</a>
+    <a href="#actions"><span class="nav-dot orange"></span> Actions</a>
+  </nav>
+</aside>
+
+<main class="main">
+
+<!-- ============ EXECUTIVE SUMMARY ============ -->
+<section id="exec" class="section">
+  <div class="hero">
+    <div class="hero-meta">
+      <span>GHL + Hyros Backfill</span>
+      <span>Jan 1 -- Apr 6, 2026</span>
+      <span>Generated 2026-04-06</span>
+      <span>n = 5,927 bookings | 870 showed</span>
+    </div>
+    <h1>Booking Time vs Sales Conversion</h1>
+    <div class="subtitle">Same-day afternoon vs next-day morning: which booking slot actually converts? Now with real show data from Hyros (10,135 qualified calls cross-referenced to GHL appointments).</div>
+    <span class="classification green">Hyros-Validated -- High Confidence</span>
+  </div>
+
+  <div class="tldr">
+    <div class="stat-card green">
+      <div class="stat-value">97-100%</div>
+      <div class="stat-label">Same-Day Show Rate</div>
+      <div class="stat-context">97.1% AM | 100% PM</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value">94.3%</div>
+      <div class="stat-label">Next-Day AM Show Rate</div>
+      <div class="stat-context">n=106 resolved</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-value">91.0%</div>
+      <div class="stat-label">2-4 Days Show Rate</div>
+      <div class="stat-context">Worst segment, 9% no-show</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-value">18.2%</div>
+      <div class="stat-label">2-4 Days Cancel Rate</div>
+      <div class="stat-context">Highest cancel rate</div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">Previous Report Corrected</div>
+    The earlier version of this report used only Google Sheets status data (3 "Showed" records in 3 months). This version cross-references <strong>10,135 Hyros "QUALIFIED" call records</strong> with GHL booking data via contact email. Show rates are now based on 870+ resolved outcomes, not 3.
+  </div>
+</section>
+
+<!-- ============ HEAD TO HEAD ============ -->
+<section id="headtohead" class="section">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2>Head-to-Head: Same-Day Afternoon vs Next-Day Morning</h2>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th class="right">Same-Day Afternoon</th>
+          <th class="right">Next-Day Morning (8-11am)</th>
+          <th class="right">Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name">Total Bookings</td>
+          <td class="right">91</td>
+          <td class="right">151</td>
+          <td class="right">--</td>
+        </tr>
+        <tr class="row-best">
+          <td class="name">Showed (Hyros QUALIFIED)</td>
+          <td class="right" style="color: var(--green);">61</td>
+          <td class="right" style="color: var(--green);">100</td>
+          <td class="right">--</td>
+        </tr>
+        <tr>
+          <td class="name">No-Shows</td>
+          <td class="right" style="color: var(--green);">0</td>
+          <td class="right">6</td>
+          <td class="right"><span class="vs-box vs-better">Same-Day PM</span></td>
+        </tr>
+        <tr class="row-best">
+          <td class="name">Show Rate (of resolved)</td>
+          <td class="right" style="color: var(--green);">100%</td>
+          <td class="right">94.3%</td>
+          <td class="right"><span class="vs-box vs-better">Same-Day PM (+5.7pts)</span></td>
+        </tr>
+        <tr>
+          <td class="name">Cancel Rate</td>
+          <td class="right">14.3%</td>
+          <td class="right">13.9%</td>
+          <td class="right">~Even</td>
+        </tr>
+        <tr>
+          <td class="name">Unresolved</td>
+          <td class="right">17 (19%)</td>
+          <td class="right">24 (16%)</td>
+          <td class="right">--</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">The Real Answer</div>
+    <strong>Same-day afternoon actually has the BEST show rate (100%)</strong> -- zero no-shows when someone books and shows up the same day. The previous report was misleading because "Rescheduled" in the Google Sheet was treated as a negative signal, but Hyros shows those rescheduled prospects eventually showed up as QUALIFIED calls.<br><br>
+    <strong>Next-day morning is still excellent</strong> at 94.3%, but has a small no-show rate (5.7%). The real enemy isn't the time slot -- it's the <strong>2-4 day gap</strong> where 9% no-show and 18% cancel.
+  </div>
+</section>
+
+<!-- ============ MOMENTUM SEGMENTS ============ -->
+<section id="momentum" class="section">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2>Full Momentum Segment Breakdown</h2>
+  </div>
+
+  <p style="margin-bottom: 20px; color: var(--text-dim); font-size: 14px;">Every booking classified by lag between booking action and scheduled call time. Showed status from Hyros QUALIFIED calls matched by email.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Segment</th>
+          <th class="right">Bookings</th>
+          <th class="right">Showed</th>
+          <th class="right">No Show</th>
+          <th class="right">Cancelled</th>
+          <th class="right">Unresolved</th>
+          <th class="right">Show Rate</th>
+          <th class="right">No-Show Rate</th>
+          <th class="right">Cancel Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-best">
+          <td class="name">Same-day Morning</td>
+          <td class="right">49</td>
+          <td class="right">34</td>
+          <td class="right">1</td>
+          <td class="right">8</td>
+          <td class="right">6</td>
+          <td class="right" style="color: var(--green);">97.1%</td>
+          <td class="right" style="color: var(--green);">2.9%</td>
+          <td class="right">16.3%</td>
+        </tr>
+        <tr class="row-best">
+          <td class="name">Same-day Afternoon</td>
+          <td class="right">91</td>
+          <td class="right">61</td>
+          <td class="right" style="color: var(--green);">0</td>
+          <td class="right">13</td>
+          <td class="right">17</td>
+          <td class="right" style="color: var(--green);">100%</td>
+          <td class="right" style="color: var(--green);">0%</td>
+          <td class="right">14.3%</td>
+        </tr>
+        <tr>
+          <td class="name">Next-day Morning</td>
+          <td class="right">151</td>
+          <td class="right">100</td>
+          <td class="right">6</td>
+          <td class="right">21</td>
+          <td class="right">24</td>
+          <td class="right">94.3%</td>
+          <td class="right">5.7%</td>
+          <td class="right">13.9%</td>
+        </tr>
+        <tr>
+          <td class="name">Next-day Afternoon</td>
+          <td class="right">289</td>
+          <td class="right">185</td>
+          <td class="right">11</td>
+          <td class="right">54</td>
+          <td class="right">39</td>
+          <td class="right">94.4%</td>
+          <td class="right">5.6%</td>
+          <td class="right" style="color: var(--red);">18.7%</td>
+        </tr>
+        <tr class="row-worst">
+          <td class="name">2-4 Days Out</td>
+          <td class="right" style="color: var(--blue);">681</td>
+          <td class="right">415</td>
+          <td class="right" style="color: var(--red);">41</td>
+          <td class="right" style="color: var(--red);">124</td>
+          <td class="right">101</td>
+          <td class="right" style="color: var(--orange);">91.0%</td>
+          <td class="right" style="color: var(--red);">9.0%</td>
+          <td class="right" style="color: var(--red);">18.2%</td>
+        </tr>
+        <tr>
+          <td class="name">5+ Days Out</td>
+          <td class="right">116</td>
+          <td class="right">70</td>
+          <td class="right">4</td>
+          <td class="right">27</td>
+          <td class="right">15</td>
+          <td class="right">94.6%</td>
+          <td class="right">5.4%</td>
+          <td class="right" style="color: var(--red);">23.3%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="segmentChart"></canvas>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">Key Insight: The Problem Is Cancellation, Not No-Shows</div>
+    Show rates (of those who don't cancel) are strong across all segments (91-100%). The real lever is <strong>cancellation rate</strong>: same-day slots cancel 14-16%, while 2-4 day and 5+ day slots cancel 18-23%. <strong>Reducing the booking window from 5+ days to 2-3 days max would cut cancellations.</strong>
+  </div>
+</section>
+
+<!-- ============ HOURLY ============ -->
+<section id="hourly" class="section">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2>Hourly Show Rates (Eastern Time)</h2>
+  </div>
+
+  <p style="margin-bottom: 20px; color: var(--text-dim); font-size: 14px;">GHL appointment times converted UTC -> ET. Hyros QUALIFIED = showed. Based on 5,927 Jan-Apr 2026 bookings from fact_bookings joined to ghl_contacts and hyros_calls.</p>
+
+  <div class="chart-container">
+    <canvas id="hourlyChart"></canvas>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Hour (ET)</th>
+          <th class="right">Total</th>
+          <th class="right">Showed</th>
+          <th class="right">No Show</th>
+          <th class="right">Cancelled</th>
+          <th class="right">Show Rate</th>
+          <th class="right">No-Show Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name">8 AM</td>
+          <td class="right">12</td>
+          <td class="right">6</td>
+          <td class="right" style="color: var(--green);">0</td>
+          <td class="right">3</td>
+          <td class="right" style="color: var(--green);">100%</td>
+          <td class="right" style="color: var(--green);">0%</td>
+        </tr>
+        <tr>
+          <td class="name">9 AM</td>
+          <td class="right">40</td>
+          <td class="right">21</td>
+          <td class="right">1</td>
+          <td class="right">8</td>
+          <td class="right" style="color: var(--green);">95.5%</td>
+          <td class="right">4.5%</td>
+        </tr>
+        <tr>
+          <td class="name">10 AM</td>
+          <td class="right">54</td>
+          <td class="right">32</td>
+          <td class="right">3</td>
+          <td class="right">10</td>
+          <td class="right">91.4%</td>
+          <td class="right">8.6%</td>
+        </tr>
+        <tr>
+          <td class="name">11 AM</td>
+          <td class="right" style="color: var(--blue);">531</td>
+          <td class="right">304</td>
+          <td class="right">15</td>
+          <td class="right">39</td>
+          <td class="right" style="color: var(--green);">95.3%</td>
+          <td class="right">4.7%</td>
+        </tr>
+        <tr class="row-best">
+          <td class="name">12 PM</td>
+          <td class="right" style="color: var(--blue);">862</td>
+          <td class="right" style="color: var(--green);">684</td>
+          <td class="right">18</td>
+          <td class="right">49</td>
+          <td class="right" style="color: var(--green);">97.4%</td>
+          <td class="right" style="color: var(--green);">2.6%</td>
+        </tr>
+        <tr class="row-worst">
+          <td class="name">1 PM</td>
+          <td class="right">102</td>
+          <td class="right">70</td>
+          <td class="right" style="color: var(--red);">12</td>
+          <td class="right">12</td>
+          <td class="right" style="color: var(--orange);">85.4%</td>
+          <td class="right" style="color: var(--red);">14.6%</td>
+        </tr>
+        <tr>
+          <td class="name">2 PM</td>
+          <td class="right">107</td>
+          <td class="right">66</td>
+          <td class="right">8</td>
+          <td class="right">18</td>
+          <td class="right">89.2%</td>
+          <td class="right" style="color: var(--red);">10.8%</td>
+        </tr>
+        <tr>
+          <td class="name">3 PM</td>
+          <td class="right">129</td>
+          <td class="right">87</td>
+          <td class="right">9</td>
+          <td class="right">19</td>
+          <td class="right">90.6%</td>
+          <td class="right">9.4%</td>
+        </tr>
+        <tr>
+          <td class="name">4 PM</td>
+          <td class="right">101</td>
+          <td class="right">62</td>
+          <td class="right">3</td>
+          <td class="right">25</td>
+          <td class="right" style="color: var(--green);">95.4%</td>
+          <td class="right">4.6%</td>
+        </tr>
+        <tr>
+          <td class="name">5 PM</td>
+          <td class="right">91</td>
+          <td class="right">53</td>
+          <td class="right">7</td>
+          <td class="right">20</td>
+          <td class="right">88.3%</td>
+          <td class="right" style="color: var(--red);">11.7%</td>
+        </tr>
+        <tr>
+          <td class="name">6 PM</td>
+          <td class="right">276</td>
+          <td class="right">171</td>
+          <td class="right">8</td>
+          <td class="right">29</td>
+          <td class="right" style="color: var(--green);">95.5%</td>
+          <td class="right">4.5%</td>
+        </tr>
+        <tr class="row-best">
+          <td class="name">7 PM</td>
+          <td class="right" style="color: var(--blue);">3,609</td>
+          <td class="right" style="color: var(--green);">3,013</td>
+          <td class="right">34</td>
+          <td class="right">78</td>
+          <td class="right" style="color: var(--green);">98.9%</td>
+          <td class="right" style="color: var(--green);">1.1%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="assessment-grid">
+    <div class="assess-col wins">
+      <h3>Best Hours (Lowest No-Show)</h3>
+      <ul>
+        <li><strong>7 PM ET:</strong> 98.9% show rate, 3,609 bookings (61% of all). Dominant slot. 1.1% no-show.</li>
+        <li><strong>12 PM ET:</strong> 97.4% show rate, 862 bookings. Second highest volume.</li>
+        <li><strong>8 AM ET:</strong> 100% show rate but tiny sample (12). Zero no-shows.</li>
+        <li><strong>11 AM ET:</strong> 95.3% show rate, 531 bookings. Strong volume + performance.</li>
+      </ul>
+    </div>
+    <div class="assess-col leaks">
+      <h3>Worst Hours (Highest No-Show)</h3>
+      <ul>
+        <li><strong>1 PM ET:</strong> 14.6% no-show rate. Post-lunch slump. Worst single hour.</li>
+        <li><strong>5 PM ET:</strong> 11.7% no-show. End of workday conflicts.</li>
+        <li><strong>2 PM ET:</strong> 10.8% no-show. Early afternoon weakness.</li>
+        <li><strong>3 PM ET:</strong> 9.4% no-show. Afternoon pattern continues.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHODOLOGY ============ -->
+<section id="method" class="section">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <h2>Methodology & Data Sources</h2>
+  </div>
+
+  <details class="finding" open>
+    <summary>How "Showed" Was Determined</summary>
+    <div class="finding-body">
+      <ul>
+        <li><strong>Source:</strong> GHL Calendar API appointments (fact_bookings) joined to ghl_contacts (for email) joined to Hyros call records</li>
+        <li><strong>Join:</strong> fact_bookings.contact_id -> ghl_contacts.contact_id -> hyros_calls.email (lowercase trimmed match)</li>
+        <li><strong>Logic:</strong> If Hyros has a QUALIFIED call for that email, the booking is marked "showed." NO_SHOW and CANCELLED from Hyros override GHL status.</li>
+        <li><strong>Dedup:</strong> When a contact has multiple Hyros records, the most recent call_state is used (ROW_NUMBER by call_timestamp DESC)</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="finding" open>
+    <summary>Booking Lag (Momentum Segment) Source</summary>
+    <div class="finding-body">
+      <ul>
+        <li><strong>Source:</strong> sheets_bookings (Google Sheets tracker). This table has separate date_booked (when they clicked book) and call_date (scheduled call datetime as a formatted string).</li>
+        <li><strong>Why not fact_bookings:</strong> GHL Calendar API doesn't return createdAt, so date_booked falls back to startTime (appointment time). All records show 0-day lag. Booking lag can only be calculated from sheets_bookings.</li>
+        <li><strong>Timezone:</strong> Hourly analysis uses fact_bookings time_booked (UTC, converted to ET with -5h offset). Call_date strings in sheets_bookings are assumed ET.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="finding">
+    <summary>Remaining Gaps</summary>
+    <div class="finding-body">
+      <ul>
+        <li><strong>Enrollment:</strong> Still not trackable. Stripe only has $27 tickets (7 email matches to bookings). High-ticket enrollment goes through Authorize.net/separate Stripe. Need that data source connected.</li>
+        <li><strong>Unresolved records:</strong> 204 bookings (15%) have no Hyros match. Could be test records, different email used, or calls that happened outside Hyros tracking window.</li>
+        <li><strong>EDT vs EST:</strong> UTC-5 used for all months. Apr-Oct should technically be UTC-4 (EDT). This shifts hours by 1 during daylight saving.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ============ ACTIONS ============ -->
+<section id="actions" class="section">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <h2>Recommended Actions</h2>
+  </div>
+
+  <div class="priority-item">
+    <div class="priority-badge"><span class="badge badge-p0">P0</span></div>
+    <div class="priority-content">
+      <h4>Reduce 1-3 PM No-Show Rate</h4>
+      <p>The 1-3 PM ET window has 10-15% no-show rates vs 1-5% for morning and evening slots. Add aggressive SMS confirmations (2hr + 30min before) specifically for afternoon bookings. Consider reducing afternoon slot availability.</p>
+    </div>
+  </div>
+
+  <div class="priority-item">
+    <div class="priority-badge"><span class="badge badge-p0">P0</span></div>
+    <div class="priority-content">
+      <h4>Connect Enrollment Data</h4>
+      <p>Show rate question is answered. The next question is: which time slots produce enrollments? Need Authorize.net or high-ticket Stripe account data in the warehouse, joinable by email.</p>
+    </div>
+  </div>
+
+  <div class="priority-item">
+    <div class="priority-badge"><span class="badge badge-p1">P1</span></div>
+    <div class="priority-content">
+      <h4>Cap Booking Window to 3 Days</h4>
+      <p>5+ days out has 23.3% cancel rate (vs 14% same-day). Tighter booking windows reduce cancellation. Consider max 3-day calendar window with waitlist for overflow.</p>
+    </div>
+  </div>
+
+  <div class="priority-item">
+    <div class="priority-badge"><span class="badge badge-p1">P1</span></div>
+    <div class="priority-content">
+      <h4>Favor 7 PM + 12 PM Slots</h4>
+      <p>These two hours account for 75% of all bookings AND have the best show rates (97-99%). If expanding closer capacity, prioritize adding slots at these times.</p>
+    </div>
+  </div>
+
+  <div class="priority-item">
+    <div class="priority-badge"><span class="badge badge-p2">P2</span></div>
+    <div class="priority-content">
+      <h4>Fix GHL ETL: Add createdAt</h4>
+      <p>The GHL Calendar API may support createdAt on appointment objects. If so, update etl-ghl-calendar.js to capture it. This would let us calculate booking lag directly from fact_bookings instead of depending on sheets_bookings.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// Segment Chart
+new Chart(document.getElementById('segmentChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Same-day\nMorning', 'Same-day\nAfternoon', 'Next-day\nMorning', 'Next-day\nAfternoon', '2-4 Days\nOut', '5+ Days\nOut'],
+    datasets: [
+      { label: 'Show Rate %', data: [97.1, 100, 94.3, 94.4, 91.0, 94.6], backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 4 },
+      { label: 'No-Show Rate %', data: [2.9, 0, 5.7, 5.6, 9.0, 5.4], backgroundColor: 'rgba(239,68,68,0.6)', borderRadius: 4 },
+      { label: 'Cancel Rate %', data: [16.3, 14.3, 13.9, 18.7, 18.2, 23.3], backgroundColor: 'rgba(245,158,11,0.5)', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+      title: { display: true, text: 'Show Rate, No-Show Rate & Cancel Rate by Momentum Segment', color: '#f8fafc', font: { size: 16, family: 'Inter', weight: 700 } }
+    },
+    scales: {
+      x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { ticks: { color: '#94a3b8', callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.05)' }, max: 105 }
+    }
+  }
+});
+
+// Hourly Chart
+new Chart(document.getElementById('hourlyChart'), {
+  type: 'bar',
+  data: {
+    labels: ['8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm'],
+    datasets: [
+      { label: 'Showed', data: [6,21,32,304,684,70,66,87,62,53,171,3013], backgroundColor: 'rgba(34,197,94,0.7)', borderRadius: 4 },
+      { label: 'No Show', data: [0,1,3,15,18,12,8,9,3,7,8,34], backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 },
+      { label: 'Cancelled', data: [3,8,10,39,49,12,18,19,25,20,29,78], backgroundColor: 'rgba(245,158,11,0.5)', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+      title: { display: true, text: 'Booking Outcomes by Scheduled Hour (ET) -- Jan-Apr 2026', color: '#f8fafc', font: { size: 16, family: 'Inter', weight: 700 } }
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { stacked: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+    }
+  }
+});
+
+// Sidebar
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`.sidebar nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

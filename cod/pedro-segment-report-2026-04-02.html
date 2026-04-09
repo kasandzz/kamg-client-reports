@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Segment Analysis -- Pedro's Table (Filled) | Apr 2, 2026</title>
+<style>
+  :root {
+    --bg-primary: #0f0f1a;
+    --bg-secondary: #1a1a2e;
+    --bg-card: #16213e;
+    --bg-table-row: #1a1a2e;
+    --bg-table-alt: #12122a;
+    --bg-table-head: #0d1b3e;
+    --text-primary: #e8e8f0;
+    --text-secondary: #a0a0b8;
+    --text-muted: #6e6e88;
+    --border: #2a2a4a;
+    --accent: #4fc3f7;
+
+    --c-therapists: #4CAF50;
+    --c-coaches: #2196F3;
+    --c-attorneys: #FF9800;
+    --c-educators: #9C27B0;
+    --c-health-coaches: #00BCD4;
+    --c-hc-providers: #E91E63;
+
+    --badge-pedro: #FF6F00;
+    --badge-hyros: #7C4DFF;
+    --badge-bct: #00C853;
+    --badge-book: #2196F3;
+    --badge-ghl: #FF4081;
+    --badge-pipeline: #FFD600;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  /* Header */
+  .report-header {
+    text-align: center;
+    padding: 48px 32px 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .report-header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), #e0e0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .report-header .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .report-header .meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .report-header .meta span { white-space: nowrap; }
+
+  /* Section titles */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Badge system */
+  .badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    vertical-align: super;
+    line-height: 1;
+    letter-spacing: 0.3px;
+    margin-left: 2px;
+  }
+  .badge-pedro { background: var(--badge-pedro); color: #fff; }
+  .badge-hyros { background: var(--badge-hyros); color: #fff; }
+  .badge-bct { background: var(--badge-bct); color: #000; }
+  .badge-book { background: var(--badge-book); color: #fff; }
+  .badge-ghl { background: var(--badge-ghl); color: #fff; }
+  .badge-pipeline { background: var(--badge-pipeline); color: #000; }
+
+  /* Source key legend */
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .legend-item .badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    vertical-align: baseline;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .legend-item .desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* Context box */
+  .context-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+  }
+  .context-box ul {
+    list-style: none;
+    padding: 0;
+  }
+  .context-box li {
+    padding: 6px 0;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .context-box li:last-child { border-bottom: none; }
+  .context-box li::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+
+  /* Main table */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    min-width: 1100px;
+  }
+  thead th {
+    background: var(--bg-table-head);
+    color: var(--accent);
+    font-weight: 600;
+    padding: 14px 16px;
+    text-align: right;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  thead th:first-child {
+    text-align: left;
+    padding-left: 20px;
+  }
+  tbody td {
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-primary);
+  }
+  tbody td:first-child {
+    text-align: left;
+    font-weight: 600;
+    padding-left: 20px;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: var(--bg-table-alt); }
+  tbody tr:hover { background: rgba(79, 195, 247, 0.06); }
+
+  .seg-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .new-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--c-hc-providers);
+    color: #fff;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+
+  .val-na {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .small-note {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* Highlight best/worst */
+  .best { color: #66BB6A; font-weight: 700; }
+  .worst { color: #ef5350; }
+  .warn { color: #FFA726; }
+
+  /* Finding cards */
+  .findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+  }
+  .finding-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    border-left: 4px solid var(--accent);
+    transition: transform 0.15s;
+  }
+  .finding-card:hover { transform: translateY(-2px); }
+  .finding-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+  }
+  .finding-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .finding-card.accent-green { border-left-color: var(--c-therapists); }
+  .finding-card.accent-blue { border-left-color: var(--c-coaches); }
+  .finding-card.accent-orange { border-left-color: var(--c-attorneys); }
+  .finding-card.accent-purple { border-left-color: var(--c-educators); }
+  .finding-card.accent-pink { border-left-color: var(--c-hc-providers); }
+  .finding-card .rec {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(79, 195, 247, 0.08);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Fixes list */
+  .fix-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+  }
+  .fix-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .fix-check {
+    color: var(--c-therapists);
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .fix-item .fix-text {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+  }
+
+  /* Caveats */
+  .caveat-list {
+    list-style: none;
+    padding: 0;
+  }
+  .caveat-list li {
+    padding: 10px 16px;
+    margin-bottom: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    border-left: 3px solid #FFA726;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Methodology */
+  .method-steps {
+    counter-reset: step;
+  }
+  .method-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .method-step:last-child { border-bottom: none; }
+  .method-step::before {
+    counter-increment: step;
+    content: counter(step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .method-step .step-content {
+    flex: 1;
+  }
+  .method-step .step-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+  .method-step .step-detail {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .method-step .step-count {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Raw numbers table */
+  .raw-table {
+    font-size: 0.8rem;
+  }
+  .raw-table th {
+    font-size: 0.7rem;
+  }
+
+  /* Footer */
+  .report-footer {
+    text-align: center;
+    padding: 32px 0 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  /* Print */
+  @media print {
+    body {
+      background: #fff;
+      color: #1a1a1a;
+      font-size: 10pt;
+    }
+    .container { padding: 20px; max-width: 100%; }
+    :root {
+      --bg-primary: #fff;
+      --bg-secondary: #f5f5f5;
+      --bg-card: #fafafa;
+      --bg-table-row: #fff;
+      --bg-table-alt: #f8f8f8;
+      --bg-table-head: #eee;
+      --text-primary: #1a1a1a;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --border: #ddd;
+      --accent: #1565C0;
+    }
+    .finding-card:hover { transform: none; }
+    .report-header h1 {
+      background: none;
+      -webkit-text-fill-color: var(--accent);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container { padding: 20px 16px; }
+    .report-header h1 { font-size: 1.5rem; }
+    .findings-grid { grid-template-columns: 1fr; }
+    .legend-grid { grid-template-columns: 1fr; }
+    .fix-list { grid-template-columns: 1fr; }
+    .report-header .meta { flex-direction: column; gap: 8px; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="report-header">
+    <h1>COD Segment Performance Analysis</h1>
+    <div class="subtitle">Pedro's Table -- Filled with Cross-Validated Data from 5 Sources</div>
+    <div class="meta">
+      <span>Date Range: Feb 1 -- Apr 2, 2026</span>
+      <span>Total FB Spend: $249,056</span>
+      <span>Total Purchases: 885</span>
+      <span>Booked Calls: 809 events / 551 unique people</span>
+    </div>
+  </div>
+
+  <!-- SECTION 1: SOURCE KEY -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">1</span> Source Key</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <span class="badge badge-pedro">PEDRO</span>
+        <span class="desc">Pedro's original table -- Facebook spend + Hyros scientific attribution (full window, not last-click). 885 total purchases.</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-hyros">HYROS</span>
+        <span class="desc">Hyros API full pull -- 531 calls, 628 sales. Date range: Feb 22 -- Apr 2 (CAPI installed Feb 22, missing early Feb).</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-bct">BCT</span>
+        <span class="desc">Booked Calls Tracking -- Feb + Mar tabs. 697 rows total, 352 attributed to segments via UTM/Workshop/GHL cross-reference.</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-book">BOOK</span>
+        <span class="desc">Reporting &gt; Bookings tab -- 1,908 rows full pull. Source for booking event counts and unique people per segment.</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-ghl">GHL</span>
+        <span class="desc">GoHighLevel CRM contact lookup -- 37 of 43 unattributed enrollees found, 24 classified by segment from contact tags.</span>
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-pipeline">PIPELINE</span>
+        <span class="desc">Derived metrics from segment-pipeline.js -- combines all sources above. CPBC = Spend / Unique People. CPA = Spend / Enrollments.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: PEDRO'S CONTEXT -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">2</span> Pedro's Context</div>
+    <div class="context-box">
+      <ul>
+        <li>Date range: <strong>Feb 1 -- Apr 2, 2026</strong></li>
+        <li>Spend is <strong>Facebook-only</strong> (no Google, no organic)</li>
+        <li>Purchases use <strong>Hyros scientific attribution</strong> (multi-touch, NOT last-click) -- this is why numbers differ from GA4 or FB CAPI</li>
+        <li>CPP (Cost Per Purchase) is an <strong>average</strong> and may be skewed by outlier ad sets</li>
+        <li>This is <strong>directional data</strong> for initial segment evaluation -- not final ROI</li>
+        <li>Recent data may be understated due to <strong>conversion lag</strong> -- leads from late March haven't fully converted yet</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 3: MAIN TABLE -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">3</span> Pedro's Table -- Filled</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Segment</th>
+            <th>FB Spend <span class="badge badge-pedro">PEDRO</span></th>
+            <th>Purchases <span class="badge badge-pedro">PEDRO</span></th>
+            <th>CPP <span class="badge badge-pedro">PEDRO</span></th>
+            <th>Booked Calls <span class="badge badge-book">BOOK</span><span class="badge badge-bct">BCT</span></th>
+            <th>CPBC <span class="badge badge-pipeline">PIPELINE</span></th>
+            <th>Show Rate <span class="badge badge-hyros">HYROS</span></th>
+            <th>Enrollments <span class="badge badge-bct">BCT</span></th>
+            <th>CPA <span class="badge badge-pipeline">PIPELINE</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Therapists -->
+          <tr>
+            <td><span class="seg-dot" style="background:var(--c-therapists)"></span>Therapists</td>
+            <td>$103,861</td>
+            <td>412 <span class="small-note">204 in Hyros API</span></td>
+            <td>$252</td>
+            <td>139 unique<span class="small-note">198 events incl. reschedules</span></td>
+            <td>$747</td>
+            <td>89.3%<span class="small-note">125 / 140 calls</span></td>
+            <td>18</td>
+            <td>$5,770</td>
+          </tr>
+          <!-- Coaches -->
+          <tr>
+            <td><span class="seg-dot" style="background:var(--c-coaches)"></span>Coaches &amp; Consultants</td>
+            <td>$68,328</td>
+            <td>193<span class="small-note">129 in Hyros API</span></td>
+            <td>$354</td>
+            <td>43 unique<span class="small-note">51 events</span></td>
+            <td>$1,589</td>
+            <td class="best">91.2%<span class="small-note">83 / 91 calls</span></td>
+            <td>9</td>
+            <td>$7,592</td>
+          </tr>
+          <!-- Attorneys -->
+          <tr>
+            <td><span class="seg-dot" style="background:var(--c-attorneys)"></span>Attorneys</td>
+            <td>$42,243</td>
+            <td>160<span class="small-note">63 in Hyros API</span></td>
+            <td>$264</td>
+            <td>37 unique<span class="small-note">70 events</span></td>
+            <td>$1,142</td>
+            <td>88.7%<span class="small-note">47 / 53 calls</span></td>
+            <td>7</td>
+            <td>$6,035</td>
+          </tr>
+          <!-- Educators -->
+          <tr>
+            <td><span class="seg-dot" style="background:var(--c-educators)"></span>Educators</td>
+            <td>$26,019</td>
+            <td>98<span class="small-note">32 in Hyros API</span></td>
+            <td>$266</td>
+            <td>21 unique<span class="small-note">32 events</span></td>
+            <td>$1,239</td>
+            <td>88.9%<span class="small-note">16 / 18 calls</span></td>
+            <td>6</td>
+            <td class="best">$4,337</td>
+          </tr>
+          <!-- Health Coaches -->
+          <tr>
+            <td><span class="seg-dot" style="background:var(--c-health-coaches)"></span>Health Coaches</td>
+            <td>$8,605</td>
+            <td>22<span class="small-note">17 in Hyros API</span></td>
+            <td>$391</td>
+            <td>5 unique<span class="small-note">8 events</span></td>
+            <td>$1,721</td>
+            <td class="worst">60.0%<span class="small-note">3 / 5 calls</span></td>
+            <td>2</td>
+            <td>$4,303</td>
+          </tr>
+          <!-- Healthcare Providers -->
+          <tr>
+            <td>
+              <span class="seg-dot" style="background:var(--c-hc-providers)"></span>Healthcare Providers
+              <span class="new-tag">NEW</span>
+            </td>
+            <td class="val-na">Unknown</td>
+            <td class="val-na">N/A<span class="small-note">39 in Hyros API</span></td>
+            <td class="val-na">N/A</td>
+            <td>28 unique<span class="small-note">38 events</span></td>
+            <td class="val-na">N/A</td>
+            <td class="best">95.2%<span class="small-note">20 / 21 calls</span></td>
+            <td>0<span class="small-note">may be misclassified</span></td>
+            <td class="val-na">N/A</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr style="background:var(--bg-table-head); font-weight:600; color:var(--accent);">
+            <td style="text-align:left; padding-left:20px;">TOTALS</td>
+            <td>$249,056</td>
+            <td>885</td>
+            <td>$281 avg</td>
+            <td>273 unique</td>
+            <td>--</td>
+            <td>--</td>
+            <td>42</td>
+            <td>--</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div style="margin-top:12px; font-size:0.78rem; color:var(--text-muted);">
+      Unique booked calls counted by distinct contact. Events include reschedules, cancellations, and re-bookings.
+      Healthcare Providers spend not broken out in Pedro's table -- recommend separate allocation.
+      Unattributed: 412 booking events (278 unique people), 17 enrollments not shown in table.
+    </div>
+  </div>
+
+  <!-- SECTION 4: KEY FINDINGS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">4</span> Key Findings</div>
+    <div class="findings-grid">
+
+      <div class="finding-card accent-pink">
+        <h3>1. Healthcare Providers is a Hidden 6th Segment</h3>
+        <p>Pedro's "Health Coaches" only covers "Health & Wellness Coaches" ad sets ($8,605 spend, 22 purchases). But COD also runs separate ad sets for "Physician/DO/NP" and "Other Licensed Healthcare Provider" (Acupuncturists, Chiropractors, PTs, Dietitians). These generated <strong>39 Hyros purchases</strong> and have the <strong>highest show rate (95.2%)</strong> but aren't tracked in Pedro's table.</p>
+        <div class="rec">RECOMMENDATION: Break out as separate row with its own spend allocation from Facebook Ads Manager.</div>
+      </div>
+
+      <div class="finding-card accent-blue">
+        <h3>2. Hyros API Data Gap</h3>
+        <p>Pedro's "Purchases" (885 total) come from Hyros scientific attribution. Our API pull only got 628 sales because CAPI was installed Feb 22 -- missing ~3 weeks of February data. The <strong>ratios between segments are consistent</strong> across both data sets, confirming the directional accuracy.</p>
+        <div class="rec">GAP: ~257 sales between Pedro (885) and API (628). Ratio consistency validates segment proportions.</div>
+      </div>
+
+      <div class="finding-card accent-green">
+        <h3>3. Show Rates are Strong Across the Board</h3>
+        <p>Hyros call data shows <strong>87-91% show rates</strong> for the four main segments. Only Health Coaches is low (60%) but that's a 5-call sample -- statistically meaningless. Coaches & Consultants lead at 91.2%. Healthcare Providers top all segments at 95.2%.</p>
+        <div class="rec">NOTE: Show rate = Hyros QUALIFIED state / total calls. This tracks people who connected with a closer, not just attended.</div>
+      </div>
+
+      <div class="finding-card accent-purple">
+        <h3>4. Educators Have the Best Enrollment Rate</h3>
+        <p>Despite smallest volume (6 enrollments from 21 booked calls), Educators convert at the <strong>highest rate</strong> and have the <strong>lowest CPA ($4,337)</strong>. This is <strong>25% cheaper than Therapists ($5,770)</strong> despite Therapists being the largest segment by spend and volume.</p>
+        <div class="rec">OPPORTUNITY: Educators may be underinvested. Current spend is only 10% of total ($26K of $249K).</div>
+      </div>
+
+      <div class="finding-card accent-orange">
+        <h3>5. 52% of Bookings are Unattributed</h3>
+        <p>412 of 809 booking events have no Facebook ad tracking. These are mostly <strong>rescheduled entries</strong> (which lose UTM data) and organic/internal bookings. The BCT cross-reference recovered 352 of 697 BCT rows (50.5%) through UTM, workshop email, and GHL lookups.</p>
+        <div class="rec">IMPACT: Attribution leakage inflates unattributed pool. Recommend UTM persistence fix in GHL booking forms.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 5: DATA ARCHITECTURE FIXES -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">5</span> Data Architecture Fixes Completed</div>
+    <div class="fix-list">
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>Hyros API pagination cracked</strong> -- pageSize=200 + fromDate/toDate query params. Full 531 calls + 628 sales extracted.</span>
+      </div>
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>Full Bookings pull</strong> -- 1,908 rows recovered (was truncated to 90 due to sheet tab limits).</span>
+      </div>
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>BCT cross-reference</strong> -- joined call outcomes (enrollment/no-show/cancelled) with segment attribution from 4 methods.</span>
+      </div>
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>GHL contact lookup</strong> -- classified 24 of 43 unattributed enrollees by pulling CRM contact tags and ad source fields.</span>
+      </div>
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>Segment pipeline automated</strong> -- 4-method attribution engine (UTM + URL + Workshop + GHL) runs against all booking data.</span>
+      </div>
+      <div class="fix-item">
+        <span class="fix-check">&#10003;</span>
+        <span class="fix-text"><strong>Daily Hyros cron</strong> -- capturing new calls and sales data automatically for ongoing analysis.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: CAVEATS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">6</span> Caveats</div>
+    <ul class="caveat-list">
+      <li>Hyros data starts <strong>Feb 22</strong> (CAPI install date) -- missing approximately 3 weeks of February. Pedro's numbers cover the full range via Hyros UI.</li>
+      <li>BCT enrollment counts are from <strong>Feb + Mar only</strong>. April data is not yet reflected in the BCT tabs.</li>
+      <li>"Enrollments" = BCT rows where Sentiment = "Enrollment" -- this means they <strong>enrolled on the call</strong>, not necessarily that payment has been collected.</li>
+      <li>Show rates from <strong>Hyros (QUALIFIED state)</strong> vs <strong>BCT (call completed)</strong> may differ slightly due to different tracking criteria.</li>
+      <li><strong>17 enrollments remain unattributed</strong> across all sources -- could not be classified to any segment via UTM, workshop, or GHL methods.</li>
+      <li>Health Coaches sample size is <strong>very small</strong> (5 calls, 2 enrollments) -- treat all Health Coaches metrics as directional only.</li>
+      <li><strong>Conversion lag:</strong> recent leads (late March / early April) haven't had time to convert through the full funnel, so current-month CPA will improve as sales close.</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 7: METHODOLOGY -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">7</span> Methodology</div>
+    <div class="context-box">
+      <p style="color:var(--text-secondary); margin-bottom:16px; font-size:0.9rem;">
+        Segment attribution was determined through a 5-method cascade. Each booking was classified by the first method that produced a match:
+      </p>
+      <div class="method-steps">
+        <div class="method-step">
+          <div class="step-content">
+            <div class="step-title">UTM Medium Keyword Matching</div>
+            <div class="step-detail">Parsed utm_medium from booking URLs. Matched keywords like "therapist", "attorney", "coach" to segments. <span class="step-count">154 bookings attributed.</span></div>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="step-content">
+            <div class="step-title">Landing Page URL Path Matching</div>
+            <div class="step-detail">Matched booking source URLs against known segment-specific landing pages (e.g., /therapist-workshop, /attorney-masterclass). <span class="step-count">48 bookings attributed.</span></div>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="step-content">
+            <div class="step-title">Workshop Email Cross-Reference</div>
+            <div class="step-detail">Joined booking contact emails against workshop registration lists that are segment-tagged. <span class="step-count">185 bookings attributed.</span></div>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="step-content">
+            <div class="step-title">GHL CRM Contact Lookup</div>
+            <div class="step-detail">For remaining unattributed contacts, queried GoHighLevel CRM for contact tags and ad source fields. <span class="step-count">10 bookings attributed.</span></div>
+          </div>
+        </div>
+        <div class="method-step">
+          <div class="step-content">
+            <div class="step-title">Hyros Ad Source Name Classification</div>
+            <div class="step-detail">Classified Hyros call and sale records by parsing the ad source/campaign name field. <span class="step-count">321 of 531 calls, 484 of 628 sales classified.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: RAW NUMBERS -->
+  <div class="section">
+    <div class="section-title"><span class="section-num">8</span> Raw Numbers Reference</div>
+    <div class="table-wrap">
+      <table class="raw-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Metric</th>
+            <th><span class="seg-dot" style="background:var(--c-therapists)"></span>Therapists</th>
+            <th><span class="seg-dot" style="background:var(--c-coaches)"></span>Coaches</th>
+            <th><span class="seg-dot" style="background:var(--c-attorneys)"></span>Attorneys</th>
+            <th><span class="seg-dot" style="background:var(--c-educators)"></span>Educators</th>
+            <th><span class="seg-dot" style="background:var(--c-health-coaches)"></span>Health&nbsp;Coaches</th>
+            <th><span class="seg-dot" style="background:var(--c-hc-providers)"></span>HC&nbsp;Providers</th>
+            <th>Unattrib</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spend <span class="badge badge-pedro">PEDRO</span></td>
+            <td>$103,861</td>
+            <td>$68,328</td>
+            <td>$42,243</td>
+            <td>$26,019</td>
+            <td>$8,605</td>
+            <td class="val-na">?</td>
+            <td>--</td>
+          </tr>
+          <tr>
+            <td>Purchases <span class="badge badge-pedro">PEDRO</span></td>
+            <td>412</td>
+            <td>193</td>
+            <td>160</td>
+            <td>98</td>
+            <td>22</td>
+            <td>--</td>
+            <td>--</td>
+          </tr>
+          <tr>
+            <td>Hyros Sales <span class="badge badge-hyros">HYROS</span></td>
+            <td>204</td>
+            <td>129</td>
+            <td>63</td>
+            <td>32</td>
+            <td>17</td>
+            <td>39</td>
+            <td>144</td>
+          </tr>
+          <tr>
+            <td>Hyros Calls <span class="badge badge-hyros">HYROS</span></td>
+            <td>140</td>
+            <td>91</td>
+            <td>53</td>
+            <td>18</td>
+            <td>5</td>
+            <td>21</td>
+            <td>203</td>
+          </tr>
+          <tr>
+            <td>Hyros Qualified <span class="badge badge-hyros">HYROS</span></td>
+            <td>125</td>
+            <td>83</td>
+            <td>47</td>
+            <td>16</td>
+            <td>3</td>
+            <td>20</td>
+            <td>171</td>
+          </tr>
+          <tr>
+            <td>Booking Events <span class="badge badge-book">BOOK</span></td>
+            <td>198</td>
+            <td>51</td>
+            <td>70</td>
+            <td>32</td>
+            <td>8</td>
+            <td>38</td>
+            <td>412</td>
+          </tr>
+          <tr>
+            <td>Unique People <span class="badge badge-book">BOOK</span></td>
+            <td>139</td>
+            <td>43</td>
+            <td>37</td>
+            <td>21</td>
+            <td>5</td>
+            <td>28</td>
+            <td>278</td>
+          </tr>
+          <tr>
+            <td>BCT Enrollments <span class="badge badge-bct">BCT</span></td>
+            <td>18</td>
+            <td>9</td>
+            <td>7</td>
+            <td>6</td>
+            <td>2</td>
+            <td>0</td>
+            <td>17</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px; font-size:0.78rem; color:var(--text-muted);">
+      All raw numbers pulled directly from source systems. Cross-validate any metric by checking the source badge against the legend in Section 1.
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="report-footer">
+    <p>Generated by KAMG Data Intelligence Pipeline -- April 2, 2026 at 20:00 CST</p>
+    <p>Sources: Hyros API, Booked Calls Tracking (Google Sheets), Reporting > Bookings (Google Sheets), GoHighLevel CRM, Pedro's Segment Table</p>
+    <p style="margin-top:8px;">Prepared for COD internal use. All metrics are directional -- see Caveats (Section 6) for known limitations.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

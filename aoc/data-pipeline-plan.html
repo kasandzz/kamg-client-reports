@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOC Data Pipeline &amp; LP Rebuild Plan</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --border: #2a2a3a;
+    --border-accent: #3d3d55;
+    --text: #e8e6f0;
+    --text-dim: #8a8899;
+    --text-muted: #5a5a6e;
+    --accent: #7c6bf0;
+    --accent-soft: #7c6bf020;
+    --green: #34d399;
+    --green-soft: #34d39915;
+    --amber: #fbbf24;
+    --amber-soft: #fbbf2415;
+    --red: #f87171;
+    --red-soft: #f8717115;
+    --blue: #60a5fa;
+    --blue-soft: #60a5fa15;
+    --cyan: #22d3ee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  /* ---- HEADER ---- */
+  .hero {
+    background: linear-gradient(135deg, #1a1030 0%, #0d1b2a 50%, #0a0a0f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #e8e6f0, #7c6bf0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero .subtitle {
+    color: var(--text-dim);
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* ---- LAYOUT ---- */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ---- CONTEXT BOX ---- */
+  .context-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .context-box h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .context-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .context-item .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+  }
+  .context-item .value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .context-item .detail {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+
+  /* ---- STAGES ---- */
+  .stage-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .stage-num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .stage-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .stage-header .stage-desc {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-left: auto;
+  }
+
+  /* ---- SECTIONS ---- */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .section-head {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-head h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .section-head .tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+  .tag-stage1 { background: var(--green-soft); color: var(--green); border: 1px solid var(--green); }
+  .tag-stage2 { background: var(--blue-soft); color: var(--blue); border: 1px solid var(--blue); }
+  .tag-both { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber); }
+  .tag-critical { background: var(--red-soft); color: var(--red); border: 1px solid var(--red); }
+  .section-body { padding: 1.25rem; }
+
+  /* ---- TABLES ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: var(--text); font-weight: 600; }
+  td code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* ---- STATUS CHIPS ---- */
+  .status {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .status-needed { background: var(--red-soft); color: var(--red); }
+  .status-partial { background: var(--amber-soft); color: var(--amber); }
+  .status-ready { background: var(--green-soft); color: var(--green); }
+  .status-aj { background: var(--blue-soft); color: var(--blue); }
+
+  /* ---- LISTS ---- */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .bullet {
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .extract-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .extract-list li {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  .extract-list li strong { color: var(--text); display: block; font-size: 0.78rem; margin-bottom: 0.15rem; }
+  .extract-list li em { color: var(--text-muted); font-style: normal; font-size: 0.75rem; }
+
+  /* ---- METRIC CARDS ---- */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+  .metric-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+  .metric-card .metric-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1.2;
+  }
+  .metric-card .metric-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.2rem;
+  }
+  .metric-card .metric-note {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    line-height: 1.3;
+  }
+
+  /* ---- PHASE FLOW ---- */
+  .phase-flow {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .phase-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 140px;
+  }
+  .phase-chip .phase-n {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .phase-chip .arrow {
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* ---- DELIVERABLES CARDS ---- */
+  .deliv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .deliv-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+  }
+  .deliv-card .deliv-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .deliv-card .deliv-name code {
+    font-size: 0.72rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .deliv-card .deliv-desc {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ---- BEHAVIORAL SECTION ---- */
+  .behav-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .behav-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+  }
+  .behav-card .behav-name {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+  .behav-card .behav-desc {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* ---- FILTER PILLS ---- */
+  .filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+  }
+  .filter-list li {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .filter-list .filter-n {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+
+  /* ---- TECH STACK ---- */
+  .tech-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tech-chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+  .tech-chip strong { color: var(--text); }
+
+  /* ---- FOOTER ---- */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* ---- INSTRUCTION BOX ---- */
+  .instruction-box {
+    background: linear-gradient(135deg, #1a1030, #0d1b2a);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .instruction-box h2 {
+    color: var(--accent);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+  }
+  .instruction-box p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .extract-list, .deliv-grid, .behav-grid { grid-template-columns: 1fr; }
+    .context-grid { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================== HEADER ======================== -->
+<div class="hero">
+  <div class="hero-badge">Client: Art of Charm / AJ Harbinger</div>
+  <h1>Data Pipeline &amp; LP Rebuild Plan</h1>
+  <p class="subtitle">Transcription, persona extraction, market validation, and landing page rebuild for X-Factor Accelerator. Two-stage engagement: LP first, lead magnets second.</p>
+</div>
+
+<div class="container">
+
+<!-- ======================== INSTRUCTIONS ======================== -->
+<div class="instruction-box">
+  <h2>Instructions for Claude</h2>
+  <p>This document is the complete plan and requirements specification for rebuilding AJ Harbinger's Art of Charm (AOC) X-Factor Accelerator (XFA) landing page, powered by a data pipeline that mines sales call transcripts for real buyer language.</p>
+  <p><strong>Stage 1</strong> mines 130+ sales/coaching calls into personas, pain points, outcomes, objections, and buyer language. Combined with offer data, competitive intel, market demand validation, and behavioral psychology frameworks, this feeds a full LP rebuild. Test target: 200 visits.</p>
+  <p><strong>Stage 2</strong> (after LP ships) uses the persona data to build $5 front-end lead magnets that validate demand for new offers before scaling with paid ads.</p>
+  <p>The pipeline runs on AJ's Mac (Apple M2, 16GB). Transcription uses Whisper locally + Fireflies API. Extraction uses Claude API. All scripts live in <code>/Users/ajharbinger/Kas/scripts/</code>.</p>
+</div>
+
+<!-- ======================== BUSINESS CONTEXT ======================== -->
+<div class="context-box">
+  <h2>Business Context</h2>
+  <div class="context-grid">
+    <div class="context-item">
+      <div class="label">Company</div>
+      <div class="value">The Art of Charm</div>
+      <div class="detail">18 years, 11,700+ alumni, 1,000+ podcast episodes</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Founder</div>
+      <div class="value">AJ Harbinger</div>
+      <div class="detail">aj@theartofcharm.com</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Flagship Product</div>
+      <div class="value">X-Factor Accelerator (XFA)</div>
+      <div class="detail">12-week coaching | PIF $3,700 / $397/mo x12</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Revenue</div>
+      <div class="value">~$101K/yr</div>
+      <div class="detail">100% organic, zero paid ads, declining applications</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Target Buyer</div>
+      <div class="value">39yo, $10K+/mo, Analytical</div>
+      <div class="detail">Engineers, physicians, finance, executives. 87% relationship-motivated.</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Product Ladder</div>
+      <div class="value">$37 - $199 - $97/mo - $3,700+</div>
+      <div class="detail">Access Test, Conversation Radar, Inner Circle, XFA</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Sales Team</div>
+      <div class="value">Johnny + Armando</div>
+      <div class="detail">Armando: significantly higher close rate</div>
+    </div>
+    <div class="context-item">
+      <div class="label">Tech Stack</div>
+      <div class="value">ClickFunnels + JotForm + GHL</div>
+      <div class="detail">Kajabi (delivery), Stripe (payments), GA4 (~30 days)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== BASELINE METRICS ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Current Funnel Metrics (Why This Rebuild Is Needed)</h3>
+    <span class="tag tag-critical">Critical</span>
+  </div>
+  <div class="section-body">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-val">0.10%</div>
+        <div class="metric-label">XFA CTA Click Rate</div>
+        <div class="metric-note">Page is not converting. Complete rebuild justified.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">84%</div>
+        <div class="metric-label">Booked Lead Drop-Off</div>
+        <div class="metric-note">150 of 179 leads die at "Booked" stage</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">81%</div>
+        <div class="metric-label">Application Decline</div>
+        <div class="metric-note">Peak 16/wk down to 3/wk</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">40%</div>
+        <div class="metric-label">Can't Afford XFA</div>
+        <div class="metric-note">Yet 96.7% of actual buyers CAN pay</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">0</div>
+        <div class="metric-label">UTM Attribution</div>
+        <div class="metric-note">Zero tracking. Must fix before 200-visit test.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">Gap</div>
+        <div class="metric-label">Close Rate Variance</div>
+        <div class="metric-note">Johnny (low) vs Armando (high). LP must pre-sell harder.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== STAGES OVERVIEW ======================== -->
+<div class="stage-header">
+  <div class="stage-num">1</div>
+  <h2>Stage 1: Rebuild XFA Landing Page</h2>
+  <span class="stage-desc">Mine transcripts + build LP. Test with 200 visits.</span>
+</div>
+<p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5;">
+  Mine 130+ sales/coaching call transcripts for personas, pain points, outcomes, and exact buyer language. Combine with AJ's offer data, competitive intel, and Google Ads market validation. Apply behavioral psychology frameworks (Rory Sutherland) and COD-proven CRO patterns to build a high-converting LP. Single-step application, real scarcity, structured social proof. Ship, then test with 200 visits.
+</p>
+
+<!-- ---- PIPELINE PHASES ---- -->
+<div class="phase-flow">
+  <div class="phase-chip"><span class="phase-n">1</span> Extract Audio <span class="arrow">&rarr;</span></div>
+  <div class="phase-chip"><span class="phase-n">2</span> Transcribe <span class="arrow">&rarr;</span></div>
+  <div class="phase-chip"><span class="phase-n">3</span> Extract Personas <span class="arrow">&rarr;</span></div>
+  <div class="phase-chip"><span class="phase-n">4</span> Consolidate <span class="arrow">&rarr;</span></div>
+  <div class="phase-chip"><span class="phase-n">4.5</span> Market Validate <span class="arrow">&rarr;</span></div>
+  <div class="phase-chip"><span class="phase-n">5</span> Deliverables</div>
+</div>
+
+<!-- ======================== DATA SOURCES ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Audio / Transcript Sources (Pipeline Processes These)</h3>
+    <span class="tag tag-stage1">Stage 1</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead>
+        <tr><th>Source</th><th>Location</th><th>Volume</th><th>Format</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Zip files</strong></td>
+          <td><code>/Users/ajharbinger/Kas/*.zip</code></td>
+          <td>2.8GB, 4 archives</td>
+          <td>MP3, MOV</td>
+          <td><span class="status status-ready">Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dropbox Sales</strong></td>
+          <td><code>/Users/ajharbinger/The Art of Charm Dropbox/Sales calls/</code></td>
+          <td>15GB, 122 files</td>
+          <td>MP3, MOV</td>
+          <td><span class="status status-ready">Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dropbox Conflict</strong></td>
+          <td><code>/Users/ajharbinger/.../Sales Calls (Team folder conflict)/</code></td>
+          <td>58MB, 8 files</td>
+          <td>MP3</td>
+          <td><span class="status status-ready">Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>Fireflies API</strong></td>
+          <td>API key <code>36efcc5e-...</code></td>
+          <td>Unknown count</td>
+          <td>Pre-transcribed</td>
+          <td><span class="status status-ready">Ready</span></td>
+        </tr>
+        <tr>
+          <td><strong>YouTube channel</strong></td>
+          <td><code>artofcharmtv</code></td>
+          <td>TBD</td>
+          <td>Testimonial videos</td>
+          <td><span class="status status-needed">TBD</span></td>
+        </tr>
+        <tr>
+          <td><strong>Yelp testimonials</strong></td>
+          <td>theartofcharm Yelp page</td>
+          <td>TBD</td>
+          <td>Written reviews</td>
+          <td><span class="status status-needed">TBD</span></td>
+        </tr>
+        <tr>
+          <td><strong>Coaching calls</strong></td>
+          <td>AJ to provide</td>
+          <td>TBD</td>
+          <td>Audio</td>
+          <td><span class="status status-aj">AJ Owes</span></td>
+        </tr>
+        <tr>
+          <td><strong>Slack / community</strong></td>
+          <td>AJ to export</td>
+          <td>TBD</td>
+          <td>Text</td>
+          <td><span class="status status-aj">AJ Owes</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================== AJ MUST PROVIDE ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>AJ Must Provide (Non-Audio Data for LP Build)</h3>
+    <span class="tag tag-critical">Blocking</span>
+  </div>
+  <div class="section-body">
+    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">These feed the landing page directly. Not extracted from transcripts. Without these, the LP build is incomplete.</p>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Why Kas Needs It</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Current XFA landing page URL + previous versions</strong></td>
+          <td>Baseline to audit and beat (current CTA click rate is 0.10%)</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Current traffic / conversion numbers</strong></td>
+          <td>Set benchmark for 200-visit test</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Full offer breakdown</strong></td>
+          <td>XFA: what's included week by week, deliverables, bonuses, guarantees</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Product ladder details</strong></td>
+          <td>How Access Test, Conversation Radar, Lifetime Access, Inner Circle relate to XFA</td>
+          <td><span class="status status-partial">Partial</span></td>
+        </tr>
+        <tr>
+          <td><strong>Delivery elements list</strong></td>
+          <td>AI profiles, dashboards, session recordings, homework, progress tracking, psyche profiles</td>
+          <td><span class="status status-aj">AJ Action Item</span></td>
+        </tr>
+        <tr>
+          <td><strong>New program name</strong></td>
+          <td>AJ defining new positioning/name for the offer</td>
+          <td><span class="status status-aj">AJ Action Item</span></td>
+        </tr>
+        <tr>
+          <td><strong>Best testimonials (curated)</strong></td>
+          <td>Top 10-20 transformation stories, before/after, specific results</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Application/intake form responses</strong></td>
+          <td>JotForm 260094752734157: self-reported pain points in prospect's own words</td>
+          <td><span class="status status-partial">Can pull via API</span></td>
+        </tr>
+        <tr>
+          <td><strong>Sales team close data</strong></td>
+          <td>Johnny vs Armando close rates, objection patterns, "Booked Lead" 84% drop-off reasons</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Refund/churn reasons</strong></td>
+          <td>Why people leave XFA: reveals what promises to avoid overselling</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Email sequences / nurture campaigns</strong></td>
+          <td>Which emails convert best, subject lines, angles that work</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Podcast episode analytics</strong></td>
+          <td>Top episodes by downloads = validated pain point topics with audience size</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Competitor URLs</strong></td>
+          <td>Who AJ considers competition: for CRO teardown and positioning</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Brand constraints</strong></td>
+          <td>What AJ won't say, positioning red lines, tone requirements</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Organic post / content performance</strong></td>
+          <td>Zero paid ads, but organic engagement data shows what hooks resonate</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Pricing history</strong></td>
+          <td>What AJ has charged historically, what converted vs didn't</td>
+          <td><span class="status status-needed">Needed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Enterprise/military proposals</strong></td>
+          <td>4 proposals at $48K: different buyer profile, different copy angle</td>
+          <td><span class="status status-partial">Partial</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================== MARKET DEMAND DATA ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Market Demand Data (Kas Pulls)</h3>
+    <span class="tag tag-stage1">Stage 1</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead>
+        <tr><th>Source</th><th>What It Validates</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Google Ads Keyword Planner</strong></td><td>Search volume for each pain point / outcome: "would someone Google this?"</td></tr>
+        <tr><td><strong>Google Trends</strong></td><td>Seasonality and trajectory of top pain point keywords</td></tr>
+        <tr><td><strong>SpyFu / SEMrush</strong></td><td>Competitor ad spend on relationship/social skills keywords</td></tr>
+        <tr><td><strong>Reddit / Quora</strong></td><td>Raw language people use to describe these problems (copy fodder)</td></tr>
+        <tr><td><strong>Amazon book reviews</strong></td><td>Reviews of social skills / confidence books = pain points in buyer language</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================== PIPELINE PHASES ======================== -->
+
+<!-- Phase 1 -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 1: Extract &amp; Organize Audio</h3>
+    <span class="tag tag-stage1">Automated</span>
+  </div>
+  <div class="section-body">
+    <ul class="checklist">
+      <li><span class="bullet">&bull;</span> Unzip 4 archives into <code>audio/zips/</code>, extract only media files</li>
+      <li><span class="bullet">&bull;</span> Symlink Dropbox audio into <code>audio/dropbox-sales/</code> and <code>audio/dropbox-conflict/</code> (no copy, save 15GB)</li>
+      <li><span class="bullet">&bull;</span> Extract audio track from MOV files to MP3 via <code>ffmpeg</code></li>
+      <li><span class="bullet">&bull;</span> Normalize all audio to 16kHz sample rate</li>
+      <li><span class="bullet">&bull;</span> Skip files under 30 seconds</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Phase 2 -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 2: Transcription (Parallel Tracks)</h3>
+    <span class="tag tag-stage1">4-6 Hours</span>
+  </div>
+  <div class="section-body">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div>
+        <h4 style="color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Track A: Fireflies API</h4>
+        <ul class="checklist">
+          <li><span class="bullet">&bull;</span> <code>scripts/pull_fireflies.py</code> hits GraphQL API</li>
+          <li><span class="bullet">&bull;</span> Pulls all transcripts, paginated</li>
+          <li><span class="bullet">&bull;</span> Saves JSON (metadata + transcript) and TXT per meeting</li>
+          <li><span class="bullet">&bull;</span> Runs once, completes in minutes</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem;">Track B: Whisper Local</h4>
+        <ul class="checklist">
+          <li><span class="bullet">&bull;</span> <code>insanely-fast-whisper</code> via pip</li>
+          <li><span class="bullet">&bull;</span> Model: <code>openai/whisper-medium</code></li>
+          <li><span class="bullet">&bull;</span> Device: <code>mps</code> (Apple Metal, M2)</li>
+          <li><span class="bullet">&bull;</span> Batch size: 8</li>
+          <li><span class="bullet">&bull;</span> Output: JSON with timestamps + TXT per file</li>
+          <li><span class="bullet">&bull;</span> Process order: zips first, then Dropbox</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 3 -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 3: Persona &amp; Pain Extraction (Claude API)</h3>
+    <span class="tag tag-stage1">Core Engine</span>
+  </div>
+  <div class="section-body">
+    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;"><code>scripts/extract_personas.py</code> processes each transcript through Claude API. One JSON file per transcript in <code>analysis/raw-extractions/</code>.</p>
+    <ul class="extract-list">
+      <li>
+        <strong>Caller Profile</strong>
+        <em>Age range, gender, profession, life stage, relationship status</em>
+      </li>
+      <li>
+        <strong>Pain Points</strong>
+        <em>Exact quotes, categorized practical vs emotional</em>
+      </li>
+      <li>
+        <strong>Desired Outcomes</strong>
+        <em>Their words, practical vs emotional</em>
+      </li>
+      <li>
+        <strong>Objections</strong>
+        <em>What held them back, why they almost didn't buy</em>
+      </li>
+      <li>
+        <strong>Language Patterns</strong>
+        <em>Exact phrases describing their problem</em>
+      </li>
+      <li>
+        <strong>Trigger Event</strong>
+        <em>What made them book NOW vs 6 months ago</em>
+      </li>
+      <li>
+        <strong>Previous Attempts</strong>
+        <em>Books, therapy, other programs they've tried</em>
+      </li>
+      <li>
+        <strong>Identity Language</strong>
+        <em>"I'm an introvert," "I'm socially awkward"</em>
+      </li>
+      <li>
+        <strong>Buying Signals</strong>
+        <em>What made them say yes, what tipped them over</em>
+      </li>
+      <li>
+        <strong>Price Sensitivity</strong>
+        <em>Cost mentions, affordability, value justification</em>
+      </li>
+      <li>
+        <strong>Urgency Indicators</strong>
+        <em>Deadlines, life events, career pressure</em>
+      </li>
+      <li>
+        <strong>Discovery Source</strong>
+        <em>How they found AOC: podcast, referral, Google, etc.</em>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Phase 4 -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 4: Consolidation &amp; Filtering</h3>
+    <span class="tag tag-stage1">Analysis</span>
+  </div>
+  <div class="section-body">
+    <ul class="checklist">
+      <li><span class="bullet">&bull;</span> Merge all extractions into master lists</li>
+      <li><span class="bullet">&bull;</span> Deduplicate similar personas into archetypes</li>
+      <li><span class="bullet">&bull;</span> Rank pain points by frequency</li>
+      <li><span class="bullet">&bull;</span> Rank outcomes by intensity</li>
+      <li><span class="bullet">&bull;</span> Rank trigger events by urgency (higher urgency = better ad targeting)</li>
+      <li><span class="bullet">&bull;</span> Map previous attempts to positioning angles ("unlike therapy/books/courses...")</li>
+      <li><span class="bullet">&bull;</span> Apply Kas's filtering lens (see below)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Phase 4.5 -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 4.5: Market Demand Validation</h3>
+    <span class="tag tag-both">Gate Check</span>
+  </div>
+  <div class="section-body">
+    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">Before finalizing deliverables, validate top pain points against real search demand. This is the "would someone Google this?" test with actual data.</p>
+    <ul class="checklist">
+      <li><span class="bullet">&bull;</span> Run top 20 pain point phrases through Google Ads Keyword Planner (search volume, CPC, competition)</li>
+      <li><span class="bullet">&bull;</span> Check Google Trends for seasonality and trajectory</li>
+      <li><span class="bullet">&bull;</span> Cross-reference with Reddit/Quora threads for raw language and thread engagement</li>
+      <li><span class="bullet">&bull;</span> Score each pain point: <strong>search volume x buyer intent x AOC's ability to solve</strong> = priority rank</li>
+      <li><span class="bullet">&bull;</span> Kill any persona/pain that fails the "can we run a Google ad for it?" test</li>
+      <li><span class="bullet">&bull;</span> Output: <code>analysis/market-validation.md</code> with scored rankings</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ======================== DELIVERABLES ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Phase 5: Deliverables</h3>
+  </div>
+  <div class="section-body">
+    <h4 style="color: var(--green); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem;">Stage 1 Deliverables (Feed the LP Rebuild)</h4>
+    <div class="deliv-grid">
+      <div class="deliv-card">
+        <div class="deliv-name"><code>personas-and-pains.md</code></div>
+        <div class="deliv-desc">Top 100+ personas with exact caller language, trigger events, and identity phrases.</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>outcomes.md</code></div>
+        <div class="deliv-desc">100+ desired outcomes, practical and emotional, ranked by intensity and frequency.</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>objection-bank.md</code></div>
+        <div class="deliv-desc">Every objection mapped to counter-arguments from successful closes.</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>swipe-file.md</code></div>
+        <div class="deliv-desc">Best buyer language, metaphors, phrases organized by LP section (headline, sub-head, bullets, CTA, testimonials).</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>positioning-angles.md</code></div>
+        <div class="deliv-desc">What AOC does that therapy/books/other programs don't. Built from "previous attempts" extraction data.</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>market-validation.md</code></div>
+        <div class="deliv-desc">Google Ads demand data for top pain points. Which ones are worth running ads against.</div>
+      </div>
+      <div class="deliv-card" style="grid-column: 1 / -1;">
+        <div class="deliv-name"><code>delivery-elements.md</code></div>
+        <div class="deliv-desc">Full list of everything AOC delivers (from AJ's input + transcript extraction). AI profiles, dashboards, session recordings, homework prompts, progress tracking, psyche profiles.</div>
+      </div>
+    </div>
+
+    <h4 style="color: var(--blue); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.25rem 0 0.75rem;">Stage 2 Deliverables (After LP Ships -- Lead Magnet Testing)</h4>
+    <div class="deliv-grid">
+      <div class="deliv-card">
+        <div class="deliv-name"><code>lead-magnet-concepts.md</code></div>
+        <div class="deliv-desc">3-10 front-end offer ideas ($5 range, e.g. relationship quality assessment) mapped to top persona segments. Each includes: target persona, pain point, format, Google Ads keyword viability.</div>
+      </div>
+      <div class="deliv-card">
+        <div class="deliv-name"><code>offer-test-plan.md</code></div>
+        <div class="deliv-desc">Which lead magnets to test first, traffic source, success metrics, kill criteria.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== FILTERING LENS ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Kas's Filtering Lens</h3>
+    <span class="tag tag-both">Applied in Phase 4</span>
+  </div>
+  <div class="section-body">
+    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">Every pain point and outcome gets scored against these 7 criteria. Fail any = deprioritize.</p>
+    <ul class="filter-list">
+      <li><span class="filter-n">1</span> Would someone Google this specific problem/outcome?</li>
+      <li><span class="filter-n">2</span> Would they spend money TODAY to solve it?</li>
+      <li><span class="filter-n">3</span> Is the total addressable market big enough?</li>
+      <li><span class="filter-n">4</span> Can we build a lead magnet around it?</li>
+      <li><span class="filter-n">5</span> Can we run a Google ad for it?</li>
+      <li><span class="filter-n">6</span> Does it differentiate AOC from therapy, books, and generic "confidence" programs?</li>
+      <li><span class="filter-n">7</span> Does it match the buyer profile? (39yo, $10K+/mo, analytical, 87% relationship-motivated)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ======================== BEHAVIORAL PSYCH ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Behavioral Psychology Layer (Rory Sutherland Frameworks)</h3>
+    <span class="tag tag-stage1">LP Build</span>
+  </div>
+  <div class="section-body">
+    <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 1rem;">Applied during extraction analysis and LP copywriting. Reference: <code>rory-sutherland-marketing-applications.md</code> for full model-to-CRO mapping.</p>
+    <div class="behav-grid">
+      <div class="behav-card">
+        <div class="behav-name">Reframing</div>
+        <div class="behav-desc">Each pain point reframed from "I'm broken" to "I'm missing a skill." Reduces shame, increases action.</div>
+      </div>
+      <div class="behav-card">
+        <div class="behav-name">Psychological Moonshots</div>
+        <div class="behav-desc">Small intervention, disproportionate perceived value. E.g., AI personality profile feels like $500 of therapy.</div>
+      </div>
+      <div class="behav-card">
+        <div class="behav-name">Red Bus / Blue Bus</div>
+        <div class="behav-desc">Where is AOC competing in crowded "self-help" vs creating a new category entirely?</div>
+      </div>
+      <div class="behav-card">
+        <div class="behav-name">Satisficing vs Maximizing</div>
+        <div class="behav-desc">XFA buyer is a maximizer (analytical, high-income). LP copy must give them enough data for due diligence.</div>
+      </div>
+      <div class="behav-card">
+        <div class="behav-name">Real Scarcity</div>
+        <div class="behav-desc">Not fake countdown timers. Actual cohort limits, real enrollment windows, genuine capacity constraints.</div>
+      </div>
+      <div class="behav-card">
+        <div class="behav-name">Social Proof Architecture</div>
+        <div class="behav-desc">11,700 alumni, 18 years, 1,000+ podcast episodes. Massive proof that needs to be structured, not dumped.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== PROJECT STRUCTURE ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Project Structure</h3>
+    <span class="tag tag-stage1">AJ's Mac</span>
+  </div>
+  <div class="section-body">
+<pre style="color: var(--text-dim); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; line-height: 1.6; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto;">
+/Users/ajharbinger/Kas/
++-- Project.md
++-- *.zip
++-- audio/
+|   +-- zips/
+|   +-- dropbox-sales/
+|   +-- dropbox-conflict/
++-- transcripts/
+|   +-- whisper/
+|   +-- fireflies/
++-- analysis/
+|   +-- raw-extractions/
+|   +-- consolidated/
++-- deliverables/
+|   +-- personas-and-pains.md
+|   +-- outcomes.md
+|   +-- objection-bank.md
+|   +-- swipe-file.md
+|   +-- positioning-angles.md
+|   +-- market-validation.md
+|   +-- delivery-elements.md
+|   +-- lead-magnet-concepts.md
+|   +-- offer-test-plan.md
++-- scripts/
+    +-- pull_fireflies.py
+    +-- transcribe.sh
+    +-- extract_personas.py
+</pre>
+  </div>
+</div>
+
+<!-- ======================== TECH REQUIREMENTS ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Technical Requirements</h3>
+  </div>
+  <div class="section-body">
+    <div class="tech-grid">
+      <div class="tech-chip"><strong>Python 3.14</strong> + pip</div>
+      <div class="tech-chip"><strong>ffmpeg</strong> (installed)</div>
+      <div class="tech-chip"><strong>Apple M2</strong> 16GB RAM</div>
+      <div class="tech-chip"><strong>MPS</strong> acceleration</div>
+      <div class="tech-chip"><strong>insanely-fast-whisper</strong></div>
+      <div class="tech-chip"><strong>Fireflies</strong> API key</div>
+      <div class="tech-chip"><strong>Claude API</strong> for extraction</div>
+      <div class="tech-chip"><strong>whisper-medium</strong> model</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== STAGE 2 ======================== -->
+<div class="stage-header">
+  <div class="stage-num">2</div>
+  <h2>Stage 2: Lead Magnet Testing</h2>
+  <span class="stage-desc">After LP ships. Validate new offers.</span>
+</div>
+<p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5;">
+  AJ drafts low-cost front-end offers ($5 range, e.g. relationship quality assessment) mapped to top persona segments from Stage 1. Uses Google Ads to validate which pain points have real search volume and buyer intent before investing in a full offer build. Each lead magnet is a demand signal -- if people won't pay $5 for a taste, they won't pay $3,700 for the full program.
+</p>
+
+<div class="section">
+  <div class="section-head">
+    <h3>Stage 2 Process</h3>
+    <span class="tag tag-stage2">After LP Ships</span>
+  </div>
+  <div class="section-body">
+    <ul class="checklist">
+      <li><span class="bullet">1.</span> AJ drafts lead magnet concepts using Claude (relationship quality assessment, conversation skills quiz, etc.)</li>
+      <li><span class="bullet">2.</span> Kas validates demand: Google Ads keyword data for each concept's target pain point</li>
+      <li><span class="bullet">3.</span> Build 1-2 lead magnet landing pages (simple, fast)</li>
+      <li><span class="bullet">4.</span> Drive traffic via AJ's podcast, existing audience, LinkedIn, contacts</li>
+      <li><span class="bullet">5.</span> Measure: conversion rate, email capture, upsell to XFA application</li>
+      <li><span class="bullet">6.</span> Kill or scale based on data</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ======================== ACTION ITEMS ======================== -->
+<div class="section">
+  <div class="section-head">
+    <h3>Open Action Items (from Apr 2 Call)</h3>
+    <span class="tag tag-critical">Active</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead>
+        <tr><th>Owner</th><th>Action</th><th>Stage</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>AJ</strong></td>
+          <td>Scrape testimonials, sales/coaching calls, Fathom, Slack; compile 100 personas/pains; send to Kas</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+        <tr>
+          <td><strong>AJ</strong></td>
+          <td>Define light front-end offer; draft lead magnet with Claude; send to Kas</td>
+          <td><span class="status status-aj">S2</span></td>
+        </tr>
+        <tr>
+          <td><strong>Kas</strong></td>
+          <td>Share new CRO/behavioral report with AJ</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+        <tr>
+          <td><strong>Kas</strong></td>
+          <td>Rebuild AJ's landing page: single-step app, real scarcity, Russ design; send for 200-visit test</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+        <tr>
+          <td><strong>AJ</strong></td>
+          <td>Define new program name; send to Kas</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+        <tr>
+          <td><strong>AJ</strong></td>
+          <td>List all delivery elements incl AI prompts, AI profiles, dashboard; send to Kas</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+        <tr>
+          <td><strong>AJ</strong></td>
+          <td>Send meeting recording and notes to Kas</td>
+          <td><span class="status status-ready">S1</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ======================== FOOTER ======================== -->
+<div class="footer">
+  <p>AOC Data Pipeline &amp; LP Rebuild Plan | Generated 2026-04-02 | Kas Andz / KAMG</p>
+  <p style="margin-top: 0.25rem;">Stage 1: Persona mining + LP rebuild | Stage 2: Lead magnet testing</p>
+</div>
+
+</div>
+</body>
+</html>

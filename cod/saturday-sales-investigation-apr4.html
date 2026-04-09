@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Saturday Sales Investigation - April 4, 2026</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e1e4ed;
+    --muted: #8b8fa3;
+    --accent: #6c5ce7;
+    --red: #ff6b6b;
+    --orange: #ffa94d;
+    --green: #51cf66;
+    --blue: #4dabf7;
+    --yellow: #ffd43b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .alert-banner {
+    background: linear-gradient(135deg, rgba(255,107,107,0.15), rgba(255,169,77,0.1));
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .alert-banner .icon { font-size: 28px; flex-shrink: 0; }
+  .alert-banner h3 { color: var(--orange); margin-bottom: 4px; font-size: 16px; }
+  .alert-banner p { color: var(--muted); font-size: 14px; }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .kpi-card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+  .kpi-card .value { font-size: 32px; font-weight: 700; }
+  .kpi-card .compare { font-size: 13px; margin-top: 6px; }
+  .kpi-card .compare.down { color: var(--red); }
+  .kpi-card .compare.up { color: var(--green); }
+  .kpi-card .compare.neutral { color: var(--muted); }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .section h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section h2 .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-red { background: rgba(255,107,107,0.15); color: var(--red); }
+  .badge-orange { background: rgba(255,169,77,0.15); color: var(--orange); }
+  .badge-green { background: rgba(81,207,102,0.15); color: var(--green); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.highlight { background: rgba(108,92,231,0.08); }
+  tr.today { background: rgba(255,107,107,0.08); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .red { color: var(--red); }
+  .orange { color: var(--orange); }
+  .green { color: var(--green); }
+  .blue { color: var(--blue); }
+  .yellow { color: var(--yellow); }
+  .muted { color: var(--muted); }
+  .bold { font-weight: 700; }
+
+  .cpm-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 160px;
+    padding: 16px 0 0;
+    margin-bottom: 8px;
+  }
+  .cpm-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .cpm-bar .bar {
+    width: 100%;
+    max-width: 48px;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.3s ease;
+  }
+  .cpm-bar .bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .cpm-bar .bar-date {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .verdict {
+    background: linear-gradient(135deg, rgba(81,207,102,0.08), rgba(77,171,247,0.08));
+    border: 1px solid rgba(81,207,102,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 8px;
+  }
+  .verdict h3 { color: var(--green); margin-bottom: 12px; font-size: 16px; }
+  .verdict ul { padding-left: 20px; }
+  .verdict li { margin-bottom: 8px; font-size: 14px; color: var(--muted); }
+  .verdict li strong { color: var(--text); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .footer {
+    text-align: center;
+    padding: 24px 0 8px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 16px;
+  }
+  .stripe-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .stripe-detail .time { color: var(--muted); font-size: 12px; min-width: 70px; }
+  .stripe-detail .amount { font-weight: 700; min-width: 50px; }
+  .stripe-detail .desc { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>COD Saturday Sales Investigation</h1>
+  <p class="subtitle">April 4, 2026 (Easter Weekend) &middot; Generated 12:30pm PST &middot; Data: BigQuery Warehouse</p>
+</div>
+
+<div class="alert-banner">
+  <div class="icon">&#9888;&#65039;</div>
+  <div>
+    <h3>Easter Weekend + CPM Spike = Low Volume Day</h3>
+    <p>Tomorrow is Easter Sunday. This Saturday is seeing drastically reduced buyer activity across all funnel stages. CPMs have tripled in 2 weeks. This is seasonal, not a system failure.</p>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="label">Ticket Sales Today</div>
+    <div class="value red">4</div>
+    <div class="compare down">-88% vs last Sat (32)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">Hyros Leads Today</div>
+    <div class="value red">2</div>
+    <div class="compare down">-95% vs last Sat (38)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">Calls Booked Today</div>
+    <div class="value orange">2</div>
+    <div class="compare down">-71% vs last Sat (7)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">CPM Yesterday</div>
+    <div class="value red">$121</div>
+    <div class="compare down">+32% vs last Sat ($91)</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">4pm Workshop Reg</div>
+    <div class="value red">0</div>
+    <div class="compare neutral">Nobody booking same-day</div>
+  </div>
+</div>
+
+<!-- Today's Transactions -->
+<div class="section">
+  <h2>Today's Stripe Transactions <span class="badge badge-green">Live Data</span></h2>
+  <div class="stripe-detail">
+    <span class="time">8:55am</span>
+    <span class="amount green">$27</span>
+    <span class="desc">Workshop Ticket (AE) &mdash; via CBO Therapists campaign</span>
+  </div>
+  <div class="stripe-detail">
+    <span class="time">3:03am</span>
+    <span class="amount green">$3,000</span>
+    <span class="desc">Clients On Demand Enrollment &mdash; via ABO Cold campaign</span>
+  </div>
+  <div class="stripe-detail">
+    <span class="time">5:22am</span>
+    <span class="amount green">$54</span>
+    <span class="desc">Workshop Ticket + VIP Upgrade combo</span>
+  </div>
+  <div class="stripe-detail">
+    <span class="time">8:19am</span>
+    <span class="amount green">$54</span>
+    <span class="desc">Workshop Ticket + VIP Upgrade combo</span>
+  </div>
+  <div class="stripe-detail">
+    <span class="time">1:55am</span>
+    <span class="amount green">$27</span>
+    <span class="desc">Workshop Ticket (AE)</span>
+  </div>
+  <p style="color: var(--muted); font-size: 13px; margin-top: 12px;">Last ticket purchase was at 8:19am PST. No activity for 4+ hours. Times shown in PST.</p>
+</div>
+
+<!-- CPM Trend -->
+<div class="section">
+  <h2>CPM Trend (Last 2 Weeks) <span class="badge badge-red">Critical</span></h2>
+  <div class="cpm-chart">
+    <div class="cpm-bar">
+      <div class="bar-label">$44</div>
+      <div class="bar" style="height: 29%; background: var(--green);"></div>
+      <div class="bar-date">Mar 20<br>Fri</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$39</div>
+      <div class="bar" style="height: 26%; background: var(--green);"></div>
+      <div class="bar-date">Mar 21<br>Sat</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$39</div>
+      <div class="bar" style="height: 26%; background: var(--green);"></div>
+      <div class="bar-date">Mar 22<br>Sun</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$69</div>
+      <div class="bar" style="height: 46%; background: var(--blue);"></div>
+      <div class="bar-date">Mar 23<br>Mon</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label" style="color:var(--muted); font-size:10px;">$0</div>
+      <div class="bar" style="height: 2%; background: var(--muted);"></div>
+      <div class="bar-date">Mar 24<br>Tue</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$70</div>
+      <div class="bar" style="height: 47%; background: var(--blue);"></div>
+      <div class="bar-date">Mar 25<br>Wed</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$90</div>
+      <div class="bar" style="height: 60%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 26<br>Thu</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$90</div>
+      <div class="bar" style="height: 60%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 27<br>Fri</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$91</div>
+      <div class="bar" style="height: 61%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 28<br>Sat</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$106</div>
+      <div class="bar" style="height: 70%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 29<br>Sun</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$84</div>
+      <div class="bar" style="height: 56%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 30<br>Mon</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$102</div>
+      <div class="bar" style="height: 68%; background: var(--orange);"></div>
+      <div class="bar-date">Mar 31<br>Tue</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$106</div>
+      <div class="bar" style="height: 70%; background: var(--red);"></div>
+      <div class="bar-date">Apr 1<br>Wed</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label">$110</div>
+      <div class="bar" style="height: 73%; background: var(--red);"></div>
+      <div class="bar-date">Apr 2<br>Thu</div>
+    </div>
+    <div class="cpm-bar">
+      <div class="bar-label" style="color:var(--red);">$121</div>
+      <div class="bar" style="height: 80%; background: var(--red);"></div>
+      <div class="bar-date">Apr 3<br>Fri</div>
+    </div>
+  </div>
+  <p style="color: var(--muted); font-size: 13px; margin-top: 4px;">CPMs tripled from $39 (Mar 21) to $121 (Apr 3). Easter weekend + Q2 budget flush driving auction prices up.</p>
+</div>
+
+<!-- Meta Ads Performance -->
+<div class="section">
+  <h2>Meta Ads Daily Performance <span class="badge badge-orange">Declining Efficiency</span></h2>
+  <div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Day</th>
+        <th class="num">Spend</th>
+        <th class="num">Impressions</th>
+        <th class="num">Clicks</th>
+        <th class="num">CPM</th>
+        <th class="num">CPC</th>
+        <th class="num">Purchases</th>
+        <th class="num">Cost/Purchase</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td>Apr 3</td><td>Friday</td>
+        <td class="num">$6,486</td><td class="num">53,821</td><td class="num">2,605</td>
+        <td class="num red bold">$120.51</td><td class="num">$2.49</td>
+        <td class="num">46</td><td class="num orange">$140.99</td>
+      </tr>
+      <tr>
+        <td>Apr 2</td><td>Thursday</td>
+        <td class="num">$6,987</td><td class="num">63,470</td><td class="num">3,144</td>
+        <td class="num orange">$110.09</td><td class="num">$2.22</td>
+        <td class="num">44</td><td class="num orange">$158.80</td>
+      </tr>
+      <tr>
+        <td>Apr 1</td><td>Wednesday</td>
+        <td class="num">$8,165</td><td class="num">77,034</td><td class="num">3,732</td>
+        <td class="num orange">$106.00</td><td class="num">$2.19</td>
+        <td class="num">38</td><td class="num red">$214.88</td>
+      </tr>
+      <tr>
+        <td>Mar 31</td><td>Tuesday</td>
+        <td class="num">$7,250</td><td class="num">70,859</td><td class="num">2,766</td>
+        <td class="num orange">$102.32</td><td class="num">$2.62</td>
+        <td class="num">40</td><td class="num orange">$181.26</td>
+      </tr>
+      <tr>
+        <td>Mar 30</td><td>Monday</td>
+        <td class="num">$9,593</td><td class="num">113,733</td><td class="num">3,354</td>
+        <td class="num">$84.35</td><td class="num">$2.86</td>
+        <td class="num">40</td><td class="num red">$239.83</td>
+      </tr>
+      <tr>
+        <td>Mar 29</td><td>Sunday</td>
+        <td class="num">$8,190</td><td class="num">77,474</td><td class="num">2,978</td>
+        <td class="num orange">$105.71</td><td class="num">$2.75</td>
+        <td class="num">50</td><td class="num">$163.80</td>
+      </tr>
+      <tr class="highlight">
+        <td>Mar 28</td><td>Saturday</td>
+        <td class="num">$8,027</td><td class="num">87,972</td><td class="num">3,613</td>
+        <td class="num">$91.24</td><td class="num">$2.22</td>
+        <td class="num green bold">58</td><td class="num green">$138.39</td>
+      </tr>
+      <tr>
+        <td>Mar 27</td><td>Friday</td>
+        <td class="num">$7,400</td><td class="num">81,823</td><td class="num">3,016</td>
+        <td class="num">$90.44</td><td class="num">$2.45</td>
+        <td class="num green bold">58</td><td class="num green">$127.59</td>
+      </tr>
+      <tr>
+        <td>Mar 26</td><td>Thursday</td>
+        <td class="num">$7,056</td><td class="num">78,499</td><td class="num">3,011</td>
+        <td class="num">$89.89</td><td class="num">$2.34</td>
+        <td class="num green bold">60</td><td class="num green">$117.61</td>
+      </tr>
+      <tr>
+        <td>Mar 25</td><td>Wednesday</td>
+        <td class="num">$7,343</td><td class="num">104,236</td><td class="num">3,756</td>
+        <td class="num green">$70.45</td><td class="num">$1.96</td>
+        <td class="num">44</td><td class="num">$166.89</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Two-column: Saturday History + Hyros -->
+<div class="two-col">
+  <div class="section">
+    <h2>Saturday Ticket History (2026)</h2>
+    <table>
+      <thead>
+        <tr><th>Saturday</th><th class="num">Tickets</th><th class="num">Revenue</th></tr>
+      </thead>
+      <tbody>
+        <tr class="today"><td class="red bold">Apr 4 (today)</td><td class="num red bold">4</td><td class="num red">$162</td></tr>
+        <tr><td>Mar 28</td><td class="num green bold">32</td><td class="num">$1,161</td></tr>
+        <tr><td>Mar 21</td><td class="num orange">13</td><td class="num">$351</td></tr>
+        <tr><td>Mar 14</td><td class="num">30</td><td class="num">$810</td></tr>
+        <tr><td>Mar 7</td><td class="num">27</td><td class="num">$729</td></tr>
+        <tr><td>Feb 28</td><td class="num">22</td><td class="num">$594</td></tr>
+        <tr><td>Feb 21</td><td class="num green bold">44</td><td class="num">$1,188</td></tr>
+        <tr><td>Feb 14</td><td class="num">33</td><td class="num">$891</td></tr>
+        <tr><td>Feb 7</td><td class="num orange">12</td><td class="num">$324</td></tr>
+        <tr><td>Jan 31</td><td class="num">32</td><td class="num">$864</td></tr>
+        <tr><td>Jan 24</td><td class="num">21</td><td class="num">$567</td></tr>
+        <tr><td>Jan 17</td><td class="num">20</td><td class="num">$540</td></tr>
+        <tr><td>Jan 10</td><td class="num green bold">56</td><td class="num">$1,512</td></tr>
+        <tr><td>Jan 3</td><td class="num">34</td><td class="num">$918</td></tr>
+      </tbody>
+    </table>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 10px;">YTD Saturday avg: ~27 tickets/day. Range: 12-56.</p>
+  </div>
+
+  <div class="section">
+    <h2>Hyros Funnel (Last 2 Weeks)</h2>
+    <table>
+      <thead>
+        <tr><th>Date</th><th>Day</th><th class="num">Leads</th><th class="num">Sales</th><th class="num">Calls</th></tr>
+      </thead>
+      <tbody>
+        <tr class="today"><td class="red bold">Apr 4</td><td>Sat</td><td class="num red bold">2</td><td class="num red bold">2</td><td class="num red">2</td></tr>
+        <tr><td>Apr 3</td><td>Fri</td><td class="num">23</td><td class="num">16</td><td class="num">10</td></tr>
+        <tr><td>Apr 2</td><td>Thu</td><td class="num">24</td><td class="num">22</td><td class="num">10</td></tr>
+        <tr><td>Apr 1</td><td>Wed</td><td class="num">28</td><td class="num">14</td><td class="num">2</td></tr>
+        <tr><td>Mar 31</td><td>Tue</td><td class="num">31</td><td class="num">22</td><td class="num">8</td></tr>
+        <tr><td>Mar 30</td><td>Mon</td><td class="num">32</td><td class="num">16</td><td class="num">11</td></tr>
+        <tr><td>Mar 29</td><td>Sun</td><td class="num">42</td><td class="num">24</td><td class="num">5</td></tr>
+        <tr class="highlight"><td>Mar 28</td><td>Sat</td><td class="num green">38</td><td class="num green">30</td><td class="num">7</td></tr>
+        <tr><td>Mar 27</td><td>Fri</td><td class="num green">67</td><td class="num">24</td><td class="num">10</td></tr>
+        <tr><td>Mar 26</td><td>Thu</td><td class="num">33</td><td class="num green">37</td><td class="num">8</td></tr>
+        <tr><td>Mar 25</td><td>Wed</td><td class="num">19</td><td class="num">15</td><td class="num">1</td></tr>
+        <tr><td>Mar 24</td><td>Tue</td><td class="num orange">7</td><td class="num orange">2</td><td class="num">10</td></tr>
+        <tr><td>Mar 23</td><td>Mon</td><td class="num">25</td><td class="num">27</td><td class="num">5</td></tr>
+        <tr><td>Mar 22</td><td>Sun</td><td class="num orange">11</td><td class="num orange">11</td><td class="num">2</td></tr>
+        <tr><td>Mar 21</td><td>Sat</td><td class="num">20</td><td class="num orange">13</td><td class="num">6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Campaign Breakdown -->
+<div class="section">
+  <h2>Workshop Campaign CPMs (Last 7 Days)</h2>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Campaign</th><th class="num">Spend</th><th class="num">Impr.</th><th class="num">CPM</th><th class="num">Purchases</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Apr 3</td><td>ABO (Cold) - Industry Adsets - Winning</td>
+        <td class="num">$4,506</td><td class="num">27,481</td><td class="num red bold">$163.96</td><td class="num">38</td>
+      </tr>
+      <tr>
+        <td>Apr 3</td><td>CBO | Therapists Counselors</td>
+        <td class="num">$1,510</td><td class="num">14,754</td><td class="num orange">$102.37</td><td class="num">8</td>
+      </tr>
+      <tr>
+        <td>Apr 2</td><td>ABO (Cold) - Industry Adsets - Winning</td>
+        <td class="num">$5,055</td><td class="num">37,484</td><td class="num orange">$134.87</td><td class="num">30</td>
+      </tr>
+      <tr>
+        <td>Apr 2</td><td>CBO | Therapists Counselors</td>
+        <td class="num">$1,457</td><td class="num">14,221</td><td class="num orange">$102.45</td><td class="num">10</td>
+      </tr>
+      <tr class="highlight">
+        <td>Mar 28</td><td>ABO (Cold) - Industry Adsets - Winning</td>
+        <td class="num">$6,089</td><td class="num">53,923</td><td class="num green">$112.92</td><td class="num green">44</td>
+      </tr>
+      <tr class="highlight">
+        <td>Mar 28</td><td>CBO | Therapists Counselors</td>
+        <td class="num">$1,460</td><td class="num">17,181</td><td class="num green">$85.01</td><td class="num">12</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="color: var(--muted); font-size: 13px; margin-top: 10px;">ABO Cold CPM up 45% in one week ($113 to $164). CBO Therapists up 20% ($85 to $102). Fewer impressions for the same spend = fewer ticket purchases.</p>
+</div>
+
+<!-- Verdict -->
+<div class="verdict">
+  <h3>Diagnosis & Recommended Actions</h3>
+  <ul>
+    <li><strong>This is Easter Weekend, not a system failure.</strong> Stripe is processing, Hyros is tracking, Meta is spending. The entire funnel from leads (2) to tickets (4) to calls (2) is uniformly depressed -- consistent with a seasonal demand drop, not a technical problem.</li>
+    <li><strong>CPMs are the leading indicator.</strong> They've tripled in 2 weeks ($39 to $121 blended). The ABO Cold campaign hit $164 CPM yesterday. This means the same budget buys fewer eyeballs, which means fewer clicks, which means fewer purchases.</li>
+    <li><strong>4pm same-day Saturday is historically the worst slot.</strong> Zero registrants today tracks with Kas's earlier finding that Saturday 4pm has the highest no-show rate of any workshop. On Easter weekend, zero is expected.</li>
+    <li><strong>Watch list for next week:</strong> If CPMs don't drop back under $100 by Wednesday Apr 8, this may be a structural Q2 shift (new fiscal year budgets) rather than just an Easter blip. Worth flagging to the media buying team.</li>
+    <li><strong>Silver lining:</strong> Even on this dead day, COD closed a $3,000 enrollment from the ABO Cold campaign. The funnel still works when it works.</li>
+  </ul>
+</div>
+
+<div class="footer">
+  KAMG Intelligence &middot; Data source: BigQuery cod_warehouse &middot; Generated by Claude Code &middot; April 4, 2026
+</div>
+
+</body>
+</html>

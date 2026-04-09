@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Audit Report: /cmm Masterclass Page | Clients on Demand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep: #0a0a0f;
+  --bg-mid: #10101a;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.07);
+  --glass-bg: rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-border-hover: rgba(255,255,255,0.18);
+  --gold: #e8a309;
+  --gold-light: #f5c842;
+  --gold-dim: rgba(232,163,9,0.15);
+  --gold-glow: rgba(232,163,9,0.3);
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b8;
+  --text-dim: #6a6a80;
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.15);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.15);
+  --cod-blue: #020A27;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 10px 30px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.3), 0 2px 10px rgba(0,0,0,0.2);
+  --shadow-gold: 0 0 30px rgba(232,163,9,0.15);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   SVG NOISE OVERLAY
+   ============================================ */
+.noise-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+h1, h2, h3, .headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.15; font-weight: 700; }
+h2 { font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.2; font-weight: 700; }
+h3 { font-size: clamp(1.3rem, 2.5vw, 1.8rem); line-height: 1.3; font-weight: 600; }
+h4 { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.02em; }
+
+p { font-size: clamp(0.95rem, 1.5vw, 1.1rem); line-height: 1.8; color: var(--text-secondary); }
+
+.section-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.gold-text { color: var(--gold); }
+.red-text { color: var(--red); }
+.amber-text { color: var(--amber); }
+.green-text { color: var(--green); }
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
+}
+
+.container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
+}
+
+section {
+  position: relative;
+  padding: clamp(4rem, 8vw, 8rem) 0;
+}
+
+/* ============================================
+   GLASS CARD
+   ============================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.glass:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+.glass-sm {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   SCROLL REVEAL
+   ============================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ============================================
+   SEVERITY BADGES
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge-critical { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.badge-high { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.badge-medium { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
+.badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+/* ============================================
+   SECTION 1: COVER / HERO
+   ============================================ */
+#cover {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(232,163,9,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(232,163,9,0.04) 0%, transparent 60%),
+    conic-gradient(from 180deg at 50% 50%, #0a0a0f 0deg, #12121f 120deg, #0a0a0f 240deg, #0f0f1a 360deg);
+}
+
+#cover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(232,163,9,0.03) 0%, transparent 40%);
+  animation: cover-glow 20s ease-in-out infinite alternate;
+}
+
+@keyframes cover-glow {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(5%, 3%); }
+}
+
+.cover-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 2rem;
+}
+
+.cover-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+
+.cover-brand {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.85rem, 1.5vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.cover-title {
+  margin-bottom: 0.5rem;
+}
+
+.cover-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.cover-subtitle {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  font-weight: 300;
+}
+
+.cover-prepared {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 2.5rem;
+}
+.cover-prepared strong { color: var(--text-secondary); font-weight: 600; }
+
+/* Gauge */
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 3rem auto 2rem;
+}
+
+.gauge-score-label {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: -1rem;
+}
+.gauge-score-label span {
+  font-size: 0.4em;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.gauge-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.cover-verdict {
+  max-width: 700px;
+  margin: 2rem auto 0;
+  padding: 1.5rem 2rem;
+  border-left: 3px solid var(--gold);
+  text-align: left;
+}
+.cover-verdict p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+.cover-verdict strong { color: var(--text-primary); }
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+.scroll-arrow {
+  width: 20px;
+  height: 20px;
+  border-right: 1.5px solid var(--text-dim);
+  border-bottom: 1.5px solid var(--text-dim);
+  transform: rotate(45deg);
+}
+
+/* ============================================
+   SECTION 2: EXECUTIVE SUMMARY
+   ============================================ */
+#exec-summary {
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(232,163,9,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 80%, rgba(99,102,241,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0c0c14 0%, #0a0a0f 100%);
+}
+
+.pyramid-block {
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pyramid-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.pyramid-situation .pyramid-label { color: #60a5fa; }
+.pyramid-complication .pyramid-label { color: var(--amber); }
+.pyramid-resolution .pyramid-label { color: var(--green); }
+
+.pyramid-block p {
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   SECTION 3: BRAND INTELLIGENCE
+   ============================================ */
+#brand-intel {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(232,163,9,0.04) 0%, transparent 50%),
+    conic-gradient(from 90deg at 70% 30%, rgba(10,10,15,1) 0deg, rgba(18,18,30,1) 180deg, rgba(10,10,15,1) 360deg);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+.proof-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.proof-item:last-child { border-bottom: none; }
+
+.proof-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+.proof-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+.proof-text span {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.competitor-item {
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.competitor-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.competitor-detail {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.competitor-steal {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-top: 0.3rem;
+  font-weight: 500;
+}
+
+/* ============================================
+   SECTION 4: CATEGORY SCORING
+   ============================================ */
+#scoring {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(232,163,9,0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0f 0%, #0d0d18 50%, #0a0a0f 100%);
+}
+
+.radar-container {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0 3rem;
+}
+
+.radar-container svg {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+}
+
+/* Accordion */
+.accordion-item {
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%;
+  border: none;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+}
+.accordion-header:hover { background: var(--bg-card-hover); }
+
+.accordion-score {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.accordion-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.accordion-arrow {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s;
+  color: var(--text-dim);
+}
+
+.accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accordion-item.open .accordion-body {
+  max-height: 2000px;
+}
+
+.accordion-content {
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+.finding-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.finding-item:last-child { border-bottom: none; }
+
+.finding-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.finding-text strong { color: var(--text-primary); }
+
+.finding-citation {
+  font-size: 0.7rem;
+  color: var(--gold);
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* ============================================
+   SECTION 5: CRITICAL FINDINGS TIMELINE
+   ============================================ */
+#findings {
+  background:
+    radial-gradient(ellipse at 10% 40%, rgba(239,68,68,0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 60%, rgba(232,163,9,0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #0a0a0f 0%, #0e0e18 100%);
+}
+
+.timeline {
+  position: relative;
+  padding-left: 3rem;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--red) 0%, var(--amber) 50%, var(--green) 100%);
+  opacity: 0.3;
+}
+
+.timeline-group-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.5rem 0;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+.timeline-group-label::before {
+  content: '';
+  position: absolute;
+  left: -3rem;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  transform: translate(0, -50%);
+}
+.timeline-group-label.critical { color: var(--red); }
+.timeline-group-label.critical::before { background: var(--red-dim); border: 2px solid var(--red); }
+.timeline-group-label.high { color: var(--amber); }
+.timeline-group-label.high::before { background: var(--amber-dim); border: 2px solid var(--amber); }
+.timeline-group-label.medium { color: #60a5fa; }
+.timeline-group-label.medium::before { background: rgba(96,165,250,0.12); border: 2px solid #60a5fa; }
+
+.timeline-item {
+  position: relative;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2.55rem;
+  top: 1.75rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 2px solid var(--text-dim);
+}
+.timeline-item.critical-item::before { border-color: var(--red); background: var(--red-dim); }
+.timeline-item.high-item::before { border-color: var(--amber); background: var(--amber-dim); }
+.timeline-item.medium-item::before { border-color: #60a5fa; background: rgba(96,165,250,0.12); }
+
+.timeline-item h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-evidence {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+.timeline-evidence span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* ============================================
+   SECTION 6: VISUAL TEARDOWNS
+   ============================================ */
+#teardowns {
+  background:
+    radial-gradient(ellipse at 40% 20%, rgba(232,163,9,0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, rgba(139,92,246,0.04) 0%, transparent 40%),
+    conic-gradient(from 270deg at 30% 70%, #0a0a0f 0deg, #12121f 180deg, #0a0a0f 360deg);
+}
+
+.teardown {
+  margin-bottom: 4rem;
+}
+
+.teardown-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.teardown-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 850px) {
+  .teardown-pair { grid-template-columns: 1fr; }
+}
+
+.teardown-side {
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.teardown-label {
+  padding: 0.75rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.teardown-label.before { background: rgba(239,68,68,0.12); color: var(--red); }
+.teardown-label.after { background: rgba(34,197,94,0.12); color: var(--green); }
+
+.teardown-mock {
+  padding: 2rem;
+  min-height: 280px;
+  position: relative;
+  background: #020A27;
+  font-family: 'Inter', sans-serif;
+}
+
+.mock-logo {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.mock-headline {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+}
+.mock-subheadline {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.mock-form {
+  max-width: 280px;
+  margin: 0 auto;
+}
+.mock-form-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.mock-input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.7rem;
+}
+.mock-btn {
+  display: block;
+  width: 100%;
+  padding: 0.65rem;
+  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #e8a309, #f5c842);
+  border: none;
+  border-radius: 6px;
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: default;
+}
+
+.mock-proof-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(232,163,9,0.08);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.mock-media-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.25);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.mock-step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.mock-step-dot {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+}
+.mock-step-dot.active { background: var(--gold); }
+
+.mock-step-text {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.mock-countdown {
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--red);
+  margin-bottom: 1rem;
+}
+
+.mock-social-activity {
+  text-align: center;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 0.75rem;
+}
+
+.mock-reassurance {
+  text-align: center;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 0.5rem;
+}
+
+.mock-micro-testimonial {
+  text-align: center;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+}
+
+/* Callout bubbles */
+.callout {
+  position: absolute;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  line-height: 1.3;
+  max-width: 140px;
+  pointer-events: none;
+  z-index: 5;
+}
+.callout-red {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: var(--red);
+}
+.callout-green {
+  background: rgba(34,197,94,0.15);
+  border: 1px solid rgba(34,197,94,0.4);
+  color: var(--green);
+}
+
+/* ============================================
+   SECTION 7: COMPETITIVE DEEP-DIVE
+   ============================================ */
+#competitive {
+  background:
+    radial-gradient(ellipse at 80% 30%, rgba(232,163,9,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 70%, rgba(59,130,246,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0f 0%, #0d0d18 100%);
+}
+
+.comp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.comp-card {
+  padding: 2rem;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.comp-card:hover { transform: translateY(-4px); border-color: var(--glass-border-hover); }
+
+.comp-card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+.comp-card-position {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.comp-card-strength {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+.comp-card-steal {
+  padding: 0.75rem 1rem;
+  background: var(--gold-dim);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--gold);
+}
+.comp-card-steal strong {
+  font-size: 0.75rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.comp-card-steal span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   SECTION 8: BEHAVIORAL PSYCHOLOGY
+   ============================================ */
+#psychology {
+  background:
+    radial-gradient(ellipse at 60% 20%, rgba(139,92,246,0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 30% 80%, rgba(232,163,9,0.04) 0%, transparent 40%),
+    conic-gradient(from 0deg at 50% 50%, #0a0a0f 0deg, #13131f 90deg, #0a0a0f 180deg, #0f0f1a 270deg, #0a0a0f 360deg);
+}
+
+.psych-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.psych-card {
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.psych-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.psych-id {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.psych-card h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.psych-card p {
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+/* ============================================
+   SECTION 9: PRIORITY MATRIX / ROADMAP
+   ============================================ */
+#roadmap {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(232,163,9,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0f 0%, #0e0e18 100%);
+}
+
+.matrix-container {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+.matrix-container svg {
+  max-width: 700px;
+  width: 100%;
+  height: auto;
+}
+
+.roadmap-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+@media (max-width: 768px) {
+  .roadmap-columns { grid-template-columns: 1fr; }
+}
+
+.roadmap-col h4 {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid;
+}
+.roadmap-col.quick h4 { border-color: var(--green); color: var(--green); }
+.roadmap-col.strategic h4 { border-color: var(--amber); color: var(--amber); }
+.roadmap-col.nice h4 { border-color: #60a5fa; color: #60a5fa; }
+
+.roadmap-item {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================
+   SECTION 10: EVIDENCE BASE
+   ============================================ */
+#evidence {
+  background:
+    radial-gradient(ellipse at 70% 40%, rgba(232,163,9,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.04) 0%, transparent 50%),
+    conic-gradient(from 180deg at 60% 70%, #0a0a0f 0deg, #12121f 120deg, #0a0a0f 240deg, #0f0f1a 360deg);
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1rem;
+}
+
+.evidence-card {
+  padding: 1.5rem;
+}
+
+.evidence-id {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+
+.evidence-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.evidence-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.evidence-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0;
+}
+
+.evidence-lift {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.evidence-source {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+}
+
+.evidence-tag {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.06);
+  color: var(--text-dim);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.report-footer {
+  padding: 4rem 0 3rem;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: var(--bg-deep);
+}
+.report-footer p {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+.report-footer .footer-brand {
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   UTILITY
+   ============================================ */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.text-center { text-align: center; }
+
+/* Print styles */
+@media print {
+  .noise-overlay { display: none; }
+  body { background: #fff; color: #000; }
+  .glass, .glass-sm { backdrop-filter: none; background: #f5f5f5; border: 1px solid #ddd; }
+  section { break-inside: avoid; }
+}
+
+/* ============================================
+   STICKY NAVIGATION MENU
+   ============================================ */
+.audit-nav {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.audit-nav.visible { opacity: 1; }
+
+.audit-nav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-decoration: none;
+  padding: 6px 12px 6px 16px;
+  color: var(--text-dim);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+.audit-nav a::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  margin-left: 8px;
+  background: var(--text-dim);
+  border: 1.5px solid transparent;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 0 0 rgba(232,163,9,0);
+}
+.audit-nav a .nav-label {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: all 0.25s ease;
+  pointer-events: none;
+  background: rgba(10,10,15,0.92);
+  backdrop-filter: blur(12px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+}
+.audit-nav a:hover .nav-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+.audit-nav a:hover::after {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(232,163,9,0.5);
+  transform: scale(1.3);
+}
+.audit-nav a.active::after {
+  background: var(--gold);
+  border-color: var(--gold);
+  width: 10px;
+  height: 10px;
+  box-shadow: 0 0 12px rgba(232,163,9,0.4);
+}
+.audit-nav a.active .nav-label {
+  color: var(--gold-light);
+}
+
+/* Score dot colors */
+.audit-nav a[data-score="red"]::after { border-color: var(--red); }
+.audit-nav a[data-score="red"].active::after { background: var(--red); box-shadow: 0 0 12px rgba(239,68,68,0.4); }
+.audit-nav a[data-score="amber"]::after { border-color: var(--amber); }
+.audit-nav a[data-score="amber"].active::after { background: var(--amber); box-shadow: 0 0 12px rgba(245,158,11,0.4); }
+.audit-nav a[data-score="green"]::after { border-color: var(--green); }
+.audit-nav a[data-score="green"].active::after { background: var(--green); box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+
+@media (max-width: 900px) {
+  .audit-nav {
+    right: 0;
+    padding: 6px 0;
+  }
+  .audit-nav a {
+    padding: 5px 8px 5px 12px;
+  }
+  .audit-nav a .nav-label { display: none; }
+}
+@media (max-width: 600px) {
+  .audit-nav a::after {
+    width: 6px;
+    height: 6px;
+  }
+  .audit-nav a { padding: 4px 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG NOISE OVERLAY -->
+<svg class="noise-overlay" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noiseFilter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+</svg>
+
+<!-- STICKY NAVIGATION -->
+<nav class="audit-nav" id="auditNav">
+  <a href="#cover"><span class="nav-label">Cover</span></a>
+  <a href="#exec-summary"><span class="nav-label">Executive Summary</span></a>
+  <a href="#brand-intel"><span class="nav-label">Brand Intelligence</span></a>
+  <a href="#scoring" data-score="amber"><span class="nav-label">Scoring (4.8/10)</span></a>
+  <a href="#findings" data-score="red"><span class="nav-label">Critical Findings</span></a>
+  <a href="#teardowns"><span class="nav-label">Visual Teardowns</span></a>
+  <a href="#competitive"><span class="nav-label">Competitors</span></a>
+  <a href="#psychology"><span class="nav-label">Psychology</span></a>
+  <a href="#roadmap"><span class="nav-label">Roadmap</span></a>
+  <a href="#evidence" data-score="green"><span class="nav-label">Evidence Base</span></a>
+</nav>
+
+<!-- ============================================
+     SECTION 1: COVER
+     ============================================ -->
+<section id="cover">
+  <div class="cover-content">
+    <div class="cover-meta reveal">CRO Audit Report</div>
+    <div class="cover-brand reveal reveal-delay-1">Clients on Demand</div>
+    <h1 class="cover-title reveal reveal-delay-2">
+      Masterclass Opt-In Page<br><em>/cmm</em> Audit
+    </h1>
+    <p class="cover-subtitle reveal reveal-delay-3">
+      clientsondemand.live/cmm &mdash; April 2, 2026
+    </p>
+
+    <!-- SPEEDOMETER GAUGE -->
+    <div class="gauge-container reveal reveal-delay-3">
+      <svg width="260" height="155" viewBox="0 0 260 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Track -->
+        <path d="M 30 140 A 100 100 0 0 1 230 140" stroke="rgba(255,255,255,0.06)" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Red zone 0-3 -->
+        <path d="M 30 140 A 100 100 0 0 1 64.6 62.8" stroke="rgba(239,68,68,0.25)" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Amber zone 3-7 -->
+        <path d="M 64.6 62.8 A 100 100 0 0 1 195.4 62.8" stroke="rgba(245,158,11,0.2)" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Green zone 7-10 -->
+        <path d="M 195.4 62.8 A 100 100 0 0 1 230 140" stroke="rgba(34,197,94,0.18)" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Active fill (4.8/10 = 48%) -->
+        <path class="gauge-fill" d="M 30 140 A 100 100 0 0 1 30 140" stroke="url(#gaugeGrad)" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Needle dot -->
+        <circle class="gauge-dot" cx="30" cy="140" r="6" fill="#e8a309"/>
+        <defs>
+          <linearGradient id="gaugeGrad" x1="30" y1="140" x2="230" y2="140">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="50%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#22c55e"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="gauge-score-label"><span class="counter" data-target="4.8" data-decimals="1">0</span> <span>/ 10</span></div>
+      <div class="gauge-label">Overall CRO Score</div>
+    </div>
+
+    <div class="cover-verdict glass reveal reveal-delay-4">
+      <p>This page is converting at a <strong>fraction of its potential</strong>. With 23 critical findings identified across 10 categories, 7 high-impact fixes backed by 822+ CRO case studies could lift opt-in rate by <strong class="gold-text">40-80%</strong>.</p>
+    </div>
+
+    <p class="cover-prepared reveal reveal-delay-4">
+      Prepared by <strong>KAMG</strong> &bull; April 2, 2026
+    </p>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 2: EXECUTIVE SUMMARY
+     ============================================ -->
+<section id="exec-summary">
+  <div class="container-narrow">
+    <div class="section-label reveal">Section 01</div>
+    <h2 class="reveal">Executive Summary</h2>
+    <p class="mt-2 mb-4 reveal" style="color: var(--text-dim); font-size: 0.9rem;">McKinsey Pyramid: Situation &rarr; Complication &rarr; Resolution</p>
+
+    <div class="pyramid-block pyramid-situation glass reveal">
+      <div class="pyramid-label">Situation</div>
+      <p>COD has a proven $100M+ business model with 6,000+ success stories and a masterclass that converts well once watched. The /cmm page is a free masterclass opt-in designed to capture leads for their coaching funnel. The business fundamentals are <strong style="color:var(--text-primary)">exceptionally strong</strong>.</p>
+    </div>
+
+    <div class="pyramid-block pyramid-complication glass reveal">
+      <div class="pyramid-label">Complication</div>
+      <p>The page is leaving significant conversion on the table. It uses a single-step form with a phone number field (known to kill 40-79% of completions), buries social proof below the fold, lacks any urgency mechanism, and presents a "How We" headline that positions the brand rather than the visitor. The page also fails to leverage COD's massive proof arsenal&mdash;6,000 clients, $100M revenue, Trustpilot 4.4/5 with 508 reviews, since 2013&mdash;in the hero section where it matters most.</p>
+    </div>
+
+    <div class="pyramid-block pyramid-resolution glass reveal">
+      <div class="pyramid-label">Resolution</div>
+      <p>Seven high-impact changes, backed by 822+ CRO case studies and behavioral psychology research, can transform this page. The largest single lever: converting to a multi-step form (<strong style="color:var(--green)">+86-214% completion</strong>). Combined with above-fold social proof, first-person CTA copy, and strategic urgency, we project a <strong style="color:var(--green)">40-80% lift</strong> in opt-in rate.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats-grid reveal">
+      <div class="stat-card glass">
+        <div class="stat-number"><span class="counter" data-target="4.8" data-decimals="1">0</span></div>
+        <div class="stat-label">Overall Score /10</div>
+      </div>
+      <div class="stat-card glass">
+        <div class="stat-number"><span class="counter" data-target="23">0</span></div>
+        <div class="stat-label">Critical Findings</div>
+      </div>
+      <div class="stat-card glass">
+        <div class="stat-number"><span class="counter" data-target="40">0</span>-<span class="counter" data-target="80">0</span>%</div>
+        <div class="stat-label">Estimated Lift</div>
+      </div>
+      <div class="stat-card glass">
+        <div class="stat-number"><span class="counter" data-target="35">0</span>+</div>
+        <div class="stat-label">Evidence Citations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 3: BRAND INTELLIGENCE
+     ============================================ -->
+<section id="brand-intel">
+  <div class="container">
+    <div class="section-label reveal">Section 02</div>
+    <h2 class="reveal mb-4">Brand Intelligence</h2>
+    <p class="reveal mb-4" style="max-width:700px;">COD is a powerhouse that dramatically <strong style="color:var(--text-primary)">under-leverages its proof arsenal</strong> on this page. Here's what's hiding in plain sight.</p>
+
+    <div class="two-col">
+      <!-- Hidden Proof -->
+      <div class="reveal">
+        <h3 style="font-size:1.2rem; margin-bottom:1.5rem;">Hidden Proof <span class="red-text" style="font-size:0.8rem; font-weight:400;">Not on /cmm</span></h3>
+        <div class="glass" style="padding: 1.5rem 2rem;">
+          <div class="proof-item">
+            <div class="proof-icon">&#9733;</div>
+            <div class="proof-text">
+              <strong>Trustpilot: 4.4/5 stars, 508+ reviews</strong>
+              <span>Only badge shown, no rating or review count visible</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">$</div>
+            <div class="proof-text">
+              <strong>$100M+ revenue since 2013</strong>
+              <span>Mentioned in tiny tagline, not prominently featured</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">&#9824;</div>
+            <div class="proof-text">
+              <strong>6,000+ success stories</strong>
+              <span>Buried in lower section far below the fold</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">&#8986;</div>
+            <div class="proof-text">
+              <strong>13+ years in business</strong>
+              <span>Not mentioned at all in the hero or above the fold</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">&#9734;</div>
+            <div class="proof-text">
+              <strong>Russ Ruffino: "Mentor of Mentors"</strong>
+              <span>Credential section only, not in hero</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">&#9650;</div>
+            <div class="proof-text">
+              <strong>Programs from $5K to $100K DFY</strong>
+              <span>Signals serious business, not shown</span>
+            </div>
+          </div>
+          <div class="proof-item">
+            <div class="proof-icon">&#9881;</div>
+            <div class="proof-text">
+              <strong>Workshop: BUILD your offer live with AI</strong>
+              <span>Unique mechanism, not on this page at all</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Competitor Comparison -->
+      <div class="reveal reveal-delay-2">
+        <h3 style="font-size:1.2rem; margin-bottom:1.5rem;">What Competitors Do <span class="green-text" style="font-size:0.8rem; font-weight:400;">That COD Doesn't</span></h3>
+        <div class="competitor-item glass-sm">
+          <div>
+            <div class="competitor-name">Sam Ovens</div>
+            <div class="competitor-detail">Media logo bar above fold (Forbes, Inc, Entrepreneur)</div>
+          </div>
+        </div>
+        <div class="competitor-item glass-sm">
+          <div>
+            <div class="competitor-name">Dan Henry</div>
+            <div class="competitor-detail">Exact revenue screenshot in hero section</div>
+          </div>
+        </div>
+        <div class="competitor-item glass-sm">
+          <div>
+            <div class="competitor-name">Frank Kern</div>
+            <div class="competitor-detail">Video testimonial montage auto-playing</div>
+          </div>
+        </div>
+        <div class="competitor-item glass-sm">
+          <div>
+            <div class="competitor-name">Alex Hormozi</div>
+            <div class="competitor-detail">Specific ROI numbers in headline ("$100M in revenue for our clients")</div>
+          </div>
+        </div>
+        <div class="competitor-item glass-sm">
+          <div>
+            <div class="competitor-name">Myron Golden</div>
+            <div class="competitor-detail">Countdown timer to next live event</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 4: CATEGORY SCORING
+     ============================================ -->
+<section id="scoring">
+  <div class="container">
+    <div class="section-label reveal">Section 03</div>
+    <h2 class="reveal mb-4">Category Scoring</h2>
+    <p class="reveal mb-4" style="max-width:700px;">10 categories evaluated across conversion, trust, usability, and persuasion. Each score is backed by specific findings with evidence citations.</p>
+
+    <!-- RADAR CHART -->
+    <div class="radar-container reveal">
+      <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .radar-label { font-family: 'Inter', sans-serif; font-size: 9px; fill: #a0a0b8; font-weight: 500; }
+            .radar-label-score { font-family: 'Playfair Display', serif; font-size: 13px; font-weight: 700; }
+          </style>
+        </defs>
+        <!-- Grid circles -->
+        <circle cx="250" cy="250" r="40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <circle cx="250" cy="250" r="80" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <circle cx="250" cy="250" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <circle cx="250" cy="250" r="160" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <circle cx="250" cy="250" r="200" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+        <!-- Grid lines (spokes) -->
+        <line x1="250" y1="250" x2="250" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="370.2" y2="76.4" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="440.2" y2="188" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="440.2" y2="312" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="370.2" y2="423.6" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="250" y2="450" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="129.8" y2="423.6" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="59.8" y2="312" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="59.8" y2="188" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <line x1="250" y1="250" x2="129.8" y2="76.4" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+
+        <!-- Data polygon: scores [6,5,3,5,3,5,6,4,2,4] out of 10, radius 200 -->
+        <polygon class="radar-polygon"
+          points="250,130 322.1,145.7 364.1,225.6 340.1,312 322.1,389.2 250,370 165.9,354.3 131.9,262.4 131.9,188 165.9,110.8"
+          fill="rgba(232,163,9,0.12)"
+          stroke="#e8a309"
+          stroke-width="2"
+          stroke-linejoin="round"/>
+
+        <!-- Data points -->
+        <circle cx="250" cy="130" r="5" fill="#f59e0b" stroke="#0a0a0f" stroke-width="2"/><!-- VP 6 -->
+        <circle cx="322.1" cy="145.7" r="5" fill="#f59e0b" stroke="#0a0a0f" stroke-width="2"/><!-- CTA 5 -->
+        <circle cx="364.1" cy="225.6" r="5" fill="#ef4444" stroke="#0a0a0f" stroke-width="2"/><!-- SP 3 -->
+        <circle cx="340.1" cy="312" r="5" fill="#f59e0b" stroke="#0a0a0f" stroke-width="2"/><!-- Trust 5 -->
+        <circle cx="322.1" cy="389.2" r="5" fill="#ef4444" stroke="#0a0a0f" stroke-width="2"/><!-- Form 3 -->
+        <circle cx="250" cy="370" r="5" fill="#f59e0b" stroke="#0a0a0f" stroke-width="2"/><!-- Vis 5 -->
+        <circle cx="165.9" cy="354.3" r="5" fill="#f59e0b" stroke="#0a0a0f" stroke-width="2"/><!-- Copy 6 -->
+        <circle cx="131.9" cy="262.4" r="5" fill="#ef4444" stroke="#0a0a0f" stroke-width="2"/><!-- Mobile 4 -->
+        <circle cx="131.9" cy="188" r="5" fill="#ef4444" stroke="#0a0a0f" stroke-width="2"/><!-- Urgency 2 -->
+        <circle cx="165.9" cy="110.8" r="5" fill="#ef4444" stroke="#0a0a0f" stroke-width="2"/><!-- Arch 4 -->
+
+        <!-- Labels -->
+        <text x="250" y="38" text-anchor="middle" class="radar-label">Value Proposition</text>
+        <text x="250" y="52" text-anchor="middle" class="radar-label radar-label-score" fill="#f59e0b">6/10</text>
+
+        <text x="392" y="68" text-anchor="start" class="radar-label">CTA Effectiveness</text>
+        <text x="392" y="82" text-anchor="start" class="radar-label radar-label-score" fill="#f59e0b">5/10</text>
+
+        <text x="460" y="222" text-anchor="start" class="radar-label">Social Proof</text>
+        <text x="460" y="236" text-anchor="start" class="radar-label radar-label-score" fill="#ef4444">3/10</text>
+
+        <text x="460" y="320" text-anchor="start" class="radar-label">Trust</text>
+        <text x="460" y="334" text-anchor="start" class="radar-label radar-label-score" fill="#f59e0b">5/10</text>
+
+        <text x="370" y="430" text-anchor="start" class="radar-label">Form UX</text>
+        <text x="370" y="444" text-anchor="start" class="radar-label radar-label-score" fill="#ef4444">3/10</text>
+
+        <text x="250" y="470" text-anchor="middle" class="radar-label">Visual Hierarchy</text>
+        <text x="250" y="484" text-anchor="middle" class="radar-label radar-label-score" fill="#f59e0b">5/10</text>
+
+        <text x="82" y="385" text-anchor="end" class="radar-label">Copy Persuasion</text>
+        <text x="82" y="399" text-anchor="end" class="radar-label radar-label-score" fill="#f59e0b">6/10</text>
+
+        <text x="32" y="270" text-anchor="end" class="radar-label">Mobile</text>
+        <text x="32" y="284" text-anchor="end" class="radar-label radar-label-score" fill="#ef4444">4/10</text>
+
+        <text x="32" y="186" text-anchor="end" class="radar-label">Urgency</text>
+        <text x="32" y="200" text-anchor="end" class="radar-label radar-label-score" fill="#ef4444">2/10</text>
+
+        <text x="100" y="75" text-anchor="end" class="radar-label">Architecture</text>
+        <text x="100" y="89" text-anchor="end" class="radar-label radar-label-score" fill="#ef4444">4/10</text>
+      </svg>
+    </div>
+
+    <!-- ACCORDION DETAIL -->
+    <div class="mt-4">
+      <!-- 1. Value Proposition -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score amber-text">6</span>
+          <span class="accordion-title">Value Proposition Clarity</span>
+          <span class="badge badge-high">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">"How We" framing positions COD, not the visitor. Should be <strong>"How YOU Can..."</strong> or identity-based framing. <span class="finding-citation">H-04, B2B-019</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">The mechanism ("ONE Video") is buried in a long headline. Mobile users see 4-5 lines. Should be <strong>under 50 chars</strong> for mobile. <span class="finding-citation">CF-068</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">"Authority Video" is undefined jargon. New visitors don't know what this means. <strong>Define the mechanism</strong> or use familiar language.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. CTA Effectiveness -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score amber-text">5</span>
+          <span class="accordion-title">CTA Effectiveness</span>
+          <span class="badge badge-high">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">"Watch The Free Masterclass" is third-person. <strong>First-person "Get My Free Masterclass" lifts +90%</strong>. <span class="finding-citation">B2B-019</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Gold gradient button has good contrast but "Watch" implies time commitment. <strong>"Get Access" or "Send It To Me"</strong> reduces perceived effort. <span class="finding-citation">B2B-015</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">CTA appears 3+ times but all identical. <strong>Testing variation at different scroll depths</strong> can lift +14-25%. <span class="finding-citation">B2B-014</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Social Proof -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score red-text">3</span>
+          <span class="accordion-title">Social Proof Deployment</span>
+          <span class="badge badge-critical">4 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text">Trustpilot badge buried below fold. <strong>Above-fold testimonials lift +34%</strong>. <span class="finding-citation">CF-008</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text">"6,000+ success stories" is a round number. <strong>"6,247 success stories" would lift +21.4%</strong> via precision bias. <span class="finding-citation">CF-007</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No media logo bar. Competitors all use <strong>"As featured in Forbes, Inc..."</strong> above fold. <span class="finding-citation">CF-045</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No real-time social proof (<strong>"47 people watching this right now"</strong>). <span class="finding-citation">CF-043</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Trust & Credibility -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score amber-text">5</span>
+          <span class="accordion-title">Trust & Credibility</span>
+          <span class="badge badge-high">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Heavy FTC disclaimers are necessary but positioned poorly. <strong>"You probably will not make a dime"</strong> is trust-destroying even if legally required.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No founder photo above fold. <strong>Human faces lift +30-102.5%</strong>. <span class="finding-citation">CF-014</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">"Since 2013" longevity signal is <strong>not in the hero section</strong>. 13 years of track record is a powerful trust signal being wasted.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Form UX -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score red-text">3</span>
+          <span class="accordion-title">Form UX & Friction</span>
+          <span class="badge badge-critical">5 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text">Single-step form with 3 fields. <strong>Multi-step forms lift +86-214%</strong>. <span class="finding-citation">CF-004, CF-092, F-050</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text">Phone number field visible upfront. <strong>Removing ONE optional phone field = +79% form CR</strong>. Even if required, hiding it in Step 2 reduces abandonment. <span class="finding-citation">CF-091</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No progress bar. <strong>Progress bars add +28% completion</strong>. <span class="finding-citation">CF-035</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No social autofill (Sign in with Google). <strong>Social autofill = +189%</strong>. <span class="finding-citation">CF-088</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">No autofill attributes (autocomplete). <strong>Correct autofill = 40-60% faster</strong> form completion. <span class="finding-citation">CF-086</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Visual Hierarchy -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score amber-text">5</span>
+          <span class="accordion-title">Visual Hierarchy</span>
+          <span class="badge badge-high">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Dark blue works for premium feel but <strong>headline contrast could be stronger</strong>. White on #020A27 passes WCAG but barely.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No directional cue pointing to form. <strong>Person looking toward form = +17% completion</strong>. <span class="finding-citation">CF-033</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Form label "WHERE SHOULD I SEND YOUR FREE VIDEO?" is <strong>all caps</strong>, reads as aggressive rather than inviting.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Copy Persuasion -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score amber-text">6</span>
+          <span class="accordion-title">Copy Persuasion</span>
+          <span class="badge badge-high">4 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Good specificity ($5K-$15K, 24 hours, ONE video). <strong>Specific numbers in headlines +20-40%</strong>. This is a bright spot. <span class="finding-citation">F-128</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No objection handling before the form. <strong>FAQ/concerns section missing entirely</strong>. Visitors with doubts have no reassurance.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Tagline "(Spoiler:...)" is clever but <strong>parenthetical text gets skipped</strong> by scanners. Key proof buried in a throwaway format.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No "who this is for / who this isn't for" section. <strong>Disqualification reduces wasted leads 30-40%</strong> and INCREASES qualified opt-ins. <span class="finding-citation">F-051</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Mobile Experience -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score red-text">4</span>
+          <span class="accordion-title">Mobile Experience</span>
+          <span class="badge badge-critical">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">Headline wraps to 4-5 lines on mobile. <strong>Under 50 chars = best mobile performance</strong>. <span class="finding-citation">CF-068</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text">Single-step form on mobile = <strong>40% lower completion than desktop</strong>. Multi-step mobile OUTPERFORMS desktop by 15%. <span class="finding-citation">CF-093</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text"><strong>No sticky mobile CTA bar</strong>. As users scroll, the form disappears. A persistent CTA keeps the action always available.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Urgency & Motivation -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score red-text">2</span>
+          <span class="accordion-title">Urgency & Motivation</span>
+          <span class="badge badge-critical">3 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-critical">Critical</span>
+              <div class="finding-text"><strong>Zero urgency elements</strong>. No countdown, no limited spots, no "next session starts..." The page feels completely static.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">For a free offer, absence of urgency means <strong>"I'll come back later"</strong> (and they won't). This is the #1 reason free opt-in pages underperform.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Rory Sutherland (APP-008): fake urgency destroys trust with sophisticated audiences. But <strong>GENUINE urgency</strong> (next masterclass time) would be authentic and high-impact. <span class="finding-citation">APP-008</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. Page Architecture -->
+      <div class="accordion-item reveal">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span class="accordion-score red-text">4</span>
+          <span class="accordion-title">Page Architecture</span>
+          <span class="badge badge-high">4 Findings</span>
+          <svg class="accordion-arrow" viewBox="0 0 20 20" fill="currentColor"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-content">
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">Social proof comes AFTER the form ask. <strong>Proof should appear BEFORE the ask</strong> to build trust. <span class="finding-citation">CF-008</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-high">High</span>
+              <div class="finding-text">No two-step opt-in. A button that opens a popup form <strong>lifts +30% average, up to +785%</strong>. <span class="finding-citation">F-003</span></div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">Benefits section "YOU'LL DISCOVER" should be <strong>above the form</strong>, not below. Benefits motivate the action.</div>
+            </div>
+            <div class="finding-item">
+              <span class="badge badge-medium">Medium</span>
+              <div class="finding-text">No video element. <strong>Video testimonials or Russ intro</strong> could dramatically lift engagement and time on page.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 5: CRITICAL FINDINGS TIMELINE
+     ============================================ -->
+<section id="findings">
+  <div class="container-narrow">
+    <div class="section-label reveal">Section 04</div>
+    <h2 class="reveal mb-4">Critical Findings</h2>
+    <p class="reveal mb-4">Top 12 findings ranked by severity and projected impact. Each is backed by specific evidence from our 822+ CRO case study database.</p>
+
+    <div class="timeline">
+      <!-- CRITICAL GROUP -->
+      <div class="timeline-group-label critical reveal">Critical - Fix Immediately</div>
+
+      <div class="timeline-item critical-item glass reveal">
+        <h4><span class="red-text">#1</span> Single-Step Form Killing Mobile Conversions</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Single-step form with all 3 fields showing at once. On mobile, this creates a wall of inputs that drives -40% completions vs desktop. Convert to 3-step: Step 1 (Name+Email), Step 2 (Phone+Goals), Step 3 (Commitment Q).</p>
+        <div class="timeline-evidence">
+          <span>CF-004 +214%</span>
+          <span>CF-092 +86-205%</span>
+          <span>CF-093</span>
+          <span>F-050 +209%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item critical-item glass reveal">
+        <h4><span class="red-text">#2</span> Phone Number Field Visible Upfront</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Phone is the highest-friction field. Showing it in Step 1 creates immediate resistance. Move to Step 2 of multi-step form where commitment psychology kicks in.</p>
+        <div class="timeline-evidence">
+          <span>CF-091 +79%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item critical-item glass reveal">
+        <h4><span class="red-text">#3</span> Social Proof Completely Buried Below Fold</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Trustpilot rating, "6,247 success stories," and media logos should be in the hero. Visitors make trust decisions in 50ms. The proof exists but nobody sees it before the form ask.</p>
+        <div class="timeline-evidence">
+          <span>CF-008 +34%</span>
+          <span>CF-045 +52%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item critical-item glass reveal">
+        <h4><span class="red-text">#4</span> Zero Urgency on a Free Offer</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">No countdown, no limited spots, no next session time. For free content, "I'll come back later" is the conversion killer. Add genuine urgency: next masterclass session countdown.</p>
+        <div class="timeline-evidence">
+          <span>APP-008</span>
+          <span>CF-043 +25-30%</span>
+        </div>
+      </div>
+
+      <!-- HIGH GROUP -->
+      <div class="timeline-group-label high reveal">High - This Week</div>
+
+      <div class="timeline-item high-item glass reveal">
+        <h4><span class="amber-text">#5</span> CTA Copy Is Third-Person</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Change "Watch The Free Masterclass" to "Get My Free Masterclass." First-person CTA copy creates ownership psychology before the click.</p>
+        <div class="timeline-evidence">
+          <span>B2B-019 +90%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item high-item glass reveal">
+        <h4><span class="amber-text">#6</span> No Founder Photo Above Fold</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Russ Ruffino is a credibility asset. Add his headshot in the hero. Human faces create instant trust and connection, especially for coaching/consulting offers.</p>
+        <div class="timeline-evidence">
+          <span>CF-014 +30-102.5%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item high-item glass reveal">
+        <h4><span class="amber-text">#7</span> Headline Too Long for Mobile</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Current headline wraps to 4-5 lines on mobile. Shorten to under 50 characters: "Turn Your Expertise Into $5K-$15K Clients"</p>
+        <div class="timeline-evidence">
+          <span>CF-068</span>
+        </div>
+      </div>
+
+      <div class="timeline-item high-item glass reveal">
+        <h4><span class="amber-text">#8</span> No "Who This Is For / Isn't For" Section</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Disqualification increases perceived exclusivity and reduces unqualified leads by 30-40% while increasing qualified opt-ins.</p>
+        <div class="timeline-evidence">
+          <span>F-051 -30-40% waste</span>
+        </div>
+      </div>
+
+      <div class="timeline-item high-item glass reveal">
+        <h4><span class="amber-text">#9</span> Benefits Section Below Form</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Move "YOU'LL DISCOVER" content above the form. Benefits should build desire BEFORE the ask, not after they've already decided.</p>
+        <div class="timeline-evidence">
+          <span>APP-019</span>
+        </div>
+      </div>
+
+      <!-- MEDIUM GROUP -->
+      <div class="timeline-group-label medium reveal">Medium - Next Sprint</div>
+
+      <div class="timeline-item medium-item glass reveal">
+        <h4><span style="color:#60a5fa">#10</span> Round Social Proof Numbers</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Change "6,000+ success stories" to exact: "6,247 clients transformed their business." Precision triggers credibility.</p>
+        <div class="timeline-evidence">
+          <span>CF-007 +21.4%</span>
+        </div>
+      </div>
+
+      <div class="timeline-item medium-item glass reveal">
+        <h4><span style="color:#60a5fa">#11</span> No Two-Step Opt-In Trigger</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Test CTA button that opens form popup. The initial click creates a micro-commitment that increases form completion.</p>
+        <div class="timeline-evidence">
+          <span>F-003 +30% avg</span>
+        </div>
+      </div>
+
+      <div class="timeline-item medium-item glass reveal">
+        <h4><span style="color:#60a5fa">#12</span> Missing Autofill/Autocomplete Attributes</h4>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.75;">Add proper HTML autocomplete attributes to form fields. Browser autofill makes form completion 40-60% faster.</p>
+        <div class="timeline-evidence">
+          <span>CF-086 +40-60% faster</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 6: VISUAL TEARDOWNS
+     ============================================ -->
+<section id="teardowns">
+  <div class="container">
+    <div class="section-label reveal">Section 05</div>
+    <h2 class="reveal mb-3">Visual Teardowns</h2>
+    <p class="reveal mb-4" style="max-width:700px;">Five side-by-side comparisons showing exactly what to change and why. Current state on the left, recommended on the right.</p>
+
+    <!-- TEARDOWN 1: Hero Section -->
+    <div class="teardown reveal">
+      <h3 class="teardown-title">Teardown 1: Hero Section</h3>
+      <div class="teardown-pair">
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label before">BEFORE (Current)</div>
+          <div class="teardown-mock" style="min-height:320px;">
+            <div class="mock-logo">CLIENTS ON DEMAND</div>
+            <div class="mock-headline" style="font-size:0.8rem; line-height:1.5;">How We Enroll $5,000 - $15,000 Clients with ONE Video That Takes Less Than 24 Hours to Make...</div>
+            <div class="mock-subheadline">(even if you have no audience, no following, and no one knows who you are!)</div>
+            <div class="mock-subheadline" style="font-size:0.7rem;">Discover how one Authority Video is the missing piece...</div>
+            <div class="mock-subheadline" style="font-size:0.6rem; font-style:italic;">(Spoiler: this is the EXACT presentation structure that scaled our coaching business to $100M...)</div>
+            <!-- Callouts -->
+            <div class="callout callout-red" style="top:15px; right:-10px;">No social proof above fold</div>
+            <div class="callout callout-red" style="top:65px; left:-10px;">Headline too long for mobile</div>
+            <div class="callout callout-red" style="bottom:30px; right:-10px;">"How We" positions brand not visitor</div>
+          </div>
+        </div>
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label after">AFTER (Recommended)</div>
+          <div class="teardown-mock" style="min-height:320px;">
+            <div class="mock-logo">CLIENTS ON DEMAND</div>
+            <div class="mock-proof-strip">&#9733; 4.4/5 Trustpilot (508 reviews) &bull; 6,247 success stories &bull; Since 2013</div>
+            <div class="mock-headline">Turn Your Expertise Into $5K-$15K Clients</div>
+            <div class="mock-subheadline">Watch the free 20-min masterclass that's created 6,247 success stories</div>
+            <div class="mock-media-logos">Forbes &bull; Entrepreneur &bull; Inc &bull; Business Insider</div>
+            <div style="text-align:center; margin-top:1rem;">
+              <div style="display:inline-block; width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,0.1); margin-bottom:0.3rem;"></div>
+              <div style="font-size:0.6rem; color:rgba(255,255,255,0.5);">Russ Ruffino, Founder</div>
+            </div>
+            <!-- Callouts -->
+            <div class="callout callout-green" style="top:42px; right:-10px;">Social proof in hero</div>
+            <div class="callout callout-green" style="top:95px; left:-10px;">Under 50 chars</div>
+            <div class="callout callout-green" style="bottom:50px; right:-10px;">Identity-based framing</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 2: Form Section -->
+    <div class="teardown reveal">
+      <h3 class="teardown-title">Teardown 2: Form Section</h3>
+      <div class="teardown-pair">
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label before">BEFORE (Current)</div>
+          <div class="teardown-mock">
+            <div class="mock-form-label">WHERE SHOULD I SEND YOUR FREE VIDEO?</div>
+            <div class="mock-form">
+              <div class="mock-input">Full Name</div>
+              <div class="mock-input">Email Address</div>
+              <div class="mock-input">Phone Number</div>
+              <div class="mock-btn">Watch The Free Masterclass &rarr;</div>
+            </div>
+            <div class="callout callout-red" style="top:20px; right:-10px;">Phone field visible = -79% CR</div>
+            <div class="callout callout-red" style="bottom:60px; left:-10px;">Single-step = -40% on mobile</div>
+            <div class="callout callout-red" style="bottom:15px; right:-10px;">Third-person CTA</div>
+          </div>
+        </div>
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label after">AFTER (Recommended)</div>
+          <div class="teardown-mock">
+            <div class="mock-step-indicator">
+              <div class="mock-step-dot active"></div>
+              <div class="mock-step-dot"></div>
+              <div class="mock-step-dot"></div>
+            </div>
+            <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-align:center; margin-bottom:0.75rem;">Step 1 of 3</div>
+            <div class="mock-form-label" style="text-transform:none; font-weight:400;">First things first...</div>
+            <div class="mock-form">
+              <div class="mock-input">First Name</div>
+              <div class="mock-input">Email Address</div>
+              <div class="mock-btn">Get My Free Masterclass &rarr;</div>
+              <div class="mock-step-text">Step 2: Your goals | Step 3: Watch instantly</div>
+            </div>
+            <div class="callout callout-green" style="top:20px; right:-10px;">Multi-step = +214% CR</div>
+            <div class="callout callout-green" style="bottom:55px; left:-10px;">Phone hidden in Step 2</div>
+            <div class="callout callout-green" style="bottom:15px; right:-10px;">First-person CTA = +90%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 3: Social Proof Section -->
+    <div class="teardown reveal">
+      <h3 class="teardown-title">Teardown 3: Social Proof Section</h3>
+      <div class="teardown-pair">
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label before">BEFORE (Current)</div>
+          <div class="teardown-mock" style="min-height:260px;">
+            <div style="height:80px;"></div>
+            <div style="text-align:center; font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.4); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:1rem;">Client Success Spotlight</div>
+            <div style="text-align:center; margin-bottom:0.75rem;">
+              <div style="display:inline-block; padding:0.3rem 0.6rem; background:rgba(255,255,255,0.06); border-radius:4px; font-size:0.55rem; color:rgba(255,255,255,0.4);">Trustpilot Badge</div>
+            </div>
+            <div style="text-align:center; font-size:0.6rem; color:rgba(255,255,255,0.35);">6,000+ success stories</div>
+            <div class="callout callout-red" style="top:15px; right:-10px;">Below the fold</div>
+            <div class="callout callout-red" style="top:50%; left:-10px;">No specific numbers</div>
+            <div class="callout callout-red" style="bottom:15px; right:-10px;">No testimonial quotes</div>
+          </div>
+        </div>
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label after">AFTER (Recommended)</div>
+          <div class="teardown-mock" style="min-height:260px;">
+            <div class="mock-proof-strip">&#9733; 4.4/5 Trustpilot (508 reviews) &bull; 6,247 success stories &bull; Since 2013</div>
+            <div class="mock-media-logos">Forbes &bull; Entrepreneur &bull; Inc &bull; Business Insider</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-top:0.75rem;">
+              <div style="padding:0.5rem; background:rgba(255,255,255,0.04); border-radius:6px; text-align:center;">
+                <div style="width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.1); margin:0 auto 0.3rem;"></div>
+                <div style="font-size:0.5rem; color:rgba(255,255,255,0.6); font-style:italic;">"4 clients at $8K in my first month"</div>
+                <div style="font-size:0.45rem; color:rgba(255,255,255,0.3); margin-top:0.2rem;">Sarah K., Life Coach</div>
+              </div>
+              <div style="padding:0.5rem; background:rgba(255,255,255,0.04); border-radius:6px; text-align:center;">
+                <div style="width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.1); margin:0 auto 0.3rem;"></div>
+                <div style="font-size:0.5rem; color:rgba(255,255,255,0.6); font-style:italic;">"$47K in 60 days from scratch"</div>
+                <div style="font-size:0.45rem; color:rgba(255,255,255,0.3); margin-top:0.2rem;">Mike R., Consultant</div>
+              </div>
+              <div style="padding:0.5rem; background:rgba(255,255,255,0.04); border-radius:6px; text-align:center;">
+                <div style="width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,0.1); margin:0 auto 0.3rem;"></div>
+                <div style="font-size:0.5rem; color:rgba(255,255,255,0.6); font-style:italic;">"Left my 9-5 in 3 months"</div>
+                <div style="font-size:0.45rem; color:rgba(255,255,255,0.3); margin-top:0.2rem;">Jana T., Executive Coach</div>
+              </div>
+            </div>
+            <div class="callout callout-green" style="top:15px; right:-10px;">Above fold</div>
+            <div class="callout callout-green" style="top:50%; left:-10px;">Specific numbers</div>
+            <div class="callout callout-green" style="bottom:15px; right:-10px;">Real faces + results</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 4: Urgency/Motivation -->
+    <div class="teardown reveal">
+      <h3 class="teardown-title">Teardown 4: Urgency & Motivation</h3>
+      <div class="teardown-pair">
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label before">BEFORE (Current)</div>
+          <div class="teardown-mock" style="min-height:240px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div style="font-size:3rem; color:rgba(255,255,255,0.06); margin-bottom:1rem;">&#8709;</div>
+            <div style="font-size:0.75rem; color:rgba(255,255,255,0.2); text-align:center;">No urgency elements<br>Page feels static and timeless<br>"Watch" implies available anytime</div>
+            <div class="callout callout-red" style="top:15px; right:-10px;">Zero urgency</div>
+            <div class="callout callout-red" style="top:50%; left:-10px;">No reason to act now</div>
+            <div class="callout callout-red" style="bottom:15px; right:-10px;">"Will come back later" (won't)</div>
+          </div>
+        </div>
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label after">AFTER (Recommended)</div>
+          <div class="teardown-mock" style="min-height:240px;">
+            <div class="mock-countdown">Next Free Masterclass Starts in 2h 14m</div>
+            <div style="text-align:center; margin:1.5rem 0;">
+              <div class="mock-btn" style="max-width:280px; margin:0 auto;">Get My Free Masterclass &rarr;</div>
+            </div>
+            <div style="text-align:center; font-size:0.6rem; color:rgba(255,255,255,0.4); margin-top:1rem;">Instant access - watch now or save your spot for later</div>
+            <div class="mock-social-activity">437 coaches watched this week</div>
+            <div class="callout callout-green" style="top:15px; right:-10px;">Genuine urgency (next session)</div>
+            <div class="callout callout-green" style="top:50%; left:-10px;">Social proof of activity</div>
+            <div class="callout callout-green" style="bottom:15px; right:-10px;">Flexibility reduces friction</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 5: CTA Button Area -->
+    <div class="teardown reveal">
+      <h3 class="teardown-title">Teardown 5: CTA Button Area</h3>
+      <div class="teardown-pair">
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label before">BEFORE (Current)</div>
+          <div class="teardown-mock" style="min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div class="mock-btn" style="max-width:280px;">Watch The Free Masterclass &rarr;</div>
+            <div style="height:3rem;"></div>
+            <div style="font-size:0.55rem; color:rgba(255,255,255,0.2); text-align:center;">No supporting context around button<br>No risk reversal or reassurance text</div>
+            <div class="callout callout-red" style="top:25px; right:-10px;">Third-person language</div>
+            <div class="callout callout-red" style="top:50%; left:-10px;">No reassurance</div>
+            <div class="callout callout-red" style="bottom:15px; right:-10px;">No micro-commitment</div>
+          </div>
+        </div>
+        <div class="teardown-side glass" style="overflow:visible;">
+          <div class="teardown-label after">AFTER (Recommended)</div>
+          <div class="teardown-mock" style="min-height:220px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <div class="mock-btn" style="max-width:300px; font-size:0.85rem; padding:0.8rem;">Get My Free Masterclass &rarr;</div>
+            <div class="mock-reassurance" style="margin-top:0.75rem;">&#128274; Free. No credit card. Instant access.</div>
+            <div class="mock-micro-testimonial">"Best 20 minutes I've spent on my business" - Sarah K., Life Coach</div>
+            <div class="callout callout-green" style="top:20px; right:-10px;">First-person = +90%</div>
+            <div class="callout callout-green" style="top:50%; left:-10px;">Trust signals at point of action</div>
+            <div class="callout callout-green" style="bottom:15px; right:-10px;">Social proof at decision point</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 7: COMPETITIVE DEEP-DIVE
+     ============================================ -->
+<section id="competitive">
+  <div class="container">
+    <div class="section-label reveal">Section 06</div>
+    <h2 class="reveal mb-3">Competitive Deep-Dive</h2>
+    <p class="reveal mb-4" style="max-width:700px;">What top competitors do that /cmm doesn't. Each card identifies a specific tactic worth testing.</p>
+
+    <div class="comp-cards">
+      <div class="comp-card glass reveal">
+        <div class="comp-card-name">Sam Ovens</div>
+        <div class="comp-card-position">Consulting.com - "How to start a wildly profitable consulting business"</div>
+        <div class="comp-card-strength">Media logos above fold (Forbes, Inc, Entrepreneur). Specific revenue screenshots. Long-form VSL that builds massive proof before the ask.</div>
+        <div class="comp-card-steal">
+          <strong>Steal This</strong>
+          <span>Media logo bar above the fold</span>
+        </div>
+      </div>
+
+      <div class="comp-card glass reveal">
+        <div class="comp-card-name">Dan Henry</div>
+        <div class="comp-card-position">"How I Made $30M Selling Online Courses"</div>
+        <div class="comp-card-strength">Revenue proof directly in the headline. Countdown timer creating urgency. Two-step opt-in that creates micro-commitment before showing form fields.</div>
+        <div class="comp-card-steal">
+          <strong>Steal This</strong>
+          <span>Two-step form trigger + specific revenue in headline</span>
+        </div>
+      </div>
+
+      <div class="comp-card glass reveal">
+        <div class="comp-card-name">Frank Kern</div>
+        <div class="comp-card-position">"Get 100+ Clients" - Video-first approach</div>
+        <div class="comp-card-strength">Video-first approach builds casual authority. Testimonial montage auto-playing creates immediate social proof. Conversational tone reduces perceived selling.</div>
+        <div class="comp-card-steal">
+          <strong>Steal This</strong>
+          <span>Founder video presence in hero section</span>
+        </div>
+      </div>
+
+      <div class="comp-card glass reveal">
+        <div class="comp-card-name">Alex Hormozi</div>
+        <div class="comp-card-position">$100M Leads - Free book funnel</div>
+        <div class="comp-card-strength">Exact numbers everywhere. Zero fluff. Identity-based copy that makes the reader see themselves in the offer. Massive specificity builds instant credibility.</div>
+        <div class="comp-card-steal">
+          <strong>Steal This</strong>
+          <span>Specificity + identity-based framing throughout</span>
+        </div>
+      </div>
+
+      <div class="comp-card glass reveal">
+        <div class="comp-card-name">Myron Golden</div>
+        <div class="comp-card-position">"Make More Offers Challenge"</div>
+        <div class="comp-card-strength">Live event countdown creates genuine urgency. Challenge format drives commitment. Exclusivity messaging ("limited seats") increases perceived value.</div>
+        <div class="comp-card-steal">
+          <strong>Steal This</strong>
+          <span>Genuine urgency via scheduled live events</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 8: BEHAVIORAL PSYCHOLOGY PLAYBOOK
+     ============================================ -->
+<section id="psychology">
+  <div class="container">
+    <div class="section-label reveal">Section 07</div>
+    <h2 class="reveal mb-3">Behavioral Psychology Playbook</h2>
+    <p class="reveal mb-4" style="max-width:700px;">Seven models from Rory Sutherland and behavioral science, applied directly to /cmm. These aren't theory. Each maps to a specific page change.</p>
+
+    <div class="psych-grid">
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-010</div>
+        <h4>The Reframing Toolkit</h4>
+        <p><strong style="color:var(--red)">Current:</strong> "Watch a masterclass" (passive consumption). <strong style="color:var(--green)">Reframe:</strong> "Get the exact script that built a $100M business" (ownership + specificity). Reframing the action changes the perceived value.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-012</div>
+        <h4>Costly Signaling</h4>
+        <p>COD has invested $100M+ and 13 years. This IS the costly signal. Make it visible: <strong style="color:var(--text-primary)">"We've spent $100M testing this so you don't have to."</strong> The investment itself is the proof.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-008</div>
+        <h4>Fake Urgency Destroys Trust</h4>
+        <p>Don't add a fake countdown. DO add <strong style="color:var(--green)">genuine urgency</strong>: next masterclass time, spots filled this week, or "limited to 500 free seats/month." Sophisticated audiences detect and punish manufactured scarcity.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-005</div>
+        <h4>Strategic Friction</h4>
+        <p>The phone number field IS friction but doesn't add value perception. Move it to Step 2 where it feels like <strong style="color:var(--text-primary)">"we're getting serious"</strong> rather than "give us everything upfront." Context determines whether friction helps or hurts.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-011</div>
+        <h4>Specificity Beats Generality</h4>
+        <p>"6,000+ success stories" should be <strong style="color:var(--gold)">"6,247 coaches transformed their business."</strong> Precision triggers the credibility heuristic. Our brains interpret exact numbers as measured, round numbers as estimated.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-023</div>
+        <h4>The Doorman Audit</h4>
+        <p>Add: <strong style="color:var(--text-primary)">"This masterclass is for coaches, consultants, and experts only. If you don't have expertise to sell, this isn't for you."</strong> Exclusion INCREASES perceived value. The velvet rope makes the room more desirable.</p>
+      </div>
+
+      <div class="psych-card glass reveal">
+        <div class="psych-id">APP-020</div>
+        <h4>Two-Step Commitment</h4>
+        <p>Multi-step form creates micro-commitments. After entering name/email (Step 1), abandoning at Step 2 feels inconsistent. <strong style="color:var(--text-primary)">Cialdini's consistency principle:</strong> people want to finish what they start.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 9: RECOMMENDED TEST ROADMAP
+     ============================================ -->
+<section id="roadmap">
+  <div class="container">
+    <div class="section-label reveal">Section 08</div>
+    <h2 class="reveal mb-3">Test Roadmap & Priority Matrix</h2>
+    <p class="reveal mb-4" style="max-width:700px;">Every recommendation plotted by impact vs effort. Start in the top-left corner for maximum ROI with minimum development time.</p>
+
+    <!-- PRIORITY MATRIX SVG -->
+    <div class="matrix-container reveal">
+      <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .matrix-label { font-family: 'Inter', sans-serif; font-size: 10px; fill: #6a6a80; font-weight: 500; }
+            .matrix-axis { font-family: 'Inter', sans-serif; font-size: 11px; fill: #a0a0b8; font-weight: 600; }
+            .matrix-dot-label { font-family: 'Inter', sans-serif; font-size: 8.5px; fill: #f0f0f5; font-weight: 500; }
+            .matrix-zone { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
+          </style>
+        </defs>
+
+        <!-- Background zones -->
+        <rect x="60" y="30" width="290" height="210" rx="8" fill="rgba(34,197,94,0.06)" stroke="rgba(34,197,94,0.12)" stroke-width="1"/>
+        <rect x="370" y="30" width="290" height="210" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.12)" stroke-width="1"/>
+        <rect x="60" y="260" width="290" height="200" rx="8" fill="rgba(96,165,250,0.04)" stroke="rgba(96,165,250,0.08)" stroke-width="1"/>
+        <rect x="370" y="260" width="290" height="200" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+
+        <!-- Zone labels -->
+        <text x="200" y="55" text-anchor="middle" class="matrix-zone" fill="rgba(34,197,94,0.5)">Quick Wins</text>
+        <text x="510" y="55" text-anchor="middle" class="matrix-zone" fill="rgba(245,158,11,0.5)">Strategic Investments</text>
+        <text x="200" y="285" text-anchor="middle" class="matrix-zone" fill="rgba(96,165,250,0.35)">Nice to Have</text>
+        <text x="510" y="285" text-anchor="middle" class="matrix-zone" fill="rgba(255,255,255,0.15)">Avoid</text>
+
+        <!-- Axes labels -->
+        <text x="350" y="485" text-anchor="middle" class="matrix-axis">EFFORT &rarr;</text>
+        <text x="25" y="250" text-anchor="middle" class="matrix-axis" transform="rotate(-90, 25, 250)">IMPACT &rarr;</text>
+
+        <!-- Quick Wins dots -->
+        <circle cx="150" cy="80" r="18" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2"/>
+        <text x="150" y="84" text-anchor="middle" class="matrix-dot-label">Multi-step</text>
+        <text x="150" y="84" text-anchor="middle" class="matrix-dot-label" dy="-14" style="font-size:7px; fill:#22c55e;">form</text>
+
+        <circle cx="240" cy="110" r="16" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2"/>
+        <text x="240" y="114" text-anchor="middle" class="matrix-dot-label" style="font-size:7.5px;">1st person</text>
+        <text x="240" y="100" text-anchor="middle" class="matrix-dot-label" style="font-size:7px; fill:#22c55e;">CTA</text>
+
+        <circle cx="170" cy="150" r="15" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2"/>
+        <text x="170" y="154" text-anchor="middle" class="matrix-dot-label" style="font-size:7px;">Social proof</text>
+        <text x="170" y="142" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px; fill:#22c55e;">above fold</text>
+
+        <circle cx="290" cy="170" r="13" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2"/>
+        <text x="290" y="174" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px;">Exact #s</text>
+
+        <!-- Strategic Investment dots -->
+        <circle cx="440" cy="90" r="17" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="440" y="94" text-anchor="middle" class="matrix-dot-label" style="font-size:7px;">Full page</text>
+        <text x="440" y="82" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px; fill:#f59e0b;">restructure</text>
+
+        <circle cx="540" cy="120" r="15" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="540" y="124" text-anchor="middle" class="matrix-dot-label" style="font-size:7px;">Urgency</text>
+        <text x="540" y="112" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px; fill:#f59e0b;">system</text>
+
+        <circle cx="480" cy="170" r="14" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="480" y="174" text-anchor="middle" class="matrix-dot-label" style="font-size:7px;">Founder</text>
+        <text x="480" y="162" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px; fill:#f59e0b;">video</text>
+
+        <circle cx="580" cy="180" r="13" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="580" y="184" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px;">Who it's for</text>
+
+        <!-- Nice to Have dots -->
+        <circle cx="180" cy="330" r="12" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="180" y="334" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px;">Social auth</text>
+
+        <circle cx="260" cy="360" r="11" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="260" y="364" text-anchor="middle" class="matrix-dot-label" style="font-size:6.5px;">Two-step</text>
+
+        <circle cx="140" cy="380" r="10" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="140" y="384" text-anchor="middle" class="matrix-dot-label" style="font-size:6px;">Autofill</text>
+
+        <circle cx="220" cy="410" r="10" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="220" y="414" text-anchor="middle" class="matrix-dot-label" style="font-size:6px;">Sticky CTA</text>
+      </svg>
+    </div>
+
+    <!-- Roadmap columns -->
+    <div class="roadmap-columns reveal">
+      <div class="roadmap-col quick">
+        <h4>Quick Wins</h4>
+        <div class="roadmap-item glass-sm">Multi-step form conversion (3 steps)</div>
+        <div class="roadmap-item glass-sm">First-person CTA copy ("Get My...")</div>
+        <div class="roadmap-item glass-sm">Move social proof above fold</div>
+        <div class="roadmap-item glass-sm">Use exact numbers (6,247 not 6,000+)</div>
+      </div>
+      <div class="roadmap-col strategic">
+        <h4>Strategic Investments</h4>
+        <div class="roadmap-item glass-sm">Full page restructure (proof before ask)</div>
+        <div class="roadmap-item glass-sm">Urgency system (countdown to next session)</div>
+        <div class="roadmap-item glass-sm">Founder video/photo in hero</div>
+        <div class="roadmap-item glass-sm">"Who this is / isn't for" section</div>
+      </div>
+      <div class="roadmap-col nice">
+        <h4>Nice to Have</h4>
+        <div class="roadmap-item glass-sm">Social autofill (Google sign-in)</div>
+        <div class="roadmap-item glass-sm">Two-step popup trigger</div>
+        <div class="roadmap-item glass-sm">Autofill HTML attributes</div>
+        <div class="roadmap-item glass-sm">Sticky mobile CTA bar</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     SECTION 10: EVIDENCE BASE
+     ============================================ -->
+<section id="evidence">
+  <div class="container">
+    <div class="section-label reveal">Section 09</div>
+    <h2 class="reveal mb-3">Evidence Base</h2>
+    <p class="reveal mb-4" style="max-width:700px;">Every recommendation is backed by published research. These 15 citations represent the strongest evidence behind our priority findings.</p>
+
+    <div class="evidence-grid">
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-004</div>
+        <div class="evidence-title">Multi-Step Forms</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="100"></div></div>
+        <div class="evidence-lift">+214%</div>
+        <div class="evidence-source">Vendio / CXL Institute</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-091</div>
+        <div class="evidence-title">Removing Phone Field</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="37"></div></div>
+        <div class="evidence-lift">+79%</div>
+        <div class="evidence-source">Neil Patel</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-092</div>
+        <div class="evidence-title">Multi-Step vs Single: 13.85% vs 4.53%</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="95"></div></div>
+        <div class="evidence-lift">+205%</div>
+        <div class="evidence-source">HubSpot</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-093</div>
+        <div class="evidence-title">Mobile Multi-Step Outperforms Desktop</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="7"></div></div>
+        <div class="evidence-lift">+15%</div>
+        <div class="evidence-source">Venture Harbour</div>
+        <div class="evidence-tag">Mobile</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-007</div>
+        <div class="evidence-title">Exact Numbers (Precision Bias)</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="10"></div></div>
+        <div class="evidence-lift">+21.4%</div>
+        <div class="evidence-source">ContentVerve / Kolenda</div>
+        <div class="evidence-tag">Social Proof</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-008</div>
+        <div class="evidence-title">Above-Fold Testimonials</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="16"></div></div>
+        <div class="evidence-lift">+34%</div>
+        <div class="evidence-source">WikiJob / VWO</div>
+        <div class="evidence-tag">Social Proof</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-014</div>
+        <div class="evidence-title">Human Face in Hero</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="48"></div></div>
+        <div class="evidence-lift">+102.5%</div>
+        <div class="evidence-source">Basecamp</div>
+        <div class="evidence-tag">Hero</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-035</div>
+        <div class="evidence-title">Progress Bar on Forms</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="13"></div></div>
+        <div class="evidence-lift">+28%</div>
+        <div class="evidence-source">LeadPages / Zeigarnik Effect</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">CF-068</div>
+        <div class="evidence-title">Mobile Headline Under 50 Chars</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="0"></div></div>
+        <div class="evidence-lift">Best Practice</div>
+        <div class="evidence-source">KlientBoost</div>
+        <div class="evidence-tag">Mobile</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">B2B-019</div>
+        <div class="evidence-title">First-Person CTA Copy</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="42"></div></div>
+        <div class="evidence-lift">+90%</div>
+        <div class="evidence-source">ContentVerve</div>
+        <div class="evidence-tag">CTA</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">F-050</div>
+        <div class="evidence-title">Progressive Disclosure</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="98"></div></div>
+        <div class="evidence-lift">+209%</div>
+        <div class="evidence-source">Formstack / Venture Harbour</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">F-051</div>
+        <div class="evidence-title">"Who This Isn't For" Section</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="18"></div></div>
+        <div class="evidence-lift">-30-40% waste</div>
+        <div class="evidence-source">Hormozi / Ovens</div>
+        <div class="evidence-tag">Architecture</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">F-052</div>
+        <div class="evidence-title">Commitment Question in Form</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="12"></div></div>
+        <div class="evidence-lift">+15-25% close</div>
+        <div class="evidence-source">Dan Henry</div>
+        <div class="evidence-tag">Form</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">APP-008</div>
+        <div class="evidence-title">Fake Urgency Destroys Trust</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="0"></div></div>
+        <div class="evidence-lift">Behavioral Model</div>
+        <div class="evidence-source">Rory Sutherland</div>
+        <div class="evidence-tag">Urgency</div>
+      </div>
+
+      <div class="evidence-card glass reveal">
+        <div class="evidence-id">APP-012</div>
+        <div class="evidence-title">Costly Signaling Builds Trust</div>
+        <div class="evidence-bar-track"><div class="evidence-bar-fill" data-width="0"></div></div>
+        <div class="evidence-lift">Behavioral Model</div>
+        <div class="evidence-source">Rory Sutherland</div>
+        <div class="evidence-tag">Trust</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================
+     FOOTER
+     ============================================ -->
+<footer class="report-footer">
+  <div class="container">
+    <p class="footer-brand">KAMG</p>
+    <p style="margin-top:0.75rem;">CRO Audit Report: Clients on Demand /cmm Masterclass Page</p>
+    <p>Prepared April 2, 2026</p>
+    <p style="margin-top:1.5rem; font-size:0.7rem; color: var(--text-dim);">Confidential. Prepared exclusively for Clients on Demand. 23 findings across 10 categories. 35+ evidence citations from 822+ CRO case studies.</p>
+  </div>
+</footer>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+(function() {
+  'use strict';
+
+  // ==========================================
+  // SCROLL REVEAL (IntersectionObserver)
+  // ==========================================
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -60px 0px'
+  });
+
+  document.querySelectorAll('.reveal').forEach(el => {
+    revealObserver.observe(el);
+  });
+
+  // ==========================================
+  // ANIMATED COUNTERS
+  // ==========================================
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.counter').forEach(el => {
+    counterObserver.observe(el);
+  });
+
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target);
+    const decimals = parseInt(el.dataset.decimals) || 0;
+    const duration = 1800;
+    const start = performance.now();
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = eased * target;
+      el.textContent = current.toFixed(decimals);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ==========================================
+  // EVIDENCE BAR ANIMATION
+  // ==========================================
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const bar = entry.target;
+        const width = bar.dataset.width;
+        setTimeout(() => { bar.style.width = width + '%'; }, 200);
+        barObserver.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.evidence-bar-fill').forEach(el => {
+    barObserver.observe(el);
+  });
+
+  // ==========================================
+  // GAUGE ANIMATION
+  // ==========================================
+  const gaugeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateGauge();
+        gaugeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const gaugeFill = document.querySelector('.gauge-fill');
+  const gaugeDot = document.querySelector('.gauge-dot');
+  if (gaugeFill) gaugeObserver.observe(gaugeFill);
+
+  function animateGauge() {
+    // 4.8/10 = 48% of the arc
+    // Arc goes from (30,140) at 0% to (230,140) at 100%
+    // Center is (130, 140), radius 100
+    // 0% angle = 180deg, 100% angle = 0deg (full semicircle)
+    // 48% = 180 - (180 * 0.48) = 93.6deg
+    const score = 4.8;
+    const pct = score / 10;
+    const startAngle = Math.PI; // 180 deg
+    const endAngle = Math.PI * (1 - pct); // target angle
+    const cx = 130, cy = 140, r = 100;
+    const duration = 2000;
+    const startTime = performance.now();
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentAngle = startAngle - (startAngle - endAngle) * eased;
+
+      const ex = cx + r * Math.cos(currentAngle);
+      const ey = cy - r * Math.sin(currentAngle);
+
+      // Determine if large arc
+      const sweepAngle = startAngle - currentAngle;
+      const largeArc = sweepAngle > Math.PI ? 1 : 0;
+
+      const path = `M 30 140 A 100 100 0 ${largeArc} 1 ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+      gaugeFill.setAttribute('d', path);
+
+      if (gaugeDot) {
+        gaugeDot.setAttribute('cx', ex.toFixed(1));
+        gaugeDot.setAttribute('cy', ey.toFixed(1));
+      }
+
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ==========================================
+  // ACCORDION TOGGLE
+  // ==========================================
+  window.toggleAccordion = function(btn) {
+    const item = btn.closest('.accordion-item');
+    const wasOpen = item.classList.contains('open');
+
+    // Close all
+    document.querySelectorAll('.accordion-item.open').forEach(el => {
+      el.classList.remove('open');
+    });
+
+    // Open clicked (if it wasn't already open)
+    if (!wasOpen) {
+      item.classList.add('open');
+    }
+  };
+
+  // ==========================================
+  // RADAR CHART ANIMATION
+  // ==========================================
+  const radarPoly = document.querySelector('.radar-polygon');
+  if (radarPoly) {
+    const targetPoints = radarPoly.getAttribute('points');
+    const centerPoints = '250,250 250,250 250,250 250,250 250,250 250,250 250,250 250,250 250,250 250,250';
+    radarPoly.setAttribute('points', centerPoints);
+
+    const radarObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateRadar(radarPoly, centerPoints, targetPoints);
+          radarObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    radarObserver.observe(radarPoly);
+  }
+
+  function animateRadar(poly, fromStr, toStr) {
+    const from = parsePoints(fromStr);
+    const to = parsePoints(toStr);
+    const duration = 1500;
+    const start = performance.now();
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      const current = from.map((p, i) => ({
+        x: p.x + (to[i].x - p.x) * eased,
+        y: p.y + (to[i].y - p.y) * eased
+      }));
+
+      poly.setAttribute('points', current.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function parsePoints(str) {
+    return str.trim().split(/\s+/).map(pair => {
+      const [x, y] = pair.split(',').map(Number);
+      return { x, y };
+    });
+  }
+
+  // ==========================================
+  // STICKY NAV: SHOW/HIDE + ACTIVE STATE
+  // ==========================================
+  const auditNav = document.getElementById('auditNav');
+  const navLinks = auditNav ? auditNav.querySelectorAll('a') : [];
+  const sectionIds = Array.from(navLinks).map(a => a.getAttribute('href').replace('#', ''));
+
+  // Show nav after scrolling past cover
+  if (auditNav) {
+    const coverSection = document.getElementById('cover');
+    const navShowObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        auditNav.classList.toggle('visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0.3 });
+    if (coverSection) navShowObserver.observe(coverSection);
+
+    // Active state tracking
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { threshold: 0.2, rootMargin: '-10% 0px -70% 0px' });
+
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) sectionObserver.observe(el);
+    });
+
+    // Smooth scroll on click
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

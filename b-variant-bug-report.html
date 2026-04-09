@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug Report: B Variant Form Broken -- #section-K5FyHwqhu6</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0a0e17;
+    --surface: #111827;
+    --surface-2: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #f59e0b;
+    --red: #ef4444;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--red);
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--accent);
+  }
+
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 1rem; }
+
+  .meta {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .meta span { color: var(--text-muted); }
+  .meta strong { color: var(--text); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-critical { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .tag-info { background: rgba(59,130,246,0.15); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  pre code { background: none; padding: 0; color: var(--text); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .callout {
+    border-left: 3px solid;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-radius: 0 8px 8px 0;
+    background: var(--surface);
+  }
+
+  .callout-red { border-color: var(--red); }
+  .callout-amber { border-color: var(--accent); }
+  .callout-blue { border-color: var(--blue); }
+  .callout-green { border-color: var(--green); }
+
+  .callout strong { display: block; margin-bottom: 0.25rem; }
+
+  ol, ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.5rem; }
+
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li {
+    padding: 0.5rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .checklist li::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .session-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+
+  .highlight { background: rgba(245,158,11,0.15); padding: 1px 4px; border-radius: 3px; }
+
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<span class="tag tag-critical">Critical Bug</span>
+<h1>B Variant Form Broken</h1>
+<p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 0.5rem;">
+  The checkout form in <code>#section-K5FyHwqhu6</code> is not working. Zero conversions on B despite strong engagement.
+</p>
+
+<div class="meta">
+  <div><span>Page:</span><br><strong><a href="https://clientsondemand.live/rto-workshop-therapist-counselor-b" target="_blank">rto-workshop-therapist-counselor-b</a></strong></div>
+  <div><span>Priority:</span><br><strong style="color: var(--red);">P0 -- Blocking Revenue</strong></div>
+  <div><span>Period Analyzed:</span><br><strong>April 2 -- April 3, 2026</strong></div>
+  <div><span>Source:</span><br><strong>PostHog A/B Test Data</strong></div>
+  <div><span>Broken Section:</span><br><strong><code>#section-K5FyHwqhu6</code></strong></div>
+  <div><span>Impact:</span><br><strong style="color: var(--red);">0 conversions from 136 sessions</strong></div>
+</div>
+
+<!-- ====================================================================== -->
+<h2>What's Happening</h2>
+
+<p>Every CTA button on the B page ("Save My Seat Now," "Save My Seat -- Just $27," "Get VIP Access," "Save My Seat -- $27") is an <code>&lt;a&gt;</code> anchor link pointing to <code>#section-K5FyHwqhu6</code>. When clicked, they scroll the user down to the registration/checkout form in that section.</p>
+
+<div class="callout callout-red">
+  <strong>The form in #section-K5FyHwqhu6 is not working.</strong>
+  PostHog has captured zero form submission events from this section across all 136 B variant sessions. On the A variant, "Complete Order" button clicks are captured normally.
+</div>
+
+<!-- ====================================================================== -->
+<h2>Traffic & Engagement Comparison</h2>
+
+<p>Both variants received essentially the same number of unique visitors (~105-107). B actually shows <em>stronger</em> engagement, confirming the zero conversions are purely a technical issue.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>A Variant</th>
+      <th>B Variant</th>
+      <th>Verdict</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Unique Visitors</td>
+      <td>107</td>
+      <td>109</td>
+      <td>Equal</td>
+    </tr>
+    <tr>
+      <td>Sessions</td>
+      <td>109</td>
+      <td>113</td>
+      <td>B slightly higher</td>
+    </tr>
+    <tr>
+      <td>Total Pageviews</td>
+      <td>112</td>
+      <td>142</td>
+      <td style="color: var(--green);">B +27%</td>
+    </tr>
+    <tr>
+      <td>Avg Session Duration</td>
+      <td>89s</td>
+      <td>109s</td>
+      <td style="color: var(--green);">B +22%</td>
+    </tr>
+    <tr>
+      <td>Bounce Rate</td>
+      <td>3.0%</td>
+      <td>2.2%</td>
+      <td style="color: var(--green);">B lower (better)</td>
+    </tr>
+    <tr>
+      <td>Page Clicks</td>
+      <td>5 users</td>
+      <td>2 users</td>
+      <td>--</td>
+    </tr>
+    <tr>
+      <td style="font-weight: 600;">Conversions</td>
+      <td>Unknown</td>
+      <td style="color: var(--red); font-weight: 700;">0</td>
+      <td style="color: var(--red); font-weight: 700;">BROKEN</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2>CTA Click Analysis</h2>
+
+<p>15 sessions clicked a CTA anchor link to <code>#section-K5FyHwqhu6</code>. Those 15 sessions generated 20 total CTA clicks (users clicking multiple times due to no feedback).</p>
+
+<div class="callout callout-amber">
+  <strong>Zero of these sessions converted.</strong>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Outcome</th>
+      <th>Sessions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Clicked CTA, form appeared empty/broken (<=3 change events)</td>
+      <td><strong>6</strong></td>
+    </tr>
+    <tr>
+      <td>Clicked CTA, form loaded but couldn't complete checkout</td>
+      <td><strong>9</strong></td>
+    </tr>
+    <tr>
+      <td>Clicked CTA, converted</td>
+      <td style="color: var(--red); font-weight: 700;">0</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2>Session Evidence</h2>
+
+<h3>Group 1: Form appeared empty (6 sessions)</h3>
+<p>All 6 had exactly 3 change events after clicking the CTA -- essentially noise, meaning the form section rendered nothing useful.</p>
+
+<p>Start with session <code>019d517c</code> as a representative example.</p>
+
+<table class="session-table">
+  <thead>
+    <tr><th>#</th><th>Session ID</th><th>CTA Clicks</th><th>Form Interactions</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>019d517c-a19b-770a-a829-...</td><td>1</td><td>3</td></tr>
+    <tr><td>2</td><td>019d55c3-068a-79bc-a782-...</td><td>1</td><td>3</td></tr>
+    <tr><td>3</td><td>019d510a-06c3-7a0f-a1c3-...</td><td>1</td><td>3</td></tr>
+    <tr><td>4</td><td>019d511b-0a24-7075-836c-...</td><td>1</td><td>3</td></tr>
+    <tr><td>5</td><td>019d5431-6317-7d70-84f1-...</td><td>1</td><td>3</td></tr>
+    <tr><td>6</td><td>019d542a-ec51-7cb0-8b13-...</td><td>1</td><td>3</td></tr>
+  </tbody>
+</table>
+
+<h3>Group 2: Form loaded but couldn't convert (9 sessions)</h3>
+<p>These users got further -- 4 to 22 form interactions -- but still hit a wall at checkout.</p>
+
+<p><span class="highlight">Session <code>019d54a1</code> is the one to watch first</span> -- the user who clicked the CTA <strong>5 times</strong> in a single session (highest frustration signal in the dataset).</p>
+
+<table class="session-table">
+  <thead>
+    <tr><th>#</th><th>Session ID</th><th>CTA Clicks</th><th>Form Interactions</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td><strong style="color:var(--accent)">019d54a1-9d01-7e0d-aa25-...</strong></td><td><strong>5</strong></td><td>12</td></tr>
+    <tr><td>2</td><td>019d54b5-8260-7c1d-8b37-...</td><td>2</td><td>5</td></tr>
+    <tr><td>3</td><td>019d545c-c5a7-7a28-ad32-...</td><td>1</td><td>4</td></tr>
+    <tr><td>4</td><td>019d5435-6425-7893-9885-...</td><td>1</td><td>6</td></tr>
+    <tr><td>5</td><td>019d5d0f-01fc-744c-83e3-...</td><td>1</td><td>7</td></tr>
+    <tr><td>6</td><td>019d5404-de12-79a2-87cd-...</td><td>1</td><td>7</td></tr>
+    <tr><td>7</td><td>019d534e-e1ea-72e1-856f-...</td><td>1</td><td>10</td></tr>
+    <tr><td>8</td><td>019d4f75-abd1-7128-b195-...</td><td>1</td><td>22</td></tr>
+    <tr><td>9</td><td>019d4ed7-8953-7912-a4b6-...</td><td>1</td><td>6</td></tr>
+  </tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2>Likely Root Causes</h2>
+
+<ol>
+  <li>
+    <strong>GoHighLevel form widget not connected</strong> -- If the B page was duplicated from A in the GHL page builder, the embedded order form inside <code>#section-K5FyHwqhu6</code> may not have been reconnected. It may be rendering as an empty container.
+  </li>
+  <li>
+    <strong>JavaScript error blocking form render</strong> -- Multiple B sessions recorded console errors. A JS error could be killing the form widget before it renders.
+  </li>
+  <li>
+    <strong>Iframe not loading</strong> -- GHL checkout forms often render inside iframes. If the iframe <code>src</code> is misconfigured or broken, the form section appears blank.
+  </li>
+  <li>
+    <strong>Section ID mismatch</strong> -- The CTAs point to <code>#section-K5FyHwqhu6</code> but the actual form section on B might have a different ID, so the scroll lands on an empty area.
+  </li>
+</ol>
+
+<!-- ====================================================================== -->
+<h2>What to Fix</h2>
+
+<div class="callout callout-green">
+  <strong>Quickest check first:</strong>
+  Open the B page in a browser, open DevTools (F12), scroll to <code>#section-K5FyHwqhu6</code>, and check the console for errors and whether the form element/iframe is present in the DOM.
+</div>
+
+<ul class="checklist">
+  <li>Open <code>#section-K5FyHwqhu6</code> in the GHL page builder on the B page</li>
+  <li>Verify the order form / checkout widget is present and connected to the correct funnel/product</li>
+  <li>Check browser console for JS errors on the B page specifically</li>
+  <li>Test the full purchase flow end-to-end on the B page before re-enabling ad traffic</li>
+</ul>
+
+<div class="callout callout-blue">
+  <strong>Expected outcome:</strong>
+  Once fixed, B is expected to outperform A based on its stronger engagement metrics (longer sessions, lower bounce rate, fewer rage clicks overall).
+</div>
+
+<!-- ====================================================================== -->
+<h2>Session Replays</h2>
+
+<p>You can watch any of these sessions in PostHog to see the exact user experience:</p>
+
+<ol>
+  <li><strong>Direct from the notebook</strong> -- Open the <a href="https://us.posthog.com/project/139/notebooks/P60u" target="_blank">PostHog notebook</a> and click any "View recording" link</li>
+  <li><strong>Session Replay sidebar</strong> -- Go to Session Replay in the PostHog left sidebar, search/filter by session ID</li>
+  <li><strong>Direct URL</strong> -- Paste any session ID into: <code>https://us.posthog.com/project/139/replay/[SESSION_ID]</code></li>
+</ol>
+
+<div class="footer">
+  Prepared by KAMG for Clients on Demand | April 3, 2026<br>
+  Source: PostHog project 139 | Notebook P60u
+</div>
+
+</body>
+</html>

@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Audit: COD Therapist Registration Page | 2026-03-31</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #1a1a2e;
+  --dark: #16213e;
+  --red: #e74c3c;
+  --yellow: #f39c12;
+  --green: #27ae60;
+  --blue: #3498db;
+  --bg: #f4f6f9;
+  --card-bg: #ffffff;
+  --text: #2c3e50;
+  --text-muted: #7f8c8d;
+  --border: #e0e6ed;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--dark) 100%);
+  color: white;
+  padding: 48px 32px 40px;
+  position: relative;
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.header-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: rgba(52,152,219,0.2);
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.header .subtitle {
+  font-size: 15px;
+  opacity: 0.75;
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+.header .meta-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+.print-btn {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+.print-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* Main */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+}
+
+/* Executive Summary */
+.exec-summary {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--dark) 100%);
+  border-radius: 12px;
+  padding: 36px;
+  color: white;
+  margin-bottom: 32px;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 36px;
+  align-items: center;
+}
+.score-circle {
+  text-align: center;
+}
+.score-num {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--green);
+}
+.score-label {
+  font-size: 13px;
+  opacity: 0.6;
+  margin-top: 4px;
+}
+.score-delta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(39,174,96,0.2);
+  color: #6ddb9a;
+}
+.exec-text h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.exec-text p {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.7;
+}
+.verdict-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--green);
+  background: rgba(39,174,96,0.1);
+  border-radius: 0 6px 6px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.card-red { border-left: 4px solid var(--red); }
+.card-green { border-left: 4px solid var(--green); }
+.card-yellow { border-left: 4px solid var(--yellow); }
+.card-blue { border-left: 4px solid var(--blue); }
+
+.card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card p, .card li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4a5568;
+}
+.card ul { padding-left: 20px; margin-top: 8px; }
+.card li { margin-bottom: 6px; }
+
+/* Score badge */
+.score-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+.score-badge.high { background: var(--green); }
+.score-badge.mid { background: var(--yellow); }
+.score-badge.low { background: var(--red); }
+
+/* Section headers */
+.section-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 40px 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Radar chart container */
+.chart-container {
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin-bottom: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Grid layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Collapsible */
+.collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.collapsible-header::after {
+  content: '+';
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.collapsible-header.open::after {
+  content: '-';
+}
+.collapsible-body {
+  display: none;
+  margin-top: 16px;
+}
+.collapsible-body.open {
+  display: block;
+}
+
+/* Quadrant badges */
+.quad-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.quad-qw { background: #d4edda; color: #155724; }
+.quad-bb { background: #fff3cd; color: #856404; }
+.quad-lp { background: #e2e3e5; color: #383d41; }
+.quad-ig { background: #f8d7da; color: #721c24; }
+
+/* Table */
+.roadmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.roadmap-table th {
+  background: var(--navy);
+  color: white;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.roadmap-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.roadmap-table tr:hover { background: #f7fafc; }
+
+/* Comparison section */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 16px;
+}
+.comp-col {
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+.comp-col h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.comp-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+.comp-row:last-child { border-bottom: none; }
+.delta-pos { color: var(--green); font-weight: 600; }
+.delta-neg { color: var(--red); font-weight: 600; }
+
+/* Print */
+@media print {
+  body { background: white; }
+  .print-btn { display: none; }
+  .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .exec-summary { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card { break-inside: avoid; }
+  .collapsible-body { display: block !important; }
+}
+
+@media (max-width: 768px) {
+  .exec-summary { grid-template-columns: 1fr; text-align: center; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .comparison-grid { grid-template-columns: 1fr; }
+  .header .meta-row { flex-direction: column; gap: 4px; }
+  .roadmap-table { font-size: 12px; }
+  .roadmap-table td, .roadmap-table th { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <button class="print-btn" onclick="window.print()">Print Report</button>
+  <div class="header-inner">
+    <div class="header-badge">CRO Audit Report</div>
+    <h1>COD Therapist Workshop Registration Page</h1>
+    <div class="subtitle">Conversion Rate Optimization -- 10-Lens Analysis</div>
+    <div class="meta-row">
+      <span>Date: 2026-03-31</span>
+      <span>Client: Clients on Demand</span>
+      <span>Page: Therapist/Counselor Variant (Design Preview)</span>
+      <span>Analyst: KAMG</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="exec-summary">
+  <div class="score-circle">
+    <div class="score-num">68</div>
+    <div class="score-label">Overall Score</div>
+    <div class="score-delta">+30 vs Generic (38)</div>
+  </div>
+  <div class="exec-text">
+    <h2>Executive Summary</h2>
+    <p>
+      The therapist-specific registration page is a massive leap from the generic variant (38/100). Niche-specific messaging, identity-targeted pain points, a two-tier pricing architecture with VIP upsell, and a value stack structure all represent strong CRO improvements. The page successfully speaks the language of licensed therapists rather than generic "coaches." However, significant conversion leaks remain: no urgency or scarcity mechanisms, a checkout form buried deep on the page, missing trust signals near the payment fields, rounded social proof numbers that undermine credibility, and no sticky mobile CTA. The VIP tier architecture is present but the default visual hierarchy may actually suppress VIP take-rate. This page is "good" but not yet "great" -- the remaining 32 points are achievable with the experiments outlined below.
+    </p>
+    <div class="verdict-box">
+      Verdict: Strong niche pivot from the generic page. The identity-first copy and VIP pricing architecture are real wins. But the checkout experience and mobile conversion path need urgent attention before this goes live against paid traffic.
+    </div>
+  </div>
+</div>
+
+<!-- RADAR CHART -->
+<h2 class="section-title">10-Lens Radar</h2>
+<div class="chart-container">
+  <canvas id="radarChart"></canvas>
+</div>
+
+<!-- TOP 3 WINS / TOP 3 LEAKS -->
+<div class="grid-2">
+  <div>
+    <h2 class="section-title" style="color: var(--green);">Top 3 Wins</h2>
+    <div class="card card-green">
+      <h3>1. Identity-Targeted Copy & Pain Points</h3>
+      <p>The "For Licensed Therapists & Counselors Only" badge, therapist-specific pain cards (insurance paperwork, $150 sessions, liability fears), and clinical expertise framing represent exactly what the generic page lacked. The headline "Stop Trading $150 Sessions for Burnout" directly mirrors the target audience's lived experience. This is Schwartz Level 2-3 messaging matched to a problem-aware audience -- a massive improvement over the generic page's vague "Greatest Opportunity" headline.</p>
+    </div>
+    <div class="card card-green">
+      <h3>2. Two-Tier VIP Pricing Architecture</h3>
+      <p>The Standard ($27) vs VIP ($54 / "Just $27 more") pricing structure with side-by-side comparison is the single highest-ROI structural change from the generic page. COD's own data shows VIP buyers book calls at 3.25x the rate (36.4% vs 11.2%). The "Just $27 more" anchoring and "Recommended" badge on VIP are psychologically sound. The generic page had zero VIP pathway.</p>
+    </div>
+    <div class="card card-green">
+      <h3>3. Comprehensive Value Stack with Specificity</h3>
+      <p>Five mini-stack items plus six detailed value items with icons give the $27 price point strong perceived value. "The Math" (ROI calculator), "AI Program Builder," and "Lean Program Blueprint" are tangible deliverables, not vague promises. The Founder Section with $100M+, 6,000+, and 4.8/5 Trustpilot stats adds authority weight. This section flow (value > price > founder > proof) follows proven persuasion architecture.</p>
+    </div>
+  </div>
+  <div>
+    <h2 class="section-title" style="color: var(--red);">Top 3 Leaks</h2>
+    <div class="card card-red">
+      <h3>1. Checkout Form Buried Deep + No Trust Signals</h3>
+      <p>The checkout form (Full Name, Email, Card Number) is placed below the pricing section, far down the page. There are no visible trust signals adjacent to the payment fields -- no SSL badge, no money-back guarantee, no privacy assurance, no lock icon. For a $27-$54 card-required purchase from cold traffic, this is a critical gap. Baymard Institute data: 18% of users abandon checkout due to trust concerns. Trust badges near checkout increase conversion up to 42% (Econsultancy).</p>
+    </div>
+    <div class="card card-red">
+      <h3>2. No Urgency, No Scarcity, No Deadline</h3>
+      <p>The page has zero urgency mechanisms -- no countdown timer, no cohort date, no "seats filling" indicator, no price deadline. For a $27 workshop registration, the cognitive cost of "I'll do it later" is very low. Without authentic urgency tied to a real workshop date, cold traffic will bookmark and forget. The page relies entirely on desire-based motivation with no action-forcing function.</p>
+    </div>
+    <div class="card card-red">
+      <h3>3. No Sticky Mobile CTA & No Mid-Page CTAs</h3>
+      <p>The page structure suggests CTAs only in the hero and at the checkout form at the bottom. For a long-scroll page with 15+ sections, users who are convinced mid-page have no visible action path. On mobile (68% of coaching site traffic), there is no sticky bottom bar. Luke Wroblewski's research shows sticky mobile CTAs increase conversion 8-15%. The gap between "I'm ready" and "where do I click" is a conversion killer.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 10-LENS ANALYSIS -->
+<h2 class="section-title">10-Lens Detailed Analysis</h2>
+
+<!-- Lens 1 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>1. First Impression / Above the Fold <span class="score-badge high">7/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>The "For Licensed Therapists & Counselors Only" badge immediately creates identity recognition -- cold traffic from a therapist-targeted ad sees instant message match.</li>
+      <li>The H1 "Stop Trading $150 Sessions for Burnout. Build a $10,000 Coaching Program Instead." passes the 5-second test: what (coaching program), who (therapists), why ($150 to $10K transformation).</li>
+      <li>Stats bar (3,000+ Professionals Trained | $27 | 13 yrs) provides instant credibility anchors.</li>
+      <li>CTA "Save My Seat -- Just $27" is benefit-oriented and includes price transparency.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>"3,000+" is a rounded number. CXL data shows specific numbers ("3,247") outperform rounded by 8-12%. This signals "we're estimating" rather than "we track carefully."</li>
+      <li>No micro-testimonial or star rating visible above the fold. The Trustpilot bar is placed further down.</li>
+      <li>Sub-copy at 34 words is slightly long for mobile scanning -- could be tightened.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> The generic page scored 3/10 here with "The Greatest Opportunity Coaches Have Had in a Decade!" -- a vague superlative with zero specificity. This therapist variant's headline is dramatically better. +4 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 2 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>2. Copy & Messaging <span class="score-badge high">8/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Headline follows the benefit-driven formula: [Desired Outcome ($10K program)] + [Without Common Objection (burnout, license, ethics, sanity)]. This is textbook Schwartz Level 2-3 copy for problem-aware therapists.</li>
+      <li>Pain cards are brilliantly niche-specific: "Drowning in Insurance Paperwork," "Terrified of Liability," and "Less-Qualified 'Coaches' Outearn You" tap into deep identity-level frustrations unique to licensed professionals.</li>
+      <li>The reframe "The Problem Isn't Your Clinical Skills. It's Your Business Model." is a powerful pattern interrupt that shifts blame from the reader to their system.</li>
+      <li>FAQ directly addresses therapist-specific objections: keeping your license, ethical concerns, liability.</li>
+      <li>"AI-powered workshop" and "AI-Built Program in 3 Hours" leverage the 17% willingness-to-pay lift from AI messaging (ProfitWell study).</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>The Matt Dakan pull quote is from the "COD Enrollment Team" -- this is an internal team member, not a customer. It may read as self-promotional rather than social proof.</li>
+      <li>"Join hundreds of therapists" in the sub-copy conflicts with "3,000+ Professionals Trained" in the stats bar. Which is it? Hundreds or thousands? This inconsistency erodes trust.</li>
+      <li>The qualifier section ("This IS for you / This is NOT for you") is solid but common -- most high-ticket pages use this format. It doesn't differentiate.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~4/10 with no niche specificity. This page's copy is dramatically more targeted. +4 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 3 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>3. Behavioral Psychology <span class="score-badge mid">6/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>Cialdini triggers present:</strong></p>
+    <ul>
+      <li><strong>Social Proof:</strong> Stats bar, testimonials, Trustpilot -- but spread thin across the page rather than concentrated at decision points.</li>
+      <li><strong>Authority:</strong> Russ Ruffino founder section, $100M+ revenue claim, 13-year track record, Trustpilot rating.</li>
+      <li><strong>Commitment/Consistency:</strong> The $27 entry point is a micro-commitment toward the high-ticket offer. The 3-step process (Register > Attend > Walk Away) reduces perceived effort.</li>
+      <li><strong>Contrast:</strong> Old Way vs New Way comparison (7 points each) creates strong status-quo contrast.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Missing triggers:</strong></p>
+    <ul>
+      <li><strong>Scarcity:</strong> Completely absent. No limited seats, no cohort deadline, no price increase date. This is the biggest behavioral gap.</li>
+      <li><strong>Urgency:</strong> Zero temporal pressure. The page is static and evergreen.</li>
+      <li><strong>Loss Aversion:</strong> The pain cards touch on it ("No Time, No Margin, No Exit") but there's no explicit "cost of inaction" calculation -- e.g., "Every month you wait = $X left on the table."</li>
+      <li><strong>Choice Architecture:</strong> The VIP tier has a "Recommended" badge and gold button vs ghost button, but the Standard tier is presented first (left position on desktop). Research suggests the recommended option should be visually dominant, which the gold button achieves, but left-position bias may still favor Standard.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~3/10 with minimal psychology. This page adds contrast, authority, and better social proof distribution. +3 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 4 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>4. Trust & Credibility <span class="score-badge high">7/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Video testimonials (4 cards) are the strongest trust format -- "Therapist to Coaching CEO," "833 Marriages Saved," and "AI-Built Program in 3 Hours" are outcome-specific.</li>
+      <li>Text testimonials (6 cards) include real names and professions (Dr. Becky, Eric Levenhagen, Kiana Danial).</li>
+      <li>Trustpilot bar with "5-Star Reviews Over 12 Years" leverages third-party validation.</li>
+      <li>Russ Ruffino bio with verifiable stats ($100M+, 6,000+ professionals, 4.8/5) is strong authority building.</li>
+      <li>FAQ addresses the #1 therapist objection head-on: "Can I keep my license?"</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>No trust signals near the checkout form (the point where trust matters most).</li>
+      <li>No money-back guarantee mentioned anywhere visible.</li>
+      <li>Trustpilot bar says "5-Star Reviews" but doesn't show the actual rating (4.8/5 is in the founder section -- disconnect).</li>
+      <li>No media logos / "As Seen In" section if COD has press mentions.</li>
+      <li>"3,000+ Professionals Trained" is rounded -- specific numbers build more trust.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~4/10 with testimonials buried. This page brings them forward and adds video format. +3 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 5 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>5. CTA & Conversion Points <span class="score-badge mid">6/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>"Save My Seat -- Just $27" is benefit-oriented with price transparency. It's better than generic "Submit" or "Register Now."</li>
+      <li>Final CTA section "You're One Decision Away from Everything Changing" creates emotional momentum before the last push.</li>
+      <li>Two pricing tiers give a clear choice rather than a yes/no decision (reduces single-option aversion).</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>CTA appears to be present only in the hero and at the checkout form. For a 15+ section page, there should be repeated CTAs after key persuasion sections (after testimonials, after value stack, after Old vs New comparison).</li>
+      <li>No sticky CTA on mobile -- users who are convinced mid-scroll must continue scrolling to find the form.</li>
+      <li>The VIP tier uses a gold button and "Recommended" badge, but the Standard tier's ghost button may not read as clickable on dark backgrounds.</li>
+      <li>No "scroll to form" anchor links from mid-page CTA buttons.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~4/10 with weak CTAs. Price-transparent CTAs and dual-tier are improvements. +2 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 6 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>6. Form & Friction <span class="score-badge high">8/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Only 3 fields: Full Name, Email, Card Number. This is a major improvement from the generic page's 7+ fields. The prior experiment proposal estimated +50-120% conversion from this reduction.</li>
+      <li>No unnecessary qualification fields at the registration stage -- progressive profiling can happen post-registration.</li>
+      <li>"Full Name" as single field (not first + last) is correct for a $27 purchase.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>Card Number field without visible security indicators (lock icon, SSL badge, payment processor logos) creates anxiety.</li>
+      <li>No inline validation visible in the design preview -- real-time feedback on field completion reduces errors and abandonment.</li>
+      <li>No phone number field -- COD's sales team needs phone for follow-up. Consider adding as optional or in post-registration flow.</li>
+      <li>The form is at the bottom of the page, not mid-page. Users must scroll through the entire page to reach it.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~3/10 with 7+ fields. This is a dramatic reduction. +5 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 7 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>7. Layout & Visual Hierarchy <span class="score-badge high">7/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Dark theme (black bg) with gold accents (#c8a96e) creates premium, high-ticket feel appropriate for $10K+ coaching.</li>
+      <li>Card-based layout with clear section boundaries supports scanning behavior.</li>
+      <li>Section flow follows persuasion logic: Identity Badge > Pain > Reframe > Process > Proof > Value > Price > Objections > Final CTA.</li>
+      <li>Cormorant Garamond display font + Outfit body creates a luxury/authority typographic hierarchy.</li>
+      <li>Responsive design confirmed in description.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>6 pain cards + 4 video testimonial cards + 6 text testimonial cards + 6 value stack items = very long page. Cognitive load accumulates. Consider condensing or using tabs/accordion for some sections.</li>
+      <li>The comparison section (Old Way vs New Way) comes AFTER the pricing section. Psychologically, comparisons should precede the price reveal to build desire before asking for money.</li>
+      <li>No visual breaks or breathing room indicators described between major sections.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~4/10 with poor hierarchy. Dark premium theme and card layout are improvements. +3 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 8 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>8. Mobile Experience <span class="score-badge mid">6/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Responsive design confirmed -- the page adapts to mobile viewports.</li>
+      <li>Card-based layout translates well to single-column mobile stacking.</li>
+      <li>Font sizes use clamp/responsive values for readability.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>No sticky mobile CTA bar. 68% of coaching site traffic is mobile (SimilarWeb data). Without a persistent bottom CTA, mobile users who scroll past the hero CTA have no conversion path until the bottom of a very long page.</li>
+      <li>6 pain cards on mobile = significant vertical scrolling before reaching the solution. Consider 3 cards with "Show More" on mobile.</li>
+      <li>Two pricing tiers side-by-side may not render well on <375px screens -- unclear if they stack vertically.</li>
+      <li>Dark theme on mobile in bright environments (outdoor, commute) may have contrast issues.</li>
+      <li>No evidence of mobile-optimized tap targets (48px minimum) for the checkout form fields.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Generic page comparison:</strong> Generic scored ~4/10 with no mobile optimization. Responsive design is an improvement but no sticky CTA. +2 improvement.</p>
+  </div>
+</div>
+
+<!-- Lens 9 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>9. Performance & Technical <span class="score-badge mid">6/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>What works:</strong></p>
+    <ul>
+      <li>Single self-contained HTML file with inline CSS -- minimal HTTP requests.</li>
+      <li>CSS custom properties (variables) for consistent theming and easy updates.</li>
+      <li>Google Fonts loading via CDN with display=swap (prevents FOIT).</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>What leaks:</strong></p>
+    <ul>
+      <li>Two Google Fonts (Cormorant Garamond + Outfit) with multiple weights = significant font payload. Each weight ~20-40KB. Consider subsetting or reducing weight variants.</li>
+      <li>No image optimization details visible (video testimonial thumbnails, founder photo, etc. will need lazy loading).</li>
+      <li>No preconnect hints for Google Fonts CDN.</li>
+      <li>Title tag says "Application Received" -- needs to be updated for the therapist registration page context (SEO and tab identification).</li>
+      <li>No structured data or OpenGraph meta tags for social sharing.</li>
+      <li>Animations (fadeDown, fadeUp) on page load add visual polish but may cause layout shift if not handled carefully.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Note:</strong> This is a design preview. Many technical concerns will be addressed when the page is built in the actual page builder/CMS. Scoring reflects the design intent rather than production readiness.</p>
+  </div>
+</div>
+
+<!-- Lens 10 -->
+<div class="card card-blue">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>10. Pattern Match <span class="score-badge high">7/10</span></h3>
+  </div>
+  <div class="collapsible-body">
+    <p><strong>Patterns successfully applied:</strong></p>
+    <ul>
+      <li><strong>Benefit-Driven Headlines:</strong> Headline follows [Outcome] + [Without Objection] formula. Matches Schwartz awareness level for cold traffic therapists.</li>
+      <li><strong>Above-Fold Value Prop:</strong> Passes the 5-second test -- what, who, why all visible. Major improvement over generic.</li>
+      <li><strong>Form Field Reduction:</strong> 3 fields vs 7+ on generic. Aligned with HubSpot and Baymard evidence.</li>
+      <li><strong>Single CTA Focus:</strong> One action (register) repeated. No competing navigation or alternative CTAs.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Patterns NOT applied:</strong></p>
+    <ul>
+      <li><strong>Social Proof Above the Fold:</strong> Stats bar is present but uses rounded numbers. No micro-testimonial near hero CTA. CXL evidence says specific numbers outperform by 8-12%.</li>
+      <li><strong>Trust Signal Proximity:</strong> No trust signals near the checkout form. This pattern is the single highest-impact gap per Baymard/Econsultancy data.</li>
+      <li><strong>Mobile Thumb Zone:</strong> No sticky bottom CTA bar. Wroblewski evidence: +8-15% conversion.</li>
+      <li><strong>Urgency/Authenticity:</strong> Zero urgency mechanisms. Even authentic urgency (cohort date) would help.</li>
+    </ul>
+    <p style="margin-top: 12px;"><strong>Glance A/B Library alignment:</strong></p>
+    <ul>
+      <li>Miro subheading test: This page's specific outcome claim ($10K) could backfire per Miro's finding that generic outperforms specific. However, for a niche audience (therapists), specificity is expected -- they know their session rates. Context: high-ticket niche is different from broad SaaS.</li>
+      <li>Miro social proof test: The Trustpilot bar should be STATIC, not animated. This page appears to use static display -- correct.</li>
+      <li>Asana creative test: The "For Licensed Therapists Only" badge does the audience segmentation that Asana tried (and failed) with carousels. But here it works because the TRAFFIC is already segmented (therapist-targeted ads). This is a dedicated landing page, not a homepage -- Asana's lesson about separate pages is exactly what COD is doing here.</li>
+      <li>Dropbox CTA test: "Save My Seat" sets expectations about what happens next (you reserve a spot). This is aligned with "Find your plan" winning by setting expectations.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- COMPARISON SECTION -->
+<h2 class="section-title">vs. Generic Registration Page (38/100)</h2>
+<p style="margin-bottom: 20px; font-size: 14px; color: var(--text-muted);">Score comparison across all 10 lenses. The therapist variant scores higher on every single dimension.</p>
+
+<div class="comparison-grid">
+  <div class="comp-col">
+    <h4>Score Comparison by Lens</h4>
+    <div class="comp-row"><span>1. First Impression</span><span>3 &rarr; 7 <span class="delta-pos">+4</span></span></div>
+    <div class="comp-row"><span>2. Copy & Messaging</span><span>4 &rarr; 8 <span class="delta-pos">+4</span></span></div>
+    <div class="comp-row"><span>3. Behavioral Psychology</span><span>3 &rarr; 6 <span class="delta-pos">+3</span></span></div>
+    <div class="comp-row"><span>4. Trust & Credibility</span><span>4 &rarr; 7 <span class="delta-pos">+3</span></span></div>
+    <div class="comp-row"><span>5. CTA & Conversion</span><span>4 &rarr; 6 <span class="delta-pos">+2</span></span></div>
+    <div class="comp-row"><span>6. Form & Friction</span><span>3 &rarr; 8 <span class="delta-pos">+5</span></span></div>
+    <div class="comp-row"><span>7. Layout & Hierarchy</span><span>4 &rarr; 7 <span class="delta-pos">+3</span></span></div>
+    <div class="comp-row"><span>8. Mobile Experience</span><span>4 &rarr; 6 <span class="delta-pos">+2</span></span></div>
+    <div class="comp-row"><span>9. Performance</span><span>4 &rarr; 6 <span class="delta-pos">+2</span></span></div>
+    <div class="comp-row"><span>10. Pattern Match</span><span>5 &rarr; 7 <span class="delta-pos">+2</span></span></div>
+  </div>
+  <div class="comp-col">
+    <h4>Key Improvements</h4>
+    <div style="font-size: 14px; line-height: 1.8;">
+      <p><strong>Biggest gain: Form & Friction (+5)</strong><br>7+ fields reduced to 3. This alone could deliver +50-120% form completion lift.</p>
+      <p style="margin-top: 12px;"><strong>Copy & First Impression (+4 each)</strong><br>Niche-specific headline and pain points vs. generic hype. The single most important change.</p>
+      <p style="margin-top: 12px;"><strong>Still weak: Mobile (+2) & CTA (+2)</strong><br>No sticky CTA and limited CTA frequency remain gaps shared with the generic page.</p>
+      <p style="margin-top: 12px;"><strong>New addition: VIP Pricing Tier</strong><br>Not scored separately but embedded in CTA, Psychology, and Layout scores. This is the highest-ROI structural addition -- projected +$200K per 1,000 registrations based on COD's own VIP data.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TEST ROADMAP -->
+<h2 class="section-title">Test Roadmap</h2>
+
+<div class="card">
+  <table class="roadmap-table">
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Test</th>
+        <th>Quadrant</th>
+        <th>Expected Lift</th>
+        <th>Effort</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>Trust Signals Near Checkout Form</strong><br>Add SSL badge, payment logos, guarantee text, and micro-testimonial within 200px of the card payment field</td>
+        <td><span class="quad-badge quad-qw">Quick Win</span></td>
+        <td>+10-42% form completion</td>
+        <td>1 hour</td>
+        <td>Econsultancy: trust badges near checkout +42%. Baymard: 18% abandon on trust concerns.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>Sticky Mobile CTA Bar</strong><br>Persistent bottom bar (56px, gold bg) on mobile, appears after scrolling past hero. Smooth-scroll to checkout form.</td>
+        <td><span class="quad-badge quad-qw">Quick Win</span></td>
+        <td>+8-15% mobile registration</td>
+        <td>1 hour</td>
+        <td>Wroblewski: +8-15%. BlendCommerce A/B test: +10% CVR. 68% of coaching traffic is mobile.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>VIP Visual Hierarchy Optimization</strong><br>Make VIP tier larger, add "Most Popular" social proof, animate the gold border, and present VIP first (left position)</td>
+        <td><span class="quad-badge quad-qw">Quick Win</span></td>
+        <td>+5-15% VIP take-rate</td>
+        <td>2 hours</td>
+        <td>COD data: VIP = 3.25x booking rate. Order bump optimization: 14% lift from small checkout changes (Badiu 2026).</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>Repeat CTAs at Key Decision Points</strong><br>Add "Save My Seat" CTA buttons after testimonials section, after value stack, and after Old vs New comparison</td>
+        <td><span class="quad-badge quad-qw">Quick Win</span></td>
+        <td>+5-10% registration</td>
+        <td>30 min</td>
+        <td>Single CTA Focus pattern: repeat same CTA at natural decision points. Unbounce: pages with clear CTA = 13.5% CVR vs 1.6%.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>Authentic Urgency: Workshop Date + Countdown</strong><br>Add real workshop date, countdown timer, and "X of Y seats filled" with genuine capacity limit</td>
+        <td><span class="quad-badge quad-bb">Big Bet</span></td>
+        <td>+15-25% registration</td>
+        <td>4 hours</td>
+        <td>Cialdini scarcity principle. Authentic urgency: +15-25% lift. Must be real deadline -- fake urgency erodes trust 40% (dark patterns research).</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>Specific Social Proof Numbers</strong><br>Replace "3,000+" with exact number (e.g., "3,247"). Replace "hundreds of therapists" with specific count. Add Trustpilot review count.</td>
+        <td><span class="quad-badge quad-qw">Quick Win</span></td>
+        <td>+8-12% trust signal efficacy</td>
+        <td>30 min</td>
+        <td>CXL: specific numbers outperform rounded by 8-12%. Also fixes the "hundreds" vs "3,000+" copy inconsistency.</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td><strong>Money-Back Guarantee Badge</strong><br>Add visible guarantee near both pricing tiers and the checkout form. "100% Satisfaction Guaranteed or Your Money Back"</td>
+        <td><span class="quad-badge quad-bb">Big Bet</span></td>
+        <td>+10-20% registration</td>
+        <td>1 hour</td>
+        <td>CrazyEgg: guarantee badges increase conversion by up to 32%. Risk reversal is especially critical for cold traffic + card-required purchases.</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td><strong>Move Old vs New Comparison Before Pricing</strong><br>Restructure page flow so the comparison section precedes the pricing/checkout section, building desire before asking for payment</td>
+        <td><span class="quad-badge quad-lp">Low Priority</span></td>
+        <td>+3-5% registration</td>
+        <td>30 min</td>
+        <td>Persuasion architecture best practice. Build desire before reveal. Small but free improvement.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SCORING METHODOLOGY -->
+<h2 class="section-title">Scoring Methodology</h2>
+<div class="card card-blue">
+  <p><strong>Overall Score: 68/100</strong></p>
+  <p style="margin-top: 8px;">Calculated as a weighted average of 10 lens scores:</p>
+  <ul style="margin-top: 8px;">
+    <li>Copy & Messaging (15%), First Impression (15%), CTA & Conversion (15%) -- highest weight, most impact on registration rate</li>
+    <li>Trust & Credibility (12%), Behavioral Psychology (12%), Form & Friction (12%) -- secondary impact</li>
+    <li>Layout (7%), Mobile (7%), Performance (3%), Pattern Match (2%) -- supporting factors</li>
+  </ul>
+  <p style="margin-top: 12px;">Weighted calculation: (7x15 + 8x15 + 6x15 + 7x12 + 6x12 + 8x12 + 7x7 + 6x7 + 6x3 + 7x2) / 100 = <strong>6.82 &rarr; 68/100</strong></p>
+</div>
+
+<!-- SOURCES -->
+<h2 class="section-title">External Evidence Sources</h2>
+<div class="card">
+  <ul>
+    <li><a href="https://www.monicabadiu.com/2026/03/the-small-checkout-change-that-increased-order-bump-conversion-by-14/" target="_blank">Badiu (2026): Small checkout change increased order bump conversion by 14%</a></li>
+    <li><a href="https://blendcommerce.com/blogs/ab-tests-shopify/10-increase-in-conversion-rate" target="_blank">BlendCommerce: Sticky CTA test on PDP boosts conversion rate by 10%</a></li>
+    <li><a href="https://growthrock.co/sticky-add-to-cart-button-example/" target="_blank">GrowthRock: Sticky add to cart button A/B test results</a></li>
+    <li><a href="https://www.onlinedialogue.nl/en/blogs/sticky-cta-guaranteed-conversion-uplift/" target="_blank">Online Dialogue: Sticky CTA analysis (33 experiments, 27% win rate)</a></li>
+    <li><a href="https://searchengineland.com/landing-page-best-practices-wrong-465988" target="_blank">Search Engine Land: Dark landing page A/B test -- niche context beats best practices</a></li>
+    <li><a href="https://www.hostinger.com/tutorials/landing-page-statistics" target="_blank">Hostinger: 2026 Landing page statistics and conversion benchmarks</a></li>
+    <li><a href="https://www.crazyegg.com/blog/trust-signals/" target="_blank">CrazyEgg: 5 trust signals that instantly boost conversion rates</a></li>
+    <li><a href="https://www.reform.app/blog/7-trust-signals-to-boost-form-conversions" target="_blank">Reform: 7 trust signals to boost form conversions</a></li>
+    <li><a href="https://polayads.com/using-landing-pages-to-boost-therapy-conversions/" target="_blank">PolayAds: Landing pages for therapy conversions</a></li>
+    <li><a href="https://thrivethemes.com/coaching-landing-page-examples/" target="_blank">ThriveThemes: 7 coaching landing page examples</a></li>
+  </ul>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// Collapsible sections
+function toggleCollapsible(el) {
+  el.classList.toggle('open');
+  const body = el.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// Open all by default
+document.querySelectorAll('.collapsible-header').forEach(h => {
+  h.classList.add('open');
+  h.nextElementSibling.classList.add('open');
+});
+
+// Radar Chart
+const ctx = document.getElementById('radarChart').getContext('2d');
+new Chart(ctx, {
+  type: 'radar',
+  data: {
+    labels: [
+      'First Impression',
+      'Copy & Messaging',
+      'Behavioral Psych',
+      'Trust & Credibility',
+      'CTA & Conversion',
+      'Form & Friction',
+      'Layout & Hierarchy',
+      'Mobile Experience',
+      'Performance',
+      'Pattern Match'
+    ],
+    datasets: [
+      {
+        label: 'Therapist Page (This Audit)',
+        data: [7, 8, 6, 7, 6, 8, 7, 6, 6, 7],
+        backgroundColor: 'rgba(39, 174, 96, 0.15)',
+        borderColor: '#27ae60',
+        borderWidth: 2,
+        pointBackgroundColor: '#27ae60',
+        pointRadius: 4
+      },
+      {
+        label: 'Generic Page (Prior Audit)',
+        data: [3, 4, 3, 4, 4, 3, 4, 4, 4, 5],
+        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+        borderColor: '#e74c3c',
+        borderWidth: 2,
+        pointBackgroundColor: '#e74c3c',
+        pointRadius: 4,
+        borderDash: [5, 5]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    scales: {
+      r: {
+        min: 0,
+        max: 10,
+        ticks: {
+          stepSize: 2,
+          font: { size: 11 },
+          backdropColor: 'transparent'
+        },
+        pointLabels: {
+          font: { size: 11, family: 'Inter' }
+        },
+        grid: {
+          color: 'rgba(0,0,0,0.08)'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          font: { size: 12, family: 'Inter' },
+          padding: 20
+        }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

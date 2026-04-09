@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostHog Implementation Guide | KAMG Engineering</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .page-header {
+    border-bottom: 1px solid #21262d;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .page-header .org {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #8b949e;
+    margin-bottom: 0.25rem;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    margin-bottom: 0.35rem;
+  }
+  .page-header .subtitle {
+    font-size: 1rem;
+    color: #8b949e;
+    margin-bottom: 0.5rem;
+  }
+  .page-header .meta {
+    font-size: 0.85rem;
+    color: #58a6ff;
+  }
+
+  /* TOC */
+  .toc {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #8b949e;
+    margin-bottom: 0.75rem;
+    border: none;
+    padding: 0;
+    margin-top: 0;
+  }
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    padding: 0;
+  }
+  .toc ol li { counter-increment: toc; margin-bottom: 0.3rem; }
+  .toc ol li::before {
+    content: counter(toc) ".";
+    color: #484f58;
+    margin-right: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .toc a {
+    color: #58a6ff;
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Section headings */
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #21262d;
+  }
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Paragraphs and links */
+  p { margin-bottom: 1rem; }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { color: #e6edf3; }
+
+  /* Lists */
+  ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+  li { margin-bottom: 0.35rem; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+  }
+  .checklist li::before {
+    position: absolute;
+    left: 0;
+    top: 0.1em;
+    font-size: 1.1rem;
+    width: 1.4rem;
+    text-align: center;
+  }
+  .checklist li.done::before {
+    content: "\2713";
+    color: #3fb950;
+    font-weight: bold;
+  }
+  .checklist li.pending::before {
+    content: "\25CB";
+    color: #484f58;
+    font-size: 1rem;
+  }
+  .checklist li.done { color: #c9d1d9; }
+  .checklist li.pending { color: #8b949e; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  th {
+    background: #161b22;
+    color: #e6edf3;
+    font-weight: 600;
+    text-align: left;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 2px solid #21262d;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid #21262d;
+    vertical-align: top;
+  }
+  tr.row-required td {
+    background: rgba(63, 185, 80, 0.07);
+  }
+  tr.row-required td:first-child {
+    color: #3fb950;
+    font-weight: 700;
+  }
+  tr.row-alt td { background: #0e1318; }
+  /* Troubleshooting alternating */
+  .troubleshoot-table tr:nth-child(even) td { background: #0e1318; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.55rem;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .badge-required {
+    background: rgba(63, 185, 80, 0.15);
+    color: #3fb950;
+    border: 1px solid rgba(63, 185, 80, 0.3);
+  }
+  .badge-optional {
+    background: rgba(139, 148, 158, 0.1);
+    color: #8b949e;
+    border: 1px solid rgba(139, 148, 158, 0.2);
+  }
+
+  /* Code inline */
+  code {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+    background: #161b22;
+    color: #e6edf3;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  /* Code blocks */
+  .code-block-wrap {
+    position: relative;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .code-block-wrap.required {
+    border-left: 4px solid #3fb950;
+    box-shadow: 0 0 0 1px #21262d;
+  }
+  .code-block-wrap.optional {
+    border-left: 4px solid #30363d;
+    box-shadow: 0 0 0 1px #21262d;
+  }
+  .code-block-wrap.neutral {
+    border: 1px solid #21262d;
+  }
+  .code-block-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: system-ui, sans-serif;
+  }
+  .code-block-wrap.required .code-block-label {
+    background: rgba(63, 185, 80, 0.08);
+    color: #3fb950;
+  }
+  .code-block-wrap.optional .code-block-label {
+    background: rgba(139, 148, 158, 0.05);
+    color: #8b949e;
+  }
+  pre {
+    background: #161b22;
+    padding: 1.15rem 1.25rem;
+    overflow-x: auto;
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: #c9d1d9;
+    margin: 0;
+  }
+
+  /* Syntax colors */
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .cmt { color: #8b949e; }
+  .fn { color: #d2a8ff; }
+  .num { color: #79c0ff; }
+  .tag { color: #7ee787; }
+  .attr { color: #79c0ff; }
+  .op { color: #ff7b72; }
+  .prop { color: #c9d1d9; }
+  .val { color: #a5d6ff; }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    overflow-x: auto;
+  }
+  .arch-diagram pre {
+    display: inline-block;
+    text-align: left;
+    background: transparent;
+    padding: 0;
+    font-size: 0.82rem;
+    color: #58a6ff;
+  }
+
+  /* Blockquote / callout */
+  blockquote {
+    border-left: 3px solid #58a6ff;
+    background: rgba(88, 166, 255, 0.05);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.92rem;
+  }
+  blockquote strong { color: #58a6ff; }
+
+  /* Ordered steps */
+  .steps { counter-reset: step; list-style: none; padding-left: 0; }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 2.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    background: #21262d;
+    color: #58a6ff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.6rem;
+    border-radius: 50%;
+  }
+
+  /* Verify section */
+  .verify {
+    background: rgba(63, 185, 80, 0.04);
+    border: 1px solid rgba(63, 185, 80, 0.15);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.92rem;
+  }
+  .verify strong { color: #3fb950; }
+
+  /* Section divider */
+  hr {
+    border: none;
+    border-top: 1px solid #21262d;
+    margin: 2.5rem 0;
+  }
+
+  /* Footer */
+  .page-footer {
+    border-top: 1px solid #21262d;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    text-align: center;
+    font-size: 0.82rem;
+    color: #484f58;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 1.25rem 1rem 3rem; }
+    .page-header h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    pre { font-size: 0.78rem; padding: 0.85rem 1rem; }
+    table { font-size: 0.82rem; }
+    th, td { padding: 0.5rem 0.6rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="org">KAMG Engineering</div>
+    <h1>PostHog Implementation Guide</h1>
+    <div class="subtitle">For: Rehan (CTO)</div>
+    <div class="meta">2 required snippets (~5 min) + 4 optional enrichment snippets</div>
+  </header>
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#prerequisites">Prerequisites</a></li>
+      <li><a href="#rationale">Why Only 2 Snippets Are Essential</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#summary">Installation Summary</a></li>
+      <li><a href="#ghl-path">GHL Installation Path</a></li>
+      <li><a href="#snippet-1">REQUIRED: Snippet 1 -- User Identification</a></li>
+      <li><a href="#snippet-2">REQUIRED: Snippet 2 -- Workshop Watch Time</a></li>
+      <li><a href="#optional">OPTIONAL: Snippets 3-6</a></li>
+      <li><a href="#verification">Verification Checklist</a></li>
+      <li><a href="#event-schema">Event Schema Reference</a></li>
+      <li><a href="#bigquery">BigQuery Integration</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#notes">Notes for Rehan</a></li>
+    </ol>
+  </nav>
+
+  <!-- PREREQUISITES -->
+  <h2 id="prerequisites">Prerequisites</h2>
+  <ul class="checklist">
+    <li class="done">PostHog JS SDK loaded via GTM container <code>M677PM4</code> (already live)</li>
+    <li class="done">PostHog project: <code>clientsondemand</code> (ID: 139, US Cloud)</li>
+    <li class="done">Project API key: <code>VWsL-CR-hrLnkzgg51_xGnQ1T9hLp9pybU41rEhm4cU</code></li>
+    <li class="pending">GHL admin access to edit funnel page footers</li>
+  </ul>
+
+  <hr>
+
+  <!-- RATIONALE -->
+  <h2 id="rationale">Why Only 2 Snippets Are Essential</h2>
+  <p>Hyros already tracks conversion events (ticket purchase, call booked, enrollment). PostHog's unique value is <strong>on-page behavioral data</strong> that Hyros can't see: heatmaps, session recordings, scroll depth, and workshop watch time.</p>
+  <p>For PostHog's behavioral data to be useful in the data warehouse, we need exactly two things:</p>
+  <ol>
+    <li><strong>Link anonymous visitors to email addresses</strong> (so PostHog sessions can join to Hyros/GHL data)</li>
+    <li><strong>Track workshop watch duration</strong> (PostHog's biggest blind-spot filler, since no other tool tracks this)</li>
+  </ol>
+  <p>Everything else (ticket purchase events, call booked events, etc.) is already covered by Hyros and only adds marginal value inside PostHog's own UI.</p>
+
+  <hr>
+
+  <!-- ARCHITECTURE -->
+  <h2 id="architecture">Architecture</h2>
+  <div class="arch-diagram">
+<pre>Meta Ads --&gt; GHL Funnel Pages --&gt; GTM (M677PM4)
+                                      |
+                                      v
+                               PostHog JS SDK
+                               (window.posthog)
+                                      |
+                                      v
+                          Custom Footer Snippets
+                          (identify + workshop)
+                                      |
+                                      v
+                              PostHog Cloud (US)
+                              Project ID: 139
+                                      |
+                                      v
+                          Batch Export (daily)
+                                      |
+                                      v
+                            BigQuery Dataset:
+                            cod_warehouse.posthog_events</pre>
+  </div>
+  <p><strong>How it works:</strong></p>
+  <ol class="steps">
+    <li>GTM loads the PostHog SDK on every COD page.</li>
+    <li>Snippets wait for <code>window.posthog</code> to be available, then fire page-specific events.</li>
+    <li>GHL form submissions emit <code>window.postMessage</code> events containing form data. Snippet 1 listens for these.</li>
+    <li>Events flow to PostHog Cloud, then batch export nightly to BigQuery.</li>
+  </ol>
+
+  <hr>
+
+  <!-- INSTALLATION SUMMARY -->
+  <h2 id="summary">Installation Summary</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Snippet</th>
+          <th>Target Page(s)</th>
+          <th>Time</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-required">
+          <td>REQUIRED</td>
+          <td>1. User Identification</td>
+          <td>All registration/opt-in pages</td>
+          <td>2 min</td>
+          <td>Links anonymous sessions to email for BQ joins</td>
+        </tr>
+        <tr class="row-required">
+          <td>REQUIRED</td>
+          <td>2. Workshop Tracking</td>
+          <td>Workshop/replay page</td>
+          <td>2 min</td>
+          <td>Only source of watch-duration data in entire stack</td>
+        </tr>
+        <tr>
+          <td>Optional</td>
+          <td>3. Ticket Purchase</td>
+          <td>Thank-you page</td>
+          <td>1 min</td>
+          <td>Enriches PostHog profiles (Hyros already tracks this)</td>
+        </tr>
+        <tr class="row-alt">
+          <td>Optional</td>
+          <td>4. VIP Upsell</td>
+          <td>VIP confirmation</td>
+          <td>1 min</td>
+          <td>Enriches PostHog profiles (Hyros already tracks this)</td>
+        </tr>
+        <tr>
+          <td>Optional</td>
+          <td>5. Call Booked</td>
+          <td>Booking confirmation</td>
+          <td>1 min</td>
+          <td>Enriches PostHog profiles (Hyros already tracks this)</td>
+        </tr>
+        <tr class="row-alt">
+          <td>Optional</td>
+          <td>6. Application</td>
+          <td>/apply page</td>
+          <td>1 min</td>
+          <td>Enriches PostHog profiles (Hyros already tracks this)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Minimum install: 2 snippets, ~5 minutes.</strong></p>
+
+  <hr>
+
+  <!-- GHL INSTALLATION PATH -->
+  <h2 id="ghl-path">GHL Installation Path</h2>
+  <p>For every snippet below:</p>
+  <ol class="steps">
+    <li>Open <strong>GHL &gt; Sites &gt; Funnels</strong> (or Sites &gt; Websites).</li>
+    <li>Select the target funnel/page.</li>
+    <li>Click <strong>Settings</strong> (gear icon) on the page.</li>
+    <li>Navigate to <strong>Custom Code &gt; Footer Code</strong> (sometimes labeled "Body Tracking Code" or "Footer").</li>
+    <li>Paste the full <code>&lt;script&gt;</code> block.</li>
+    <li>Click <strong>Save</strong>, then <strong>Publish</strong> the page.</li>
+  </ol>
+  <blockquote><strong>Important:</strong> GHL changes are not live until you hit Publish. Always republish after pasting.</blockquote>
+
+  <hr>
+
+  <!-- SNIPPET 1 -->
+  <h2 id="snippet-1">REQUIRED: Snippet 1 -- User Identification (Registration Pages)</h2>
+  <p><strong>Install on:</strong> Every registration and opt-in page, including:</p>
+  <ul>
+    <li><code>clientsondemand.live/registration2</code></li>
+    <li>All segment-specific pages (therapists, attorneys, educators, coaches, health coaches)</li>
+  </ul>
+  <p><strong>What it does:</strong> Listens for GHL form submissions via <code>postMessage</code>, extracts the lead's email/name/phone, identifies them in PostHog, and fires a <code>lead_registered</code> event with UTM parameters. This is what links anonymous browser sessions to known customer emails in the data warehouse.</p>
+
+  <div class="code-block-wrap required">
+    <div class="code-block-label"><span class="badge badge-required">REQUIRED</span> Snippet 1: User Identification</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">identify</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="prop">window</span>.<span class="fn">addEventListener</span>(<span class="str">'message'</span>, <span class="kw">function</span>(event) {
+    <span class="kw">try</span> {
+      <span class="kw">var</span> data = <span class="kw">typeof</span> event.data === <span class="str">'string'</span> ? <span class="prop">JSON</span>.<span class="fn">parse</span>(event.data) : event.data;
+      <span class="kw">if</span> (data &amp;&amp; (data.type === <span class="str">'form:submit'</span> || data.event_id === <span class="str">'form_submit'</span>)) {
+        <span class="kw">var</span> email = data.email || data.data?.email || <span class="str">''</span>;
+        <span class="kw">var</span> firstName = data.first_name || data.data?.first_name || data.firstName || <span class="str">''</span>;
+        <span class="kw">var</span> lastName = data.last_name || data.data?.last_name || data.lastName || <span class="str">''</span>;
+        <span class="kw">var</span> phone = data.phone || data.data?.phone || <span class="str">''</span>;
+        <span class="kw">if</span> (email) {
+          <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+            <span class="prop">posthog</span>.<span class="fn">identify</span>(email, {
+              <span class="prop">email</span>: email,
+              <span class="prop">first_name</span>: firstName,
+              <span class="prop">last_name</span>: lastName,
+              <span class="prop">phone</span>: phone,
+              <span class="prop">stage</span>: <span class="str">'lead'</span>,
+              <span class="prop">source</span>: <span class="str">'registration_page'</span>,
+              <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname
+            });
+            <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'lead_registered'</span>, {
+              <span class="prop">email</span>: email,
+              <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname,
+              <span class="prop">utm_source</span>: <span class="kw">new</span> <span class="fn">URLSearchParams</span>(<span class="prop">window</span>.location.search).<span class="fn">get</span>(<span class="str">'utm_source'</span>),
+              <span class="prop">utm_medium</span>: <span class="kw">new</span> <span class="fn">URLSearchParams</span>(<span class="prop">window</span>.location.search).<span class="fn">get</span>(<span class="str">'utm_medium'</span>),
+              <span class="prop">utm_campaign</span>: <span class="kw">new</span> <span class="fn">URLSearchParams</span>(<span class="prop">window</span>.location.search).<span class="fn">get</span>(<span class="str">'utm_campaign'</span>)
+            });
+          });
+        }
+      }
+    } <span class="kw">catch</span>(e) {}
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <div class="verify">
+    <strong>Verify:</strong> Submit a test registration. In PostHog, go to <strong>Activity &gt; Live Events</strong>. You should see:
+    <ul>
+      <li>A <code>$identify</code> call with the email as <code>distinct_id</code></li>
+      <li>A <code>lead_registered</code> event with UTM params and <code>page_url</code></li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <!-- SNIPPET 2 -->
+  <h2 id="snippet-2">REQUIRED: Snippet 2 -- Workshop Watch Time (Workshop Page)</h2>
+  <p><strong>Install on:</strong> The workshop viewing page and any replay pages.</p>
+  <p><strong>What it does:</strong> Fires <code>workshop_attended</code> on page load, then fires <code>workshop_watch_milestone</code> every 5 minutes with a running <code>minutes_watched</code> counter. Timer caps at 180 minutes (the workshop runs approximately 157 minutes). This is the only source of workshop engagement data in the entire COD stack.</p>
+
+  <div class="code-block-wrap required">
+    <div class="code-block-label"><span class="badge badge-required">REQUIRED</span> Snippet 2: Workshop Watch Time</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">capture</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+    <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'workshop_attended'</span>, {
+      <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname,
+      <span class="prop">timestamp</span>: <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">toISOString</span>()
+    });
+    <span class="prop">posthog</span>.people.<span class="fn">set</span>({ <span class="prop">stage</span>: <span class="str">'workshop_attendee'</span> });
+    <span class="kw">var</span> minutes = <span class="num">0</span>;
+    <span class="kw">var</span> timer = <span class="fn">setInterval</span>(<span class="kw">function</span>() {
+      minutes += <span class="num">5</span>;
+      <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'workshop_watch_milestone'</span>, {
+        <span class="prop">minutes_watched</span>: minutes,
+        <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname
+      });
+      <span class="kw">if</span> (minutes &gt;= <span class="num">180</span>) <span class="fn">clearInterval</span>(timer);
+    }, <span class="num">5</span> * <span class="num">60</span> * <span class="num">1000</span>);
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <div class="verify">
+    <strong>Verify:</strong> Load the workshop page. Confirm <code>workshop_attended</code> fires immediately. Wait 5 minutes and confirm a <code>workshop_watch_milestone</code> event appears with <code>minutes_watched: 5</code>.
+  </div>
+  <blockquote><strong>Note:</strong> This snippet intentionally has no deduplication. Repeat visits and replays are valid engagement signals.</blockquote>
+
+  <hr>
+
+  <!-- OPTIONAL SNIPPETS -->
+  <h2 id="optional">OPTIONAL: Snippets 3-6 (Enrich PostHog Profiles)</h2>
+  <p>These snippets add funnel stage events to PostHog. Hyros already tracks these conversions, so these are only needed if you want PostHog's built-in funnel visualization to show the full journey. Install if time allows, skip if not.</p>
+
+  <!-- Snippet 3 -->
+  <h3>Snippet 3: $27 Ticket Purchase (Thank-You Page)</h3>
+  <div class="code-block-wrap optional">
+    <div class="code-block-label"><span class="badge badge-optional">OPTIONAL</span> Snippet 3: Ticket Purchase</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">capture</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="kw">if</span> (<span class="prop">sessionStorage</span>.<span class="fn">getItem</span>(<span class="str">'ph_ticket_fired'</span>)) <span class="kw">return</span>;
+  <span class="prop">sessionStorage</span>.<span class="fn">setItem</span>(<span class="str">'ph_ticket_fired'</span>, <span class="str">'1'</span>);
+  <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+    <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'ticket_purchased'</span>, {
+      <span class="prop">amount</span>: <span class="num">27</span>,
+      <span class="prop">currency</span>: <span class="str">'USD'</span>,
+      <span class="prop">product</span>: <span class="str">'workshop-ticket'</span>,
+      <span class="prop">product_type</span>: <span class="str">'workshop-$27'</span>,
+      <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname
+    });
+    <span class="prop">posthog</span>.people.<span class="fn">set</span>({ <span class="prop">stage</span>: <span class="str">'ticket_buyer'</span> });
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <!-- Snippet 4 -->
+  <h3>Snippet 4: VIP Upsell (VIP Confirmation Page)</h3>
+  <div class="code-block-wrap optional">
+    <div class="code-block-label"><span class="badge badge-optional">OPTIONAL</span> Snippet 4: VIP Upsell</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">capture</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="kw">if</span> (<span class="prop">sessionStorage</span>.<span class="fn">getItem</span>(<span class="str">'ph_vip_fired'</span>)) <span class="kw">return</span>;
+  <span class="prop">sessionStorage</span>.<span class="fn">setItem</span>(<span class="str">'ph_vip_fired'</span>, <span class="str">'1'</span>);
+  <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+    <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'vip_purchased'</span>, {
+      <span class="prop">amount</span>: <span class="num">27</span>,
+      <span class="prop">currency</span>: <span class="str">'USD'</span>,
+      <span class="prop">product</span>: <span class="str">'vip-upgrade'</span>,
+      <span class="prop">product_type</span>: <span class="str">'workshop-vip'</span>,
+      <span class="prop">total_spent</span>: <span class="num">54</span>,
+      <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname
+    });
+    <span class="prop">posthog</span>.people.<span class="fn">set</span>({ <span class="prop">stage</span>: <span class="str">'vip_buyer'</span>, <span class="prop">is_vip</span>: <span class="kw">true</span> });
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <!-- Snippet 5 -->
+  <h3>Snippet 5: Call Booked (Booking Confirmation Page)</h3>
+  <div class="code-block-wrap optional">
+    <div class="code-block-label"><span class="badge badge-optional">OPTIONAL</span> Snippet 5: Call Booked</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">capture</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="kw">if</span> (<span class="prop">sessionStorage</span>.<span class="fn">getItem</span>(<span class="str">'ph_call_booked_fired'</span>)) <span class="kw">return</span>;
+  <span class="prop">sessionStorage</span>.<span class="fn">setItem</span>(<span class="str">'ph_call_booked_fired'</span>, <span class="str">'1'</span>);
+  <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+    <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'call_booked'</span>, {
+      <span class="prop">call_type</span>: <span class="str">'breakthrough'</span>,
+      <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname,
+      <span class="prop">booking_source</span>: <span class="prop">document</span>.referrer || <span class="str">'direct'</span>
+    });
+    <span class="prop">posthog</span>.people.<span class="fn">set</span>({ <span class="prop">stage</span>: <span class="str">'call_booked'</span> });
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <!-- Snippet 6 -->
+  <h3>Snippet 6: Application Submitted (/apply Page)</h3>
+  <div class="code-block-wrap optional">
+    <div class="code-block-label"><span class="badge badge-optional">OPTIONAL</span> Snippet 6: Application Submitted</div>
+<pre><span class="tag">&lt;script&gt;</span>
+(<span class="kw">function</span>() {
+  <span class="kw">function</span> <span class="fn">waitForPostHog</span>(cb) {
+    <span class="kw">if</span> (<span class="prop">window</span>.<span class="prop">posthog</span> &amp;&amp; <span class="prop">window</span>.<span class="prop">posthog</span>.<span class="fn">capture</span>) <span class="kw">return</span> <span class="fn">cb</span>();
+    <span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">waitForPostHog</span>(cb); }, <span class="num">500</span>);
+  }
+  <span class="prop">window</span>.<span class="fn">addEventListener</span>(<span class="str">'message'</span>, <span class="kw">function</span>(event) {
+    <span class="kw">try</span> {
+      <span class="kw">var</span> data = <span class="kw">typeof</span> event.data === <span class="str">'string'</span> ? <span class="prop">JSON</span>.<span class="fn">parse</span>(event.data) : event.data;
+      <span class="kw">if</span> (data &amp;&amp; (data.type === <span class="str">'form:submit'</span> || data.event_id === <span class="str">'form_submit'</span>)) {
+        <span class="kw">var</span> email = data.email || data.data?.email || <span class="str">''</span>;
+        <span class="fn">waitForPostHog</span>(<span class="kw">function</span>() {
+          <span class="kw">if</span> (email) {
+            <span class="prop">posthog</span>.<span class="fn">identify</span>(email, { <span class="prop">stage</span>: <span class="str">'applicant'</span> });
+          }
+          <span class="prop">posthog</span>.<span class="fn">capture</span>(<span class="str">'application_submitted'</span>, {
+            <span class="prop">email</span>: email,
+            <span class="prop">page_url</span>: <span class="prop">window</span>.location.pathname
+          });
+        });
+      }
+    } <span class="kw">catch</span>(e) {}
+  });
+})();
+<span class="tag">&lt;/script&gt;</span></pre>
+  </div>
+
+  <hr>
+
+  <!-- VERIFICATION -->
+  <h2 id="verification">Verification Checklist</h2>
+  <p>After installing the 2 required snippets:</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Step</th><th>Action</th><th>Expected PostHog Event</th></tr>
+      </thead>
+      <tbody>
+        <tr class="row-required"><td>1</td><td>Submit test registration form</td><td><code>lead_registered</code> with email as <code>distinct_id</code></td></tr>
+        <tr class="row-required"><td>2</td><td>Load workshop page</td><td><code>workshop_attended</code> fires immediately</td></tr>
+        <tr class="row-required"><td>3</td><td>Stay on workshop 5+ min</td><td><code>workshop_watch_milestone</code> with <code>minutes_watched: 5</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Where to check:</strong> PostHog &gt; Activity &gt; Live Events (filter by event name).</p>
+
+  <p>If optional snippets are also installed:</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Step</th><th>Action</th><th>Expected PostHog Event</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>4</td><td>Complete $27 purchase</td><td><code>ticket_purchased</code> with <code>amount: 27</code></td></tr>
+        <tr class="row-alt"><td>5</td><td>Purchase VIP upgrade</td><td><code>vip_purchased</code> with <code>total_spent: 54</code></td></tr>
+        <tr><td>6</td><td>Book a call</td><td><code>call_booked</code> with <code>call_type: 'breakthrough'</code></td></tr>
+        <tr class="row-alt"><td>7</td><td>Submit application</td><td><code>application_submitted</code> with email</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- EVENT SCHEMA -->
+  <h2 id="event-schema">Event Schema Reference</h2>
+
+  <h3>Required Events</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Event Name</th><th>Properties</th><th>Trigger</th></tr>
+      </thead>
+      <tbody>
+        <tr class="row-required"><td><code>lead_registered</code></td><td><code>email</code>, <code>page_url</code>, <code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code></td><td>GHL form submit on registration pages</td></tr>
+        <tr class="row-required"><td><code>workshop_attended</code></td><td><code>page_url</code>, <code>timestamp</code></td><td>Page load on workshop page</td></tr>
+        <tr class="row-required"><td><code>workshop_watch_milestone</code></td><td><code>minutes_watched</code>, <code>page_url</code></td><td>Every 5 min while on workshop page</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Optional Events</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Event Name</th><th>Properties</th><th>Trigger</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>ticket_purchased</code></td><td><code>amount</code> (27), <code>currency</code>, <code>product</code>, <code>product_type</code>, <code>page_url</code></td><td>Page load on thank-you page</td></tr>
+        <tr class="row-alt"><td><code>vip_purchased</code></td><td><code>amount</code> (27), <code>currency</code>, <code>product</code>, <code>product_type</code>, <code>total_spent</code> (54), <code>page_url</code></td><td>Page load on VIP confirmation</td></tr>
+        <tr><td><code>call_booked</code></td><td><code>call_type</code>, <code>page_url</code>, <code>booking_source</code></td><td>Page load on booking confirmation</td></tr>
+        <tr class="row-alt"><td><code>application_submitted</code></td><td><code>email</code>, <code>page_url</code></td><td>GHL form submit on /apply</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Person Properties</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Type</th><th>Set By</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>email</code></td><td>string</td><td>Snippet 1, 6</td></tr>
+        <tr class="row-alt"><td><code>first_name</code></td><td>string</td><td>Snippet 1</td></tr>
+        <tr><td><code>last_name</code></td><td>string</td><td>Snippet 1</td></tr>
+        <tr class="row-alt"><td><code>phone</code></td><td>string</td><td>Snippet 1</td></tr>
+        <tr><td><code>stage</code></td><td>string</td><td>Progressive: lead &gt; ticket_buyer &gt; vip_buyer &gt; workshop_attendee &gt; call_booked &gt; applicant</td></tr>
+        <tr class="row-alt"><td><code>is_vip</code></td><td>boolean</td><td>Snippet 4</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- BIGQUERY -->
+  <h2 id="bigquery">BigQuery Integration</h2>
+  <p>Events batch-export daily to BigQuery.</p>
+  <p><strong>Dataset:</strong> <code>cod_warehouse</code><br><strong>Table:</strong> <code>posthog_events</code></p>
+
+  <h3>Sample Queries</h3>
+  <p><strong>Workshop watch duration by user:</strong></p>
+
+  <div class="code-block-wrap neutral">
+<pre><span class="kw">SELECT</span>
+  distinct_id <span class="kw">AS</span> email,
+  <span class="fn">MAX</span>(<span class="fn">CAST</span>(<span class="fn">JSON_EXTRACT_SCALAR</span>(properties, <span class="str">'$.minutes_watched'</span>) <span class="kw">AS</span> <span class="num">INT64</span>)) <span class="kw">AS</span> max_minutes,
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> milestones_hit
+<span class="kw">FROM</span> <span class="str">`cod_warehouse.posthog_events`</span>
+<span class="kw">WHERE</span> event = <span class="str">'workshop_watch_milestone'</span>
+  <span class="kw">AND</span> timestamp &gt;= <span class="fn">TIMESTAMP_SUB</span>(<span class="fn">CURRENT_TIMESTAMP</span>(), <span class="kw">INTERVAL</span> <span class="num">30</span> <span class="kw">DAY</span>)
+<span class="kw">GROUP BY</span> distinct_id
+<span class="kw">ORDER BY</span> max_minutes <span class="kw">DESC</span>;</pre>
+  </div>
+
+  <p><strong>Join PostHog behavior to Hyros revenue:</strong></p>
+
+  <div class="code-block-wrap neutral">
+<pre><span class="kw">SELECT</span>
+  ph.distinct_id <span class="kw">AS</span> email,
+  <span class="fn">MAX</span>(ph_mins.max_minutes) <span class="kw">AS</span> workshop_minutes,
+  hs.revenue,
+  hs.firstSource
+<span class="kw">FROM</span> <span class="str">`cod_warehouse.posthog_events`</span> ph
+<span class="kw">LEFT JOIN</span> (
+  <span class="kw">SELECT</span> distinct_id, <span class="fn">MAX</span>(<span class="fn">CAST</span>(<span class="fn">JSON_EXTRACT_SCALAR</span>(properties, <span class="str">'$.minutes_watched'</span>) <span class="kw">AS</span> <span class="num">INT64</span>)) <span class="kw">AS</span> max_minutes
+  <span class="kw">FROM</span> <span class="str">`cod_warehouse.posthog_events`</span>
+  <span class="kw">WHERE</span> event = <span class="str">'workshop_watch_milestone'</span>
+  <span class="kw">GROUP BY</span> distinct_id
+) ph_mins <span class="kw">ON</span> ph.distinct_id = ph_mins.distinct_id
+<span class="kw">LEFT JOIN</span> <span class="str">`cod_warehouse.hyros_sales`</span> hs <span class="kw">ON</span> ph.distinct_id = hs.email
+<span class="kw">WHERE</span> ph.event = <span class="str">'lead_registered'</span>
+<span class="kw">GROUP BY</span> ph.distinct_id, hs.revenue, hs.firstSource
+<span class="kw">ORDER BY</span> hs.revenue <span class="kw">DESC NULLS LAST</span>;</pre>
+  </div>
+
+  <hr>
+
+  <!-- TROUBLESHOOTING -->
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <div class="table-wrap">
+    <table class="troubleshoot-table">
+      <thead>
+        <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>posthog is not defined</code> in console</td><td>GTM container not firing on that page</td><td>Verify GTM container M677PM4 is installed. Check GHL global header code or GTM trigger conditions.</td></tr>
+        <tr><td>Snippet installed but no events in PostHog</td><td>Page not published after edit</td><td>Click Publish in GHL after saving footer code.</td></tr>
+        <tr><td>Events fire but no person identified</td><td>Snippet 1 not on registration page, or form <code>postMessage</code> format changed</td><td>Check browser console for <code>postMessage</code> payloads. GHL may have updated the event format.</td></tr>
+        <tr><td>Workshop milestones stop after page navigate</td><td>Timer cleared on navigation (expected)</td><td>Correct behavior. Milestones only track active page time.</td></tr>
+        <tr><td>Form submit event not detected</td><td>GHL iframe form isolation</td><td>If GHL renders the form in an iframe, <code>postMessage</code> may not bubble to parent. Test with <code>window.addEventListener('message', console.log)</code> to confirm events arrive.</td></tr>
+        <tr><td><code>posthog.people.set is not a function</code></td><td>PostHog SDK version mismatch</td><td>Check GTM tag config. For PostHog v2+, use <code>posthog.setPersonProperties()</code> instead.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- NOTES FOR REHAN -->
+  <h2 id="notes">Notes for Rehan</h2>
+  <ul>
+    <li>The 2 required snippets are independent. Install in either order.</li>
+    <li>The <code>waitForPostHog</code> pattern handles race conditions where the snippet loads before GTM injects PostHog. The 500ms polling interval is a safe default.</li>
+    <li>If GHL changes their <code>postMessage</code> format, Snippet 1 will need updating. Monitor the browser console for <code>message</code> events to catch format changes early.</li>
+    <li>For segment-specific registration pages, Snippet 1 is identical across all of them. The <code>page_url</code> property automatically captures which segment page converted.</li>
+    <li>Optional snippets can be added anytime later with zero impact on the required ones.</li>
+  </ul>
+
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    KAMG Analytics | April 2026 | Project: clientsondemand (ID: 139)
+  </footer>
+
+</div>
+</body>
+</html>

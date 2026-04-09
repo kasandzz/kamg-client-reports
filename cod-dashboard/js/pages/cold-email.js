@@ -218,8 +218,8 @@ App.registerPage('cold-email', async (container) => {
 function _ceCard(title, subtitle) {
   const card = document.createElement('div');
   card.className = 'card';
-  card.style.cssText = 'padding:20px';
-  let html = `<div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${title}</div>`;
+  card.style.cssText = 'padding:16px 20px';
+  let html = `<div style="font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">${title}</div>`;
   if (subtitle) html += `<div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:12px">${subtitle}</div>`;
   else html += `<div style="margin-bottom:12px"></div>`;
   card.innerHTML = html;
@@ -230,7 +230,7 @@ function _ceSectionHeader(container, title, subtitle) {
   const header = document.createElement('div');
   header.style.cssText = 'margin-top:32px;margin-bottom:12px';
   header.innerHTML = `
-    <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary}">${title}</div>
+    <div style="font-size:18px;font-weight:800;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};letter-spacing:-0.03em">${title}</div>
     ${subtitle ? `<div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">${subtitle}</div>` : ''}
   `;
   container.appendChild(header);
@@ -326,7 +326,7 @@ function _renderCampaignTable(container) {
     let filtered = _CE_CAMPAIGNS;
     if (_ceActiveStatus !== 'all') filtered = filtered.filter(c => c.status === _ceActiveStatus);
 
-    const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+    const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
     const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap`;
 
     let rowsHtml = '';
@@ -803,7 +803,7 @@ function _renderReplyTracker(container) {
     if (q) filtered = filtered.filter(r => r.contact.name.toLowerCase().includes(q) || r.contact.company.toLowerCase().includes(q));
     if (sentimentSelect.value !== 'all') filtered = filtered.filter(r => r.sentiment === sentimentSelect.value);
 
-    const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+    const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
     const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)`;
 
     const convBadge = (label, done) => {
@@ -893,7 +893,7 @@ function _renderDomainHealth(container) {
   card.className = 'card';
   card.style.cssText = 'padding:0;overflow-x:auto';
 
-  const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+  const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
   const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)`;
 
   const rows = _CE_SENDERS.map(s => {
@@ -1082,7 +1082,7 @@ function _renderABTests(container) {
   card.className = 'card';
   card.style.cssText = 'padding:0;overflow-x:auto;margin-bottom:16px';
 
-  const thStyle = `padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+  const thStyle = `padding:10px 14px;text-align:left;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
   const tdStyle = `padding:12px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04)`;
 
   const rows = tests.map(t => {
@@ -1169,7 +1169,7 @@ function _renderInsights(container) {
   if (_CE_INDUSTRY.length > 0) {
     const matrixCard = _ceCard('Industry Performance', 'Lead volume and reply rates by industry segment');
 
-    const thStyle = `padding:10px 14px;text-align:center;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+    const thStyle = `padding:10px 14px;text-align:center;font-size:9px;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
     const tdStyle = `padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-family:'JetBrains Mono',monospace`;
 
     const maxLeads = Math.max(..._CE_INDUSTRY.map(i => i.total_leads || 0), 1);

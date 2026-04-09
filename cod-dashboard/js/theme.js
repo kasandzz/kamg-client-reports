@@ -7,20 +7,32 @@
 
 const Theme = (() => {
   // ---- Design system colors (hardcoded for canvas) ----
+  // Matched to cod-workshop-performance.html style guide
   const COLORS = {
-    bgPage:       '#0b0e1a',
-    bgCard:       '#141932',
-    border:       'rgba(255,255,255,0.06)',
-    textPrimary:  '#e2e8f0',
-    textSecondary:'#94a3b8',
-    textMuted:    '#64748b',
-    success:      '#22c55e',
-    danger:       '#ef4444',
-    accent:       '#6c5ce7',
-    accentLight:  '#a855f7',
-    warning:      '#eab308',
-    gridLine:     'rgba(255,255,255,0.04)',
-    tooltipBg:    'rgba(15,18,35,0.95)',
+    bgPage:        '#08080d',
+    bgCard:        '#0f1117',
+    bgCardHover:   '#161822',
+    bgElevated:    '#1a1c28',
+    border:        'rgba(255,255,255,0.06)',
+    borderHover:   'rgba(255,255,255,0.12)',
+    borderAccent:  'rgba(124,58,237,0.3)',
+    textPrimary:   '#f1f5f9',
+    textSecondary: '#7c8da4',
+    textMuted:     '#475569',
+    textDisabled:  '#334155',
+    success:       '#22c55e',
+    danger:        '#ef4444',
+    accent:        '#7c3aed',
+    accentPrimary: '#7c3aed',
+    accentLight:   '#a78bfa',
+    accentGhost:   'rgba(124,58,237,0.08)',
+    accentGlow:    'rgba(124,58,237,0.15)',
+    accentCyan:    '#22d3ee',
+    accentGold:    '#facc15',
+    warning:       '#f59e0b',
+    neutral:       '#64748b',
+    gridLine:      'rgba(255,255,255,0.04)',
+    tooltipBg:     'rgba(8,8,13,0.85)',
   };
 
   // 8-color funnel palette
@@ -96,7 +108,7 @@ const Theme = (() => {
 
     Chart.defaults.color = COLORS.textSecondary;
     Chart.defaults.borderColor = COLORS.gridLine;
-    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
     Chart.defaults.font.size = 12;
     Chart.defaults.responsive = true;
     Chart.defaults.maintainAspectRatio = false;

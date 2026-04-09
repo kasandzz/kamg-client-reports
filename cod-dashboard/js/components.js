@@ -23,6 +23,15 @@ const Components = (() => {
       card.className = 'kpi-card';
       card.style.animationDelay = `${i * 60}ms`;
 
+      // Status-colored left border + top glow
+      const deltaNum = kpi.delta != null ? (typeof kpi.delta === 'string' ? Theme.parseDelta(kpi.delta) : kpi.delta) : 0;
+      const isPositive = kpi.invertCost ? deltaNum < 0 : deltaNum > 0;
+      const isNegative = kpi.invertCost ? deltaNum > 0 : deltaNum < 0;
+      const statusColor = isPositive ? Theme.COLORS.success : isNegative ? Theme.COLORS.danger : (Theme.COLORS.neutral || '#64748b');
+      card.style.borderLeft = `3px solid ${statusColor}`;
+      card.style.position = 'relative';
+      card.style.overflow = 'hidden';
+
       if (kpi.drillDown) {
         card.classList.add('clickable');
         card.setAttribute('role', 'button');
@@ -43,7 +52,6 @@ const Components = (() => {
       let deltaHTML = '';
       let prevHTML = '';
       if (kpi.delta != null) {
-        const deltaNum = typeof kpi.delta === 'string' ? Theme.parseDelta(kpi.delta) : kpi.delta;
         const cls = Theme.deltaClass(deltaNum, kpi.invertCost);
         const arrow = deltaNum > 0 ? '&#9650;' : deltaNum < 0 ? '&#9660;' : '';
         const sign = deltaNum >= 0 ? '+' : '';
@@ -52,17 +60,23 @@ const Components = (() => {
       }
       if (kpi.prevValue != null) {
         const prevFormatted = Theme.formatValue(kpi.prevValue, kpi.format);
-        const cls = kpi.delta != null
-          ? Theme.deltaClass(typeof kpi.delta === 'string' ? Theme.parseDelta(kpi.delta) : kpi.delta, kpi.invertCost)
-          : 'neutral';
+        const cls = kpi.delta != null ? Theme.deltaClass(deltaNum, kpi.invertCost) : 'neutral';
         prevHTML = `<div class="kpi-prev"><span class="kpi-prev-label">prev</span> <span class="kpi-prev-value ${cls}">${prevFormatted}</span></div>`;
       }
+
+      // Traffic light dot
+      const dotGlow = statusColor === Theme.COLORS.success ? '0 0 6px rgba(34,197,94,0.5)' : statusColor === Theme.COLORS.danger ? '0 0 6px rgba(239,68,68,0.5)' : 'none';
+      const dotHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
 
       // Sparkline canvas id
       const sparkId = `spark-${i}-${Date.now()}`;
 
       card.innerHTML = `
-        <div class="kpi-label">${_esc(kpi.label)}</div>
+        <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${statusColor}80,transparent)"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div class="kpi-label" style="margin-bottom:0">${_esc(kpi.label)}</div>
+          ${dotHTML}
+        </div>
         <div class="kpi-value-row">
           <span class="kpi-value">${formattedValue}</span>
           ${deltaHTML}

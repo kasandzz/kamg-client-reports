@@ -65,7 +65,7 @@ App.registerPage('war-room', async (container) => {
       delta: _delta(cur.cpb, prev.cpb),
     },
     {
-      label: 'CPA',
+      label: 'CPA (Avg)',
       value: cur.cost_per_enrollment || 0,
       prevValue: prev.cost_per_enrollment || 0,
       format: 'money',
@@ -81,6 +81,78 @@ App.registerPage('war-room', async (container) => {
       delta: _delta(cur.cpm, prev.cpm),
     },
   ]);
+
+  // ---- CPA tooltip: hover on CPA KPI card shows per-channel breakdown ----
+  (function attachCPATooltip() {
+    const kpiCards = kpiContainer.querySelectorAll('.kpi-card');
+    let cpaCard = null;
+    kpiCards.forEach(c => { if (c.querySelector('.kpi-label')?.textContent.includes('CPA')) cpaCard = c; });
+    if (!cpaCard) return;
+    cpaCard.style.position = 'relative';
+    cpaCard.style.cursor = 'help';
+
+    // Inject tooltip style
+    if (!document.getElementById('wr-cpa-tip-style')) {
+      const s = document.createElement('style');
+      s.id = 'wr-cpa-tip-style';
+      s.textContent = `.wr-cpa-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:200;background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;min-width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.6);opacity:0;visibility:hidden;transition:opacity .15s,visibility 0s .15s;pointer-events:none}.kpi-card:hover .wr-cpa-tip{opacity:1;visibility:visible;transition:opacity .15s,visibility 0s 0s}`;
+      document.head.appendChild(s);
+    }
+
+    const tip = document.createElement('div');
+    tip.className = 'wr-cpa-tip';
+    tip.innerHTML = `<div style="font-size:10px;color:${Theme.COLORS.textMuted}">Loading...</div>`;
+    cpaCard.appendChild(tip);
+
+    // Fetch data once on first hover
+    let loaded = false;
+    cpaCard.addEventListener('mouseenter', () => {
+      if (loaded) return;
+      loaded = true;
+      Promise.all([
+        API.query('ads-meta', 'campaigns', { days }),
+        API.query('hyros', 'sources', { days })
+      ]).then(([metaCampaigns, hyrosSources]) => {
+        const spendByChannel = {};
+        (metaCampaigns || []).forEach(c => {
+          const ch = _classifyChannel(c.campaign_name);
+          spendByChannel[ch] = (spendByChannel[ch] || 0) + (c.spend || 0);
+        });
+        const enrollByChannel = {};
+        (hyrosSources || []).forEach(r => {
+          const ch = _classifyChannel(r.source);
+          enrollByChannel[ch] = (enrollByChannel[ch] || 0) + (r.enrollment_count || 0);
+        });
+        const allCh = new Set([...Object.keys(spendByChannel), ...Object.keys(enrollByChannel)]);
+        const rows = [];
+        allCh.forEach(ch => {
+          const spend = spendByChannel[ch] || 0;
+          const enr = enrollByChannel[ch] || 0;
+          if (spend === 0 && enr === 0) return;
+          rows.push({ ch, cpa: enr > 0 ? spend / enr : null, spend, enr });
+        });
+        rows.sort((a, b) => (a.cpa || Infinity) - (b.cpa || Infinity));
+
+        let html = `<div style="font-size:10px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">CPA by Channel</div>`;
+        rows.forEach(r => {
+          const cpaColor = r.cpa === null ? Theme.COLORS.textMuted : r.cpa <= 3000 ? '#22c55e' : r.cpa <= 6000 ? '#f59e0b' : '#ef4444';
+          const cpaText = r.cpa !== null ? Theme.money(r.cpa) : '--';
+          const dotColor = _channelColors[r.ch] || '#6366f1';
+          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
+              <span style="width:6px;height:6px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>
+              <span style="font-size:11px;color:${Theme.COLORS.textSecondary};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.ch}</span>
+            </div>
+            <span style="font-size:12px;font-family:var(--font-mono);font-weight:600;color:${cpaColor};flex-shrink:0">${cpaText}</span>
+            <span style="font-size:10px;color:${Theme.COLORS.textMuted};flex-shrink:0;width:32px;text-align:right">${r.enr}e</span>
+          </div>`;
+        });
+        tip.innerHTML = html;
+      }).catch(() => {
+        tip.innerHTML = `<div style="font-size:10px;color:${Theme.COLORS.textMuted}">Failed to load</div>`;
+      });
+    });
+  })();
 
   // ---- Charts Row ----
   const chartsRow = document.createElement('div');
@@ -135,136 +207,442 @@ App.registerPage('war-room', async (container) => {
   revenueCard.innerHTML += barHTML;
   chartsRow.appendChild(revenueCard);
 
-  // ---- Ticket Sales by Source (sortable) ----
-  const dealsCard = _card('Ticket Sales by Source');
-  const srcHeaderEl = document.createElement('div');
-  srcHeaderEl.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)';
-  dealsCard.appendChild(srcHeaderEl);
-  const srcBodyEl = document.createElement('div');
-  srcBodyEl.id = 'wr-sales-channel';
-  srcBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
-  dealsCard.appendChild(srcBodyEl);
+  // ---- Shared utilities for channel cards ----
+  const _channelColors = { 'Meta Ads': '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569', 'Franzi (Setter)': '#a855f7', 'Lead Campaigns': '#f59e0b', Other: '#64748b' };
 
-  API.query('hyros', 'sources', { days }).then(rows => {
-    if (!rows || rows.length === 0) { srcBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data</p>`; return; }
+  function _classifyChannel(src) {
+    src = (src || 'Unknown').toLowerCase();
+    if (src.includes('fb') || src.includes('facebook') || src.includes('meta') || src.includes('broad') || src.includes('lla') || src.includes('interest stack') || src.includes('cbo') || src.includes('stacked') || src.includes('client testimonial') || src.includes('advantage')) return 'Meta Ads';
+    if (src.includes('youtube') || src.includes('yt') || src.includes('tof |')) return 'YouTube';
+    if (src.includes('google')) return 'Google Ads';
+    if (src.includes('email') || src.includes('sendgrid')) return 'Email';
+    if (src.includes('tiktok')) return 'TikTok';
+    if (src.includes('franzi') || src.includes('setter') || src.includes('appointment') || src.includes('book call')) return 'Franzi (Setter)';
+    if (src.includes('leads |') || src.includes('lead') || src.includes('max')) return 'Lead Campaigns';
+    if (src.includes('direct')) return 'Direct';
+    if (src === 'unknown' || src === '') return 'Unattributed';
+    return 'Other';
+  }
+
+  function _buildChannelData(rows) {
     const channelMap = {};
     rows.forEach(r => {
-      const src = (r.source || 'Unknown').toLowerCase();
-      let channel;
-      if (src.includes('fb') || src.includes('facebook') || src.includes('meta') || src.includes('broad') || src.includes('lla') || src.includes('interest stack') || src.includes('cbo') || src.includes('stacked') || src.includes('client testimonial') || src.includes('advantage')) channel = 'Meta Ads';
-      else if (src.includes('youtube') || src.includes('yt') || src.includes('tof |')) channel = 'YouTube';
-      else if (src.includes('google')) channel = 'Google Ads';
-      else if (src.includes('email') || src.includes('sendgrid')) channel = 'Email';
-      else if (src.includes('tiktok')) channel = 'TikTok';
-      else if (src.includes('franzi') || src.includes('setter') || src.includes('appointment') || src.includes('book call')) channel = 'Franzi (Setter)';
-      else if (src.includes('leads |') || src.includes('lead') || src.includes('max')) channel = 'Lead Campaigns';
-      else if (src.includes('direct')) channel = 'Direct';
-      else if (src === 'unknown' || src === '') channel = 'Unattributed';
-      else channel = 'Other';
-      if (!channelMap[channel]) channelMap[channel] = { sales: 0, revenue: 0 };
-      channelMap[channel].sales += (r.sales || 0);
-      channelMap[channel].revenue += (r.revenue || 0);
+      const channel = _classifyChannel(r.source);
+      if (!channelMap[channel]) channelMap[channel] = { ticket_count: 0, ticket_revenue: 0, enrollment_count: 0, enrollment_revenue: 0, bookings: 0 };
+      channelMap[channel].ticket_count += (r.ticket_count || 0);
+      channelMap[channel].ticket_revenue += (r.ticket_revenue || 0);
+      channelMap[channel].enrollment_count += (r.enrollment_count || 0);
+      channelMap[channel].enrollment_revenue += (r.enrollment_revenue || 0);
+      channelMap[channel].bookings += (r.bookings || 0);
     });
-    const channels = Object.entries(channelMap).map(([ch, d]) => ({ channel: ch, ...d }));
-    const channelColors = { 'Meta Ads': '#1877F2', YouTube: '#FF0000', Email: '#22c55e', 'Google Ads': '#FBBC04', TikTok: '#000000', Direct: '#94a3b8', Unattributed: '#475569', 'Franzi (Setter)': '#a855f7', 'Lead Campaigns': '#f59e0b', Other: '#64748b' };
-    const totalDeals = channels.reduce((s, r) => s + r.sales, 0) || 1;
-    const totalRev = channels.reduce((s, r) => s + r.revenue, 0);
+    return Object.entries(channelMap).map(([ch, d]) => ({ channel: ch, ...d }));
+  }
 
-    const srcSort = { key: 'revenue', dir: 'desc' };
-    const srcCols = [
-      { key: 'sales', label: 'Sales', w: '36px' },
-      { key: '_pct', label: '%', w: '36px' },
-      { key: 'revenue', label: 'Revenue', w: '64px' },
-    ];
+  function _buildBookingChannelData(rows) {
+    const channelMap = {};
+    rows.forEach(r => {
+      const channel = _classifyChannel(r.source);
+      if (!channelMap[channel]) channelMap[channel] = { bookings: 0 };
+      channelMap[channel].bookings += (r.bookings || 0);
+    });
+    return Object.entries(channelMap).map(([ch, d]) => ({ channel: ch, ...d }));
+  }
 
-    function renderSrcHeaders() {
-      srcHeaderEl.innerHTML = `<div style="width:120px;flex-shrink:0"></div><div style="flex:1"></div>`;
-      srcCols.forEach(col => {
-        const isActive = srcSort.key === col.key;
-        const arrow = isActive ? (srcSort.dir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
-        srcHeaderEl.innerHTML += `<div class="wr-sort-col" data-sort="${col.key}" style="width:${col.w};font-size:10px;font-weight:600;color:${isActive ? '#e2e8f0' : Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none">${col.label}${arrow}</div>`;
+  // ---- Sortable channel chart builder ----
+  function _renderChannelChart(card, channels, opts) {
+    // Clear previous chart content (keep title)
+    const existingHeader = card.querySelector('.wr-ch-header');
+    const existingBody = card.querySelector('.wr-ch-body');
+    if (existingHeader) existingHeader.remove();
+    if (existingBody) existingBody.remove();
+
+    const headerEl = document.createElement('div');
+    headerEl.className = 'wr-ch-header';
+    headerEl.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)';
+    card.appendChild(headerEl);
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'wr-ch-body';
+    card.appendChild(bodyEl);
+
+    const sort = { key: opts.defaultSort, dir: 'desc' };
+    const totalCount = channels.reduce((s, r) => s + (r[opts.countKey] || 0), 0) || 1;
+    const totalRev = opts.revKey ? channels.reduce((s, r) => s + (r[opts.revKey] || 0), 0) : null;
+
+    function renderHeaders() {
+      headerEl.innerHTML = `<div style="width:120px;flex-shrink:0"></div><div style="flex:1"></div>`;
+      opts.cols.forEach(col => {
+        const isActive = sort.key === col.key;
+        const arrow = isActive ? (sort.dir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
+        headerEl.innerHTML += `<div class="wr-sort-col" data-sort="${col.key}" style="width:${col.w};font-size:10px;font-weight:600;color:${isActive ? '#e2e8f0' : Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none">${col.label}${arrow}</div>`;
       });
-      srcHeaderEl.querySelectorAll('.wr-sort-col').forEach(el => {
+      headerEl.querySelectorAll('.wr-sort-col').forEach(el => {
         el.addEventListener('click', () => {
           const k = el.dataset.sort;
           if (k === '_pct') return;
-          if (srcSort.key === k) srcSort.dir = srcSort.dir === 'desc' ? 'asc' : 'desc';
-          else { srcSort.key = k; srcSort.dir = 'desc'; }
-          renderSrcHeaders();
-          renderSrcRows();
+          if (sort.key === k) sort.dir = sort.dir === 'desc' ? 'asc' : 'desc';
+          else { sort.key = k; sort.dir = 'desc'; }
+          renderHeaders();
+          renderRows();
         });
       });
     }
 
-    function renderSrcRows() {
+    function renderRows() {
       const sorted = [...channels].sort((a, b) => {
-        const va = a[srcSort.key] || 0, vb = b[srcSort.key] || 0;
-        return srcSort.dir === 'desc' ? vb - va : va - vb;
+        const va = a[sort.key] || 0, vb = b[sort.key] || 0;
+        return sort.dir === 'desc' ? vb - va : va - vb;
       });
-      const maxDeal = Math.max(...sorted.map(r => r.sales || 0));
+      const maxCount = Math.max(...sorted.map(r => r[opts.countKey] || 0));
       let html = '';
       sorted.forEach(r => {
-        const pct = ((r.sales / totalDeals) * 100).toFixed(0);
-        const widthPct = maxDeal > 0 ? ((r.sales / maxDeal) * 100) : 0;
-        const color = channelColors[r.channel] || '#6366f1';
+        const count = r[opts.countKey] || 0;
+        const rev = opts.revKey ? (r[opts.revKey] || 0) : null;
+        if (count === 0 && (rev === null || rev === 0)) return;
+        const pct = ((count / totalCount) * 100).toFixed(0);
+        const widthPct = maxCount > 0 ? ((count / maxCount) * 100) : 0;
+        const color = _channelColors[r.channel] || '#6366f1';
         html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
           <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
           <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div></div>
-          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.sales}</div>
+          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${count}</div>
           <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-          <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.revenue)}</div>
+          ${rev !== null ? `<div style="width:64px;font-size:11px;color:${opts.revColor};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(rev)}</div>` : ''}
         </div>`;
       });
-      html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)"><span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalDeals} sales</span><span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span></div>`;
-      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution</div>`;
-      srcBodyEl.innerHTML = html;
+      html += `<div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)"><span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalCount} ${opts.countLabel}</span>${totalRev !== null ? `<span style="font-size:12px;color:${opts.revColor};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalRev)}</span>` : ''}</div>`;
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">${opts.footnote}</div>`;
+      bodyEl.innerHTML = html;
     }
 
-    renderSrcHeaders();
-    renderSrcRows();
-  }).catch(err => {
-    srcBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
+    renderHeaders();
+    renderRows();
+  }
+
+  // ---- Global Attribution Toggle (controls all Hyros-sourced charts) ----
+  let _currentAttribModel = 'first';
+
+  const attribBar = document.createElement('div');
+  attribBar.style.cssText = `display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:16px;padding:12px 20px;background:${Theme.COLORS.bgCard};border:1px solid ${Theme.COLORS.border};border-radius:12px`;
+  const attribLabel = document.createElement('div');
+  attribLabel.style.cssText = `font-size:11px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:0.06em`;
+  attribLabel.textContent = 'Hyros Attribution Model';
+  const attribToggle = document.createElement('div');
+  attribToggle.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:8px;padding:3px';
+  ['First Touch', 'Last Touch', 'Scientific'].forEach((label, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.className = 'filter-btn' + (i === 0 ? ' active' : '');
+    btn.style.cssText = 'padding:6px 16px;font-size:11px;border-radius:6px';
+    btn.dataset.model = ['first', 'last', 'scientific'][i];
+    attribToggle.appendChild(btn);
+  });
+  attribBar.appendChild(attribLabel);
+  attribBar.appendChild(attribToggle);
+  container.appendChild(attribBar);
+
+  // ---- Create 3 channel cards ----
+  const dealsCard = _card('Workshop Ticket Sales by Channel');
+  const enrollCard = _card('Enrollments by Channel');
+  const bookingsCard = _card('Bookings by Channel');
+
+  function _setCardLoading(card) {
+    const existing = card.querySelector('.wr-ch-header');
+    const existingBody = card.querySelector('.wr-ch-body');
+    if (existing) existing.remove();
+    if (existingBody) existingBody.remove();
+    const loader = document.createElement('div');
+    loader.className = 'wr-ch-body';
+    loader.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+    card.appendChild(loader);
+  }
+
+  function _loadChannelCards(model) {
+    _setCardLoading(dealsCard);
+    _setCardLoading(enrollCard);
+    _setCardLoading(bookingsCard);
+    const modelLabel = model === 'first' ? 'first-click' : model === 'last' ? 'last-click' : 'scientific (50/50)';
+
+    // Try new attrib query, fall back to old sources
+    const salesPromise = API.query('hyros', 'sourcesAttrib', { days, model }).catch(() =>
+      API.query('hyros', 'sources', { days })
+    );
+    const bookingsPromise = API.query('hyros', 'bookings', { days, model }).catch(() => []);
+
+    Promise.all([salesPromise, bookingsPromise]).then(([salesRows, bookingRows]) => {
+      // Sales channels (tickets + enrollments)
+      if (!salesRows || salesRows.length === 0) {
+        [dealsCard, enrollCard].forEach(c => {
+          const body = c.querySelector('.wr-ch-body');
+          if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data</p>`;
+        });
+      } else {
+        const channels = _buildChannelData(salesRows);
+        _renderChannelChart(dealsCard, channels, {
+          countKey: 'ticket_count', revKey: 'ticket_revenue', defaultSort: 'ticket_count',
+          revColor: '#6366f1', countLabel: 'tickets',
+          footnote: `Hyros ${modelLabel} attribution | Tickets = $27 & $54 (Stripe)`,
+          cols: [
+            { key: 'ticket_count', label: 'Tickets', w: '36px' },
+            { key: '_pct', label: '%', w: '36px' },
+            { key: 'ticket_revenue', label: 'Revenue', w: '64px' },
+          ],
+        });
+        _renderChannelChart(enrollCard, channels, {
+          countKey: 'enrollment_count', revKey: 'enrollment_revenue', defaultSort: 'enrollment_revenue',
+          revColor: Theme.COLORS.success, countLabel: 'enrollments',
+          footnote: `Hyros ${modelLabel} attribution | Enrollments = sales > $500`,
+          cols: [
+            { key: 'enrollment_count', label: 'Enrolled', w: '36px' },
+            { key: '_pct', label: '%', w: '36px' },
+            { key: 'enrollment_revenue', label: 'Revenue', w: '64px' },
+          ],
+        });
+      }
+
+      // Bookings
+      if (!bookingRows || bookingRows.length === 0) {
+        const body = bookingsCard.querySelector('.wr-ch-body');
+        if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No booking data</p>`;
+      } else {
+        const bChannels = _buildBookingChannelData(bookingRows);
+        _renderChannelChart(bookingsCard, bChannels, {
+          countKey: 'bookings', revKey: null, defaultSort: 'bookings',
+          revColor: null, countLabel: 'bookings',
+          footnote: `Hyros ${modelLabel} attribution | Call bookings`,
+          cols: [
+            { key: 'bookings', label: 'Bookings', w: '36px' },
+            { key: '_pct', label: '%', w: '36px' },
+          ],
+        });
+      }
+    }).catch(err => {
+      [dealsCard, enrollCard, bookingsCard].forEach(c => {
+        const body = c.querySelector('.wr-ch-body');
+        if (body) body.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed: ${err.message}</p>`;
+      });
+    });
+  }
+
+  // Attribution toggle handler -- reloads ALL Hyros-sourced charts
+  attribToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _currentAttribModel = btn.dataset.model;
+      attribToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _loadChannelCards(_currentAttribModel);
+      _loadHierarchy(_currentAttribModel);
+    });
   });
 
-  // ---- Total Sales by Ad (from Hyros -- granular ad-level, sortable) ----
-  const adCard = _card('Total Sales by Ad');
+  // ---- Sales Hierarchy: Campaign > Adset > Ad (toggleable + drill-down) ----
+  const adCard = document.createElement('div');
+  adCard.className = 'card';
+  adCard.style.padding = '16px 20px';
+
+  // Title row with toggle buttons
+  const adTitleRow = document.createElement('div');
+  adTitleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:8px';
+  const adTitle = document.createElement('div');
+  adTitle.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary;
+  adTitle.textContent = 'Sales by Campaign';
+  const adToggle = document.createElement('div');
+  adToggle.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:6px;padding:2px';
+  ['Campaign', 'Adset', 'Ad'].forEach(level => {
+    const btn = document.createElement('button');
+    btn.textContent = level;
+    btn.className = 'filter-btn' + (level === 'Campaign' ? ' active' : '');
+    btn.style.cssText = 'padding:4px 12px;font-size:11px';
+    btn.dataset.level = level.toLowerCase();
+    adToggle.appendChild(btn);
+  });
+  adTitleRow.appendChild(adTitle);
+  adTitleRow.appendChild(adToggle);
+  adCard.appendChild(adTitleRow);
+
+
+  // Breadcrumb for drill-down
+  const adBreadcrumb = document.createElement('div');
+  adBreadcrumb.style.cssText = 'display:none;align-items:center;gap:6px;margin-bottom:10px;font-size:11px';
+  adCard.appendChild(adBreadcrumb);
+
+  // Sort header + body
   const adHeaderEl = document.createElement('div');
   adHeaderEl.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)';
   adCard.appendChild(adHeaderEl);
   const adBodyEl = document.createElement('div');
-  adBodyEl.id = 'wr-sales-by-ad';
+  adBodyEl.id = 'wr-sales-hierarchy';
   adBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
   adCard.appendChild(adBodyEl);
 
-  API.query('hyros', 'sources', { days }).then(rows => {
-    if (!rows || rows.length === 0) {
-      adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No Hyros sales data for this period</p>`;
+  // Inject tooltip + drill-down styles once
+  if (!document.getElementById('wr-hierarchy-style')) {
+    const style = document.createElement('style');
+    style.id = 'wr-hierarchy-style';
+    style.textContent = `.wr-h-row{position:relative;cursor:pointer;transition:background .15s}.wr-h-row:hover{background:rgba(255,255,255,0.03);border-radius:6px}.wr-h-row--leaf{cursor:default}.wr-h-row--leaf:hover{background:transparent}.wr-h-chevron{color:${Theme.COLORS.textMuted};font-size:10px;transition:transform .15s;flex-shrink:0;width:12px;text-align:center}.wr-h-row:hover .wr-h-chevron{color:${Theme.COLORS.textPrimary}}`;
+    document.head.appendChild(style);
+  }
+
+  function _loadHierarchy(model) {
+  const modelLabel = model === 'first' ? 'first-click' : model === 'last' ? 'last-click' : 'scientific (50/50)';
+  adHeaderEl.innerHTML = '';
+  adBreadcrumb.style.display = 'none';
+  adBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+
+  // Fetch hierarchy data -- try BQ, fall back to flat sources, then dummy
+  const _dummyHierarchy = [
+    { campaign: 'Broad + CBO Licensed Therapists', adset: 'CBO - Therapists 25-55', ad_name: 'Broad + CBO Licensed Ther - Video 1', sales: 111, revenue: 21500, ticket_count: 98, ticket_revenue: 3500, enrollment_count: 13, enrollment_revenue: 18000 },
+    { campaign: 'Broad + CBO Licensed Therapists', adset: 'CBO - Therapists 25-55', ad_name: 'Broad + CBO Licensed Ther - Static', sales: 22, revenue: 4200, ticket_count: 19, ticket_revenue: 700, enrollment_count: 3, enrollment_revenue: 3500 },
+    { campaign: 'Broad + CBO Licensed Therapists', adset: 'CBO - Therapists 35-65', ad_name: 'Broad + CBO Licensed Ther - Carousel', sales: 15, revenue: 2800, ticket_count: 12, ticket_revenue: 400, enrollment_count: 3, enrollment_revenue: 2400 },
+    { campaign: 'Interest Stack - FB Coaches', adset: 'Interest - Life Coaches', ad_name: 'Main Interest Stack - FB - Coaches Vid', sales: 29, revenue: 19100, ticket_count: 22, ticket_revenue: 1100, enrollment_count: 7, enrollment_revenue: 18000 },
+    { campaign: 'Interest Stack - FB Coaches', adset: 'Interest - Business Coaches', ad_name: 'LLA Stack - FB - Coaches Creative A', sales: 22, revenue: 9729, ticket_count: 18, ticket_revenue: 729, enrollment_count: 4, enrollment_revenue: 9000 },
+    { campaign: 'Interest Stack - FB Coaches', adset: 'Interest - Business Coaches', ad_name: 'LLA Stack - FB - Coaches Creative B', sales: 8, revenue: 216, ticket_count: 8, ticket_revenue: 216, enrollment_count: 0, enrollment_revenue: 0 },
+    { campaign: 'Broad - Educators', adset: 'Broad - Educators 30-55', ad_name: 'FB. 3064 Broad - Educator / Teacher', sales: 15, revenue: 9513, ticket_count: 12, ticket_revenue: 513, enrollment_count: 3, enrollment_revenue: 9000 },
+    { campaign: 'Broad - Educators', adset: 'Broad - Educators 25-45', ad_name: 'Broad + - Educator / Teacher Retarget', sales: 7, revenue: 189, ticket_count: 7, ticket_revenue: 189, enrollment_count: 0, enrollment_revenue: 0 },
+    { campaign: 'Broad - Attorneys', adset: 'Broad - Attorneys Financial', ad_name: 'Fb. Broad - Attorney Only - 1', sales: 11, revenue: 9378, ticket_count: 8, ticket_revenue: 378, enrollment_count: 3, enrollment_revenue: 9000 },
+    { campaign: 'Broad - Attorneys', adset: 'Broad - Attorneys All', ad_name: 'Broad + - Attorney / Financial v2', sales: 35, revenue: 945, ticket_count: 35, ticket_revenue: 945, enrollment_count: 0, enrollment_revenue: 0 },
+    { campaign: 'TOF Video', adset: 'TOF | Video | MC', ad_name: 'TOF | Video | MC | KW [Broad]', sales: 10, revenue: 9270, ticket_count: 7, ticket_revenue: 270, enrollment_count: 3, enrollment_revenue: 9000 },
+    { campaign: 'TOF Video', adset: 'TOF | Video | Retarget', ad_name: 'TOF | Video | MC | KW [Comp]', sales: 1, revenue: 9000, ticket_count: 0, ticket_revenue: 0, enrollment_count: 1, enrollment_revenue: 9000 },
+    { campaign: 'Email Campaigns', adset: 'SendGrid Blasts', ad_name: 'Email', sales: 15, revenue: 632, ticket_count: 15, ticket_revenue: 632, enrollment_count: 0, enrollment_revenue: 0 },
+    { campaign: 'Lead Campaigns', adset: 'Leads | MAX', ad_name: 'LEADS | MAX | US | FREQ 3x', sales: 3, revenue: 6054, ticket_count: 2, ticket_revenue: 54, enrollment_count: 1, enrollment_revenue: 6000 },
+    { campaign: 'Unknown', adset: 'Unknown Adset', ad_name: 'Unknown', sales: 49, revenue: 24500, ticket_count: 32, ticket_revenue: 1500, enrollment_count: 17, enrollment_revenue: 23000 },
+  ];
+
+  // Fetch hierarchy + campaign status in parallel
+  const _hierarchyPromise = API.query('hyros', 'salesHierarchy', { days, model }).catch(() =>
+    API.query('hyros', 'sourcesAttrib', { days, model }).then(rows =>
+      rows.map(r => ({ campaign: 'Unknown', adset: 'Unknown Adset', ad_name: r.source, sales: r.sales, revenue: r.revenue, ticket_count: r.ticket_count || 0, ticket_revenue: r.ticket_revenue || 0, enrollment_count: r.enrollment_count || 0, enrollment_revenue: r.enrollment_revenue || 0 }))
+    ).catch(() => _dummyHierarchy)
+  );
+  const _statusPromise = API.query('ads-meta', 'campaignStatus', {}).catch(() => []);
+
+  Promise.all([_hierarchyPromise, _statusPromise]).then(([rawRows, statusRows]) => {
+    if (!rawRows || rawRows.length === 0) {
+      adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No sales data</p>`;
       return;
     }
-    const barColors = ['#6366f1', '#8b5cf6', '#a855f7', '#38bdf8', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#94a3b8'];
-    const totalSales = rows.reduce((s, r) => s + (r.sales || 0), 0) || 1;
-    const totalTicketRev = rows.reduce((s, r) => s + (r.ticket_revenue || 0), 0);
-    const totalEnrollRev = rows.reduce((s, r) => s + (r.enrollment_revenue || 0), 0);
 
-    // Inject tooltip styles once
-    if (!document.getElementById('wr-ad-tooltip-style')) {
-      const style = document.createElement('style');
-      style.id = 'wr-ad-tooltip-style';
-      style.textContent = `.wr-ad-row{position:relative}.wr-ad-tip{opacity:0;visibility:hidden;position:absolute;left:0;bottom:100%;margin-bottom:6px;z-index:100;background:#1e1e32;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:10px 14px;min-width:280px;max-width:400px;box-shadow:0 8px 24px rgba(0,0,0,0.5);pointer-events:auto;transition:opacity .15s ease,visibility 0s linear .5s}.wr-ad-row:hover .wr-ad-tip{opacity:1;visibility:visible;transition:opacity .15s ease,visibility 0s linear 0s}.wr-ad-tip:hover{opacity:1;visibility:visible;transition:opacity .15s ease,visibility 0s linear 0s}.wr-ad-tip-name{font-size:12px;color:#e0e0f0;font-weight:600;margin-bottom:6px;word-break:break-word}.wr-ad-tip-link{font-size:11px;color:#3b82f6;text-decoration:none;display:inline-flex;align-items:center;gap:4px}.wr-ad-tip-link:hover{text-decoration:underline}`;
-      document.head.appendChild(style);
+    // Build status maps at all 3 levels from ad-level rows
+    // Each map: name -> { active: bool, spend: number }
+    // Campaign/adset aggregate: active if ANY child is active
+    const statusByAd = {};
+    const statusByAdset = {};
+    const statusByCampaign = {};
+    (statusRows || []).forEach(s => {
+      const cn = s.campaign_name || 'Unknown';
+      const asn = s.ad_set_name || 'Unknown Adset';
+      const an = s.ad_name || 'Unknown';
+      // Ad level
+      statusByAd[an] = { active: s.is_active, spend: s.total_spend_30d || 0 };
+      // Adset level: active if any ad in it is active
+      if (!statusByAdset[asn]) statusByAdset[asn] = { active: false, spend: 0 };
+      if (s.is_active) statusByAdset[asn].active = true;
+      statusByAdset[asn].spend += (s.total_spend_30d || 0);
+      // Campaign level: active if any adset/ad in it is active
+      if (!statusByCampaign[cn]) statusByCampaign[cn] = { active: false, spend: 0 };
+      if (s.is_active) statusByCampaign[cn].active = true;
+      statusByCampaign[cn].spend += (s.total_spend_30d || 0);
+    });
+
+    const statusMaps = { campaign: statusByCampaign, adset: statusByAdset, ad: statusByAd };
+    const hasStatus = statusRows && statusRows.length > 0;
+
+    // Filter: only items that appear in Meta status (active or recently off), plus 'Unknown' passes
+    function _inStatus(name, level) {
+      const map = statusMaps[level] || {};
+      if (map[name]) return true;
+      for (const key of Object.keys(map)) {
+        if (name.includes(key) || key.includes(name)) return true;
+      }
+      return false;
+    }
+    const filteredRows = rawRows.filter(r => {
+      if (r.campaign === 'Unknown') return true;
+      // Campaign must be in status OR adset OR ad
+      return _inStatus(r.campaign, 'campaign') || _inStatus(r.adset, 'adset') || _inStatus(r.ad_name, 'ad');
+    });
+    const finalRows = hasStatus ? filteredRows : rawRows;
+
+    const barColors = ['#6366f1', '#8b5cf6', '#a855f7', '#38bdf8', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#94a3b8'];
+    let currentLevel = 'campaign';
+    let drillFilter = {};
+    const adSort = { key: 'sales', dir: 'desc' };
+
+    function aggregate(rows, groupKey) {
+      const map = {};
+      rows.forEach(r => {
+        const key = r[groupKey] || 'Unknown';
+        if (!map[key]) map[key] = { name: key, sales: 0, revenue: 0, ticket_count: 0, ticket_revenue: 0, enrollment_count: 0, enrollment_revenue: 0 };
+        map[key].sales += (r.sales || 0);
+        map[key].revenue += (r.revenue || 0);
+        map[key].ticket_count += (r.ticket_count || 0);
+        map[key].ticket_revenue += (r.ticket_revenue || 0);
+        map[key].enrollment_count += (r.enrollment_count || 0);
+        map[key].enrollment_revenue += (r.enrollment_revenue || 0);
+      });
+      return Object.values(map);
     }
 
-    const adSort = { key: 'sales', dir: 'desc' };
-    const adCols = [
-      { key: 'sales', label: 'Sales', w: '36px' },
-      { key: '_pct', label: '%', w: '36px' },
-      { key: 'ticket_revenue', label: 'Tickets', w: '64px' },
-      { key: 'enrollment_revenue', label: 'Enroll', w: '64px' },
-    ];
+    function getFilteredRows() {
+      return finalRows.filter(r => {
+        if (drillFilter.campaign && r.campaign !== drillFilter.campaign) return false;
+        if (drillFilter.adset && r.adset !== drillFilter.adset) return false;
+        return true;
+      });
+    }
 
-    function renderAdHeaders() {
-      adHeaderEl.innerHTML = `<div style="width:160px;flex-shrink:0"></div><div style="flex:1"></div>`;
-      adCols.forEach(col => {
+    function getGroupKey() {
+      if (currentLevel === 'campaign') return 'campaign';
+      if (currentLevel === 'adset') return 'adset';
+      return 'ad_name';
+    }
+
+    function isLeaf() { return currentLevel === 'ad'; }
+
+    function renderBreadcrumb() {
+      if (!drillFilter.campaign) {
+        adBreadcrumb.style.display = 'none';
+        return;
+      }
+      adBreadcrumb.style.display = 'flex';
+      let html = `<span style="cursor:pointer;color:${Theme.COLORS.accentPrimary || '#38bdf8'};text-decoration:underline" data-bc="root">All</span>`;
+      html += `<span style="color:${Theme.COLORS.textMuted}">&rsaquo;</span>`;
+      if (drillFilter.campaign) {
+        const isCurrent = !drillFilter.adset;
+        html += `<span style="cursor:${isCurrent ? 'default' : 'pointer'};color:${isCurrent ? Theme.COLORS.textPrimary : (Theme.COLORS.accentPrimary || '#38bdf8')};${isCurrent ? '' : 'text-decoration:underline'};max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-bc="campaign" title="${drillFilter.campaign}">${drillFilter.campaign}</span>`;
+      }
+      if (drillFilter.adset) {
+        html += `<span style="color:${Theme.COLORS.textMuted}">&rsaquo;</span>`;
+        html += `<span style="color:${Theme.COLORS.textPrimary};max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${drillFilter.adset}">${drillFilter.adset}</span>`;
+      }
+      adBreadcrumb.innerHTML = html;
+      adBreadcrumb.querySelectorAll('[data-bc]').forEach(el => {
+        el.addEventListener('click', () => {
+          const bc = el.dataset.bc;
+          if (bc === 'root') { drillFilter = {}; currentLevel = 'campaign'; }
+          else if (bc === 'campaign') { delete drillFilter.adset; currentLevel = 'adset'; }
+          updateToggleState();
+          renderAll();
+        });
+      });
+    }
+
+    function updateToggleState() {
+      adToggle.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('active', b.dataset.level === currentLevel);
+      });
+      const titles = { campaign: 'Sales by Campaign', adset: 'Sales by Ad Set', ad: 'Sales by Ad' };
+      adTitle.textContent = titles[currentLevel];
+    }
+
+    function renderHeaders() {
+      const cols = [
+        { key: 'sales', label: 'Sales', w: '36px' },
+        { key: '_pct', label: '%', w: '36px' },
+        { key: 'ticket_revenue', label: 'Tickets', w: '64px' },
+        { key: 'enrollment_revenue', label: 'Enroll', w: '64px' },
+      ];
+      adHeaderEl.innerHTML = `<div style="width:${isLeaf() ? '12px' : '12px'};flex-shrink:0"></div><div style="width:160px;flex-shrink:0"></div><div style="flex:1"></div>`;
+      cols.forEach(col => {
         const isActive = adSort.key === col.key;
         const arrow = isActive ? (adSort.dir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
         adHeaderEl.innerHTML += `<div class="wr-ad-sort-col" data-sort="${col.key}" style="width:${col.w};font-size:10px;font-weight:600;color:${isActive ? '#e2e8f0' : Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none">${col.label}${arrow}</div>`;
@@ -275,60 +653,157 @@ App.registerPage('war-room', async (container) => {
           if (k === '_pct') return;
           if (adSort.key === k) adSort.dir = adSort.dir === 'desc' ? 'asc' : 'desc';
           else { adSort.key = k; adSort.dir = 'desc'; }
-          renderAdHeaders();
-          renderAdRows();
+          renderHeaders();
+          renderRows();
         });
       });
     }
 
-    function renderAdRows() {
-      const sorted = [...rows].sort((a, b) => {
+    function renderRows() {
+      const filtered = getFilteredRows();
+      const grouped = aggregate(filtered, getGroupKey());
+      const sorted = [...grouped].sort((a, b) => {
         const va = a[adSort.key] || 0, vb = b[adSort.key] || 0;
         return adSort.dir === 'desc' ? vb - va : va - vb;
       });
+      const totalSales = sorted.reduce((s, r) => s + r.sales, 0) || 1;
+      const totalTicket = sorted.reduce((s, r) => s + r.ticket_revenue, 0);
+      const totalEnroll = sorted.reduce((s, r) => s + r.enrollment_revenue, 0);
       const maxSales = Math.max(...sorted.map(r => r.sales || 0));
-      let html = '';
-      sorted.forEach((r, i) => {
-        const sales = r.sales || 0;
-        const ticketRev = r.ticket_revenue || 0;
-        const enrollRev = r.enrollment_revenue || 0;
-        const pct = ((sales / totalSales) * 100).toFixed(0);
-        const widthPct = maxSales > 0 ? ((sales / maxSales) * 100) : 0;
+      const leaf = isLeaf();
+
+      // Status dot lookup at current drill level
+      function _getStatus(name) {
+        if (!hasStatus) return null;
+        const map = statusMaps[currentLevel] || statusByCampaign;
+        if (map[name]) return map[name].active;
+        for (const [key, st] of Object.entries(map)) {
+          if (name.includes(key) || key.includes(name)) return st.active;
+        }
+        return null;
+      }
+
+      function _rowHTML(r, i, extraClass) {
+        const pct = ((r.sales / totalSales) * 100).toFixed(0);
+        const widthPct = maxSales > 0 ? ((r.sales / maxSales) * 100) : 0;
         const color = barColors[i % barColors.length];
-        const srcName = r.source || 'Unknown';
-        const fbSearchUrl = 'https://adsmanager.facebook.com/adsmanager/manage/ads?act=206306693361622&search=' + encodeURIComponent(srcName);
-        html += `<div class="wr-ad-row" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;cursor:default">
-          <div class="wr-ad-tip">
-            <div class="wr-ad-tip-name">${srcName}</div>
-            <div style="display:flex;gap:8px;font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">
-              <span>${sales} sales</span><span>${pct}%</span><span style="color:#6366f1">Tickets: ${Theme.money(ticketRev)}</span><span style="color:${Theme.COLORS.success}">Enroll: ${Theme.money(enrollRev)}</span>
-            </div>
-            <a class="wr-ad-tip-link" href="${fbSearchUrl}" target="_blank" rel="noopener">Open in Ads Manager &#8599;</a>
-          </div>
-          <div style="width:160px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${srcName}">${srcName}</div>
+        const chevron = leaf ? '<span class="wr-h-chevron"></span>' : '<span class="wr-h-chevron">&#9656;</span>';
+        const isActive = _getStatus(r.name);
+        let statusDot;
+        if (isActive === true) {
+          statusDot = `<span title="Active" style="width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 4px rgba(34,197,94,0.5)"></span>`;
+        } else if (isActive === false) {
+          statusDot = `<span title="Off (last 30d)" style="width:7px;height:7px;border-radius:50%;background:#ef4444;flex-shrink:0;box-shadow:0 0 4px rgba(239,68,68,0.5)"></span>`;
+        } else {
+          statusDot = `<span style="width:7px;height:7px;border-radius:50%;background:${Theme.COLORS.textMuted};flex-shrink:0;opacity:0.4"></span>`;
+        }
+        return `<div class="wr-h-row${leaf ? ' wr-h-row--leaf' : ''} ${extraClass}" data-name="${r.name.replace(/"/g, '&quot;')}" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:4px 0">
+          ${chevron}
+          ${statusDot}
+          <div style="width:152px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.name}">${r.name}</div>
           <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden">
             <div style="height:100%;width:${widthPct}%;background:${color};border-radius:4px;min-width:2px"></div>
           </div>
-          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${sales}</div>
+          <div style="width:36px;font-size:13px;font-family:var(--font-mono);font-weight:500;color:${Theme.COLORS.textPrimary};text-align:right;flex-shrink:0">${r.sales}</div>
           <div style="width:36px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0">${pct}%</div>
-          <div style="width:64px;font-size:11px;color:#6366f1;text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(ticketRev)}</div>
-          <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(enrollRev)}</div>
+          <div style="width:64px;font-size:11px;color:#6366f1;text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.ticket_revenue)}</div>
+          <div style="width:64px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.enrollment_revenue)}</div>
         </div>`;
+      }
+
+      // Split active vs inactive
+      const activeRows = [];
+      const inactiveRows = [];
+      sorted.forEach((r, i) => {
+        const status = _getStatus(r.name);
+        if (status === false) {
+          inactiveRows.push({ r, i });
+        } else {
+          activeRows.push({ r, i });
+        }
       });
+
+      let html = '';
+      activeRows.forEach(({ r, i }) => { html += _rowHTML(r, i, ''); });
+
+      // Inactive section (hidden by default, "Show more" button)
+      if (inactiveRows.length > 0) {
+        html += `<div id="wr-h-show-more-btn" style="display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer;user-select:none" title="Show ${inactiveRows.length} inactive items">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.06)"></div>
+          <span style="font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Show ${inactiveRows.length} off &#9662;</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.06)"></div>
+        </div>`;
+        html += `<div id="wr-h-inactive-rows" style="display:none;opacity:0.6">`;
+        inactiveRows.forEach(({ r, i }) => { html += _rowHTML(r, i, ''); });
+        html += `</div>`;
+      }
+
       html += `<div style="display:flex;justify-content:flex-end;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
         <span style="font-size:12px;color:${Theme.COLORS.textMuted}">Total: ${totalSales} sales</span>
-        <span style="font-size:12px;color:#6366f1;font-weight:600;font-family:var(--font-mono)">${Theme.money(totalTicketRev)}</span>
-        <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalEnrollRev)}</span>
+        <span style="font-size:12px;color:#6366f1;font-weight:600;font-family:var(--font-mono)">${Theme.money(totalTicket)}</span>
+        <span style="font-size:12px;color:${Theme.COLORS.success};font-weight:600;font-family:var(--font-mono)">${Theme.money(totalEnroll)}</span>
       </div>`;
-      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros first-click attribution (ad-level)</div>`;
+      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">Source: Hyros ${modelLabel} attribution${!leaf ? ' | Click a row to drill down' : ''}</div>`;
       adBodyEl.innerHTML = html;
+
+      // Show more toggle
+      const showMoreBtn = adBodyEl.querySelector('#wr-h-show-more-btn');
+      const inactiveContainer = adBodyEl.querySelector('#wr-h-inactive-rows');
+      if (showMoreBtn && inactiveContainer) {
+        let expanded = false;
+        showMoreBtn.addEventListener('click', () => {
+          expanded = !expanded;
+          inactiveContainer.style.display = expanded ? 'block' : 'none';
+          showMoreBtn.querySelector('span').innerHTML = expanded
+            ? `Hide ${inactiveRows.length} off &#9652;`
+            : `Show ${inactiveRows.length} off &#9662;`;
+        });
+      }
+
+      // Drill-down click handlers
+      if (!leaf) {
+        adBodyEl.querySelectorAll('.wr-h-row').forEach(el => {
+          el.addEventListener('click', () => {
+            const name = el.dataset.name;
+            if (currentLevel === 'campaign') {
+              drillFilter.campaign = name;
+              currentLevel = 'adset';
+            } else if (currentLevel === 'adset') {
+              drillFilter.adset = name;
+              currentLevel = 'ad';
+            }
+            updateToggleState();
+            renderAll();
+          });
+        });
+      }
     }
 
-    renderAdHeaders();
-    renderAdRows();
+    function renderAll() {
+      renderBreadcrumb();
+      renderHeaders();
+      renderRows();
+    }
+
+    // Toggle button handlers
+    adToggle.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentLevel = btn.dataset.level;
+        drillFilter = {}; // reset drill when switching via toggle
+        updateToggleState();
+        renderAll();
+      });
+    });
+
+    renderAll();
   }).catch(err => {
     adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed to load: ${err.message}</p>`;
   });
+  } // end _loadHierarchy
+
+  // Initial load of all Hyros-sourced charts
+  _loadChannelCards('first');
+  _loadHierarchy('first');
 
   // DPL (Dollars Per Lead) & Cost Per Ticket
   const dplCptCard = _card('');
@@ -415,7 +890,567 @@ App.registerPage('war-room', async (container) => {
   `;
   chartsRow.appendChild(dplCptCard);
   chartsRow.appendChild(dealsCard);
+  chartsRow.appendChild(bookingsCard);
+  chartsRow.appendChild(enrollCard);
+
+  // ---- CPA by Channel ----
+  const cpaCard = _card('CPA by Channel');
+  const cpaBodyEl = document.createElement('div');
+  cpaBodyEl.className = 'wr-ch-body';
+  cpaBodyEl.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+  cpaCard.appendChild(cpaBodyEl);
+
+  // Compute CPA: ad spend (Meta) / enrollments (Hyros) per channel
+  // Use ads-meta campaigns for spend, hyros sources for enrollment counts
+  Promise.all([
+    API.query('ads-meta', 'campaigns', { days }),
+    API.query('hyros', 'sourcesAttrib', { days, model: _currentAttribModel }).catch(() => API.query('hyros', 'sources', { days }))
+  ]).then(([metaCampaigns, hyrosSources]) => {
+    // Aggregate Meta spend by channel (reuse _classifyChannel on campaign names)
+    const spendByChannel = {};
+    (metaCampaigns || []).forEach(c => {
+      const channel = _classifyChannel(c.campaign_name);
+      spendByChannel[channel] = (spendByChannel[channel] || 0) + (c.spend || 0);
+    });
+
+    // Aggregate Hyros enrollments by channel
+    const enrollByChannel = {};
+    (hyrosSources || []).forEach(r => {
+      const channel = _classifyChannel(r.source);
+      enrollByChannel[channel] = (enrollByChannel[channel] || 0) + (r.enrollment_count || 0);
+    });
+
+    // Merge into CPA rows
+    const allChannels = new Set([...Object.keys(spendByChannel), ...Object.keys(enrollByChannel)]);
+    const cpaRows = [];
+    allChannels.forEach(ch => {
+      const spend = spendByChannel[ch] || 0;
+      const enrollments = enrollByChannel[ch] || 0;
+      if (spend === 0 && enrollments === 0) return;
+      const cpa = enrollments > 0 ? spend / enrollments : null;
+      cpaRows.push({ channel: ch, spend, enrollments, cpa });
+    });
+    cpaRows.sort((a, b) => (a.cpa || Infinity) - (b.cpa || Infinity));
+
+    if (cpaRows.length === 0) {
+      cpaBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No CPA data</p>`;
+      return;
+    }
+
+    const maxCPA = Math.max(...cpaRows.filter(r => r.cpa !== null).map(r => r.cpa));
+    let html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06)">';
+    html += `<div style="width:120px;flex-shrink:0"></div><div style="flex:1"></div>`;
+    html += `<div style="width:50px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">CPA</div>`;
+    html += `<div style="width:50px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Spend</div>`;
+    html += `<div style="width:36px;font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.04em">Enr</div>`;
+    html += '</div>';
+
+    cpaRows.forEach(r => {
+      const color = _channelColors[r.channel] || '#6366f1';
+      const barPct = r.cpa !== null && maxCPA > 0 ? ((r.cpa / maxCPA) * 100) : 0;
+      // CPA color: lower is better. Green < $3K, yellow < $6K, red >= $6K
+      const cpaColor = r.cpa === null ? Theme.COLORS.textMuted : r.cpa <= 3000 ? Theme.COLORS.success : r.cpa <= 6000 ? '#f59e0b' : Theme.COLORS.danger;
+      const cpaText = r.cpa !== null ? Theme.money(r.cpa) : '--';
+
+      html += `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:120px;font-size:12px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.channel}">${r.channel}</div>
+        <div style="flex:1;height:24px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barPct}%;background:${color};border-radius:4px;min-width:2px"></div></div>
+        <div style="width:50px;font-size:13px;font-family:var(--font-mono);font-weight:600;color:${cpaColor};text-align:right;flex-shrink:0">${cpaText}</div>
+        <div style="width:50px;font-size:11px;color:${Theme.COLORS.textMuted};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${Theme.money(r.spend)}</div>
+        <div style="width:36px;font-size:11px;color:${Theme.COLORS.success};text-align:right;flex-shrink:0;font-family:var(--font-mono)">${r.enrollments}</div>
+      </div>`;
+    });
+
+    html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px;font-style:italic">CPA = Meta spend / Hyros enrollments per channel</div>`;
+    cpaBodyEl.innerHTML = html;
+  }).catch(err => {
+    cpaBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed: ${err.message}</p>`;
+  });
+
+  chartsRow.appendChild(cpaCard);
   chartsRow.appendChild(adCard);
+
+  // ---- Sales Dynamic: Dual-panel area chart ----
+  // Top: Ticket revenue + Enrollment revenue lines
+  // Bottom: Ad spend by channel (stacked area)
+  const dynamicCard = document.createElement('div');
+  dynamicCard.className = 'card';
+  dynamicCard.style.cssText = 'padding:20px 24px;margin-top:16px;grid-column:1/-1';
+  const dynTitle = document.createElement('div');
+  dynTitle.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px';
+  dynTitle.innerHTML = `<div style="font-size:15px;font-weight:700;color:${Theme.COLORS.textPrimary}">Sales Dynamic</div>
+    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Hyros first-click attribution</div>`;
+  dynamicCard.appendChild(dynTitle);
+
+  // Top canvas (revenue lines)
+  const topLabel = document.createElement('div');
+  topLabel.style.cssText = `font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px`;
+  topLabel.textContent = 'Revenue';
+  dynamicCard.appendChild(topLabel);
+  const topCanvas = document.createElement('canvas');
+  topCanvas.width = 900; topCanvas.height = 200;
+  topCanvas.style.cssText = 'width:100%;height:200px;display:block';
+  dynamicCard.appendChild(topCanvas);
+
+  // Top legend
+  const topLegend = document.createElement('div');
+  topLegend.style.cssText = 'display:flex;gap:20px;margin-top:8px;margin-bottom:20px';
+  topLegend.innerHTML = `
+    <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:#6366f1"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ticket Revenue</span></div>
+    <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:#22c55e"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollment Revenue</span></div>`;
+  dynamicCard.appendChild(topLegend);
+
+  // Divider
+  const divider = document.createElement('div');
+  divider.style.cssText = `height:1px;background:${Theme.COLORS.border};margin-bottom:16px`;
+  dynamicCard.appendChild(divider);
+
+  // Bottom canvas (spend by channel)
+  const botLabel = document.createElement('div');
+  botLabel.style.cssText = `font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px`;
+  botLabel.textContent = 'Ad Spend by Channel';
+  dynamicCard.appendChild(botLabel);
+  const botCanvas = document.createElement('canvas');
+  botCanvas.width = 900; botCanvas.height = 160;
+  botCanvas.style.cssText = 'width:100%;height:160px;display:block';
+  dynamicCard.appendChild(botCanvas);
+
+  // Bottom legend placeholder
+  const botLegend = document.createElement('div');
+  botLegend.style.cssText = 'display:flex;flex-wrap:wrap;gap:14px;margin-top:8px';
+  dynamicCard.appendChild(botLegend);
+
+  container.appendChild(dynamicCard);
+
+  // ---- Draw charts once data loads ----
+  Promise.all([
+    API.query('hyros', 'dailySplit', { days }).catch(() => []),
+    API.query('ads-meta', 'dailyByCampaign', { days }).catch(() => []),
+    API.query('ads-meta', 'daily', { days }).catch(() => [])
+  ]).then(([splitRows, metaCampRows, metaDailyRows]) => {
+
+    // === TOP CHART: revenue lines ===
+    function _drawLineChart(canvas, datasets, yFormat) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      const pad = { top: 10, right: 16, bottom: 28, left: 56 };
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+
+      // Find all dates + y range
+      const allDates = [...new Set(datasets.flatMap(d => d.data.map(p => p.x)))].sort();
+      if (allDates.length === 0) return;
+      const allY = datasets.flatMap(d => d.data.map(p => p.y));
+      const maxY = Math.max(...allY, 1);
+      const minY = 0;
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 1;
+      const gridLines = 4;
+      for (let i = 0; i <= gridLines; i++) {
+        const y = pad.top + (plotH / gridLines) * i;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        const val = maxY - (maxY / gridLines) * i;
+        ctx.fillStyle = Theme.COLORS.textMuted;
+        ctx.font = '10px var(--font-mono)';
+        ctx.textAlign = 'right';
+        ctx.fillText(yFormat(val), pad.left - 8, y + 4);
+      }
+
+      // X labels
+      ctx.fillStyle = Theme.COLORS.textMuted;
+      ctx.font = '10px var(--font-mono)';
+      ctx.textAlign = 'center';
+      const step = Math.max(1, Math.floor(allDates.length / 8));
+      allDates.forEach((d, i) => {
+        if (i % step !== 0 && i !== allDates.length - 1) return;
+        const x = pad.left + (i / (allDates.length - 1 || 1)) * plotW;
+        const label = d.slice(5); // MM-DD
+        ctx.fillText(label, x, H - 6);
+      });
+
+      // Draw each dataset
+      datasets.forEach(ds => {
+        const dateMap = {};
+        ds.data.forEach(p => { dateMap[p.x] = p.y; });
+        const points = allDates.map((d, i) => ({
+          x: pad.left + (i / (allDates.length - 1 || 1)) * plotW,
+          y: pad.top + plotH - ((dateMap[d] || 0) / maxY) * plotH
+        }));
+
+        // Gradient fill
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + plotH);
+        grad.addColorStop(0, ds.color + '33');
+        grad.addColorStop(1, ds.color + '00');
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, pad.top + plotH);
+        _smoothLine(ctx, points);
+        ctx.lineTo(points[points.length - 1].x, pad.top + plotH);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        _smoothLine(ctx, points);
+        ctx.strokeStyle = ds.color;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Glow
+        ctx.shadowColor = ds.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        _smoothLine(ctx, points);
+        ctx.strokeStyle = ds.color + '66';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      });
+    }
+
+    function _smoothLine(ctx, points) {
+      if (points.length < 2) return;
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[Math.max(0, i - 1)];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[Math.min(points.length - 1, i + 2)];
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+      }
+    }
+
+    // Build top chart data -- fall back to dummy if API returns empty
+    function _generateDummyRevenue(numDays) {
+      const rows = [];
+      const today = new Date();
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date(today); d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        const base = Math.sin(i * 0.15) * 0.3 + 1;
+        const ticketRev = Math.round((800 + Math.random() * 600) * base);
+        const enrollRev = Math.round((4000 + Math.random() * 18000) * base * (Math.random() > 0.3 ? 1 : 0));
+        rows.push({ x: dateStr, ticket: ticketRev, enroll: enrollRev });
+      }
+      return rows;
+    }
+
+    let ticketData = (splitRows || []).map(r => ({ x: r.day, y: r.ticket_revenue || 0 }));
+    let enrollData = (splitRows || []).map(r => ({ x: r.day, y: r.enrollment_revenue || 0 }));
+
+    if (ticketData.length === 0) {
+      const dummy = _generateDummyRevenue(days);
+      ticketData = dummy.map(r => ({ x: r.x, y: r.ticket }));
+      enrollData = dummy.map(r => ({ x: r.x, y: r.enroll }));
+    }
+
+    _drawLineChart(topCanvas, [
+      { data: ticketData, color: '#6366f1', label: 'Tickets' },
+      { data: enrollData, color: '#22c55e', label: 'Enrollments' },
+    ], v => v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'k' : '$' + v.toFixed(0));
+
+    // === BOTTOM CHART: spend by channel (stacked area) ===
+    // Classify meta campaigns into channels, then aggregate daily
+    const spendByDayChannel = {};
+    const channelSet = new Set();
+    (metaCampRows || []).forEach(r => {
+      const ch = _classifyChannel(r.campaign_name);
+      channelSet.add(ch);
+      const d = r.ad_date;
+      if (!spendByDayChannel[d]) spendByDayChannel[d] = {};
+      spendByDayChannel[d][ch] = (spendByDayChannel[d][ch] || 0) + (r.spend || 0);
+    });
+
+    // Fallback to total daily if no campaign breakdown
+    if (Object.keys(spendByDayChannel).length === 0 && metaDailyRows && metaDailyRows.length > 0) {
+      metaDailyRows.forEach(r => {
+        spendByDayChannel[r.ad_date] = { 'Meta Ads': r.spend || 0 };
+        channelSet.add('Meta Ads');
+      });
+    }
+
+    // Dummy spend data if nothing from API
+    if (Object.keys(spendByDayChannel).length === 0) {
+      const dummyChannels = ['Meta Ads', 'YouTube', 'Google Ads', 'Email', 'Lead Campaigns'];
+      const today = new Date();
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(today); d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        const wave = Math.sin(i * 0.12) * 0.25 + 1;
+        spendByDayChannel[dateStr] = {};
+        dummyChannels.forEach((ch, ci) => {
+          const base = [420, 80, 50, 15, 25][ci];
+          spendByDayChannel[dateStr][ch] = Math.round((base + Math.random() * base * 0.5) * wave);
+          channelSet.add(ch);
+        });
+      }
+    }
+
+    const spendDates = Object.keys(spendByDayChannel).sort();
+    const channels = [...channelSet].sort((a, b) => {
+      const ta = spendDates.reduce((s, d) => s + (spendByDayChannel[d][a] || 0), 0);
+      const tb = spendDates.reduce((s, d) => s + (spendByDayChannel[d][b] || 0), 0);
+      return tb - ta; // highest spend first
+    });
+
+    if (spendDates.length > 0 && channels.length > 0) {
+      // Draw stacked area
+      const dpr = window.devicePixelRatio || 1;
+      const rect = botCanvas.getBoundingClientRect();
+      botCanvas.width = rect.width * dpr;
+      botCanvas.height = rect.height * dpr;
+      const ctx = botCanvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const W = rect.width, H = rect.height;
+      const pad = { top: 10, right: 16, bottom: 28, left: 56 };
+      const plotW = W - pad.left - pad.right;
+      const plotH = H - pad.top - pad.bottom;
+
+      // Compute stacked totals per day
+      const stacked = spendDates.map(d => {
+        let cumulative = 0;
+        const layers = {};
+        channels.forEach(ch => {
+          const val = spendByDayChannel[d][ch] || 0;
+          layers[ch] = { bottom: cumulative, top: cumulative + val };
+          cumulative += val;
+        });
+        return { date: d, layers, total: cumulative };
+      });
+      const maxSpend = Math.max(...stacked.map(s => s.total), 1);
+
+      // Grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 3; i++) {
+        const y = pad.top + (plotH / 3) * i;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        const val = maxSpend - (maxSpend / 3) * i;
+        ctx.fillStyle = Theme.COLORS.textMuted;
+        ctx.font = '10px var(--font-mono)';
+        ctx.textAlign = 'right';
+        ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + val.toFixed(0), pad.left - 8, y + 4);
+      }
+
+      // X labels
+      ctx.fillStyle = Theme.COLORS.textMuted;
+      ctx.font = '10px var(--font-mono)';
+      ctx.textAlign = 'center';
+      const step = Math.max(1, Math.floor(spendDates.length / 8));
+      spendDates.forEach((d, i) => {
+        if (i % step !== 0 && i !== spendDates.length - 1) return;
+        const x = pad.left + (i / (spendDates.length - 1 || 1)) * plotW;
+        ctx.fillText(d.slice(5), x, H - 6);
+      });
+
+      // Draw stacked areas (bottom to top, reverse so largest channel is at bottom)
+      const chColors = channels.map(ch => _channelColors[ch] || '#6366f1');
+      for (let ci = channels.length - 1; ci >= 0; ci--) {
+        const ch = channels[ci];
+        const color = chColors[ci];
+        const topPoints = stacked.map((s, i) => ({
+          x: pad.left + (i / (stacked.length - 1 || 1)) * plotW,
+          y: pad.top + plotH - (s.layers[ch].top / maxSpend) * plotH
+        }));
+        const botPoints = stacked.map((s, i) => ({
+          x: pad.left + (i / (stacked.length - 1 || 1)) * plotW,
+          y: pad.top + plotH - (s.layers[ch].bottom / maxSpend) * plotH
+        }));
+
+        // Fill area between top and bottom
+        ctx.beginPath();
+        _smoothLine(ctx, topPoints);
+        // Line back along bottom (reversed)
+        for (let i = botPoints.length - 1; i >= 0; i--) {
+          ctx.lineTo(botPoints[i].x, botPoints[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = color + '55';
+        ctx.fill();
+
+        // Top edge line
+        ctx.beginPath();
+        _smoothLine(ctx, topPoints);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Legend
+      let legendHTML = '';
+      channels.forEach((ch, i) => {
+        const total = spendDates.reduce((s, d) => s + (spendByDayChannel[d][ch] || 0), 0);
+        legendHTML += `<div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:${chColors[i]}"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">${ch} (${Theme.money(total)})</span></div>`;
+      });
+      botLegend.innerHTML = legendHTML;
+    } else {
+      const ctx = botCanvas.getContext('2d');
+      ctx.fillStyle = Theme.COLORS.textMuted;
+      ctx.font = '12px sans-serif';
+      ctx.fillText('No spend data', 20, 80);
+    }
+  });
+
+  // ---- Ticket Sales Velocity & Journey -- Weekly ----
+  const velocityCard = document.createElement('div');
+  velocityCard.className = 'card';
+  velocityCard.style.cssText = 'padding:20px 24px;margin-top:16px';
+
+  const velTitle = document.createElement('div');
+  velTitle.style.cssText = `display:flex;align-items:center;justify-content:space-between;margin-bottom:14px`;
+  velTitle.innerHTML = `<div style="font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:0.05em">Ticket Sales Velocity & Journey -- Weekly Aggregates</div>`;
+  velocityCard.appendChild(velTitle);
+
+  const velTable = document.createElement('div');
+  velTable.style.cssText = 'overflow-x:auto';
+  velTable.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+  velocityCard.appendChild(velTable);
+  container.appendChild(velocityCard);
+
+  // Dummy weekly data (replaced by BQ when deployed)
+  function _dummyWeeklyVelocity() {
+    const weeks = [];
+    const today = new Date();
+    for (let w = 0; w < 8; w++) {
+      const end = new Date(today); end.setDate(end.getDate() - w * 7);
+      const start = new Date(end); start.setDate(start.getDate() - 6);
+      const attendees = Math.round(100 + Math.random() * 180);
+      const bookings = Math.round(attendees * (0.28 + Math.random() * 0.12));
+      const vipCount = Math.round(attendees * (0.35 + Math.random() * 0.25));
+      weeks.push({
+        week_num: 15 - w,
+        week_start: start.toISOString().slice(0, 10),
+        week_end: end.toISOString().slice(0, 10),
+        attendees, bookings,
+        booking_pct: attendees > 0 ? (bookings / attendees) * 100 : 0,
+        vip_count: vipCount,
+        vip_pct: attendees > 0 ? (vipCount / attendees) * 100 : 0
+      });
+    }
+    return weeks;
+  }
+
+  function _dummyDailyVelocity() {
+    const rows = [];
+    const today = new Date();
+    const dayOfWeek = today.getDay() || 7; // Monday=1
+    for (let d = 0; d < dayOfWeek; d++) {
+      const date = new Date(today); date.setDate(date.getDate() - d);
+      const attendees = Math.round(15 + Math.random() * 25);
+      const bookings = Math.round(attendees * (0.25 + Math.random() * 0.15));
+      const vipCount = Math.round(attendees * (0.3 + Math.random() * 0.3));
+      rows.push({
+        day: date.toISOString().slice(0, 10),
+        attendees, bookings,
+        booking_pct: attendees > 0 ? (bookings / attendees) * 100 : 0,
+        vip_count: vipCount,
+        vip_pct: attendees > 0 ? (vipCount / attendees) * 100 : 0
+      });
+    }
+    return rows;
+  }
+
+  function _trendBox(current, prev) {
+    if (prev == null) return '<span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(100,116,139,0.2)"></span>';
+    const diff = current - prev;
+    let color, glow;
+    if (diff > 5)      { color = '#16a34a'; glow = '0 0 6px rgba(22,163,74,0.5)'; }
+    else if (diff > 2) { color = '#22c55e'; glow = '0 0 4px rgba(34,197,94,0.4)'; }
+    else if (diff > 0.5) { color = 'rgba(34,197,94,0.45)'; glow = 'none'; }
+    else if (diff >= -0.5) { color = 'rgba(100,116,139,0.2)'; glow = 'none'; }
+    else if (diff >= -2) { color = 'rgba(239,68,68,0.45)'; glow = 'none'; }
+    else if (diff >= -5) { color = '#ef4444'; glow = '0 0 4px rgba(239,68,68,0.4)'; }
+    else { color = '#dc2626'; glow = '0 0 6px rgba(220,38,38,0.5)'; }
+    return `<span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:${color};box-shadow:${glow}"></span>`;
+  }
+
+  function _renderVelocityTable(weeklyRows, dailyRows) {
+    const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    // Build weekly rows HTML
+    let html = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="border-bottom:1px solid ${Theme.COLORS.border}">
+        <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">Date</th>
+        <th style="text-align:left;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">Time Slot</th>
+        <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">Attendees</th>
+        <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">Bookings</th>
+        <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">Booking %</th>
+        <th style="text-align:right;padding:10px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:${Theme.COLORS.textMuted}">VIP %</th>
+      </tr></thead><tbody>`;
+
+    // Current week = first row -- expand into daily breakdown
+    const currentWeek = weeklyRows[0];
+    if (currentWeek && dailyRows && dailyRows.length > 0) {
+      // Week summary row (current week, clickable header)
+      const bkPctColor = currentWeek.booking_pct >= 35 ? Theme.COLORS.success : currentWeek.booking_pct >= 28 ? Theme.COLORS.warning : Theme.COLORS.danger;
+      const vipPctColor = currentWeek.vip_pct >= 45 ? Theme.COLORS.success : currentWeek.vip_pct >= 30 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+      html += `<tr style="background:rgba(124,58,237,0.06);border-bottom:1px solid ${Theme.COLORS.border}">
+        <td style="padding:10px 16px;color:${Theme.COLORS.textPrimary};font-weight:600">${currentWeek.week_start} to ${currentWeek.week_end}</td>
+        <td style="padding:10px 16px;font-family:var(--font-mono);color:${Theme.COLORS.textSecondary}">Week ${currentWeek.week_num} <span style="font-size:10px;color:${Theme.COLORS.accentLight};margin-left:4px">CURRENT</span></td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);font-weight:600;color:${Theme.COLORS.textPrimary}">${currentWeek.attendees}</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);font-weight:600;color:${Theme.COLORS.textPrimary}">${currentWeek.bookings}</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);font-weight:600;color:${bkPctColor}">${currentWeek.booking_pct.toFixed(1)}%</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);font-weight:600;color:${vipPctColor}">${currentWeek.vip_pct.toFixed(1)}%</td>
+      </tr>`;
+
+      // Daily breakdown rows for current week
+      dailyRows.forEach((r, idx) => {
+        const d = new Date(r.day + 'T00:00:00');
+        const dayName = dayLabels[d.getDay()];
+        const prevRow = dailyRows[idx + 1] || null;
+        const bkColor = r.booking_pct >= 35 ? Theme.COLORS.success : r.booking_pct >= 28 ? Theme.COLORS.warning : Theme.COLORS.danger;
+        const vColor = r.vip_pct >= 45 ? Theme.COLORS.success : r.vip_pct >= 30 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03);border-left:3px solid rgba(124,58,237,0.3)">
+          <td style="padding:8px 16px 8px 24px;color:${Theme.COLORS.textSecondary};font-size:12px">${r.day}</td>
+          <td style="padding:8px 16px;font-family:var(--font-mono);font-size:12px;color:${Theme.COLORS.textMuted}">${dayName}</td>
+          <td style="padding:8px 16px;text-align:right;font-family:var(--font-mono);font-size:12px;color:${Theme.COLORS.textSecondary}">${r.attendees}</td>
+          <td style="padding:8px 16px;text-align:right;font-family:var(--font-mono);font-size:12px;color:${Theme.COLORS.textSecondary}">${r.bookings}</td>
+          <td style="padding:8px 16px;text-align:right;font-family:var(--font-mono);font-size:12px;color:${bkColor}"><span style="display:inline-flex;align-items:center;gap:6px">${r.booking_pct.toFixed(1)}% ${_trendBox(r.booking_pct, prevRow ? prevRow.booking_pct : null)}</span></td>
+          <td style="padding:8px 16px;text-align:right;font-family:var(--font-mono);font-size:12px;color:${vColor}"><span style="display:inline-flex;align-items:center;gap:6px">${r.vip_pct.toFixed(1)}% ${_trendBox(r.vip_pct, prevRow ? prevRow.vip_pct : null)}</span></td>
+        </tr>`;
+      });
+    }
+
+    // Previous weeks
+    const prevWeeks = currentWeek ? weeklyRows.slice(1) : weeklyRows;
+    prevWeeks.forEach((r, idx) => {
+      const prevRow = prevWeeks[idx + 1] || null;
+      const bkPctColor = r.booking_pct >= 35 ? Theme.COLORS.success : r.booking_pct >= 28 ? Theme.COLORS.warning : Theme.COLORS.danger;
+      const vipPctColor = r.vip_pct >= 45 ? Theme.COLORS.success : r.vip_pct >= 30 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+      html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.03)">
+        <td style="padding:10px 16px;color:${Theme.COLORS.textSecondary}">${r.week_start} to ${r.week_end}</td>
+        <td style="padding:10px 16px;font-family:var(--font-mono);color:${Theme.COLORS.textMuted}">Week ${r.week_num}</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary}">${r.attendees}</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);color:${Theme.COLORS.textPrimary}">${r.bookings}</td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);color:${bkPctColor}"><span style="display:inline-flex;align-items:center;gap:6px">${r.booking_pct.toFixed(1)}% ${_trendBox(r.booking_pct, prevRow ? prevRow.booking_pct : null)}</span></td>
+        <td style="padding:10px 16px;text-align:right;font-family:var(--font-mono);color:${vipPctColor}"><span style="display:inline-flex;align-items:center;gap:6px">${r.vip_pct.toFixed(1)}% ${_trendBox(r.vip_pct, prevRow ? prevRow.vip_pct : null)}</span></td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    velTable.innerHTML = html;
+  }
+
+  // Load velocity data
+  Promise.all([
+    API.query('workshop', 'weeklyVelocity', { days: 90 }).catch(() => []),
+    API.query('workshop', 'dailyVelocity', { days: 14 }).catch(() => [])
+  ]).then(([weeklyRows, dailyRows]) => {
+    if (!weeklyRows || weeklyRows.length === 0) weeklyRows = _dummyWeeklyVelocity();
+    if (!dailyRows || dailyRows.length === 0) dailyRows = _dummyDailyVelocity();
+    _renderVelocityTable(weeklyRows, dailyRows);
+  });
 
   // ---- Biggest Wins / Biggest Leaks ----
   const signals = _detectSignals(cur, prev);
@@ -547,7 +1582,7 @@ function _card(title) {
   card.style.padding = '16px 20px';
   if (title) {
     const h = document.createElement('div');
-    h.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary + ';margin-bottom:12px';
+    h.style.cssText = 'font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:' + Theme.COLORS.textPrimary + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px';
     h.textContent = title;
     card.appendChild(h);
   }

@@ -43,7 +43,7 @@ App.registerPage('war-room', async (container) => {
       delta: _delta(cur.gross_revenue, prev.gross_revenue),
     },
     {
-      label: 'ROAS',
+      label: 'Blended ROAS',
       value: cur.roas || 0,
       prevValue: prev.roas || 0,
       format: 'num',
@@ -551,6 +551,7 @@ App.registerPage('war-room', async (container) => {
       adBodyEl.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">No sales data</p>`;
       return;
     }
+    _allHierarchyRows = rawRows;
 
     // Build status maps at all 3 levels from ad-level rows
     // Each map: name -> { active: bool, spend: number }
@@ -808,6 +809,18 @@ App.registerPage('war-room', async (container) => {
           });
         });
       }
+
+      // Ad-level preview click handlers
+      if (leaf) {
+        adBodyEl.querySelectorAll('.wr-h-row').forEach(el => {
+          el.style.cursor = 'pointer';
+          el.classList.remove('wr-h-row--leaf');
+          el.addEventListener('click', () => {
+            const name = el.dataset.name;
+            _showAdPreview(name, el);
+          });
+        });
+      }
     }
 
     function renderAll() {
@@ -998,6 +1011,90 @@ App.registerPage('war-room', async (container) => {
 
   chartsRow.appendChild(cpaCard);
   chartsRow.appendChild(adCard);
+
+  // ---- Ad Preview Panel (placeholder) ----
+  const previewCard = document.createElement('div');
+  previewCard.className = 'card';
+  previewCard.id = 'wr-ad-preview';
+  previewCard.style.cssText = 'padding:16px 20px;display:flex;flex-direction:column;min-height:400px;position:sticky;top:80px;align-self:start';
+
+  const previewTitle = document.createElement('div');
+  previewTitle.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary + ';margin-bottom:12px';
+  previewTitle.textContent = 'Ad Preview';
+  previewCard.appendChild(previewTitle);
+
+  const previewBody = document.createElement('div');
+  previewBody.id = 'wr-ad-preview-body';
+  previewBody.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(255,255,255,0.1);border-radius:10px;padding:24px;text-align:center';
+  previewBody.innerHTML = `
+    <div>
+      <div style="font-size:32px;opacity:0.2;margin-bottom:12px">&#128065;</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};line-height:1.6">
+        Click any ad in<br><strong style="color:${Theme.COLORS.textSecondary}">Sales by Campaign</strong><br>to preview it here
+      </div>
+    </div>`;
+  previewCard.appendChild(previewBody);
+
+  // Show ad preview when an ad row is clicked
+  function _showAdPreview(adName, rowEl) {
+    // Highlight selected row
+    const allRows = adBodyEl.querySelectorAll('.wr-h-row');
+    allRows.forEach(r => r.style.background = '');
+    if (rowEl) rowEl.style.background = 'rgba(99,102,241,0.08)';
+
+    // Find ad data from hierarchy
+    const adRow = _allHierarchyRows.find(r => r.ad_name === adName);
+
+    previewBody.style.alignItems = 'stretch';
+    previewBody.style.justifyContent = 'flex-start';
+    previewBody.style.flexDirection = 'column';
+    previewBody.style.border = 'none';
+    previewBody.style.padding = '0';
+
+    const sales = adRow ? adRow.sales : 0;
+    const tickets = adRow ? adRow.ticket_count : 0;
+    const enrolls = adRow ? adRow.enrollment_count : 0;
+    const revenue = adRow ? adRow.revenue : 0;
+    const tktRev = adRow ? adRow.ticket_revenue : 0;
+    const enrRev = adRow ? adRow.enrollment_revenue : 0;
+
+    previewBody.innerHTML = `
+      <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:12px;line-height:1.4;word-break:break-word">${adName}</div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;overflow:hidden;margin-bottom:14px">
+        <div style="height:220px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);position:relative">
+          <div style="text-align:center">
+            <div style="font-size:40px;opacity:0.15;margin-bottom:8px">&#127912;</div>
+            <div style="font-size:11px;color:${Theme.COLORS.textMuted}">Creative preview</div>
+            <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:4px;opacity:0.6">Connect Meta API for live thumbnails</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Sales</div>
+          <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary}">${sales.toLocaleString()}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Revenue</div>
+          <div style="font-size:18px;font-weight:700;color:#22c55e">${Theme.money(revenue)}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Tickets</div>
+          <div style="font-size:16px;font-weight:600;color:#6366f1">${tickets} <span style="font-size:11px;color:${Theme.COLORS.textMuted}">${Theme.money(tktRev)}</span></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Enrollments</div>
+          <div style="font-size:16px;font-weight:600;color:#22c55e">${enrolls} <span style="font-size:11px;color:${Theme.COLORS.textMuted}">${Theme.money(enrRev)}</span></div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:${Theme.COLORS.textMuted};font-style:italic">Placeholder -- Meta API integration will show live creative thumbnails, CTR, CPM, and frequency data</div>
+    `;
+  }
+
+  // Store hierarchy rows globally for preview lookup
+  let _allHierarchyRows = [];
+
+  chartsRow.appendChild(previewCard);
 
   // ---- Sales Dynamic: Dual-panel area chart ----
   // Top: Ticket revenue + Enrollment revenue lines

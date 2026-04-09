@@ -34,12 +34,12 @@ App.registerPage('hyros', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Attributed Sales',   value: totalSales,  format: 'num'   },
-    { label: 'Attributed Revenue', value: totalRev,    format: 'money' },
-    { label: 'Avg Sale Value',     value: avgRev,      format: 'money' },
-    { label: 'Leads Tracked',      value: totalLeads,  format: 'num'   },
-    { label: 'Unique Leads',       value: uniqueLeads, format: 'num'   },
-    { label: 'Lead Match Rate',    value: matchRate,   format: 'pct'   },
+    { label: 'Attributed Sales',   value: totalSales,  format: 'num',   source: 'BQ hyros_sales', calc: 'COUNT(sales)' },
+    { label: 'Attributed Revenue', value: totalRev,    format: 'money', source: 'BQ hyros_sales', calc: 'SUM(revenue)' },
+    { label: 'Avg Sale Value',     value: avgRev,      format: 'money', source: 'BQ hyros_sales', calc: 'SUM(revenue) / COUNT(sales)' },
+    { label: 'Leads Tracked',      value: totalLeads,  format: 'num',   source: 'BQ hyros_leads', calc: 'COUNT(leads)' },
+    { label: 'Unique Leads',       value: uniqueLeads, format: 'num',   source: 'BQ hyros_leads', calc: 'COUNT(DISTINCT email)' },
+    { label: 'Lead Match Rate',    value: matchRate,   format: 'pct',   source: 'BQ hyros_leads JOIN hyros_sales', calc: 'COUNT(matched_leads) / COUNT(total_leads)' },
   ]);
 
   // ---- 2-column chart grid ----

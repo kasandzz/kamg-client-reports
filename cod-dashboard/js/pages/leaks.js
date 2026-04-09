@@ -28,11 +28,11 @@ App.registerPage('leaks', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Revenue Leaked', value: d.total_leaked || 0, format: 'money', invertCost: true },
-    { label: 'No-Show Cost', value: d.no_show_cost || 0, format: 'money', invertCost: true },
-    { label: 'VIP Non-Booker Gap', value: d.vip_non_booker_count || 0, format: 'num', invertCost: true },
-    { label: 'Wasted Ad Spend', value: d.wasted_spend || 0, format: 'money', invertCost: true },
-    { label: 'Refund Total', value: d.refund_total || 0, format: 'money', invertCost: true },
+    { label: 'Total Revenue Leaked', value: d.total_leaked || 0, format: 'money', invertCost: true, source: 'BQ aggregated leak view', calc: 'no_show_cost + wasted_spend + refund_total' },
+    { label: 'No-Show Cost', value: d.no_show_cost || 0, format: 'money', invertCost: true, source: 'BQ derived from GHL calendar', calc: 'COUNT(no_shows) * $877 avg deal value' },
+    { label: 'VIP Non-Booker Gap', value: d.vip_non_booker_count || 0, format: 'num', invertCost: true, source: 'BQ zoom_attendance LEFT JOIN ghl_appointments', calc: 'COUNT(vip_attendees WHERE no booking found)' },
+    { label: 'Wasted Ad Spend', value: d.wasted_spend || 0, format: 'money', invertCost: true, source: 'BQ meta_ads JOIN hyros_leads geo view', calc: 'SUM(spend WHERE state IN dead_zones)' },
+    { label: 'Refund Total', value: d.refund_total || 0, format: 'money', invertCost: true, source: 'BQ stripe_charges', calc: 'SUM(amount WHERE status = refunded)' },
   ]);
 
   // ---- Hero: Revenue Leak Waterfall (full width) ----

@@ -44,12 +44,49 @@ App.registerPage('ads-meta', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Spend',      value: totalSpend,    format: 'money' },
-    { label: 'ROAS',             value: accountRoas,   format: 'num' },
-    { label: 'CPM',              value: avgCpm,        format: 'money' },
-    { label: 'CPC',              value: avgCpc,        format: 'money' },
-    { label: 'CTR',              value: avgCtr,        format: 'pct' },
-    { label: 'Cost Per Ticket',  value: costPerTicket, format: 'money', invertCost: true },
+    {
+      label: 'Total Spend',
+      value: totalSpend,
+      format: 'money',
+      source: 'Meta Marketing API via BQ: meta_ads_insights',
+      calc: 'SUM(spend) across all campaigns for selected date range',
+    },
+    {
+      label: 'ROAS',
+      value: accountRoas,
+      format: 'num',
+      source: 'BQ: meta_ads_campaigns (revenue rollup) / meta_ads_insights (spend)',
+      calc: 'SUM(campaign.revenue) / SUM(spend); revenue from Hyros attribution joined to campaigns',
+    },
+    {
+      label: 'CPM',
+      value: avgCpm,
+      format: 'money',
+      source: 'Meta Marketing API via BQ: meta_ads_insights',
+      calc: 'AVG(cpm) across active ad sets; Meta-reported (spend / impressions * 1000)',
+    },
+    {
+      label: 'CPC',
+      value: avgCpc,
+      format: 'money',
+      source: 'Meta Marketing API via BQ: meta_ads_insights',
+      calc: 'AVG(cpc) across active ad sets; Meta-reported (spend / link_clicks)',
+    },
+    {
+      label: 'CTR',
+      value: avgCtr,
+      format: 'pct',
+      source: 'Meta Marketing API via BQ: meta_ads_insights',
+      calc: 'AVG(ctr) across active ad sets; Meta-reported link CTR (link_clicks / impressions)',
+    },
+    {
+      label: 'Cost Per Ticket',
+      value: costPerTicket,
+      format: 'money',
+      invertCost: true,
+      source: 'BQ: meta_ads_insights (spend) joined to Stripe ticket purchases',
+      calc: 'SUM(spend) / COUNT(DISTINCT stripe_ticket_purchases) for date range',
+    },
   ]);
 
   // ---- 2-column chart grid ----

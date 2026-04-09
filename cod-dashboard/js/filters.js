@@ -69,6 +69,19 @@ const Filters = (() => {
     compareLabel.appendChild(document.createTextNode('Compare'));
     container.appendChild(compareLabel);
 
+    // Show Calculations toggle
+    container.appendChild(_el('div', 'filter-divider'));
+    const calcLabel = _el('label', 'filter-checkbox');
+    const calcCb = document.createElement('input');
+    calcCb.type = 'checkbox';
+    calcCb.checked = false;
+    calcCb.addEventListener('change', () => {
+      document.body.classList.toggle('show-calcs', calcCb.checked);
+    });
+    calcLabel.appendChild(calcCb);
+    calcLabel.appendChild(document.createTextNode('Show calculations'));
+    container.appendChild(calcLabel);
+
     // Custom Date Picker
     const dpWrap = _el('div', 'dp-wrap');
 

@@ -24,11 +24,11 @@ App.registerPage('experiments', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Active Experiments', value: kpi.active_experiments    || 0, format: 'num' },
-    { label: 'Completed',          value: kpi.completed_experiments || 0, format: 'num' },
-    { label: 'Win Rate',           value: kpi.win_rate              || 0, format: 'pct' },
-    { label: 'Avg Confidence',     value: kpi.avg_confidence        || 0, format: 'pct' },
-    { label: 'Planned Tests',      value: 24,                           format: 'num' },
+    { label: 'Active Experiments', value: kpi.active_experiments    || 0, format: 'num', source: 'BQ experiment_registry', calc: 'COUNT(experiments WHERE status = active)' },
+    { label: 'Completed',          value: kpi.completed_experiments || 0, format: 'num', source: 'BQ experiment_registry', calc: 'COUNT(experiments WHERE status = completed)' },
+    { label: 'Win Rate',           value: kpi.win_rate              || 0, format: 'pct', source: 'BQ experiment_registry', calc: 'COUNT(winner IS NOT NULL) / COUNT(completed)' },
+    { label: 'Avg Confidence',     value: kpi.avg_confidence        || 0, format: 'pct', source: 'BQ experiment_registry', calc: 'AVG(confidence WHERE status = completed)' },
+    { label: 'Planned Tests',      value: 24,                            format: 'num', source: 'Static (roadmap target)', calc: 'Hardcoded: 24 planned tests across COD funnel' },
   ]);
 
   // ---- Empty State Hero ----

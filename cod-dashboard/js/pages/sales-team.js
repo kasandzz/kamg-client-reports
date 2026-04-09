@@ -39,12 +39,12 @@ App.registerPage('sales-team', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Closers',   value: totalClosers,  format: 'num' },
-    { label: 'Avg Close Rate',  value: avgCloseRate,  format: 'pct' },
-    { label: 'Best Closer',     value: bestCloser,    format: 'text' },
-    { label: 'Total Calls',     value: totalCalls,    format: 'num' },
-    { label: 'Total Enrolled',  value: totalEnrolled, format: 'num' },
-    { label: 'Avg Show Rate',   value: avgShowRate,   format: 'pct' },
+    { label: 'Total Closers',   value: totalClosers,  format: 'num',  source: 'BQ ghl_contacts (closer field)', calc: 'COUNT(DISTINCT closer WHERE active = true)' },
+    { label: 'Avg Close Rate',  value: avgCloseRate,  format: 'pct',  source: 'BQ ghl_contacts + hyros_sales', calc: 'AVG(enrolled / showed) GROUP BY closer' },
+    { label: 'Best Closer',     value: bestCloser,    format: 'text', source: 'BQ ghl_contacts + hyros_sales', calc: 'closer WHERE close_rate = MAX(close_rate)' },
+    { label: 'Total Calls',     value: totalCalls,    format: 'num',  source: 'BQ ghl_appointments', calc: 'COUNT(appointments WHERE closer IS NOT NULL AND status = completed)' },
+    { label: 'Total Enrolled',  value: totalEnrolled, format: 'num',  source: 'BQ hyros_sales', calc: 'COUNT(sales) WHERE tag = enrolled' },
+    { label: 'Avg Show Rate',   value: avgShowRate,   format: 'pct',  source: 'BQ ghl_appointments + zoom_attendance', calc: 'AVG(showed / booked) GROUP BY closer' },
   ]);
 
   // ---- Closer Cards ----

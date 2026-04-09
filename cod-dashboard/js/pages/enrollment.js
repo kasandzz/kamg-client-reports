@@ -36,12 +36,49 @@ App.registerPage('enrollment', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Enrollments',             value: totalEnrolled,      format: 'num'   },
-    { label: 'Cash Collected',          value: cashCollected,      format: 'money' },
-    { label: 'ROAS (Cash)',             value: roas,               format: 'num'   },
-    { label: 'Avg Deal Size',           value: avgDealSize,        format: 'money' },
-    { label: 'Refund Rate',             value: refundRate,         format: 'pct', invertCost: true },
-    { label: 'Ticket-to-Enrollment',    value: ticketToEnrollment, format: 'pct'   },
+    {
+      label: 'Enrollments',
+      value: totalEnrolled,
+      format: 'num',
+      source: 'BigQuery: hyros_sales',
+      calc: 'COUNT(DISTINCT contact_id) WHERE product_type != "ticket" AND status = "active"',
+    },
+    {
+      label: 'Cash Collected',
+      value: cashCollected,
+      format: 'money',
+      source: 'BigQuery: stripe_charges',
+      calc: 'SUM(amount_captured) WHERE status = "succeeded" AND amount > 54 (excludes $27/$54 ticket charges)',
+    },
+    {
+      label: 'ROAS (Cash)',
+      value: roas,
+      format: 'num',
+      source: 'BigQuery: stripe_charges + hyros_spend',
+      calc: 'SUM(stripe cash_collected) / SUM(hyros total_spend) for the period',
+    },
+    {
+      label: 'Avg Deal Size',
+      value: avgDealSize,
+      format: 'money',
+      source: 'BigQuery: stripe_charges',
+      calc: 'SUM(amount_captured) / COUNT(DISTINCT enrollment_id) for high-ticket charges only',
+    },
+    {
+      label: 'Refund Rate',
+      value: refundRate,
+      format: 'pct',
+      invertCost: true,
+      source: 'BigQuery: stripe_charges + stripe_refunds',
+      calc: 'COUNT(refunded charges) / COUNT(total high-ticket charges) for the period',
+    },
+    {
+      label: 'Ticket-to-Enrollment',
+      value: ticketToEnrollment,
+      format: 'pct',
+      source: 'BigQuery: hyros_sales (pipeline query)',
+      calc: 'COUNT(enrollments) / COUNT(DISTINCT $27 ticket buyers) for the period',
+    },
   ]);
 
   // ---- 2-column chart grid ----

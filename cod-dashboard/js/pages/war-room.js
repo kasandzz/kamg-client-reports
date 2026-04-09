@@ -41,6 +41,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.gross_revenue || 0,
       format: 'money',
       delta: _delta(cur.gross_revenue, prev.gross_revenue),
+      source: 'BigQuery: stripe_charges',
+      calc: 'SUM(amount_captured) WHERE status = "succeeded" AND created BETWEEN period_start AND period_end',
     },
     {
       label: 'Blended ROAS',
@@ -48,6 +50,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.roas || 0,
       format: 'num',
       delta: _delta(cur.roas, prev.roas),
+      source: 'BigQuery: hyros_sales + meta_ads_insights',
+      calc: 'SUM(hyros_sales.revenue) / SUM(meta_ads_insights.spend) for period',
     },
     {
       label: 'Enrollments',
@@ -55,6 +59,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.enrollments || 0,
       format: 'num',
       delta: _delta(cur.enrollments, prev.enrollments),
+      source: 'BigQuery: hyros_sales',
+      calc: 'COUNT(DISTINCT sale_id) WHERE product_type != "ticket" AND date BETWEEN period_start AND period_end',
     },
     {
       label: 'CPB',
@@ -63,6 +69,8 @@ App.registerPage('war-room', async (container) => {
       format: 'money',
       invertCost: true,
       delta: _delta(cur.cpb, prev.cpb),
+      source: 'BigQuery: meta_ads_insights + stripe_charges',
+      calc: 'SUM(ad_spend) / COUNT(DISTINCT stripe_charges WHERE amount = 2700) for period',
     },
     {
       label: 'CPA (Avg)',
@@ -71,6 +79,8 @@ App.registerPage('war-room', async (container) => {
       format: 'money',
       invertCost: true,
       delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
+      source: 'BigQuery: meta_ads_insights + hyros_sales',
+      calc: 'SUM(ad_spend) / COUNT(DISTINCT enrollment_id) for period',
     },
     {
       label: 'CPM',
@@ -79,6 +89,8 @@ App.registerPage('war-room', async (container) => {
       format: 'money',
       invertCost: true,
       delta: _delta(cur.cpm, prev.cpm),
+      source: 'Meta Marketing API: meta_ads_insights',
+      calc: '(SUM(spend) / SUM(impressions)) * 1000, aggregated across all active campaigns for period',
     },
   ]);
 

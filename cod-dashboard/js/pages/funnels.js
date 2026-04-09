@@ -1015,12 +1015,14 @@ App.registerPage('funnels', async (container) => {
       <div style="font-size:16px;font-weight:700">Sales Dynamic</div>
       <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px">Hyros First-Click Attribution</div>
     </div>
+    <div class="calc-annotation">Sources: Ticket Revenue from Stripe charges ($27/$54 filter) | Enrollment Revenue from Hyros first-click attribution. Calc: SUM(amount) per day, grouped by revenue type.</div>
     <div style="font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">REVENUE</div>
     <div style="position:relative;height:220px;width:100%"><canvas id="salesDynamicRevenueChart"></canvas></div>
     <div style="display:flex;gap:20px;margin:10px 0 24px 0;font-size:11px;color:var(--text-muted)">
       <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:3px;background:#6366f1;border-radius:2px;display:inline-block"></span>Ticket Revenue</span>
       <span style="display:inline-flex;align-items:center;gap:5px"><span style="width:14px;height:3px;background:#22c55e;border-radius:2px;display:inline-block"></span>Enrollment Revenue</span>
     </div>
+    <div class="calc-annotation">Source: Meta Marketing API (daily spend), Google Ads API (daily spend), YouTube via Google Ads. Calc: SUM(spend) per day per channel, stacked.</div>
     <div style="font-size:10px;font-weight:700;color:#06b6d4;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06)">AD SPEND BY CHANNEL</div>
     <div style="position:relative;height:200px;width:100%"><canvas id="salesDynamicAdSpendChart"></canvas></div>
   </div>
@@ -1379,11 +1381,11 @@ var sparkCharts = {};
 
 function renderKPICards(cur, prev) {
   var kpis = [
-    { id: 'show_rate', label: 'Show Rate', value: cur.show_rate, prev: prev.show_rate, format: formatPct, sparkKey: 'show_rate', target: '65%', tip: 'Percentage of registered attendees who actually showed up to the workshop. Source: AEvent attendance records.' },
-    { id: 'vip_upgrade_rate', label: 'VIP Upgrade Rate', value: cur.vip_upgrade_rate, prev: prev.vip_upgrade_rate, format: formatPct, sparkKey: 'vip_rate', target: '35%', tip: 'Percentage of attendees who upgraded to VIP tickets before or during the workshop. Source: Stripe $54 VIP ticket purchases.' },
-    { id: 'booking_pct', label: 'Booking Rate', value: cur.booking_pct, prev: prev.booking_pct, format: formatPct, sparkKey: 'booking_pct', target: '35%', tip: 'Percentage of attendees who booked a strategy call after the workshop. Source: GHL calendar bookings linked to workshop contacts.' },
-    { id: 'completion', label: 'Completion Rate', value: cur.completion_rate_full, prev: prev.completion_rate_full, format: function(v) { return v + '% full'; }, sparkKey: 'completion', target: '>50% full', tip: 'Percentage of attendees who watched the full workshop (>8000 seconds). Source: AEvent watch time tracking.' },
-    { id: 'sessions', label: 'Total Unique Visitors', value: cur.total_attendees, prev: prev.total_attendees, format: formatInt, sparkKey: 'sessions', target: null, tip: 'Total unique attendees across all workshop sessions in this period. Source: AEvent + Zoom attendance records, deduplicated by email.' }
+    { id: 'show_rate', label: 'Show Rate', value: cur.show_rate, prev: prev.show_rate, format: formatPct, sparkKey: 'show_rate', target: '65%', tip: 'Percentage of registered attendees who actually showed up to the workshop. Source: AEvent attendance records.', source: 'BigQuery: aevent_attendance', calc: 'attended / registered * 100' },
+    { id: 'vip_upgrade_rate', label: 'VIP Upgrade Rate', value: cur.vip_upgrade_rate, prev: prev.vip_upgrade_rate, format: formatPct, sparkKey: 'vip_rate', target: '35%', tip: 'Percentage of attendees who upgraded to VIP tickets before or during the workshop. Source: Stripe $54 VIP ticket purchases.', source: 'Stripe charges ($54 filter)', calc: 'COUNT(vip_tickets) / COUNT(all_attendees) * 100' },
+    { id: 'booking_pct', label: 'Booking Rate', value: cur.booking_pct, prev: prev.booking_pct, format: formatPct, sparkKey: 'booking_pct', target: '35%', tip: 'Percentage of attendees who booked a strategy call after the workshop. Source: GHL calendar bookings linked to workshop contacts.', source: 'BigQuery: ghl_calendar_bookings', calc: 'bookings / attended * 100' },
+    { id: 'completion', label: 'Completion Rate', value: cur.completion_rate_full, prev: prev.completion_rate_full, format: function(v) { return v + '% full'; }, sparkKey: 'completion', target: '>50% full', tip: 'Percentage of attendees who watched the full workshop (>8000 seconds). Source: AEvent watch time tracking.', source: 'AEvent watch time API', calc: 'COUNT(watch_time > 8000s) / total_attendees * 100' },
+    { id: 'sessions', label: 'Total Unique Visitors', value: cur.total_attendees, prev: prev.total_attendees, format: formatInt, sparkKey: 'sessions', target: null, tip: 'Total unique attendees across all workshop sessions in this period. Source: AEvent + Zoom attendance records, deduplicated by email.', source: 'BigQuery: aevent_attendance + zoom_participants', calc: 'COUNT(DISTINCT email) WHERE status = attended' }
   ];
 
   var grid = document.getElementById('kpiGrid');
@@ -1409,6 +1411,10 @@ function renderKPICards(cur, prev) {
         '<span>' + arrow + '</span> ' + delta.pct.toFixed(1) + '% vs prior' +
       '</div>' +
       '<div class="kpi-card__sparkline"><canvas id="spark-' + kpi.id + '"></canvas></div>' +
+      (kpi.source || kpi.calc ? '<div class="kpi-calc-meta">' +
+        (kpi.source ? '<div class="kpi-calc-row"><span class="kpi-calc-label">Source</span> ' + kpi.source + '</div>' : '') +
+        (kpi.calc ? '<div class="kpi-calc-row"><span class="kpi-calc-label">Calc</span> ' + kpi.calc + '</div>' : '') +
+      '</div>' : '') +
     '</div>';
 
     grid.insertAdjacentHTML('beforeend', html);

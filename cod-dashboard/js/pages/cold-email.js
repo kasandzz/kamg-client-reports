@@ -286,13 +286,13 @@ function _renderColdEmailKPIs(container) {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Leads',       value: k.total_leads || 0,         format: 'num',   sparkData: dailySent },
-    { label: 'Emails Sent',       value: k.total_sent || 0,          format: 'num',   sparkData: dailySent },
-    { label: 'Reply Rate',        value: k.reply_rate || 0,          format: 'pct',   sparkData: dailyReplyRate },
-    { label: 'Interested',        value: k.total_interested || 0,    format: 'num',   sparkData: dailyReplied },
-    { label: 'Bounce Rate',       value: k.bounce_rate || 0,         format: 'pct' },
-    { label: 'Active Campaigns',  value: activeCampaigns,            format: 'num' },
-    { label: 'Deliverability',    value: k.deliverability_rate || 0, format: 'pct' },
+    { label: 'Total Leads',       value: k.total_leads || 0,         format: 'num',   sparkData: dailySent,        source: 'BigQuery: emailbison_campaigns',    calc: 'SUM(leads_count) across all campaigns for date range' },
+    { label: 'Emails Sent',       value: k.total_sent || 0,          format: 'num',   sparkData: dailySent,        source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(sent) for date range' },
+    { label: 'Reply Rate',        value: k.reply_rate || 0,          format: 'pct',   sparkData: dailyReplyRate,   source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(replied) / SUM(sent) * 100' },
+    { label: 'Interested',        value: k.total_interested || 0,    format: 'num',   sparkData: dailyReplied,     source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(interested) for date range (positive-intent replies)' },
+    { label: 'Bounce Rate',       value: k.bounce_rate || 0,         format: 'pct',                               source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(bounced) / SUM(sent) * 100' },
+    { label: 'Active Campaigns',  value: activeCampaigns,            format: 'num',                               source: 'BigQuery: emailbison_campaigns',    calc: 'COUNT(*) WHERE status = "active"' },
+    { label: 'Deliverability',    value: k.deliverability_rate || 0, format: 'pct',                               source: 'BigQuery: cold_outbound_stats',     calc: '(SUM(sent) - SUM(bounced)) / SUM(sent) * 100' },
   ]);
 }
 

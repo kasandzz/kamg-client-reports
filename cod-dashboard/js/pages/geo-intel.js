@@ -47,12 +47,12 @@ App.registerPage('geo-intel', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'States with Revenue',  value: stateCount,    format: 'num' },
-    { label: 'Top State',            value: topState,      format: 'text' },
-    { label: 'Total Geo Revenue',    value: totalRevenue,  format: 'money' },
-    { label: 'Dead Zones',           value: deadZoneCount, format: 'num',   invertCost: true },
-    { label: 'Wasted in Dead Zones', value: wastedSpend,   format: 'money', invertCost: true },
-    { label: 'Best ROAS State',      value: bestRoasLabel, format: 'text' },
+    { label: 'States with Revenue',  value: stateCount,    format: 'num',   source: 'BQ hyros_sales (state field)', calc: 'COUNT(DISTINCT state WHERE revenue > 0)' },
+    { label: 'Top State',            value: topState,      format: 'text',  source: 'BQ hyros_sales GROUP BY state', calc: 'state WHERE SUM(revenue) = MAX(SUM(revenue))' },
+    { label: 'Total Geo Revenue',    value: totalRevenue,  format: 'money', source: 'BQ hyros_sales', calc: 'SUM(revenue WHERE state IS NOT NULL)' },
+    { label: 'Dead Zones',           value: deadZoneCount, format: 'num',   invertCost: true, source: 'BQ meta_ads JOIN hyros_sales GROUP BY state', calc: 'COUNT(states WHERE spend > 500 AND enrollments = 0)' },
+    { label: 'Wasted in Dead Zones', value: wastedSpend,   format: 'money', invertCost: true, source: 'BQ meta_ads GROUP BY state', calc: 'SUM(spend WHERE state IN dead_zones)' },
+    { label: 'Best ROAS State',      value: bestRoasLabel, format: 'text',  source: 'BQ meta_ads JOIN hyros_sales GROUP BY state', calc: 'state WHERE SUM(revenue) / SUM(spend) = MAX(ROAS)' },
   ]);
 
   // ---- US Choropleth (full width) ----

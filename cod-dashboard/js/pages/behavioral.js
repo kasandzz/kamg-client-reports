@@ -34,11 +34,11 @@ App.registerPage('behavioral', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Events',      value: kpi.total_events   || 0, format: 'num' },
-    { label: 'Unique Users',      value: kpi.unique_users   || 0, format: 'num' },
-    { label: 'Pageviews',         value: kpi.pageviews      || 0, format: 'num' },
-    { label: 'Rage Clicks',       value: kpi.rage_clicks    || 0, format: 'num', invertCost: true },
-    { label: 'Avg Hours to Book', value: Math.round(avgHoursToBook), format: 'num' },
+    { label: 'Total Events',      value: kpi.total_events   || 0, format: 'num', source: 'BQ posthog_events', calc: 'COUNT(events)' },
+    { label: 'Unique Users',      value: kpi.unique_users   || 0, format: 'num', source: 'BQ posthog_events', calc: 'COUNT(DISTINCT distinct_id)' },
+    { label: 'Pageviews',         value: kpi.pageviews      || 0, format: 'num', source: 'BQ posthog_events', calc: 'COUNT(events WHERE event = $pageview)' },
+    { label: 'Rage Clicks',       value: kpi.rage_clicks    || 0, format: 'num', invertCost: true, source: 'BQ posthog_events', calc: 'COUNT(events WHERE event = $rageclick)' },
+    { label: 'Avg Hours to Book', value: Math.round(avgHoursToBook), format: 'num', source: 'BQ posthog_events JOIN ghl_appointments', calc: 'AVG(TIMESTAMP_DIFF(booked_at, first_pageview_at, HOUR))' },
   ]);
 
   // ---- 2-column chart grid ----

@@ -40,14 +40,14 @@ App.registerPage('churn', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Active Subscribers', value: activeSubscribers, format: 'num'                   },
-    { label: 'Total Collected',    value: collected,         format: 'money'                 },
-    { label: 'Total Refunded',     value: refunded,          format: 'money', invertCost: true },
-    { label: 'Refund Rate',        value: refundRate,        format: 'pct',   invertCost: true },
-    { label: 'Failed Payments',    value: failed,            format: 'num',   invertCost: true },
-    { label: 'Failure Rate',       value: failureRate,       format: 'pct',   invertCost: true },
-    { label: 'Refund Count',       value: refundCount,       format: 'num',   invertCost: true },
-    { label: 'Total Charges',      value: totalCharges,      format: 'num'                   },
+    { label: 'Active Subscribers', value: activeSubscribers, format: 'num',   source: 'BQ stripe_subscriptions', calc: 'COUNT(subscriptions WHERE status = active)' },
+    { label: 'Total Collected',    value: collected,         format: 'money', source: 'BQ stripe_charges', calc: 'SUM(amount WHERE status = succeeded)' },
+    { label: 'Total Refunded',     value: refunded,          format: 'money', invertCost: true, source: 'BQ stripe_charges', calc: 'SUM(amount_refunded)' },
+    { label: 'Refund Rate',        value: refundRate,        format: 'pct',   invertCost: true, source: 'BQ stripe_charges', calc: 'SUM(amount_refunded) / SUM(amount WHERE succeeded)' },
+    { label: 'Failed Payments',    value: failed,            format: 'num',   invertCost: true, source: 'BQ stripe_charges', calc: 'COUNT(charges WHERE status = failed)' },
+    { label: 'Failure Rate',       value: failureRate,       format: 'pct',   invertCost: true, source: 'BQ stripe_charges', calc: 'COUNT(failed) / COUNT(total_charges)' },
+    { label: 'Refund Count',       value: refundCount,       format: 'num',   invertCost: true, source: 'BQ stripe_charges', calc: 'COUNT(charges WHERE amount_refunded > 0)' },
+    { label: 'Total Charges',      value: totalCharges,      format: 'num',   source: 'BQ stripe_charges', calc: 'COUNT(charges)' },
   ]);
 
   // ---- Chart grid (2-column) ----

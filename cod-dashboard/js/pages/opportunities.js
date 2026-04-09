@@ -48,11 +48,11 @@ App.registerPage('opportunities', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'VIP Non-Booker Potential', value: vipPotential, format: 'money' },
-    { label: 'Close Rate Equalization', value: closerUplift > 0 ? closerUplift : 0, format: 'money' },
-    { label: 'VIP Non-Bookers', value: vipNonBookers, format: 'num' },
-    { label: 'Overall Close Rate', value: overallCloseRate * 100, format: 'pct' },
-    { label: 'Enrolled', value: enrolled, format: 'num' },
+    { label: 'VIP Non-Booker Potential', value: vipPotential, format: 'money', source: 'BQ zoom_attendance LEFT JOIN ghl_appointments', calc: 'vip_non_bookers * booking_rate * close_rate * avg_deal_value' },
+    { label: 'Close Rate Equalization', value: closerUplift > 0 ? closerUplift : 0, format: 'money', source: 'BQ hyros_sales GROUP BY closer', calc: '(best_close_rate - avg_close_rate) * total_calls * avg_deal_value' },
+    { label: 'VIP Non-Bookers', value: vipNonBookers, format: 'num', source: 'BQ zoom_attendance LEFT JOIN ghl_appointments', calc: 'COUNT(vip_attendees WHERE no appointment booked)' },
+    { label: 'Overall Close Rate', value: overallCloseRate * 100, format: 'pct', source: 'BQ hyros_sales + ghl_appointments', calc: 'SUM(enrolled) / SUM(showed_on_call)' },
+    { label: 'Enrolled', value: enrolled, format: 'num', source: 'BQ hyros_sales', calc: 'COUNT(sales WHERE tag = enrolled)' },
   ]);
 
   // ---- 2-column card grid ----

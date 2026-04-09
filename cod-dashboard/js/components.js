@@ -71,6 +71,15 @@ const Components = (() => {
       // Sparkline canvas id
       const sparkId = `spark-${i}-${Date.now()}`;
 
+      // Source + calc metadata (visible when "Show calculations" is toggled)
+      let calcHTML = '';
+      if (kpi.source || kpi.calc) {
+        calcHTML = `<div class="kpi-calc-meta">`;
+        if (kpi.source) calcHTML += `<div class="kpi-calc-row"><span class="kpi-calc-label">Source</span> ${_esc(kpi.source)}</div>`;
+        if (kpi.calc) calcHTML += `<div class="kpi-calc-row"><span class="kpi-calc-label">Calc</span> ${_esc(kpi.calc)}</div>`;
+        calcHTML += `</div>`;
+      }
+
       card.innerHTML = `
         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${statusColor}80,transparent)"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -83,6 +92,7 @@ const Components = (() => {
         </div>
         ${prevHTML}
         ${kpi.sparkData ? `<div class="kpi-spark-container"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
+        ${calcHTML}
       `;
 
       el.appendChild(card);

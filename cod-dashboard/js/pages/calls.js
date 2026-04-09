@@ -29,12 +29,12 @@ App.registerPage('calls', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Bookings',      value: kpi.total_bookings || 0, format: 'num'   },
-    { label: 'Show Rate',     value: kpi.show_rate      || 0, format: 'pct'   },
-    { label: 'Close Rate',    value: kpi.close_rate     || 0, format: 'pct'   },
-    { label: 'Closed / Enrolled', value: kpi.closed     || 0, format: 'num'   },
-    { label: 'No-Shows',      value: kpi.no_shows       || 0, format: 'num'   },
-    { label: 'No-Show Cost',  value: kpi.no_show_cost   || 0, format: 'money', invertCost: true },
+    { label: 'Bookings',      value: kpi.total_bookings || 0, format: 'num',   source: 'GHL calendar (appointment_bookings)', calc: 'COUNT(appointments WHERE status != cancelled)' },
+    { label: 'Show Rate',     value: kpi.show_rate      || 0, format: 'pct',   source: 'GHL calendar + Zoom attendance', calc: 'showed / booked' },
+    { label: 'Close Rate',    value: kpi.close_rate     || 0, format: 'pct',   source: 'GHL contacts + Hyros sales', calc: 'enrolled / showed' },
+    { label: 'Closed / Enrolled', value: kpi.closed     || 0, format: 'num',   source: 'Hyros sales events', calc: 'COUNT(sales WHERE tag = enrolled)' },
+    { label: 'No-Shows',      value: kpi.no_shows       || 0, format: 'num',   source: 'GHL calendar (appointment_bookings)', calc: 'COUNT(appointments WHERE status = no_show)' },
+    { label: 'No-Show Cost',  value: kpi.no_show_cost   || 0, format: 'money', invertCost: true, source: 'Derived from GHL no-shows', calc: 'no_shows * $877 avg deal value' },
   ]);
 
   // ---- 2-column chart grid ----

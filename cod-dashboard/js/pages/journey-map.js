@@ -51,12 +51,12 @@ App.registerPage('journey-map', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Tickets Sold',    value: d.tickets     || 0, format: 'num' },
-    { label: 'Attended',        value: d.attended    || 0, format: 'num' },
-    { label: 'Enrolled',        value: d.enrolled    || 0, format: 'num' },
-    { label: 'Overall CVR',     value: d.overall_cvr || 0, format: 'pct' },
-    { label: 'Close Rate',      value: d.close_rate  || 0, format: 'pct' },
-    { label: 'Show Rate',       value: d.show_rate   || 0, format: 'pct' },
+    { label: 'Tickets Sold',    value: d.tickets     || 0, format: 'num', source: 'BQ stripe_charges', calc: 'COUNT(charges WHERE amount IN (27, 54) AND status = succeeded)' },
+    { label: 'Attended',        value: d.attended    || 0, format: 'num', source: 'BQ zoom_attendance', calc: 'COUNT(DISTINCT email WHERE attended = true)' },
+    { label: 'Enrolled',        value: d.enrolled    || 0, format: 'num', source: 'BQ hyros_sales', calc: 'COUNT(sales WHERE tag = enrolled)' },
+    { label: 'Overall CVR',     value: d.overall_cvr || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / tickets_sold' },
+    { label: 'Close Rate',      value: d.close_rate  || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / showed_on_call' },
+    { label: 'Show Rate',       value: d.show_rate   || 0, format: 'pct', source: 'BQ zoom_attendance JOIN ghl_appointments', calc: 'attended / booked' },
   ]);
 
   // ---- Section header ----

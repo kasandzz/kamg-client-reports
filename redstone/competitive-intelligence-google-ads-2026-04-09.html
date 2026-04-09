@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone Manufacturing - Competitive Intelligence Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #000000; line-height: 1.6; }
+
+  /* Header */
+  .header { background: #000; color: #fff; padding: 60px 40px; }
+  .header-inner { max-width: 1200px; margin: 0 auto; }
+  .header h1 { font-size: 2.4em; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1em; color: #999; font-weight: 400; }
+  .header .meta { margin-top: 20px; font-size: 0.85em; color: #666; }
+  .header .meta span { margin-right: 24px; }
+
+  /* Container */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+  /* Section */
+  .section { padding: 60px 0; border-bottom: 1px solid #E0E0E0; }
+  .section:last-child { border-bottom: none; }
+  .section-number { font-size: 0.85em; font-weight: 700; color: #B21E24; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .section h2 { font-size: 1.8em; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 24px; }
+  .section h3 { font-size: 1.2em; font-weight: 700; margin: 32px 0 16px 0; }
+  .section p { font-size: 0.95em; color: #666; margin-bottom: 16px; max-width: 800px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 32px 0; font-size: 0.9em; }
+  th { background: #F5F5F5; font-weight: 600; text-align: left; padding: 12px 16px; border: 1px solid #E0E0E0; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: #666; }
+  td { padding: 12px 16px; border: 1px solid #E0E0E0; vertical-align: top; }
+  tr:nth-child(even) { background: #FAFAFA; }
+  tr:hover { background: #F5F5F5; }
+
+  /* Status indicators */
+  .status-red { color: #B21E24; font-weight: 700; }
+  .status-green { color: #16a34a; font-weight: 700; }
+  .status-blue { color: #2563eb; font-weight: 700; }
+  .status-orange { color: #ea580c; font-weight: 700; }
+  .status-purple { color: #7c3aed; font-weight: 700; }
+  .status-yellow { color: #ca8a04; font-weight: 700; }
+
+  /* Dark band */
+  .dark-band { background: #000; color: #fff; padding: 60px 40px; }
+  .dark-band h2 { color: #fff; }
+  .dark-band p { color: #999; }
+  .dark-band table { border-color: #333; }
+  .dark-band th { background: #111; color: #999; border-color: #333; }
+  .dark-band td { border-color: #333; color: #ddd; }
+  .dark-band tr:nth-child(even) { background: #0a0a0a; }
+  .dark-band tr:hover { background: #111; }
+
+  /* Cards / Grid */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; }
+  .card { border: 1px solid #E0E0E0; padding: 24px; }
+  .card-label { font-size: 0.75em; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .card-value { font-size: 1.8em; font-weight: 800; letter-spacing: -0.02em; }
+  .card-note { font-size: 0.8em; color: #666; margin-top: 4px; }
+
+  /* Competitor profile */
+  .competitor { border: 1px solid #E0E0E0; margin-bottom: 32px; }
+  .competitor-header { padding: 20px 24px; border-bottom: 1px solid #E0E0E0; display: flex; justify-content: space-between; align-items: center; }
+  .competitor-header h3 { margin: 0; font-size: 1.1em; }
+  .competitor-body { padding: 24px; }
+  .competitor-body .detail-grid { display: grid; grid-template-columns: 160px 1fr; gap: 8px 24px; font-size: 0.9em; }
+  .competitor-body .detail-label { font-weight: 600; color: #666; }
+  .competitor-body .detail-value { color: #000; }
+
+  /* Tag */
+  .tag { display: inline-block; padding: 2px 10px; font-size: 0.75em; font-weight: 600; border: 1px solid; margin-right: 4px; }
+  .tag-red { color: #B21E24; border-color: #B21E24; }
+  .tag-green { color: #16a34a; border-color: #16a34a; }
+  .tag-blue { color: #2563eb; border-color: #2563eb; }
+  .tag-orange { color: #ea580c; border-color: #ea580c; }
+  .tag-purple { color: #7c3aed; border-color: #7c3aed; }
+
+  /* Callout */
+  .callout { border-left: 4px solid #B21E24; padding: 16px 24px; background: #F5F5F5; margin: 24px 0; }
+  .callout-title { font-weight: 700; font-size: 0.9em; margin-bottom: 4px; }
+  .callout-body { font-size: 0.9em; color: #666; }
+
+  /* Opportunity */
+  .opp { border: 1px solid #E0E0E0; padding: 24px; margin-bottom: 16px; }
+  .opp-priority { font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .opp h4 { font-size: 1em; font-weight: 700; margin-bottom: 8px; }
+  .opp p { font-size: 0.85em; color: #666; margin-bottom: 0; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .header { padding: 40px 20px; }
+    .container { padding: 0 20px; }
+    .dark-band { padding: 40px 20px; }
+  }
+
+  /* Print */
+  @media print {
+    .dark-band { background: #fff !important; color: #000 !important; }
+    .dark-band th { background: #f5f5f5 !important; color: #000 !important; }
+    .dark-band td { color: #000 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <h1>Competitive Intelligence Report</h1>
+    <div class="subtitle">Google Ads, Landing Pages, Keywords, and Digital Strategy Analysis</div>
+    <div class="meta">
+      <span>Prepared for Eric Millinger, Redstone Manufacturing</span>
+      <span>April 9, 2026</span>
+      <span>KAMG</span>
+    </div>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 01</div>
+    <h2>Executive Summary</h2>
+    <p>This report analyzes 10 direct competitors to Redstone Manufacturing across Google Ads strategy, landing page performance, keyword positioning, and digital conversion tactics. The goal: identify exactly what competitors are doing with Google Ads that Redstone should be doing better.</p>
+
+    <div class="grid-3" style="margin-top: 32px;">
+      <div class="card">
+        <div class="card-label">Competitors Analyzed</div>
+        <div class="card-value">10</div>
+        <div class="card-note">3 Tier 1, 7 Tier 2</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Redstone's Biggest Gap</div>
+        <div class="card-value" style="font-size: 1.2em; color: #B21E24;">No Instant Quote</div>
+        <div class="card-note">Every major competitor has one</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Unique Positioning Angle</div>
+        <div class="card-value" style="font-size: 1.2em; color: #16a34a;">Nearshore Mexico</div>
+        <div class="card-note">Zero competitors advertising this</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 32px;">
+      <div class="callout-title">Bottom Line</div>
+      <div class="callout-body">Redstone's competitors spend $50M-$100M+ annually on sales and marketing. They win with instant quoting, service-specific landing pages, and long-tail keyword strategies. Redstone's advantage is that none of them own the "US quality + Mexico pricing" narrative in paid search. That is a wide-open lane.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPETITOR TIER OVERVIEW -->
+<div class="dark-band">
+  <div class="container" style="padding: 0;">
+    <div class="section" style="border-bottom-color: #333;">
+      <div class="section-number" style="color: #B21E24;">Section 02</div>
+      <h2>Competitor Landscape Overview</h2>
+      <p>10 competitors segmented by threat level to Redstone's business.</p>
+
+      <table style="margin-top: 24px;">
+        <thead>
+          <tr>
+            <th>Competitor</th>
+            <th>Type</th>
+            <th>Revenue</th>
+            <th>Est. Marketing Spend</th>
+            <th>Instant Quote</th>
+            <th>Key Threat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Xometry</strong></td>
+            <td>Marketplace</td>
+            <td>$687M (2025)</td>
+            <td>~$36M/yr (5.2% of marketplace rev)</td>
+            <td class="status-green">AI-Powered</td>
+            <td>Dominates paid + organic search</td>
+          </tr>
+          <tr>
+            <td><strong>Protolabs</strong></td>
+            <td>Manufacturer + Network</td>
+            <td>~$500M (2024)</td>
+            <td>~$95M/yr ($24M/quarter S&M)</td>
+            <td class="status-green">Automated</td>
+            <td>Speed (parts in 1 day)</td>
+          </tr>
+          <tr>
+            <td><strong>Fictiv</strong></td>
+            <td>Platform (MISUMI-owned)</td>
+            <td>~$100-200M (est.)</td>
+            <td>VC-funded, aggressive</td>
+            <td class="status-green">Online</td>
+            <td>Quality + managed network</td>
+          </tr>
+          <tr>
+            <td><strong>RapidDirect</strong></td>
+            <td>China-based mfg</td>
+            <td>~$50-100M (est.)</td>
+            <td>Heavy Google Ads</td>
+            <td class="status-green">w/ DFM</td>
+            <td>Low price + free DFM feedback</td>
+          </tr>
+          <tr>
+            <td><strong>SendCutSend</strong></td>
+            <td>Online fab shop</td>
+            <td>Inc. 5000 / Deloitte 500</td>
+            <td>Performance marketing</td>
+            <td class="status-green">Instant pricing</td>
+            <td>Best UX in manufacturing</td>
+          </tr>
+          <tr>
+            <td><strong>Hubs (Protolabs)</strong></td>
+            <td>Marketplace</td>
+            <td>Part of Protolabs</td>
+            <td>Shared with Protolabs</td>
+            <td class="status-green">Network</td>
+            <td>European + Asian footprint</td>
+          </tr>
+          <tr>
+            <td><strong>Dynacast</strong></td>
+            <td>Die casting specialist</td>
+            <td>~$500M+ (Form Technologies)</td>
+            <td>Moderate (brand-focused)</td>
+            <td class="status-orange">Quote form</td>
+            <td>Die casting expertise + global</td>
+          </tr>
+          <tr>
+            <td><strong>3ERP</strong></td>
+            <td>Prototyping</td>
+            <td>~$10-30M (est.)</td>
+            <td>Aggressive Google Ads</td>
+            <td class="status-green">Online</td>
+            <td>Low-volume niche</td>
+          </tr>
+          <tr>
+            <td><strong>Zetwerk</strong></td>
+            <td>India marketplace</td>
+            <td>$1.5B+ (India + global)</td>
+            <td>Heavy digital spend</td>
+            <td class="status-green">Platform</td>
+            <td>Massive scale + low cost</td>
+          </tr>
+          <tr>
+            <td><strong>MFG.com</strong></td>
+            <td>Sourcing platform</td>
+            <td>~$10-20M (est.)</td>
+            <td>Moderate</td>
+            <td class="status-orange">RFQ matching</td>
+            <td>Buyer network / lead source</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TIER 1 DEEP DIVES -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 03</div>
+    <h2>Tier 1 Competitor Deep Dives</h2>
+    <p>The three competitors that dominate Google Ads in custom manufacturing.</p>
+
+    <!-- XOMETRY -->
+    <div class="competitor">
+      <div class="competitor-header" style="background: #F5F5F5;">
+        <h3>Xometry (xometry.com)</h3>
+        <span class="tag tag-red">PRIMARY THREAT</span>
+      </div>
+      <div class="competitor-body">
+        <div class="detail-grid">
+          <div class="detail-label">Revenue</div>
+          <div class="detail-value">$686.6M (FY2025), up 26% YoY</div>
+          <div class="detail-label">S&M Spend</div>
+          <div class="detail-value">~5.2% of marketplace revenue = ~$33-36M annually on advertising alone</div>
+          <div class="detail-label">Active Buyers</div>
+          <div class="detail-value">81,821 (growing ~4K/quarter)</div>
+          <div class="detail-label">Active Suppliers</div>
+          <div class="detail-value">4,996 globally</div>
+          <div class="detail-label">Google Ads Strategy</div>
+          <div class="detail-value">Massive keyword coverage across all manufacturing processes. Service-specific landing pages for every capability. Runs both branded and non-branded campaigns heavily.</div>
+          <div class="detail-label">Certifications</div>
+          <div class="detail-value">ITAR, ISO 9001:2015, ISO 13485:2016, AS9100D</div>
+          <div class="detail-label">Slogan</div>
+          <div class="detail-value">"Where Big Ideas are Built"</div>
+          <div class="detail-label">Key Weapon</div>
+          <div class="detail-value"><strong>Xometry Instant Quoting Engine</strong> -- AI-powered, analyzes complex parts in real-time using millions of data points. Upload CAD file, get price instantly.</div>
+          <div class="detail-label">Page Count</div>
+          <div class="detail-value">5,000-10,000+ indexed pages (massive content moat)</div>
+          <div class="detail-label">Content Strategy</div>
+          <div class="detail-value">/resources/ hub with 1,000+ articles, /capabilities/ with 200+ service pages, /materials/ database, design guides, blog</div>
+          <div class="detail-label">Also Owns</div>
+          <div class="detail-value">Thomasnet (advertising/marketing services for suppliers = $57M revenue)</div>
+        </div>
+
+        <h3 style="margin-top: 24px;">What Xometry Does That Redstone Should Study</h3>
+        <table>
+          <thead>
+            <tr><th>Tactic</th><th>What They Do</th><th>Redstone Gap</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Instant Quoting</td>
+              <td>CAD upload -> instant price. Zero friction.</td>
+              <td class="status-red">No quote tool. "Get Free Quote" goes to contact page.</td>
+            </tr>
+            <tr>
+              <td>Service Landing Pages</td>
+              <td>200+ dedicated pages per service/material/process</td>
+              <td class="status-red">~50 total pages, generic service descriptions</td>
+            </tr>
+            <tr>
+              <td>Long-tail Keywords</td>
+              <td>Targets "aluminum die casting," "5-axis CNC machining services," etc.</td>
+              <td class="status-red">Not bidding on long-tail manufacturing terms</td>
+            </tr>
+            <tr>
+              <td>Content Marketing</td>
+              <td>1,000+ educational articles, guides, material databases</td>
+              <td class="status-red">Minimal content on site</td>
+            </tr>
+            <tr>
+              <td>Remarketing</td>
+              <td>Heavy retargeting across Display + YouTube</td>
+              <td class="status-orange">Unknown if running remarketing</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROTOLABS -->
+    <div class="competitor">
+      <div class="competitor-header" style="background: #F5F5F5;">
+        <h3>Protolabs (protolabs.com)</h3>
+        <span class="tag tag-red">PRIMARY THREAT</span>
+      </div>
+      <div class="competitor-body">
+        <div class="detail-grid">
+          <div class="detail-label">Revenue</div>
+          <div class="detail-value">~$500M (FY2024), S&M expense ~$24M/quarter (~$95M/year)</div>
+          <div class="detail-label">Google Ads Strategy</div>
+          <div class="detail-value">Aggressive on CNC, injection molding, sheet metal keywords. "Get Instant Quote" as primary CTA throughout.</div>
+          <div class="detail-label">Certifications</div>
+          <div class="detail-value">ISO 9001:2015, AS9100D, ITAR registered</div>
+          <div class="detail-label">Key Weapon</div>
+          <div class="detail-value"><strong>Speed</strong> -- "Parts in as fast as 1 day." Automated manufacturing analysis + DFM built into quote.</div>
+          <div class="detail-label">Quote Mechanism</div>
+          <div class="detail-value">3D CAD file upload, automated pricing, manufacturing analysis, DFM feedback -- all within hours</div>
+          <div class="detail-label">Pricing Floor</div>
+          <div class="detail-value">~$65 starting price (published on site)</div>
+        </div>
+
+        <h3 style="margin-top: 24px;">Protolabs CNC Landing Page Breakdown</h3>
+        <table>
+          <thead>
+            <tr><th>Element</th><th>What They Do</th><th>Why It Works</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Headline</td>
+              <td>"Online CNC Machining Service for Custom Parts"</td>
+              <td>Keyword-rich, matches search intent exactly</td>
+            </tr>
+            <tr>
+              <td>Subheadline</td>
+              <td>"Machined prototypes and production parts in as fast as 1 day"</td>
+              <td>Speed is the #1 differentiator -- stated immediately</td>
+            </tr>
+            <tr>
+              <td>Primary CTA</td>
+              <td>"Start A Project" + "Get Instant Quote"</td>
+              <td>Two entry points for different buyer readiness levels</td>
+            </tr>
+            <tr>
+              <td>Trust Signals</td>
+              <td>ISO 9001, AS9100D, ITAR + NASA case study</td>
+              <td>Aerospace/defense cert stack + marquee client</td>
+            </tr>
+            <tr>
+              <td>Specs on Page</td>
+              <td>Lead times (1-20 days), tolerances (0.001"-0.005"), 30+ materials</td>
+              <td>Engineers can self-qualify without talking to sales</td>
+            </tr>
+            <tr>
+              <td>No NRE Costs</td>
+              <td>Explicitly states no non-recurring engineering costs</td>
+              <td>Removes a major friction point for procurement</td>
+            </tr>
+            <tr>
+              <td>Form</td>
+              <td>CAD file upload only -- minimal fields</td>
+              <td>Ultra-low friction quote process</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FICTIV -->
+    <div class="competitor">
+      <div class="competitor-header" style="background: #F5F5F5;">
+        <h3>Fictiv (fictiv.com)</h3>
+        <span class="tag tag-orange">HIGH THREAT</span>
+      </div>
+      <div class="competitor-body">
+        <div class="detail-grid">
+          <div class="detail-label">Ownership</div>
+          <div class="detail-value">Acquired by MISUMI Group (April 2025), $192M raised pre-acquisition</div>
+          <div class="detail-label">Google Ads Strategy</div>
+          <div class="detail-value">Competitor conquest campaigns (fictiv.com/xometry-competitor-alternative, fictiv.com/protolabs-competitor-alternative). Bids on competitor brand names.</div>
+          <div class="detail-label">Key Weapon</div>
+          <div class="detail-value"><strong>Quality positioning</strong> -- "More consistency and quality than Protolabs" + dedicated account managers. Aggressively vetted supplier network.</div>
+          <div class="detail-label">Global Operations</div>
+          <div class="detail-value">US, Mexico, India, China manufacturing centers with in-region quality teams</div>
+          <div class="detail-label">Content Strategy</div>
+          <div class="detail-value">500-700+ indexed pages, programmatic SEO (individual material + finish pages), case studies (Honeywell, HeliSpace)</div>
+          <div class="detail-label">Unique Tactic</div>
+          <div class="detail-value"><strong>Competitor comparison pages</strong> -- ranks for "[competitor] alternative" keywords</div>
+        </div>
+
+        <div class="callout" style="margin-top: 24px;">
+          <div class="callout-title">Key Insight for Redstone</div>
+          <div class="callout-body">Fictiv's conquest strategy (building pages titled "Xometry Alternative" and "Protolabs Alternative") is a tactic Redstone could replicate at zero ad cost. Build comparison pages targeting "[big competitor] alternative" keywords = free organic traffic from buyers already in-market.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIER 2 COMPETITORS -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 04</div>
+    <h2>Tier 2 Competitors</h2>
+    <p>Secondary competitors with notable Google Ads or digital strategies.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Competitor</th>
+          <th>HQ / Model</th>
+          <th>Google Ads Presence</th>
+          <th>Key Messaging</th>
+          <th>Quote Tool</th>
+          <th>Threat to Redstone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>SendCutSend</strong></td>
+          <td>US (3 facilities: NV, KY, TX)</td>
+          <td class="status-green">Heavy -- performance marketing</td>
+          <td>"Custom parts in 2 days." 59.8% of Fortune 500 use them. 853 reviews, 5 stars.</td>
+          <td>Instant pricing (CAD upload or Parts Builder templates)</td>
+          <td class="status-red">Best-in-class UX. 170+ materials. Money-back guarantee.</td>
+        </tr>
+        <tr>
+          <td><strong>RapidDirect</strong></td>
+          <td>China (Shenzhen)</td>
+          <td class="status-green">Aggressive Google Ads</td>
+          <td>"Instant quotes with free DFM feedback within minutes." Heavy content marketing (blog posts comparing to Xometry, Protolabs).</td>
+          <td>Instant + free DFM</td>
+          <td class="status-orange">Low price + publishes competitor comparison content</td>
+        </tr>
+        <tr>
+          <td><strong>Dynacast</strong></td>
+          <td>Global (Form Technologies)</td>
+          <td class="status-yellow">Moderate -- brand-focused</td>
+          <td>"Precision In Every Cast." Empowering global industry leaders. "Speak to an Engineer" CTA.</td>
+          <td>Quote request form</td>
+          <td class="status-orange">Die casting specialist -- direct overlap with Redstone's core service</td>
+        </tr>
+        <tr>
+          <td><strong>Hubs (Protolabs Network)</strong></td>
+          <td>Europe + Asia</td>
+          <td class="status-green">Runs under Protolabs budget</td>
+          <td>Global vetted network, strong logistics in EU + Asia. Automated quoting.</td>
+          <td>Network-based quoting</td>
+          <td class="status-yellow">Less US-focused, more for international sourcing</td>
+        </tr>
+        <tr>
+          <td><strong>3ERP</strong></td>
+          <td>China</td>
+          <td class="status-green">Aggressive on prototyping keywords</td>
+          <td>Rapid prototyping, low-volume production, competitive pricing</td>
+          <td>Online quote</td>
+          <td class="status-yellow">Mainly prototyping -- limited production overlap</td>
+        </tr>
+        <tr>
+          <td><strong>Zetwerk</strong></td>
+          <td>India (global ops)</td>
+          <td class="status-green">Heavy digital spend</td>
+          <td>Manufacturing marketplace at massive scale. India pricing advantage.</td>
+          <td>Platform-based</td>
+          <td class="status-yellow">More India/Asia focused; limited US presence in paid search</td>
+        </tr>
+        <tr>
+          <td><strong>MFG.com</strong></td>
+          <td>US</td>
+          <td class="status-yellow">Moderate</td>
+          <td>Manufacturing sourcing platform. Buyer-supplier matching.</td>
+          <td>RFQ matching system</td>
+          <td class="status-yellow">Lead source for Redstone, not direct competitor</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LANDING PAGE COMPARISON -->
+<div class="dark-band">
+  <div class="container" style="padding: 0;">
+    <div class="section" style="border-bottom-color: #333;">
+      <div class="section-number" style="color: #B21E24;">Section 05</div>
+      <h2>Landing Page Comparison</h2>
+      <p>How competitor service pages convert vs. Redstone's current site.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Redstone</th>
+            <th>Xometry</th>
+            <th>Protolabs</th>
+            <th>SendCutSend</th>
+            <th>Dynacast</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hero Headline</strong></td>
+            <td>"Ready to Optimize Your Manufacturing Costs?"</td>
+            <td>"Where Big Ideas are Built"</td>
+            <td>"Online CNC Machining Service for Custom Parts"</td>
+            <td>"Custom parts delivered in as little as 2 days"</td>
+            <td>"Precision In Every Cast"</td>
+          </tr>
+          <tr>
+            <td><strong>Primary CTA</strong></td>
+            <td>"Get Free Quote" (contact page)</td>
+            <td>"Get Instant Quote" (CAD upload)</td>
+            <td>"Start A Project" (CAD upload)</td>
+            <td>"Get Started" (app)</td>
+            <td>"Speak to an Engineer"</td>
+          </tr>
+          <tr>
+            <td><strong>Quote Mechanism</strong></td>
+            <td class="status-red">Contact form only</td>
+            <td class="status-green">AI instant quote (CAD upload)</td>
+            <td class="status-green">Automated quote + DFM</td>
+            <td class="status-green">Instant pricing (upload or templates)</td>
+            <td class="status-orange">Form + engineer follow-up</td>
+          </tr>
+          <tr>
+            <td><strong>Certifications Visible</strong></td>
+            <td>ISO badge (generic)</td>
+            <td>ITAR, ISO 9001, ISO 13485, AS9100D</td>
+            <td>ISO 9001, AS9100D, ITAR</td>
+            <td>CAGE, DUNS, DFARS, SAM</td>
+            <td>Certified excellence</td>
+          </tr>
+          <tr>
+            <td><strong>Client Logos</strong></td>
+            <td>Mahindra, Honda, Morgan, CIRCOR</td>
+            <td>Enterprise clients (unnamed)</td>
+            <td>NASA (case study)</td>
+            <td>Cisco, GM, Disney, Google, MIT</td>
+            <td>Global industry leaders</td>
+          </tr>
+          <tr>
+            <td><strong>Technical Specs</strong></td>
+            <td class="status-red">Not visible on landing page</td>
+            <td class="status-green">Tolerances, materials, processes per page</td>
+            <td class="status-green">Lead times, tolerances, materials, max part size</td>
+            <td class="status-green">170+ materials, pricing per piece</td>
+            <td class="status-orange">Process descriptions</td>
+          </tr>
+          <tr>
+            <td><strong>Phone Number</strong></td>
+            <td class="status-red">Not visible on homepage</td>
+            <td>Not prominent</td>
+            <td>Not prominent</td>
+            <td>Not prominent</td>
+            <td class="status-red">Not visible</td>
+          </tr>
+          <tr>
+            <td><strong>Live Chat</strong></td>
+            <td class="status-red">None</td>
+            <td class="status-green">Yes</td>
+            <td class="status-green">Yes</td>
+            <td class="status-green">Yes</td>
+            <td class="status-red">None</td>
+          </tr>
+          <tr>
+            <td><strong>Service Pages</strong></td>
+            <td>~50 total pages</td>
+            <td>5,000-10,000+ pages</td>
+            <td>500+ pages</td>
+            <td>200+ pages</td>
+            <td>100+ pages</td>
+          </tr>
+          <tr>
+            <td><strong>Delivery Guarantee</strong></td>
+            <td class="status-green">Yes (stated)</td>
+            <td>Not explicit</td>
+            <td>Speed guarantee (1-day)</td>
+            <td class="status-green">Money-back guarantee</td>
+            <td>Not explicit</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="border-left-color: #B21E24; background: #111;">
+        <div class="callout-title" style="color: #fff;">Critical Finding</div>
+        <div class="callout-body" style="color: #999;">Redstone is the ONLY competitor in this set without a self-serve quoting mechanism. Every major competitor lets buyers upload a CAD file and get pricing without talking to a human. This is the #1 conversion blocker on Redstone's site for Google Ads traffic.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KEYWORD STRATEGY -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 06</div>
+    <h2>Keyword Strategy Analysis</h2>
+    <p>What competitors are bidding on vs. where Redstone should focus.</p>
+
+    <h3>Industry Benchmarks (Industrial & Commercial, 2025)</h3>
+    <div class="grid-3" style="margin-bottom: 32px;">
+      <div class="card">
+        <div class="card-label">Average CPC</div>
+        <div class="card-value" style="color: #2563eb;">$5.70</div>
+        <div class="card-note">Industrial & Commercial sector</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Average CTR</div>
+        <div class="card-value" style="color: #16a34a;">6.23%</div>
+        <div class="card-note">Above cross-industry average</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Average CVR</div>
+        <div class="card-value" style="color: #7c3aed;">7.17%</div>
+        <div class="card-note">Higher than B2B average</div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-bottom: 32px;">
+      <div class="card">
+        <div class="card-label">Cost Per Lead</div>
+        <div class="card-value" style="color: #ea580c;">$85.63</div>
+        <div class="card-note">Industrial & Commercial</div>
+      </div>
+      <div class="card">
+        <div class="card-label">B2B Services CPL</div>
+        <div class="card-value" style="color: #ea580c;">$103.54</div>
+        <div class="card-note">Business Services benchmark</div>
+      </div>
+      <div class="card">
+        <div class="card-label">YoY CPC Increase</div>
+        <div class="card-value" style="color: #B21E24;">+5-9%</div>
+        <div class="card-note">87% of industries saw increases</div>
+      </div>
+    </div>
+
+    <h3>Keyword Categories: Where Competitors Dominate</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Keyword Category</th>
+          <th>Example Keywords</th>
+          <th>Est. CPC</th>
+          <th>Who Dominates</th>
+          <th>Redstone Opportunity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Die Casting (Core)</strong></td>
+          <td>"custom die casting," "aluminum die casting," "zinc die casting services"</td>
+          <td>$4-8</td>
+          <td>Xometry, Dynacast, RapidDirect</td>
+          <td class="status-green">HIGH -- Redstone's core service, can compete on quality + nearshore angle</td>
+        </tr>
+        <tr>
+          <td><strong>CNC Machining</strong></td>
+          <td>"CNC machining services," "5-axis CNC machining," "precision CNC machining"</td>
+          <td>$5-12</td>
+          <td>Xometry, Protolabs, Fictiv</td>
+          <td class="status-orange">MEDIUM -- Highly competitive, needs specific angle (material, tolerance, industry)</td>
+        </tr>
+        <tr>
+          <td><strong>Sheet Metal</strong></td>
+          <td>"sheet metal fabrication," "custom sheet metal," "sheet metal bending"</td>
+          <td>$3-7</td>
+          <td>Xometry, SendCutSend, Protolabs</td>
+          <td class="status-orange">MEDIUM -- SendCutSend dominates small-run; Redstone for production volume</td>
+        </tr>
+        <tr>
+          <td><strong>Nearshore / Mexico</strong></td>
+          <td>"nearshore manufacturing," "Mexico manufacturing," "manufacturing outsourcing Mexico"</td>
+          <td>$2-5</td>
+          <td class="status-green">NOBODY</td>
+          <td class="status-green">WIDE OPEN -- Zero major competitors bidding on this. Redstone's unique lane.</td>
+        </tr>
+        <tr>
+          <td><strong>Competitor Alternatives</strong></td>
+          <td>"Xometry alternative," "Protolabs alternative," "Fictiv competitor"</td>
+          <td>$3-8</td>
+          <td>Fictiv (organic), RapidDirect (organic)</td>
+          <td class="status-green">HIGH -- Buyers searching for alternatives are in-market. Build comparison pages.</td>
+        </tr>
+        <tr>
+          <td><strong>Industry-Specific</strong></td>
+          <td>"automotive die casting supplier," "aerospace CNC machining," "medical device manufacturing"</td>
+          <td>$6-15</td>
+          <td>Xometry, Protolabs, Fictiv</td>
+          <td class="status-orange">MEDIUM -- Higher CPC but ultra-qualified traffic. Start with automotive (IATF16949).</td>
+        </tr>
+        <tr>
+          <td><strong>Material-Specific</strong></td>
+          <td>"aluminum die casting parts," "stainless steel CNC parts," "titanium machining"</td>
+          <td>$3-8</td>
+          <td>Xometry (programmatic pages), Fictiv</td>
+          <td class="status-green">HIGH -- Long-tail, lower competition. Build material-specific landing pages.</td>
+        </tr>
+        <tr>
+          <td><strong>Process-Specific</strong></td>
+          <td>"investment casting services," "sand casting company," "metal injection molding"</td>
+          <td>$3-7</td>
+          <td>Xometry, specialty shops</td>
+          <td class="status-green">HIGH -- Redstone offers all these. Each needs its own landing page + ad group.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Recommended Campaign Structure for Redstone</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Campaign</th>
+          <th>Ad Groups</th>
+          <th>Priority</th>
+          <th>Est. Monthly Budget</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Campaign 1: Die Casting</strong></td>
+          <td>Aluminum Die Casting, Zinc Die Casting, Custom Die Casting, Die Casting + [industry], High Pressure Die Casting</td>
+          <td class="status-red">P0 -- Core service</td>
+          <td>$1,500-3,000</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 2: CNC Machining</strong></td>
+          <td>Precision CNC, 5-Axis CNC, CNC + [material], CNC Prototyping, Production CNC</td>
+          <td class="status-orange">P1</td>
+          <td>$1,000-2,500</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 3: Sheet Metal</strong></td>
+          <td>Custom Sheet Metal, Sheet Metal Fabrication, Sheet Metal + [material], Sheet Metal Bending</td>
+          <td class="status-orange">P1</td>
+          <td>$800-1,500</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 4: Nearshore/Mexico</strong></td>
+          <td>Nearshore Manufacturing, Mexico Manufacturing, Manufacturing Outsourcing, Cost-Effective Manufacturing</td>
+          <td class="status-green">P0 -- UNIQUE ANGLE</td>
+          <td>$500-1,000</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 5: Competitor Conquest</strong></td>
+          <td>Xometry Alternative, Protolabs Alternative, Fictiv Alternative, [competitor] vs Redstone</td>
+          <td class="status-blue">P2</td>
+          <td>$500-1,000</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 6: Remarketing</strong></td>
+          <td>Site Visitors, Quote Page Visitors, Service Page Visitors</td>
+          <td class="status-red">P0 -- Low cost, high ROI</td>
+          <td>$300-500</td>
+        </tr>
+        <tr>
+          <td><strong>Campaign 7: Brand Defense</strong></td>
+          <td>Redstone Manufacturing, Redstone Metal, Redstone Die Casting</td>
+          <td class="status-blue">P2</td>
+          <td>$100-200</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AD COPY ANALYSIS -->
+<div class="dark-band">
+  <div class="container" style="padding: 0;">
+    <div class="section" style="border-bottom-color: #333;">
+      <div class="section-number" style="color: #B21E24;">Section 07</div>
+      <h2>Ad Copy Competitive Analysis</h2>
+      <p>What the best-performing manufacturing ads look like -- and what Redstone should run.</p>
+
+      <h3>Competitor Ad Copy Patterns</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Competitor</th>
+            <th>Headline Pattern</th>
+            <th>Description Pattern</th>
+            <th>CTA</th>
+            <th>Extensions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Xometry</strong></td>
+            <td>"Custom Manufacturing On Demand" / "[Service] Service -- Instant Quote"</td>
+            <td>Capabilities + certifications + speed</td>
+            <td>"Get Instant Quote"</td>
+            <td>Sitelinks to each service, callouts (ITAR, ISO), structured snippets</td>
+          </tr>
+          <tr>
+            <td><strong>Protolabs</strong></td>
+            <td>"Online CNC Machining -- Parts in 1 Day" / "[Service] -- Fast Turnaround"</td>
+            <td>Speed + no NRE + 30+ materials</td>
+            <td>"Start A Project"</td>
+            <td>Sitelinks (materials, industries), call extensions, location</td>
+          </tr>
+          <tr>
+            <td><strong>Fictiv</strong></td>
+            <td>"[Competitor] Alternative -- Better Quality" / "Managed Manufacturing Platform"</td>
+            <td>Quality + account managers + global network</td>
+            <td>"Get Quote"</td>
+            <td>Sitelinks to case studies + comparison pages</td>
+          </tr>
+          <tr>
+            <td><strong>SendCutSend</strong></td>
+            <td>"Custom Parts in 2 Days" / "170+ Materials In Stock"</td>
+            <td>Speed + material variety + money-back guarantee</td>
+            <td>"Get Started"</td>
+            <td>Price extensions, sitelinks to material guides</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Recommended Ad Copy for Redstone</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Campaign</th>
+            <th>Headline Options (30 char each)</th>
+            <th>Description (90 char)</th>
+            <th>CTA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Die Casting</strong></td>
+            <td>
+              H1: "Custom Die Casting - US Team"<br>
+              H2: "ISO 9001 & IATF 16949 Cert"<br>
+              H3: "Get Your Free Quote Today"<br>
+              H4: "US Quality, Global Pricing"
+            </td>
+            <td>"American-owned die casting with global manufacturing. ISO/IATF certified. Delivery guarantee. Request specs today."</td>
+            <td>Get Free Quote</td>
+          </tr>
+          <tr>
+            <td><strong>CNC Machining</strong></td>
+            <td>
+              H1: "Precision CNC Machining"<br>
+              H2: "ISO 9001 Certified Shop"<br>
+              H3: "Request Quote - Fast Reply"<br>
+              H4: "US + Mexico Manufacturing"
+            </td>
+            <td>"Precision CNC machining from an American team. ISO 9001/IATF certified. Die casting, CNC, sheet metal under one roof."</td>
+            <td>Get Free Quote</td>
+          </tr>
+          <tr>
+            <td><strong>Nearshore</strong></td>
+            <td>
+              H1: "Manufacturing in Mexico"<br>
+              H2: "US Quality, Mexico Pricing"<br>
+              H3: "Nearshore Your Production"<br>
+              H4: "Skip China - Go Nearshore"
+            </td>
+            <td>"American engineering team. Mexico manufacturing. Same quality, better pricing, faster shipping than overseas. Free quote."</td>
+            <td>Get Free Quote</td>
+          </tr>
+          <tr>
+            <td><strong>Competitor Conquest</strong></td>
+            <td>
+              H1: "Xometry Alternative"<br>
+              H2: "US-Owned Manufacturer"<br>
+              H3: "Direct - No Middleman"<br>
+              H4: "ISO & IATF Certified"
+            </td>
+            <td>"Skip the marketplace middleman. Work directly with an American manufacturer. ISO 9001 + IATF 16949. Free quote."</td>
+            <td>Get Free Quote</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Recommended Ad Extensions</h3>
+      <table>
+        <thead>
+          <tr><th>Extension Type</th><th>What to Add</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Sitelinks</strong></td>
+            <td>Die Casting Services, CNC Machining, Sheet Metal, About Us, Contact</td>
+            <td>Increases ad real estate + directs to service-specific pages</td>
+          </tr>
+          <tr>
+            <td><strong>Callout Extensions</strong></td>
+            <td>"ISO 9001 Certified" / "IATF 16949" / "Delivery Guarantee" / "US-Owned" / "Free Quotes"</td>
+            <td>Trust signals visible without clicking</td>
+          </tr>
+          <tr>
+            <td><strong>Structured Snippets</strong></td>
+            <td>Services: Die Casting, CNC Machining, Sheet Metal, Investment Casting, Sand Casting</td>
+            <td>Shows breadth of capabilities</td>
+          </tr>
+          <tr>
+            <td><strong>Call Extension</strong></td>
+            <td>Direct phone number (business hours)</td>
+            <td>B2B buyers want to talk to humans. Many competitors hide their phone numbers.</td>
+          </tr>
+          <tr>
+            <td><strong>Location Extension</strong></td>
+            <td>Seattle facility address</td>
+            <td>Shows US presence -- differentiator vs. China/India competitors</td>
+          </tr>
+          <tr>
+            <td><strong>Image Extensions</strong></td>
+            <td>Photos of manufacturing facility, parts, team</td>
+            <td>Increases CTR 10-15% in Search ads</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGING THEMES -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 08</div>
+    <h2>Messaging Theme Comparison</h2>
+    <p>Which value propositions each competitor leads with -- and where Redstone has whitespace.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Theme</th>
+          <th>Xometry</th>
+          <th>Protolabs</th>
+          <th>Fictiv</th>
+          <th>SendCutSend</th>
+          <th>Dynacast</th>
+          <th>RapidDirect</th>
+          <th>Redstone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Speed / Fast Turnaround</strong></td>
+          <td class="status-green">Primary</td>
+          <td class="status-green">PRIMARY</td>
+          <td class="status-orange">Secondary</td>
+          <td class="status-green">PRIMARY</td>
+          <td>--</td>
+          <td class="status-orange">Secondary</td>
+          <td class="status-red">Not messaged</td>
+        </tr>
+        <tr>
+          <td><strong>Low Price / Cost Savings</strong></td>
+          <td class="status-orange">Secondary</td>
+          <td>--</td>
+          <td>--</td>
+          <td class="status-orange">Secondary</td>
+          <td>--</td>
+          <td class="status-green">Primary</td>
+          <td class="status-green">OPPORTUNITY</td>
+        </tr>
+        <tr>
+          <td><strong>Quality / Precision</strong></td>
+          <td class="status-orange">Secondary</td>
+          <td class="status-orange">Secondary</td>
+          <td class="status-green">PRIMARY</td>
+          <td>--</td>
+          <td class="status-green">PRIMARY</td>
+          <td>--</td>
+          <td class="status-green">Can lead with this</td>
+        </tr>
+        <tr>
+          <td><strong>US / Domestic</strong></td>
+          <td class="status-orange">Mentioned</td>
+          <td class="status-green">Primary</td>
+          <td class="status-orange">Mentioned</td>
+          <td class="status-green">PRIMARY</td>
+          <td class="status-orange">Global</td>
+          <td class="status-red">China</td>
+          <td class="status-green">CORE DIFFERENTIATOR</td>
+        </tr>
+        <tr>
+          <td><strong>Nearshore / Mexico</strong></td>
+          <td class="status-red">Never</td>
+          <td class="status-red">Never</td>
+          <td class="status-orange">Has Mexico ops</td>
+          <td class="status-red">Never</td>
+          <td class="status-red">Never</td>
+          <td class="status-red">Never</td>
+          <td class="status-green">UNIQUE -- NOBODY OWNS THIS</td>
+        </tr>
+        <tr>
+          <td><strong>Certifications</strong></td>
+          <td class="status-green">Heavy</td>
+          <td class="status-green">Heavy</td>
+          <td class="status-orange">Some</td>
+          <td class="status-green">CAGE/DUNS</td>
+          <td class="status-orange">Some</td>
+          <td class="status-orange">Some</td>
+          <td class="status-green">ISO + IATF (strong)</td>
+        </tr>
+        <tr>
+          <td><strong>Self-Serve / Instant Quote</strong></td>
+          <td class="status-green">AI-powered</td>
+          <td class="status-green">Automated</td>
+          <td class="status-green">Online</td>
+          <td class="status-green">Instant pricing</td>
+          <td class="status-red">No</td>
+          <td class="status-green">Instant + DFM</td>
+          <td class="status-red">No -- CRITICAL GAP</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Manufacturer</strong></td>
+          <td class="status-red">Marketplace</td>
+          <td class="status-orange">Hybrid</td>
+          <td class="status-red">Platform</td>
+          <td class="status-green">Direct</td>
+          <td class="status-green">Direct</td>
+          <td class="status-green">Direct</td>
+          <td class="status-green">DIFFERENTIATOR vs marketplaces</td>
+        </tr>
+        <tr>
+          <td><strong>Delivery Guarantee</strong></td>
+          <td class="status-red">No</td>
+          <td class="status-orange">Speed promise</td>
+          <td class="status-red">No</td>
+          <td class="status-green">Money-back</td>
+          <td class="status-red">No</td>
+          <td class="status-red">No</td>
+          <td class="status-green">YES -- USE THIS MORE</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-title">Redstone's Unique Positioning</div>
+      <div class="callout-body">
+        Three angles no competitor owns simultaneously:<br>
+        1. <strong>"US quality + Mexico pricing"</strong> -- the nearshore narrative is completely uncontested in paid search<br>
+        2. <strong>"Direct manufacturer, not a marketplace"</strong> -- anti-Xometry/Fictiv positioning<br>
+        3. <strong>"Delivery guarantee"</strong> -- only SendCutSend offers a money-back; Redstone can own guarantees in die casting
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERSION TACTICS -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 09</div>
+    <h2>Conversion Tactics Competitors Use</h2>
+    <p>Specific website and funnel tactics that drive conversions for competitors.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tactic</th>
+          <th>Who Uses It</th>
+          <th>Impact</th>
+          <th>Redstone Implementation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CAD File Upload Quoting</strong></td>
+          <td>Xometry, Protolabs, Fictiv, RapidDirect, SendCutSend</td>
+          <td>Eliminates back-and-forth email. Buyers get price in minutes, not days.</td>
+          <td class="status-red">Requires software investment. Start with a simple quote form with file upload as interim.</td>
+        </tr>
+        <tr>
+          <td><strong>DFM Feedback in Quote</strong></td>
+          <td>Protolabs, RapidDirect</td>
+          <td>Shows engineering competence before sale. Builds trust.</td>
+          <td class="status-orange">Offer free DFM review as a CTA alternative to "Get Quote."</td>
+        </tr>
+        <tr>
+          <td><strong>Live Chat</strong></td>
+          <td>Xometry, Protolabs, SendCutSend</td>
+          <td>Captures visitors who have questions but aren't ready to submit a form.</td>
+          <td class="status-orange">Add Intercom, Drift, or even Tawk.to (free). Engineers want fast answers.</td>
+        </tr>
+        <tr>
+          <td><strong>Material-Specific Pages</strong></td>
+          <td>Xometry (100+), Fictiv (50+), Protolabs (30+)</td>
+          <td>Ranks for long-tail keywords. Each page is a Google Ads landing page.</td>
+          <td class="status-green">Build 10-15 key material pages (aluminum, zinc, stainless, etc.)</td>
+        </tr>
+        <tr>
+          <td><strong>Competitor Comparison Pages</strong></td>
+          <td>Fictiv, RapidDirect, MakerVerse, UnionFab</td>
+          <td>Captures "[competitor] alternative" searches. Free organic traffic.</td>
+          <td class="status-green">Build "Xometry vs Redstone" and "Why Not a Marketplace" pages.</td>
+        </tr>
+        <tr>
+          <td><strong>Case Studies</strong></td>
+          <td>Protolabs (NASA), Fictiv (Honeywell), SendCutSend (Fortune 500 logos)</td>
+          <td>Social proof for procurement teams. Builds credibility.</td>
+          <td class="status-orange">Create 3-5 case studies with Mahindra, Honda, etc. (logos already on site)</td>
+        </tr>
+        <tr>
+          <td><strong>Published Specs / Tolerance Tables</strong></td>
+          <td>Protolabs (detailed), Xometry (per service)</td>
+          <td>Engineers can self-qualify. Reduces unqualified leads.</td>
+          <td class="status-green">Add tolerance tables, material specs, max part dimensions per service page.</td>
+        </tr>
+        <tr>
+          <td><strong>Remarketing / Retargeting</strong></td>
+          <td>Xometry (heavy), Protolabs, Fictiv</td>
+          <td>Manufacturing sales cycles are long (weeks-months). Stay top of mind.</td>
+          <td class="status-red">Must implement. Low CPA, high ROI. Requires Google tag on site.</td>
+        </tr>
+        <tr>
+          <td><strong>Content / Resource Hub</strong></td>
+          <td>Xometry (1,000+ articles), Protolabs (guides), Fictiv (design guides)</td>
+          <td>Captures top-of-funnel engineers during research phase. Builds topical authority.</td>
+          <td class="status-orange">Start with 5-10 guides: "Die Casting vs CNC Machining," material selection guides, etc.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SPEND COMPARISON -->
+<div class="dark-band">
+  <div class="container" style="padding: 0;">
+    <div class="section" style="border-bottom-color: #333;">
+      <div class="section-number" style="color: #B21E24;">Section 10</div>
+      <h2>Marketing Spend Comparison</h2>
+      <p>Estimated annual sales and marketing spend from public filings and industry estimates.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Competitor</th>
+            <th>Revenue</th>
+            <th>Est. S&M Spend</th>
+            <th>S&M as % Revenue</th>
+            <th>Google Ads (Est.)</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Xometry</strong></td>
+            <td>$686.6M</td>
+            <td>~$33-36M (ads only)</td>
+            <td>5.2% of marketplace rev</td>
+            <td>$10-15M+ (est.)</td>
+            <td>10-K FY2025, Q4 earnings</td>
+          </tr>
+          <tr>
+            <td><strong>Protolabs</strong></td>
+            <td>~$500M</td>
+            <td>~$95M ($24M/quarter)</td>
+            <td>~19%</td>
+            <td>$15-25M+ (est.)</td>
+            <td>10-K FY2024, Q1 2025</td>
+          </tr>
+          <tr>
+            <td><strong>Fictiv</strong></td>
+            <td>$100-200M (est.)</td>
+            <td>VC-funded, aggressive</td>
+            <td>Unknown (private)</td>
+            <td>$3-5M+ (est.)</td>
+            <td>Industry estimate</td>
+          </tr>
+          <tr>
+            <td><strong>SendCutSend</strong></td>
+            <td>Inc. 5000 / Deloitte 500</td>
+            <td>Performance marketing focus</td>
+            <td>Unknown (private)</td>
+            <td>$2-5M+ (est.)</td>
+            <td>Industry estimate</td>
+          </tr>
+          <tr>
+            <td><strong>RapidDirect</strong></td>
+            <td>$50-100M (est.)</td>
+            <td>Heavy content + ads</td>
+            <td>Unknown (private)</td>
+            <td>$1-3M (est.)</td>
+            <td>Industry estimate</td>
+          </tr>
+          <tr style="background: #111; border: 2px solid #B21E24;">
+            <td><strong style="color: #B21E24;">Redstone</strong></td>
+            <td>--</td>
+            <td>Current: minimal</td>
+            <td>--</td>
+            <td>TBD</td>
+            <td>--</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="border-left-color: #16a34a; background: #111;">
+        <div class="callout-title" style="color: #fff;">The Underdog Advantage</div>
+        <div class="callout-body" style="color: #999;">Redstone cannot outspend Xometry ($36M) or Protolabs ($95M). But Redstone doesn't need to. The winning strategy is:<br><br>
+          1. <strong>Own the niche</strong> -- nearshore/Mexico manufacturing keywords have near-zero competition<br>
+          2. <strong>Long-tail precision</strong> -- "aluminum die casting supplier ISO certified" has 100x less competition than "CNC machining"<br>
+          3. <strong>Direct manufacturer positioning</strong> -- anti-marketplace messaging resonates with buyers tired of quality inconsistency<br>
+          4. <strong>Remarketing efficiency</strong> -- $300-500/month remarketing budget can keep Redstone top of mind for months
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEGATIVE KEYWORDS -->
+<div class="container">
+  <div class="section">
+    <div class="section-number">Section 11</div>
+    <h2>Negative Keyword Strategy</h2>
+    <p>Prevent wasted spend by blocking irrelevant searches from the start.</p>
+
+    <div class="grid-2">
+      <div>
+        <h3>Must-Block Keywords</h3>
+        <table>
+          <thead><tr><th>Category</th><th>Negative Keywords</th></tr></thead>
+          <tbody>
+            <tr><td>Job seekers</td><td>-jobs, -careers, -salary, -hiring, -employment, -resume</td></tr>
+            <tr><td>DIY / Hobbyist</td><td>-DIY, -how to, -tutorial, -homemade, -hobby, -home shop</td></tr>
+            <tr><td>Education</td><td>-course, -degree, -training, -school, -university, -certification exam</td></tr>
+            <tr><td>Consumer</td><td>-Amazon, -eBay, -Etsy, -buy online, -price, -cheap</td></tr>
+            <tr><td>Unrelated</td><td>-3D printing, -plastic, -wood, -concrete, -resin (unless offered)</td></tr>
+            <tr><td>Geographic</td><td>-China manufacturer, -India factory (unless targeting comparison)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3>Why This Matters</h3>
+        <table>
+          <thead><tr><th>Metric</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr><td>Without negatives</td><td>30-50% of budget wasted on irrelevant clicks</td></tr>
+            <tr><td>With negatives</td><td>Budget focused on actual procurement professionals</td></tr>
+            <tr><td>At $5.70 CPC</td><td>Saving 30% = $855/month on a $2,850 budget</td></tr>
+            <tr><td>Quality Score</td><td>Higher relevance = lower CPC over time</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRATEGIC RECOMMENDATIONS -->
+<div class="dark-band">
+  <div class="container" style="padding: 0;">
+    <div class="section" style="border-bottom: none;">
+      <div class="section-number" style="color: #B21E24;">Section 12</div>
+      <h2>Strategic Recommendations</h2>
+      <p>Priority actions for Redstone to gain competitive advantage in Google Ads.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0;">
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-red">P0 -- Immediate</div>
+          <h4 style="color: #fff;">1. Build Service-Specific Landing Pages</h4>
+          <p style="color: #999;">Create dedicated pages for: Die Casting, CNC Machining, Sheet Metal, Investment Casting, Sand Casting. Each page needs: headline matching the ad keyword, technical specs (tolerances, materials, max dimensions), certifications, client logos, and a quote form with file upload. This is what every competitor does. Without it, Google Ads traffic bounces off the homepage.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-red">P0 -- Immediate</div>
+          <h4 style="color: #fff;">2. Launch Nearshore/Mexico Campaign</h4>
+          <p style="color: #999;">Zero competitors are bidding on "nearshore manufacturing," "Mexico manufacturing," or "manufacturing outsourcing Mexico." This is a wide-open lane with low CPCs ($2-5). Build a dedicated landing page around "The trustworthiness of an American company with the pricing from overseas." Target US + Canada. Rachel's hook IS the ad.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-red">P0 -- Immediate</div>
+          <h4 style="color: #fff;">3. Add Quote Form with File Upload</h4>
+          <p style="color: #999;">Every major competitor accepts CAD file uploads. At minimum, add a quote form with: company name, email, phone, service needed (dropdown), file upload (STEP/IGES/PDF), quantity, and notes. This is the bridge until a full instant quote system is built. Put it on every service page.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-red">P0 -- Immediate</div>
+          <h4 style="color: #fff;">4. Implement Remarketing</h4>
+          <p style="color: #999;">Install Google Ads tag on redstonemanufacturing.com. Create remarketing audiences for: all site visitors, service page visitors, quote page visitors. Run Display remarketing ads ($300-500/month) to stay top of mind during the long B2B sales cycle. This is the highest-ROI campaign type at the lowest budget.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-orange">P1 -- Next 30 Days</div>
+          <h4 style="color: #fff;">5. Build Competitor Comparison Pages</h4>
+          <p style="color: #999;">Fictiv and RapidDirect rank for "[competitor] alternative" keywords with zero ad spend. Build: "Xometry vs Redstone," "Why Choose a Direct Manufacturer vs Marketplace," "Protolabs Alternative for Die Casting." Position Redstone as the direct, US-quality alternative to impersonal marketplaces.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-orange">P1 -- Next 30 Days</div>
+          <h4 style="color: #fff;">6. Add Live Chat</h4>
+          <p style="color: #999;">Xometry, Protolabs, and SendCutSend all have live chat. Engineers researching parts want instant answers. Even a simple Tawk.to (free) or Intercom widget captures visitors who won't fill out a form. Set up during business hours with Rachel or an engineer on the other end.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-orange">P1 -- Next 30 Days</div>
+          <h4 style="color: #fff;">7. Display Phone Number Prominently</h4>
+          <p style="color: #999;">Most competitors hide their phone number. B2B manufacturing buyers, especially procurement teams at established companies, want to talk to a human. Put the phone number in the header of every page + use Call Extensions in Google Ads. This is a differentiator against faceless marketplaces.</p>
+        </div>
+        <div class="opp" style="border-color: #333;">
+          <div class="opp-priority status-blue">P2 -- Next 60 Days</div>
+          <h4 style="color: #fff;">8. Create Material-Specific Landing Pages</h4>
+          <p style="color: #999;">Build 10-15 pages targeting specific materials: aluminum die casting, zinc die casting, stainless steel CNC, etc. Each page becomes a Google Ads landing page for material-specific keyword ad groups. Xometry has 100+ of these. Redstone needs 10-15 to start competing on long-tail.</p>
+        </div>
+      </div>
+
+      <h3 style="color: #fff; margin-top: 40px;">Recommended Monthly Budget Allocation</h3>
+      <table>
+        <thead>
+          <tr><th>Campaign</th><th>Budget</th><th>Priority</th><th>Expected CPL</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Die Casting (core)</td>
+            <td>$2,000</td>
+            <td class="status-red">P0</td>
+            <td>$60-100</td>
+          </tr>
+          <tr>
+            <td>Nearshore / Mexico</td>
+            <td>$1,000</td>
+            <td class="status-red">P0</td>
+            <td>$30-60 (low competition)</td>
+          </tr>
+          <tr>
+            <td>CNC Machining</td>
+            <td>$1,500</td>
+            <td class="status-orange">P1</td>
+            <td>$70-120</td>
+          </tr>
+          <tr>
+            <td>Sheet Metal</td>
+            <td>$1,000</td>
+            <td class="status-orange">P1</td>
+            <td>$60-100</td>
+          </tr>
+          <tr>
+            <td>Remarketing</td>
+            <td>$400</td>
+            <td class="status-red">P0</td>
+            <td>$20-40</td>
+          </tr>
+          <tr>
+            <td>Competitor Conquest</td>
+            <td>$500</td>
+            <td class="status-blue">P2</td>
+            <td>$50-90</td>
+          </tr>
+          <tr>
+            <td>Brand Defense</td>
+            <td>$100</td>
+            <td class="status-blue">P2</td>
+            <td>$5-15</td>
+          </tr>
+          <tr style="font-weight: 700;">
+            <td><strong>TOTAL</strong></td>
+            <td><strong>$6,500/month</strong></td>
+            <td>--</td>
+            <td>~65-100 leads/month (est.)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="background: #000; color: #666; padding: 40px; text-align: center; font-size: 0.8em; border-top: 4px solid #B21E24;">
+  <div>Prepared by KAMG for Redstone Manufacturing</div>
+  <div style="margin-top: 4px;">April 9, 2026</div>
+  <div style="margin-top: 12px; color: #444;">
+    Sources: WordStream Google Ads Benchmarks 2025, Xometry 10-K FY2025, Protolabs 10-K FY2024/Q1 2025,<br>
+    Google Ads Transparency Center, competitor websites, CaptivateClick B2B Guide, Factur PPC Guide
+  </div>
+</div>
+
+</body>
+</html>

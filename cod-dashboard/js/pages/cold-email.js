@@ -88,13 +88,39 @@ App.registerPage('cold-email', async (container) => {
       steps: [], // No step-level data from EmailBison
     }));
 
+    // Filter out system/bounce/test emails before mapping
+    const JUNK_PATTERNS = /mailer-daemon|postmaster|noreply|no-reply|dmarc|abuse@|^google$|^microsoft$|autoresponder/i;
+    const replyFiltered = (replyData || []).filter(r => {
+      if (r.is_automated || r.reply_type === 'Bounced') return false;
+      const email = (r.from_email || '').toLowerCase();
+      const name = (r.from_name || '').toLowerCase();
+      if (JUNK_PATTERNS.test(email) || JUNK_PATTERNS.test(name)) return false;
+      // Filter out DMARC aggregate reports
+      if ((r.text_body || '').toLowerCase().includes('dmarc aggregate report')) return false;
+      if (name === 'dmarc aggregate report') return false;
+      return true;
+    });
+
+    // Client-side sentiment override for obvious patterns
+    function _detectSentiment(r) {
+      const bqSentiment = r.reply_sentiment || 'neutral';
+      const body = (r.text_body || '').toLowerCase();
+      // OOO / vacation patterns
+      if (/out of (the )?office|on vacation|on leave|away from|auto.?reply|automatic reply/i.test(body)) return 'ooo';
+      // Unsubscribe / not interested patterns
+      if (/unsubscribe|remove me|stop (emailing|contacting)|not interested|do not contact|take me off/i.test(body)) return 'not_interested';
+      // Positive interest patterns
+      if (/interested|tell me more|love to (hear|learn|chat)|schedule|set up a (call|time|meeting)|sounds good|let'?s (talk|connect|chat)/i.test(body)) return 'interested';
+      return bqSentiment;
+    }
+
     // Transform BQ replies -> shape render functions expect
-    _CE_REPLIES = (replyData || []).filter(r => !r.is_automated && r.reply_type !== 'Bounced').map(r => ({
+    _CE_REPLIES = replyFiltered.map(r => ({
       contact: { name: r.from_name || r.from_email || 'Unknown', company: r.lead_company || '' },
       campaign_id: r.campaign_id || '',
       niche: null,
       reply_date: _bqVal(r.date_received),
-      sentiment: r.reply_sentiment || 'neutral',
+      sentiment: _detectSentiment(r),
       reply_preview: (r.text_body || '').replace(/<[^>]*>/g, '').substring(0, 200),
       conversions: { workshop_reg: false, vip: false, call_booked: false, call_showed: false, enrolled: false },
       current_stage: r.is_interested ? 'Interested' : 'Replied',

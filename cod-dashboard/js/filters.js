@@ -171,11 +171,15 @@ const Filters = (() => {
         html += '<button class="dp-cal__day dp-cal__day--other" data-date="' + fmtDate(pd) + '">' + (prevLastDay - p) + '</button>';
       }
 
+      // Hyros attribution start date
+      const HYROS_START = new Date(2026, 2, 10); // March 10, 2026
+
       // Current month
       for (let d = 1; d <= totalDays; d++) {
         const dt = new Date(_dpViewYear, _dpViewMonth, d);
         let cls = 'dp-cal__day';
         if (dt.getTime() === _dpToday.getTime()) cls += ' dp-cal__day--today';
+        if (dt.getTime() === HYROS_START.getTime()) cls += ' dp-cal__day--hyros';
         if (_dpRangeStart && _dpRangeEnd) {
           const t = dt.getTime(), s = _dpRangeStart.getTime(), e = _dpRangeEnd.getTime();
           if (t === s && t === e) cls += ' dp-cal__day--selected';
@@ -185,7 +189,8 @@ const Filters = (() => {
         } else if (_dpRangeStart && dt.getTime() === _dpRangeStart.getTime()) {
           cls += ' dp-cal__day--selected';
         }
-        html += '<button class="' + cls + '" data-date="' + fmtDate(dt) + '">' + d + '</button>';
+        const hyrosTitle = dt.getTime() === HYROS_START.getTime() ? ' title="Hyros attribution started"' : '';
+        html += '<button class="' + cls + '"' + hyrosTitle + ' data-date="' + fmtDate(dt) + '">' + d + '</button>';
       }
 
       // Next month fill
@@ -197,6 +202,16 @@ const Filters = (() => {
       }
 
       html += '</div>';
+
+      // Hyros sticky note -- show when viewing March 2026 or later
+      if (_dpViewYear > 2026 || (_dpViewYear === 2026 && _dpViewMonth >= 2)) {
+        if (_dpViewYear === 2026 && _dpViewMonth === 2) {
+          html += '<div class="dp-hyros-note">&#128205; <span><strong>Mar 10</strong> -- Hyros attribution started. Data before this date lacks source tracking.</span></div>';
+        }
+      } else {
+        html += '<div class="dp-hyros-note" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.2);border-left-color:#ef4444;color:#ef4444">&#9888;&#65039; <span>Pre-Hyros period -- no attribution data available. Hyros started <strong>Mar 10, 2026</strong>.</span></div>';
+      }
+
       cal.innerHTML = html;
 
       // Nav buttons

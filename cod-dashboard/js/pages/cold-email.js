@@ -39,6 +39,9 @@ let _CE_DAILY = [];
 let _CE_KPI = {};
 let _CE_BRIDGE = [];
 let _CE_INDUSTRY = [];
+let _CE_REPLY_HOURS = [];
+let _CE_META_CPA = [];
+let _CE_REPLY_CONVERSIONS = {}; // email -> funnel_stage
 
 // ---------------------------------------------------------------------------
 // Page Registration
@@ -49,14 +52,17 @@ App.registerPage('cold-email', async (container) => {
   container.innerHTML = `<div class="card" style="padding:24px;text-align:center"><p style="color:${Theme.COLORS.textMuted}">Loading cold outbound data...</p></div>`;
 
   try {
-    const [kpiData, campData, replyData, senderData, dailyData, bridgeData, industryData] = await Promise.all([
-      API.query('cold-email', 'kpis',          { days }),
-      API.query('cold-email', 'campaigns',     { days }),
-      API.query('cold-email', 'replies',       { days }),
-      API.query('cold-email', 'sender_health', { days }),
-      API.query('cold-email', 'daily',         { days }),
-      API.query('cold-email', 'bridge',        { days }),
-      API.query('cold-email', 'lead_breakdown',{ days }),
+    const [kpiData, campData, replyData, senderData, dailyData, bridgeData, industryData, replyHoursData, metaCpaData, replyConvData] = await Promise.all([
+      API.query('cold-email', 'kpis',              { days }),
+      API.query('cold-email', 'campaigns',         { days }),
+      API.query('cold-email', 'replies',           { days }),
+      API.query('cold-email', 'sender_health',     { days }),
+      API.query('cold-email', 'daily',             { days }),
+      API.query('cold-email', 'bridge',            { days }),
+      API.query('cold-email', 'lead_breakdown',    { days }),
+      API.query('cold-email', 'reply_hours',       { days: 90 }),
+      API.query('cold-email', 'meta_cpa').catch(() => []),
+      API.query('cold-email', 'reply_conversions', { days }),
     ]);
 
     _CE_KPI = (kpiData && kpiData.length > 0) ? kpiData[0] : {};
@@ -122,6 +128,46 @@ App.registerPage('cold-email', async (container) => {
       bounced: 0,
     }));
 
+    // Reply hours data
+    _CE_REPLY_HOURS = replyHoursData || [];
+
+    // Meta CPA comparison data
+    _CE_META_CPA = (metaCpaData || []).map(d => ({
+      week: _bqVal(d.week) || '',
+      spend: d.total_spend || 0,
+      conversions: d.total_conversions || 0,
+      cpa: d.cpa || 0,
+    }));
+
+    // Build reply conversion lookup (lead_email -> funnel_stage)
+    _CE_REPLY_CONVERSIONS = {};
+    (replyConvData || []).forEach(rc => {
+      if (rc.lead_email && rc.funnel_stage) {
+        _CE_REPLY_CONVERSIONS[rc.lead_email.toLowerCase()] = rc.funnel_stage;
+      }
+    });
+
+    // Enrich replies with conversion data from bridge
+    _CE_REPLIES.forEach(r => {
+      const email = (r.contact.name.includes('@') ? r.contact.name : '').toLowerCase();
+      const stage = _CE_REPLY_CONVERSIONS[email];
+      if (stage) {
+        if (stage === 'enrolled') {
+          r.conversions = { workshop_reg: true, vip: true, call_booked: true, call_showed: true, enrolled: true };
+          r.current_stage = 'Enrolled';
+        } else if (stage === 'call_booked') {
+          r.conversions = { workshop_reg: true, vip: false, call_booked: true, call_showed: false, enrolled: false };
+          r.current_stage = 'Call Booked';
+        } else if (stage === 'ticket') {
+          r.conversions = { workshop_reg: true, vip: false, call_booked: false, call_showed: false, enrolled: false };
+          r.current_stage = '$27 Ticket';
+        } else if (stage === 'registered') {
+          r.conversions = { workshop_reg: true, vip: false, call_booked: false, call_showed: false, enrolled: false };
+          r.current_stage = 'Registered';
+        }
+      }
+    });
+
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p style="color:${Theme.COLORS.textMuted}">Failed to load cold email data: ${err.message}</p></div>`;
     return;
@@ -132,6 +178,7 @@ App.registerPage('cold-email', async (container) => {
   _renderColdEmailKPIs(container);
   _renderCampaignTable(container);
   _renderCampaignCharts(container);
+  _renderReplyHours(container);
   _renderReplyTracker(container);
   _renderDomainHealth(container);
   _renderConversionBridge(container);
@@ -522,6 +569,113 @@ function _renderCampaignCharts(container) {
 }
 
 // ---------------------------------------------------------------------------
+// Section 3b: Reply Time-of-Day Distribution
+// ---------------------------------------------------------------------------
+
+function _renderReplyHours(container) {
+  if (_CE_REPLY_HOURS.length === 0) return;
+
+  _ceSectionHeader(container, 'Prospect Reply Times', 'When prospects open and reply to cold emails (UTC)');
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px';
+  container.appendChild(grid);
+
+  // -- Reply Hour Distribution (bar chart) --
+  const hourCard = _ceCard('Replies by Hour of Day', 'Human replies vs automated/bounced');
+  const hourCanvas = document.createElement('canvas');
+  hourCanvas.id = 'ce-reply-hours-chart';
+  hourCanvas.style.height = '280px';
+  hourCard.appendChild(hourCanvas);
+  grid.appendChild(hourCard);
+
+  // Fill in missing hours with 0
+  const hourMap = {};
+  _CE_REPLY_HOURS.forEach(h => { hourMap[h.hour] = h; });
+  const hours = Array.from({ length: 24 }, (_, i) => {
+    const h = hourMap[i] || { hour: i, total_replies: 0, human_replies: 0, interested_replies: 0 };
+    return h;
+  });
+
+  const hourLabels = hours.map(h => {
+    const ampm = h.hour >= 12 ? 'PM' : 'AM';
+    const hr = h.hour % 12 || 12;
+    return hr + ampm;
+  });
+
+  Theme.createChart('ce-reply-hours-chart', {
+    type: 'bar',
+    data: {
+      labels: hourLabels,
+      datasets: [{
+        label: 'Human Replies',
+        data: hours.map(h => h.human_replies),
+        backgroundColor: Theme.COLORS.accent + 'cc',
+        borderRadius: 3,
+      }, {
+        label: 'Automated/Bounce',
+        data: hours.map(h => h.total_replies - h.human_replies),
+        backgroundColor: Theme.COLORS.textMuted + '66',
+        borderRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { mode: 'index' },
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { stacked: true, grid: { color: Theme.COLORS.gridLine } },
+      },
+    },
+  });
+
+  // -- CPA Comparison (if Meta data available) --
+  if (_CE_META_CPA.length > 0) {
+    const cpaCard = _ceCard('CPA Comparison: Cold Email vs Meta Ads', 'Weekly cost per acquisition');
+    const cpaCanvas = document.createElement('canvas');
+    cpaCanvas.id = 'ce-cpa-compare-chart';
+    cpaCanvas.style.height = '280px';
+    cpaCard.appendChild(cpaCanvas);
+    grid.appendChild(cpaCard);
+
+    Theme.createChart('ce-cpa-compare-chart', {
+      type: 'line',
+      data: {
+        labels: _CE_META_CPA.map(d => {
+          const dt = new Date(d.week);
+          return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }),
+        datasets: [{
+          label: 'Meta Ads CPA',
+          data: _CE_META_CPA.map(d => d.cpa > 0 ? d.cpa.toFixed(2) : null),
+          borderColor: Theme.COLORS.warning,
+          backgroundColor: Theme.COLORS.warning + '18',
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': $' + ctx.raw } },
+        },
+        scales: {
+          x: { grid: { color: Theme.COLORS.gridLine } },
+          y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => '$' + v } },
+        },
+      },
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Section 4: Reply Tracker
 // ---------------------------------------------------------------------------
 
@@ -579,7 +733,9 @@ function _renderReplyTracker(container) {
         <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}" title="${campName}">${campDisplay}</td>
         <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}">${_ceRelativeDate(r.reply_date)}</td>
         <td style="${tdStyle}">${_ceSentimentPill(r.sentiment)}</td>
-        <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary};max-width:300px;overflow:hidden;text-overflow:ellipsis;font-style:italic">${r.reply_preview || '--'}</td>
+        <td style="${tdStyle};white-space:nowrap">
+          ${convBadge('Reg', r.conversions.workshop_reg)}${convBadge('Booked', r.conversions.call_booked)}${convBadge('Enrolled', r.conversions.enrolled)}
+        </td>
         <td style="${tdStyle};font-size:12px;color:${Theme.COLORS.textSecondary}">${r.current_stage}</td>
       </tr>`;
     }).join('');
@@ -591,7 +747,7 @@ function _renderReplyTracker(container) {
           <th style="${thStyle}">Campaign</th>
           <th style="${thStyle}">Reply Date</th>
           <th style="${thStyle}">Sentiment</th>
-          <th style="${thStyle}">Preview</th>
+          <th style="${thStyle}">Funnel Events</th>
           <th style="${thStyle}">Stage</th>
         </tr></thead>
         <tbody>${rows}</tbody>
@@ -613,6 +769,13 @@ function _renderReplyTracker(container) {
             <div style="padding:12px;background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid ${Theme.COLORS.accent};margin-bottom:16px">
               <div style="font-size:12px;color:${Theme.COLORS.textSecondary};font-style:italic;line-height:1.5">"${reply.reply_preview}"</div>
               <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:8px">${reply.reply_date}${reply._campaign_name ? ' &middot; ' + reply._campaign_name : ''}</div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;margin-bottom:8px">Journey</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              ${convBadge('Registered', reply.conversions.workshop_reg)}
+              ${convBadge('Call Booked', reply.conversions.call_booked)}
+              ${convBadge('Call Showed', reply.conversions.call_showed)}
+              ${convBadge('Enrolled', reply.conversions.enrolled)}
             </div>
             <div style="margin-top:16px;font-size:12px;color:${Theme.COLORS.textSecondary}">Sentiment: <span style="font-weight:600;color:${Theme.COLORS.textPrimary}">${reply.sentiment}</span> &middot; Stage: <span style="font-weight:600;color:${Theme.COLORS.textPrimary}">${reply.current_stage}</span></div>
           </div>`;
@@ -1005,6 +1168,30 @@ function _renderInsights(container) {
     insightsGrid.appendChild(insightCard(
       'Largest Industry Segment',
       `<span style="color:${Theme.COLORS.accent};font-weight:700">${topInd.industry}</span> has ${Theme.num(topInd.total_leads)} leads with a <span style="font-weight:700">${(topInd.reply_rate || 0).toFixed(1)}%</span> reply rate.`,
+      Theme.COLORS.accent
+    ));
+  }
+
+  // Meta CPA vs cold email cost
+  if (_CE_META_CPA.length > 0) {
+    const latestCpa = _CE_META_CPA[_CE_META_CPA.length - 1];
+    if (latestCpa.cpa > 0) {
+      insightsGrid.appendChild(insightCard(
+        'Meta Ads CPA Benchmark',
+        `Latest Meta Ads CPA is <span style="color:${Theme.COLORS.warning};font-weight:700">$${latestCpa.cpa.toFixed(0)}</span> per conversion. Track cold email cost per reply to compare channel efficiency.`,
+        Theme.COLORS.warning
+      ));
+    }
+  }
+
+  // Peak reply hour
+  if (_CE_REPLY_HOURS.length > 0) {
+    const peakHour = _CE_REPLY_HOURS.reduce((best, h) => h.human_replies > best.human_replies ? h : best, _CE_REPLY_HOURS[0]);
+    const ampm = peakHour.hour >= 12 ? 'PM' : 'AM';
+    const hr = peakHour.hour % 12 || 12;
+    insightsGrid.appendChild(insightCard(
+      'Peak Prospect Reply Time',
+      `Most human replies arrive at <span style="color:${Theme.COLORS.accent};font-weight:700">${hr}:00 ${ampm} UTC</span> (${peakHour.human_replies} replies). Optimize send timing to land in inbox 1-2 hours before this window.`,
       Theme.COLORS.accent
     ));
   }

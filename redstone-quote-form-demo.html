@@ -3,357 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request a Quote | Redstone Manufacturing</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Redstone Manufacturing -- Quote Form Redesign</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ══════════════════════════════════════
-           REDSTONE DESIGN SYSTEM MATCH
-           Font: Inter as fallback for ZT Nature
-           Colors: #B21E24 red, #616060 gray, #333 charcoal
-           Radius: 17px cards, 0 buttons
-           Spacing: 0.1em letter-spacing
-        ══════════════════════════════════════ */
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F5F5F5; color: #1a1a1a; line-height: 1.7; font-size: 16px; }
 
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #F2F2F2;
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+        /* ── DESIGN BRIEF HEADER ── */
+        .brief-header { background: #000; color: #fff; padding: 48px 0; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+        .brief-header h1 { font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; }
+        .brief-header .subtitle { color: #999; font-size: 1em; margin-top: 4px; }
+        .brief-header-meta { display: flex; gap: 32px; margin-top: 16px; flex-wrap: wrap; }
+        .brief-header-meta span { font-size: 0.85em; color: #999; }
+        .brief-header-meta strong { color: #fff; }
 
-        /* ── NAV BAR ── */
-        .nav {
+        /* ── SECTIONS ── */
+        .section { padding: 64px 0; border-bottom: 1px solid #E0E0E0; background: #fff; }
+        .section:last-child { border-bottom: none; }
+        .dark-band { background: #000; color: #fff; padding: 64px 0; border-bottom: none; }
+        .section-number { font-size: 0.8em; font-weight: 700; color: #B21E24; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+        .section h2 { font-size: 1.6em; font-weight: 700; margin-bottom: 24px; }
+        .section h3 { font-size: 1.1em; font-weight: 600; margin: 32px 0 12px; }
+        .section p, .dark-band p { font-size: 1em; color: #555; margin-bottom: 14px; }
+        .dark-band p { color: #aaa; }
+        .dark-band h2 { color: #fff; }
+        .dark-band h3 { color: #fff; }
+
+        /* ── TABLES ── */
+        table { width: 100%; border-collapse: collapse; font-size: 0.95em; margin: 16px 0; }
+        th { background: #F5F5F5; text-align: left; padding: 14px 18px; font-weight: 600; border: 1px solid #E0E0E0; }
+        td { padding: 14px 18px; border: 1px solid #E0E0E0; color: #444; vertical-align: top; line-height: 1.6; }
+        .dark-band th { background: #1a1a1a; color: #fff; border-color: #333; }
+        .dark-band td { border-color: #333; color: #bbb; }
+
+        /* ── BADGES ── */
+        .badge { display: inline-block; padding: 4px 14px; font-size: 0.8em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 3px; }
+        .badge-green { background: #dcfce7; color: #16a34a; }
+        .badge-red { background: #fee2e2; color: #B21E24; }
+        .badge-amber { background: #fef3c7; color: #ca8a04; }
+        .badge-blue { background: #dbeafe; color: #2563eb; }
+
+        /* ── CALLOUT ── */
+        .callout { padding: 20px 24px; margin: 16px 0; border-left: 4px solid #B21E24; background: #F5F5F5; }
+        .callout p { margin: 0; color: #000; font-weight: 500; }
+        .dark-band .callout { background: #1a1a1a; }
+        .dark-band .callout p { color: #fff; }
+
+        ul { padding-left: 20px; margin: 10px 0 18px; }
+        li { font-size: 0.95em; color: #555; margin-bottom: 8px; line-height: 1.6; }
+        li strong { color: #1a1a1a; }
+        .dark-band li { color: #bbb; }
+        .dark-band li strong { color: #fff; }
+
+        /* ══════════════════════════════════════════
+           FORM MOCKUP STYLES
+           ══════════════════════════════════════════ */
+
+        .form-demo-wrapper {
             background: #fff;
-            border-bottom: 1px solid #EAEAEA;
-            padding: 16px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .nav-logo {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #B21E24;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            text-decoration: none;
-        }
-        .nav-logo span { color: #616060; }
-        .nav-links {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-        }
-        .nav-links a {
-            font-size: 0.78em;
-            font-weight: 500;
-            color: #616060;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: color 0.2s;
-        }
-        .nav-links a:hover { color: #B21E24; }
-
-        /* ── PAGE LAYOUT ── */
-        .page-wrapper {
-            max-width: 980px;
-            margin: 0 auto;
-            padding: 48px 24px 80px;
-        }
-
-        /* ── HERO SECTION ── */
-        .form-hero {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .form-hero h1 {
-            font-size: 2.4em;
-            font-weight: 300;
-            color: #333;
-            letter-spacing: 0.02em;
-            line-height: 1.15;
-            margin-bottom: 12px;
-        }
-        .form-hero h1 strong {
-            font-weight: 700;
-            color: #B21E24;
-        }
-        .form-hero p {
-            font-size: 1em;
-            color: #616060;
-            letter-spacing: 0.04em;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* ── FORM CARD ── */
-        .form-card {
-            background: #fff;
-            border-radius: 17px;
-            box-shadow: 0px 16px 23px 0px rgba(0,0,0,0.08);
-            overflow: hidden;
+            max-width: 680px;
+            margin: 24px auto 20px;
+            border: 1px solid #E0E0E0;
             position: relative;
         }
 
-        /* ── PROGRESS BAR ── */
-        .progress-header {
+        /* Progress Bar */
+        .form-progress {
             display: flex;
-            border-bottom: 1px solid #EAEAEA;
+            background: #F5F5F5;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 0;
         }
-        .progress-step {
+        .form-progress .step {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 12px 16px;
-            cursor: pointer;
+            text-align: center;
+            padding: 16px 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #999;
             position: relative;
+            cursor: pointer;
             transition: all 0.3s;
-            background: #FAFAFA;
         }
-        .progress-step.active {
+        .form-progress .step.active {
+            color: #B21E24;
             background: #fff;
         }
-        .progress-step.completed {
-            background: #f8fffe;
+        .form-progress .step.completed {
+            color: #16a34a;
+            background: #f0fdf4;
         }
-        .progress-step::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: transparent;
-            transition: background 0.3s;
-        }
-        .progress-step.active::after {
-            background: #B21E24;
-        }
-        .progress-step.completed::after {
-            background: #16a34a;
-        }
-        .step-circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
+        .form-progress .step .step-num {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
             align-items: center;
             justify-content: center;
-            font-size: 0.8em;
+            border: 2px solid #ccc;
+            font-size: 0.9em;
             font-weight: 700;
-            border: 2px solid #EAEAEA;
-            color: #C4C4C4;
-            margin-bottom: 6px;
-            transition: all 0.3s;
+            margin-bottom: 4px;
         }
-        .progress-step.active .step-circle {
+        .form-progress .step.active .step-num {
             border-color: #B21E24;
             color: #B21E24;
-            background: #fef2f2;
         }
-        .progress-step.completed .step-circle {
+        .form-progress .step.completed .step-num {
             border-color: #16a34a;
             background: #16a34a;
             color: #fff;
         }
-        .step-name {
-            font-size: 0.7em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #C4C4C4;
-            transition: color 0.3s;
+        .form-progress .step .step-label {
+            display: block;
+            margin-top: 4px;
         }
-        .progress-step.active .step-name {
-            color: #B21E24;
-        }
-        .progress-step.completed .step-name {
-            color: #16a34a;
-        }
-
-        /* ── PROGRESS FILL BAR ── */
         .progress-fill {
             height: 3px;
-            background: #EAEAEA;
+            background: #E0E0E0;
+            position: relative;
         }
-        .progress-fill-inner {
+        .progress-fill-bar {
             height: 100%;
-            background: linear-gradient(90deg, #16a34a, #B21E24);
-            transition: width 0.5s ease;
+            background: #B21E24;
+            transition: width 0.4s ease;
         }
 
-        /* ── FORM CONTENT ── */
-        .form-step {
-            display: none;
-            padding: 40px 48px 32px;
-            animation: fadeIn 0.3s ease;
+        /* Form Body */
+        .form-body {
+            padding: 32px 40px 24px;
         }
-        .form-step.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .step-header h2 {
-            font-size: 1.4em;
+        .form-body h3 {
+            font-size: 1.2em;
             font-weight: 700;
-            color: #333;
-            letter-spacing: 0.02em;
-            margin-bottom: 4px;
+            color: #000;
+            margin: 0 0 4px;
         }
-        .step-header p {
-            font-size: 0.88em;
-            color: #999;
+        .form-body .step-desc {
+            font-size: 0.9em;
+            color: #777;
             margin-bottom: 28px;
         }
 
-        /* ── FORM FIELDS ── */
-        .field {
-            margin-bottom: 22px;
+        /* Field Groups */
+        .field-group {
+            margin-bottom: 24px;
         }
-        .field label {
+        .field-group label {
             display: block;
-            font-size: 0.75em;
-            font-weight: 600;
+            font-size: 0.85em;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #333;
+            letter-spacing: 0.06em;
+            color: #111;
             margin-bottom: 8px;
         }
-        .field label .req {
+        .field-group label .required {
             color: #B21E24;
-            margin-left: 2px;
         }
-        .field input,
-        .field select,
-        .field textarea {
-            width: 100%;
-            height: 54px;
-            padding: 0 18px;
-            font-size: 0.92em;
-            font-family: 'Inter', sans-serif;
-            color: #333;
-            background: #FAFAFA;
-            border: 1px solid #EAEAEA;
-            border-radius: 0;
-            outline: none;
-            transition: all 0.2s;
-            letter-spacing: 0.02em;
-        }
-        .field input:focus,
-        .field select:focus,
-        .field textarea:focus {
-            border-color: #B21E24;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(178, 30, 36, 0.06);
-        }
-        .field input::placeholder,
-        .field textarea::placeholder {
-            color: #C4C4C4;
-        }
-        .field select {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%23616060'%3E%3Cpath d='M6 8L0 0h12z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 18px center;
-            padding-right: 44px;
-        }
-        .field textarea {
-            height: auto;
-            min-height: 120px;
-            padding: 16px 18px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-        .field .helper {
-            font-size: 0.76em;
-            color: #999;
+        .field-group .helper {
+            font-size: 0.82em;
+            color: #777;
             margin-top: 6px;
             line-height: 1.5;
         }
-
-        /* ── FIELD ROW (2-col) ── */
+        .field-group input,
+        .field-group select,
+        .field-group textarea {
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 1em;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid #E0E0E0;
+            background: #FAFAFA;
+            color: #1a1a1a;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .field-group input::placeholder,
+        .field-group textarea::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+        .field-group select {
+            color: #888;
+        }
+        .field-group select:valid:not([value=""]) {
+            color: #1a1a1a;
+        }
+        .field-group input:focus,
+        .field-group select:focus,
+        .field-group textarea:focus {
+            border-color: #B21E24;
+            background: #fff;
+        }
+        .field-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
         .field-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 16px;
         }
 
-        /* ── OPTION CARDS ── */
-        .option-grid {
+        /* Checkbox / Radio Cards */
+        .option-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
         }
-        .option-grid.three-col {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-        .opt-card {
-            border: 1px solid #EAEAEA;
-            border-radius: 8px;
-            padding: 16px 18px;
+        .option-card {
+            border: 1px solid #E0E0E0;
+            padding: 14px 16px;
             cursor: pointer;
             transition: all 0.2s;
             position: relative;
-            user-select: none;
         }
-        .opt-card:hover {
-            border-color: #B21E24;
-            background: #fef8f8;
-        }
-        .opt-card.selected {
+        .option-card:hover {
             border-color: #B21E24;
             background: #fef2f2;
-            box-shadow: 0 0 0 2px rgba(178, 30, 36, 0.15);
         }
-        .opt-card .card-check {
+        .option-card.selected {
+            border-color: #B21E24;
+            background: #fef2f2;
+        }
+        .option-card .option-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .option-card .option-desc {
+            font-size: 0.82em;
+            color: #666;
+            margin-top: 4px;
+        }
+        .option-card .check-icon {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #EAEAEA;
+            top: 10px;
+            right: 10px;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.6em;
-            transition: all 0.2s;
+            font-size: 0.7em;
         }
-        .opt-card.selected .card-check {
+        .option-card.selected .check-icon {
             border-color: #B21E24;
             background: #B21E24;
             color: #fff;
         }
-        .opt-card .card-title {
-            font-size: 0.88em;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 2px;
-            padding-right: 28px;
-        }
-        .opt-card .card-desc {
-            font-size: 0.75em;
-            color: #999;
-            line-height: 1.4;
-        }
 
-        /* ── FILE UPLOAD ── */
+        /* File Upload Zone */
         .upload-zone {
-            border: 2px dashed #EAEAEA;
-            border-radius: 12px;
-            padding: 36px 24px;
+            border: 2px dashed #E0E0E0;
+            padding: 32px 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -361,668 +269,953 @@
         }
         .upload-zone:hover {
             border-color: #B21E24;
-            background: #fef8f8;
-        }
-        .upload-zone.dragover {
-            border-color: #B21E24;
             background: #fef2f2;
         }
-        .upload-icon { font-size: 2.4em; color: #C4C4C4; margin-bottom: 8px; }
-        .upload-title { font-size: 0.92em; font-weight: 600; color: #333; }
-        .upload-sub { font-size: 0.78em; color: #999; margin-top: 4px; }
-        .upload-formats { font-size: 0.72em; color: #B21E24; font-weight: 600; margin-top: 10px; letter-spacing: 0.04em; }
-        .upload-list {
-            margin-top: 12px;
-            text-align: left;
+        .upload-zone .upload-icon {
+            font-size: 2em;
+            color: #ccc;
+            margin-bottom: 8px;
         }
-        .upload-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 6px;
-            margin-bottom: 6px;
-            font-size: 0.8em;
-        }
-        .upload-item .file-name { color: #166534; font-weight: 500; }
-        .upload-item .file-remove {
-            color: #B21E24;
-            cursor: pointer;
+        .upload-zone .upload-title {
+            font-size: 0.95em;
             font-weight: 600;
-            padding: 2px 6px;
+            color: #1a1a1a;
+        }
+        .upload-zone .upload-subtitle {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 6px;
+        }
+        .upload-zone .upload-formats {
+            font-size: 0.8em;
+            color: #B21E24;
+            font-weight: 500;
+            margin-top: 10px;
         }
 
-        /* ── FORM ACTIONS ── */
+        /* Buttons */
         .form-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 24px 48px 32px;
+            padding: 20px 40px 32px;
             border-top: 1px solid #F0F0F0;
         }
         .btn-back {
-            font-size: 0.8em;
+            font-size: 0.85em;
             font-weight: 600;
-            color: #616060;
-            background: transparent;
-            border: 1px solid #EAEAEA;
-            padding: 14px 28px;
+            color: #999;
+            background: none;
+            border: 1px solid #E0E0E0;
+            padding: 12px 24px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.06em;
             transition: all 0.2s;
         }
         .btn-back:hover {
-            border-color: #616060;
-            color: #333;
+            color: #000;
+            border-color: #000;
         }
         .btn-next {
-            font-size: 0.82em;
+            font-size: 0.85em;
             font-weight: 700;
             color: #fff;
             background: #B21E24;
             border: none;
-            padding: 16px 44px;
+            padding: 14px 40px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            box-shadow: 0px 16px 23px 0px rgba(178, 30, 36, 0.15);
+            letter-spacing: 0.08em;
             transition: all 0.2s;
         }
         .btn-next:hover {
             background: #8B1519;
-            box-shadow: 0px 16px 23px 0px rgba(178, 30, 36, 0.25);
         }
         .btn-submit {
-            font-size: 0.82em;
+            font-size: 0.85em;
             font-weight: 700;
             color: #fff;
             background: #16a34a;
             border: none;
-            padding: 16px 52px;
+            padding: 14px 48px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            box-shadow: 0px 16px 23px 0px rgba(22, 163, 74, 0.2);
+            letter-spacing: 0.08em;
             transition: all 0.2s;
         }
         .btn-submit:hover {
             background: #15803d;
-            box-shadow: 0px 16px 23px 0px rgba(22, 163, 74, 0.35);
         }
 
-        /* ── TRUST BAR ── */
+        /* Trust Bar */
         .trust-bar {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 32px;
-            padding: 18px 24px;
-            background: #FAFAFA;
-            border-top: 1px solid #EAEAEA;
-            border-radius: 0 0 17px 17px;
+            gap: 24px;
+            padding: 16px 24px;
+            background: #F5F5F5;
+            border-top: 1px solid #E0E0E0;
             flex-wrap: wrap;
         }
         .trust-item {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.7em;
-            font-weight: 600;
-            color: #616060;
+            font-size: 0.8em;
+            font-weight: 500;
+            color: #555;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
         }
-        .trust-icon {
-            width: 18px;
-            height: 18px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
+        .trust-item .trust-icon {
+            font-size: 1.3em;
         }
 
-        /* ── SUCCESS STATE ── */
-        .success-screen {
-            display: none;
-            text-align: center;
-            padding: 80px 48px;
+        /* ── SLIDEOUT MOCKUP ── */
+        .slideout-demo {
+            position: relative;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            margin: 32px 0;
+            overflow: hidden;
         }
-        .success-screen.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
+        .slideout-page-bg {
+            padding: 40px;
+            opacity: 0.3;
         }
-        .success-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: #f0fdf4;
-            border: 3px solid #16a34a;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            color: #16a34a;
-            margin-bottom: 20px;
-        }
-        .success-screen h2 {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: #333;
+        .slideout-page-bg h4 {
+            color: #fff;
+            font-size: 1em;
             margin-bottom: 8px;
         }
-        .success-screen p {
-            font-size: 0.92em;
-            color: #616060;
-            max-width: 440px;
-            margin: 0 auto;
+        .slideout-page-bg p {
+            color: #666;
+            font-size: 0.85em;
         }
-        .success-screen .timeline {
+        .slideout-page-bg .fake-btn {
             display: inline-block;
-            margin-top: 20px;
+            background: #B21E24;
+            color: #fff;
             padding: 10px 24px;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 8px;
-            font-size: 0.82em;
-            font-weight: 600;
-            color: #16a34a;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 12px;
         }
-
-        /* ── NDA PROMISE ── */
-        .nda-banner {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-top: 4px;
+        .slideout-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 520px;
+            max-width: 90%;
+            background: #fff;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .slideout-header {
             display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .nda-banner .nda-icon {
-            font-size: 1.2em;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .nda-banner p {
-            font-size: 0.82em;
-            color: #166534;
-            font-weight: 500;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* ── TIME ESTIMATE ── */
-        .time-badge {
-            display: inline-flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 6px;
-            font-size: 0.72em;
-            font-weight: 500;
-            color: #616060;
-            background: #F2F2F2;
-            padding: 6px 14px;
-            border-radius: 20px;
-            margin-bottom: 24px;
+            padding: 20px 24px;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .slideout-header h4 {
+            font-size: 0.9em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .slideout-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #E0E0E0;
+            font-size: 0.9em;
+            color: #999;
+            cursor: pointer;
         }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .nav { padding: 12px 20px; }
-            .nav-links { display: none; }
-            .page-wrapper { padding: 24px 16px 60px; }
-            .form-hero h1 { font-size: 1.6em; }
-            .form-step { padding: 28px 24px 20px; }
-            .form-actions { padding: 20px 24px 28px; }
+        /* ── COMPARISON TABLE ── */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            margin: 16px 0;
+        }
+        .compare-col {
+            padding: 24px;
+            border: 1px solid #E0E0E0;
+        }
+        .compare-col.before {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+        .compare-col.after {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+        .compare-col h4 {
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .compare-col.before h4 { color: #B21E24; }
+        .compare-col.after h4 { color: #16a34a; }
+        .compare-col ul { padding-left: 16px; margin: 0; }
+        .compare-col li { font-size: 0.9em; margin-bottom: 6px; line-height: 1.5; }
+        .compare-col.before li { color: #991b1b; }
+        .compare-col.after li { color: #166534; }
+
+        /* ── ANNOTATIONS ── */
+        .annotation {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.88em;
+            color: #92400e;
+            line-height: 1.6;
+        }
+        .annotation strong {
+            color: #78350f;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.04em;
+        }
+
+        .footer { text-align: center; padding: 32px 0; font-size: 0.8em; color: #999; border-top: 1px solid #E0E0E0; background: #fff; }
+
+        @media (max-width: 700px) {
+            .container { padding: 0 20px; }
+            .brief-header h1 { font-size: 1.6em; }
+            .form-body { padding: 24px 20px 16px; }
+            .form-actions { padding: 16px 20px 24px; }
             .field-row { grid-template-columns: 1fr; }
-            .option-grid { grid-template-columns: 1fr; }
-            .option-grid.three-col { grid-template-columns: 1fr; }
-            .progress-step { padding: 14px 6px 12px; }
-            .step-name { font-size: 0.6em; }
-            .step-circle { width: 28px; height: 28px; font-size: 0.75em; }
-            .trust-bar { gap: 16px; padding: 14px 16px; }
-            .trust-item { font-size: 0.62em; }
-            .btn-next, .btn-submit { padding: 14px 28px; }
-        }
-
-        @media (max-width: 480px) {
-            .form-hero h1 { font-size: 1.35em; }
-            .step-name { display: none; }
-            .progress-step { padding: 12px 8px; }
+            .option-cards { grid-template-columns: 1fr; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .slideout-panel { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-<!-- ═══ NAV ═══ -->
-<nav class="nav">
-    <a class="nav-logo" href="#">Redstone <span>Manufacturing</span></a>
-    <ul class="nav-links">
-        <li><a href="#">Foundries</a></li>
-        <li><a href="#">Services</a></li>
-        <li><a href="#">Company</a></li>
-        <li><a href="#">Contact</a></li>
-    </ul>
-</nav>
-
-<!-- ═══ PAGE WRAPPER ═══ -->
-<div class="page-wrapper">
-
-    <!-- ── HERO ── -->
-    <div class="form-hero">
-        <h1>Request a <strong>Free Quote</strong></h1>
-        <p>Tell us about your project and an engineer will respond within 1 business day with a detailed estimate.</p>
-    </div>
-
-    <!-- ═══ FORM CARD ═══ -->
-    <div class="form-card" id="formCard">
-
-        <!-- ── PROGRESS BAR ── -->
-        <div class="progress-header" id="progressHeader">
-            <div class="progress-step active" data-step="1" onclick="goToStep(1)">
-                <div class="step-circle" id="circle1">1</div>
-                <div class="step-name">Your Project</div>
-            </div>
-            <div class="progress-step" data-step="2" onclick="goToStep(2)">
-                <div class="step-circle" id="circle2">2</div>
-                <div class="step-name">Specifications</div>
-            </div>
-            <div class="progress-step" data-step="3" onclick="goToStep(3)">
-                <div class="step-circle" id="circle3">3</div>
-                <div class="step-name">Preferences</div>
-            </div>
-            <div class="progress-step" data-step="4" onclick="goToStep(4)">
-                <div class="step-circle" id="circle4">4</div>
-                <div class="step-name">Contact</div>
-            </div>
-        </div>
-        <div class="progress-fill">
-            <div class="progress-fill-inner" id="progressBar" style="width: 25%;"></div>
-        </div>
-
-        <!-- ════════════════════════
-             STEP 1: YOUR PROJECT
-        ════════════════════════ -->
-        <div class="form-step active" id="step1">
-            <div class="step-header">
-                <h2>Tell us about your project</h2>
-                <p>We use this to match you with the right facility and process.</p>
-            </div>
-            <div class="time-badge">&#9201; Takes about 2 minutes</div>
-
-            <div class="field">
-                <label>Current Stage of Production <span class="req">*</span></label>
-                <select id="productionStage">
-                    <option value="">Select your current stage...</option>
-                    <option value="production">Already in Production</option>
-                    <option value="ready">Ready to Start Production</option>
-                    <option value="design">Design Phase</option>
-                </select>
-                <div class="helper">Where you are helps us estimate timelines accurately.</div>
-            </div>
-
-            <div class="field">
-                <label>Type of Manufacturing Process <span class="req">*</span></label>
-                <select id="processType">
-                    <option value="">Select process type...</option>
-                    <option value="stamping">Stamping</option>
-                    <option value="die-casting">Die Casting</option>
-                    <option value="sand-casting">Sand Casting</option>
-                    <option value="investment-casting">Investment Casting</option>
-                    <option value="cnc">CNC Machining</option>
-                    <option value="forging">Forging</option>
-                    <option value="fabrication">Fabrication &amp; Welding</option>
-                    <option value="plastics">Plastics / Injection Molding</option>
-                    <option value="other">Other / Not Sure</option>
-                </select>
-                <div class="helper">Not sure? Select the closest match. Our engineers will confirm during review.</div>
-            </div>
-
-            <div class="field">
-                <label>Main Reason for Requesting a Quote <span class="req">*</span></label>
-                <div class="option-grid" id="reasonCards">
-                    <div class="opt-card" data-value="reduce-costs" onclick="toggleCard(this, 'reasonCards')">
-                        <div class="card-check"></div>
-                        <div class="card-title">Reduce Costs</div>
-                        <div class="card-desc">Current production costs are too high</div>
-                    </div>
-                    <div class="opt-card" data-value="quality" onclick="toggleCard(this, 'reasonCards')">
-                        <div class="card-check"></div>
-                        <div class="card-title">Quality Issues</div>
-                        <div class="card-desc">Current supplier not meeting standards</div>
-                    </div>
-                    <div class="opt-card" data-value="supply-chain" onclick="toggleCard(this, 'reasonCards')">
-                        <div class="card-check"></div>
-                        <div class="card-title">Supply Chain Risk</div>
-                        <div class="card-desc">Need a more reliable source</div>
-                    </div>
-                    <div class="opt-card" data-value="new-product" onclick="toggleCard(this, 'reasonCards')">
-                        <div class="card-check"></div>
-                        <div class="card-title">New Product</div>
-                        <div class="card-desc">Starting production from scratch</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Target First Shipment</label>
-                    <input type="date" id="targetDate" />
-                    <div class="helper">Approximate is fine. Helps us prioritize.</div>
-                </div>
-                <div class="field">
-                    <label>Estimated Annual Order Size <span class="req">*</span></label>
-                    <select id="orderSize">
-                        <option value="">Select range...</option>
-                        <option value="0-50k">$0 - $50K</option>
-                        <option value="50k-150k">$50K - $150K</option>
-                        <option value="150k-500k">$150K - $500K</option>
-                        <option value="500k-1.5m">$500K - $1.5M</option>
-                        <option value="1.5m+">$1.5M+</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════════════════════
-             STEP 2: SPECIFICATIONS
-        ════════════════════════ -->
-        <div class="form-step" id="step2">
-            <div class="step-header">
-                <h2>Production specifications</h2>
-                <p>Share what you can now. Our engineers will follow up on anything we need.</p>
-            </div>
-
-            <div class="field">
-                <label>Describe Your Part or Product</label>
-                <textarea id="description" placeholder="Materials, dimensions, tolerances, quantity per order, any special requirements..."></textarea>
-                <div class="helper">The more detail you provide, the more accurate our estimate. Don't worry if you don't have everything yet.</div>
-            </div>
-
-            <div class="field">
-                <label>Upload Drawings or Documents</label>
-                <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-                    <div class="upload-icon">&#128196;</div>
-                    <div class="upload-title">Drag files here or click to browse</div>
-                    <div class="upload-sub">Up to 10 files, 128MB max each</div>
-                    <div class="upload-formats">PDF &bull; JPG &bull; PNG &bull; DWG &bull; DXF accepted</div>
-                </div>
-                <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf" style="display:none" onchange="handleFiles(this.files)">
-                <div class="upload-list" id="uploadList"></div>
-                <div class="helper">CAD drawings, spec sheets, photos of existing parts. STP/STEP files can be emailed to quotes@redstonemfg.com after submission.</div>
-            </div>
-
-            <div class="field">
-                <label>Current Country of Production</label>
-                <input type="text" id="currentCountry" placeholder="e.g. China, India, domestic, none yet" />
-                <div class="helper">Helps us benchmark your costs and lead times against what we can offer.</div>
-            </div>
-        </div>
-
-        <!-- ════════════════════════
-             STEP 3: PREFERENCES
-        ════════════════════════ -->
-        <div class="form-step" id="step3">
-            <div class="step-header">
-                <h2>Where would you like to manufacture?</h2>
-                <p>Select all regions you're open to. We operate facilities across four countries.</p>
-            </div>
-
-            <div class="field">
-                <label>Preferred Manufacturing Regions</label>
-                <div class="option-grid" id="regionCards">
-                    <div class="opt-card" data-value="mexico" onclick="toggleCard(this, 'regionCards', true)">
-                        <div class="card-check"></div>
-                        <div class="card-title">Mexico</div>
-                        <div class="card-desc">Nearshore, USMCA compliant</div>
-                    </div>
-                    <div class="opt-card" data-value="india" onclick="toggleCard(this, 'regionCards', true)">
-                        <div class="card-check"></div>
-                        <div class="card-title">India</div>
-                        <div class="card-desc">Cost-optimized, high volume</div>
-                    </div>
-                    <div class="opt-card" data-value="china" onclick="toggleCard(this, 'regionCards', true)">
-                        <div class="card-check"></div>
-                        <div class="card-title">China</div>
-                        <div class="card-desc">Established supply chains</div>
-                    </div>
-                    <div class="opt-card" data-value="taiwan" onclick="toggleCard(this, 'regionCards', true)">
-                        <div class="card-check"></div>
-                        <div class="card-title">Taiwan</div>
-                        <div class="card-desc">Precision &amp; electronics</div>
-                    </div>
-                </div>
-                <div class="helper">No preference? Leave blank and we'll recommend the best fit.</div>
-            </div>
-
-            <div class="field">
-                <label>Experience with Overseas Manufacturing</label>
-                <select id="experience">
-                    <option value="">Select your experience level...</option>
-                    <option value="first-time">First time -- need full guidance</option>
-                    <option value="some">Some experience -- know the basics</option>
-                    <option value="experienced">Experienced -- currently manufacturing overseas</option>
-                </select>
-                <div class="helper">Helps us calibrate how much support you need through the process.</div>
-            </div>
-        </div>
-
-        <!-- ════════════════════════
-             STEP 4: CONTACT
-        ════════════════════════ -->
-        <div class="form-step" id="step4">
-            <div class="step-header">
-                <h2>Last step -- how do we reach you?</h2>
-                <p>An engineer will review your project and respond within 1 business day.</p>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Full Name <span class="req">*</span></label>
-                    <input type="text" id="fullName" placeholder="First Last" />
-                </div>
-                <div class="field">
-                    <label>Company <span class="req">*</span></label>
-                    <input type="text" id="company" placeholder="Your company name" />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Job Title</label>
-                    <input type="text" id="jobTitle" placeholder="e.g. Procurement Manager" />
-                </div>
-                <div class="field">
-                    <label>Work Email <span class="req">*</span></label>
-                    <input type="email" id="email" placeholder="you@company.com" />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Phone <span class="req">*</span></label>
-                    <input type="tel" id="phone" placeholder="(555) 000-0000" />
-                </div>
-                <div class="field">
-                    <label>Preferred Contact Method</label>
-                    <select id="contactMethod">
-                        <option value="phone">Phone Call</option>
-                        <option value="video">Video Meeting</option>
-                        <option value="email">Email First</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="nda-banner">
-                <div class="nda-icon">&#128274;</div>
-                <p>All submissions are protected under NDA. Your designs and specifications remain confidential. An engineer will respond within 1 business day.</p>
-            </div>
-        </div>
-
-        <!-- ════════════════════════
-             SUCCESS SCREEN
-        ════════════════════════ -->
-        <div class="success-screen" id="successScreen">
-            <div class="success-icon">&#10003;</div>
-            <h2>Quote Request Submitted</h2>
-            <p>Thank you. A Redstone engineer will review your project details and reach out within 1 business day.</p>
-            <div class="timeline">&#128197; Expect to hear from us by tomorrow</div>
-        </div>
-
-        <!-- ── ACTIONS ── -->
-        <div class="form-actions" id="formActions">
-            <button class="btn-back" id="btnBack" onclick="prevStep()" style="visibility: hidden;">&larr; Back</button>
-            <button class="btn-next" id="btnNext" onclick="nextStep()">Continue &rarr;</button>
-        </div>
-
-        <!-- ── TRUST BAR ── -->
-        <div class="trust-bar" id="trustBar">
-            <div class="trust-item">
-                <span class="trust-icon">&#9745;</span> ISO 9001
-            </div>
-            <div class="trust-item">
-                <span class="trust-icon">&#9745;</span> IATF 16949
-            </div>
-            <div class="trust-item">
-                <span class="trust-icon">&#128274;</span> NDA Protected
-            </div>
-            <div class="trust-item">
-                <span class="trust-icon">&#9745;</span> Honda &bull; Armstrong &bull; CircOR
-            </div>
+<!-- ═══ HEADER ═══ -->
+<div class="brief-header">
+    <div class="container">
+        <h1>Quote Form Redesign</h1>
+        <p class="subtitle">Redstone Manufacturing -- UX/CRO Specification</p>
+        <div class="brief-header-meta">
+            <span><strong>Date:</strong> April 9, 2026</span>
+            <span><strong>Prepared by:</strong> Kas Andz / KAMG</span>
+            <span><strong>Status:</strong> Design Review</span>
         </div>
     </div>
 </div>
 
-<!-- ═══ JAVASCRIPT ═══ -->
-<script>
-    let currentStep = 1;
-    const totalSteps = 4;
-    let uploadedFiles = [];
+<!-- ═══ SECTION 01: BEFORE / AFTER ═══ -->
+<div class="section">
+    <div class="container">
+        <div class="section-number">Section 01</div>
+        <h2>What Changes and Why</h2>
+        <p>Every change below is backed by published CRO research. This is not opinion -- it is measured.</p>
 
-    // ── STEP NAVIGATION ──
-    function goToStep(step) {
-        // Only allow going to completed steps or the current active step
-        if (step > currentStep) return;
-        showStep(step);
-    }
+        <div class="compare-grid">
+            <div class="compare-col before">
+                <h4>Current Form</h4>
+                <ul>
+                    <li>No progress indicator -- users don't know how many steps remain</li>
+                    <li>Gray (#616060) submit button blends into page</li>
+                    <li>File upload behind conditional toggle, then "email us instead"</li>
+                    <li>No trust signals (ISO, client logos, security)</li>
+                    <li>No helper text on technical fields</li>
+                    <li>Dedicated form page -- full context switch</li>
+                </ul>
+            </div>
+            <div class="compare-col after">
+                <h4>Redesigned Form</h4>
+                <ul>
+                    <li>4-step progress bar with step names + fill indicator</li>
+                    <li>Bold Redstone red (#B21E24) primary CTA, green submit</li>
+                    <li>Drag-and-drop upload zone with clear format list</li>
+                    <li>Trust bar: ISO 9001, IATF 16949, NDA, client logos</li>
+                    <li>Inline helper text on every technical field</li>
+                    <li>Slideout panel -- form accessible from any page CTA</li>
+                </ul>
+            </div>
+        </div>
 
-    function nextStep() {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            showStep(currentStep);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            submitForm();
-        }
-    }
+        <h3>CRO Evidence Behind Each Fix</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Change</th>
+                    <th>Research Backing</th>
+                    <th>Expected Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Progress bar</strong></td>
+                    <td>+28% form completion (Zeigarnik effect: incomplete tasks create psychological tension that drives completion)</td>
+                    <td><span class="badge badge-red">High</span></td>
+                </tr>
+                <tr>
+                    <td><strong>High-contrast CTA</strong></td>
+                    <td>Primary-color buttons outperform neutral buttons by 20-30%. Von Restorff isolation effect -- the eye goes to the thing that doesn't match</td>
+                    <td><span class="badge badge-red">High</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Trust signals near form</strong></td>
+                    <td>+42% conversion when trust badges placed within visual proximity of CTA (not buried in footer)</td>
+                    <td><span class="badge badge-amber">Medium</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Helper text</strong></td>
+                    <td>Each confusing field = 5-10% abandonment penalty. Expedia removed 1 field and gained $12M/year</td>
+                    <td><span class="badge badge-amber">Medium</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Direct file upload</strong></td>
+                    <td>Conditional toggles ("do you want to attach?") add a decision point. Every decision = friction. Direct upload zone eliminates the gate</td>
+                    <td><span class="badge badge-amber">Medium</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Slideout (vs page)</strong></td>
+                    <td>No page exit = no back-button drop-off. Perceived commitment is lower. Tracks which CTA triggered the form</td>
+                    <td><span class="badge badge-red">High</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    function prevStep() {
-        if (currentStep > 1) {
-            currentStep--;
-            showStep(currentStep);
-        }
-    }
+<!-- ═══ SECTION 02: FULL FORM MOCKUP ═══ -->
+<div class="dark-band" style="padding: 64px 0 80px;">
+    <div class="container">
+        <div class="section-number">Section 02</div>
+        <h2>Step-by-Step Form Design</h2>
+        <p>Interactive walkthrough of each step. Click the step numbers to preview each screen.</p>
 
-    function showStep(step) {
-        currentStep = step;
+        <!-- ── STEP 1 ── -->
+        <h3 style="color:#fff; margin-top: 32px;">Step 1 of 4 -- Your Project</h3>
+        <p>Opens with the lowest-friction questions. Foot-in-the-door: once they start, commitment bias drives completion.</p>
 
-        // Hide all steps
-        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + step).classList.add('active');
+        <div class="form-demo-wrapper">
+            <div class="form-progress">
+                <div class="step active">
+                    <span class="step-num">1</span>
+                    <span class="step-label">Your Project</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">2</span>
+                    <span class="step-label">Specifications</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">3</span>
+                    <span class="step-label">Preferences</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">4</span>
+                    <span class="step-label">Contact</span>
+                </div>
+            </div>
+            <div class="progress-fill">
+                <div class="progress-fill-bar" style="width: 25%;"></div>
+            </div>
 
-        // Update progress header
-        document.querySelectorAll('.progress-step').forEach((el, i) => {
-            el.classList.remove('active', 'completed');
-            if (i + 1 === step) {
-                el.classList.add('active');
-            } else if (i + 1 < step) {
-                el.classList.add('completed');
-                document.getElementById('circle' + (i + 1)).innerHTML = '&#10003;';
-            } else {
-                document.getElementById('circle' + (i + 1)).textContent = i + 1;
-            }
-        });
+            <div class="form-body">
+                <h3>Tell us about your project</h3>
+                <p class="step-desc">We use this to match you with the right manufacturing facility and process.</p>
 
-        // Update progress bar
-        document.getElementById('progressBar').style.width = (step / totalSteps * 100) + '%';
+                <div class="field-group">
+                    <label>Current Stage of Production <span class="required">*</span></label>
+                    <select>
+                        <option value="">Select your current stage...</option>
+                        <option>Already in Production</option>
+                        <option>Ready to Start Production</option>
+                        <option>Design Phase</option>
+                    </select>
+                    <div class="helper">Where you are in the process helps us estimate timelines accurately.</div>
+                </div>
 
-        // Back button visibility
-        document.getElementById('btnBack').style.visibility = step === 1 ? 'hidden' : 'visible';
+                <div class="field-group">
+                    <label>Type of Manufacturing Process <span class="required">*</span></label>
+                    <select>
+                        <option value="">Select process type...</option>
+                        <option>Stamping</option>
+                        <option>Die Casting</option>
+                        <option>Sand Casting</option>
+                        <option>Investment Casting</option>
+                        <option>CNC Machining</option>
+                        <option>Forging</option>
+                        <option>Other</option>
+                    </select>
+                    <div class="helper">Not sure? Select the closest match -- our engineers will confirm during review.</div>
+                </div>
 
-        // Change button on last step
-        const btnNext = document.getElementById('btnNext');
-        if (step === totalSteps) {
-            btnNext.className = 'btn-submit';
-            btnNext.innerHTML = 'Submit Quote Request &rarr;';
-        } else {
-            btnNext.className = 'btn-next';
-            btnNext.innerHTML = 'Continue &rarr;';
-        }
-    }
+                <div class="field-group">
+                    <label>Main Reason for Requesting a Quote <span class="required">*</span></label>
+                    <div class="option-cards">
+                        <div class="option-card selected">
+                            <div class="check-icon">&#10003;</div>
+                            <div class="option-title">Reduce Costs</div>
+                            <div class="option-desc">Current production costs are too high</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Quality Issues</div>
+                            <div class="option-desc">Current supplier not meeting standards</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Supply Chain Risk</div>
+                            <div class="option-desc">Need a more reliable source</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">New Product</div>
+                            <div class="option-desc">Starting from scratch</div>
+                        </div>
+                    </div>
+                </div>
 
-    function submitForm() {
-        // Hide form elements, show success
-        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
-        document.getElementById('formActions').style.display = 'none';
-        document.getElementById('progressHeader').style.display = 'none';
-        document.querySelector('.progress-fill').style.display = 'none';
-        document.getElementById('successScreen').classList.add('active');
-    }
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Target First Shipment</label>
+                        <input type="date" />
+                        <div class="helper">Approximate is fine. Helps us prioritize.</div>
+                    </div>
+                    <div class="field-group">
+                        <label>Estimated Annual Volume <span class="required">*</span></label>
+                        <select>
+                            <option value="">Select range...</option>
+                            <option>$0 - $50K</option>
+                            <option>$50K - $150K</option>
+                            <option>$150K - $500K</option>
+                            <option>$500K - $1.5M</option>
+                            <option>$1.5M+</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-    // ── OPTION CARD TOGGLE ──
-    function toggleCard(card, groupId, multiSelect) {
-        if (multiSelect) {
-            card.classList.toggle('selected');
-        } else {
-            // Single select: deselect others in group
-            document.querySelectorAll('#' + groupId + ' .opt-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-        }
-        // Update check icons
-        document.querySelectorAll('#' + groupId + ' .opt-card').forEach(c => {
-            c.querySelector('.card-check').innerHTML = c.classList.contains('selected') ? '&#10003;' : '';
-        });
-    }
+            <div class="form-actions">
+                <div></div>
+                <button class="btn-next">Continue &rarr;</button>
+            </div>
 
-    // ── FILE UPLOAD ──
-    const uploadZone = document.getElementById('uploadZone');
+            <div class="trust-bar">
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> ISO 9001 Certified
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> IATF 16949
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#128274;</span> NDA Protected
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> Honda | Armstrong | CircOR
+                </div>
+            </div>
+        </div>
 
-    uploadZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadZone.classList.add('dragover');
-    });
-    uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('dragover');
-    });
-    uploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
-    });
+        <div class="annotation">
+            <strong>CRO Notes:</strong> Step 1 collects project context (low cognitive load), not contact info. Asking for an email on step 1 kills 30-40% of leads. The trust bar is anchored to the bottom of the form -- always visible, never buried. Option cards replace dropdown checkboxes -- visual selection reduces error rate and feels faster.
+        </div>
 
-    function handleFiles(files) {
-        const list = document.getElementById('uploadList');
-        for (let f of files) {
-            if (uploadedFiles.length >= 10) break;
-            uploadedFiles.push(f.name);
-            const item = document.createElement('div');
-            item.className = 'upload-item';
-            item.innerHTML = '<span class="file-name">&#128196; ' + f.name + '</span><span class="file-remove" onclick="removeFile(this, \'' + f.name + '\')">&#10005;</span>';
-            list.appendChild(item);
-        }
-    }
+        <!-- ── STEP 2 ── -->
+        <h3 style="color:#fff; margin-top: 56px;">Step 2 of 4 -- Specifications</h3>
+        <p>Now they are invested (commitment bias). We can ask for more detail.</p>
 
-    function removeFile(el, name) {
-        uploadedFiles = uploadedFiles.filter(f => f !== name);
-        el.parentElement.remove();
-    }
-</script>
+        <div class="form-demo-wrapper">
+            <div class="form-progress">
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Your Project</span>
+                </div>
+                <div class="step active">
+                    <span class="step-num">2</span>
+                    <span class="step-label">Specifications</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">3</span>
+                    <span class="step-label">Preferences</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">4</span>
+                    <span class="step-label">Contact</span>
+                </div>
+            </div>
+            <div class="progress-fill">
+                <div class="progress-fill-bar" style="width: 50%;"></div>
+            </div>
+
+            <div class="form-body">
+                <h3>Production specifications</h3>
+                <p class="step-desc">Share what you can now. Our engineers will follow up on any details we need.</p>
+
+                <div class="field-group">
+                    <label>Describe Your Part or Product</label>
+                    <textarea placeholder="Materials, dimensions, tolerances, quantity per order, any special requirements..."></textarea>
+                    <div class="helper">The more detail you provide, the more accurate our estimate. But don't worry if you don't have everything -- we'll work through it together.</div>
+                </div>
+
+                <div class="field-group">
+                    <label>Upload Drawings or Documents</label>
+                    <div class="upload-zone">
+                        <div class="upload-icon">&#128196;</div>
+                        <div class="upload-title">Drag files here or click to browse</div>
+                        <div class="upload-subtitle">Up to 10 files, 128MB max each</div>
+                        <div class="upload-formats">PDF, JPG, PNG, DWG, DXF accepted -- STP/STEP files: email to quotes@redstone.com</div>
+                    </div>
+                    <div class="helper">CAD drawings, spec sheets, photos of existing parts -- anything that helps us understand your project.</div>
+                </div>
+
+                <div class="field-group">
+                    <label>Current Country of Production</label>
+                    <input type="text" placeholder="e.g. China, India, domestic, none yet" />
+                    <div class="helper">Helps us benchmark your current costs and lead times against what we can offer.</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-back">&larr; Back</button>
+                <button class="btn-next">Continue &rarr;</button>
+            </div>
+
+            <div class="trust-bar">
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> ISO 9001 Certified
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> IATF 16949
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#128274;</span> NDA Protected
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> Honda | Armstrong | CircOR
+                </div>
+            </div>
+        </div>
+
+        <div class="annotation">
+            <strong>CRO Notes:</strong> File upload is now direct -- no conditional toggle. The "do you want to attach?" question added a decision point for zero benefit. Drag-and-drop zone is universally understood. STP/STEP limitation is disclosed inline (not as a surprise after clicking), reducing frustration. Back button present so users never feel trapped.
+        </div>
+
+        <!-- ── STEP 3 ── -->
+        <h3 style="color:#fff; margin-top: 56px;">Step 3 of 4 -- Manufacturing Preferences</h3>
+        <p>Low-effort step. Cards instead of checkboxes. Goal-gradient effect: "almost done" accelerates completion.</p>
+
+        <div class="form-demo-wrapper">
+            <div class="form-progress">
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Your Project</span>
+                </div>
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Specifications</span>
+                </div>
+                <div class="step active">
+                    <span class="step-num">3</span>
+                    <span class="step-label">Preferences</span>
+                </div>
+                <div class="step">
+                    <span class="step-num">4</span>
+                    <span class="step-label">Contact</span>
+                </div>
+            </div>
+            <div class="progress-fill">
+                <div class="progress-fill-bar" style="width: 75%;"></div>
+            </div>
+
+            <div class="form-body">
+                <h3>Where would you like to manufacture?</h3>
+                <p class="step-desc">Select all regions you're open to. We operate facilities across four countries.</p>
+
+                <div class="field-group">
+                    <label>Preferred Manufacturing Regions</label>
+                    <div class="option-cards">
+                        <div class="option-card selected">
+                            <div class="check-icon">&#10003;</div>
+                            <div class="option-title">Mexico</div>
+                            <div class="option-desc">Nearshore, USMCA compliant</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">India</div>
+                            <div class="option-desc">Cost-optimized, high volume</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">China</div>
+                            <div class="option-desc">Established supply chains</div>
+                        </div>
+                        <div class="option-card">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Taiwan</div>
+                            <div class="option-desc">Precision + electronics</div>
+                        </div>
+                    </div>
+                    <div class="helper">No preference? That's fine -- we'll recommend the best fit based on your specs and volume.</div>
+                </div>
+
+                <div class="field-group">
+                    <label>Previous Experience with Overseas Manufacturing</label>
+                    <select>
+                        <option value="">Select your experience level...</option>
+                        <option>First time -- need full guidance</option>
+                        <option>Some experience -- know the basics</option>
+                        <option>Experienced -- currently manufacturing overseas</option>
+                    </select>
+                    <div class="helper">This helps us calibrate how much support you need through the process.</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-back">&larr; Back</button>
+                <button class="btn-next">Continue &rarr;</button>
+            </div>
+
+            <div class="trust-bar">
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> ISO 9001 Certified
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> IATF 16949
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#128274;</span> NDA Protected
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> Honda | Armstrong | CircOR
+                </div>
+            </div>
+        </div>
+
+        <div class="annotation">
+            <strong>CRO Notes:</strong> This step is intentionally light -- only 2 fields. At 75% progress, the goal-gradient effect kicks in (people accelerate toward completion). Country cards include one-line value props (USMCA, cost-optimized) that reinforce Redstone's differentiators without feeling salesy. Experience level replaces a vague text field -- structured data is better for the sales team too.
+        </div>
+
+        <!-- ── STEP 4 ── -->
+        <h3 style="color:#fff; margin-top: 56px;">Step 4 of 4 -- Contact Details</h3>
+        <p>Contact info comes last. By now they have invested 2-3 minutes. Abandonment at this stage is minimal.</p>
+
+        <div class="form-demo-wrapper">
+            <div class="form-progress">
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Your Project</span>
+                </div>
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Specifications</span>
+                </div>
+                <div class="step completed">
+                    <span class="step-num">&#10003;</span>
+                    <span class="step-label">Preferences</span>
+                </div>
+                <div class="step active">
+                    <span class="step-num">4</span>
+                    <span class="step-label">Contact</span>
+                </div>
+            </div>
+            <div class="progress-fill">
+                <div class="progress-fill-bar" style="width: 100%;"></div>
+            </div>
+
+            <div class="form-body">
+                <h3>Last step -- how do we reach you?</h3>
+                <p class="step-desc">We'll have an engineer review your project and get back to you within 1 business day.</p>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Full Name <span class="required">*</span></label>
+                        <input type="text" placeholder="First Last" />
+                    </div>
+                    <div class="field-group">
+                        <label>Company <span class="required">*</span></label>
+                        <input type="text" placeholder="Your company name" />
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Job Title</label>
+                        <input type="text" placeholder="e.g. Procurement Manager" />
+                    </div>
+                    <div class="field-group">
+                        <label>Work Email <span class="required">*</span></label>
+                        <input type="email" placeholder="you@company.com" />
+                    </div>
+                </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <label>Phone <span class="required">*</span></label>
+                        <input type="tel" placeholder="(555) 000-0000" />
+                    </div>
+                    <div class="field-group">
+                        <label>Preferred Contact Method</label>
+                        <select>
+                            <option>Phone Call</option>
+                            <option>Video Meeting</option>
+                            <option>Email First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px 20px; margin-top: 8px;">
+                    <p style="font-size: 0.85em; color: #166534; margin: 0; font-weight: 500;">
+                        &#9989; An engineer will review your project and respond within 1 business day. All submissions are protected under NDA.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-back">&larr; Back</button>
+                <button class="btn-submit">Submit Quote Request &rarr;</button>
+            </div>
+
+            <div class="trust-bar">
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> ISO 9001 Certified
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> IATF 16949
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#128274;</span> NDA Protected
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">&#9745;</span> Honda | Armstrong | CircOR
+                </div>
+            </div>
+        </div>
+
+        <div class="annotation">
+            <strong>CRO Notes:</strong> "Last step" phrasing triggers completion instinct. The green submit button is intentionally different from the red "Continue" buttons -- Von Restorff isolation effect makes it the most noticeable element on the page. The NDA + 1-business-day promise reduces anxiety at the moment of commitment. "Email First" option added for prospects who are comparing vendors and not ready for a call.
+        </div>
+    </div>
+</div>
+
+<!-- ═══ SECTION 03: SLIDEOUT CONCEPT ═══ -->
+<div class="section">
+    <div class="container">
+        <div class="section-number">Section 03</div>
+        <h2>Slideout Panel Concept</h2>
+        <p>Instead of a dedicated /quote page, the form opens as a right-side panel from any "Get Quote" CTA on the site. Visitor stays on the page they were reading.</p>
+
+        <div class="slideout-demo" style="min-height: 420px;">
+            <div class="slideout-page-bg">
+                <h4>&#9664; Website page continues behind the overlay</h4>
+                <p>Visitor was reading about CNC Machining services...</p>
+                <p>They clicked:</p>
+                <div class="fake-btn">Get a Quote &rarr;</div>
+                <br><br>
+                <p>The form slides in from the right.</p>
+                <p>No page navigation. No context switch.</p>
+                <p>The page they were reading is still visible behind the overlay.</p>
+            </div>
+            <div class="slideout-panel">
+                <div class="slideout-header">
+                    <h4>Request a Quote</h4>
+                    <div class="slideout-close">&times;</div>
+                </div>
+                <div style="padding: 0;">
+                    <div class="form-progress" style="font-size: 0.85em;">
+                        <div class="step active" style="padding: 12px 6px;">
+                            <span class="step-num" style="width: 20px; height: 20px; font-size: 0.8em;">1</span>
+                            <span class="step-label">Project</span>
+                        </div>
+                        <div class="step" style="padding: 12px 6px;">
+                            <span class="step-num" style="width: 20px; height: 20px; font-size: 0.8em;">2</span>
+                            <span class="step-label">Specs</span>
+                        </div>
+                        <div class="step" style="padding: 12px 6px;">
+                            <span class="step-num" style="width: 20px; height: 20px; font-size: 0.8em;">3</span>
+                            <span class="step-label">Region</span>
+                        </div>
+                        <div class="step" style="padding: 12px 6px;">
+                            <span class="step-num" style="width: 20px; height: 20px; font-size: 0.8em;">4</span>
+                            <span class="step-label">Contact</span>
+                        </div>
+                    </div>
+                    <div class="progress-fill">
+                        <div class="progress-fill-bar" style="width: 25%;"></div>
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <h3 style="font-size: 1em; font-weight: 700; margin-bottom: 4px;">Tell us about your project</h3>
+                    <p style="font-size: 0.78em; color: #999; margin-bottom: 16px;">Takes about 2 minutes.</p>
+                    <div class="field-group">
+                        <label style="font-size: 0.72em;">Current Stage <span class="required">*</span></label>
+                        <select style="padding: 10px 12px; font-size: 0.85em;">
+                            <option>Select your current stage...</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label style="font-size: 0.72em;">Manufacturing Process <span class="required">*</span></label>
+                        <select style="padding: 10px 12px; font-size: 0.85em;">
+                            <option>Select process type...</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label style="font-size: 0.72em;">Annual Volume <span class="required">*</span></label>
+                        <select style="padding: 10px 12px; font-size: 0.85em;">
+                            <option>Select range...</option>
+                        </select>
+                    </div>
+                    <button class="btn-next" style="width: 100%; text-align: center; margin-top: 8px;">Continue &rarr;</button>
+                    <div class="trust-bar" style="margin-top: 16px; padding: 12px 0; background: transparent; border-top: 1px solid #eee; gap: 12px; justify-content: flex-start; flex-wrap: wrap;">
+                        <div class="trust-item" style="font-size: 0.65em;">&#9745; ISO 9001</div>
+                        <div class="trust-item" style="font-size: 0.65em;">&#128274; NDA</div>
+                        <div class="trust-item" style="font-size: 0.65em;">&#9745; IATF 16949</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Slideout Advantages</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Benefit</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Zero navigation</strong></td>
+                    <td>User stays on the page they were reading. No context switch, no back-button drop-off, no "where was I?" moment</td>
+                </tr>
+                <tr>
+                    <td><strong>Every CTA = same form</strong></td>
+                    <td>One form component, triggered from any "Get Quote" button site-wide. Consistent experience, single codebase</td>
+                </tr>
+                <tr>
+                    <td><strong>Source tracking</strong></td>
+                    <td>We log which page and CTA triggered the open -- tells us what content drives quote requests (services page? homepage? specific process page?)</td>
+                </tr>
+                <tr>
+                    <td><strong>"Takes 2 minutes" anchor</strong></td>
+                    <td>Time estimate in the panel header uses anchoring bias -- sets expectation that this is fast, not a big commitment</td>
+                </tr>
+                <tr>
+                    <td><strong>Mobile: full-screen takeover</strong></td>
+                    <td>On mobile (below 768px), the slideout becomes a full-screen modal. Same form, same steps, optimized for thumb reach</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══ SECTION 04: IMPLEMENTATION SPEC ═══ -->
+<div class="dark-band">
+    <div class="container">
+        <div class="section-number">Section 04</div>
+        <h2>Implementation Notes</h2>
+
+        <h3 style="color:#fff;">Technical Approach</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>How</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Form engine</td>
+                    <td>Keep Gravity Forms (already installed). Restyle with custom CSS to match this design. Multi-page pagination already supported</td>
+                </tr>
+                <tr>
+                    <td>Progress bar</td>
+                    <td>Gravity Forms has a built-in progress indicator -- just needs to be enabled and styled with the numbered step design shown above</td>
+                </tr>
+                <tr>
+                    <td>Slideout panel</td>
+                    <td>Custom JS + CSS overlay. Form loads via AJAX inside the panel. Triggered by class on any CTA button site-wide</td>
+                </tr>
+                <tr>
+                    <td>File upload</td>
+                    <td>Gravity Forms advanced file upload field (already supports drag-and-drop). Remove the conditional toggle, make it always visible</td>
+                </tr>
+                <tr>
+                    <td>Trust bar</td>
+                    <td>Static HTML below the form. Uses actual ISO/IATF cert numbers. Client logos are already on the homepage</td>
+                </tr>
+                <tr>
+                    <td>Tracking</td>
+                    <td>PostHog (once approved) tracks: form opens, step completions, drop-off points, time per step, source page/CTA</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="color:#fff;">Field Inventory: Current vs Proposed</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Step</th>
+                    <th>Fields</th>
+                    <th>Avg. Time</th>
+                    <th>Cognitive Load</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1. Your Project</td>
+                    <td>4 fields (3 dropdowns, 1 card select)</td>
+                    <td>~30 sec</td>
+                    <td><span class="badge badge-green">Low</span> -- all selection, no typing</td>
+                </tr>
+                <tr>
+                    <td>2. Specifications</td>
+                    <td>3 fields (1 textarea, 1 upload, 1 text)</td>
+                    <td>~60 sec</td>
+                    <td><span class="badge badge-amber">Medium</span> -- requires thought but is optional-friendly</td>
+                </tr>
+                <tr>
+                    <td>3. Preferences</td>
+                    <td>2 fields (1 card select, 1 dropdown)</td>
+                    <td>~15 sec</td>
+                    <td><span class="badge badge-green">Low</span> -- breather step before contact</td>
+                </tr>
+                <tr>
+                    <td>4. Contact</td>
+                    <td>6 fields (5 text, 1 dropdown)</td>
+                    <td>~45 sec</td>
+                    <td><span class="badge badge-amber">Medium</span> -- autofill handles most of it</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 8px;"><strong style="color:#fff;">Total:</strong> 15 fields across 4 steps. ~2.5 minutes. Current form has similar field count but worse distribution and no progress cues.</p>
+
+        <div class="callout" style="border-left-color: #16a34a; background: #0a1a0a; margin-top: 24px;">
+            <p style="color: #86efac;">This is a reskin + restructure of the existing Gravity Form, not a rebuild. Can be implemented within the week once Eric approves.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+    <div class="container">
+        <p>Prepared by Kas Andz / KAMG -- April 9, 2026 -- Confidential</p>
+    </div>
+</div>
 
 </body>
 </html>

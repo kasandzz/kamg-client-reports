@@ -451,25 +451,22 @@ const Shell = (() => {
 
       card.appendChild(dot);
 
-      card.addEventListener('mouseenter', () => {
-        // Find the latest API fetch across all tracked queries
-        const meta = API.getAllMeta();
-        let latest = 0;
-        let serverTs = 0;
-        let anyCache = false;
-        for (const [, m] of meta) {
-          if (m.fetchedAt > latest) latest = m.fetchedAt;
-          if (m.cachedAt > serverTs) serverTs = m.cachedAt;
-          if (m.fromCache) anyCache = true;
-        }
-        if (latest) {
-          const ts = serverTs || latest;
+      card.addEventListener('mouseenter', async () => {
+        const page = (window.location.hash || '').replace('#', '') || 'war-room';
+        const ts = await API.getPageFreshness(page);
+        if (ts) {
           const d = new Date(ts);
           const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-          dot.setAttribute('data-tooltip', `Synced ${day} ${time}${anyCache ? ' (cached)' : ''}`);
+          const ageMs = Date.now() - ts;
+          const ageH = ageMs / (1000 * 60 * 60);
+          dot.classList.remove('sync-stamp--fresh', 'sync-stamp--warn', 'sync-stamp--stale');
+          if (ageH < 1) dot.classList.add('sync-stamp--fresh');
+          else if (ageH < 6) dot.classList.add('sync-stamp--warn');
+          else dot.classList.add('sync-stamp--stale');
+          dot.setAttribute('data-tooltip', `Data as of ${day} ${time}`);
         } else {
-          dot.setAttribute('data-tooltip', 'Not yet loaded');
+          dot.setAttribute('data-tooltip', 'Freshness unknown');
         }
       });
     }

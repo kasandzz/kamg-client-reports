@@ -300,27 +300,6 @@ const Components = (() => {
     if (!card) return;
     const qList = Array.isArray(queries) ? queries : [queries];
 
-    // Find the most recent fetch across all queries for this card
-    function getLabel() {
-      let latest = 0;
-      let serverTs = 0;
-      let anyCache = false;
-      for (const q of qList) {
-        const m = API.getQueryMeta(page, q);
-        if (m) {
-          if (m.fetchedAt > latest) latest = m.fetchedAt;
-          if (m.cachedAt > serverTs) serverTs = m.cachedAt;
-          if (m.fromCache) anyCache = true;
-        }
-      }
-      if (!latest) return null;
-      const ts = serverTs || latest;
-      const d = new Date(ts);
-      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-      return `Synced ${day} ${time}` + (anyCache ? ' (cached)' : '');
-    }
-
     // Create the dot indicator
     const dot = document.createElement('div');
     dot.className = 'sync-stamp';
@@ -328,11 +307,23 @@ const Components = (() => {
     card.style.position = 'relative';
     card.appendChild(dot);
 
-    // Update on hover
-    card.addEventListener('mouseenter', () => {
-      const label = getLabel();
-      if (label) dot.setAttribute('data-tooltip', label);
-      else dot.setAttribute('data-tooltip', 'Loading...');
+    // Update on hover using actual BQ table last-modified time
+    card.addEventListener('mouseenter', async () => {
+      const ts = await API.getPageFreshness(page);
+      if (ts) {
+        const d = new Date(ts);
+        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const ageMs = Date.now() - ts;
+        const ageH = ageMs / (1000 * 60 * 60);
+        dot.classList.remove('sync-stamp--fresh', 'sync-stamp--warn', 'sync-stamp--stale');
+        if (ageH < 1) dot.classList.add('sync-stamp--fresh');
+        else if (ageH < 6) dot.classList.add('sync-stamp--warn');
+        else dot.classList.add('sync-stamp--stale');
+        dot.setAttribute('data-tooltip', `Data as of ${day} ${time}`);
+      } else {
+        dot.setAttribute('data-tooltip', 'Freshness unknown');
+      }
     });
   }
 

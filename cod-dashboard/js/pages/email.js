@@ -28,13 +28,57 @@ App.registerPage('email-intel', async (container) => {
   container.appendChild(kpiContainer);
 
   Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Sent',    value: kpi.total_sent    || 0, format: 'num' },
-    { label: 'Delivery Rate', value: kpi.delivery_rate || 0, format: 'pct' },
-    { label: 'Open Rate',     value: kpi.open_rate     || 0, format: 'pct' },
-    { label: 'Click Rate',    value: kpi.click_rate    || 0, format: 'pct' },
-    { label: 'Bounced',       value: kpi.bounced       || 0, format: 'num', invertCost: true },
-    { label: 'Unsubscribed',  value: kpi.unsubscribed  || 0, format: 'num', invertCost: true },
-    { label: 'Delivered',     value: kpi.delivered     || 0, format: 'num' },
+    {
+      label: 'Total Sent',
+      value: kpi.total_sent || 0,
+      format: 'num',
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(*) WHERE date >= DATE_SUB(CURRENT_DATE, INTERVAL {days} DAY)',
+    },
+    {
+      label: 'Delivery Rate',
+      value: kpi.delivery_rate || 0,
+      format: 'pct',
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(delivered) / COUNT(*) * 100',
+    },
+    {
+      label: 'Open Rate',
+      value: kpi.open_rate || 0,
+      format: 'pct',
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(DISTINCT opens) / COUNT(delivered) * 100',
+    },
+    {
+      label: 'Click Rate',
+      value: kpi.click_rate || 0,
+      format: 'pct',
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(DISTINCT clicks) / COUNT(delivered) * 100',
+    },
+    {
+      label: 'Bounced',
+      value: kpi.bounced || 0,
+      format: 'num',
+      invertCost: true,
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(*) WHERE event = "bounce"',
+    },
+    {
+      label: 'Unsubscribed',
+      value: kpi.unsubscribed || 0,
+      format: 'num',
+      invertCost: true,
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(*) WHERE event = "unsubscribe"',
+    },
+    {
+      label: 'Delivered',
+      value: kpi.delivered || 0,
+      format: 'num',
+      source: 'BigQuery: sendgrid_messages',
+      calc: 'COUNT(*) WHERE event = "delivered"',
+    },
   ]);
 
   // ---- 2-column chart grid ----

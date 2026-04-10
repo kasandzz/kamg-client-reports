@@ -441,48 +441,98 @@ App.registerPage('funnels', async (container) => {
     }
 
     /* =========================================================
-       Heatmap
+       YTD Summary Strip
+       ========================================================= */
+    .ytd-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(34,211,238,0.06) 50%, rgba(34,197,94,0.04) 100%);
+      border: 1px solid rgba(124,58,237,0.15);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(12px);
+    }
+    .ytd-strip__title {
+      grid-column: 1 / -1;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-primary-bright);
+      margin-bottom: 2px;
+    }
+    .ytd-item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .ytd-item__label {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+    .ytd-item__value {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .ytd-item__value--accent { color: var(--accent-cyan); }
+    .ytd-item__value--green { color: var(--status-up); }
+    .ytd-item__value--gold { color: var(--accent-gold); }
+
+    /* =========================================================
+       Heatmap -- compact glassy deep gradient
        ========================================================= */
     .heatmap-grid {
       display: grid;
-      grid-template-columns: 60px repeat(7, 1fr);
-      gap: 4px;
-      margin-top: var(--space-3);
+      grid-template-columns: 42px repeat(7, 1fr);
+      gap: 2px;
+      margin-top: var(--space-2);
     }
     .heatmap-header {
       font-family: var(--font-mono);
-      font-size: var(--text-xs);
+      font-size: 9px;
       font-weight: 600;
       color: var(--text-secondary);
       text-align: center;
-      padding: var(--space-1) 0;
+      padding: 2px 0;
     }
     .heatmap-row-label {
       font-family: var(--font-mono);
-      font-size: var(--text-xs);
+      font-size: 9px;
       font-weight: 500;
       color: var(--text-secondary);
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding-right: var(--space-2);
+      padding-right: 4px;
     }
     .heatmap-cell {
-      border-radius: var(--radius-sm);
-      padding: var(--space-2);
+      border-radius: 3px;
+      padding: 0;
       text-align: center;
       font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--text-primary);
-      min-height: 44px;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      min-height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform var(--transition-fast);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.04);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
     .heatmap-cell:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(124,58,237,0.3);
+      z-index: 1;
     }
     .heatmap-legend {
       display: flex;
@@ -932,6 +982,9 @@ App.registerPage('funnels', async (container) => {
   <!-- Hidden elements needed by date picker JS (prevent errors) -->
   <div id="datePresets" hidden></div>
   <div id="dpWrap" hidden><button id="dpTrigger"></button><div id="dpDropdown" hidden><div id="dpCal"></div><div id="dpSide"></div><span id="dpRangeLabel"></span><button id="dpCancel"></button><button id="dpApply"></button></div></div>
+
+  <!-- ====== 2b. YTD Summary Strip ====== -->
+  <div class="ytd-strip" id="ytdStrip" style="display:none"></div>
 
   <!-- ====== 3. KPI Card Grid ====== -->
   <div class="kpi-grid" id="kpiGrid"></div>

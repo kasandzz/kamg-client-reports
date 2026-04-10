@@ -964,22 +964,47 @@
             color: rgba(255,255,255,0.4);
         }
 
-        /* ===== STICKY MOBILE CTA ===== */
+        /* ===== STICKY UNLOCK CTA BAR ===== */
         .mobile-cta-bar {
-            display: none;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 14px 20px;
+            padding: 16px 20px;
             background: var(--white);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.14);
             z-index: 150;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mobile-cta-bar.visible {
+            transform: translateY(0);
+        }
+
+        .mobile-cta-bar__inner {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .mobile-cta-bar__nudge {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--teal);
+            margin-bottom: 8px;
+            animation: nudgePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes nudgePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
         }
 
         .mobile-cta-bar .btn {
             font-size: 16px;
             padding: 14px 20px;
+            width: 100%;
         }
 
         /* ===== SCROLL REVEAL ===== */
@@ -1005,8 +1030,8 @@
             .testimonial-card { padding: 28px 22px; }
             .engagement-nudge { padding: 30px 22px; }
 
-            .mobile-cta-bar {
-                display: block;
+            .mobile-cta-bar__nudge {
+                font-size: 12px;
             }
 
             .funnel-steps { display: none; }
@@ -1423,7 +1448,10 @@
 
     <!-- MOBILE STICKY CTA BAR -->
     <div class="mobile-cta-bar" id="mobileCta">
-        <a href="#applicationSection" class="btn" onclick="scrollToForm(event)">Apply for Private Coaching &rarr;</a>
+        <div class="mobile-cta-bar__inner">
+            <div class="mobile-cta-bar__nudge" id="ctaNudge">Application unlocked. Only 6 spots this month.</div>
+            <a href="#applicationSection" class="btn" onclick="scrollToForm(event)">Apply for Private Coaching &rarr;</a>
+        </div>
     </div>
 
     <script>
@@ -1514,6 +1542,29 @@
             }
 
             clearInterval(gateInterval);
+
+            // Show sticky CTA bar after unlock with a short delay
+            setTimeout(() => {
+                const ctaBar = document.getElementById('mobileCta');
+                if (ctaBar) ctaBar.classList.add('visible');
+            }, 1200);
+
+            // Hide bar when user scrolls to the application section
+            const appSection = document.getElementById('applicationSection');
+            if (appSection) {
+                const hideObserver = new IntersectionObserver((entries) => {
+                    const ctaBar = document.getElementById('mobileCta');
+                    if (!ctaBar) return;
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            ctaBar.classList.remove('visible');
+                        } else if (gateUnlocked) {
+                            ctaBar.classList.add('visible');
+                        }
+                    });
+                }, { threshold: 0.2 });
+                hideObserver.observe(appSection);
+            }
         }
 
         // ===== VIDEO CLICK-TO-PLAY =====

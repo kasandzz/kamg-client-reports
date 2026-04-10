@@ -374,30 +374,92 @@ App.registerPage('war-room', async (container) => {
     renderRows();
   }
 
-  // ---- Global Attribution Toggle (controls all Hyros-sourced charts) ----
+  // ---- Attribution model state (shared across Hyros-sourced cards) ----
   let _currentAttribModel = 'first';
+  const _attribDropdowns = []; // all dropdowns sync together
 
-  const attribBar = document.createElement('div');
-  attribBar.style.cssText = `display:flex;align-items:center;justify-content:space-between;margin-top:20px;margin-bottom:16px;padding:12px 20px;background:${Theme.COLORS.bgCard};border:1px solid ${Theme.COLORS.border};border-radius:12px`;
-  const attribLabel = document.createElement('div');
-  attribLabel.style.cssText = `font-size:11px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:0.06em`;
-  attribLabel.textContent = 'Hyros Attribution Model';
-  const attribToggle = document.createElement('div');
-  attribToggle.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:8px;padding:3px';
-  ['First Touch', 'Last Touch', 'Scientific'].forEach((label, i) => {
+  function _createAttribDropdown() {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;flex-shrink:0';
     const btn = document.createElement('button');
-    btn.textContent = label;
-    btn.className = 'filter-btn' + (i === 0 ? ' active' : '');
-    btn.style.cssText = 'padding:6px 16px;font-size:11px;border-radius:6px';
-    btn.dataset.model = ['first', 'last', 'scientific'][i];
-    attribToggle.appendChild(btn);
+    btn.style.cssText = `display:flex;align-items:center;gap:5px;padding:4px 10px;font-size:10px;font-family:var(--font-mono,'JetBrains Mono',monospace);color:${Theme.COLORS.textSecondary};background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;cursor:pointer;white-space:nowrap`;
+    const labels = { first: 'First Click', last: 'Last Click', scientific: 'Scientific' };
+    const icons = { first: '\u2B95', last: '\u2B05', scientific: '\u2696' };
+    btn.innerHTML = `<span style="font-size:11px">${icons[_currentAttribModel]}</span> ${labels[_currentAttribModel]} <span style="font-size:8px;opacity:0.5">\u25BC</span>`;
+
+    const menu = document.createElement('div');
+    menu.style.cssText = `display:none;position:absolute;top:100%;right:0;margin-top:4px;background:${Theme.COLORS.bgCard};border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px;z-index:20;min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,0.4)`;
+
+    [{ value: 'first', label: 'First Click', icon: '\u2B95', desc: 'First ad touchpoint' },
+     { value: 'last', label: 'Last Click', icon: '\u2B05', desc: 'Last ad before conversion' },
+     { value: 'scientific', label: 'Scientific', icon: '\u2696', desc: '50/50 first + last split' }
+    ].forEach(opt => {
+      const item = document.createElement('div');
+      item.style.cssText = `display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:11px;color:${_currentAttribModel === opt.value ? Theme.COLORS.textPrimary : Theme.COLORS.textSecondary};background:${_currentAttribModel === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent'}`;
+      item.innerHTML = `<span style="font-size:13px">${opt.icon}</span><div><div style="font-weight:${_currentAttribModel === opt.value ? '600' : '400'}">${opt.label}</div><div style="font-size:9px;color:${Theme.COLORS.textMuted}">${opt.desc}</div></div>`;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        _currentAttribModel = opt.value;
+        menu.style.display = 'none';
+        _syncAllAttribDropdowns();
+        _loadChannelCards(_currentAttribModel);
+        _loadHierarchy(_currentAttribModel);
+      });
+      item.addEventListener('mouseenter', () => { item.style.background = 'rgba(255,255,255,0.06)'; });
+      item.addEventListener('mouseleave', () => { item.style.background = _currentAttribModel === opt.value ? 'rgba(255,255,255,0.06)' : 'transparent'; });
+      menu.appendChild(item);
+    });
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = menu.style.display !== 'none';
+      // Close all other dropdowns
+      _attribDropdowns.forEach(d => { if (d.menu !== menu) d.menu.style.display = 'none'; });
+      menu.style.display = isOpen ? 'none' : 'block';
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(menu);
+    const ref = { wrap, btn, menu };
+    _attribDropdowns.push(ref);
+    return wrap;
+  }
+
+  function _syncAllAttribDropdowns() {
+    const labels = { first: 'First Click', last: 'Last Click', scientific: 'Scientific' };
+    const icons = { first: '\u2B95', last: '\u2B05', scientific: '\u2696' };
+    _attribDropdowns.forEach(d => {
+      d.btn.innerHTML = `<span style="font-size:11px">${icons[_currentAttribModel]}</span> ${labels[_currentAttribModel]} <span style="font-size:8px;opacity:0.5">\u25BC</span>`;
+      // Update menu item styles
+      d.menu.querySelectorAll('div[style]').forEach(item => {
+        const label = item.querySelector('div > div:first-child');
+        if (!label) return;
+        const isActive = labels[_currentAttribModel] === label.textContent;
+        item.style.background = isActive ? 'rgba(255,255,255,0.06)' : 'transparent';
+        item.style.color = isActive ? Theme.COLORS.textPrimary : Theme.COLORS.textSecondary;
+        if (label) label.style.fontWeight = isActive ? '600' : '400';
+      });
+    });
+  }
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', () => {
+    _attribDropdowns.forEach(d => { d.menu.style.display = 'none'; });
   });
-  attribBar.appendChild(attribLabel);
-  attribBar.appendChild(attribToggle);
-  container.appendChild(attribBar);
 
   // ---- Unified Channel Performance Card ----
-  const channelCard = _card('Channel Performance');
+  const channelCard = document.createElement('div');
+  channelCard.className = 'card';
+  channelCard.style.cssText = 'padding:16px 20px;margin-top:20px';
+  const chTitleRow = document.createElement('div');
+  chTitleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px';
+  const chTitle = document.createElement('div');
+  chTitle.style.cssText = `font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:0.05em`;
+  chTitle.textContent = 'Channel Performance';
+  chTitleRow.appendChild(chTitle);
+  chTitleRow.appendChild(_createAttribDropdown());
+  channelCard.appendChild(chTitleRow);
+
   let _chSort = { key: 'ticket_count', dir: 'desc' };
 
   function _loadChannelCards(model) {
@@ -548,28 +610,19 @@ App.registerPage('war-room', async (container) => {
     });
   }
 
-  // Attribution toggle handler -- reloads ALL Hyros-sourced charts
-  attribToggle.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      _currentAttribModel = btn.dataset.model;
-      attribToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      _loadChannelCards(_currentAttribModel);
-      _loadHierarchy(_currentAttribModel);
-    });
-  });
-
   // ---- Sales Hierarchy: Campaign > Adset > Ad (toggleable + drill-down) ----
   const adCard = document.createElement('div');
   adCard.className = 'card';
   adCard.style.padding = '16px 20px';
 
-  // Title row with toggle buttons
+  // Title row with level toggle + attribution dropdown
   const adTitleRow = document.createElement('div');
   adTitleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:8px';
   const adTitle = document.createElement('div');
   adTitle.style.cssText = 'font-size:13px;font-weight:600;color:' + Theme.COLORS.textSecondary;
   adTitle.textContent = 'Sales by Campaign';
+  const adControls = document.createElement('div');
+  adControls.style.cssText = 'display:flex;align-items:center;gap:8px';
   const adToggle = document.createElement('div');
   adToggle.style.cssText = 'display:flex;gap:2px;background:rgba(255,255,255,0.04);border-radius:6px;padding:2px';
   ['Campaign', 'Adset', 'Ad'].forEach(level => {
@@ -580,8 +633,10 @@ App.registerPage('war-room', async (container) => {
     btn.dataset.level = level.toLowerCase();
     adToggle.appendChild(btn);
   });
+  adControls.appendChild(adToggle);
+  adControls.appendChild(_createAttribDropdown());
   adTitleRow.appendChild(adTitle);
-  adTitleRow.appendChild(adToggle);
+  adTitleRow.appendChild(adControls);
   adCard.appendChild(adTitleRow);
 
 

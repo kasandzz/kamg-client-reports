@@ -417,27 +417,20 @@ const Shell = (() => {
     function _tryInject() {
       if (typeof Lineage === 'undefined') return false;
       if (container.querySelector('.lineage-legend')) return true;
-      // Wait until at least one card exists (page has rendered)
-      if (!container.querySelector('.card')) return false;
+      // Wait until page has fully rendered: multiple cards AND no spinner
+      const cards = container.querySelectorAll('.card');
+      const spinner = container.querySelector('.spinner');
+      if (cards.length < 2 || spinner) return false;
       const legend = Lineage.render(_currentPage);
       if (legend) { container.appendChild(legend); return true; }
       return false;
     }
 
-    // MutationObserver for when cards appear
-    const observer = new MutationObserver(() => {
-      if (_tryInject()) observer.disconnect();
-    });
-    observer.observe(container, { childList: true, subtree: true });
-
-    // Poll as fallback (Lineage script loads async)
+    // Poll until page is fully loaded (handles async page init + async Lineage script)
     let attempts = 0;
     const poll = setInterval(() => {
       attempts++;
-      if (_tryInject() || attempts > 20) {
-        clearInterval(poll);
-        observer.disconnect();
-      }
+      if (_tryInject() || attempts > 40) clearInterval(poll);
     }, 500);
   }
 

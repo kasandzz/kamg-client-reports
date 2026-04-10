@@ -34,6 +34,8 @@ const Filters = (() => {
    */
   function init() {
     _readFromURL();
+    // Apply compare-active class if restored from URL
+    if (_compare) document.body.classList.add('compare-active');
     const container = document.getElementById('global-controls');
     if (!container) return;
 
@@ -62,6 +64,7 @@ const Filters = (() => {
     compareCb.checked = _compare;
     compareCb.addEventListener('change', () => {
       _compare = compareCb.checked;
+      document.body.classList.toggle('compare-active', _compare);
       _syncToURL();
       _notify();
     });

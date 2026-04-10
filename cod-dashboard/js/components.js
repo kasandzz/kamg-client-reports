@@ -327,6 +327,54 @@ const Components = (() => {
     });
   }
 
+  // ---- Compare period helpers ----
+
+  /**
+   * Split a doubled-period result set into current vs previous halves.
+   * Pass the rows returned from a query with days*2, and the original days count.
+   * @param {Array} rows
+   * @param {number} days - original period length (not doubled)
+   * @param {string} [dateField='dt'] - field name holding the ISO date string
+   * @returns {{ current: Array, previous: Array }}
+   */
+  function splitPeriods(rows, days, dateField) {
+    dateField = dateField || 'dt';
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    var cutoffStr = cutoff.toISOString().slice(0, 10);
+    return {
+      current:  rows.filter(r => (r[dateField] || '') >= cutoffStr),
+      previous: rows.filter(r => (r[dateField] || '') < cutoffStr),
+    };
+  }
+
+  /**
+   * Push a dashed "previous period" overlay line onto an existing Chart.js config.
+   * Call before Chart creation -- mutates chartConfig.data.datasets in place.
+   * @param {Object} chartConfig - Chart.js config object
+   * @param {Array}  prevData    - y-values for the previous period (same length as current labels)
+   * @param {string} label       - base dataset label (will have " (prev)" appended)
+   * @param {string} color       - CSS colour string for the dashed line
+   * @param {string} [yAxisID]   - optional yAxisID to match the target axis
+   */
+  function addCompareDataset(chartConfig, prevData, label, color, yAxisID) {
+    if (!prevData || prevData.length === 0) return;
+    var ds = {
+      label:       label + ' (prev)',
+      data:        prevData,
+      type:        'line',
+      borderColor: color,
+      borderDash:  [5, 4],
+      borderWidth: 1.5,
+      pointRadius: 0,
+      tension:     0.3,
+      fill:        false,
+      order:       0,
+    };
+    if (yAxisID) ds.yAxisID = yAxisID;
+    chartConfig.data.datasets.push(ds);
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -335,5 +383,7 @@ const Components = (() => {
     isDrillDownOpen,
     renderTable,
     stampSyncTime,
+    splitPeriods,
+    addCompareDataset,
   };
 })();

@@ -4,9 +4,10 @@
    ============================================ */
 
 App.registerPage('hyros', async (container) => {
-  const days = Filters.getDays();
+  const days    = Filters.getDays();
+  const compare = Filters.getCompare();
 
-  let kpiData, sourcesData, dailyData;
+  let kpiData, sourcesData, dailyData, dailyCompare;
 
   try {
     [kpiData, sourcesData, dailyData] = await Promise.all([
@@ -17,6 +18,11 @@ App.registerPage('hyros', async (container) => {
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Hyros: ${err.message}</p></div>`;
     return;
+  }
+
+  // Fetch doubled-period for compare overlay (non-blocking)
+  if (compare) {
+    dailyCompare = await API.query('hyros', 'daily', { days: days * 2 }).catch(() => null);
   }
 
   container.innerHTML = '';
@@ -123,7 +129,7 @@ App.registerPage('hyros', async (container) => {
   const daySales    = dailyRows.map(r => r.sales   || 0);
   const dayRevenue  = dailyRows.map(r => r.revenue || 0);
 
-  Theme.createChart(dailyCanvasId, {
+  const hyrosDailyConfig = {
     type: 'bar',
     data: {
       labels: dayLabels,
@@ -186,7 +192,21 @@ App.registerPage('hyros', async (container) => {
         },
       },
     },
-  });
+  };
+
+  // Compare overlay: add dashed previous-period lines for sales and revenue
+  if (compare && dailyCompare && dailyCompare.length > 0) {
+    const split      = Components.splitPeriods(dailyCompare, days, 'day');
+    const prevRows   = split.previous;
+    if (prevRows.length > 0) {
+      const prevSales   = prevRows.map(r => r.sales   || 0);
+      const prevRevenue = prevRows.map(r => r.revenue || 0);
+      Components.addCompareDataset(hyrosDailyConfig, prevSales,   'Sales',   Theme.FUNNEL.blue,  'y');
+      Components.addCompareDataset(hyrosDailyConfig, prevRevenue, 'Revenue', Theme.FUNNEL.green, 'y2');
+    }
+  }
+
+  Theme.createChart(dailyCanvasId, hyrosDailyConfig);
 
   // ---- Row 2: Discrepancy Card + Lead Match Gauge ----
   const row2 = document.createElement('div');

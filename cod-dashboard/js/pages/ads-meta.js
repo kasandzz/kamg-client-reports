@@ -5,9 +5,10 @@
    ============================================ */
 
 App.registerPage('ads-meta', async (container) => {
-  const days = Filters.getDays();
+  const days    = Filters.getDays();
+  const compare = Filters.getCompare();
 
-  let kpis, campaigns, adsets, daily, unitEconData;
+  let kpis, campaigns, adsets, daily, unitEconData, dailyCompare;
 
   try {
     [kpis, campaigns, adsets, daily, unitEconData] = await Promise.all([
@@ -23,6 +24,11 @@ App.registerPage('ads-meta', async (container) => {
     _renderSourceAttribution(container);
     _renderDemographicIntel(container);
     return;
+  }
+
+  // Fetch doubled-period data for compare overlay (non-blocking)
+  if (compare) {
+    dailyCompare = await API.query('ads-meta', 'daily', { days: days * 2 }).catch(() => null);
   }
 
   const kpi = (kpis && kpis.length > 0) ? kpis[0] : {};
@@ -127,7 +133,15 @@ App.registerPage('ads-meta', async (container) => {
   // ---- Render charts after DOM settles ----
   requestAnimationFrame(() => {
     try { _renderRoasChart(roasDiv, adsets || []); } catch (e) { console.warn('ROAS chart error:', e); }
-    try { _renderDailyChart(trendCanvas, daily || []); } catch (e) { console.warn('Daily chart error:', e); }
+    try {
+      // Build previous-period rows from the doubled fetch
+      let prevDaily = null;
+      if (compare && dailyCompare && dailyCompare.length > 0) {
+        const split = Components.splitPeriods(dailyCompare, days, 'ad_date');
+        prevDaily = split.previous;
+      }
+      _renderDailyChart(trendCanvas, daily || [], prevDaily);
+    } catch (e) { console.warn('Daily chart error:', e); }
   });
 
   // ---- Unit Economics Panel ----
@@ -220,7 +234,7 @@ function _renderRoasChart(el, adsets) {
   Plotly.newPlot(el, [trace], layout, Theme.PLOTLY_CONFIG);
 }
 
-function _renderDailyChart(canvas, daily) {
+function _renderDailyChart(canvas, daily, prevRows) {
   if (!daily || daily.length === 0) {
     const p = document.createElement('p');
     p.style.cssText = `color:${Theme.COLORS.textMuted};padding:16px;font-size:13px`;
@@ -233,7 +247,7 @@ function _renderDailyChart(canvas, daily) {
   const spend  = daily.map(d => +(d.spend  || 0).toFixed(2));
   const ctr    = daily.map(d => +(d.ctr    || 0).toFixed(2));
 
-  Theme.createChart(canvas.id, {
+  const chartConfig = {
     type: 'bar',
     data: {
       labels,
@@ -302,7 +316,17 @@ function _renderDailyChart(canvas, daily) {
         },
       },
     },
-  });
+  };
+
+  // Compare overlay: add dashed previous-period lines for spend and CTR
+  if (prevRows && prevRows.length > 0) {
+    const prevSpend = prevRows.map(d => +(d.spend || 0).toFixed(2));
+    const prevCtr   = prevRows.map(d => +(d.ctr   || 0).toFixed(2));
+    Components.addCompareDataset(chartConfig, prevSpend, 'Spend ($)', Theme.FUNNEL.blue, 'ySpend');
+    Components.addCompareDataset(chartConfig, prevCtr,   'CTR (%)',   Theme.FUNNEL.cyan,  'yCtr');
+  }
+
+  Theme.createChart(canvas.id, chartConfig);
 }
 
 function _renderCampaignTable(card, campaigns) {

@@ -1267,14 +1267,14 @@ App.registerPage('war-room', async (container) => {
   container.appendChild(butterflyCard);
 
   // ---- Draw butterfly once data loads ----
-  // Primary: war-room/dailyTable (Stripe tickets + Meta spend, joined by date)
-  // Secondary: hyros/dailySplit (enrollment revenue from Hyros attribution)
+  // 3 independent BQ sources: Hyros (ticket+enrollment rev), Meta (spend), Stripe (ticket rev fallback)
   Promise.all([
-    API.query('war-room', 'dailyTable', { days }).catch(() => []),
-    API.query('hyros', 'dailySplit', { days }).catch(() => [])
-  ]).then(([dailyRows, hyrosRows]) => {
+    API.query('hyros', 'dailySplit', { days }).catch(() => []),
+    API.query('ads-meta', 'daily', { days }).catch(() => []),
+    API.query('war-room', 'dailyTable', { days }).catch(() => [])
+  ]).then(([hyrosRows, metaRows, stripeRows]) => {
 
-    // Build full date range so every day appears even with zero activity
+    // Build full date range so every day gets a bar slot
     const byDate = {};
     const today = new Date();
     for (let i = days - 1; i >= 0; i--) {
@@ -1283,31 +1283,48 @@ App.registerPage('war-room', async (container) => {
       byDate[dateStr] = { date: dateStr, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
     }
 
-    // Layer 1: Stripe ticket revenue + Meta spend from dailyTable
-    (dailyRows || []).forEach(r => {
-      const d = r.date;
-      if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
-      byDate[d].ticket_revenue += (r.ticket_revenue || 0);
-      byDate[d].spend += (r.ad_spend || 0);
-    });
-
-    // Layer 2: Hyros enrollment revenue (high-ticket sales attributed by Hyros)
+    // Layer 1: Hyros daily split (ticket + enrollment revenue from attribution)
     (hyrosRows || []).forEach(r => {
       const d = r.day;
       if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
+      byDate[d].ticket_revenue += (r.ticket_revenue || 0);
       byDate[d].enrollment_revenue += (r.enrollment_revenue || 0);
     });
 
+    // Layer 2: Meta ad spend
+    (metaRows || []).forEach(r => {
+      const d = r.ad_date;
+      if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
+      byDate[d].spend += (r.spend || 0);
+    });
+
+    // Layer 3: If Hyros returned no ticket revenue, fall back to Stripe
+    const hyrosHasTickets = (hyrosRows || []).some(r => (r.ticket_revenue || 0) > 0);
+    if (!hyrosHasTickets) {
+      (stripeRows || []).forEach(r => {
+        const d = r.date;
+        if (byDate[d]) byDate[d].ticket_revenue += (r.ticket_revenue || 0);
+      });
+    }
+
     let data = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
 
-    // Draw
+    console.log('[butterfly] data points:', data.length, 'sample:', data.slice(0,2));
+    console.log('[butterfly] hyros rows:', (hyrosRows||[]).length, 'meta rows:', (metaRows||[]).length, 'stripe rows:', (stripeRows||[]).length);
+
+    // Draw -- use rAF to ensure canvas has layout dimensions
+    requestAnimationFrame(() => _drawButterfly(bfCanvas, bfLegend, data));
+  });
+
+  function _drawButterfly(bfCanvas, bfLegend, data) {
     const dpr = window.devicePixelRatio || 1;
     const rect = bfCanvas.getBoundingClientRect();
-    bfCanvas.width = rect.width * dpr;
-    bfCanvas.height = rect.height * dpr;
+    const W = rect.width || bfCanvas.clientWidth || 800;
+    const H = rect.height || bfCanvas.clientHeight || 320;
+    bfCanvas.width = W * dpr;
+    bfCanvas.height = H * dpr;
     const ctx = bfCanvas.getContext('2d');
     ctx.scale(dpr, dpr);
-    const W = rect.width, H = rect.height;
     const pad = { top: 20, right: 60, bottom: 36, left: 60 };
     const plotW = W - pad.left - pad.right;
     const plotH = H - pad.top - pad.bottom;
@@ -1422,12 +1439,12 @@ App.registerPage('war-room', async (container) => {
     const roas = totSpend > 0 ? ((totTicket + totEnroll) / totSpend).toFixed(1) : '--';
 
     bfLegend.innerHTML = `
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">$27 Tickets / Stripe (${Theme.money(totTicket)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">$27 Tickets (${Theme.money(totTicket)})</span></div>
       <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#22c55ecc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollments / Hyros (${Theme.money(totEnroll)})</span></div>
       <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#ef4444aa"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Meta Spend (${Theme.money(totSpend)})</span></div>
       <div style="font-size:11px;color:${Theme.COLORS.textSecondary};padding:2px 8px;background:rgba(255,255,255,0.04);border-radius:4px">ROAS: <span style="color:${parseFloat(roas) >= 3 ? '#22c55e' : parseFloat(roas) >= 1 ? '#f59e0b' : '#ef4444'};font-weight:600">${roas}x</span></div>
     `;
-  });
+  }
 
   // ---- Ticket Sales Velocity & Journey -- Weekly ----
   const velocityCard = document.createElement('div');

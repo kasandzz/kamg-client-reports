@@ -326,7 +326,16 @@ const Lineage = (() => {
     wrapper.className = 'lineage-legend';
     wrapper.innerHTML = _buildHTML(page, pageName);
 
-    // Toggle expand/collapse
+    // Rotate chevron when outer <details> opens/closes
+    const details = wrapper.querySelector('details.lineage-dropdown');
+    if (details) {
+      details.addEventListener('toggle', () => {
+        const chevron = details.querySelector('.lineage-chevron');
+        if (chevron) chevron.textContent = details.open ? '\u25BC' : '\u25B6';
+      });
+    }
+
+    // Toggle expand/collapse for inner pipeline sections
     wrapper.addEventListener('click', (e) => {
       const toggle = e.target.closest('[data-lineage-toggle]');
       if (toggle) {
@@ -349,14 +358,19 @@ const Lineage = (() => {
 
     let html = `
       <div style="border-top:1px solid ${border};margin-top:32px;padding-top:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:${muted}">
-            Data Lineage & Sources
-          </div>
-          <div style="font-size:10px;color:${muted}">
-            ${page.elements.length} data element${page.elements.length !== 1 ? 's' : ''} on this page
-          </div>
-        </div>
+        <details class="lineage-dropdown">
+          <summary style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 0;list-style:none;user-select:none">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="lineage-chevron" style="font-size:10px;color:${muted};transition:transform .2s">\u25B6</span>
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:${muted}">
+                Data Lineage & Sources
+              </span>
+            </div>
+            <div style="font-size:10px;color:${muted}">
+              ${page.elements.length} data element${page.elements.length !== 1 ? 's' : ''} on this page
+            </div>
+          </summary>
+          <div style="padding-top:12px">
     `;
 
     // Element table
@@ -434,7 +448,7 @@ const Lineage = (() => {
       </div>
     `;
 
-    html += '</div>';
+    html += '</div></details></div>';
     return html;
   }
 

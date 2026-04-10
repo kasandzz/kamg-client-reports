@@ -273,127 +273,23 @@ App.registerPage('segments', async (container) => {
   }
 });
 
-// ---- Demographic Intelligence Panel (shared with ads-meta.js) ----
-let _segDemoActiveStat = 'enroll_rate';
+// ---- Demographic Intelligence Panel ----
+// Tier 1 (Gender, Age, Device, Placement): Meta Ads aggregate metrics from BQ
+// Tier 2 (Location, Profession): Per-contact funnel data from GHL + Stripe
+let _segDemoT1Stat = 'spend';
+let _segDemoT2Stat = 'ticket_rate';
 
 function _renderDemographicIntel(container) {
-
-  const STAT_LABELS = {
-    ticket_rate: 'Ticket Rate',
-    vip_rate: 'VIP Rate',
-    show_rate: 'Show Rate',
-    book_rate: 'Book Rate',
-    call_show: 'Call Show',
-    enroll_rate: 'Enroll Rate',
-    ltv: 'LTV',
-  };
-
-  const STAT_KEYS = Object.keys(STAT_LABELS);
-
-  const DEMO_DATA = {
-    gender: {
-      title: 'Gender',
-      segments: ['Women', 'Men'],
-      stats: {
-        ticket_rate: [4.2, 3.8],
-        vip_rate: [36, 24],
-        show_rate: [74, 68],
-        book_rate: [34, 28],
-        call_show: [82, 76],
-        enroll_rate: [8.2, 3.1],
-        ltv: [11200, 8400],
-      },
-    },
-    age: {
-      title: 'Age',
-      segments: ['25-34', '35-44', '45-54', '55-64'],
-      stats: {
-        ticket_rate: [3.1, 4.6, 4.2, 2.9],
-        vip_rate: [22, 34, 31, 19],
-        show_rate: [62, 76, 72, 64],
-        book_rate: [24, 36, 32, 22],
-        call_show: [70, 84, 80, 72],
-        enroll_rate: [4.1, 8.8, 7.2, 3.9],
-        ltv: [7800, 12400, 10800, 7200],
-      },
-    },
-    profession: {
-      title: 'Profession / Segment',
-      segments: ['Therapists', 'Attorneys', 'Coaches', 'Educators'],
-      stats: {
-        ticket_rate: [5.1, 4.4, 3.6, 3.2],
-        vip_rate: [38, 32, 26, 22],
-        show_rate: [78, 74, 68, 64],
-        book_rate: [38, 34, 28, 24],
-        call_show: [86, 82, 76, 72],
-        enroll_rate: [9.1, 7.8, 5.2, 4.1],
-        ltv: [13200, 11800, 9200, 7600],
-      },
-    },
-    device: {
-      title: 'Device Platform',
-      segments: ['Mobile', 'Desktop'],
-      stats: {
-        ticket_rate: [4.0, 4.3],
-        vip_rate: [28, 34],
-        show_rate: [70, 76],
-        book_rate: [30, 36],
-        call_show: [78, 84],
-        enroll_rate: [5.8, 8.4],
-        ltv: [9400, 11600],
-      },
-    },
-    location: {
-      title: 'Location (Top States)',
-      segments: ['California', 'Texas', 'Florida', 'New York', 'Illinois'],
-      stats: {
-        ticket_rate: [4.4, 4.1, 4.6, 3.8, 3.9],
-        vip_rate: [32, 30, 34, 28, 29],
-        show_rate: [74, 72, 76, 70, 71],
-        book_rate: [34, 32, 36, 30, 31],
-        call_show: [82, 80, 84, 78, 79],
-        enroll_rate: [7.2, 6.8, 8.1, 5.9, 6.3],
-        ltv: [11400, 10800, 12200, 9800, 10200],
-      },
-    },
-    placement: {
-      title: 'Placement',
-      segments: ['Instagram Feed', 'Facebook Feed', 'Instagram Reels', 'Facebook Reels'],
-      stats: {
-        ticket_rate: [4.6, 3.8, 5.1, 2.9],
-        vip_rate: [34, 28, 38, 20],
-        show_rate: [76, 70, 78, 64],
-        book_rate: [36, 30, 38, 24],
-        call_show: [84, 78, 86, 72],
-        enroll_rate: [7.4, 5.1, 8.9, 3.2],
-        ltv: [11600, 9400, 13000, 7400],
-      },
-    },
-  };
-
-  const CROSS_TAB = {
-    segments: ['Therapists', 'Attorneys', 'Coaches', 'Educators'],
-    genders: ['Women', 'Men'],
-    stats: {
-      ticket_rate: [[5.4, 4.6], [4.8, 3.9], [3.9, 3.1], [3.5, 2.8]],
-      vip_rate: [[42, 32], [36, 27], [30, 21], [26, 17]],
-      show_rate: [[82, 72], [78, 68], [72, 62], [68, 58]],
-      book_rate: [[42, 32], [38, 28], [32, 22], [28, 18]],
-      call_show: [[90, 80], [86, 76], [80, 70], [76, 66]],
-      enroll_rate: [[11.2, 6.4], [9.6, 5.2], [6.8, 3.2], [5.4, 2.4]],
-      ltv: [[14800, 10600], [13200, 9800], [10800, 7200], [9200, 5600]],
-    },
-  };
-
   const T = Theme.COLORS;
+  const FC = [Theme.FUNNEL.blue, Theme.FUNNEL.cyan, Theme.FUNNEL.green, Theme.FUNNEL.orange, Theme.FUNNEL.purple];
 
   // Responsive style
   const styleId = 'seg-demo-intel-responsive';
   if (!document.getElementById(styleId)) {
-    const styleEl = document.createElement('style');
-    styleEl.id = styleId;
-    styleEl.textContent = `@media (max-width: 768px) { .seg-demo-intel-grid { grid-template-columns: 1fr !important; } }`;
-    document.head.appendChild(styleEl);
+    const s = document.createElement('style');
+    s.id = styleId;
+    s.textContent = `@media (max-width: 768px) { .seg-demo-intel-grid { grid-template-columns: 1fr !important; } }`;
+    document.head.appendChild(s);
   }
 
   // Header
@@ -401,7 +297,7 @@ function _renderDemographicIntel(container) {
   header.style.cssText = 'margin-top:32px;margin-bottom:12px';
   header.innerHTML = `
     <div style="font-size:18px;font-weight:700;color:${T.textPrimary};letter-spacing:-.01em">Demographic Intelligence</div>
-    <div style="font-size:12px;color:${T.textMuted};margin-top:2px">Buyer profiles from enrolled customers -- mirrors Facebook targeting dimensions</div>
+    <div style="font-size:12px;color:${T.textMuted};margin-top:2px">Meta ad demographic breakdowns + per-contact funnel data</div>
   `;
   container.appendChild(header);
 
@@ -411,31 +307,128 @@ function _renderDemographicIntel(container) {
   grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px';
   container.appendChild(grid);
 
-  const funnelColors = [
-    Theme.FUNNEL.blue,
-    Theme.FUNNEL.cyan,
-    Theme.FUNNEL.green,
-    Theme.FUNNEL.orange,
-    Theme.FUNNEL.purple,
-  ];
+  const days = Filters.getDays();
 
-  const cardRenderers = [];
-  let crossTabEl;
-
-  function formatStatValue(statKey, value) {
-    if (statKey === 'ltv') return Theme.money(value);
-    return value.toFixed(1) + '%';
+  // ---- Shared bar renderer ----
+  function renderBars(barContainer, rows, statKey, labelField, formatFn) {
+    if (!rows || rows.length === 0) {
+      barContainer.innerHTML = `<div style="font-size:12px;color:${T.textMuted};padding:16px 0">No data -- deploy meta-demographics Cloud Function to enable.</div>`;
+      return;
+    }
+    const values = rows.map(r => parseFloat(r[statKey]) || 0);
+    const maxVal = Math.max(...values);
+    let html = '';
+    rows.forEach((row, i) => {
+      const val = values[i];
+      const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
+      const color = FC[i % FC.length];
+      const label = row[labelField] || '(unknown)';
+      html += `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:11px;color:${T.textSecondary}">${label}</span>
+          <span style="font-size:11px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${formatFn(val, statKey)}</span>
+        </div>
+        <div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width .3s ease"></div>
+        </div>
+      </div>`;
+    });
+    barContainer.innerHTML = html;
   }
 
-  Object.keys(DEMO_DATA).forEach((dimKey) => {
-    const dim = DEMO_DATA[dimKey];
+  // ---- Toggle builder ----
+  function buildToggles(toggleRow, statLabels, getActive, setActive, allCardRefs) {
+    toggleRow.innerHTML = '';
+    Object.entries(statLabels).forEach(([sk, label]) => {
+      const isActive = sk === getActive();
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.style.cssText = `font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-weight:${isActive ? '600' : '400'};border:1px solid ${isActive ? 'transparent' : T.border};background:${isActive ? T.accent : 'transparent'};color:${isActive ? '#fff' : T.textMuted};transition:all .15s;outline:none;line-height:1.4`;
+      btn.addEventListener('click', () => {
+        setActive(sk);
+        allCardRefs.forEach(fn => fn());
+      });
+      toggleRow.appendChild(btn);
+    });
+  }
+
+  // ---- Source badge ----
+  function sourceBadge(text) {
+    return `<div style="font-size:10px;color:${T.textMuted};margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)">${text}</div>`;
+  }
+
+  // ============================================================
+  // TIER 1 -- Meta Ads aggregate metrics
+  // ============================================================
+  const T1_STAT_LABELS = {
+    spend:     'Spend',
+    cpm:       'CPM',
+    ctr:       'CTR',
+    cpc:       'CPC',
+    purchases: 'Purchases',
+  };
+
+  function formatT1(val, statKey) {
+    if (statKey === 'spend' || statKey === 'cpm' || statKey === 'cpc') return Theme.money(val);
+    if (statKey === 'ctr') return val.toFixed(2) + '%';
+    return Math.round(val).toLocaleString();
+  }
+
+  // Tier 1 card configs: { title, queryName, labelField, groupBy? }
+  // groupBy is used client-side to collapse ageGender rows by a dimension
+  const T1_CARDS = [
+    { title: 'Gender',    queryName: 'ageGender', labelField: 'gender',    groupBy: 'gender' },
+    { title: 'Age',       queryName: 'ageGender', labelField: 'age',       groupBy: 'age' },
+    { title: 'Device',    queryName: 'device',    labelField: 'device_platform' },
+    { title: 'Placement', queryName: 'placement', labelField: 'placement' },
+  ];
+
+  // Cache fetched query results so both Gender+Age share one ageGender fetch
+  const _t1Cache = {};
+  async function fetchT1(queryName) {
+    if (_t1Cache[queryName]) return _t1Cache[queryName];
+    try {
+      const rows = await API.query('segments', queryName, { days });
+      _t1Cache[queryName] = rows || [];
+    } catch (e) {
+      _t1Cache[queryName] = [];
+    }
+    return _t1Cache[queryName];
+  }
+
+  // Group rows by a field, summing numeric columns
+  function groupRows(rows, groupField) {
+    const map = {};
+    rows.forEach(row => {
+      const key = row[groupField] || '(unknown)';
+      if (!map[key]) {
+        map[key] = { [groupField]: key };
+      }
+      Object.keys(row).forEach(k => {
+        if (k === groupField) return;
+        const n = parseFloat(row[k]);
+        if (!isNaN(n)) map[key][k] = (map[key][k] || 0) + n;
+      });
+    });
+    // For CPM/CPC/CTR, re-derive averages from impressions/clicks/spend after summing
+    return Object.values(map).map(r => {
+      if (r.impressions > 0) r.cpm = (r.spend / r.impressions) * 1000;
+      if (r.clicks > 0)      r.cpc = r.spend / r.clicks;
+      if (r.impressions > 0) r.ctr = (r.clicks / r.impressions) * 100;
+      return r;
+    });
+  }
+
+  const t1CardRenderers = [];
+
+  T1_CARDS.forEach(cfg => {
     const card = document.createElement('div');
     card.className = 'card';
     card.style.cssText = 'padding:20px';
 
     const titleDiv = document.createElement('div');
     titleDiv.style.cssText = `font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px`;
-    titleDiv.textContent = dim.title;
+    titleDiv.textContent = cfg.title;
     card.appendChild(titleDiv);
 
     const toggleRow = document.createElement('div');
@@ -445,81 +438,117 @@ function _renderDemographicIntel(container) {
     const barContainer = document.createElement('div');
     card.appendChild(barContainer);
 
-    function renderBars() {
-      const statKey = _segDemoActiveStat;
-      const values = dim.stats[statKey];
-      const maxVal = Math.max(...values);
-      let html = '';
-      dim.segments.forEach((seg, i) => {
-        const pct = maxVal > 0 ? (values[i] / maxVal) * 100 : 0;
-        const color = funnelColors[i % funnelColors.length];
-        const formattedVal = formatStatValue(statKey, values[i]);
-        html += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:11px;color:${T.textSecondary}">${seg}</span><span style="font-size:11px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${formattedVal}</span></div><div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${color};border-radius:3px;transition:width .3s ease"></div></div></div>`;
-      });
-      barContainer.innerHTML = html;
+    barContainer.innerHTML = `<div style="font-size:11px;color:${T.textMuted}">Loading...</div>`;
+
+    let cachedRows = null;
+
+    async function loadAndRender() {
+      if (!cachedRows) {
+        const raw = await fetchT1(cfg.queryName);
+        cachedRows = cfg.groupBy ? groupRows(raw, cfg.groupBy) : raw;
+      }
+      renderBars(barContainer, cachedRows, _segDemoT1Stat, cfg.labelField, formatT1);
     }
 
-    function renderToggles() {
-      toggleRow.innerHTML = '';
-      STAT_KEYS.forEach((sk) => {
-        const btn = document.createElement('button');
-        const isActive = sk === _segDemoActiveStat;
-        btn.textContent = STAT_LABELS[sk];
-        btn.style.cssText = `font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-weight:${isActive ? '600' : '400'};border:1px solid ${isActive ? 'transparent' : T.border};background:${isActive ? T.accent : 'transparent'};color:${isActive ? '#fff' : T.textMuted};transition:all .15s;outline:none;line-height:1.4`;
-        btn.addEventListener('click', () => {
-          _segDemoActiveStat = sk;
-          cardRenderers.forEach((fn) => fn());
-          renderCrossTab();
-        });
-        toggleRow.appendChild(btn);
-      });
+    function renderCard() {
+      buildToggles(toggleRow, T1_STAT_LABELS, () => _segDemoT1Stat, (sk) => { _segDemoT1Stat = sk; }, t1CardRenderers);
+      renderBars(barContainer, cachedRows, _segDemoT1Stat, cfg.labelField, formatT1);
     }
 
-    function renderCard() { renderToggles(); renderBars(); }
-    cardRenderers.push(renderCard);
-    renderCard();
+    t1CardRenderers.push(renderCard);
+
+    // Initial load -- fetch then render all T1 toggles so active state is consistent
+    loadAndRender().then(() => {
+      t1CardRenderers.forEach(fn => fn());
+    });
+
+    const badge = document.createElement('div');
+    badge.innerHTML = sourceBadge('Source: Meta Ads API');
+    card.appendChild(badge);
+
     grid.appendChild(card);
   });
 
-  // Cross-Tab
+  // ============================================================
+  // TIER 2 -- Per-contact funnel metrics
+  // ============================================================
+  const T2_STAT_LABELS = {
+    ticket_rate: 'Ticket Rate',
+    show_rate:   'Show Rate',
+    book_rate:   'Book Rate',
+    enroll_rate: 'Enroll Rate',
+  };
+
+  function formatT2(val, statKey) {
+    return val.toFixed(1) + '%';
+  }
+
+  const T2_CARDS = [
+    { title: 'Location (Top States)', queryName: 'location',   labelField: 'state' },
+    { title: 'Profession / Segment',  queryName: 'profession', labelField: 'profession' },
+  ];
+
+  const t2CardRenderers = [];
+
+  T2_CARDS.forEach(cfg => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'padding:20px';
+
+    const titleDiv = document.createElement('div');
+    titleDiv.style.cssText = `font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px`;
+    titleDiv.textContent = cfg.title;
+    card.appendChild(titleDiv);
+
+    const toggleRow = document.createElement('div');
+    toggleRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px';
+    card.appendChild(toggleRow);
+
+    const barContainer = document.createElement('div');
+    card.appendChild(barContainer);
+
+    barContainer.innerHTML = `<div style="font-size:11px;color:${T.textMuted}">Loading...</div>`;
+
+    let cachedRows = null;
+
+    async function loadAndRender() {
+      if (!cachedRows) {
+        try {
+          cachedRows = await API.query('segments', cfg.queryName, { days }) || [];
+        } catch (e) {
+          cachedRows = [];
+        }
+      }
+      renderBars(barContainer, cachedRows, _segDemoT2Stat, cfg.labelField, formatT2);
+    }
+
+    function renderCard() {
+      buildToggles(toggleRow, T2_STAT_LABELS, () => _segDemoT2Stat, (sk) => { _segDemoT2Stat = sk; }, t2CardRenderers);
+      renderBars(barContainer, cachedRows, _segDemoT2Stat, cfg.labelField, formatT2);
+    }
+
+    t2CardRenderers.push(renderCard);
+
+    loadAndRender().then(() => {
+      t2CardRenderers.forEach(fn => fn());
+    });
+
+    const badge = document.createElement('div');
+    badge.innerHTML = sourceBadge('Source: GHL + Stripe (per-contact)');
+    card.appendChild(badge);
+
+    grid.appendChild(card);
+  });
+
+  // ---- Cross-tab notice ----
   const crossTabCard = document.createElement('div');
   crossTabCard.className = 'card';
   crossTabCard.style.cssText = 'padding:20px;margin-top:16px';
+  crossTabCard.innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Cross-Tab Analysis</div>
+    <div style="font-size:13px;color:${T.textMuted};line-height:1.6">
+      Cross-tab analysis requires per-contact gender inference. Deploy the gender-inference Cloud Function to enable.
+    </div>
+  `;
   container.appendChild(crossTabCard);
-
-  const crossTabTitle = document.createElement('div');
-  crossTabTitle.style.cssText = `font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px`;
-  crossTabTitle.textContent = 'Cross-Tab: Profession x Gender';
-  crossTabCard.appendChild(crossTabTitle);
-
-  crossTabEl = document.createElement('div');
-  crossTabEl.style.cssText = 'overflow-x:auto';
-  crossTabCard.appendChild(crossTabEl);
-
-  function renderCrossTab() {
-    const statKey = _segDemoActiveStat;
-    const data = CROSS_TAB.stats[statKey];
-    const allVals = data.flat();
-    const avg = allVals.reduce((s, v) => s + v, 0) / allVals.length;
-
-    const thStyle = `padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:${T.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-    const thLeftStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${T.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
-
-    let html = `<table style="width:100%;border-collapse:collapse"><thead><tr><th style="${thLeftStyle}">Segment</th>${CROSS_TAB.genders.map(g => `<th style="${thStyle}">${g}</th>`).join('')}</tr></thead><tbody>`;
-    CROSS_TAB.segments.forEach((seg, ri) => {
-      html += '<tr>';
-      html += `<td style="padding:10px 12px;font-size:13px;color:${T.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);font-weight:500">${seg}</td>`;
-      CROSS_TAB.genders.forEach((_, ci) => {
-        const val = data[ri][ci];
-        const color = val >= avg ? T.success : T.danger;
-        html += `<td style="padding:10px 12px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;color:${color};text-align:center;border-bottom:1px solid rgba(255,255,255,0.04)">${formatStatValue(statKey, val)}</td>`;
-      });
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-    html += `<div style="margin-top:8px;font-size:10px;color:${T.textMuted}"><span style="color:${T.success}">&#9632;</span> Above average (${formatStatValue(statKey, avg)}) &nbsp;&nbsp; <span style="color:${T.danger}">&#9632;</span> Below average</div>`;
-    crossTabEl.innerHTML = html;
-  }
-
-  renderCrossTab();
 }

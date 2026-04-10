@@ -355,8 +355,9 @@ const Shell = (() => {
     // Auto-stamp cards with sync time via MutationObserver
     _initSyncStamps();
 
-    // Load the page
+    // Load the page + lineage legend
     _loadCurrentPage();
+    _injectLineage();
   }
 
   // ---- Page registry (keeps existing App.registerPage API) ----
@@ -405,6 +406,33 @@ const Shell = (() => {
 
   function getCurrentPage() {
     return _currentPage;
+  }
+
+  // ---- Lineage legend injection ----
+
+  function _injectLineage() {
+    const container = document.getElementById('page-container');
+    if (!container || !_currentPage) return;
+    if (typeof Lineage === 'undefined') return;
+
+    // Wait for page content to load, then append
+    const observer = new MutationObserver(() => {
+      // Only inject once, and only after real content exists (not just spinner)
+      if (container.querySelector('.lineage-legend')) return;
+      if (container.querySelector('.spinner') && !container.querySelector('.card')) return;
+
+      const legend = Lineage.render(_currentPage);
+      if (legend) container.appendChild(legend);
+    });
+    observer.observe(container, { childList: true, subtree: true });
+
+    // Also try immediately in case page already loaded
+    setTimeout(() => {
+      if (!container.querySelector('.lineage-legend')) {
+        const legend = Lineage.render(_currentPage);
+        if (legend) container.appendChild(legend);
+      }
+    }, 3000);
   }
 
   // ---- Sync stamp auto-injection ----
@@ -467,6 +495,13 @@ const Shell = (() => {
   function initPage(pageName) {
     _currentPage = pageName;
     document.title = `${(ALL_PAGES.find(p => p.page === pageName) || {}).label || pageName} | COD Command Center`;
+
+    // Load lineage.js dynamically if not already loaded
+    if (typeof Lineage === 'undefined') {
+      const s = document.createElement('script');
+      s.src = (window.location.pathname.includes('/pages/') ? '../' : './') + 'js/lineage.js';
+      document.head.appendChild(s);
+    }
 
     // Inject shell HTML into body
     document.body.insertAdjacentHTML('afterbegin', _buildShellHTML(pageName));

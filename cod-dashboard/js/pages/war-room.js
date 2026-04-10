@@ -1253,7 +1253,7 @@ App.registerPage('war-room', async (container) => {
   const bfTitle = document.createElement('div');
   bfTitle.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px';
   bfTitle.innerHTML = `<div style="font-size:15px;font-weight:700;color:${Theme.COLORS.textPrimary}">Cost vs Sales</div>
-    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Butterfly chart -- spend left, revenue right</div>`;
+    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Stripe + Hyros revenue vs Meta spend</div>`;
   butterflyCard.appendChild(bfTitle);
 
   const bfCanvas = document.createElement('canvas');
@@ -1267,45 +1267,38 @@ App.registerPage('war-room', async (container) => {
   container.appendChild(butterflyCard);
 
   // ---- Draw butterfly once data loads ----
+  // Primary: war-room/dailyTable (Stripe tickets + Meta spend, joined by date)
+  // Secondary: hyros/dailySplit (enrollment revenue from Hyros attribution)
   Promise.all([
-    API.query('hyros', 'dailySplit', { days }).catch(() => []),
-    API.query('ads-meta', 'daily', { days }).catch(() => [])
-  ]).then(([splitRows, metaDailyRows]) => {
+    API.query('war-room', 'dailyTable', { days }).catch(() => []),
+    API.query('hyros', 'dailySplit', { days }).catch(() => [])
+  ]).then(([dailyRows, hyrosRows]) => {
 
-    // Build date-aligned data
-    function _generateDummy(numDays) {
-      const rows = [];
-      const today = new Date();
-      for (let i = numDays - 1; i >= 0; i--) {
-        const d = new Date(today); d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const wave = Math.sin(i * 0.15) * 0.3 + 1;
-        rows.push({
-          date: dateStr,
-          ticket_revenue: Math.round((800 + Math.random() * 600) * wave),
-          enrollment_revenue: Math.round((4000 + Math.random() * 18000) * wave * (Math.random() > 0.3 ? 1 : 0)),
-          spend: Math.round((350 + Math.random() * 200) * wave)
-        });
-      }
-      return rows;
+    // Build full date range so every day appears even with zero activity
+    const byDate = {};
+    const today = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      byDate[dateStr] = { date: dateStr, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
     }
 
-    // Merge revenue + spend by date
-    const byDate = {};
-    (splitRows || []).forEach(r => {
-      const d = r.day;
+    // Layer 1: Stripe ticket revenue + Meta spend from dailyTable
+    (dailyRows || []).forEach(r => {
+      const d = r.date;
       if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
       byDate[d].ticket_revenue += (r.ticket_revenue || 0);
-      byDate[d].enrollment_revenue += (r.enrollment_revenue || 0);
+      byDate[d].spend += (r.ad_spend || 0);
     });
-    (metaDailyRows || []).forEach(r => {
-      const d = r.ad_date;
+
+    // Layer 2: Hyros enrollment revenue (high-ticket sales attributed by Hyros)
+    (hyrosRows || []).forEach(r => {
+      const d = r.day;
       if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
-      byDate[d].spend += (r.spend || 0);
+      byDate[d].enrollment_revenue += (r.enrollment_revenue || 0);
     });
 
     let data = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
-    if (data.length === 0) data = _generateDummy(days);
 
     // Draw
     const dpr = window.devicePixelRatio || 1;
@@ -1429,9 +1422,9 @@ App.registerPage('war-room', async (container) => {
     const roas = totSpend > 0 ? ((totTicket + totEnroll) / totSpend).toFixed(1) : '--';
 
     bfLegend.innerHTML = `
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ticket Rev (${Theme.money(totTicket)})</span></div>
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#22c55ecc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollment Rev (${Theme.money(totEnroll)})</span></div>
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#ef4444aa"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ad Spend (${Theme.money(totSpend)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">$27 Tickets / Stripe (${Theme.money(totTicket)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#22c55ecc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollments / Hyros (${Theme.money(totEnroll)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#ef4444aa"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Meta Spend (${Theme.money(totSpend)})</span></div>
       <div style="font-size:11px;color:${Theme.COLORS.textSecondary};padding:2px 8px;background:rgba(255,255,255,0.04);border-radius:4px">ROAS: <span style="color:${parseFloat(roas) >= 3 ? '#22c55e' : parseFloat(roas) >= 1 ? '#f59e0b' : '#ef4444'};font-weight:600">${roas}x</span></div>
     `;
   });

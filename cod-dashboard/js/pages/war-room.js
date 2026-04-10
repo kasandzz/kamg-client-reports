@@ -398,6 +398,7 @@ App.registerPage('war-room', async (container) => {
 
   // ---- Unified Channel Performance Card ----
   const channelCard = _card('Channel Performance');
+  let _chSort = { key: 'ticket_count', dir: 'desc' };
 
   function _loadChannelCards(model) {
     const existing = channelCard.querySelector('.wr-ch-body');
@@ -437,84 +438,111 @@ App.registerPage('war-room', async (container) => {
         return;
       }
 
-      // Sort by ticket_count descending
-      channels.sort((a, b) => b.ticket_count - a.ticket_count);
-
-      const totalTickets = channels.reduce((s, c) => s + c.ticket_count, 0) || 1;
-      const totalBookings = channels.reduce((s, c) => s + c.bookings, 0) || 1;
-      const totalEnroll = channels.reduce((s, c) => s + c.enrollment_count, 0) || 1;
-      const maxTickets = Math.max(...channels.map(c => c.ticket_count));
+      // Compute ROAS per channel (needed for sorting)
       const totalSpend = cur.total_spend || 0;
-
-      let html = '<div style="overflow-x:auto">';
-      // Header
-      html += '<div style="display:flex;align-items:center;gap:0;padding:0 0 8px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px">';
-      html += '<div style="width:110px;flex-shrink:0"></div>';
-      html += '<div style="flex:1;min-width:80px"></div>';
-      const hdStyle = 'font-size:9px;font-weight:700;color:' + Theme.COLORS.textMuted + ';text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;';
-      html += `<div style="${hdStyle}width:44px">Tickets</div>`;
-      html += `<div style="${hdStyle}width:32px">%</div>`;
-      html += `<div style="${hdStyle}width:60px">Tkt Rev</div>`;
-      html += `<div style="${hdStyle}width:44px">Books</div>`;
-      html += `<div style="${hdStyle}width:32px">%</div>`;
-      html += `<div style="${hdStyle}width:44px">Enroll</div>`;
-      html += `<div style="${hdStyle}width:32px">%</div>`;
-      html += `<div style="${hdStyle}width:64px">Enr Rev</div>`;
-      html += `<div style="${hdStyle}width:50px">ROAS</div>`;
-      html += '</div>';
-
-      // Rows
+      const totalTicketsAll = channels.reduce((s, c) => s + c.ticket_count, 0) || 1;
       channels.forEach(r => {
-        const color = _channelColors[r.channel] || '#6366f1';
-        const barW = maxTickets > 0 ? ((r.ticket_count / maxTickets) * 100) : 0;
-        const tPct = ((r.ticket_count / totalTickets) * 100).toFixed(0);
-        const bPct = r.bookings > 0 ? ((r.bookings / totalBookings) * 100).toFixed(0) : '0';
-        const ePct = r.enrollment_count > 0 ? ((r.enrollment_count / totalEnroll) * 100).toFixed(0) : '0';
-        const cellMono = 'font-family:var(--font-mono);font-size:12px;';
-        const mutedCell = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';';
-
-        html += `<div style="display:flex;align-items:center;gap:0;margin-bottom:8px">`;
-        html += `<div style="width:110px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px" title="${r.channel}">${r.channel}</div>`;
-        html += `<div style="flex:1;min-width:80px;height:22px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barW}%;background:${color};border-radius:4px;min-width:2px"></div></div>`;
-        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${Theme.COLORS.textPrimary};font-weight:500">${r.ticket_count}</div>`;
-        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${tPct}%</div>`;
-        html += `<div style="${cellMono}width:60px;text-align:right;flex-shrink:0;color:#6366f1">${Theme.money(r.ticket_revenue)}</div>`;
-        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.bookings > 0 ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted};font-weight:500">${r.bookings || 0}</div>`;
-        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${bPct}%</div>`;
-        html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.enrollment_count > 0 ? '#22c55e' : Theme.COLORS.textMuted};font-weight:600">${r.enrollment_count || 0}</div>`;
-        html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${ePct}%</div>`;
-        html += `<div style="${cellMono}width:64px;text-align:right;flex-shrink:0;color:${r.enrollment_revenue > 0 ? '#22c55e' : Theme.COLORS.textMuted}">${r.enrollment_revenue > 0 ? Theme.money(r.enrollment_revenue) : '--'}</div>`;
         const chTotalRev = (r.ticket_revenue || 0) + (r.enrollment_revenue || 0);
-        const chSpendShare = totalSpend > 0 ? (r.ticket_count / totalTickets) * totalSpend : 0;
-        const chRoas = chSpendShare > 0 ? chTotalRev / chSpendShare : 0;
-        const roasColor = chRoas >= 3 ? '#22c55e' : chRoas >= 1 ? '#f59e0b' : chRoas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
-        html += `<div style="${cellMono}width:50px;text-align:right;flex-shrink:0;color:${roasColor};font-weight:600">${chRoas > 0 ? chRoas.toFixed(1) + 'x' : '--'}</div>`;
-        html += '</div>';
+        const chSpendShare = totalSpend > 0 ? (r.ticket_count / totalTicketsAll) * totalSpend : 0;
+        r._roas = chSpendShare > 0 ? chTotalRev / chSpendShare : 0;
       });
 
-      // Totals row
-      const totTktRev = channels.reduce((s, c) => s + c.ticket_revenue, 0);
-      const totEnrRev = channels.reduce((s, c) => s + c.enrollment_revenue, 0);
-      const totBooks = channels.reduce((s, c) => s + c.bookings, 0);
-      const totEnr = channels.reduce((s, c) => s + c.enrollment_count, 0);
-      html += `<div style="display:flex;align-items:center;gap:0;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px">`;
-      html += `<div style="width:110px;flex-shrink:0"></div><div style="flex:1;min-width:80px"></div>`;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totalTickets}</div>`;
-      html += `<div style="width:32px;flex-shrink:0"></div>`;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:60px;text-align:right;flex-shrink:0;font-weight:700;color:#6366f1">${Theme.money(totTktRev)}</div>`;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totBooks}</div>`;
-      html += `<div style="width:32px;flex-shrink:0"></div>`;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${totEnr}</div>`;
-      html += `<div style="width:32px;flex-shrink:0"></div>`;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:64px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${Theme.money(totEnrRev)}</div>`;
-      const blendedRoas = totalSpend > 0 ? (totTktRev + totEnrRev) / totalSpend : 0;
-      const blendedRoasColor = blendedRoas >= 3 ? '#22c55e' : blendedRoas >= 1 ? '#f59e0b' : Theme.COLORS.danger;
-      html += `<div style="font-family:var(--font-mono);font-size:12px;width:50px;text-align:right;flex-shrink:0;font-weight:700;color:${blendedRoasColor}">${blendedRoas > 0 ? blendedRoas.toFixed(1) + 'x' : '--'}</div>`;
-      html += '</div>';
+      function _renderChTable() {
+        // Sort
+        const sorted = [...channels].sort((a, b) => {
+          let av, bv;
+          if (_chSort.key === 'roas') { av = a._roas; bv = b._roas; }
+          else if (_chSort.key === 'channel') { av = a.channel.toLowerCase(); bv = b.channel.toLowerCase(); return _chSort.dir === 'asc' ? (av < bv ? -1 : 1) : (bv < av ? -1 : 1); }
+          else { av = a[_chSort.key] || 0; bv = b[_chSort.key] || 0; }
+          return _chSort.dir === 'asc' ? av - bv : bv - av;
+        });
 
-      html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:10px;font-style:italic">Hyros ${modelLabel} attribution | Tickets = $27/$54 (Stripe) | Enrollments = sales > $500 | ROAS = (tkt rev + enr rev) / proportional ad spend</div>`;
-      html += '</div>';
-      loader.innerHTML = html;
+        const totalTickets = channels.reduce((s, c) => s + c.ticket_count, 0) || 1;
+        const totalBookings = channels.reduce((s, c) => s + c.bookings, 0) || 1;
+        const totalEnroll = channels.reduce((s, c) => s + c.enrollment_count, 0) || 1;
+        const maxTickets = Math.max(...channels.map(c => c.ticket_count));
+
+        const arrow = k => _chSort.key === k ? (_chSort.dir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+        const hdBase = 'font-size:9px;font-weight:700;text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;cursor:pointer;user-select:none;';
+        const hdActive = k => `color:${_chSort.key === k ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted};`;
+
+        let html = '<div style="overflow-x:auto">';
+        // Header
+        html += '<div class="wr-ch-header" style="display:flex;align-items:center;gap:0;padding:0 0 8px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px">';
+        html += `<div data-sort="channel" style="${hdBase}${hdActive('channel')}width:110px;text-align:right;padding-right:10px">Source${arrow('channel')}</div>`;
+        html += '<div style="flex:1;min-width:80px"></div>';
+        html += `<div data-sort="ticket_count" style="${hdBase}${hdActive('ticket_count')}width:44px">Tickets${arrow('ticket_count')}</div>`;
+        html += `<div style="font-size:9px;font-weight:700;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;width:32px">%</div>`;
+        html += `<div data-sort="ticket_revenue" style="${hdBase}${hdActive('ticket_revenue')}width:60px">Tkt Rev${arrow('ticket_revenue')}</div>`;
+        html += `<div data-sort="bookings" style="${hdBase}${hdActive('bookings')}width:44px">Books${arrow('bookings')}</div>`;
+        html += `<div style="font-size:9px;font-weight:700;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;width:32px">%</div>`;
+        html += `<div data-sort="enrollment_count" style="${hdBase}${hdActive('enrollment_count')}width:44px">Enroll${arrow('enrollment_count')}</div>`;
+        html += `<div style="font-size:9px;font-weight:700;color:${Theme.COLORS.textMuted};text-align:right;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;width:32px">%</div>`;
+        html += `<div data-sort="enrollment_revenue" style="${hdBase}${hdActive('enrollment_revenue')}width:64px">Enr Rev${arrow('enrollment_revenue')}</div>`;
+        html += `<div data-sort="roas" style="${hdBase}${hdActive('roas')}width:50px">ROAS${arrow('roas')}</div>`;
+        html += '</div>';
+
+        // Rows
+        sorted.forEach(r => {
+          const color = _channelColors[r.channel] || '#6366f1';
+          const barW = maxTickets > 0 ? ((r.ticket_count / maxTickets) * 100) : 0;
+          const tPct = ((r.ticket_count / totalTickets) * 100).toFixed(0);
+          const bPct = r.bookings > 0 ? ((r.bookings / totalBookings) * 100).toFixed(0) : '0';
+          const ePct = r.enrollment_count > 0 ? ((r.enrollment_count / totalEnroll) * 100).toFixed(0) : '0';
+          const cellMono = 'font-family:var(--font-mono);font-size:12px;';
+          const mutedCell = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';';
+
+          html += `<div style="display:flex;align-items:center;gap:0;margin-bottom:8px">`;
+          html += `<div style="width:110px;font-size:11px;color:${Theme.COLORS.textSecondary};text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px" title="${r.channel}">${r.channel}</div>`;
+          html += `<div style="flex:1;min-width:80px;height:22px;background:rgba(255,255,255,0.03);border-radius:4px;overflow:hidden"><div style="height:100%;width:${barW}%;background:${color};border-radius:4px;min-width:2px"></div></div>`;
+          html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${Theme.COLORS.textPrimary};font-weight:500">${r.ticket_count}</div>`;
+          html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${tPct}%</div>`;
+          html += `<div style="${cellMono}width:60px;text-align:right;flex-shrink:0;color:#6366f1">${Theme.money(r.ticket_revenue)}</div>`;
+          html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.bookings > 0 ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted};font-weight:500">${r.bookings || 0}</div>`;
+          html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${bPct}%</div>`;
+          html += `<div style="${cellMono}width:44px;text-align:right;flex-shrink:0;color:${r.enrollment_count > 0 ? '#22c55e' : Theme.COLORS.textMuted};font-weight:600">${r.enrollment_count || 0}</div>`;
+          html += `<div style="${mutedCell}width:32px;text-align:right;flex-shrink:0">${ePct}%</div>`;
+          html += `<div style="${cellMono}width:64px;text-align:right;flex-shrink:0;color:${r.enrollment_revenue > 0 ? '#22c55e' : Theme.COLORS.textMuted}">${r.enrollment_revenue > 0 ? Theme.money(r.enrollment_revenue) : '--'}</div>`;
+          const roasColor = r._roas >= 3 ? '#22c55e' : r._roas >= 1 ? '#f59e0b' : r._roas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+          html += `<div style="${cellMono}width:50px;text-align:right;flex-shrink:0;color:${roasColor};font-weight:600">${r._roas > 0 ? r._roas.toFixed(1) + 'x' : '--'}</div>`;
+          html += '</div>';
+        });
+
+        // Totals row
+        const totTktRev = channels.reduce((s, c) => s + c.ticket_revenue, 0);
+        const totEnrRev = channels.reduce((s, c) => s + c.enrollment_revenue, 0);
+        const totBooks = channels.reduce((s, c) => s + c.bookings, 0);
+        const totEnr = channels.reduce((s, c) => s + c.enrollment_count, 0);
+        html += `<div style="display:flex;align-items:center;gap:0;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);margin-top:4px">`;
+        html += `<div style="width:110px;flex-shrink:0"></div><div style="flex:1;min-width:80px"></div>`;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totalTickets}</div>`;
+        html += `<div style="width:32px;flex-shrink:0"></div>`;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:60px;text-align:right;flex-shrink:0;font-weight:700;color:#6366f1">${Theme.money(totTktRev)}</div>`;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:${Theme.COLORS.textPrimary}">${totBooks}</div>`;
+        html += `<div style="width:32px;flex-shrink:0"></div>`;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:44px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${totEnr}</div>`;
+        html += `<div style="width:32px;flex-shrink:0"></div>`;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:64px;text-align:right;flex-shrink:0;font-weight:700;color:#22c55e">${Theme.money(totEnrRev)}</div>`;
+        const blendedRoas = totalSpend > 0 ? (totTktRev + totEnrRev) / totalSpend : 0;
+        const blendedRoasColor = blendedRoas >= 3 ? '#22c55e' : blendedRoas >= 1 ? '#f59e0b' : Theme.COLORS.danger;
+        html += `<div style="font-family:var(--font-mono);font-size:12px;width:50px;text-align:right;flex-shrink:0;font-weight:700;color:${blendedRoasColor}">${blendedRoas > 0 ? blendedRoas.toFixed(1) + 'x' : '--'}</div>`;
+        html += '</div>';
+
+        html += `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:10px;font-style:italic">Hyros ${modelLabel} attribution | Tickets = $27/$54 (Stripe) | Enrollments = sales > $500 | ROAS = (tkt rev + enr rev) / proportional ad spend</div>`;
+        html += '</div>';
+        loader.innerHTML = html;
+
+        // Bind sort clicks
+        loader.querySelectorAll('[data-sort]').forEach(el => {
+          el.addEventListener('click', () => {
+            const key = el.dataset.sort;
+            if (_chSort.key === key) _chSort.dir = _chSort.dir === 'desc' ? 'asc' : 'desc';
+            else { _chSort.key = key; _chSort.dir = 'desc'; }
+            _renderChTable();
+          });
+        });
+      }
+      _renderChTable();
     }).catch(err => {
       loader.innerHTML = `<p style="font-size:12px;color:${Theme.COLORS.textMuted}">Failed: ${err.message}</p>`;
     });

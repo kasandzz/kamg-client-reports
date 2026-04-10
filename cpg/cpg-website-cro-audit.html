@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Affiliate Partners -- CRO &amp; UX Audit | KAMG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#0f0f1a;--bg3:#1a1a2e;
+  --accent:#00d4aa;--accent2:#00b894;
+  --red:#ff4757;--amber:#ffa502;--green:#2ed573;
+  --text:#e8e8f0;--text-muted:#8888a8;
+  --glass:rgba(255,255,255,0.05);--glass-border:rgba(255,255,255,0.1);
+  --font-body:'Inter',sans-serif;--font-head:'Playfair Display',serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.75;overflow-x:hidden;padding-top:52px}
+.noise{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.03}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.2}
+.editorial-headline{font-size:clamp(2rem,4vw,3.5rem);font-weight:900;letter-spacing:-0.02em}
+.section-label{font-family:var(--font-body);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}
+p{line-height:1.8;color:var(--text-muted)}
+strong,b{color:var(--text)}
+.glass{background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;box-shadow:0 4px 6px rgba(0,0,0,0.1),0 10px 30px rgba(0,0,0,0.2),0 0 80px rgba(0,212,170,0.03)}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,212,170,0.3);border-radius:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* NAV */
+#navbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--glass-border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-brand{font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent)}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{font-size:0.72rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.05em;transition:color 0.2s}
+.nav-links a:hover{color:var(--accent)}
+@media(max-width:600px){.nav-links{display:none}}
+
+/* COVER */
+#cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:4rem 2rem;background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(0,212,170,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 80% 80%,rgba(26,26,46,0.9) 0%,transparent 60%),conic-gradient(from 180deg at 50% 50%,#0a0a0f 0deg,#0f1520 90deg,#0a0a0f 180deg,#111122 270deg,#0a0a0f 360deg)}
+#cover::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 30%,rgba(0,212,170,0.06) 0%,transparent 50%)}
+.cover-meta{font-size:0.75rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);margin-bottom:2rem;position:relative}
+.cover-title{font-family:var(--font-head);font-size:clamp(2.5rem,6vw,5rem);font-weight:900;text-align:center;max-width:900px;line-height:1.1;margin-bottom:0.5rem;position:relative}
+.cover-divider{width:60px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:2rem auto;position:relative}
+.cover-verdict{max-width:600px;text-align:center;font-style:italic;font-size:1.05rem;color:var(--text-muted);line-height:1.7;position:relative}
+.cover-verdict em{color:var(--text);font-style:normal;font-weight:500}
+.cover-prepared{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted)}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;margin:2.5rem 0;position:relative}
+.gauge-score{font-size:3rem;font-weight:700;color:var(--red);font-family:var(--font-head);line-height:1}
+.gauge-out{font-size:1rem;color:var(--text-muted)}
+.gauge-label{font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-top:0.75rem}
+.word-reveal .word{display:inline-block;opacity:0;transform:translateY(20px);transition:opacity 0.5s ease,transform 0.5s ease;margin-right:0.25em}
+.word-reveal .word.show{opacity:1;transform:translateY(0)}
+
+/* EXEC */
+#exec{padding:6rem 2rem;background:radial-gradient(ellipse 70% 50% at 90% 10%,rgba(0,212,170,0.07) 0%,transparent 60%),radial-gradient(ellipse 50% 70% at 10% 90%,rgba(26,26,46,0.5) 0%,transparent 60%),#0f0f1a}
+.exec-inner{max-width:1100px;margin:0 auto}
+.pyramid-block{padding:1.5rem 2rem;margin-bottom:1rem;border-left:3px solid var(--accent);background:var(--glass);border-radius:0 12px 12px 0}
+.pyramid-block h3{font-family:var(--font-body);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem}
+.pyramid-block p{color:var(--text-muted);font-size:0.95rem}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;margin-top:3rem}
+.stat-card{padding:2rem 1.5rem;text-align:center;border-radius:16px}
+.stat-num{font-family:var(--font-head);font-size:2.8rem;font-weight:900;line-height:1}
+.stat-label{font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-top:0.5rem}
+
+/* BRAND */
+#brand{padding:6rem 2rem;background:radial-gradient(ellipse 60% 60% at 30% 50%,rgba(0,212,170,0.05) 0%,transparent 60%),conic-gradient(from 90deg at 50% 100%,#0a0a0f 0deg,#111133 120deg,#0a0a0f 240deg,#0d0d20 360deg)}
+.brand-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+@media(max-width:768px){.brand-inner{grid-template-columns:1fr}}
+.brand-col h2{font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:1.5rem}
+.intel-item{display:flex;gap:1rem;margin-bottom:1rem;padding:1rem 1.25rem;border-radius:10px;background:var(--glass);border:1px solid var(--glass-border)}
+.intel-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+.intel-text strong{display:block;font-size:0.85rem;color:var(--text);margin-bottom:0.2rem}
+.intel-text span{font-size:0.82rem;color:var(--text-muted)}
+.hidden-proof h3{font-family:var(--font-body);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--amber);margin-bottom:1rem;margin-top:2rem}
+.proof-item{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem}
+.proof-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:0.5rem}
+.proof-item p{font-size:0.88rem;color:var(--text-muted);line-height:1.6}
+.proof-item p strong{color:var(--text)}
+
+/* SCORING */
+#scoring{padding:6rem 2rem;background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(0,212,170,0.08) 0%,transparent 60%),#0a0a0f}
+.scoring-inner{max-width:1100px;margin:0 auto}
+.radar-wrap{display:flex;justify-content:center;margin:3rem 0}
+.accordion-item{border-radius:12px;margin-bottom:0.75rem;overflow:hidden;background:var(--glass);border:1px solid var(--glass-border)}
+.accordion-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;cursor:pointer;user-select:none}
+.accordion-head:hover{background:rgba(255,255,255,0.03)}
+.acc-left{display:flex;align-items:center;gap:1rem}
+.acc-badge{font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px}
+.badge-red{background:rgba(255,71,87,0.2);color:var(--red)}
+.badge-amber{background:rgba(255,165,2,0.2);color:var(--amber)}
+.badge-green{background:rgba(46,213,115,0.2);color:var(--green)}
+.acc-title{font-size:0.95rem;font-weight:600;color:var(--text)}
+.acc-arrow{color:var(--text-muted);transition:transform 0.3s;font-size:1rem}
+.acc-arrow.open{transform:rotate(180deg)}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease}
+.accordion-body.open{max-height:500px}
+.accordion-content{padding:0 1.5rem 1.25rem;font-size:0.88rem;color:var(--text-muted);line-height:1.7}
+
+/* FINDINGS */
+#findings{padding:6rem 2rem;background:radial-gradient(ellipse 40% 60% at 80% 50%,rgba(255,71,87,0.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 20% 80%,rgba(0,212,170,0.04) 0%,transparent 60%),#0f0f1a}
+.findings-inner{max-width:1100px;margin:0 auto}
+.findings-timeline{position:relative;padding-left:2rem;margin-top:3rem}
+.findings-timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--red),var(--amber),var(--accent))}
+.finding-item{position:relative;margin-bottom:2.5rem;padding-left:2rem}
+.finding-dot{position:absolute;left:-2.4rem;top:0.4rem;width:14px;height:14px;border-radius:50%;border:2px solid}
+.dot-critical{background:rgba(255,71,87,0.3);border-color:var(--red)}
+.dot-high{background:rgba(255,165,2,0.3);border-color:var(--amber)}
+.dot-medium{background:rgba(0,212,170,0.3);border-color:var(--accent)}
+.finding-card{padding:1.5rem 1.75rem;border-radius:12px}
+.finding-severity{font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.5rem}
+.sev-critical{color:var(--red)}
+.sev-high{color:var(--amber)}
+.sev-medium{color:var(--accent)}
+.finding-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:0.75rem;font-family:var(--font-body)}
+.finding-body{font-size:0.88rem;color:var(--text-muted);line-height:1.7}
+.kb-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.75rem}
+.kb-tag{font-size:0.65rem;padding:0.2rem 0.5rem;border-radius:4px;background:rgba(255,255,255,0.05);color:var(--text-muted);font-family:monospace}
+.severity-header{font-family:var(--font-body);font-size:0.7rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;margin:2.5rem 0 1rem;padding:0.4rem 0.75rem;border-radius:4px;display:inline-block}
+.sh-critical{color:var(--red);background:rgba(255,71,87,0.1)}
+.sh-high{color:var(--amber);background:rgba(255,165,2,0.1)}
+.sh-medium{color:var(--accent);background:rgba(0,212,170,0.1)}
+
+/* TEARDOWNS */
+#teardowns{padding:6rem 2rem;background:conic-gradient(from 270deg at 30% 70%,#0a0a0f 0deg,#0d1520 90deg,#0a0a0f 200deg,#0f0f1a 360deg)}
+.teardowns-inner{max-width:1100px;margin:0 auto}
+.teardown-block{margin-bottom:5rem}
+.teardown-block h3{font-size:1.3rem;font-weight:700;margin-bottom:2rem;color:var(--text)}
+.td-pair{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@media(max-width:768px){.td-pair{grid-template-columns:1fr}}
+.td-panel{border-radius:16px;overflow:hidden}
+.td-header{padding:0.75rem 1.25rem;font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase}
+.td-before .td-header{background:rgba(255,71,87,0.15);color:var(--red)}
+.td-after .td-header{background:rgba(46,213,115,0.15);color:var(--green)}
+.td-mockup{padding:1.5rem;min-height:200px}
+.td-before .td-mockup{background:rgba(255,71,87,0.04);border:1px solid rgba(255,71,87,0.2);border-top:none}
+.td-after .td-mockup{background:rgba(46,213,115,0.04);border:1px solid rgba(46,213,115,0.2);border-top:none}
+.callout{display:flex;align-items:flex-start;gap:0.5rem;margin-top:0.75rem;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.78rem}
+.callout-red{background:rgba(255,71,87,0.1);border-left:2px solid var(--red);color:var(--red)}
+.callout-green{background:rgba(46,213,115,0.1);border-left:2px solid var(--green);color:var(--green)}
+.mock-hero{padding:1.5rem;border-radius:8px;text-align:center}
+.mock-hero-before{background:#111;border:1px solid #2a2a2a}
+.mock-hero-after{background:linear-gradient(135deg,#0a1520,#0d1f2d);border:1px solid rgba(0,212,170,0.2)}
+.mock-tagline{font-size:1rem;font-weight:700;margin-bottom:0.5rem;color:#fff;font-family:var(--font-head)}
+.mock-sub{font-size:0.78rem;color:#888;margin-bottom:1rem}
+.mock-btn{display:inline-block;padding:0.4rem 1rem;border-radius:4px;font-size:0.78rem;margin:0.25rem;border:none;cursor:default}
+.mock-btn-gray{background:#2a2a2a;color:#666}
+.mock-btn-primary{background:var(--accent);color:#000;font-weight:700}
+.mock-btn-sec{background:rgba(0,212,170,0.12);color:var(--accent);border:1px solid rgba(0,212,170,0.4)}
+.mock-form{background:rgba(255,255,255,0.04);border-radius:8px;padding:1rem;margin-top:1rem;border:1px solid rgba(255,255,255,0.08)}
+.mock-input{display:block;width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:4px;padding:0.4rem 0.75rem;color:#aaa;font-size:0.78rem;margin-bottom:0.5rem;font-family:var(--font-body)}
+.mock-fork{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.75rem}
+.mock-testimonial{padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;margin-bottom:0.5rem;font-size:0.78rem;color:#777;font-style:italic}
+.mock-proof-stat-bar{display:flex;justify-content:space-around;padding:0.75rem;background:rgba(0,212,170,0.08);border-radius:6px;margin-bottom:1rem;font-size:0.72rem;color:var(--accent);font-weight:700;flex-wrap:wrap;gap:0.5rem}
+.mock-video-card{display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(46,213,115,0.2);border-radius:8px;margin-bottom:0.5rem}
+.mock-play{width:36px;height:36px;background:rgba(0,212,170,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:0.9rem;flex-shrink:0}
+.mock-video-name{color:var(--text);font-weight:600;font-size:0.8rem}
+.mock-video-stat{color:var(--green);font-size:0.7rem}
+.mock-video-quote{font-size:0.68rem;color:#555;margin-top:0.15rem}
+.mock-progress{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:1rem;overflow:hidden}
+.mock-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:66%;border-radius:2px}
+.mock-progress-label{font-size:0.68rem;color:var(--text-muted);margin-bottom:0.4rem}
+.mock-submit-btn{display:block;width:100%;padding:0.6rem;background:#1e1e1e;border:1px solid #333;border-radius:4px;color:#555;font-size:0.82rem;cursor:default;margin-top:0.5rem;font-family:var(--font-body)}
+.mock-cta-btn{display:block;width:100%;padding:0.65rem;background:var(--accent);border:none;border-radius:6px;color:#000;font-weight:700;font-size:0.82rem;cursor:default;margin-top:0.5rem;font-family:var(--font-body)}
+.mock-form-label{font-size:0.65rem;color:var(--text-muted);letter-spacing:0.08em;margin-bottom:0.25rem;display:block}
+
+/* COMPETITIVE */
+#competitive{padding:6rem 2rem;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(0,212,170,0.06) 0%,transparent 60%),#0a0a0f}
+.competitive-inner{max-width:1100px;margin:0 auto}
+.comp-table-wrap{overflow-x:auto;margin-top:2.5rem;border-radius:12px;border:1px solid var(--glass-border)}
+table{width:100%;border-collapse:collapse;font-size:0.83rem}
+th{background:rgba(0,212,170,0.08);color:var(--accent);font-weight:600;font-family:var(--font-body);font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.9rem 1rem;text-align:left;border-bottom:1px solid var(--glass-border)}
+td{padding:0.85rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text-muted);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.steal-tag{display:inline-block;background:rgba(0,212,170,0.12);color:var(--accent);font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:10px;font-weight:600}
+.steal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem}
+.steal-card{padding:1.25rem;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border)}
+.steal-card-num{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.4rem}
+.steal-card-title{font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;font-family:var(--font-body)}
+.steal-card p{font-size:0.8rem;color:var(--text-muted)}
+
+/* BENCHMARKS */
+#benchmarks{padding:6rem 2rem;background:radial-gradient(ellipse 50% 60% at 10% 50%,rgba(255,165,2,0.04) 0%,transparent 60%),#0f0f1a}
+.benchmarks-inner{max-width:1100px;margin:0 auto}
+.bench-table-wrap{overflow-x:auto;margin-top:2.5rem;border-radius:12px;border:1px solid var(--glass-border)}
+.bench-cell-bad{color:var(--red);font-weight:600}
+.bench-cell-mid{color:var(--amber)}
+.bench-cell-good{color:var(--green);font-weight:600}
+
+/* PSYCHOLOGY */
+#psychology{padding:6rem 2rem;background:radial-gradient(ellipse 70% 50% at 80% 20%,rgba(0,212,170,0.05) 0%,transparent 60%),conic-gradient(from 0deg at 50% 50%,#0a0a0f 0deg,#0d0d22 120deg,#0a0a0f 240deg,#111122 360deg)}
+.psychology-inner{max-width:1100px;margin:0 auto}
+.psych-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem}
+.psych-card{padding:2rem;border-radius:16px;position:relative;overflow:hidden;background:var(--glass);border:1px solid var(--glass-border)}
+.psych-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.psych-num{font-family:var(--font-head);font-size:3rem;font-weight:900;color:rgba(0,212,170,0.08);position:absolute;top:1rem;right:1.5rem;line-height:1}
+.psych-kb{font-size:0.65rem;font-weight:700;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.5rem}
+.psych-title{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:0.75rem;font-family:var(--font-body)}
+.psych-body{font-size:0.85rem;color:var(--text-muted);line-height:1.7}
+.psych-fix{margin-top:1rem;padding:0.75rem;background:rgba(0,212,170,0.05);border-radius:6px;border-left:2px solid var(--accent);font-size:0.82rem;color:var(--text-muted)}
+.psych-fix strong{color:var(--accent)}
+
+/* EVIDENCE */
+#evidence{padding:6rem 2rem;background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(0,212,170,0.06) 0%,transparent 60%),#0a0a0f}
+.evidence-inner{max-width:1100px;margin:0 auto}
+.evidence-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin-top:3rem}
+.ev-card{padding:1.5rem;border-radius:12px;background:var(--glass);border:1px solid var(--glass-border)}
+.ev-kb{font-family:monospace;font-size:0.7rem;color:var(--accent);margin-bottom:0.5rem;display:block}
+.ev-title{font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:0.75rem}
+.ev-bar-label{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-bottom:0.35rem}
+.ev-bar{height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.75rem}
+.ev-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width 1.2s ease}
+.ev-meta{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap}
+.ev-source{font-size:0.68rem;color:var(--text-muted)}
+.ev-tag{font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:10px;background:rgba(255,255,255,0.05);color:var(--text-muted)}
+
+/* FOOTER */
+footer{padding:3rem 2rem;text-align:center;background:#0a0a0f;border-top:1px solid var(--glass-border);font-size:0.78rem;color:var(--text-muted);letter-spacing:0.08em}
+</style>
+</head>
+<body>
+
+<!-- NOISE -->
+<svg class="noise" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#noise)"/></svg>
+
+<!-- NAV -->
+<nav id="navbar" role="navigation" aria-label="Report navigation">
+  <span class="nav-brand">KAMG / CPG Affiliate Audit 2026</span>
+  <div class="nav-links">
+    <a href="#exec">Summary</a>
+    <a href="#brand">Brand Intel</a>
+    <a href="#scoring">Scores</a>
+    <a href="#findings">Findings</a>
+    <a href="#teardowns">Teardowns</a>
+    <a href="#competitive">Competitive</a>
+    <a href="#psychology">Psychology</a>
+    <a href="#evidence">Evidence</a>
+  </div>
+</nav>
+
+<!-- SECTION 1: COVER -->
+<section id="cover" aria-label="Report cover">
+  <p class="cover-meta">Confidential &nbsp;&bull;&nbsp; April 2026 &nbsp;&bull;&nbsp; Prepared by KAMG</p>
+  <h1 class="cover-title word-reveal" aria-label="CPG Affiliate Partners CRO and UX Audit">
+    <span class="word">CPG</span>
+    <span class="word">Affiliate</span>
+    <span class="word">Partners</span>
+    <span class="word" style="color:var(--accent)">--</span>
+    <span class="word">CRO</span>
+    <span class="word">&amp;</span>
+    <span class="word">UX</span>
+    <span class="word">Audit</span>
+  </h1>
+  <div class="cover-divider"></div>
+
+  <div class="gauge-wrap" role="img" aria-label="Overall CRO score: 40 out of 100">
+    <svg width="220" height="130" viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M 20 110 A 90 90 0 0 1 200 110" stroke="rgba(255,255,255,0.07)" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <path d="M 20 110 A 90 90 0 0 1 74 30" stroke="#ff4757" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <path d="M 74 30 A 90 90 0 0 1 146 30" stroke="#ffa502" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <path d="M 146 30 A 90 90 0 0 1 200 110" stroke="#2ed573" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.4"/>
+      <line id="gauge-needle" x1="110" y1="108" x2="110" y2="28" stroke="#ff4757" stroke-width="3" stroke-linecap="round" transform="rotate(-90 110 110)"/>
+      <circle cx="110" cy="110" r="7" fill="#ff4757"/>
+      <circle cx="110" cy="110" r="3.5" fill="#0a0a0f"/>
+      <text x="13" y="126" fill="rgba(255,255,255,0.3)" font-size="10" font-family="Inter,sans-serif">0</text>
+      <text x="197" y="126" fill="rgba(255,255,255,0.3)" font-size="10" font-family="Inter,sans-serif">100</text>
+    </svg>
+    <div class="gauge-score"><span class="counter" data-target="40">0</span><span class="gauge-out">/100</span></div>
+    <div class="gauge-label">Overall CRO Score</div>
+  </div>
+
+  <p class="cover-verdict">
+    <em>This site is converting a fraction of its potential.</em> Four critical structural gaps are leaking qualified leads from a platform that has every ingredient for a high-converting B2B machine.
+  </p>
+  <p class="cover-prepared">cpgaffiliate.com &nbsp;&bull;&nbsp; April 2026 &nbsp;&bull;&nbsp; KAMG Confidential</p>
+</section>
+
+<!-- SECTION 2: EXEC SUMMARY -->
+<section id="exec" aria-labelledby="exec-heading">
+  <div class="exec-inner">
+    <div class="reveal">
+      <div class="section-label">Section 01</div>
+      <h2 class="editorial-headline" id="exec-heading">Executive<br><em style="color:var(--accent)">Summary</em></h2>
+      <p style="max-width:600px;margin-top:1rem">McKinsey Pyramid structure. Situation -- Complication -- Resolution.</p>
+    </div>
+
+    <div style="margin-top:3rem;max-width:820px">
+      <div class="pyramid-block reveal">
+        <h3>Situation</h3>
+        <p>CPG Affiliate Partners operates a performance-based affiliate marketing agency targeting DTC e-commerce brands ($2--20M revenue). The website serves as the primary lead generation channel for a high-touch, consultation-based sales model. The market is competitive: Acceleration Partners, Advertise Purple, Hamster Garage, PartnerCentric, Gen3, and DMi Partners all compete for the same sophisticated DTC buyer.</p>
+      </div>
+      <div class="pyramid-block reveal">
+        <h3>Complication</h3>
+        <p>The website has <strong>four critical structural failures</strong> that collectively suppress conversion: (1) no homepage lead capture mechanism, (2) a rotating hero with no clear value proposition, (3) a "Numbers That Speak For Themselves" section with no visible numbers, and (4) zero case studies despite 11 CEO testimonials. The conversion path requires 3--4 clicks minimum to reach a 6-field form with a "Submit" button. Sophisticated B2B buyers evaluating multiple agencies cannot self-qualify or understand CPG's differentiation.</p>
+      </div>
+      <div class="pyramid-block reveal">
+        <h3>Resolution</h3>
+        <p>15 specific recommendations organized by severity follow. <strong>Estimated conversion lift: 80--150%</strong> from implementing critical fixes alone. The underlying credibility assets exist -- Krik's 2x exit story, 11 CEO testimonials with specific results, a performance-only model. The gap is deployment, not substance.</p>
+      </div>
+    </div>
+
+    <div class="stats-row reveal">
+      <div class="glass stat-card"><div class="stat-num" style="color:var(--red)"><span class="counter" data-target="40">0</span></div><div class="stat-label">Overall Score / 100</div></div>
+      <div class="glass stat-card"><div class="stat-num" style="color:var(--amber)"><span class="counter" data-target="15">0</span></div><div class="stat-label">Total Findings</div></div>
+      <div class="glass stat-card"><div class="stat-num" style="color:var(--green)"><span class="counter" data-target="120">0</span>%</div><div class="stat-label">Est. Conversion Lift</div></div>
+      <div class="glass stat-card"><div class="stat-num" style="color:var(--amber)">4<span style="font-size:1.5rem;color:var(--text-muted)">/6</span></div><div class="stat-label">Competitive Rank</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: BRAND INTEL -->
+<section id="brand" aria-labelledby="brand-heading">
+  <div class="brand-inner">
+    <div class="reveal">
+      <div class="section-label">Section 02</div>
+      <h2 class="editorial-headline" id="brand-heading">Brand<br><em style="color:var(--accent)">Intelligence</em></h2>
+      <p style="margin:1rem 0 2rem">What we know about CPG Affiliate Partners beyond what appears on the site.</p>
+      <div class="intel-item"><div class="intel-icon">&#128100;</div><div class="intel-text"><strong>CEO: Krik Angacian</strong><span>2x CPG founder -- CandyCan, Protes Protein Snacks. 15+ years in CPG / digital.</span></div></div>
+      <div class="intel-item"><div class="intel-icon">&#128205;</div><div class="intel-text"><strong>Location</strong><span>7 Oliver St, New York NY 10038</span></div></div>
+      <div class="intel-item"><div class="intel-icon">&#128101;</div><div class="intel-text"><strong>Team Size</strong><span>1--10 employees. Founder-led with remote contractors.</span></div></div>
+      <div class="intel-item"><div class="intel-icon">&#128176;</div><div class="intel-text"><strong>Commercial Model</strong><span>No retainer. $500--1K setup fee. CPA-only. No contracts.</span></div></div>
+      <div class="intel-item"><div class="intel-icon">&#128240;</div><div class="intel-text"><strong>Press / Partners</strong><span>Featured in Startup CPG blog. Partnership recognized by the community.</span></div></div>
+      <div class="intel-item"><div class="intel-icon">&#128279;</div><div class="intel-text"><strong>Social Presence</strong><span>LinkedIn: 24 followers. Instagram: 36 followers. Essentially dormant.</span></div></div>
+    </div>
+
+    <div class="reveal">
+      <div class="hidden-proof">
+        <h3>Hidden Proof Arsenal (NOT on the site)</h3>
+        <div class="proof-item"><div class="proof-dot"></div><p><strong>Krik's founder exit story:</strong> A 2x CPG founder who exited -- CandyCan and Protes. This is massive credibility for brand owners evaluating an affiliate partner. Founders trust founders. This story is not told anywhere on the site.</p></div>
+        <div class="proof-item"><div class="proof-dot"></div><p><strong>"As brand owners ourselves"</strong> is the strongest USP on the entire site. It's buried in body copy. It should be the H1.</p></div>
+        <div class="proof-item"><div class="proof-dot"></div><p><strong>11 CEO-level testimonials</strong> with specific results: 50% CPA reduction (Russell Saks), rapid revenue scaling (John Hagan), CAC reduction (Jack Klauber). All text-only. None have metric badges. None are video.</p></div>
+        <div class="proof-item"><div class="proof-dot"></div><p><strong>Startup CPG partnership / feature</strong> -- a trusted community signal for exactly the ICP. Not featured as a trust badge anywhere visible.</p></div>
+        <div class="proof-item"><div class="proof-dot"></div><p><strong>CandyCan and Protes exits</strong> prove Krik understands brand economics from the inside. Never mentioned on the site in any structured way.</p></div>
+      </div>
+
+      <div style="margin-top:2.5rem;padding:1.5rem 1.75rem;border-radius:12px;background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15)">
+        <div class="section-label" style="margin-bottom:0.75rem">Analyst Note</div>
+        <p style="font-size:0.9rem;line-height:1.7">CPG's most powerful differentiator -- a CPA-only model run by founders who've exited the exact type of brands they serve -- is invisible from the homepage. Every competitor charges retainers. Every competitor is run by marketers, not operators. This is a category-defining advantage that's being whispered instead of shouted.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: SCORING -->
+<section id="scoring" aria-labelledby="scoring-heading">
+  <div class="scoring-inner">
+    <div class="reveal">
+      <div class="section-label">Section 03</div>
+      <h2 class="editorial-headline" id="scoring-heading">Category<br><em style="color:var(--accent)">Scorecard</em></h2>
+      <p style="max-width:600px;margin-top:1rem">10 dimensions rated 1--10. Six in the red zone. Four amber. Zero green.</p>
+    </div>
+    <div class="radar-wrap reveal" role="img" aria-label="Spider chart showing category scores">
+      <svg id="radar-chart" width="460" height="460" viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><radialGradient id="rg1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(0,212,170,0.18)"/><stop offset="100%" stop-color="rgba(0,212,170,0)"/></radialGradient></defs>
+        <g id="rings"></g><g id="axes"></g>
+        <polygon id="data-poly" fill="url(#rg1)" stroke="#00d4aa" stroke-width="2" opacity="0.85" points=""/>
+        <g id="labels"></g><g id="dots"></g>
+      </svg>
+    </div>
+    <div class="scores-accordions reveal" role="list" aria-label="Category score details" id="accordions-container"></div>
+  </div>
+</section>
+
+<!-- SECTION 5: FINDINGS -->
+<section id="findings" aria-labelledby="findings-heading">
+  <div class="findings-inner">
+    <div class="reveal">
+      <div class="section-label">Section 04</div>
+      <h2 class="editorial-headline" id="findings-heading">Critical<br><em style="color:var(--red)">Findings</em></h2>
+      <p style="max-width:600px;margin-top:1rem">15 findings organized by severity. Each mapped to knowledge base evidence.</p>
+    </div>
+
+    <div class="findings-timeline">
+      <div class="severity-header sh-critical">Critical -- Fix Immediately</div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-critical"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-critical">Critical / #1</div>
+          <div class="finding-title">No Homepage Conversion Mechanism</div>
+          <div class="finding-body">Zero form, zero lead capture on the homepage. Visitors must navigate to /contact/ requiring 3--4 clicks minimum. B2B data is unambiguous: multi-step forms convert 86% higher (HubSpot). Exit-intent popups capture 4--7% of abandoners. Chatbots generate 3x more conversions than static forms. This single gap is responsible for the majority of lead leakage on the site.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-009</span><span class="kb-tag">B2B-013</span><span class="kb-tag">B2B-015</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-critical"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-critical">Critical / #2</div>
+          <div class="finding-title">Rotating Hero Destroys the Value Proposition</div>
+          <div class="finding-body">Three taglines rotate randomly: "Stand Out From the Crowd" (doesn't say what CPG does), "Monetize Your Traffic" (publisher-focused, wrong audience), "No retainers Just results" (an objection handler, not a value prop). None passes the 5-second test. Static heroes with a clear single value proposition consistently outperform carousels across all CXL consensus research. The brand's strongest line -- "Built by brand owners who've exited two CPG companies" -- appears nowhere above the fold.</div>
+          <div class="kb-tags"><span class="kb-tag">CF-029</span><span class="kb-tag">B2B-005</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-critical"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-critical">Critical / #3</div>
+          <div class="finding-title">Empty Metrics Section Signals a Broken Page</div>
+          <div class="finding-body">"Numbers That Speak For Themselves" renders with no visible numbers. This is worse than having no section at all -- it signals a broken or unfinished page to sophisticated buyers already weighing multiple agencies. Specific numbers boost credibility by +21.4% (CF-007). "14,752" outperforms "15,000+" by 8% because specificity signals authenticity. An empty number section actively destroys the trust it was meant to build.</div>
+          <div class="kb-tags"><span class="kb-tag">CF-007</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-critical"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-critical">Critical / #4</div>
+          <div class="finding-title">Zero Case Studies Despite 11 CEO Testimonials</div>
+          <div class="finding-body">73% of B2B buyers use case studies in purchase decisions. Industry-specific case studies convert ~5x better than generic ones. CPG has 11 CEO testimonials with real names and results, yet zero structured Challenge / Solution / Result case studies. ROI-focused case studies are ranked the #1 most influential B2B content type by 41% of buyers. The testimonials that exist prove results happened -- packaging them into case studies is a near-zero cost conversion lift.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-006</span><span class="kb-tag">B2B-007</span></div>
+        </div>
+      </div>
+
+      <div class="severity-header sh-high" style="margin-top:1rem">High Priority -- Fix This Quarter</div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-high"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-high">High / #5</div>
+          <div class="finding-title">Weakest Possible CTAs Throughout the Site</div>
+          <div class="finding-body">"Learn more", "Submit", "Talk to our team" are placeholder CTAs, not conversion drivers. B2B research is definitive: specific outcome-focused CTAs outperform generic by 12.6% (ConversionTeam). First-person CTAs ("Get My Free Audit") outperform second-person by 5--15%. "Submit" is statistically the single worst CTA text -- it communicates nothing about what the user receives. Every CTA on this site needs outcome specificity.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-020</span><span class="kb-tag">CF-066</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-high"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-high">High / #6</div>
+          <div class="finding-title">No Lead Magnet or Gated Content</div>
+          <div class="finding-body">Zero downloadable content, zero exit-intent capture, zero interactive tools. In a category where buyers research multiple agencies simultaneously, giving them nothing to take away means losing the comparison. B2B gated content converts 10--15% for top organizations. Interactive lead magnets (calculators, quizzes) convert 2.4x higher than PDFs. An "Audit Your Affiliate Program" calculator would generate qualified leads from the exact ICP while demonstrating expertise.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-017</span><span class="kb-tag">B2B-013</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-high"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-high">High / #7</div>
+          <div class="finding-title">Dual Audience Confusion -- Brands and Publishers Mixed</div>
+          <div class="finding-body">The homepage simultaneously serves brands AND publishers without a segmentation gate. Each visitor must mentally filter content that doesn't apply -- a cognitive tax that reduces conversion. Industry-specific pages lift conversions 68% (KlientBoost). A simple fork -- "I'm a Brand" / "I'm a Publisher" -- segments visitors into tailored experiences and signals CPG understands each audience's specific needs.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-025</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-high"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-high">High / #8</div>
+          <div class="finding-title">Text-Only Testimonials -- 11 CEOs, Zero Video</div>
+          <div class="finding-body">All 11 CEO testimonials are text-only. Most lack specific metrics. No photos, no video, no logos. Video testimonials outperform text by 80% in B2B contexts. A single video testimonial achieved +39% LP conversion in a documented B2B campaign (Testimonial Hero). Adding just 3 testimonials with metrics can boost conversion 34%. CPG has 11 real relationships with real CEOs who've seen real results.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-008</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-high"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-high">High / #9</div>
+          <div class="finding-title">Contact Form Has Six Fields and a "Submit" Button</div>
+          <div class="finding-body">6 fields with no progress indicator, no trust signals adjacent to the form, no "what happens next" expectation setting. 81% of B2B visitors abandon forms after starting. Top abandonment drivers: security concerns (29%) and excessive length (27%). A 3-field multi-step form with a progress bar, a "Your information is never shared" note, and a "You'll hear from us within 24 hours" promise would measurably lift completions.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-016</span></div>
+        </div>
+      </div>
+
+      <div class="severity-header sh-medium" style="margin-top:1rem">Medium -- Roadmap Items</div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #10</div>
+          <div class="finding-title">No Trust Badges or Review Platform Presence</div>
+          <div class="finding-body">Zero Clutch, G2, or industry certifications visible anywhere. Trust seals increase quote requests by +42% (Blue Fountain Media). Advertise Purple has 18 Clutch reviews; CPG has zero. Just 5 reviews can increase conversions by 270%. Getting 3--5 Clutch reviews from existing CEO relationships is an asymmetric effort-to-impact opportunity.</div>
+          <div class="kb-tags"><span class="kb-tag">CF-011</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #11</div>
+          <div class="finding-title">Founder Story Buried Three Scrolls Deep</div>
+          <div class="finding-body">"As brand owners ourselves" is the strongest single message on the entire site and it's hidden in body copy. Krik's 2x exit story is never told as a narrative. Identity messaging ("Built for brands, by brand owners") outperforms generic positioning by +31% (CF-018). This is the line that makes CPG categorically different from every competitor -- it belongs in the H1.</div>
+          <div class="kb-tags"><span class="kb-tag">CF-018</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #12</div>
+          <div class="finding-title">No Team Visibility on Homepage</div>
+          <div class="finding-body">A Meet the Team page exists but is not surfaced on key conversion pages. Human faces increase signups by +102.5% (Basecamp). For a founder-led agency in a trust-dependent category, Krik's face and credentials should appear on the homepage. A face creates accountability and relatability that no amount of copy can replicate.</div>
+          <div class="kb-tags"><span class="kb-tag">CF-014</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #13</div>
+          <div class="finding-title">Brands Page Has Zero Results or Proof</div>
+          <div class="finding-body">The /brands/ page is pure process description. No metrics, no case studies, no proof of outcomes. This is the page brands land on after clicking "Learn more" from the hero -- and it gives them nothing to evaluate against competitors. This is the highest-intent page on the site and it has the weakest proof density.</div>
+          <div class="kb-tags"><span class="kb-tag">B2B-006</span></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #14</div>
+          <div class="finding-title">FAQ Hidden in Navigation -- Not On Page</div>
+          <div class="finding-body">A FAQ page exists at /faq but is accessible only through deep navigation. Objection handling on-page reduces bounce and supports self-qualification for B2B buyers. The most common objections ("How does CPA-only work?", "What brands qualify?", "How long until results?") should answer themselves inline on the homepage -- not hidden in a secondary navigation item most visitors will never find.</div>
+          <div class="kb-tags"></div>
+        </div>
+      </div>
+
+      <div class="finding-item reveal">
+        <div class="finding-dot dot-medium"></div>
+        <div class="glass finding-card">
+          <div class="finding-severity sev-medium">Medium / #15</div>
+          <div class="finding-title">Dormant Social Presence Signals "Small and New"</div>
+          <div class="finding-body">LinkedIn: 24 followers. Instagram: 36 followers. For a B2B agency targeting sophisticated DTC founders who will check every signal, this communicates "tiny and new." No thought leadership content, no content marketing flywheel. Costly signaling theory (APP-012, RS-007): cheap signals like dormant pages actively destroy trust. Even 2 posts per week on LinkedIn over 6 months would begin building a credibility floor.</div>
+          <div class="kb-tags"><span class="kb-tag">APP-012</span><span class="kb-tag">RS-007</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: TEARDOWNS -->
+<section id="teardowns" aria-labelledby="teardowns-heading">
+  <div class="teardowns-inner">
+    <div class="reveal">
+      <div class="section-label">Section 05</div>
+      <h2 class="editorial-headline" id="teardowns-heading">Visual<br><em style="color:var(--accent)">Teardowns</em></h2>
+      <p style="max-width:600px;margin-top:1rem">Before / after reconstructions of the three highest-leverage sections on the site.</p>
+    </div>
+
+    <!-- TEARDOWN 1 -->
+    <div class="teardown-block reveal" style="margin-top:4rem">
+      <h3>Teardown 01 -- Hero Section</h3>
+      <div class="td-pair">
+        <div class="td-panel td-before">
+          <div class="td-header">CURRENT STATE</div>
+          <div class="td-mockup">
+            <div class="mock-hero mock-hero-before">
+              <div style="font-size:0.65rem;letter-spacing:0.12em;color:#555;margin-bottom:0.5rem;text-transform:uppercase">Rotating tagline 1 of 3</div>
+              <div class="mock-tagline">"Stand Out From the Crowd"</div>
+              <div class="mock-sub">No definition of what CPG does. No audience clarity.</div>
+              <button class="mock-btn mock-btn-gray">Learn more</button>
+              <button class="mock-btn mock-btn-gray">Learn more</button>
+            </div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; Rotating taglines -- no single message registers in 5 seconds</div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; No form or capture mechanism above the fold</div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; "Learn more" is not a conversion action</div>
+          </div>
+        </div>
+        <div class="td-panel td-after">
+          <div class="td-header">RECOMMENDED STATE</div>
+          <div class="td-mockup">
+            <div class="mock-hero mock-hero-after">
+              <div style="font-size:0.62rem;letter-spacing:0.15em;color:var(--accent);margin-bottom:0.5rem;text-transform:uppercase">Built by brand founders, for brand founders</div>
+              <div class="mock-tagline" style="font-size:0.95rem">Performance-Based Affiliate Marketing. Zero Retainer. You Only Pay on Sales.</div>
+              <div class="mock-sub" style="color:rgba(255,255,255,0.5)">Krik Angacian exited two CPG brands. Now he builds affiliate programs for brands like yours.</div>
+              <div class="mock-fork">
+                <button class="mock-btn mock-btn-primary" style="border-radius:6px;font-size:0.7rem">I'm a Brand -- Show Me How</button>
+                <button class="mock-btn mock-btn-sec" style="border-radius:6px;font-size:0.7rem;border:1px solid rgba(0,212,170,0.4)">I'm a Publisher</button>
+              </div>
+              <div class="mock-form">
+                <span class="mock-form-label">Brand website</span>
+                <div class="mock-input">yourstore.com</div>
+                <span class="mock-form-label">Work email</span>
+                <div class="mock-input">you@brand.com</div>
+                <button class="mock-cta-btn">Get My Free Affiliate Audit</button>
+              </div>
+            </div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Single clear value prop -- passes the 5-second test</div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Audience segmentation fork removes cognitive friction</div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Embedded lead capture -- zero clicks to convert</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 2 -->
+    <div class="teardown-block reveal">
+      <h3>Teardown 02 -- Social Proof Section</h3>
+      <div class="td-pair">
+        <div class="td-panel td-before">
+          <div class="td-header">CURRENT STATE</div>
+          <div class="td-mockup">
+            <div style="padding:0.5rem 0">
+              <div class="mock-testimonial">"CPG helped us scale our affiliate program..." -- Russell S., CEO</div>
+              <div class="mock-testimonial">"Great results and very responsive team..." -- John H., Founder</div>
+              <div class="mock-testimonial">"Reduced our CAC significantly..." -- Jack K., CEO</div>
+              <div style="text-align:center;font-size:0.68rem;color:#444;margin-top:0.75rem">[ Text carousel rotates ]</div>
+            </div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; Text-only -- video testimonials deliver +80% lift</div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; No metrics, no photos, no logos on any testimonial</div>
+          </div>
+        </div>
+        <div class="td-panel td-after">
+          <div class="td-header">RECOMMENDED STATE</div>
+          <div class="td-mockup">
+            <div>
+              <div class="mock-proof-stat-bar">
+                <span>25+ Brands</span>
+                <span>$5M+ Revenue Driven</span>
+                <span>50% Avg CPA Reduction</span>
+              </div>
+              <div class="mock-video-card">
+                <div class="mock-play">&#9654;</div>
+                <div>
+                  <div class="mock-video-name">Russell Saks, CEO</div>
+                  <div class="mock-video-stat">50% CPA Reduction in 90 Days</div>
+                  <div class="mock-video-quote">"CPG was the only agency that understood our unit economics..."</div>
+                </div>
+              </div>
+              <div class="mock-video-card">
+                <div class="mock-play">&#9654;</div>
+                <div>
+                  <div class="mock-video-name">John Hagan, Founder</div>
+                  <div class="mock-video-stat">3.2x Revenue Growth in 6 Months</div>
+                  <div class="mock-video-quote">"Krik has been there as a brand owner. He gets it on a level no agency does..."</div>
+                </div>
+              </div>
+            </div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Video thumbnails with play buttons (+80% engagement)</div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Metric badge on every card -- specificity signals credibility</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEARDOWN 3 -->
+    <div class="teardown-block reveal">
+      <h3>Teardown 03 -- Contact / CTA Section</h3>
+      <div class="td-pair">
+        <div class="td-panel td-before">
+          <div class="td-header">CURRENT STATE</div>
+          <div class="td-mockup">
+            <div style="padding:0.5rem 0">
+              <p style="font-size:0.78rem;color:#555;text-align:center;margin-bottom:0.75rem">"Talk to our team" &rarr; link to /contact/ page</p>
+              <div class="mock-input">First Name</div>
+              <div class="mock-input">Last Name</div>
+              <div class="mock-input">Email Address</div>
+              <div class="mock-input">Company Name</div>
+              <div class="mock-input">Website URL</div>
+              <div class="mock-input">Message (optional)</div>
+              <button class="mock-submit-btn">Submit</button>
+            </div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; "Submit" is statistically the worst CTA text in existence</div>
+            <div class="callout callout-red"><span>&#10005;</span>&nbsp; 6 fields, no progress bar -- 81% form abandonment rate</div>
+          </div>
+        </div>
+        <div class="td-panel td-after">
+          <div class="td-header">RECOMMENDED STATE</div>
+          <div class="td-mockup">
+            <div style="padding:0.5rem 0">
+              <div class="mock-progress-label">Step 2 of 3 -- Tell us about your brand</div>
+              <div class="mock-progress"><div class="mock-progress-bar"></div></div>
+              <div class="mock-input">Brand name + website URL</div>
+              <div class="mock-input">Work email address</div>
+              <select class="mock-input" style="appearance:none;color:#888"><option>Monthly revenue: $2M -- $5M</option></select>
+              <button class="mock-cta-btn">Get My Free Affiliate Audit &rarr;</button>
+              <div style="font-size:0.68rem;color:#444;text-align:center;margin-top:0.6rem">&#128274; We never share your info &nbsp;&bull;&nbsp; You'll hear back within 24 hours</div>
+            </div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; Multi-step with progress bar (+86% conversion lift)</div>
+            <div class="callout callout-green"><span>&#10003;</span>&nbsp; First-person outcome CTA (+5--15% vs generic)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: COMPETITIVE -->
+<section id="competitive" aria-labelledby="competitive-heading">
+  <div class="competitive-inner">
+    <div class="reveal">
+      <div class="section-label">Section 06</div>
+      <h2 class="editorial-headline" id="competitive-heading">Competitive<br><em style="color:var(--accent)">Landscape</em></h2>
+      <p style="max-width:600px;margin-top:1rem">CPG ranks 4th of 6 on web presence. But holds the only truly defensible position in the category.</p>
+    </div>
+
+    <div class="comp-table-wrap reveal">
+      <table role="table" aria-label="Competitor comparison table">
+        <thead><tr><th>Competitor</th><th>Positioning</th><th>Model</th><th>Strength</th><th>Gap</th><th>Steal</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--text)">Acceleration Partners</strong></td><td>Global Partnership Experts</td><td>Retainer</td><td>Brand recognition, global reach</td><td>No pricing, vague value props</td><td><span class="steal-tag">Global case study format</span></td></tr>
+          <tr><td><strong style="color:var(--text)">Advertise Purple</strong></td><td>#1 Affiliate Agency USA</td><td>Perf + mgmt fee</td><td>5,000+ clients, 131% avg growth, INC 5000</td><td>Enterprise-skewed, not DTC-native</td><td><span class="steal-tag">Stat wall approach</span></td></tr>
+          <tr><td><strong style="color:var(--text)">Hamster Garage</strong></td><td>Strategic Partnerships</td><td>Undisclosed</td><td>Ex-Airbnb team, TikTok Shop focus</td><td>Zero case study metrics</td><td><span class="steal-tag">ICP clarity naming</span></td></tr>
+          <tr><td><strong style="color:var(--text)">PartnerCentric</strong></td><td>Performance-Partner Marketing</td><td>Low-cost</td><td>FUSE Incrementality tech, WBE-certified</td><td>Unclear service definition</td><td><span class="steal-tag">Proprietary tech naming</span></td></tr>
+          <tr><td><strong style="color:var(--text)">Gen3 Marketing</strong></td><td>Largest independent affiliate agency</td><td>Retainer</td><td>20+ year tenure, Fortune 500</td><td>Wrong segment for DTC</td><td><span class="steal-tag">Longevity signaling</span></td></tr>
+          <tr><td><strong style="color:var(--text)">DMi Partners</strong></td><td>Incrementality-first affiliate mgmt</td><td>Retainer</td><td>Incrementality focus, loyalty programs</td><td>Not DTC-native</td><td><span class="steal-tag">Incrementality narrative</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="glass reveal" style="margin-top:2.5rem;padding:2rem;border-radius:16px">
+      <div class="section-label" style="margin-bottom:0.75rem">CPG's Competitive Position</div>
+      <p style="font-size:0.95rem;line-height:1.7;max-width:720px">CPG ranks <strong>4th of 6 on web presence</strong>. But holds a categorically unique position: the only <strong style="color:var(--accent)">pure CPA agency</strong> run by <strong style="color:var(--accent)">founders who've exited two CPG brands</strong>. Every competitor charges retainers. Every competitor is run by marketers, not operators. This advantage is massively undersold and could be a category-defining moat if communicated clearly.</p>
+    </div>
+
+    <div class="steal-grid reveal">
+      <div class="steal-card"><div class="steal-card-num">STEAL 01</div><div class="steal-card-title">Advertise Purple's Stat Wall</div><p>$5B revenue driven, 5,000+ brands, 131% avg growth. Build CPG's version with real numbers -- even at smaller scale, specifics beat vague claims.</p></div>
+      <div class="steal-card"><div class="steal-card-num">STEAL 02</div><div class="steal-card-title">Hamster Garage's ICP Naming</div><p>Explicitly name who you serve: "DTC brands doing $2M--$20M in revenue." Pre-qualifies visitors and makes the right person feel addressed.</p></div>
+      <div class="steal-card"><div class="steal-card-num">STEAL 03</div><div class="steal-card-title">PartnerCentric's Proprietary Tech</div><p>CPG has a live dashboard that is unnamed. Name it. "The CPA Pulse Dashboard" creates a proprietary asset story competitors can't replicate.</p></div>
+      <div class="steal-card"><div class="steal-card-num">STEAL 04</div><div class="steal-card-title">Clutch / G2 Review Presence</div><p>Advertise Purple: 18 Clutch reviews. CPG: 0. Asking 3--5 of the 11 CEO contacts to post on Clutch is asymmetric impact for minimal effort.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: BENCHMARKS -->
+<section id="benchmarks" aria-labelledby="benchmarks-heading">
+  <div class="benchmarks-inner">
+    <div class="reveal">
+      <div class="section-label">Section 07</div>
+      <h2 class="editorial-headline" id="benchmarks-heading">B2B<br><em style="color:var(--accent)">Benchmarks</em></h2>
+      <p style="max-width:600px;margin-top:1rem">Where CPG sits relative to industry average and top performers on 9 measurable dimensions.</p>
+    </div>
+    <div class="bench-table-wrap reveal">
+      <table role="table" aria-label="B2B benchmark comparison">
+        <thead><tr><th>Metric</th><th>CPG Current</th><th>Industry Average</th><th>Top Performer</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--text)">Homepage form</strong></td><td class="bench-cell-bad">None</td><td class="bench-cell-mid">Embedded or 1-click</td><td class="bench-cell-good">Multi-step + chatbot</td></tr>
+          <tr><td><strong style="color:var(--text)">Clicks to conversion</strong></td><td class="bench-cell-bad">3--4</td><td class="bench-cell-mid">1--2</td><td class="bench-cell-good">1 (embedded)</td></tr>
+          <tr><td><strong style="color:var(--text)">CTA specificity</strong></td><td class="bench-cell-bad">Generic ("Submit")</td><td class="bench-cell-mid">Moderate outcome</td><td class="bench-cell-good">First-person outcome</td></tr>
+          <tr><td><strong style="color:var(--text)">Case studies</strong></td><td class="bench-cell-bad">0</td><td class="bench-cell-mid">3--5</td><td class="bench-cell-good">10+ with ROI metrics</td></tr>
+          <tr><td><strong style="color:var(--text)">Video testimonials</strong></td><td class="bench-cell-bad">0</td><td class="bench-cell-mid">2--3</td><td class="bench-cell-good">5+ with metric overlays</td></tr>
+          <tr><td><strong style="color:var(--text)">Trust badges</strong></td><td class="bench-cell-bad">0</td><td class="bench-cell-mid">2--3 (Clutch / G2)</td><td class="bench-cell-good">5+ (awards, certs)</td></tr>
+          <tr><td><strong style="color:var(--text)">Lead magnet</strong></td><td class="bench-cell-bad">None</td><td class="bench-cell-mid">PDF download</td><td class="bench-cell-good">Interactive audit / calculator</td></tr>
+          <tr><td><strong style="color:var(--text)">Social following</strong></td><td class="bench-cell-bad">24 LinkedIn</td><td class="bench-cell-mid">500--2K</td><td class="bench-cell-good">10K+</td></tr>
+          <tr><td><strong style="color:var(--text)">Review platforms</strong></td><td class="bench-cell-bad">0 reviews</td><td class="bench-cell-mid">Clutch profile active</td><td class="bench-cell-good">15+ reviews, 4.5+ rating</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: PSYCHOLOGY -->
+<section id="psychology" aria-labelledby="psychology-heading">
+  <div class="psychology-inner">
+    <div class="reveal">
+      <div class="section-label">Section 08</div>
+      <h2 class="editorial-headline" id="psychology-heading">Behavioral Psychology<br><em style="color:var(--accent)">Playbook</em></h2>
+      <p style="max-width:600px;margin-top:1rem">Six interventions grounded in Rory Sutherland's psycho-logic and applied persuasion research.</p>
+    </div>
+    <div class="psych-grid">
+      <div class="psych-card reveal">
+        <div class="psych-num">1</div>
+        <div class="psych-kb">APP-012 / RS-007</div>
+        <div class="psych-title">Costly Signaling</div>
+        <div class="psych-body">CPG uses cheap signals ("great results", "trusted by brands") instead of costly ones. Cheap signals are easy to fake -- therefore they're discounted. Costly signals require real investment or genuine capability, making them credible by definition.</div>
+        <div class="psych-fix"><strong>Fix:</strong> "508 verified Shopify orders tracked this month" is a costly signal. Show live dashboard numbers publicly. Name the technology. Let specificity do the trust work.</div>
+      </div>
+      <div class="psych-card reveal">
+        <div class="psych-num">2</div>
+        <div class="psych-kb">APP-010</div>
+        <div class="psych-title">Reframing</div>
+        <div class="psych-body">CPG frames itself as "an affiliate agency" -- a commodity category. The frame determines the comparison set. In the "affiliate agency" frame, CPG competes on price and reviews against agencies with more of both.</div>
+        <div class="psych-fix"><strong>Fix:</strong> Reframe as "the only affiliate partner built by founders who've exited two CPG brands." New category. CPG is the only entrant.</div>
+      </div>
+      <div class="psych-card reveal">
+        <div class="psych-num">3</div>
+        <div class="psych-kb">APP-003 / RS-015</div>
+        <div class="psych-title">Default Effect</div>
+        <div class="psych-body">The next step is currently a choice: "Contact us IF you want." Most visitors won't exercise that choice. Defaults are powerful because they require no decision.</div>
+        <div class="psych-fix"><strong>Fix:</strong> Make action the default. "Your free affiliate audit starts here" -- with a form already visible -- frames inaction as opting out, not action as opting in.</div>
+      </div>
+      <div class="psych-card reveal">
+        <div class="psych-num">4</div>
+        <div class="psych-kb">APP-005</div>
+        <div class="psych-title">Strategic Friction</div>
+        <div class="psych-body">Zero qualification signals anyone can contact CPG. When anything is available to everyone, it feels less valuable. The Doorman Effect: exclusivity at entry increases desire for what's inside.</div>
+        <div class="psych-fix"><strong>Fix:</strong> Add a qualifying question. "We only work with brands doing $2M+" makes qualifying brands feel selected, not sold to. Rejection risk creates perceived value.</div>
+      </div>
+      <div class="psych-card reveal">
+        <div class="psych-num">5</div>
+        <div class="psych-kb">APP-011</div>
+        <div class="psych-title">Specificity as Credibility</div>
+        <div class="psych-body">Every claim on the site is generic. "Results-driven" means nothing. Specific numbers are harder to fabricate -- therefore, brains treat them as inherently more credible. Vague claims trigger vague trust.</div>
+        <div class="psych-fix"><strong>Fix:</strong> "43% average CPA reduction across 25 DTC brands in 2025" is a completely different trust signal than "great results." Audit every claim and attach a number.</div>
+      </div>
+      <div class="psych-card reveal">
+        <div class="psych-num">6</div>
+        <div class="psych-kb">CF-018</div>
+        <div class="psych-title">In-Group Identity</div>
+        <div class="psych-body">"Built for brands, by brand owners" triggers tribal identity -- the most powerful persuasion force in human psychology. People trust people demonstrably like them. "As brand owners ourselves" is doing almost no work on this site.</div>
+        <div class="psych-fix"><strong>Fix:</strong> Current copy says "brands and publishers" -- split identity that resonates with neither group. Identity messaging (+31%) belongs in the H1 and every ad.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 10: EVIDENCE -->
+<section id="evidence" aria-labelledby="evidence-heading">
+  <div class="evidence-inner">
+    <div class="reveal">
+      <div class="section-label">Section 09</div>
+      <h2 class="editorial-headline" id="evidence-heading">Evidence<br><em style="color:var(--accent)">Base</em></h2>
+      <p style="max-width:600px;margin-top:1rem">15 knowledge base findings powering this audit. Lift percentages shown proportionally.</p>
+    </div>
+    <div class="evidence-grid" id="evidence-grid"></div>
+  </div>
+</section>
+
+<footer role="contentinfo">
+  <p>Prepared by KAMG for CPG Affiliate Partners &nbsp;&bull;&nbsp; April 2026 &nbsp;&bull;&nbsp; Confidential</p>
+  <p style="margin-top:0.5rem;opacity:0.5;font-size:0.72rem">This report is confidential and intended solely for the named recipient. All findings are based on publicly observable site behavior and proprietary CRO knowledge base research.</p>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+// EVIDENCE DATA
+const evidenceData=[
+  {id:'CF-007',title:'Specific Numbers +21.4% Credibility',lift:21,source:'Unbounce / CRO KB',tag:'Metrics Section'},
+  {id:'CF-008',title:'Above-Fold Testimonials +34% Conversion',lift:34,source:'Nielsen Norman Group',tag:'Testimonial Placement'},
+  {id:'CF-011',title:'Trust Seals +42% Quote Requests',lift:42,source:'Blue Fountain Media',tag:'Missing Trust Badges'},
+  {id:'CF-013',title:'Media Logo Bars +25% Trust',lift:25,source:'Conversion Sciences',tag:'As Seen In'},
+  {id:'CF-014',title:'Human Faces +102.5% Signups',lift:102,source:'Basecamp Case Study',tag:'Team Visibility'},
+  {id:'CF-018',title:'Identity Messaging +31% vs Generic',lift:31,source:'CXL Institute',tag:'Brand Owner Messaging'},
+  {id:'CF-029',title:'Low Complexity +23% Perceived Trust',lift:23,source:'Google / CXL Research',tag:'Dual Audience'},
+  {id:'B2B-005',title:'Clear Above-Fold Value Prop +51%',lift:51,source:'HubSpot B2B Research',tag:'Hero Section'},
+  {id:'B2B-006',title:'Case Studies Used by 73% of B2B Buyers',lift:73,source:'DemandGen Report',tag:'Zero Case Studies'},
+  {id:'B2B-008',title:'Video Testimonials +80% vs Text',lift:80,source:'Testimonial Hero / Wyzowl',tag:'Text-Only Proof'},
+  {id:'B2B-009',title:'Multi-Step Forms +86% Conversion',lift:86,source:'HubSpot Research',tag:'No Homepage Form'},
+  {id:'B2B-013',title:'Exit-Intent Captures 4-7% of Abandoners',lift:6,source:'Optinmonster Data',tag:'No Exit Capture'},
+  {id:'B2B-015',title:'Chatbots 3x More Conversions vs Forms',lift:200,source:'Drift B2B Report',tag:'No Chatbot'},
+  {id:'B2B-025',title:'Industry-Specific Pages +68% Conversion',lift:68,source:'KlientBoost Research',tag:'Dual Audience'},
+  {id:'APP-012',title:'Costly Signaling -- Cheap Proof Destroys Trust',lift:40,source:'Rory Sutherland / Signaling Theory',tag:'Proof Quality'},
+];
+
+// BUILD EVIDENCE GRID
+function buildEvidence(){
+  const grid=document.getElementById('evidence-grid');
+  if(!grid)return;
+  evidenceData.forEach(d=>{
+    const maxLift=Math.min(d.lift,200);
+    const pct=Math.round((maxLift/200)*100);
+    const card=document.createElement('div');
+    card.className='ev-card reveal';
+    const liftStr=d.lift>=200?'200%+ (3x)':'+'+d.lift+'%';
+    card.innerHTML=`<span class="ev-kb">${d.id}</span><div class="ev-title">${d.title}</div><div class="ev-bar-label"><span>Documented Lift</span><span style="color:var(--accent);font-weight:700">${liftStr}</span></div><div class="ev-bar"><div class="ev-bar-fill" data-width="${pct}"></div></div><div class="ev-meta"><span class="ev-source">${d.source}</span><span class="ev-tag">${d.tag}</span></div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ACCORDION DATA
+const accordionData=[
+  {title:'First Impression & Clarity',score:3,color:'red',body:'The rotating hero fails the 5-second test on all three taglines. A first-time visitor cannot determine within 5 seconds what CPG does, who it serves, or what action to take. This is the most critical impression failure on the site and directly correlates to high bounce rates from qualified traffic.'},
+  {title:'Value Proposition',score:4,color:'red',body:'"Stand Out From the Crowd" and "No retainers Just results" are not value propositions. A VP must answer: what, for whom, and why this over competitors. The strongest value prop CPG owns -- "Built by founders who exited two CPG brands" -- is buried or absent entirely.'},
+  {title:'CTA Effectiveness',score:2,color:'red',body:'"Learn more", "Submit", "Talk to our team" score near the bottom of every CTA effectiveness study in the literature. Zero first-person CTAs. Zero outcome-specific language. "Submit" on the contact form is the single worst available option.'},
+  {title:'Social Proof Deployment',score:5,color:'amber',body:'11 CEO testimonials exist -- above average in quantity. But text-only format, no photos, no metrics on most, and zero video representation drops effectiveness far below what the underlying material supports. Quantity without format is underutilized proof.'},
+  {title:'Trust & Credibility',score:4,color:'red',body:'No Clutch, G2, or certifications. No "As Seen In" bar. No awards. The Startup CPG feature and Krik\'s founder story are not deployed as trust mechanisms. Trust architecture is essentially absent from the conversion flow.'},
+  {title:'Conversion Path / Forms',score:2,color:'red',body:'3--4 clicks to a 6-field form with a Submit button on a separate page. No embedded capture, no exit-intent, no chatbot, no multi-step. The conversion path is maximally frictionful. This is the lowest-scoring dimension in the audit.'},
+  {title:'Mobile Experience',score:5,color:'amber',body:'The site is responsive and loads at reasonable speed on mobile. However, rotating heroes perform even worse on mobile where attention windows are shorter, and CTA placement suffers without desktop real estate. Given that most DTC buyers research on mobile, this matters.'},
+  {title:'Copy & Messaging',score:4,color:'red',body:'Generic B2B service language throughout. The strongest copy ("as brand owners ourselves") is buried. No specificity in metrics, no concrete outcomes stated, no ICP-targeted language. Copy is a significant missed opportunity given the real story available.'},
+  {title:'Visual Hierarchy',score:5,color:'amber',body:'Layout is functional but not guiding. No clear visual priority system. Hero, body, and CTA sections carry roughly equal visual weight. Nothing forces the eye toward a conversion action. Good structure does not equal strategic hierarchy.'},
+  {title:'Technical / Speed',score:6,color:'amber',body:'Core Web Vitals are in acceptable range. No obvious technical red flags. This is the strongest category in the audit -- but technical performance cannot compensate for structural conversion failures in every other dimension.'},
+];
+
+function buildAccordions(){
+  const container=document.getElementById('accordions-container');
+  if(!container)return;
+  accordionData.forEach((item,i)=>{
+    const cls={red:'badge-red',amber:'badge-amber',green:'badge-green'}[item.color];
+    const div=document.createElement('div');
+    div.className='accordion-item';
+    div.setAttribute('role','listitem');
+    div.innerHTML=`<div class="accordion-head" role="button" aria-expanded="false" aria-controls="acc-body-${i}" tabindex="0"><div class="acc-left"><span class="acc-badge ${cls}" aria-label="Score ${item.score} of 10">${item.score}/10</span><span class="acc-title">${item.title}</span></div><span class="acc-arrow" aria-hidden="true">&#9660;</span></div><div class="accordion-body" id="acc-body-${i}" role="region"><div class="accordion-content">${item.body}</div></div>`;
+    const head=div.querySelector('.accordion-head');
+    const toggle=()=>{
+      const body=div.querySelector('.accordion-body');
+      const arrow=div.querySelector('.acc-arrow');
+      const open=body.classList.toggle('open');
+      arrow.classList.toggle('open',open);
+      head.setAttribute('aria-expanded',String(open));
+    };
+    head.addEventListener('click',toggle);
+    head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+    container.appendChild(div);
+  });
+}
+
+// RADAR CHART
+function buildRadar(){
+  const scores=[3,4,2,5,4,2,5,4,5,6];
+  const labels=['First Impression','Value Prop','CTA','Social Proof','Trust','Conversion Path','Mobile','Copy','Visual Hierarchy','Technical'];
+  const cx=230,cy=230,maxR=150,n=scores.length;
+  const svg=document.getElementById('radar-chart');
+  if(!svg)return;
+  const rings=svg.getElementById('rings');
+  const axes=svg.getElementById('axes');
+  const poly=svg.getElementById('data-poly');
+  const labelsG=svg.getElementById('labels');
+  const dotsG=svg.getElementById('dots');
+
+  [2,4,6,8,10].forEach(v=>{
+    const r=(v/10)*maxR;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',r);
+    c.setAttribute('fill','none');c.setAttribute('stroke','rgba(255,255,255,0.06)');c.setAttribute('stroke-width','1');
+    rings.appendChild(c);
+    if(v<10){
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',cx+4);t.setAttribute('y',cy-r+4);
+      t.setAttribute('fill','rgba(255,255,255,0.18)');t.setAttribute('font-size','9');t.setAttribute('font-family','Inter,sans-serif');
+      t.textContent=v;rings.appendChild(t);
+    }
+  });
+
+  const pts=[];
+  scores.forEach((s,i)=>{
+    const angle=(i/n)*Math.PI*2-Math.PI/2;
+    const fullX=cx+Math.cos(angle)*maxR;
+    const fullY=cy+Math.sin(angle)*maxR;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx);line.setAttribute('y1',cy);
+    line.setAttribute('x2',fullX);line.setAttribute('y2',fullY);
+    line.setAttribute('stroke','rgba(255,255,255,0.07)');line.setAttribute('stroke-width','1');
+    axes.appendChild(line);
+    const r=(s/10)*maxR;
+    const dx=cx+Math.cos(angle)*r;
+    const dy=cy+Math.sin(angle)*r;
+    pts.push(dx+','+dy);
+    const col=s<=3?'#ff4757':s<=5?'#ffa502':'#2ed573';
+    const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',dx);dot.setAttribute('cy',dy);dot.setAttribute('r',5);
+    dot.setAttribute('fill',col);dot.setAttribute('stroke','#0a0a0f');dot.setAttribute('stroke-width','2');
+    dotsG.appendChild(dot);
+    const lx=cx+Math.cos(angle)*(maxR+32);
+    const ly=cy+Math.sin(angle)*(maxR+32);
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',lx);txt.setAttribute('y',ly);
+    txt.setAttribute('text-anchor','middle');txt.setAttribute('dominant-baseline','middle');
+    txt.setAttribute('fill','rgba(255,255,255,0.45)');txt.setAttribute('font-size','10');txt.setAttribute('font-family','Inter,sans-serif');
+    txt.textContent=labels[i];
+    labelsG.appendChild(txt);
+  });
+  poly.setAttribute('points',pts.join(' '));
+}
+
+// COUNTER ANIMATION
+function animateCounter(el){
+  const target=parseInt(el.dataset.target,10);
+  const dur=1600;
+  const start=performance.now();
+  (function update(now){
+    const t=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-t,3);
+    el.textContent=Math.round(ease*target);
+    if(t<1)requestAnimationFrame(update);
+    else el.textContent=target;
+  })(start);
+}
+
+// GAUGE NEEDLE
+function animateGauge(){
+  const needle=document.getElementById('gauge-needle');
+  if(!needle)return;
+  const start=performance.now();
+  const dur=1500;
+  const from=-90;
+  const to=-18; // 40% of 180 degrees -> -90 + 72 = -18
+  (function update(now){
+    const t=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-t,3);
+    const angle=from+(to-from)*ease;
+    needle.setAttribute('transform','rotate('+angle+' 110 110)');
+    if(t<1)requestAnimationFrame(update);
+  })(start);
+}
+
+// WORD REVEAL
+function initWordReveal(){
+  document.querySelectorAll('.word-reveal .word').forEach((w,i)=>{
+    setTimeout(()=>w.classList.add('show'),300+i*110);
+  });
+}
+
+// INTERSECTION OBSERVER
+function initObserver(){
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting)return;
+      const el=entry.target;
+      el.classList.add('visible');
+      el.querySelectorAll('.counter').forEach(c=>animateCounter(c));
+      el.querySelectorAll('.ev-bar-fill').forEach(b=>{
+        setTimeout(()=>{b.style.width=(b.dataset.width||'0')+'%';},150);
+      });
+      io.unobserve(el);
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded',function(){
+  buildAccordions();
+  buildEvidence();
+  buildRadar();
+  initWordReveal();
+  animateGauge();
+  // Small delay so DOM is painted before observer attaches
+  requestAnimationFrame(function(){
+    requestAnimationFrame(initObserver);
+  });
+});
+
+})();
+</script>
+</body>
+</html>

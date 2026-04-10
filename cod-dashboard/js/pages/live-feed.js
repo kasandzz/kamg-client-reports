@@ -13,6 +13,21 @@
     lp_enrollment:    { emoji: '🎓', label: 'Enrollment',       color: '#22c55e' },
   };
 
+  const SEGMENT_META = {
+    'Therapist/Counselor': { icon: '🧠', color: '#a78bfa' },
+    'Attorney':            { icon: '⚖️', color: '#60a5fa' },
+    'Coach':               { icon: '🎯', color: '#f472b6' },
+    'Educator':            { icon: '📚', color: '#34d399' },
+    'Real Estate':         { icon: '🏠', color: '#fbbf24' },
+    'Consultant':          { icon: '💼', color: '#818cf8' },
+    'Fitness':             { icon: '💪', color: '#fb923c' },
+    'Dentist':             { icon: '🦷', color: '#67e8f9' },
+    'Chiropractor':        { icon: '🦴', color: '#c084fc' },
+    'Med Spa':             { icon: '✨', color: '#f9a8d4' },
+    'General':             { icon: '🌐', color: '#94a3b8' },
+    'Unknown':             { icon: '?',  color: '#64748b' },
+  };
+
   const VIP_TYPES = new Set(['vip_purchased']);
   const ENROLLMENT_TYPES = new Set(['lp_enrollment']);
   const ALLOWED_TYPES = new Set(['ticket_purchased', 'lead_created', 'call_booked', 'lp_enrollment', 'vip_purchased']);
@@ -212,6 +227,21 @@
         border: 1px solid rgba(245,158,11,0.3);
         margin-left: 6px;
       }
+      .lf-segment {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        padding: 2px 8px;
+        border-radius: 10px;
+        white-space: nowrap;
+      }
+      .lf-segment-icon {
+        font-size: 11px;
+        line-height: 1;
+      }
       .lf-session-link {
         font-size: 11px;
         color: ${Theme.COLORS.accent};
@@ -313,6 +343,9 @@
       const page = _conversionPage(row);
       const sessionLink = _sessionUrl(row);
       const relTime = _relTime(row.event_timestamp);
+      const p = _payload(row);
+      const segment = p.niche_segment || 'Unknown';
+      const segMeta = SEGMENT_META[segment] || SEGMENT_META['Unknown'];
 
       const tr = document.createElement('tr');
       if (isNew) tr.className = 'lf-new';
@@ -329,6 +362,12 @@
         <td>
           <div style="font-weight:500;color:${Theme.COLORS.textPrimary}">${name}</div>
           <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${email ? _trunc(email, 28) : '--'}</div>
+        </td>
+        <td>
+          <span class="lf-segment" style="color:${segMeta.color};background:${segMeta.color}18;border:1px solid ${segMeta.color}40">
+            <span class="lf-segment-icon">${segMeta.icon}</span>
+            ${segment}
+          </span>
         </td>
         <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${amount ? Theme.COLORS.success : Theme.COLORS.textMuted}">
           ${amount ? Theme.money(amount) : '--'}
@@ -400,6 +439,7 @@
           <th>When</th>
           <th>Event</th>
           <th>Contact</th>
+          <th>Segment</th>
           <th>Amount</th>
           <th>Conversion Page</th>
           <th>First Ad Click</th>

@@ -1267,17 +1267,19 @@ App.registerPage('war-room', async (container) => {
   container.appendChild(butterflyCard);
 
   // ---- Draw butterfly once data loads ----
+  // Always show 30 days for the butterfly chart regardless of page filter
+  const bfDays = 30;
   // 3 independent BQ sources: Hyros (ticket+enrollment rev), Meta (spend), Stripe (ticket rev fallback)
   Promise.all([
-    API.query('hyros', 'dailySplit', { days }).catch(() => []),
-    API.query('ads-meta', 'daily', { days }).catch(() => []),
-    API.query('war-room', 'dailyTable', { days }).catch(() => [])
+    API.query('hyros', 'dailySplit', { days: bfDays }).catch(() => []),
+    API.query('ads-meta', 'daily', { days: bfDays }).catch(() => []),
+    API.query('war-room', 'dailyTable', { days: bfDays }).catch(() => [])
   ]).then(([hyrosRows, metaRows, stripeRows]) => {
 
     // Build full date range so every day gets a bar slot
     const byDate = {};
     const today = new Date();
-    for (let i = days - 1; i >= 0; i--) {
+    for (let i = bfDays - 1; i >= 0; i--) {
       const d = new Date(today); d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().slice(0, 10);
       byDate[dateStr] = { date: dateStr, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };

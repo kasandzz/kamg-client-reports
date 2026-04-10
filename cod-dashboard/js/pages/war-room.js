@@ -113,6 +113,9 @@ App.registerPage('war-room', async (container) => {
   const salesKpiContainer = document.createElement('div');
   container.appendChild(salesKpiContainer);
 
+  // Shared vars used by charts below
+  const adSpend = cur.total_spend || 0;
+
   // Sales Team KPI strip -- activity + conversion rates
   const callsBooked = cur.total_calls || 0;
   const prevCallsBooked = prev.total_calls || 0;

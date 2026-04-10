@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Cold Email Booking - Nurture Email Sequence</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #0a0a0f;
+    color: #e2e8f0;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 8px;
+  }
+
+  .header .subtitle {
+    font-size: 15px;
+    color: #94a3b8;
+    font-weight: 400;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .email-block {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(56, 189, 248, 0.1);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .email-block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .email-block.confirmation::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+  .email-block.reminder-24::before { background: linear-gradient(90deg, #38bdf8, #0ea5e9); }
+  .email-block.reminder-1::before { background: linear-gradient(90deg, #facc15, #eab308); }
+
+  .email-number {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .confirmation .email-number { color: #22c55e; }
+  .reminder-24 .email-number { color: #38bdf8; }
+  .reminder-1 .email-number { color: #facc15; }
+
+  .email-block h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+
+  .email-trigger {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .subject-line {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 28px;
+  }
+
+  .subject-line .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+
+  .subject-line .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f8fafc;
+  }
+
+  .email-body {
+    background: #ffffff;
+    color: #1a1a2e;
+    border-radius: 10px;
+    padding: 36px 32px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .email-body p {
+    margin-bottom: 16px;
+    color: #2d2d3f;
+  }
+
+  .email-body .greeting {
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  .email-body .signoff {
+    margin-top: 24px;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+  }
+
+  .email-body .name {
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 2px;
+  }
+
+  .email-body .title-line {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 0;
+  }
+
+  .email-body a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+
+  .email-body .call-details {
+    background: #f0f7ff;
+    border-left: 3px solid #2563eb;
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+  }
+
+  .email-body .call-details p {
+    margin-bottom: 4px;
+    color: #1e3a5f;
+    font-size: 14px;
+  }
+
+  .email-body .highlight-box {
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 20px 0;
+  }
+
+  .email-body .highlight-box p {
+    color: #713f12;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .email-body .highlight-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  .email-body .cta-btn {
+    display: inline-block;
+    background: #2563eb;
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    margin: 12px 0;
+  }
+
+  .email-body .join-btn {
+    display: inline-block;
+    background: #16a34a;
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    margin: 12px 0;
+  }
+
+  .email-body ul {
+    margin: 12px 0 16px 20px;
+    color: #2d2d3f;
+  }
+
+  .email-body ul li {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .email-body .reschedule-links {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .email-body .reschedule-links a {
+    color: #6b7280;
+    font-size: 13px;
+  }
+
+  .notes {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: rgba(250, 204, 21, 0.06);
+    border: 1px dashed rgba(250, 204, 21, 0.25);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  .notes strong {
+    color: #facc15;
+  }
+
+  .ghl-var {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .strategy-section {
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.15);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+  }
+
+  .strategy-section h3 {
+    color: #22c55e;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+  }
+
+  .strategy-section ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .strategy-section li {
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 14px;
+    color: #cbd5e1;
+  }
+
+  .strategy-section li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: #22c55e;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">Clients on Demand</div>
+    <h1>Cold Email Booking -- Nurture Sequence</h1>
+    <p class="subtitle">3 emails that bridge from cold email curiosity to excited call attendee. Therapist niche. FTC compliant.</p>
+  </div>
+
+  <div class="strategy-section">
+    <h3>Strategy Notes</h3>
+    <ul>
+      <li><strong>Audience:</strong> Therapists/counselors who replied to Russ's cold email and booked a discovery call. They're curious but not committed.</li>
+      <li><strong>Cold email promise:</strong> "I've helped thousands of therapists build premium programs around what they already know, so they're not tied to sessions."</li>
+      <li><strong>Their mindset:</strong> Doing 1-on-1 work, want to learn about group programs, cautiously optimistic, some skeptical</li>
+      <li><strong>Goal:</strong> Get them to actually show up excited, not just booked. Reduce no-shows by reinforcing their desire + giving them something to think about before the call.</li>
+      <li><strong>Tone:</strong> Warm, personal from Russ. Conversational, not salesy. Match the cold email energy -- peer-to-peer, not guru-to-student.</li>
+      <li><strong>FTC:</strong> Zero income claims. No "earn X" or "clients typically make..." -- we talk about structure, impact, and reach only.</li>
+    </ul>
+  </div>
+
+  <!-- EMAIL 1: CONFIRMATION (Immediate) -->
+  <div class="email-block confirmation">
+    <div class="email-number">Email 1 of 3</div>
+    <h2>Booking Confirmation</h2>
+    <div class="email-trigger">Trigger: Immediately after booking on COLD calendar</div>
+
+    <div class="subject-line">
+      <div class="label">Subject Line</div>
+      <div class="value">You're on the calendar, {{contact.first_name}} -- here's what to expect</div>
+    </div>
+
+    <div class="email-body">
+      <p class="greeting">Hi {{contact.first_name}},</p>
+
+      <p>Really glad you booked this.</p>
+
+      <p>You reached out because you're thinking about packaging what you know into something bigger than 1-on-1 sessions. That's a smart instinct -- and it's exactly what this call is for.</p>
+
+      <div class="call-details">
+        <p><strong>Your call:</strong></p>
+        <p>When: {{appointment.start_time}} {{appointment.timezone}}</p>
+        <p>Where: <a href="{{appointment.meeting_location}}">{{appointment.meeting_location}}</a></p>
+      </div>
+
+      <p><strong>What we'll cover:</strong></p>
+      <ul>
+        <li>Where you are now with your practice and what you want to build</li>
+        <li>The specific type of program that fits your expertise (not a cookie-cutter template)</li>
+        <li>What the path looks like from where you are to running a group program -- and whether it makes sense for you</li>
+      </ul>
+
+      <p>This isn't a pitch call. It's a real conversation about your practice and whether there's a fit. If there isn't, I'll tell you.</p>
+
+      <div class="highlight-box">
+        <p><strong>One thing to think about before we talk:</strong></p>
+        <p>If you could take one thing you help your clients with -- one specific outcome -- and teach it to 20 people at once instead of one at a time... what would it be?</p>
+        <p>Come to the call with that in mind. It'll make our conversation much more useful.</p>
+      </div>
+
+      <p>Add it to your calendar so it doesn't slip:</p>
+      <p style="font-size: 13px;">
+        <a href="#">Google</a> &nbsp;|&nbsp; <a href="#">Outlook</a> &nbsp;|&nbsp; <a href="#">iCloud</a>
+      </p>
+
+      <p class="signoff">Talk soon,</p>
+      <p class="name">Russ Ruffino</p>
+      <p class="title-line">Founder, Clients on Demand</p>
+
+      <div class="reschedule-links">
+        Need to change the time? <a href="{{appointment.reschedule_url}}">Reschedule here</a> &nbsp;|&nbsp; <a href="{{appointment.cancel_url}}">Cancel</a>
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong>GHL Variables:</strong>
+      <span class="ghl-var">{{contact.first_name}}</span>
+      <span class="ghl-var">{{appointment.start_time}}</span>
+      <span class="ghl-var">{{appointment.timezone}}</span>
+      <span class="ghl-var">{{appointment.meeting_location}}</span>
+      <br><br>
+      <strong>Implementation:</strong> Set as automation trigger on COLD calendar booking. Replace calendar add links with GHL calendar link variables.
+    </div>
+  </div>
+
+  <!-- EMAIL 2: 24 HOURS BEFORE -->
+  <div class="email-block reminder-24">
+    <div class="email-number">Email 2 of 3</div>
+    <h2>24-Hour Reminder</h2>
+    <div class="email-trigger">Trigger: 24 hours before appointment</div>
+
+    <div class="subject-line">
+      <div class="label">Subject Line</div>
+      <div class="value">Tomorrow: your call with Russ</div>
+    </div>
+
+    <div class="email-body">
+      <p class="greeting">Hi {{contact.first_name}},</p>
+
+      <p>Quick note -- we're on for tomorrow.</p>
+
+      <div class="call-details">
+        <p><strong>When:</strong> {{appointment.only_start_time}} {{appointment.timezone}}</p>
+        <p><strong>Where:</strong> <a href="{{appointment.meeting_location}}">Click here to join</a></p>
+      </div>
+
+      <p>Since we last connected, I've been thinking about what you shared -- that you're looking at moving beyond the 1-on-1 model.</p>
+
+      <p>Here's something worth knowing: a lot of the therapists and counselors we've worked with had the same starting point. Packed schedule, good at what they do, but capped on how many people they can reach (and how much they can earn) because everything runs through them personally.</p>
+
+      <p>The ones who figured out how to teach what they know in a group format didn't just get their time back. They actually got better outcomes for their clients, because group dynamics do things that 1-on-1 can't.</p>
+
+      <p>That's what tomorrow's call is really about -- figuring out whether that model fits what you do and how to structure it around your specific expertise.</p>
+
+      <p><strong>Remember the question from my last email:</strong> if you could take one specific outcome you help people with and teach it to a group -- what would it be? Come ready with your answer.</p>
+
+      <p class="signoff">See you tomorrow,</p>
+      <p class="name">Russ</p>
+
+      <div class="reschedule-links">
+        Something come up? <a href="{{appointment.reschedule_url}}">Reschedule</a> (please don't ghost me -- just pick a new time)
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong>GHL Variables:</strong>
+      <span class="ghl-var">{{contact.first_name}}</span>
+      <span class="ghl-var">{{appointment.only_start_time}}</span>
+      <span class="ghl-var">{{appointment.timezone}}</span>
+      <span class="ghl-var">{{appointment.meeting_location}}</span>
+      <br><br>
+      <strong>Tone note:</strong> The "please don't ghost me" line is intentionally casual and human. It gives them permission to reschedule without shame rather than just not showing up. Adjust if it feels too informal for the brand.
+    </div>
+  </div>
+
+  <!-- EMAIL 3: 1 HOUR BEFORE -->
+  <div class="email-block reminder-1">
+    <div class="email-number">Email 3 of 3</div>
+    <h2>1-Hour Reminder</h2>
+    <div class="email-trigger">Trigger: 1 hour before appointment</div>
+
+    <div class="subject-line">
+      <div class="label">Subject Line</div>
+      <div class="value">We're on in 1 hour</div>
+    </div>
+
+    <div class="email-body">
+      <p class="greeting">{{contact.first_name}} --</p>
+
+      <p>We're live in an hour.</p>
+
+      <p style="font-size: 17px; font-weight: 600; margin: 20px 0;">
+        <a href="{{appointment.meeting_location}}" class="join-btn">Join the Call</a>
+      </p>
+
+      <p>Come as you are. No prep needed beyond what I mentioned -- just your expertise and an open mind about what's possible when you stop trading hours for income.</p>
+
+      <p>This will be a real conversation, not a slideshow. Bring questions.</p>
+
+      <p class="signoff">See you shortly,</p>
+      <p class="name">Russ</p>
+
+      <div class="reschedule-links">
+        Can't make it? <a href="{{appointment.reschedule_url}}">Grab a new time here</a> -- takes 30 seconds.
+      </div>
+    </div>
+
+    <div class="notes">
+      <strong>GHL Variables:</strong>
+      <span class="ghl-var">{{contact.first_name}}</span>
+      <span class="ghl-var">{{appointment.meeting_location}}</span>
+      <br><br>
+      <strong>Design note:</strong> This one is intentionally short. 1 hour before = they just need the link and a nudge. Don't overload.
+    </div>
+  </div>
+
+  <!-- IMPLEMENTATION NOTES -->
+  <div class="strategy-section">
+    <h3>Implementation Checklist</h3>
+    <ul>
+      <li>Create automation in GHL triggered by COLD calendar booking</li>
+      <li>Email 1: fires immediately on booking</li>
+      <li>Email 2: fires 24 hours before appointment (use GHL appointment reminder trigger)</li>
+      <li>Email 3: fires 1 hour before appointment</li>
+      <li>Sender: Russ Ruffino, from whichever cold email domain they replied to (or russ@clientsondemand.com for deliverability)</li>
+      <li>Replace calendar add link placeholders with actual GHL calendar link variables</li>
+      <li>Test with a dummy booking on the COLD calendar first</li>
+      <li>Consider adding SMS reminders alongside Email 2 and 3 (same messaging, shorter)</li>
+    </ul>
+  </div>
+
+  <div class="strategy-section">
+    <h3>Why This Sequence Works</h3>
+    <ul>
+      <li><strong>Bridges the gap:</strong> Cold email responders are curious but not invested. These emails build investment by getting them to think about their own program before the call.</li>
+      <li><strong>"One thing" question:</strong> Giving them homework (pick one outcome to teach as a group) makes them mentally commit. People who do pre-work show up at 2-3x the rate.</li>
+      <li><strong>Social proof without claims:</strong> "A lot of therapists we've worked with had the same starting point" is credible without being an income claim.</li>
+      <li><strong>Anti-pitch framing:</strong> "This isn't a pitch call" and "If there isn't a fit, I'll tell you" reduce sales resistance. Cold email leads are more skeptical than ad leads.</li>
+      <li><strong>Reschedule > cancel:</strong> Every email makes rescheduling easier than canceling. The 24h "don't ghost me" line gives psychological permission to reschedule without shame.</li>
+      <li><strong>Group outcomes angle:</strong> "Group dynamics do things 1-on-1 can't" reframes the transition from "less personal" to "actually better for clients" -- which matters to therapists who care about client outcomes.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <p>COD Cold Email Nurture Sequence -- Built for COLD calendar bookings (therapist niche)</p>
+    <p>KAMG // April 2026</p>
+  </div>
+
+</div>
+</body>
+</html>

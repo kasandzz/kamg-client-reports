@@ -1252,16 +1252,16 @@ App.registerPage('war-room', async (container) => {
   butterflyCard.style.cssText = 'padding:20px 24px;margin-top:16px;grid-column:1/-1';
   const bfTitle = document.createElement('div');
   bfTitle.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px';
-  bfTitle.innerHTML = `<div style="font-size:15px;font-weight:700;color:${Theme.COLORS.textPrimary}">Cost vs Sales</div>
-    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Stripe + Hyros revenue vs Meta spend</div>`;
+  bfTitle.innerHTML = `<div style="font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:#f1f5f9;text-transform:uppercase;letter-spacing:0.05em">Cost vs Sales</div>
+    <div style="font-size:9px;color:#475569;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.06em">30-day -- Stripe + Hyros revenue vs Meta spend</div>`;
   butterflyCard.appendChild(bfTitle);
 
   const bfCanvas = document.createElement('canvas');
-  bfCanvas.style.cssText = 'display:block;height:320px';
+  bfCanvas.style.cssText = 'display:block;height:360px';
   butterflyCard.appendChild(bfCanvas);
 
   const bfLegend = document.createElement('div');
-  bfLegend.style.cssText = 'display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;justify-content:center';
+  bfLegend.style.cssText = 'display:flex;flex-wrap:wrap;gap:20px;margin-top:16px;justify-content:center;align-items:center';
   butterflyCard.appendChild(bfLegend);
 
   container.appendChild(butterflyCard);
@@ -1321,9 +1321,6 @@ App.registerPage('war-room', async (container) => {
 
     let data = Object.values(byDate).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 
-    console.log('[butterfly] data points:', data.length, 'sample:', data.slice(0,2));
-    console.log('[butterfly] hyros rows:', (hyrosRows||[]).length, 'meta rows:', (metaRows||[]).length, 'stripe rows:', (stripeRows||[]).length);
-
     // Draw -- use rAF to ensure canvas has layout dimensions
     requestAnimationFrame(() => {
       try {
@@ -1336,134 +1333,209 @@ App.registerPage('war-room', async (container) => {
 
   function _drawButterfly(bfCanvas, bfLegend, data) {
     const dpr = window.devicePixelRatio || 1;
-    // Use parent card width since canvas might not have layout yet
     const parent = bfCanvas.parentElement;
     const W = (parent ? parent.clientWidth - 48 : 0) || bfCanvas.clientWidth || 800;
-    const H = 320;
+    const H = 360;
     bfCanvas.width = W * dpr;
     bfCanvas.height = H * dpr;
     bfCanvas.style.width = W + 'px';
     bfCanvas.style.height = H + 'px';
     const ctx = bfCanvas.getContext('2d');
     ctx.scale(dpr, dpr);
-    const pad = { top: 20, right: 60, bottom: 36, left: 60 };
+
+    const pad = { top: 24, right: 16, bottom: 44, left: 52 };
     const plotW = W - pad.left - pad.right;
     const plotH = H - pad.top - pad.bottom;
     const centerY = pad.top + plotH / 2;
-
-    // Max values for scaling each half
     const maxRev = Math.max(...data.map(d => d.ticket_revenue + d.enrollment_revenue), 1);
     const maxSpend = Math.max(...data.map(d => d.spend), 1);
-    const halfH = plotH / 2 - 4; // small gap at center
+    const halfH = plotH / 2 - 6;
+    const barW = Math.max(4, Math.min(18, (plotW / data.length) * 0.72));
+    const slotW = plotW / data.length;
 
-    const barW = Math.max(2, Math.min(24, (plotW / data.length) * 0.7));
-    const gap = (plotW / data.length) - barW;
+    // ---- Background gradient zones ----
+    // Revenue zone (top half) - subtle green wash
+    const revZone = ctx.createLinearGradient(0, pad.top, 0, centerY);
+    revZone.addColorStop(0, 'rgba(34,197,94,0.03)');
+    revZone.addColorStop(1, 'transparent');
+    ctx.fillStyle = revZone;
+    ctx.fillRect(pad.left, pad.top, plotW, halfH + 6);
 
-    // Center line
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    // Spend zone (bottom half) - subtle red wash
+    const spendZone = ctx.createLinearGradient(0, centerY, 0, H - pad.bottom);
+    spendZone.addColorStop(0, 'transparent');
+    spendZone.addColorStop(1, 'rgba(239,68,68,0.03)');
+    ctx.fillStyle = spendZone;
+    ctx.fillRect(pad.left, centerY, plotW, halfH + 6);
+
+    // ---- Grid lines ----
+    ctx.setLineDash([2, 4]);
+    for (let i = 1; i <= 4; i++) {
+      const frac = i / 4;
+      // Revenue side
+      const yUp = centerY - frac * halfH;
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(pad.left, yUp); ctx.lineTo(W - pad.right, yUp); ctx.stroke();
+      // Label
+      const revVal = maxRev * frac;
+      ctx.fillStyle = '#475569';
+      ctx.font = '500 9px "JetBrains Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(revVal >= 1000 ? '$' + (revVal / 1000).toFixed(0) + 'k' : '$' + Math.round(revVal), pad.left - 8, yUp + 3);
+      // Spend side
+      const yDown = centerY + frac * halfH;
+      ctx.beginPath(); ctx.moveTo(pad.left, yDown); ctx.lineTo(W - pad.right, yDown); ctx.stroke();
+      const spVal = maxSpend * frac;
+      ctx.fillText(spVal >= 1000 ? '$' + (spVal / 1000).toFixed(0) + 'k' : '$' + Math.round(spVal), pad.left - 8, yDown + 3);
+    }
+    ctx.setLineDash([]);
+
+    // ---- Center axis ----
+    const axisGrad = ctx.createLinearGradient(pad.left, 0, W - pad.right, 0);
+    axisGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    axisGrad.addColorStop(0.15, 'rgba(255,255,255,0.15)');
+    axisGrad.addColorStop(0.85, 'rgba(255,255,255,0.15)');
+    axisGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.strokeStyle = axisGrad;
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, centerY);
-    ctx.lineTo(W - pad.right, centerY);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left, centerY); ctx.lineTo(W - pad.right, centerY); ctx.stroke();
 
-    // Center labels
-    ctx.fillStyle = Theme.COLORS.textMuted;
-    ctx.font = '9px var(--font-mono)';
-    ctx.textAlign = 'right';
-    ctx.fillText('AD SPEND', pad.left - 6, centerY - 8);
-    ctx.textAlign = 'left';
-    ctx.fillText('REVENUE', W - pad.right + 6, centerY + 14);
-
-    // Y grid lines (revenue side - going up)
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-    for (let i = 1; i <= 3; i++) {
-      const y = centerY - (halfH / 3) * i;
-      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      const val = (maxRev / 3) * i;
-      ctx.fillStyle = Theme.COLORS.textMuted;
-      ctx.font = '9px var(--font-mono)';
-      ctx.textAlign = 'right';
-      ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + Math.round(val), pad.left - 6, y + 3);
-    }
-    // Y grid lines (spend side - going down)
-    for (let i = 1; i <= 3; i++) {
-      const y = centerY + (halfH / 3) * i;
-      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      const val = (maxSpend / 3) * i;
-      ctx.fillStyle = Theme.COLORS.textMuted;
-      ctx.font = '9px var(--font-mono)';
-      ctx.textAlign = 'right';
-      ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + Math.round(val), pad.left - 6, y + 3);
+    // ---- Helper: rounded rect ----
+    function _roundedBar(x, y, w, h, r) {
+      if (h < 1) return;
+      r = Math.min(r, w / 2, Math.abs(h) / 2);
+      ctx.beginPath();
+      if (h > 0) {
+        // downward bar
+        ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+      } else {
+        // upward bar (negative h)
+        const absH = Math.abs(h);
+        const top = y + h;
+        ctx.moveTo(x + r, top); ctx.lineTo(x + w - r, top);
+        ctx.arcTo(x + w, top, x + w, top + r, r);
+        ctx.lineTo(x + w, top + absH);
+        ctx.lineTo(x, top + absH);
+        ctx.lineTo(x, top + r);
+        ctx.arcTo(x, top, x + r, top, r);
+      }
+      ctx.closePath();
     }
 
-    // Draw bars
+    // ---- Draw bars with gradients ----
+    const radius = Math.min(3, barW / 3);
+
     data.forEach((d, i) => {
-      const x = pad.left + i * (barW + gap) + gap / 2;
+      const x = pad.left + i * slotW + (slotW - barW) / 2;
       const totalRev = d.ticket_revenue + d.enrollment_revenue;
 
-      // Revenue bars (going UP from center)
-      // Enrollment (bottom of revenue stack, starts at center)
+      // Enrollment revenue (green, stacked above tickets)
       const enrollH = totalRev > 0 ? (d.enrollment_revenue / maxRev) * halfH : 0;
       const ticketH = totalRev > 0 ? (d.ticket_revenue / maxRev) * halfH : 0;
+      const totalBarH = enrollH + ticketH;
 
-      if (enrollH > 0) {
-        ctx.fillStyle = '#22c55ecc';
-        ctx.fillRect(x, centerY - enrollH - ticketH, barW, enrollH);
-      }
-      if (ticketH > 0) {
-        ctx.fillStyle = '#6366f1cc';
-        ctx.fillRect(x, centerY - ticketH, barW, ticketH);
+      if (enrollH > 1) {
+        const grad = ctx.createLinearGradient(0, centerY - totalBarH, 0, centerY - ticketH);
+        grad.addColorStop(0, '#22c55e');
+        grad.addColorStop(1, '#16a34a');
+        ctx.fillStyle = grad;
+        _roundedBar(x, centerY - ticketH, barW, -enrollH, radius);
+        ctx.fill();
+        // Glow
+        ctx.shadowColor = 'rgba(34,197,94,0.25)';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
 
-      // Spend bar (going DOWN from center)
+      if (ticketH > 1) {
+        const grad = ctx.createLinearGradient(0, centerY - ticketH, 0, centerY);
+        grad.addColorStop(0, '#818cf8');
+        grad.addColorStop(1, '#6366f1');
+        ctx.fillStyle = grad;
+        // Only round top corners if no enrollment above
+        if (enrollH <= 1) {
+          _roundedBar(x, centerY, barW, -ticketH, radius);
+        } else {
+          ctx.fillRect(x, centerY - ticketH, barW, ticketH);
+        }
+        ctx.fill();
+      }
+
+      // Spend bar (red, going down)
       const spendH = d.spend > 0 ? (d.spend / maxSpend) * halfH : 0;
-      if (spendH > 0) {
-        ctx.fillStyle = '#ef4444aa';
-        ctx.fillRect(x, centerY + 2, barW, spendH);
+      if (spendH > 1) {
+        const grad = ctx.createLinearGradient(0, centerY + 2, 0, centerY + 2 + spendH);
+        grad.addColorStop(0, '#ef4444');
+        grad.addColorStop(1, '#dc2626');
+        ctx.fillStyle = grad;
+        _roundedBar(x, centerY + 2, barW, spendH, radius);
+        ctx.fill();
+        ctx.shadowColor = 'rgba(239,68,68,0.2)';
+        ctx.shadowBlur = 6;
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
     });
 
-    // X axis labels
-    ctx.fillStyle = Theme.COLORS.textMuted;
-    ctx.font = '10px var(--font-mono)';
+    // ---- X axis labels ----
+    ctx.fillStyle = '#475569';
+    ctx.font = '500 9px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    const step = Math.max(1, Math.floor(data.length / 10));
+    const step = Math.max(1, Math.ceil(data.length / 12));
     data.forEach((d, i) => {
       if (i % step !== 0 && i !== data.length - 1) return;
-      const x = pad.left + i * (barW + gap) + gap / 2 + barW / 2;
-      ctx.fillText(d.date.slice(5), x, H - 8);
+      const x = pad.left + i * slotW + slotW / 2;
+      const label = d.date.slice(5); // "MM-DD"
+      ctx.fillText(label, x, H - pad.bottom + 16);
     });
 
-    // Axis labels
-    ctx.save();
-    ctx.fillStyle = Theme.COLORS.textMuted;
-    ctx.font = '10px var(--font-mono)';
-    ctx.textAlign = 'center';
-    ctx.translate(12, centerY - halfH / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Revenue', 0, 0);
-    ctx.restore();
-    ctx.save();
-    ctx.fillStyle = Theme.COLORS.textMuted;
-    ctx.font = '10px var(--font-mono)';
-    ctx.textAlign = 'center';
-    ctx.translate(12, centerY + halfH / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Ad Spend', 0, 0);
-    ctx.restore();
+    // ---- Zone labels (revenue / spend) ----
+    ctx.font = '700 8px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '0.08em';
+    ctx.fillStyle = 'rgba(34,197,94,0.35)';
+    ctx.fillText('REVENUE', pad.left + 4, pad.top + 12);
+    ctx.fillStyle = 'rgba(239,68,68,0.35)';
+    ctx.fillText('AD SPEND', pad.left + 4, H - pad.bottom - 6);
+    ctx.letterSpacing = '0';
 
-    // Totals
+    // ---- Totals legend (HTML) ----
     const totTicket = data.reduce((s, d) => s + d.ticket_revenue, 0);
     const totEnroll = data.reduce((s, d) => s + d.enrollment_revenue, 0);
     const totSpend = data.reduce((s, d) => s + d.spend, 0);
-    const roas = totSpend > 0 ? ((totTicket + totEnroll) / totSpend).toFixed(1) : '--';
+    const netRev = totTicket + totEnroll;
+    const roas = totSpend > 0 ? (netRev / totSpend).toFixed(1) : '--';
+    const roasNum = parseFloat(roas);
+    const roasColor = roasNum >= 3 ? '#22c55e' : roasNum >= 1 ? '#f59e0b' : '#ef4444';
 
     bfLegend.innerHTML = `
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">$27 Tickets (${Theme.money(totTicket)})</span></div>
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#22c55ecc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollments / Hyros (${Theme.money(totEnroll)})</span></div>
-      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#ef4444aa"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Meta Spend (${Theme.money(totSpend)})</span></div>
-      <div style="font-size:11px;color:${Theme.COLORS.textSecondary};padding:2px 8px;background:rgba(255,255,255,0.04);border-radius:4px">ROAS: <span style="color:${parseFloat(roas) >= 3 ? '#22c55e' : parseFloat(roas) >= 1 ? '#f59e0b' : '#ef4444'};font-weight:600">${roas}x</span></div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#818cf8,#6366f1)"></div>
+        <span style="font-size:11px;color:#7c8da4;font-family:'JetBrains Mono',monospace">Tickets <span style="color:#f1f5f9;font-weight:600">${Theme.money(totTicket)}</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#22c55e,#16a34a)"></div>
+        <span style="font-size:11px;color:#7c8da4;font-family:'JetBrains Mono',monospace">Enrollments <span style="color:#f1f5f9;font-weight:600">${Theme.money(totEnroll)}</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,#ef4444,#dc2626)"></div>
+        <span style="font-size:11px;color:#7c8da4;font-family:'JetBrains Mono',monospace">Meta Spend <span style="color:#f1f5f9;font-weight:600">${Theme.money(totSpend)}</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:8px;padding:4px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px">
+        <span style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.05em;font-family:'JetBrains Mono',monospace">ROAS</span>
+        <span style="font-size:16px;font-weight:800;color:${roasColor};font-family:Manrope,sans-serif">${roas}x</span>
+      </div>
     `;
   }
 

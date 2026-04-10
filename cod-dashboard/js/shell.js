@@ -413,26 +413,32 @@ const Shell = (() => {
   function _injectLineage() {
     const container = document.getElementById('page-container');
     if (!container || !_currentPage) return;
-    if (typeof Lineage === 'undefined') return;
 
-    // Wait for page content to load, then append
-    const observer = new MutationObserver(() => {
-      // Only inject once, and only after real content exists (not just spinner)
-      if (container.querySelector('.lineage-legend')) return;
-      if (container.querySelector('.spinner') && !container.querySelector('.card')) return;
-
+    function _tryInject() {
+      if (typeof Lineage === 'undefined') return false;
+      if (container.querySelector('.lineage-legend')) return true;
+      // Wait until at least one card exists (page has rendered)
+      if (!container.querySelector('.card')) return false;
       const legend = Lineage.render(_currentPage);
-      if (legend) container.appendChild(legend);
+      if (legend) { container.appendChild(legend); return true; }
+      return false;
+    }
+
+    // MutationObserver for when cards appear
+    const observer = new MutationObserver(() => {
+      if (_tryInject()) observer.disconnect();
     });
     observer.observe(container, { childList: true, subtree: true });
 
-    // Also try immediately in case page already loaded
-    setTimeout(() => {
-      if (!container.querySelector('.lineage-legend')) {
-        const legend = Lineage.render(_currentPage);
-        if (legend) container.appendChild(legend);
+    // Poll as fallback (Lineage script loads async)
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      if (_tryInject() || attempts > 20) {
+        clearInterval(poll);
+        observer.disconnect();
       }
-    }, 3000);
+    }, 500);
   }
 
   // ---- Sync stamp auto-injection ----

@@ -223,9 +223,9 @@ App.registerPage('war-room', async (container) => {
   const ticketRev = cur.ticket_revenue || 0;
   const enrollmentRev = cur.enrollment_revenue || 0;
   const vipRev = cur.vip_revenue || 0;
-  const adSpend = cur.total_spend || 0;
+  const revAdSpend = cur.total_spend || 0;
   const refunds = cur.refunds || 0;
-  const netRev = (cur.gross_revenue || 0) - refunds - adSpend;
+  const netRev = (cur.gross_revenue || 0) - refunds - revAdSpend;
 
   const segments = [
     { label: 'Tickets', value: ticketRev, color: '#6366f1' },

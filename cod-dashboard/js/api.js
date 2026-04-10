@@ -9,6 +9,29 @@ const API = (() => {
   const _inflight = new Map();
   const _meta = new Map(); // page:query -> { fetchedAt, cachedAt, fromCache }
 
+  // Maps dashboard page name -> BQ table names it depends on
+  const PAGE_TABLES = {
+    'war-room':       ['contacts', 'stripe_charges', 'hyros_leads', 'ghl_contacts', 'cod_google_sheets'],
+    'ads-meta':       ['meta_ads_insights', 'meta_campaigns', 'meta_adsets', 'meta_ads'],
+    'hyros':          ['hyros_leads', 'hyros_revenue', 'hyros_clicks'],
+    'cold-outbound':  ['cold_outbound_campaigns', 'cold_outbound_leads', 'cold_outbound_replies'],
+    'email':          ['sendgrid_events', 'sendgrid_messages'],
+    'tickets':        ['stripe_charges', 'stripe_customers'],
+    'workshop':       ['posthog_events', 'zoom_attendance', 'cod_google_sheets'],
+    'enrollment':     ['hyros_leads', 'ghl_contacts', 'stripe_charges'],
+    'sales-team':     ['ghl_contacts', 'zoom_attendance', 'cod_google_sheets'],
+    'journey-map':    ['contacts', 'hyros_leads', 'posthog_events', 'stripe_charges'],
+    'landing-pages':  ['posthog_events', 'posthog_heatmaps'],
+    'funnels':        ['posthog_events', 'hyros_leads', 'stripe_charges'],
+    'calls':          ['zoom_attendance', 'ghl_contacts'],
+    'churn':          ['hyros_leads', 'ghl_contacts', 'stripe_charges'],
+  };
+
+  // Client-side cache for data freshness (30 min TTL)
+  let _freshnessCache = null;
+  let _freshnessCachedAt = 0;
+  const FRESHNESS_TTL = 30 * 60 * 1000; // 30 min
+
   /**
    * Build current filter params for API calls.
    */
@@ -124,5 +147,51 @@ const API = (() => {
    */
   function getAllMeta() { return _meta; }
 
-  return { query, getFilterParams, getLastUpdated, getQueryMeta, getAllMeta, timeAgo, clearCache, BASE_URL };
+  /**
+   * Fetch BQ table last-modified timestamps from the CF meta endpoint.
+   * Cached client-side for 30 minutes.
+   * @returns {Promise<Map<string, number>>} table_name -> epoch ms
+   */
+  async function getDataFreshness() {
+    if (_freshnessCache && Date.now() - _freshnessCachedAt < FRESHNESS_TTL) {
+      return _freshnessCache;
+    }
+    try {
+      const rows = await query('meta', 'dataFreshness');
+      const map = new Map();
+      for (const row of rows) {
+        // BQ TIMESTAMP may return as { value: string }, ISO string, or epoch number
+        let ms = row.last_modified_ms;
+        if (ms && typeof ms === 'object' && ms.value) ms = new Date(ms.value).getTime();
+        else if (typeof ms === 'string') ms = new Date(ms).getTime();
+        else if (typeof ms === 'number' && ms < 1e12) ms = ms * 1000; // seconds -> ms
+        map.set(row.table_name, ms || 0);
+      }
+      _freshnessCache = map;
+      _freshnessCachedAt = Date.now();
+      return map;
+    } catch {
+      return new Map();
+    }
+  }
+
+  /**
+   * Get the oldest last_modified_ms across all tables for a given page.
+   * Returns null if the page has no table mapping or freshness data is unavailable.
+   * @param {string} page - Dashboard page name (must exist in PAGE_TABLES)
+   * @returns {Promise<number|null>} epoch ms of oldest table, or null
+   */
+  async function getPageFreshness(page) {
+    const tables = PAGE_TABLES[page] || [];
+    if (!tables.length) return null;
+    const map = await getDataFreshness();
+    let oldest = Infinity;
+    for (const t of tables) {
+      const ts = map.get(t) || 0;
+      if (ts < oldest) oldest = ts;
+    }
+    return oldest === Infinity ? null : oldest;
+  }
+
+  return { query, getFilterParams, getLastUpdated, getQueryMeta, getAllMeta, timeAgo, clearCache, BASE_URL, getDataFreshness, getPageFreshness, PAGE_TABLES };
 })();

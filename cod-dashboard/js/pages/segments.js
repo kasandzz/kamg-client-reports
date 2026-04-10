@@ -27,64 +27,10 @@ App.registerPage('segments', async (container) => {
   const money = Theme.money;
 
   // ==== DEMOGRAPHIC INTELLIGENCE (top of page) ====
-  _renderDemographicIntel(container);
+  _renderDemographicIntel(container, SEGMENTS);
 
-  // ==== SECTION 1: SCORECARD TABLE ====
-  const s1 = _section(container, '1', 'Segment Scorecard');
-  const tableWrap = document.createElement('div');
-  tableWrap.style.cssText = 'overflow-x:auto';
-
-  const thS = `padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:${T.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid ${T.border};white-space:nowrap`;
-
-  let thtml = `<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr>
-      <th style="${thS}">Segment</th>
-      <th style="${thS}">Calls</th>
-      <th style="${thS}">Show Rate</th>
-      <th style="${thS}">Sales</th>
-      <th style="${thS}">Leads</th>
-      <th style="${thS}">Cost / Call</th>
-      <th style="${thS}">Cost / Sale</th>
-    </tr></thead><tbody>`;
-
-  const maxCalls = Math.max(...SEGMENTS.map(s => s.calls));
-  const maxSales = Math.max(...SEGMENTS.map(s => s.sales));
-  const maxLeads = Math.max(...SEGMENTS.map(s => s.leads));
-  const bestShowRate = Math.max(...SEGMENTS.map(s => s.showRate));
-  const bestCostCall = Math.min(...SEGMENTS.filter(s => s.costCall).map(s => s.costCall));
-  const bestCostSale = Math.min(...SEGMENTS.filter(s => s.costSale).map(s => s.costSale));
-
-  SEGMENTS.forEach(seg => {
-    const callPct = (seg.calls / maxCalls * 80);
-    const salePct = (seg.sales / maxSales * 80);
-    const leadPct = (seg.leads / maxLeads * 80);
-
-    const callClass = seg.calls === maxCalls ? `color:${T.success};font-weight:600` : '';
-    const saleClass = seg.sales === maxSales ? `color:${T.success};font-weight:600` : '';
-    const leadClass = seg.leads === maxLeads ? `color:${T.success};font-weight:600` : '';
-    const showClass = seg.showRate === bestShowRate ? `color:${T.success};font-weight:600` : '';
-    const ccClass = seg.costCall === bestCostCall ? `color:${T.success};font-weight:600` : (seg.costCall && seg.costCall > 1400 ? `color:#f59e0b;font-weight:600` : '');
-    const csClass = seg.costSale === bestCostSale ? `color:${T.success};font-weight:600` : (seg.costSale && seg.costSale > 800 ? `color:#f59e0b;font-weight:600` : '');
-
-    const lowTag = seg.lowSample ? `<span style="display:inline-block;padding:2px 6px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:4px;font-size:10px;color:#f59e0b;margin-left:6px">n=${seg.calls}</span>` : '';
-
-    thtml += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
-      <td style="padding:10px 12px;white-space:nowrap"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${seg.color};margin-right:8px;vertical-align:middle"></span><span style="font-weight:600;color:#fff">${seg.name}</span>${lowTag}</td>
-      <td style="padding:10px 12px"><div style="display:flex;align-items:center;gap:8px"><div style="height:8px;border-radius:4px;width:${callPct}px;background:${seg.color}"></div><span style="font-variant-numeric:tabular-nums;${callClass}">${seg.calls}</span></div></td>
-      <td style="padding:10px 12px"><span style="font-variant-numeric:tabular-nums;${showClass}">${seg.showRate}%</span></td>
-      <td style="padding:10px 12px"><div style="display:flex;align-items:center;gap:8px"><div style="height:8px;border-radius:4px;width:${salePct}px;background:${seg.color}"></div><span style="font-variant-numeric:tabular-nums;${saleClass}">${seg.sales}</span></div></td>
-      <td style="padding:10px 12px"><div style="display:flex;align-items:center;gap:8px"><div style="height:8px;border-radius:4px;width:${leadPct}px;background:${seg.color}"></div><span style="font-variant-numeric:tabular-nums;${leadClass}">${seg.leads}</span></div></td>
-      <td style="padding:10px 12px"><span style="font-variant-numeric:tabular-nums;${ccClass}">${seg.costCall ? '$' + seg.costCall.toLocaleString() : '<i style=color:' + T.textMuted + '>N/A</i>'}</span></td>
-      <td style="padding:10px 12px"><span style="font-variant-numeric:tabular-nums;${csClass}">${seg.costSale ? '$' + seg.costSale.toLocaleString() : '<i style=color:' + T.textMuted + '>N/A</i>'}</span></td>
-    </tr>`;
-  });
-
-  thtml += '</tbody></table>';
-  tableWrap.innerHTML = thtml;
-  s1.appendChild(tableWrap);
-
-  // ==== SECTION 2: SHOW RATE COMPARISON ====
-  const s2 = _section(container, '2', 'Show Rate Comparison');
+  // ==== SECTION 1: SHOW RATE COMPARISON ====
+  const s2 = _section(container, '1', 'Show Rate Comparison');
   const showSorted = [...SEGMENTS].sort((a, b) => b.showRate - a.showRate);
 
   let showHtml = '<div style="margin:12px 0">';
@@ -106,8 +52,8 @@ App.registerPage('segments', async (container) => {
   showHtml += `<div style="font-size:12px;color:${T.textMuted};padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;margin-top:8px;border-left:3px solid #3b82f6">Show Rate = Hyros QUALIFIED state / Total Calls</div>`;
   s2.innerHTML += showHtml;
 
-  // ==== SECTION 3: EFFICIENCY RANKINGS ====
-  const s3 = _section(container, '3', 'Efficiency Rankings');
+  // ==== SECTION 2: EFFICIENCY RANKINGS ====
+  const s3 = _section(container, '2', 'Efficiency Rankings');
   const rankGrid = document.createElement('div');
   rankGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px';
   s3.appendChild(rankGrid);
@@ -124,8 +70,8 @@ App.registerPage('segments', async (container) => {
   const slSorted = [...SEGMENTS].sort((a, b) => b.slRatio - a.slRatio);
   rankGrid.appendChild(_rankingCard('Sales / Lead Ratio', '(higher = better)', slSorted.map(s => ({ name: s.name, value: s.slRatio.toFixed(2) + 'x' }))));
 
-  // ==== SECTION 4: VOLUME DISTRIBUTION ====
-  const s4 = _section(container, '4', 'Volume Distribution');
+  // ==== SECTION 3: VOLUME DISTRIBUTION ====
+  const s4 = _section(container, '3', 'Volume Distribution');
 
   const allSegs = [...SEGMENTS, UNATTR];
   s4.appendChild(_stackedBar('Calls (' + totalCalls + ' total)', allSegs.map(s => ({ name: s.name, value: s.calls, color: s.color })), totalCalls));
@@ -140,8 +86,8 @@ App.registerPage('segments', async (container) => {
   });
   s4.appendChild(legend);
 
-  // ==== SECTION 5: TOP AD SETS PER SEGMENT ====
-  const s5 = _section(container, '5', 'Top Ad Sets per Segment');
+  // ==== SECTION 4: TOP AD SETS PER SEGMENT ====
+  const s5 = _section(container, '4', 'Top Ad Sets per Segment');
   const accordion = document.createElement('div');
   s5.appendChild(accordion);
 
@@ -278,7 +224,7 @@ App.registerPage('segments', async (container) => {
 // Tier 2 (Location, Profession): Per-contact funnel -- all rates shown inline per group (no toggles)
 let _segDemoT1Stat = 'spend';
 
-function _renderDemographicIntel(container) {
+function _renderDemographicIntel(container, SEGMENTS) {
   const T = Theme.COLORS;
   const FC = [Theme.FUNNEL.blue, Theme.FUNNEL.cyan, Theme.FUNNEL.green, Theme.FUNNEL.orange, Theme.FUNNEL.purple];
 
@@ -471,7 +417,7 @@ function _renderDemographicIntel(container) {
   });
 
   // ============================================================
-  // TIER 2 -- Per-contact funnel (NO toggles -- all rates inline)
+  // LOCATION -- Per-contact funnel from BQ (no toggles)
   // ============================================================
   const FUNNEL_STAGES = [
     { key: 'ticket_rate', label: 'Ticket',  color: Theme.FUNNEL.blue },
@@ -480,80 +426,90 @@ function _renderDemographicIntel(container) {
     { key: 'enroll_rate', label: 'Enroll',  color: Theme.FUNNEL.orange },
   ];
 
-  const T2_CARDS = [
-    { title: 'Location (Top States)', queryName: 'location',   labelField: 'state' },
-    { title: 'Profession / Segment',  queryName: 'profession', labelField: 'profession' },
-  ];
+  // Location card
+  const locCard = document.createElement('div');
+  locCard.className = 'card';
+  locCard.style.cssText = 'padding:20px';
+  locCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Location (Top States)</div>`;
+  const locBody = document.createElement('div');
+  locBody.innerHTML = `<div style="font-size:11px;color:${T.textMuted}">Loading...</div>`;
+  locCard.appendChild(locBody);
 
-  function renderFunnelCard(barContainer, rows, labelField) {
-    if (!rows || rows.length === 0) {
-      barContainer.innerHTML = `<div style="font-size:12px;color:${T.textMuted};padding:16px 0">No contact data for this period.</div>`;
+  (async () => {
+    let rows = [];
+    try { rows = await API.query('segments', 'location', { days }) || []; } catch (e) { /* empty */ }
+    if (!rows.length) {
+      locBody.innerHTML = `<div style="font-size:12px;color:${T.textMuted};padding:16px 0">No contact data for this period.</div>`;
       return;
     }
-
-    // Legend row
     let html = `<div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">`;
     FUNNEL_STAGES.forEach(s => {
-      html += `<div style="display:flex;align-items:center;gap:4px">
-        <div style="width:8px;height:8px;border-radius:2px;background:${s.color}"></div>
-        <span style="font-size:10px;color:${T.textMuted}">${s.label}</span>
-      </div>`;
+      html += `<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:${s.color}"></div><span style="font-size:10px;color:${T.textMuted}">${s.label}</span></div>`;
     });
     html += `</div>`;
-
-    // Each group = label + contacts count + 4 stacked rate bars
     rows.forEach(row => {
-      const label = row[labelField] || '(unknown)';
+      const label = row.state || '(unknown)';
       const contacts = parseInt(row.contacts) || 0;
-
       html += `<div style="margin-bottom:14px">`;
-      html += `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-        <span style="font-size:12px;font-weight:600;color:${T.textPrimary}">${label}</span>
-        <span style="font-size:10px;color:${T.textMuted}">${contacts.toLocaleString()} contacts</span>
-      </div>`;
-
-      // 4 rate bars side by side
+      html += `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:${T.textPrimary}">${label}</span><span style="font-size:10px;color:${T.textMuted}">${contacts.toLocaleString()} contacts</span></div>`;
       html += `<div style="display:flex;gap:3px;align-items:flex-end;height:32px">`;
       FUNNEL_STAGES.forEach(s => {
         const val = parseFloat(row[s.key]) || 0;
-        const h = Math.max(val, 2); // min 2% height so empty bars are visible
-        html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-          <span style="font-size:9px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${val.toFixed(0)}%</span>
-          <div style="width:100%;height:${h * 0.3}px;min-height:2px;max-height:30px;background:${s.color};border-radius:2px;opacity:${val > 0 ? 0.85 : 0.2}"></div>
-        </div>`;
+        html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:9px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${val.toFixed(0)}%</span><div style="width:100%;height:${Math.max(val * 0.3, 2)}px;max-height:30px;background:${s.color};border-radius:2px;opacity:${val > 0 ? 0.85 : 0.2}"></div></div>`;
       });
-      html += `</div>`;
-      html += `</div>`;
+      html += `</div></div>`;
+    });
+    locBody.innerHTML = html;
+  })();
+
+  const locBadge = document.createElement('div');
+  locBadge.innerHTML = sourceBadge('Source: GHL + Stripe (per-contact)');
+  locCard.appendChild(locBadge);
+  grid.appendChild(locCard);
+
+  // ============================================================
+  // PROFESSION / SEGMENT -- Scorecard from Hyros data
+  // ============================================================
+  const profCard = document.createElement('div');
+  profCard.className = 'card';
+  profCard.style.cssText = 'padding:20px';
+  profCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Segment Scorecard</div>`;
+
+  if (SEGMENTS && SEGMENTS.length) {
+    const maxCalls = Math.max(...SEGMENTS.map(s => s.calls));
+    const maxSales = Math.max(...SEGMENTS.map(s => s.sales));
+    const bestCostSale = Math.min(...SEGMENTS.filter(s => s.costSale).map(s => s.costSale));
+
+    let shtml = '';
+    SEGMENTS.forEach(seg => {
+      const salePct = maxSales > 0 ? (seg.sales / maxSales * 100) : 0;
+      const csColor = seg.costSale === bestCostSale ? T.success : (seg.costSale && seg.costSale > 800 ? '#f59e0b' : T.textPrimary);
+      const lowTag = seg.lowSample ? `<span style="font-size:9px;color:#f59e0b;margin-left:4px">n=${seg.calls}</span>` : '';
+
+      shtml += `<div style="margin-bottom:10px">`;
+      shtml += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${seg.color};flex-shrink:0"></div>
+        <span style="font-size:11px;font-weight:600;color:${T.textPrimary};flex:1">${seg.name}${lowTag}</span>
+      </div>`;
+      // Metrics row
+      shtml += `<div style="display:flex;gap:8px;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:4px;padding-left:14px">
+        <span style="color:${T.textMuted}">Sales <span style="color:${T.textPrimary};font-weight:600">${seg.sales}</span></span>
+        <span style="color:${T.textMuted}">Calls <span style="color:${T.textPrimary};font-weight:600">${seg.calls}</span></span>
+        <span style="color:${T.textMuted}">Show <span style="color:${T.textPrimary};font-weight:600">${seg.showRate != null ? seg.showRate + '%' : 'N/A'}</span></span>
+        <span style="color:${T.textMuted}">CPS <span style="color:${csColor};font-weight:600">${seg.costSale ? '$' + seg.costSale : 'N/A'}</span></span>
+      </div>`;
+      // Bar
+      shtml += `<div style="padding-left:14px"><div style="width:100%;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+        <div style="width:${salePct}%;height:100%;background:${seg.color};border-radius:3px"></div>
+      </div></div>`;
+      shtml += `</div>`;
     });
 
-    barContainer.innerHTML = html;
+    profCard.innerHTML += shtml;
   }
 
-  T2_CARDS.forEach(cfg => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.cssText = 'padding:20px';
-
-    const titleDiv = document.createElement('div');
-    titleDiv.style.cssText = `font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px`;
-    titleDiv.textContent = cfg.title;
-    card.appendChild(titleDiv);
-
-    const barContainer = document.createElement('div');
-    card.appendChild(barContainer);
-    barContainer.innerHTML = `<div style="font-size:11px;color:${T.textMuted}">Loading...</div>`;
-
-    (async () => {
-      let rows = [];
-      try {
-        rows = await API.query('segments', cfg.queryName, { days }) || [];
-      } catch (e) { /* empty */ }
-      renderFunnelCard(barContainer, rows, cfg.labelField);
-    })();
-
-    const badge = document.createElement('div');
-    badge.innerHTML = sourceBadge('Source: GHL + Stripe (per-contact)');
-    card.appendChild(badge);
-    grid.appendChild(card);
-  });
+  const profBadge = document.createElement('div');
+  profBadge.innerHTML = sourceBadge('Source: Hyros Attribution');
+  profCard.appendChild(profBadge);
+  grid.appendChild(profCard);
 }

@@ -1379,7 +1379,59 @@ function calcDelta(current, previous) {
 // ---- Render: KPI Cards ----
 var sparkCharts = {};
 
-function renderKPICards(cur, prev) {
+function renderKPICards(cur, prev, currentRows, previousRows) {
+  // If real BQ data available, compute aggregates from it
+  if (currentRows && currentRows.length > 0) {
+    function sumF(rows, key) { return rows.reduce(function(s,r){ return s + (r[key]||0); }, 0); }
+    var curTix = sumF(currentRows, 'tickets');
+    var curAtt = sumF(currentRows, 'attended');
+    var curBkd = sumF(currentRows, 'booked');
+    var curVip = sumF(currentRows, 'vip');
+    var curEnr = sumF(currentRows, 'enrolled');
+    cur = {
+      show_rate: curTix > 0 ? (curAtt / curTix * 100) : cur.show_rate,
+      vip_upgrade_rate: curTix > 0 ? (curVip / curTix * 100) : cur.vip_upgrade_rate,
+      booking_pct: curAtt > 0 ? (curBkd / curAtt * 100) : cur.booking_pct,
+      completion_rate_full: cur.completion_rate_full, // no BQ source yet
+      total_attendees: curAtt
+    };
+    if (previousRows && previousRows.length > 0) {
+      var prevTix = sumF(previousRows, 'tickets');
+      var prevAtt = sumF(previousRows, 'attended');
+      var prevBkd = sumF(previousRows, 'booked');
+      var prevVip = sumF(previousRows, 'vip');
+      prev = {
+        show_rate: prevTix > 0 ? (prevAtt / prevTix * 100) : prev.show_rate,
+        vip_upgrade_rate: prevTix > 0 ? (prevVip / prevTix * 100) : prev.vip_upgrade_rate,
+        booking_pct: prevAtt > 0 ? (prevBkd / prevAtt * 100) : prev.booking_pct,
+        completion_rate_full: prev.completion_rate_full,
+        total_attendees: prevAtt
+      };
+    }
+    // Build sparklines by grouping currentRows by ISO week
+    var weekBuckets = {};
+    currentRows.forEach(function(r) {
+      var d = new Date(r.dt);
+      var dayOfWeek = (d.getDay() + 6) % 7;
+      var thu = new Date(d); thu.setDate(d.getDate() - dayOfWeek + 3);
+      var ys = new Date(thu.getFullYear(), 0, 1);
+      var wk = thu.getFullYear() + '-W' + Math.ceil(((thu - ys) / 86400000 + 1) / 7);
+      if (!weekBuckets[wk]) weekBuckets[wk] = { tickets: 0, attended: 0, booked: 0, vip: 0 };
+      weekBuckets[wk].tickets += (r.tickets||0);
+      weekBuckets[wk].attended += (r.attended||0);
+      weekBuckets[wk].booked += (r.booked||0);
+      weekBuckets[wk].vip += (r.vip||0);
+    });
+    var wkKeys = Object.keys(weekBuckets).sort();
+    MOCK_DATA.sparklines.show_rate = wkKeys.map(function(k){ var b = weekBuckets[k]; return b.tickets > 0 ? +(b.attended/b.tickets*100).toFixed(1) : 0; });
+    MOCK_DATA.sparklines.vip_rate = wkKeys.map(function(k){ var b = weekBuckets[k]; return b.tickets > 0 ? +(b.vip/b.tickets*100).toFixed(1) : 0; });
+    MOCK_DATA.sparklines.booking_pct = wkKeys.map(function(k){ var b = weekBuckets[k]; return b.attended > 0 ? +(b.booked/b.attended*100).toFixed(1) : 0; });
+    MOCK_DATA.sparklines.sessions = wkKeys.map(function(k){ return weekBuckets[k].attended; });
+  }
+
+  // KPI-to-funnel-metric index mapping for click handling
+  var kpiToFunnelIdx = { 'show_rate': 0, 'vip_upgrade_rate': 0, 'booking_pct': 2, 'completion': 1, 'sessions': 0 };
+
   var kpis = [
     { id: 'show_rate', label: 'Show Rate', value: cur.show_rate, prev: prev.show_rate, format: formatPct, sparkKey: 'show_rate', target: '65%', tip: 'Percentage of registered attendees who actually showed up to the workshop. Source: AEvent attendance records.', source: 'BigQuery: aevent_attendance', calc: 'attended / registered * 100' },
     { id: 'vip_upgrade_rate', label: 'VIP Upgrade Rate', value: cur.vip_upgrade_rate, prev: prev.vip_upgrade_rate, format: formatPct, sparkKey: 'vip_rate', target: '35%', tip: 'Percentage of attendees who upgraded to VIP tickets before or during the workshop. Source: Stripe $54 VIP ticket purchases.', source: 'Stripe charges ($54 filter)', calc: 'COUNT(vip_tickets) / COUNT(all_attendees) * 100' },
@@ -1400,7 +1452,7 @@ function renderKPICards(cur, prev) {
 
     var targetHtml = kpi.target ? '<div class="kpi-card__target">target: ' + kpi.target + '</div>' : '';
 
-    var html = '<div class="kpi-card ' + cardClass + '" title="' + (kpi.tip || '').replace(/"/g, '&quot;') + '">' +
+    var html = '<div class="kpi-card ' + cardClass + '" data-kpi-id="' + kpi.id + '" style="cursor:pointer" title="' + (kpi.tip || '').replace(/"/g, '&quot;') + '">' +
       '<div class="kpi-card__header">' +
         '<span class="kpi-card__label">' + kpi.label + '</span>' +
         '<span class="kpi-card__traffic-light kpi-card__traffic-light--' + light + '"></span>' +
@@ -1463,6 +1515,24 @@ function renderKPICards(cur, prev) {
       });
     }, 0);
   });
+
+  // Make KPI cards clickable to switch funnel chart metric
+  grid.querySelectorAll('.kpi-card[data-kpi-id]').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var kpiId = this.getAttribute('data-kpi-id');
+      var funnelIdx = kpiToFunnelIdx[kpiId];
+      if (funnelIdx != null && funnelIdx < FUNNEL_METRICS.length) {
+        activeFunnelMetric = funnelIdx;
+        var canvas = document.getElementById('funnelChart');
+        if (canvas && canvas._curRows && canvas._prevRows) {
+          // Update strip active state
+          var strip = document.getElementById('funnelStrip');
+          strip.querySelectorAll('.funnel-metric').forEach(function(m, i) { m.classList.toggle('funnel-metric--active', i === funnelIdx); });
+          drawFunnelLine(canvas._curRows, canvas._prevRows, FUNNEL_METRICS[funnelIdx].key, FUNNEL_METRICS[funnelIdx].color);
+        }
+      }
+    });
+  });
 }
 
 // ---- Grouped Average Utility ----
@@ -1524,9 +1594,23 @@ var SHOWRATE_METRICS = [
   { key: 'seat_fill_rate', label: 'Seat Fill', color: '#a855f7', tip: 'Daily average seat fill: attendees / available seats per session. Source: AEvent capacity settings.' }
 ];
 
-function renderShowRateTrend(dailyData, prevData) {
+async function renderShowRateTrend(dailyData, prevData) {
   var cur = dailyData;
   var prev = prevData && prevData.length > 0 ? prevData : [];
+
+  // Try fetching real data from BQ
+  try {
+    var raw = await API.query('workshop', 'showRateTrend', { days: currentDays });
+    if (raw && raw.length > 0) {
+      var bqCur = raw.filter(function(r){ return r.period === 'current'; }).sort(function(a,b){ return a.dt < b.dt ? -1 : 1; });
+      var bqPrev = raw.filter(function(r){ return r.period === 'previous'; }).sort(function(a,b){ return a.dt < b.dt ? -1 : 1; });
+      if (bqCur.length > 0) {
+        // Map BQ dt field to date field expected by drawShowRateLine
+        cur = bqCur.map(function(r) { return { date: r.dt, overall_show_rate: r.overall_show_rate || 0, vip_show_rate: r.vip_show_rate || 0, completion_rate: r.completion_rate || 0, seat_fill_rate: r.attended_count || 0 }; });
+        prev = bqPrev.map(function(r) { return { date: r.dt, overall_show_rate: r.overall_show_rate || 0, vip_show_rate: r.vip_show_rate || 0, completion_rate: r.completion_rate || 0, seat_fill_rate: r.attended_count || 0 }; });
+      }
+    }
+  } catch(e) { /* keep mock fallback */ }
 
   // Calculate averages for mini KPIs
   function avg(rows, key) {
@@ -1697,7 +1781,37 @@ var WATCH_SEGMENTS = [
   { label: '150+ min',     tag: 'Q&A / Close',         allIn: 1177, allDrop: 32,  vipIn: 702, vipDrop: 8,   stdIn: 475, stdDrop: 24,  enrolled: 39 }
 ];
 
-function renderCompletionBreakdown(cur, prev) {
+async function renderCompletionBreakdown(cur, prev) {
+  // Try fetching real watch time data from BQ
+  try {
+    var wtData = await API.query('workshop', 'watchTime', { days: currentDays });
+    if (wtData && wtData.length > 0) {
+      // Sort by sort_order
+      wtData.sort(function(a,b){ return (a.sort_order||0) - (b.sort_order||0); });
+      var segLabels = { '0-30min': '0 - 30 min', '30-60min': '30 - 60 min', '60-90min': '60 - 90 min', '90min+': '90+ min' };
+      var segTags = { '0-30min': 'Intro / Hook', '30-60min': 'Teaching Block 1', '60-90min': 'Teaching Block 2', '90min+': 'Pitch / Close' };
+      WATCH_SEGMENTS = wtData.map(function(r, idx) {
+        var allIn = r.viewers || 0;
+        var vipIn = r.vip_viewers || 0;
+        var stdIn = r.standard_viewers || 0;
+        var nextAll = idx < wtData.length - 1 ? (wtData[idx+1].viewers || 0) : allIn;
+        var nextVip = idx < wtData.length - 1 ? (wtData[idx+1].vip_viewers || 0) : vipIn;
+        var nextStd = idx < wtData.length - 1 ? (wtData[idx+1].standard_viewers || 0) : stdIn;
+        return {
+          label: segLabels[r.segment] || r.segment,
+          tag: segTags[r.segment] || '',
+          allIn: allIn,
+          allDrop: Math.max(0, allIn - nextAll),
+          vipIn: vipIn,
+          vipDrop: Math.max(0, vipIn - nextVip),
+          stdIn: stdIn,
+          stdDrop: Math.max(0, stdIn - nextStd),
+          enrolled: r.enrolled || 0
+        };
+      });
+    }
+  } catch(e) { /* keep mock WATCH_SEGMENTS */ }
+
   var seg = activeCompletionSegment;
   var container = document.getElementById('watchTimeTable');
   var maxIn = WATCH_SEGMENTS[0][seg === 'vip' ? 'vipIn' : seg === 'standard' ? 'stdIn' : 'allIn'];
@@ -1757,16 +1871,32 @@ function renderCompletionBreakdown(cur, prev) {
 }
 
 // ---- Render: Heatmap ----
-function renderHeatmap() {
+async function renderHeatmap() {
+  // Try fetching real heatmap data from BQ
+  var heatData = MOCK_DATA.heatmap_data;
+  try {
+    var hmData = await API.query('workshop', 'heatmapShowRate', { days: currentDays });
+    if (hmData && hmData.length > 0) {
+      var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var bqHeat = {};
+      hmData.forEach(function(r) {
+        var day = dayNames[r.dow - 1];
+        if (!bqHeat[r.time_slot]) bqHeat[r.time_slot] = {};
+        bqHeat[r.time_slot][day] = Math.round(r.show_rate);
+      });
+      if (Object.keys(bqHeat).length > 0) heatData = bqHeat;
+    }
+  } catch(e) { /* keep mock fallback */ }
+
   var grid = document.getElementById('heatmapGrid');
   var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  var slots = Object.keys(MOCK_DATA.heatmap_data);
+  var slots = Object.keys(heatData);
 
   // Find min/max for color scaling
   var allVals = [];
   slots.forEach(function(slot) {
     days.forEach(function(day) {
-      allVals.push(MOCK_DATA.heatmap_data[slot][day]);
+      allVals.push(heatData[slot][day] || 0);
     });
   });
   var minVal = Math.min.apply(null, allVals);
@@ -1782,7 +1912,7 @@ function renderHeatmap() {
   slots.forEach(function(slot) {
     html += '<div class="heatmap-row-label">' + slot + '</div>';
     days.forEach(function(day) {
-      var val = MOCK_DATA.heatmap_data[slot][day];
+      var val = (heatData[slot] && heatData[slot][day]) || 0;
       // Normalize 0-1
       var norm = maxVal > minVal ? (val - minVal) / (maxVal - minVal) : 0.5;
       var bg;
@@ -1807,15 +1937,33 @@ function renderHeatmap() {
 }
 
 // ---- Render: Ticket Purchase Heatmap ----
-function renderTicketHeatmap() {
+async function renderTicketHeatmap() {
+  // Try fetching real ticket heatmap data from BQ
+  var ticketHeat = MOCK_DATA.ticket_heatmap;
+  try {
+    var thData = await API.query('workshop', 'heatmapTickets', { days: currentDays });
+    if (thData && thData.length > 0) {
+      var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      var bqTicketHeat = {};
+      thData.forEach(function(r) {
+        var day = dayNames[r.dow - 1];
+        var h = r.hour_of_day;
+        var label = h === 0 ? '12am' : h < 12 ? h + 'am' : h === 12 ? '12pm' : (h - 12) + 'pm';
+        if (!bqTicketHeat[label]) bqTicketHeat[label] = {};
+        bqTicketHeat[label][day] = r.tickets || 0;
+      });
+      if (Object.keys(bqTicketHeat).length > 0) ticketHeat = bqTicketHeat;
+    }
+  } catch(e) { /* keep mock fallback */ }
+
   var grid = document.getElementById('ticketHeatmapGrid');
   var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  var slots = Object.keys(MOCK_DATA.ticket_heatmap);
+  var slots = Object.keys(ticketHeat);
 
   var allVals = [];
   slots.forEach(function(slot) {
     days.forEach(function(day) {
-      allVals.push(MOCK_DATA.ticket_heatmap[slot][day]);
+      allVals.push((ticketHeat[slot] && ticketHeat[slot][day]) || 0);
     });
   });
   var minVal = Math.min.apply(null, allVals);
@@ -1829,7 +1977,7 @@ function renderTicketHeatmap() {
   slots.forEach(function(slot) {
     html += '<div class="heatmap-row-label">' + slot + '</div>';
     days.forEach(function(day) {
-      var val = MOCK_DATA.ticket_heatmap[slot][day];
+      var val = (ticketHeat[slot] && ticketHeat[slot][day]) || 0;
       var norm = maxVal > minVal ? (val - minVal) / (maxVal - minVal) : 0.5;
       var bg;
       if (norm >= 0.7) {
@@ -1970,7 +2118,7 @@ function aggregateByMonth(sessions) {
   });
 }
 
-function renderBookingTable(days) {
+async function renderBookingTable(days) {
   var tbody = document.getElementById('bookingTableBody');
   var sessions = MOCK_DATA.session_data.slice(-days * 2);
   var grain = activeTableGrain;
@@ -1980,13 +2128,57 @@ function renderBookingTable(days) {
   document.getElementById('tableTitle').innerHTML = 'Ticket Sales Velocity &amp; Journey -- ' + subtitles[grain];
 
   if (grain === 'day') {
+    // Try BQ dailyVelocity first
+    try {
+      var bqDay = await API.query('workshop', 'dailyVelocity', { days: days });
+      if (bqDay && bqDay.length > 0) {
+        var agg = bqDay.map(function(r) {
+          var d = new Date(r.day + 'T00:00:00');
+          var dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+          return {
+            date: r.day,
+            dayName: dayLabels[d.getDay()],
+            isWeekend: d.getDay() === 0 || d.getDay() === 6,
+            time_slot: '-',
+            attendees: r.attendees || 0,
+            bookings: r.bookings || 0,
+            booking_pct: r.booking_pct || 0,
+            vip_pct: r.vip_pct || 0
+          };
+        }).sort(function(a,b){ return a.date > b.date ? -1 : 1; });
+        renderAggregatedTable(tbody, agg);
+        wireTableToggle(days);
+        return;
+      }
+    } catch(e) { /* fall through to mock */ }
     var agg = aggregateByDay(sessions);
     renderAggregatedTable(tbody, agg);
+    wireTableToggle(days);
     return;
   }
   if (grain === 'week') {
+    // Try BQ weeklyVelocity first
+    try {
+      var bqWeek = await API.query('workshop', 'weeklyVelocity', { days: days });
+      if (bqWeek && bqWeek.length > 0) {
+        var agg = bqWeek.map(function(r) {
+          return {
+            date: (r.week_start || '') + ' to ' + (r.week_end || ''),
+            time_slot: 'Week ' + r.week_num,
+            attendees: r.attendees || 0,
+            bookings: r.bookings || 0,
+            booking_pct: r.booking_pct || 0,
+            vip_pct: r.vip_pct || 0
+          };
+        }).sort(function(a,b){ return a.date > b.date ? -1 : 1; });
+        renderAggregatedTable(tbody, agg);
+        wireTableToggle(days);
+        return;
+      }
+    } catch(e) { /* fall through to mock */ }
     var agg = aggregateByWeek(sessions);
     renderAggregatedTable(tbody, agg);
+    wireTableToggle(days);
     return;
   }
   if (grain === 'month') {
@@ -2112,10 +2304,16 @@ function generateFunnelDaily(days) {
   return result;
 }
 
-function renderFunnelChart(days) {
-  var data = generateFunnelDaily(days);
-  var cur = data.current;
-  var prev = data.previous;
+function renderFunnelChart(days, currentRows, previousRows) {
+  var cur, prev;
+  if (currentRows && currentRows.length > 0) {
+    cur = currentRows;
+    prev = previousRows && previousRows.length > 0 ? previousRows : [];
+  } else {
+    var data = generateFunnelDaily(days);
+    cur = data.current;
+    prev = data.previous;
+  }
 
   // Calculate totals for mini KPIs
   function sum(rows, key) { return rows.reduce(function(s, r) { return s + (r[key] || 0); }, 0); }
@@ -2177,6 +2375,11 @@ function renderFunnelChart(days) {
 
   // Draw chart
   drawFunnelLine(cur, prev, FUNNEL_METRICS[activeFunnelMetric].key, FUNNEL_METRICS[activeFunnelMetric].color);
+
+  // Store rows on canvas for KPI card click reuse
+  var canvas = document.getElementById('funnelChart');
+  canvas._curRows = cur;
+  canvas._prevRows = prev;
 }
 
 function drawFunnelLine(curRows, prevRows, metricKey, color) {
@@ -2379,7 +2582,41 @@ var SANKEY_DATA = {
   }
 };
 
-function renderSankey() {
+async function renderSankey() {
+  // Try fetching real sankey data from BQ and patch node values
+  try {
+    var sk = await API.query('workshop', 'sankey', { days: currentDays });
+    if (sk && sk.length > 0) {
+      var s = sk[0];
+      // Patch 'all' view node values
+      var nm = {};
+      SANKEY_DATA.all.nodes.forEach(function(n){ nm[n.id] = n; });
+      if (nm.attend && s.attended) nm.attend.value = s.attended;
+      if (nm.book && s.booked) nm.book.value = s.booked;
+      if (nm.enroll_cod && s.enrolled) nm.enroll_cod.value = s.enrolled;
+      if (nm.enroll_lp && s.enrolled_lp) nm.enroll_lp.value = s.enrolled_lp;
+      if (nm.enroll_ma && s.enrolled_ma) nm.enroll_ma.value = s.enrolled_ma;
+      if (nm.done_checkout && s.tickets) nm.done_checkout.value = s.tickets;
+      if (nm.vip_total && s.vip) nm.vip_total.value = s.vip;
+      if (nm.watch_30 && s.watched_most) nm.watch_30.value = s.watched_most;
+      if (nm.watch_full && s.watched_full) nm.watch_full.value = s.watched_full;
+      if (nm.cancel && s.no_show_call) nm.cancel.value = s.no_show_call;
+      // Patch links where possible
+      SANKEY_DATA.all.links.forEach(function(link) {
+        if (link.to === 'attend' && link.from === 'email_open' && s.attended) link.value = s.attended;
+        if (link.to === 'watch_30' && link.from === 'attend' && s.watched_most) link.value = s.watched_most;
+        if (link.to === 'watch_full' && link.from === 'watch_30' && s.watched_full) link.value = s.watched_full;
+        if (link.to === 'book' && link.from === 'watch_full' && s.booked) link.value = s.booked;
+      });
+      // Patch VIP view
+      var vnm = {};
+      SANKEY_DATA.vip.nodes.forEach(function(n){ vnm[n.id] = n; });
+      if (vnm.vip_total && s.vip) vnm.vip_total.value = s.vip;
+      if (vnm.attend && s.attended) vnm.attend.value = s.attended;
+      if (vnm.book && s.booked) vnm.book.value = s.booked;
+    }
+  } catch(e) { /* keep mock sankey */ }
+
   var raw = SANKEY_DATA[activeSankeyView];
   var hideAds = document.getElementById('sankeyHideAdsCheck').checked && activeSankeyView === 'all';
   var compact = document.getElementById('sankeyCompactCheck').checked;
@@ -2600,23 +2837,39 @@ function renderSankey() {
 
 // ---- Render All ----
 // ---- Render: Sales Dynamic (Revenue + Ad Spend) ----
-var _salesDynamicRendered = false;
-function renderSalesDynamic() {
-  if (_salesDynamicRendered) return;
-  _salesDynamicRendered = true;
+async function renderSalesDynamic() {
+  var labels, ticketRev, enrollRev, metaSpend, googleSpend, youtubeSpend;
 
-  var labels = ['Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9'];
-  var ticketRev  = [2100, 3400, 4800, 5200, 7600, 9100, 11400];
-  var enrollRev  = [8500, 12000, 14200, 16800, 19500, 23000, 28500];
-  var metaSpend  = [1200, 1350, 1500, 1420, 1600, 1750, 1900];
-  var googleSpend = [400, 450, 520, 480, 550, 600, 680];
-  var youtubeSpend = [200, 250, 300, 280, 320, 380, 420];
+  // Try fetching real sales dynamic data from BQ
+  var sd = null;
+  try { sd = await API.query('workshop', 'salesDynamic', { days: currentDays }); } catch(e) {}
+
+  if (sd && sd.length > 0) {
+    labels = sd.map(function(r) { var d = new Date(r.dt); return (d.getMonth()+1) + '/' + d.getDate(); });
+    ticketRev = sd.map(function(r) { return r.ticket_revenue || 0; });
+    enrollRev = sd.map(function(r) { return r.enrollment_revenue || 0; });
+    metaSpend = sd.map(function(r) { return r.meta_spend || 0; });
+    googleSpend = sd.map(function() { return 0; }); // no BQ source yet
+    youtubeSpend = sd.map(function() { return 0; }); // no BQ source yet
+  } else {
+    // Mock fallback
+    labels = ['Apr 3', 'Apr 4', 'Apr 5', 'Apr 6', 'Apr 7', 'Apr 8', 'Apr 9'];
+    ticketRev  = [2100, 3400, 4800, 5200, 7600, 9100, 11400];
+    enrollRev  = [8500, 12000, 14200, 16800, 19500, 23000, 28500];
+    metaSpend  = [1200, 1350, 1500, 1420, 1600, 1750, 1900];
+    googleSpend = [400, 450, 520, 480, 550, 600, 680];
+    youtubeSpend = [200, 250, 300, 280, 320, 380, 420];
+  }
 
   var revCtx = document.getElementById('salesDynamicRevenueChart');
   var adCtx = document.getElementById('salesDynamicAdSpendChart');
   if (!revCtx || !adCtx) return;
 
-  new Chart(revCtx, {
+  // Destroy existing chart instances before re-creating
+  if (revCtx._chartInstance) revCtx._chartInstance.destroy();
+  if (adCtx._chartInstance) adCtx._chartInstance.destroy();
+
+  revCtx._chartInstance = new Chart(revCtx, {
     type: 'line',
     data: {
       labels: labels,
@@ -2636,7 +2889,7 @@ function renderSalesDynamic() {
     },
   });
 
-  new Chart(adCtx, {
+  adCtx._chartInstance = new Chart(adCtx, {
     type: 'line',
     data: {
       labels: labels,
@@ -2660,26 +2913,35 @@ function renderSalesDynamic() {
 
 var currentDays = 30;
 
-function renderAll(days) {
+async function renderAll(days) {
   currentDays = days;
   var scaled = getScaledData(days);
   var cur = scaled.current;
   var prev = scaled.previous;
 
-  renderKPICards(cur, prev);
-  renderFunnelChart(days);
+  // Fetch shared funnelDaily data from BQ
+  var _funnelData = null;
+  try { _funnelData = await API.query('workshop', 'funnelDaily', { days: days }); } catch(e) { _funnelData = null; }
+  var currentRows = null, previousRows = null;
+  if (_funnelData && _funnelData.length > 0) {
+    currentRows = _funnelData.filter(function(r) { return r.period === 'current'; }).sort(function(a,b){ return a.dt < b.dt ? -1 : 1; });
+    previousRows = _funnelData.filter(function(r) { return r.period === 'previous'; }).sort(function(a,b){ return a.dt < b.dt ? -1 : 1; });
+  }
+
+  renderKPICards(cur, prev, currentRows, previousRows);
+  renderFunnelChart(days, currentRows, previousRows);
 
   // Slice daily data to match days
   var daily = MOCK_DATA.daily_show_rates.slice(-days);
   var prevDaily = MOCK_DATA.prev_daily_show_rates.slice(-days);
-  renderShowRateTrend(daily, prevDaily);
+  await renderShowRateTrend(daily, prevDaily);
 
-  renderCompletionBreakdown(cur, prev);
-  renderHeatmap();
-  renderTicketHeatmap();
-  renderSalesDynamic();
-  renderSankey();
-  renderBookingTable(days);
+  await renderCompletionBreakdown(cur, prev);
+  await renderHeatmap();
+  await renderTicketHeatmap();
+  await renderSalesDynamic();
+  await renderSankey();
+  await renderBookingTable(days);
 
   // Dispatch custom event
   document.dispatchEvent(new CustomEvent('dateRangeChanged', { detail: { days: days } }));

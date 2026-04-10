@@ -226,6 +226,43 @@
         padding: 1px 6px;
         border: 1px solid rgba(245,158,11,0.3);
         margin-left: 6px;
+        cursor: help;
+        position: relative;
+      }
+      .lf-vip-stats {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        padding: 8px 14px;
+        background: ${Theme.COLORS.bgCard};
+        border: 1px solid ${Theme.COLORS.border};
+        border-radius: 8px;
+        font-size: 11px;
+      }
+      .lf-vip-bar-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 160px;
+      }
+      .lf-vip-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        color: ${Theme.COLORS.textSecondary};
+      }
+      .lf-vip-bar-track {
+        flex: 1;
+        height: 6px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .lf-vip-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
       }
       .lf-segment {
         display: inline-flex;
@@ -314,6 +351,64 @@
 
     container.appendChild(header);
 
+    // ---- VIP conversion stats bar ----
+    const vipStatsBar = document.createElement('div');
+    vipStatsBar.className = 'lf-vip-stats';
+    vipStatsBar.style.display = 'none';
+    container.appendChild(vipStatsBar);
+
+    function _updateVipStats(rows) {
+      const allPurchases = rows.filter(r => r.event_type === 'ticket_purchased' || r.event_type === 'vip_purchased');
+      const totalBuyers = allPurchases.length;
+      const vipRows = rows.filter(r => r.event_type === 'vip_purchased');
+      const totalVip = vipRows.length;
+
+      if (totalBuyers === 0) { vipStatsBar.style.display = 'none'; return; }
+
+      let checkboxCount = 0, upsellCount = 0;
+      vipRows.forEach(r => {
+        const p = _payload(r);
+        if (p.vip_source === 'checkout_checkbox') checkboxCount++;
+        else upsellCount++;
+      });
+
+      const vipRate = ((totalVip / totalBuyers) * 100).toFixed(1);
+      const cbRate = totalBuyers > 0 ? ((checkboxCount / totalBuyers) * 100).toFixed(1) : '0.0';
+      const upRate = totalBuyers > 0 ? ((upsellCount / totalBuyers) * 100).toFixed(1) : '0.0';
+
+      vipStatsBar.style.display = 'flex';
+      vipStatsBar.innerHTML = `
+        <div style="color:${Theme.COLORS.textMuted};font-size:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;white-space:nowrap">
+          VIP Uptake
+        </div>
+        <div style="font-size:18px;font-weight:700;color:#f59e0b;font-family:'JetBrains Mono',monospace;white-space:nowrap">
+          ${vipRate}%
+        </div>
+        <div style="color:${Theme.COLORS.textMuted};font-size:10px;white-space:nowrap">
+          ${totalVip} of ${totalBuyers} buyers
+        </div>
+        <div style="width:1px;height:24px;background:${Theme.COLORS.border};margin:0 4px"></div>
+        <div class="lf-vip-bar-wrap">
+          <div class="lf-vip-bar-row">
+            <span style="min-width:70px">Checkbox</span>
+            <div class="lf-vip-bar-track">
+              <div class="lf-vip-bar-fill" style="width:${cbRate}%;background:#f59e0b"></div>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#f59e0b;min-width:38px;text-align:right">${cbRate}%</span>
+            <span style="color:${Theme.COLORS.textMuted}">(${checkboxCount})</span>
+          </div>
+          <div class="lf-vip-bar-row">
+            <span style="min-width:70px">Upsell pg</span>
+            <div class="lf-vip-bar-track">
+              <div class="lf-vip-bar-fill" style="width:${upRate}%;background:#a78bfa"></div>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#a78bfa;min-width:38px;text-align:right">${upRate}%</span>
+            <span style="color:${Theme.COLORS.textMuted}">(${upsellCount})</span>
+          </div>
+        </div>
+      `;
+    }
+
     // ---- Table container ----
     const tableWrap = document.createElement('div');
     tableWrap.className = 'card lf-table-wrap';
@@ -357,7 +452,13 @@
             <span class="lf-event-dot" style="background:${meta.color}"></span>
             <span style="color:${Theme.COLORS.textPrimary}">${meta.label}</span>
           </span>
-          ${vip ? '<span class="lf-vip">VIP</span>' : ''}
+          ${vip ? `<span class="lf-vip" title="${
+            p.vip_source === 'checkout_checkbox'
+              ? 'Checkout checkbox -- $54 single transaction on reg page'
+              : p.vip_source === 'upsell_page'
+              ? 'Post-purchase upsell page -- $27 VIP add-on after initial ticket'
+              : 'VIP purchase'
+          }">VIP</span>` : ''}
         </td>
         <td>
           <div style="font-weight:500;color:${Theme.COLORS.textPrimary}">${name}</div>
@@ -417,6 +518,7 @@
       }
 
       countBadge.textContent = `${rows.length} event${rows.length !== 1 ? 's' : ''}`;
+      _updateVipStats(rows);
 
       const newIds = new Set(rows.map(r => r.event_id));
       const isFirst = resetIds || lastEventIds.size === 0;

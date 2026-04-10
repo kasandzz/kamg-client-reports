@@ -103,40 +103,43 @@ App.registerPage('war-room', async (container) => {
   const salesKpiContainer = document.createElement('div');
   container.appendChild(salesKpiContainer);
 
-  // Fetch bookings data for sales strip
-  Promise.all([
-    API.query('calls', 'default', { days }).catch(() => []),
-    API.query('calls', 'closers', { days }).catch(() => []),
-  ]).then(([callData, closerData]) => {
-    const c = Array.isArray(callData) && callData.length ? callData[0] : {};
-    const callsBooked = c.total_bookings || c.total_calls || cur.total_calls || 0;
-    const callsTaken = c.total_calls || c.calls_completed || Math.round(callsBooked * 0.59) || 0;
-    const totalCash = cur.gross_revenue || 0;
-    const totalContracts = cur.enrollments ? (cur.enrollments * (totalCash / (cur.enrollments || 1))) : totalCash;
-    const adSpend = cur.total_spend || 0;
-    const cac = cur.enrollments > 0 ? adSpend / cur.enrollments : 0;
-    const roas = adSpend > 0 ? totalCash / adSpend : 0;
-    const dpl = callsBooked > 0 ? adSpend / callsBooked : 0;
+  // Sales Team KPI strip -- uses war-room cur/prev + calls data
+  const callsBooked = cur.total_calls || 0;
+  const prevCallsBooked = prev.total_calls || 0;
+  const callsTaken = (cur.total_calls || 0) - (cur.no_shows || 0);
+  const prevCallsTaken = (prev.total_calls || 0) - (prev.no_shows || 0);
+  const totalCash = cur.gross_revenue || 0;
+  const totalContracts = cur.enrollment_revenue || totalCash;
+  const prevTotalContracts = prev.enrollment_revenue || prev.gross_revenue || 0;
+  const adSpend = cur.total_spend || 0;
+  const cac = cur.enrollments > 0 ? adSpend / cur.enrollments : 0;
+  const prevCac = prev.enrollments > 0 ? (prev.total_spend || 0) / prev.enrollments : 0;
+  const roas = adSpend > 0 ? totalCash / adSpend : 0;
+  const prevRoas = (prev.total_spend || 0) > 0 ? (prev.gross_revenue || 0) / prev.total_spend : 0;
 
-    Components.renderKPIStrip(salesKpiContainer, [
-      { label: 'Calls Booked (All)', value: callsBooked, format: 'num',
-        source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE call_date in period' },
-      { label: 'Calls Taken', value: callsTaken, format: 'num',
-        source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE status != "no-show"' },
-      { label: 'Total Cash', value: totalCash, format: 'money',
-        source: 'BigQuery: stripe_charges', calc: 'SUM(amount_captured) WHERE succeeded' },
-      { label: 'Total Contracts', value: totalContracts, format: 'money',
-        source: 'BigQuery: hyros_sales', calc: 'SUM(revenue) for all enrollment sales in period' },
-      { label: 'Ad Spend', value: adSpend, format: 'money',
-        source: 'BigQuery: meta_ads_insights', calc: 'SUM(spend) for period' },
-      { label: 'CAC', value: cac, format: 'money', invertCost: true,
-        delta: prev.enrollments > 0 ? _delta(cac, prev.total_spend / prev.enrollments) : null,
-        source: 'BigQuery: meta_ads_insights + hyros_sales', calc: 'total_spend / enrollments' },
-      { label: 'ROAS', value: roas, format: 'num',
-        delta: _delta(roas, prev.total_spend > 0 ? (prev.gross_revenue / prev.total_spend) : 0),
-        source: 'BigQuery: stripe_charges + meta_ads_insights', calc: 'gross_revenue / total_spend' },
-    ]);
-  });
+  Components.renderKPIStrip(salesKpiContainer, [
+    { label: 'Calls Booked (All)', value: callsBooked, prevValue: prevCallsBooked, format: 'num',
+      delta: _delta(callsBooked, prevCallsBooked),
+      source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE call_date in period' },
+    { label: 'Calls Taken', value: callsTaken, prevValue: prevCallsTaken, format: 'num',
+      delta: _delta(callsTaken, prevCallsTaken),
+      source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE status != "no-show"' },
+    { label: 'Total Cash', value: totalCash, prevValue: prev.gross_revenue || 0, format: 'money',
+      delta: _delta(totalCash, prev.gross_revenue),
+      source: 'BigQuery: stripe_charges', calc: 'SUM(amount_captured) WHERE succeeded' },
+    { label: 'Total Contracts', value: totalContracts, prevValue: prevTotalContracts, format: 'money',
+      delta: _delta(totalContracts, prevTotalContracts),
+      source: 'BigQuery: hyros_sales', calc: 'SUM(revenue) for all enrollment sales in period' },
+    { label: 'Ad Spend', value: adSpend, prevValue: prev.total_spend || 0, format: 'money',
+      delta: _delta(adSpend, prev.total_spend),
+      source: 'BigQuery: meta_ads_insights', calc: 'SUM(spend) for period' },
+    { label: 'CAC', value: cac, prevValue: prevCac, format: 'money', invertCost: true,
+      delta: prevCac > 0 ? _delta(cac, prevCac) : null,
+      source: 'BigQuery: meta_ads_insights + hyros_sales', calc: 'total_spend / enrollments' },
+    { label: 'ROAS', value: roas, prevValue: prevRoas, format: 'num',
+      delta: prevRoas > 0 ? _delta(roas, prevRoas) : null,
+      source: 'BigQuery: stripe_charges + meta_ads_insights', calc: 'gross_revenue / total_spend' },
+  ]);
 
   // ---- CPA tooltip: hover on CPA KPI card shows per-channel breakdown ----
   (function attachCPATooltip() {

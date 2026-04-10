@@ -338,6 +338,7 @@
       <li><strong>Goal:</strong> Get them to actually show up excited, not just booked. Reduce no-shows by reinforcing their desire + giving them something to think about before the call.</li>
       <li><strong>Tone:</strong> Warm, personal from Russ. Conversational, not salesy. Match the cold email energy -- peer-to-peer, not guru-to-student.</li>
       <li><strong>FTC:</strong> Zero income claims. No "earn X" or "clients typically make..." -- we talk about structure, impact, and reach only.</li>
+      <li><strong>Handoff:</strong> Russ sends the cold email, but the call is with a sales rep. Email 1 introduces the rep warmly with a punchy "don't tell them I said that" one-liner. Emails 2+3 use the rep's name so there's zero confusion at call time.</li>
     </ul>
   </div>
 
@@ -372,10 +373,12 @@
         <li>What the path looks like from where you are to running a group program -- and whether it makes sense for you</li>
       </ul>
 
-      <p>This isn't a pitch call. It's a real conversation about your practice and whether there's a fit. If there isn't, I'll tell you.</p>
+      <p>This isn't a pitch call. It's a real conversation about your practice and whether there's a fit. If there isn't, we'll tell you.</p>
+
+      <p><strong>One more thing --</strong> you'll be speaking with {{user.first_name}} from my team. I'm handing you off to them because they've spent over a decade helping people in exactly your position figure out the right program model. They know this stuff inside out -- honestly, they're better at the 1-on-1 strategy conversations than I am. (Don't tell them I said that.)</p>
 
       <div class="highlight-box">
-        <p><strong>One thing to think about before we talk:</strong></p>
+        <p><strong>One thing to think about before your call with {{user.first_name}}:</strong></p>
         <p>If you could take one thing you help your clients with -- one specific outcome -- and teach it to 20 people at once instead of one at a time... what would it be?</p>
         <p>Come to the call with that in mind. It'll make our conversation much more useful.</p>
       </div>
@@ -400,8 +403,9 @@
       <span class="ghl-var">{{appointment.start_time}}</span>
       <span class="ghl-var">{{appointment.timezone}}</span>
       <span class="ghl-var">{{appointment.meeting_location}}</span>
+      <span class="ghl-var">{{user.first_name}}</span>
       <br><br>
-      <strong>Implementation:</strong> Set as automation trigger on COLD calendar booking. Replace calendar add links with GHL calendar link variables.
+      <strong>Implementation:</strong> Set as automation trigger on COLD calendar booking. Replace calendar add links with GHL calendar link variables. <code>{{user.first_name}}</code> = the assigned calendar owner (the rep taking the call). Verify this variable pulls the correct rep name in GHL -- may need <code>{{calendar.owner_first_name}}</code> depending on your setup.
     </div>
   </div>
 
@@ -413,7 +417,7 @@
 
     <div class="subject-line">
       <div class="label">Subject Line</div>
-      <div class="value">Tomorrow: your call with Russ</div>
+      <div class="value">Tomorrow: your call with {{user.first_name}}</div>
     </div>
 
     <div class="email-body">
@@ -426,7 +430,7 @@
         <p><strong>Where:</strong> <a href="{{appointment.meeting_location}}">Click here to join</a></p>
       </div>
 
-      <p>Since we last connected, I've been thinking about what you shared -- that you're looking at moving beyond the 1-on-1 model.</p>
+      <p>Just a heads up -- {{user.first_name}} is looking forward to speaking with you. They've already seen your background and have some ideas on what kind of program could work for your practice.</p>
 
       <p>Here's something worth knowing: a lot of the therapists and counselors we've worked with had the same starting point. Packed schedule, good at what they do, but capped on how many people they can reach (and how much they can earn) because everything runs through them personally.</p>
 
@@ -434,7 +438,7 @@
 
       <p>That's what tomorrow's call is really about -- figuring out whether that model fits what you do and how to structure it around your specific expertise.</p>
 
-      <p><strong>Remember the question from my last email:</strong> if you could take one specific outcome you help people with and teach it to a group -- what would it be? Come ready with your answer.</p>
+      <p><strong>Remember the question from my last email:</strong> if you could take one specific outcome you help people with and teach it to a group -- what would it be? {{user.first_name}} will ask you about this, so come ready with your answer.</p>
 
       <p class="signoff">See you tomorrow,</p>
       <p class="name">Russ</p>
@@ -463,13 +467,13 @@
 
     <div class="subject-line">
       <div class="label">Subject Line</div>
-      <div class="value">We're on in 1 hour</div>
+      <div class="value">1 hour -- {{user.first_name}} is ready for you</div>
     </div>
 
     <div class="email-body">
       <p class="greeting">{{contact.first_name}} --</p>
 
-      <p>We're live in an hour.</p>
+      <p>{{user.first_name}} is ready for you in an hour.</p>
 
       <p style="font-size: 17px; font-weight: 600; margin: 20px 0;">
         <a href="{{appointment.meeting_location}}" class="join-btn">Join the Call</a>
@@ -477,7 +481,7 @@
 
       <p>Come as you are. No prep needed beyond what I mentioned -- just your expertise and an open mind about what's possible when you stop trading hours for income.</p>
 
-      <p>This will be a real conversation, not a slideshow. Bring questions.</p>
+      <p>{{user.first_name}} runs these conversations all day, every day. It'll be a real conversation, not a slideshow. Bring questions.</p>
 
       <p class="signoff">See you shortly,</p>
       <p class="name">Russ</p>

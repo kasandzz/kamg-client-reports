@@ -362,6 +362,8 @@
         <td>
           <div style="font-weight:500;color:${Theme.COLORS.textPrimary}">${name}</div>
           <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${email ? _trunc(email, 28) : '--'}</div>
+          ${p.closer ? `<div style="font-size:10px;color:#a855f7;margin-top:1px">Closer: ${p.closer}</div>` : ''}
+          ${p.source && p.source !== 'ghl' ? `<div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:1px">via ${_trunc(p.source, 20)}</div>` : ''}
         </td>
         <td>
           <span class="lf-segment" style="color:${segMeta.color};background:${segMeta.color}18;border:1px solid ${segMeta.color}40">

@@ -1245,336 +1245,195 @@ App.registerPage('war-room', async (container) => {
 
   chartsRow.appendChild(previewCard);
 
-  // ---- Sales Dynamic: Dual-panel area chart ----
-  // Top: Ticket revenue + Enrollment revenue lines
-  // Bottom: Ad spend by channel (stacked area)
-  const dynamicCard = document.createElement('div');
-  dynamicCard.className = 'card';
-  dynamicCard.style.cssText = 'padding:20px 24px;margin-top:16px;grid-column:1/-1';
-  const dynTitle = document.createElement('div');
-  dynTitle.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px';
-  dynTitle.innerHTML = `<div style="font-size:15px;font-weight:700;color:${Theme.COLORS.textPrimary}">Sales Dynamic</div>
-    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Hyros first-click attribution</div>`;
-  dynamicCard.appendChild(dynTitle);
+  // ---- Cost vs Sales Butterfly Chart ----
+  // Revenue bars extend RIGHT, Ad Spend bars extend LEFT from center axis
+  const butterflyCard = document.createElement('div');
+  butterflyCard.className = 'card';
+  butterflyCard.style.cssText = 'padding:20px 24px;margin-top:16px;grid-column:1/-1';
+  const bfTitle = document.createElement('div');
+  bfTitle.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:16px';
+  bfTitle.innerHTML = `<div style="font-size:15px;font-weight:700;color:${Theme.COLORS.textPrimary}">Cost vs Sales</div>
+    <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em">Butterfly chart -- spend left, revenue right</div>`;
+  butterflyCard.appendChild(bfTitle);
 
-  // Top canvas (revenue lines)
-  const topLabel = document.createElement('div');
-  topLabel.style.cssText = `font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px`;
-  topLabel.textContent = 'Revenue';
-  dynamicCard.appendChild(topLabel);
-  const topCanvas = document.createElement('canvas');
-  topCanvas.width = 900; topCanvas.height = 200;
-  topCanvas.style.cssText = 'width:100%;height:200px;display:block';
-  dynamicCard.appendChild(topCanvas);
+  const bfCanvas = document.createElement('canvas');
+  bfCanvas.style.cssText = 'width:100%;height:320px;display:block';
+  butterflyCard.appendChild(bfCanvas);
 
-  // Top legend
-  const topLegend = document.createElement('div');
-  topLegend.style.cssText = 'display:flex;gap:20px;margin-top:8px;margin-bottom:20px';
-  topLegend.innerHTML = `
-    <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:#6366f1"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ticket Revenue</span></div>
-    <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:#22c55e"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollment Revenue</span></div>`;
-  dynamicCard.appendChild(topLegend);
+  const bfLegend = document.createElement('div');
+  bfLegend.style.cssText = 'display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;justify-content:center';
+  butterflyCard.appendChild(bfLegend);
 
-  // Divider
-  const divider = document.createElement('div');
-  divider.style.cssText = `height:1px;background:${Theme.COLORS.border};margin-bottom:16px`;
-  dynamicCard.appendChild(divider);
+  container.appendChild(butterflyCard);
 
-  // Bottom canvas (spend by channel)
-  const botLabel = document.createElement('div');
-  botLabel.style.cssText = `font-size:10px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px`;
-  botLabel.textContent = 'Ad Spend by Channel';
-  dynamicCard.appendChild(botLabel);
-  const botCanvas = document.createElement('canvas');
-  botCanvas.width = 900; botCanvas.height = 160;
-  botCanvas.style.cssText = 'width:100%;height:160px;display:block';
-  dynamicCard.appendChild(botCanvas);
-
-  // Bottom legend placeholder
-  const botLegend = document.createElement('div');
-  botLegend.style.cssText = 'display:flex;flex-wrap:wrap;gap:14px;margin-top:8px';
-  dynamicCard.appendChild(botLegend);
-
-  container.appendChild(dynamicCard);
-
-  // ---- Draw charts once data loads ----
+  // ---- Draw butterfly once data loads ----
   Promise.all([
     API.query('hyros', 'dailySplit', { days }).catch(() => []),
-    API.query('ads-meta', 'dailyByCampaign', { days }).catch(() => []),
     API.query('ads-meta', 'daily', { days }).catch(() => [])
-  ]).then(([splitRows, metaCampRows, metaDailyRows]) => {
+  ]).then(([splitRows, metaDailyRows]) => {
 
-    // === TOP CHART: revenue lines ===
-    function _drawLineChart(canvas, datasets, yFormat) {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(dpr, dpr);
-      const W = rect.width, H = rect.height;
-      const pad = { top: 10, right: 16, bottom: 28, left: 56 };
-      const plotW = W - pad.left - pad.right;
-      const plotH = H - pad.top - pad.bottom;
-
-      // Find all dates + y range
-      const allDates = [...new Set(datasets.flatMap(d => d.data.map(p => p.x)))].sort();
-      if (allDates.length === 0) return;
-      const allY = datasets.flatMap(d => d.data.map(p => p.y));
-      const maxY = Math.max(...allY, 1);
-      const minY = 0;
-
-      // Grid lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-      ctx.lineWidth = 1;
-      const gridLines = 4;
-      for (let i = 0; i <= gridLines; i++) {
-        const y = pad.top + (plotH / gridLines) * i;
-        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-        const val = maxY - (maxY / gridLines) * i;
-        ctx.fillStyle = Theme.COLORS.textMuted;
-        ctx.font = '10px var(--font-mono)';
-        ctx.textAlign = 'right';
-        ctx.fillText(yFormat(val), pad.left - 8, y + 4);
-      }
-
-      // X labels
-      ctx.fillStyle = Theme.COLORS.textMuted;
-      ctx.font = '10px var(--font-mono)';
-      ctx.textAlign = 'center';
-      const step = Math.max(1, Math.floor(allDates.length / 8));
-      allDates.forEach((d, i) => {
-        if (i % step !== 0 && i !== allDates.length - 1) return;
-        const x = pad.left + (i / (allDates.length - 1 || 1)) * plotW;
-        const label = d.slice(5); // MM-DD
-        ctx.fillText(label, x, H - 6);
-      });
-
-      // Draw each dataset
-      datasets.forEach(ds => {
-        const dateMap = {};
-        ds.data.forEach(p => { dateMap[p.x] = p.y; });
-        const points = allDates.map((d, i) => ({
-          x: pad.left + (i / (allDates.length - 1 || 1)) * plotW,
-          y: pad.top + plotH - ((dateMap[d] || 0) / maxY) * plotH
-        }));
-
-        // Gradient fill
-        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + plotH);
-        grad.addColorStop(0, ds.color + '33');
-        grad.addColorStop(1, ds.color + '00');
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, pad.top + plotH);
-        _smoothLine(ctx, points);
-        ctx.lineTo(points[points.length - 1].x, pad.top + plotH);
-        ctx.closePath();
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Line
-        ctx.beginPath();
-        _smoothLine(ctx, points);
-        ctx.strokeStyle = ds.color;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        // Glow
-        ctx.shadowColor = ds.color;
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        _smoothLine(ctx, points);
-        ctx.strokeStyle = ds.color + '66';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-      });
-    }
-
-    function _smoothLine(ctx, points) {
-      if (points.length < 2) return;
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 0; i < points.length - 1; i++) {
-        const p0 = points[Math.max(0, i - 1)];
-        const p1 = points[i];
-        const p2 = points[i + 1];
-        const p3 = points[Math.min(points.length - 1, i + 2)];
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = p1.y + (p2.y - p0.y) / 6;
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = p2.y - (p3.y - p1.y) / 6;
-        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
-      }
-    }
-
-    // Build top chart data -- fall back to dummy if API returns empty
-    function _generateDummyRevenue(numDays) {
+    // Build date-aligned data
+    function _generateDummy(numDays) {
       const rows = [];
       const today = new Date();
       for (let i = numDays - 1; i >= 0; i--) {
         const d = new Date(today); d.setDate(d.getDate() - i);
         const dateStr = d.toISOString().slice(0, 10);
-        const base = Math.sin(i * 0.15) * 0.3 + 1;
-        const ticketRev = Math.round((800 + Math.random() * 600) * base);
-        const enrollRev = Math.round((4000 + Math.random() * 18000) * base * (Math.random() > 0.3 ? 1 : 0));
-        rows.push({ x: dateStr, ticket: ticketRev, enroll: enrollRev });
+        const wave = Math.sin(i * 0.15) * 0.3 + 1;
+        rows.push({
+          date: dateStr,
+          ticket_revenue: Math.round((800 + Math.random() * 600) * wave),
+          enrollment_revenue: Math.round((4000 + Math.random() * 18000) * wave * (Math.random() > 0.3 ? 1 : 0)),
+          spend: Math.round((350 + Math.random() * 200) * wave)
+        });
       }
       return rows;
     }
 
-    let ticketData = (splitRows || []).map(r => ({ x: r.day, y: r.ticket_revenue || 0 }));
-    let enrollData = (splitRows || []).map(r => ({ x: r.day, y: r.enrollment_revenue || 0 }));
-
-    if (ticketData.length === 0) {
-      const dummy = _generateDummyRevenue(days);
-      ticketData = dummy.map(r => ({ x: r.x, y: r.ticket }));
-      enrollData = dummy.map(r => ({ x: r.x, y: r.enroll }));
-    }
-
-    _drawLineChart(topCanvas, [
-      { data: ticketData, color: '#6366f1', label: 'Tickets' },
-      { data: enrollData, color: '#22c55e', label: 'Enrollments' },
-    ], v => v >= 1000 ? '$' + (v / 1000).toFixed(0) + 'k' : '$' + v.toFixed(0));
-
-    // === BOTTOM CHART: spend by channel (stacked area) ===
-    // Classify meta campaigns into channels, then aggregate daily
-    const spendByDayChannel = {};
-    const channelSet = new Set();
-    (metaCampRows || []).forEach(r => {
-      const ch = _classifyChannel(r.campaign_name);
-      channelSet.add(ch);
+    // Merge revenue + spend by date
+    const byDate = {};
+    (splitRows || []).forEach(r => {
+      const d = r.day;
+      if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
+      byDate[d].ticket_revenue += (r.ticket_revenue || 0);
+      byDate[d].enrollment_revenue += (r.enrollment_revenue || 0);
+    });
+    (metaDailyRows || []).forEach(r => {
       const d = r.ad_date;
-      if (!spendByDayChannel[d]) spendByDayChannel[d] = {};
-      spendByDayChannel[d][ch] = (spendByDayChannel[d][ch] || 0) + (r.spend || 0);
+      if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
+      byDate[d].spend += (r.spend || 0);
     });
 
-    // Fallback to total daily if no campaign breakdown
-    if (Object.keys(spendByDayChannel).length === 0 && metaDailyRows && metaDailyRows.length > 0) {
-      metaDailyRows.forEach(r => {
-        spendByDayChannel[r.ad_date] = { 'Meta Ads': r.spend || 0 };
-        channelSet.add('Meta Ads');
-      });
+    let data = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    if (data.length === 0) data = _generateDummy(days);
+
+    // Draw
+    const dpr = window.devicePixelRatio || 1;
+    const rect = bfCanvas.getBoundingClientRect();
+    bfCanvas.width = rect.width * dpr;
+    bfCanvas.height = rect.height * dpr;
+    const ctx = bfCanvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+    const pad = { top: 20, right: 60, bottom: 36, left: 60 };
+    const plotW = W - pad.left - pad.right;
+    const plotH = H - pad.top - pad.bottom;
+    const centerY = pad.top + plotH / 2;
+
+    // Max values for scaling each half
+    const maxRev = Math.max(...data.map(d => d.ticket_revenue + d.enrollment_revenue), 1);
+    const maxSpend = Math.max(...data.map(d => d.spend), 1);
+    const halfH = plotH / 2 - 4; // small gap at center
+
+    const barW = Math.max(2, Math.min(24, (plotW / data.length) * 0.7));
+    const gap = (plotW / data.length) - barW;
+
+    // Center line
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, centerY);
+    ctx.lineTo(W - pad.right, centerY);
+    ctx.stroke();
+
+    // Center labels
+    ctx.fillStyle = Theme.COLORS.textMuted;
+    ctx.font = '9px var(--font-mono)';
+    ctx.textAlign = 'right';
+    ctx.fillText('AD SPEND', pad.left - 6, centerY - 8);
+    ctx.textAlign = 'left';
+    ctx.fillText('REVENUE', W - pad.right + 6, centerY + 14);
+
+    // Y grid lines (revenue side - going up)
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    for (let i = 1; i <= 3; i++) {
+      const y = centerY - (halfH / 3) * i;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      const val = (maxRev / 3) * i;
+      ctx.fillStyle = Theme.COLORS.textMuted;
+      ctx.font = '9px var(--font-mono)';
+      ctx.textAlign = 'right';
+      ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + Math.round(val), pad.left - 6, y + 3);
+    }
+    // Y grid lines (spend side - going down)
+    for (let i = 1; i <= 3; i++) {
+      const y = centerY + (halfH / 3) * i;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      const val = (maxSpend / 3) * i;
+      ctx.fillStyle = Theme.COLORS.textMuted;
+      ctx.font = '9px var(--font-mono)';
+      ctx.textAlign = 'right';
+      ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + Math.round(val), pad.left - 6, y + 3);
     }
 
-    // Dummy spend data if nothing from API
-    if (Object.keys(spendByDayChannel).length === 0) {
-      const dummyChannels = ['Meta Ads', 'YouTube', 'Google Ads', 'Email', 'Lead Campaigns'];
-      const today = new Date();
-      for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today); d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().slice(0, 10);
-        const wave = Math.sin(i * 0.12) * 0.25 + 1;
-        spendByDayChannel[dateStr] = {};
-        dummyChannels.forEach((ch, ci) => {
-          const base = [420, 80, 50, 15, 25][ci];
-          spendByDayChannel[dateStr][ch] = Math.round((base + Math.random() * base * 0.5) * wave);
-          channelSet.add(ch);
-        });
+    // Draw bars
+    data.forEach((d, i) => {
+      const x = pad.left + i * (barW + gap) + gap / 2;
+      const totalRev = d.ticket_revenue + d.enrollment_revenue;
+
+      // Revenue bars (going UP from center)
+      // Enrollment (bottom of revenue stack, starts at center)
+      const enrollH = totalRev > 0 ? (d.enrollment_revenue / maxRev) * halfH : 0;
+      const ticketH = totalRev > 0 ? (d.ticket_revenue / maxRev) * halfH : 0;
+
+      if (enrollH > 0) {
+        ctx.fillStyle = '#22c55ecc';
+        ctx.fillRect(x, centerY - enrollH - ticketH, barW, enrollH);
       }
-    }
+      if (ticketH > 0) {
+        ctx.fillStyle = '#6366f1cc';
+        ctx.fillRect(x, centerY - ticketH, barW, ticketH);
+      }
 
-    const spendDates = Object.keys(spendByDayChannel).sort();
-    const channels = [...channelSet].sort((a, b) => {
-      const ta = spendDates.reduce((s, d) => s + (spendByDayChannel[d][a] || 0), 0);
-      const tb = spendDates.reduce((s, d) => s + (spendByDayChannel[d][b] || 0), 0);
-      return tb - ta; // highest spend first
+      // Spend bar (going DOWN from center)
+      const spendH = d.spend > 0 ? (d.spend / maxSpend) * halfH : 0;
+      if (spendH > 0) {
+        ctx.fillStyle = '#ef4444aa';
+        ctx.fillRect(x, centerY + 2, barW, spendH);
+      }
     });
 
-    if (spendDates.length > 0 && channels.length > 0) {
-      // Draw stacked area
-      const dpr = window.devicePixelRatio || 1;
-      const rect = botCanvas.getBoundingClientRect();
-      botCanvas.width = rect.width * dpr;
-      botCanvas.height = rect.height * dpr;
-      const ctx = botCanvas.getContext('2d');
-      ctx.scale(dpr, dpr);
-      const W = rect.width, H = rect.height;
-      const pad = { top: 10, right: 16, bottom: 28, left: 56 };
-      const plotW = W - pad.left - pad.right;
-      const plotH = H - pad.top - pad.bottom;
+    // X axis labels
+    ctx.fillStyle = Theme.COLORS.textMuted;
+    ctx.font = '10px var(--font-mono)';
+    ctx.textAlign = 'center';
+    const step = Math.max(1, Math.floor(data.length / 10));
+    data.forEach((d, i) => {
+      if (i % step !== 0 && i !== data.length - 1) return;
+      const x = pad.left + i * (barW + gap) + gap / 2 + barW / 2;
+      ctx.fillText(d.date.slice(5), x, H - 8);
+    });
 
-      // Compute stacked totals per day
-      const stacked = spendDates.map(d => {
-        let cumulative = 0;
-        const layers = {};
-        channels.forEach(ch => {
-          const val = spendByDayChannel[d][ch] || 0;
-          layers[ch] = { bottom: cumulative, top: cumulative + val };
-          cumulative += val;
-        });
-        return { date: d, layers, total: cumulative };
-      });
-      const maxSpend = Math.max(...stacked.map(s => s.total), 1);
+    // Axis labels
+    ctx.save();
+    ctx.fillStyle = Theme.COLORS.textMuted;
+    ctx.font = '10px var(--font-mono)';
+    ctx.textAlign = 'center';
+    ctx.translate(12, centerY - halfH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Revenue', 0, 0);
+    ctx.restore();
+    ctx.save();
+    ctx.fillStyle = Theme.COLORS.textMuted;
+    ctx.font = '10px var(--font-mono)';
+    ctx.textAlign = 'center';
+    ctx.translate(12, centerY + halfH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Ad Spend', 0, 0);
+    ctx.restore();
 
-      // Grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 3; i++) {
-        const y = pad.top + (plotH / 3) * i;
-        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-        const val = maxSpend - (maxSpend / 3) * i;
-        ctx.fillStyle = Theme.COLORS.textMuted;
-        ctx.font = '10px var(--font-mono)';
-        ctx.textAlign = 'right';
-        ctx.fillText(val >= 1000 ? '$' + (val / 1000).toFixed(0) + 'k' : '$' + val.toFixed(0), pad.left - 8, y + 4);
-      }
+    // Totals
+    const totTicket = data.reduce((s, d) => s + d.ticket_revenue, 0);
+    const totEnroll = data.reduce((s, d) => s + d.enrollment_revenue, 0);
+    const totSpend = data.reduce((s, d) => s + d.spend, 0);
+    const roas = totSpend > 0 ? ((totTicket + totEnroll) / totSpend).toFixed(1) : '--';
 
-      // X labels
-      ctx.fillStyle = Theme.COLORS.textMuted;
-      ctx.font = '10px var(--font-mono)';
-      ctx.textAlign = 'center';
-      const step = Math.max(1, Math.floor(spendDates.length / 8));
-      spendDates.forEach((d, i) => {
-        if (i % step !== 0 && i !== spendDates.length - 1) return;
-        const x = pad.left + (i / (spendDates.length - 1 || 1)) * plotW;
-        ctx.fillText(d.slice(5), x, H - 6);
-      });
-
-      // Draw stacked areas (bottom to top, reverse so largest channel is at bottom)
-      const chColors = channels.map(ch => _channelColors[ch] || '#6366f1');
-      for (let ci = channels.length - 1; ci >= 0; ci--) {
-        const ch = channels[ci];
-        const color = chColors[ci];
-        const topPoints = stacked.map((s, i) => ({
-          x: pad.left + (i / (stacked.length - 1 || 1)) * plotW,
-          y: pad.top + plotH - (s.layers[ch].top / maxSpend) * plotH
-        }));
-        const botPoints = stacked.map((s, i) => ({
-          x: pad.left + (i / (stacked.length - 1 || 1)) * plotW,
-          y: pad.top + plotH - (s.layers[ch].bottom / maxSpend) * plotH
-        }));
-
-        // Fill area between top and bottom
-        ctx.beginPath();
-        _smoothLine(ctx, topPoints);
-        // Line back along bottom (reversed)
-        for (let i = botPoints.length - 1; i >= 0; i--) {
-          ctx.lineTo(botPoints[i].x, botPoints[i].y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = color + '55';
-        ctx.fill();
-
-        // Top edge line
-        ctx.beginPath();
-        _smoothLine(ctx, topPoints);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-
-      // Legend
-      let legendHTML = '';
-      channels.forEach((ch, i) => {
-        const total = spendDates.reduce((s, d) => s + (spendByDayChannel[d][ch] || 0), 0);
-        legendHTML += `<div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:3px;border-radius:2px;background:${chColors[i]}"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">${ch} (${Theme.money(total)})</span></div>`;
-      });
-      botLegend.innerHTML = legendHTML;
-    } else {
-      const ctx = botCanvas.getContext('2d');
-      ctx.fillStyle = Theme.COLORS.textMuted;
-      ctx.font = '12px sans-serif';
-      ctx.fillText('No spend data', 20, 80);
-    }
+    bfLegend.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#6366f1cc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ticket Rev (${Theme.money(totTicket)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#22c55ecc"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Enrollment Rev (${Theme.money(totEnroll)})</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:10px;border-radius:2px;background:#ef4444aa"></div><span style="font-size:11px;color:${Theme.COLORS.textSecondary}">Ad Spend (${Theme.money(totSpend)})</span></div>
+      <div style="font-size:11px;color:${Theme.COLORS.textSecondary};padding:2px 8px;background:rgba(255,255,255,0.04);border-radius:4px">ROAS: <span style="color:${parseFloat(roas) >= 3 ? '#22c55e' : parseFloat(roas) >= 1 ? '#f59e0b' : '#ef4444'};font-weight:600">${roas}x</span></div>
+    `;
   });
 
   // ---- Ticket Sales Velocity & Journey -- Weekly ----

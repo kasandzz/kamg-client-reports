@@ -308,6 +308,20 @@ function _renderDemographicIntel(container) {
 
   const days = Filters.getDays();
 
+  // ---- Label cleaners ----
+  function cleanLabel(raw) {
+    if (!raw) return '(unknown)';
+    // "facebook facebook_reels" -> "Facebook Reels", "instagram instagram_stories" -> "Instagram Stories"
+    // Remove duplicate platform prefix, replace underscores, title-case
+    let s = String(raw);
+    // Remove redundant platform prefix from position (e.g. "facebook facebook_reels" -> "facebook reels")
+    s = s.replace(/^(facebook|instagram|audience_network|messenger)\s+\1_/i, '$1 ');
+    // Replace underscores with spaces
+    s = s.replace(/_/g, ' ');
+    // Title case
+    return s.replace(/\b\w/g, c => c.toUpperCase());
+  }
+
   // ---- Shared bar renderer (single metric) ----
   function renderBars(barContainer, rows, statKey, labelField, formatFn, emptyMsg) {
     if (!rows || rows.length === 0) {
@@ -321,7 +335,7 @@ function _renderDemographicIntel(container) {
       const val = values[i];
       const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
       const color = FC[i % FC.length];
-      const label = row[labelField] || '(unknown)';
+      const label = cleanLabel(row[labelField]);
       html += `<div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
           <span style="font-size:11px;color:${T.textSecondary}">${label}</span>

@@ -1286,7 +1286,12 @@ App.registerPage('war-room', async (container) => {
     }
 
     // Normalize any date value to YYYY-MM-DD string
-    function _ds(v) { return v ? String(v).slice(0, 10) : null; }
+    // BQ returns dates as {value: "2026-04-09"} objects or plain strings
+    function _ds(v) {
+      if (!v) return null;
+      if (typeof v === 'object' && v.value) return String(v.value).slice(0, 10);
+      return String(v).slice(0, 10);
+    }
 
     // Layer 1: Hyros daily split (ticket + enrollment revenue from attribution)
     (hyrosRows || []).forEach(r => {

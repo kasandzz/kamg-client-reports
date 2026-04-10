@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Ads Competitive Report -- Redstone Manufacturing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF;
+    color: #000000;
+    line-height: 1.5;
+  }
+
+  .band {
+    width: 100%;
+    padding: 70px 0;
+  }
+
+  .band--white {
+    background: #FFFFFF;
+  }
+
+  .band--dark {
+    background: #000000;
+    color: #FFFFFF;
+  }
+
+  .band--surface {
+    background: #F5F5F5;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 50px;
+  }
+
+  /* HEADER */
+  .report-header {
+    background: #000000;
+    color: #FFFFFF;
+    padding: 60px 0 50px;
+    border-bottom: 4px solid #B21E24;
+  }
+
+  .report-header .container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999999;
+  }
+
+  .report-title {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #FFFFFF;
+  }
+
+  .report-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    color: #999999;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .header-meta-item {
+    font-size: 13px;
+    color: #666666;
+  }
+
+  .header-meta-item span {
+    color: #FFFFFF;
+    font-weight: 500;
+  }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #B21E24;
+    margin-bottom: 12px;
+  }
+
+  .section-label--dark {
+    color: #B21E24;
+  }
+
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #000000;
+    margin-bottom: 8px;
+  }
+
+  .section-title--dark {
+    color: #FFFFFF;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: #666666;
+    margin-bottom: 36px;
+    max-width: 720px;
+  }
+
+  .section-desc--dark {
+    color: #999999;
+  }
+
+  /* CALLOUT BOXES */
+  .callout {
+    border-left: 4px solid #B21E24;
+    padding: 20px 24px;
+    background: #F5F5F5;
+    margin-bottom: 36px;
+  }
+
+  .callout--dark {
+    border-left: 4px solid #B21E24;
+    background: #111111;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+  }
+
+  .callout p {
+    font-size: 15px;
+    color: #000000;
+    line-height: 1.6;
+  }
+
+  .callout--dark p {
+    font-size: 15px;
+    color: #CCCCCC;
+    line-height: 1.6;
+  }
+
+  /* TABLES */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    background: #000000;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border: 1px solid #333333;
+  }
+
+  .band--dark thead th {
+    background: #1A1A1A;
+    border-color: #333333;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #E0E0E0;
+  }
+
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #F5F5F5;
+  }
+
+  .band--dark tbody tr {
+    border-bottom: 1px solid #222222;
+  }
+
+  .band--dark tbody tr:nth-child(even) {
+    background: #0D0D0D;
+  }
+
+  .band--dark tbody tr:nth-child(odd) {
+    background: #000000;
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    vertical-align: top;
+    color: #000000;
+    border: 1px solid #E0E0E0;
+  }
+
+  .band--dark tbody td {
+    color: #CCCCCC;
+    border-color: #222222;
+  }
+
+  .highlight-row td {
+    background: #B21E24 !important;
+    color: #FFFFFF !important;
+    font-weight: 600;
+    border-color: #8a1519 !important;
+  }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid currentColor;
+  }
+
+  .badge--strong { color: #16a34a; border-color: #16a34a; }
+  .badge--good { color: #2563eb; border-color: #2563eb; }
+  .badge--needs { color: #ea580c; border-color: #ea580c; }
+  .badge--solid { color: #2563eb; border-color: #2563eb; }
+  .badge--unique { color: #16a34a; border-color: #16a34a; }
+  .badge--inprogress { color: #ea580c; border-color: #ea580c; }
+  .badge--p1 { color: #B21E24; border-color: #B21E24; }
+  .badge--p2 { color: #ea580c; border-color: #ea580c; }
+  .badge--p3 { color: #666666; border-color: #666666; }
+
+  /* BIG STAT BLOCK */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #333333;
+    border: 1px solid #333333;
+    margin-bottom: 40px;
+  }
+
+  .stat-cell {
+    background: #111111;
+    padding: 28px 24px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #666666;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .stat-value--red { color: #B21E24; }
+  .stat-value--green { color: #16a34a; }
+
+  .stat-sub {
+    font-size: 12px;
+    color: #666666;
+    margin-top: 6px;
+  }
+
+  /* FOOTER */
+  .report-footer {
+    background: #000000;
+    border-top: 1px solid #222222;
+    padding: 40px 0;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  .footer-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #666666;
+    margin-bottom: 10px;
+  }
+
+  .footer-text {
+    font-size: 12px;
+    color: #444444;
+    line-height: 1.7;
+  }
+
+  .footer-brand {
+    font-size: 13px;
+    font-weight: 700;
+    color: #B21E24;
+    letter-spacing: 0.05em;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    height: 1px;
+    background: #E0E0E0;
+    margin: 0;
+  }
+
+  .band--dark .section-divider {
+    background: #222222;
+  }
+
+  td.col-company { font-weight: 600; }
+  td.col-verdict { white-space: nowrap; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="report-header">
+  <div class="container">
+    <div class="header-label">KAMG -- Client Report</div>
+    <h1 class="report-title">Google Ads Competitive Report</h1>
+    <p class="report-subtitle">Your Position vs. the Industry</p>
+    <div class="header-meta">
+      <div class="header-meta-item">Prepared for: <span>Eric Millinger, Redstone Manufacturing</span></div>
+      <div class="header-meta-item">Date: <span>April 9, 2026</span></div>
+      <div class="header-meta-item">Prepared by: <span>KAMG</span></div>
+      <div class="header-meta-item">Coverage: <span>Google Ads -- Competitive Intelligence</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- SECTION 1: BUDGET REALITY (DARK) -->
+<section class="band band--dark">
+  <div class="container">
+    <div class="section-label section-label--dark">Section 01</div>
+    <h2 class="section-title section-title--dark">The Budget Reality</h2>
+    <p class="section-desc section-desc--dark">The companies you compete against on Google are not comparable in marketing scale. This context matters before reviewing any other data in this report.</p>
+
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">Largest Competitor Ad Spend (Est.)</div>
+        <div class="stat-value stat-value--red">$95M</div>
+        <div class="stat-sub">Protolabs -- annual marketing budget</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Redstone Monthly Budget</div>
+        <div class="stat-value stat-value--green">$5-10K</div>
+        <div class="stat-sub">Current Google Ads monthly investment</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Spend Gap (Top Competitor)</div>
+        <div class="stat-value stat-value--red">4,000x</div>
+        <div class="stat-sub">Protolabs spends more per DAY than your monthly budget</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Revenue (Est.)</th>
+            <th>Annual Marketing Spend (Est.)</th>
+            <th>Google Ads (Est.)</th>
+            <th>vs. Redstone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Protolabs</td>
+            <td>~$500M</td>
+            <td>~$95M/yr</td>
+            <td>$15-25M+</td>
+            <td>1,500x - 4,000x more</td>
+          </tr>
+          <tr>
+            <td class="col-company">Xometry</td>
+            <td>$686.6M</td>
+            <td>~$36M (ads only)</td>
+            <td>$10-15M+</td>
+            <td>1,000x - 2,500x more</td>
+          </tr>
+          <tr>
+            <td class="col-company">Fictiv</td>
+            <td>$100-200M</td>
+            <td>VC-funded, aggressive</td>
+            <td>$3-5M+</td>
+            <td>300x - 800x more</td>
+          </tr>
+          <tr>
+            <td class="col-company">SendCutSend</td>
+            <td>Inc. 5000</td>
+            <td>Performance marketing</td>
+            <td>$2-5M+</td>
+            <td>200x - 800x more</td>
+          </tr>
+          <tr>
+            <td class="col-company">RapidDirect</td>
+            <td>$50-100M</td>
+            <td>Heavy content + ads</td>
+            <td>$1-3M</td>
+            <td>100x - 500x more</td>
+          </tr>
+          <tr class="highlight-row">
+            <td class="col-company">Redstone Manufacturing</td>
+            <td>--</td>
+            <td>Minimal</td>
+            <td>~$5-10K/mo</td>
+            <td>You are here</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="height: 36px;"></div>
+
+    <div class="callout--dark">
+      <p>These companies spend more on Google Ads in a single day than Redstone's monthly budget. That you are showing up at all -- and winning leads from the same searchers -- demonstrates the strength of your positioning and keyword strategy. The data in this report should be read with that context in place.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: WHAT'S WORKING (WHITE) -->
+<section class="band band--white">
+  <div class="container">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">What Is Working</h2>
+    <p class="section-desc">Six documented competitive advantages Redstone holds over its direct competitors. These are present in current ads and keyword strategy and should be protected.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Advantage</th>
+            <th>Why It Matters</th>
+            <th>Competitor Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Tariff-inclusive estimates</td>
+            <td>Nobody else mentions this in ad copy. Procurement teams are actively managing tariff exposure. This speaks directly to their problem.</td>
+            <td>No competitor does this in ad copy</td>
+          </tr>
+          <tr>
+            <td class="col-company">3rd party QC inspections</td>
+            <td>Builds trust for offshore manufacturing decisions. Unique in the market at the ad copy level.</td>
+            <td>No competitor advertises this</td>
+          </tr>
+          <tr>
+            <td class="col-company">Free casting samples</td>
+            <td>Removes risk for new buyers evaluating a first-time offshore supplier. A strong offer at the consideration stage.</td>
+            <td>Protolabs charges for samples; Xometry varies</td>
+          </tr>
+          <tr>
+            <td class="col-company">"High Volume Only. No Prototypes."</td>
+            <td>Pre-qualifies traffic before a click. Engineers searching for prototyping services self-select out, reducing wasted spend.</td>
+            <td>Competitors waste budget on low-value leads by omitting this</td>
+          </tr>
+          <tr>
+            <td class="col-company">Mexico geo-keywords</td>
+            <td>Already bidding on Mexico manufacturing terms while every major competitor ignores the nearshore segment entirely.</td>
+            <td>Zero competitors bid on "Mexico manufacturing" category</td>
+          </tr>
+          <tr>
+            <td class="col-company">IATF 16949 certification</td>
+            <td>Opens the entire automotive supply chain. Protolabs and Fictiv are not qualified for automotive procurement.</td>
+            <td>Protolabs and Fictiv do not hold this certification</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 3: KEYWORD COVERAGE (WHITE) -->
+<section class="band band--white">
+  <div class="container">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">Keyword Coverage</h2>
+    <p class="section-desc">79 active keywords across five categories. Coverage is solid. The Mexico/nearshore segment is a structural advantage no competitor currently holds.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Active Keywords</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Die Casting</td>
+            <td>~23</td>
+            <td class="col-verdict"><span class="badge badge--strong">Strong</span></td>
+            <td>Matches Xometry and Dynacast keyword coverage for core die casting terms</td>
+          </tr>
+          <tr>
+            <td class="col-company">CNC Machining</td>
+            <td>~19</td>
+            <td class="col-verdict"><span class="badge badge--solid">Solid</span></td>
+            <td>Core terms covered. Some long-tail specification keywords remain ungapped.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Sheet Metal Fabrication</td>
+            <td>~19</td>
+            <td class="col-verdict"><span class="badge badge--solid">Solid</span></td>
+            <td>Good coverage across fabrication terms including custom and precision variants</td>
+          </tr>
+          <tr>
+            <td class="col-company">Contract / OEM Manufacturing</td>
+            <td>~6</td>
+            <td class="col-verdict"><span class="badge badge--good">Good Niche</span></td>
+            <td>Low competition from marketplace platforms. Cost-per-click is favorable in this category.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Mexico / Nearshore</td>
+            <td>~12</td>
+            <td class="col-verdict"><span class="badge badge--unique">Unique</span></td>
+            <td>No competitor bids on these terms. Redstone owns this segment on Google with no head-to-head competition.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: AD COPY SCORECARD (DARK) -->
+<section class="band band--dark">
+  <div class="container">
+    <div class="section-label section-label--dark">Section 04</div>
+    <h2 class="section-title section-title--dark">Ad Copy Scorecard</h2>
+    <p class="section-desc section-desc--dark">Line-by-line assessment of current ad copy against what competitors are running. Two elements need updating -- both have been flagged and are in revision.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad Element</th>
+            <th>Your Current Copy</th>
+            <th>Verdict</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Headline 1</td>
+            <td>[Keyword] -- dynamic insertion</td>
+            <td class="col-verdict"><span class="badge badge--good">Good</span></td>
+            <td>Industry standard practice. Matches search query for relevance and Quality Score. Correct approach.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Headline 2</td>
+            <td>ISO 9001 / IATF 16949 Certified</td>
+            <td class="col-verdict"><span class="badge badge--good">Good</span></td>
+            <td>Strong trust signal for industrial buyers. Competitors lead with speed. Certification is the right call for your buyer profile.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Description 1</td>
+            <td>Tariff-inclusive estimates</td>
+            <td class="col-verdict"><span class="badge badge--strong">Strong</span></td>
+            <td>Unique differentiator. No competitor uses this. Keep as-is.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Description 2</td>
+            <td>3rd Party QC included</td>
+            <td class="col-verdict"><span class="badge badge--strong">Strong</span></td>
+            <td>No competitor advertises this. Addresses a real concern for offshore sourcing. Keep and consider amplifying.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Description 4</td>
+            <td>Free samples, high volume only</td>
+            <td class="col-verdict"><span class="badge badge--strong">Strong</span></td>
+            <td>Effective offer and pre-qualification in a single line. Keep as-is.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Headline 3</td>
+            <td>"International Factories"</td>
+            <td class="col-verdict"><span class="badge badge--needs">Needs Update</span></td>
+            <td>You flagged this. "International Factories" reads as sourcing / broker, not manufacturing. Revising to "American-Owned." This will now align with the new landing pages.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Description 3</td>
+            <td>"Mexico, Brazil or India"</td>
+            <td class="col-verdict"><span class="badge badge--needs">Needs Update</span></td>
+            <td>Listing countries without context weakens positioning. Rewriting to: "American-Owned. Manufacturing In Mexico. Delivery Guarantee." This will now align with the new landing pages.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: CONVERSION GAP (WHITE) -->
+<section class="band band--white">
+  <div class="container">
+    <div class="section-label">Section 05</div>
+    <h2 class="section-title">The Conversion Gap</h2>
+    <p class="section-desc">This is the primary area of focus for the next 30 days.</p>
+
+    <div class="callout">
+      <p>Your ads are doing their job -- getting clicks from qualified buyers. The gap is not the ads. It is what happens after the click. Conversion rate on the current landing page and form is the constraint, not ad performance.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>What Competitors Do</th>
+            <th>What Redstone Has Now</th>
+            <th>Impact on Conversion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Service-specific landing pages (Xometry operates 200+ pages)</td>
+            <td>Existing service pages are not optimized for ad conversion -- no specs, no file upload, no keyword-matched headlines</td>
+            <td>Competitors build dedicated pages per keyword with specs, upload forms, and matched headlines. Pages built for ad traffic convert 2-3x higher than general service pages.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Instant quote with CAD / STEP / IGES file upload</td>
+            <td>"Get Free Quote" links to a basic contact form</td>
+            <td>Engineers expect to upload files and receive pricing. A contact form creates friction that loses an estimated 50-70% of visitors at this stage.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Published technical specs: tolerances, materials, max dimensions</td>
+            <td>General capabilities described in paragraph format</td>
+            <td>Engineers cannot self-qualify against specs. They leave to check a competitor that publishes the data they need to make a decision.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Multiple entry points: Quote + Talk to Engineer + Download Spec Sheet</td>
+            <td>Single contact method for all visitor types</td>
+            <td>Buyers at different stages of the decision process need different entry points. A single form does not match the range of intent.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: WHAT WE'RE BUILDING (DARK) -->
+<section class="band band--dark">
+  <div class="container">
+    <div class="section-label section-label--dark">Section 06</div>
+    <h2 class="section-title section-title--dark">What We Are Building</h2>
+    <p class="section-desc section-desc--dark">Active initiatives in progress. These directly address the conversion gap identified in Section 05.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Initiative</th>
+            <th>Status</th>
+            <th>Expected Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">New landing page (service-specific)</td>
+            <td class="col-verdict"><span class="badge badge--inprogress">In Progress</span></td>
+            <td>Keyword-matched pages that align message to search intent. Each core service gets a dedicated page. Leo is leading this with the team.</td>
+          </tr>
+          <tr>
+            <td class="col-company">New quote form with file upload</td>
+            <td class="col-verdict"><span class="badge badge--inprogress">In Progress</span></td>
+            <td>CAD / STEP / IGES upload capability plus streamlined fields. Matches the UX engineers expect from competitors.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Niche keyword pages (die casting, CNC, sheet metal)</td>
+            <td class="col-verdict"><span class="badge badge--inprogress">Starting This Week</span></td>
+            <td>Hyper-relevant pages per keyword category. Completion target is within the next few days. Direct lift to Quality Score and conversion rate.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Conversion tracking verification</td>
+            <td class="col-verdict"><span class="badge badge--inprogress">Being Verified</span></td>
+            <td>Ensures every lead is counted accurately so optimization decisions are based on clean data, not partial signals.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: OPTIMIZATION OPPORTUNITIES (WHITE) -->
+<section class="band band--white">
+  <div class="container">
+    <div class="section-label">Section 07</div>
+    <h2 class="section-title">Optimization Opportunities</h2>
+    <p class="section-desc">Items to consider beyond the active build. Prioritized by expected return. None of these are blocking current performance -- they are additive.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Opportunity</th>
+            <th>Priority</th>
+            <th>Budget Impact</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Remarketing campaign</td>
+            <td class="col-verdict"><span class="badge badge--p1">P1</span></td>
+            <td>$300-500/mo incremental</td>
+            <td>B2B sales cycles run 30-90 days. Remarketing keeps Redstone visible during the evaluation period. Highest ROI campaign type in industrial B2B.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Ad extensions review (sitelinks, callouts, structured snippets)</td>
+            <td class="col-verdict"><span class="badge badge--p2">P2</span></td>
+            <td>No additional cost</td>
+            <td>Extensions increase CTR 10-15% with no additional spend. Daniel may already have some configured -- worth verifying current state and expanding if gaps exist.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Negative keyword list audit</td>
+            <td class="col-verdict"><span class="badge badge--p3">P3</span></td>
+            <td>Already in place</td>
+            <td>Daniel confirmed negative keywords are already set up (jobs, DIY, jewelry, etc.). Worth a periodic audit to catch new irrelevant terms as campaigns scale, but the foundation is solid.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Nearshore and reshoring keywords</td>
+            <td class="col-verdict"><span class="badge badge--p2">P2</span></td>
+            <td>$500-1,000/mo</td>
+            <td>Expands beyond Mexico-specific terms to capture the broader reshoring trend in procurement. Lower competition than core manufacturing terms.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Competitor conquest keywords</td>
+            <td class="col-verdict"><span class="badge badge--p2">P2</span></td>
+            <td>~$500/mo</td>
+            <td>"Xometry alternative," "Protolabs alternative" category terms. High purchase intent, moderate cost-per-click. Effective for capturing in-market buyers evaluating options.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Brand defense campaign</td>
+            <td class="col-verdict"><span class="badge badge--p3">P3</span></td>
+            <td>~$100/mo</td>
+            <td>Protects against competitors bidding on "Redstone Manufacturing" searches. Low priority until volume justifies it, but inexpensive insurance.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: COMPETITOR OVERVIEW (DARK) -->
+<section class="band band--dark">
+  <div class="container">
+    <div class="section-label section-label--dark">Section 08</div>
+    <h2 class="section-title section-title--dark">Competitor Overview</h2>
+    <p class="section-desc section-desc--dark">The 10 primary competitors active in Google Ads across your keyword categories. Revenue and spend figures are estimates derived from public filings, SimilarWeb, and SEMrush data.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Competitor</th>
+            <th>Type</th>
+            <th>Revenue (Est.)</th>
+            <th>Marketing Spend (Est.)</th>
+            <th>Instant Quote</th>
+            <th>Key Threat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-company">Xometry</td>
+            <td>Marketplace</td>
+            <td>$687M</td>
+            <td>~$36M/yr</td>
+            <td>AI-Powered</td>
+            <td>Dominates search volume and share of voice across all core terms</td>
+          </tr>
+          <tr>
+            <td class="col-company">Protolabs</td>
+            <td>Manufacturer</td>
+            <td>~$500M</td>
+            <td>~$95M/yr</td>
+            <td>Automated</td>
+            <td>Speed advantage -- same-day and next-day parts in some categories</td>
+          </tr>
+          <tr>
+            <td class="col-company">Fictiv</td>
+            <td>Platform</td>
+            <td>$100-200M</td>
+            <td>VC-funded, aggressive</td>
+            <td>Online</td>
+            <td>Quality positioning and engineering-first brand. Strong on content.</td>
+          </tr>
+          <tr>
+            <td class="col-company">RapidDirect</td>
+            <td>China manufacturer</td>
+            <td>$50-100M</td>
+            <td>Heavy ads spend</td>
+            <td>With DFM feedback</td>
+            <td>Aggressive low-price positioning in die casting and CNC</td>
+          </tr>
+          <tr>
+            <td class="col-company">SendCutSend</td>
+            <td>Online fabricator</td>
+            <td>Inc. 5000 ranked</td>
+            <td>Performance marketing</td>
+            <td>Instant</td>
+            <td>Best-in-class UX and instant pricing. Strong with engineers.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Hubs</td>
+            <td>Marketplace</td>
+            <td>Part of Protolabs</td>
+            <td>Shared with Protolabs</td>
+            <td>Network-based</td>
+            <td>Europe and Asia supplier network. Global reach.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Dynacast</td>
+            <td>Die casting specialist</td>
+            <td>$500M+</td>
+            <td>Moderate</td>
+            <td>Quote form</td>
+            <td>Die casting category specialist with deep brand recognition</td>
+          </tr>
+          <tr>
+            <td class="col-company">3ERP</td>
+            <td>Prototyping</td>
+            <td>$10-30M</td>
+            <td>Aggressive</td>
+            <td>Online</td>
+            <td>Low-volume / prototype positioning. Not a direct threat on volume accounts.</td>
+          </tr>
+          <tr>
+            <td class="col-company">Zetwerk</td>
+            <td>India marketplace</td>
+            <td>$1.5B+</td>
+            <td>Heavy digital</td>
+            <td>Platform</td>
+            <td>Scale and low-cost combination. Increasing US market presence.</td>
+          </tr>
+          <tr>
+            <td class="col-company">MFG.com</td>
+            <td>Sourcing network</td>
+            <td>$10-20M</td>
+            <td>Moderate</td>
+            <td>RFQ matching</td>
+            <td>Established buyer network. Procurement teams already using it.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-label">Prepared By</div>
+        <div class="footer-brand">KAMG</div>
+        <div class="footer-text" style="margin-top: 8px;">
+          Questions on this report: contact your account manager.<br>
+          Data in this report is current as of April 9, 2026.
+        </div>
+      </div>
+      <div>
+        <div class="footer-label">Data Sources</div>
+        <div class="footer-text">
+          Competitor spend estimates: SEMrush, SimilarWeb, public earnings filings.<br>
+          Keyword data: Google Ads account -- 79 active keywords reviewed.<br>
+          Revenue figures: Public filings, Crunchbase, industry reporting.<br>
+          Market intelligence: SpyFu competitive analysis, April 2026.<br>
+          All spend estimates are approximations. Actual figures are not publicly disclosed.
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

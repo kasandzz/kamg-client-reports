@@ -417,53 +417,39 @@ function _renderDemographicIntel(container, SEGMENTS) {
   });
 
   // ============================================================
-  // LOCATION -- Per-contact funnel from BQ (no toggles)
+  // LOCATION -- Meta region ad spend (same toggles as Tier 1)
   // ============================================================
-  const FUNNEL_STAGES = [
-    { key: 'ticket_rate', label: 'Ticket',  color: Theme.FUNNEL.blue },
-    { key: 'show_rate',   label: 'Show',    color: Theme.FUNNEL.cyan },
-    { key: 'book_rate',   label: 'Book',    color: Theme.FUNNEL.green },
-    { key: 'enroll_rate', label: 'Enroll',  color: Theme.FUNNEL.orange },
-  ];
-
-  // Location card
   const locCard = document.createElement('div');
   locCard.className = 'card';
   locCard.style.cssText = 'padding:20px';
-  locCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Location (Top States)</div>`;
+
+  const locTitle = document.createElement('div');
+  locTitle.style.cssText = `font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px`;
+  locTitle.textContent = 'Location (Top Regions)';
+  locCard.appendChild(locTitle);
+
+  const locToggle = document.createElement('div');
+  locToggle.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px';
+  locCard.appendChild(locToggle);
+
   const locBody = document.createElement('div');
   locBody.innerHTML = `<div style="font-size:11px;color:${T.textMuted}">Loading...</div>`;
   locCard.appendChild(locBody);
 
+  let locRows = null;
   (async () => {
-    let rows = [];
-    try { rows = await API.query('segments', 'location', { days }) || []; } catch (e) { /* empty */ }
-    if (!rows.length) {
-      locBody.innerHTML = `<div style="font-size:12px;color:${T.textMuted};padding:16px 0">No contact data for this period.</div>`;
-      return;
-    }
-    let html = `<div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">`;
-    FUNNEL_STAGES.forEach(s => {
-      html += `<div style="display:flex;align-items:center;gap:4px"><div style="width:8px;height:8px;border-radius:2px;background:${s.color}"></div><span style="font-size:10px;color:${T.textMuted}">${s.label}</span></div>`;
-    });
-    html += `</div>`;
-    rows.forEach(row => {
-      const label = row.state || '(unknown)';
-      const contacts = parseInt(row.contacts) || 0;
-      html += `<div style="margin-bottom:14px">`;
-      html += `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span style="font-size:12px;font-weight:600;color:${T.textPrimary}">${label}</span><span style="font-size:10px;color:${T.textMuted}">${contacts.toLocaleString()} contacts</span></div>`;
-      html += `<div style="display:flex;gap:3px;align-items:flex-end;height:32px">`;
-      FUNNEL_STAGES.forEach(s => {
-        const val = parseFloat(row[s.key]) || 0;
-        html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:9px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${val.toFixed(0)}%</span><div style="width:100%;height:${Math.max(val * 0.3, 2)}px;max-height:30px;background:${s.color};border-radius:2px;opacity:${val > 0 ? 0.85 : 0.2}"></div></div>`;
-      });
-      html += `</div></div>`;
-    });
-    locBody.innerHTML = html;
+    try { locRows = await API.query('segments', 'location', { days }) || []; } catch (e) { locRows = []; }
+    renderLocCard();
+    t1CardRenderers.push(renderLocCard);
   })();
 
+  function renderLocCard() {
+    buildToggles(locToggle, T1_STAT_LABELS, () => _segDemoT1Stat, (sk) => { _segDemoT1Stat = sk; }, t1CardRenderers);
+    renderBars(locBody, locRows, _segDemoT1Stat, 'state', formatT1, T1_EMPTY);
+  }
+
   const locBadge = document.createElement('div');
-  locBadge.innerHTML = sourceBadge('Source: GHL + Stripe (per-contact)');
+  locBadge.innerHTML = sourceBadge('Source: Meta Ads API (region)');
   locCard.appendChild(locBadge);
   grid.appendChild(locCard);
 
@@ -476,35 +462,36 @@ function _renderDemographicIntel(container, SEGMENTS) {
   profCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Segment Scorecard</div>`;
 
   if (SEGMENTS && SEGMENTS.length) {
-    const maxCalls = Math.max(...SEGMENTS.map(s => s.calls));
-    const maxSales = Math.max(...SEGMENTS.map(s => s.sales));
+    const bestShowRate = Math.max(...SEGMENTS.filter(s => s.showRate != null).map(s => s.showRate));
     const bestCostSale = Math.min(...SEGMENTS.filter(s => s.costSale).map(s => s.costSale));
 
-    let shtml = '';
-    SEGMENTS.forEach(seg => {
-      const salePct = maxSales > 0 ? (seg.sales / maxSales * 100) : 0;
-      const csColor = seg.costSale === bestCostSale ? T.success : (seg.costSale && seg.costSale > 800 ? '#f59e0b' : T.textPrimary);
-      const lowTag = seg.lowSample ? `<span style="font-size:9px;color:#f59e0b;margin-left:4px">n=${seg.calls}</span>` : '';
+    const thS = `padding:6px 8px;text-align:right;font-size:9px;font-weight:600;color:${T.textMuted};text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid ${T.border};white-space:nowrap`;
+    const tdS = `padding:6px 8px;font-size:11px;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;border-bottom:1px solid rgba(255,255,255,0.04)`;
 
-      shtml += `<div style="margin-bottom:10px">`;
-      shtml += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${seg.color};flex-shrink:0"></div>
-        <span style="font-size:11px;font-weight:600;color:${T.textPrimary};flex:1">${seg.name}${lowTag}</span>
-      </div>`;
-      // Metrics row
-      shtml += `<div style="display:flex;gap:8px;font-size:10px;font-family:'JetBrains Mono',monospace;margin-bottom:4px;padding-left:14px">
-        <span style="color:${T.textMuted}">Sales <span style="color:${T.textPrimary};font-weight:600">${seg.sales}</span></span>
-        <span style="color:${T.textMuted}">Calls <span style="color:${T.textPrimary};font-weight:600">${seg.calls}</span></span>
-        <span style="color:${T.textMuted}">Show <span style="color:${T.textPrimary};font-weight:600">${seg.showRate != null ? seg.showRate + '%' : 'N/A'}</span></span>
-        <span style="color:${T.textMuted}">CPS <span style="color:${csColor};font-weight:600">${seg.costSale ? '$' + seg.costSale : 'N/A'}</span></span>
-      </div>`;
-      // Bar
-      shtml += `<div style="padding-left:14px"><div style="width:100%;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
-        <div style="width:${salePct}%;height:100%;background:${seg.color};border-radius:3px"></div>
-      </div></div>`;
-      shtml += `</div>`;
+    let shtml = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="${thS};text-align:left">Segment</th>
+        <th style="${thS}">Sales</th>
+        <th style="${thS}">Calls</th>
+        <th style="${thS}">Show%</th>
+        <th style="${thS}">CPS</th>
+      </tr></thead><tbody>`;
+
+    SEGMENTS.forEach(seg => {
+      const showColor = seg.showRate === bestShowRate ? T.success : T.textPrimary;
+      const csColor = seg.costSale === bestCostSale ? T.success : (seg.costSale && seg.costSale > 800 ? '#f59e0b' : T.textPrimary);
+      const lowTag = seg.lowSample ? ` <span style="font-size:8px;color:#f59e0b">n=${seg.calls}</span>` : '';
+
+      shtml += `<tr>
+        <td style="${tdS};text-align:left;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${seg.color};margin-right:6px;vertical-align:middle"></span><span style="font-weight:600;color:${T.textPrimary};font-family:inherit">${seg.name}</span>${lowTag}</td>
+        <td style="${tdS};text-align:right;color:${T.textPrimary};font-weight:600">${seg.sales}</td>
+        <td style="${tdS};text-align:right;color:${T.textPrimary}">${seg.calls}</td>
+        <td style="${tdS};text-align:right;color:${showColor}">${seg.showRate != null ? seg.showRate + '%' : '<span style="color:' + T.textMuted + '">--</span>'}</td>
+        <td style="${tdS};text-align:right;color:${csColor};font-weight:600">${seg.costSale ? '$' + seg.costSale : '<span style="color:' + T.textMuted + '">--</span>'}</td>
+      </tr>`;
     });
 
+    shtml += `</tbody></table></div>`;
     profCard.innerHTML += shtml;
   }
 

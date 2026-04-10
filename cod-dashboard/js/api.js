@@ -9,22 +9,35 @@ const API = (() => {
   const _inflight = new Map();
   const _meta = new Map(); // page:query -> { fetchedAt, cachedAt, fromCache }
 
-  // Maps dashboard page name -> BQ table names it depends on
+  // Maps dashboard page name -> BQ tables it depends on (used for data freshness)
   const PAGE_TABLES = {
-    'war-room':       ['contacts', 'stripe_charges', 'hyros_leads', 'ghl_contacts', 'cod_google_sheets'],
-    'ads-meta':       ['meta_ads_insights', 'meta_campaigns', 'meta_adsets', 'meta_ads'],
-    'hyros':          ['hyros_leads', 'hyros_revenue', 'hyros_clicks'],
-    'cold-outbound':  ['cold_outbound_campaigns', 'cold_outbound_leads', 'cold_outbound_replies'],
-    'email':          ['sendgrid_events', 'sendgrid_messages'],
-    'tickets':        ['stripe_charges', 'stripe_customers'],
-    'workshop':       ['posthog_events', 'zoom_attendance', 'cod_google_sheets'],
-    'enrollment':     ['hyros_leads', 'ghl_contacts', 'stripe_charges'],
-    'sales-team':     ['ghl_contacts', 'zoom_attendance', 'cod_google_sheets'],
-    'journey-map':    ['contacts', 'hyros_leads', 'posthog_events', 'stripe_charges'],
-    'landing-pages':  ['posthog_events', 'posthog_heatmaps'],
-    'funnels':        ['posthog_events', 'hyros_leads', 'stripe_charges'],
-    'calls':          ['zoom_attendance', 'ghl_contacts'],
-    'churn':          ['hyros_leads', 'ghl_contacts', 'stripe_charges'],
+    'war-room':             ['stripe_transactions', 'hyros_sales', 'meta_ad_performance', 'posthog_events', 'ghl_contacts'],
+    'ads-meta':             ['meta_ad_performance'],
+    'ads-google':           ['ga4_daily_metrics', 'ga4_traffic_sources'],
+    'hyros':                ['hyros_sales', 'hyros_leads', 'hyros_calls', 'ghl_contacts', 'meta_ad_performance'],
+    'cold-email':           ['cold_outbound_campaigns', 'cold_outbound_leads', 'cold_outbound_replies'],
+    'email-intel':          ['sendgrid_messages'],
+    'email-deliverability': ['sendgrid_daily_stats', 'sendgrid_mailbox_provider_stats'],
+    'enrollment':           ['stripe_transactions', 'meta_ad_performance'],
+    'sales-team':           ['sheets_bookings'],
+    'calls':                ['sheets_bookings'],
+    'journey-map':          ['mat_pipeline'],
+    'funnels':              ['mat_pipeline'],
+    'landing-pages':        ['posthog_events'],
+    'behavioral':           ['posthog_events'],
+    'churn':                ['stripe_transactions'],
+    'insights':             ['mat_pipeline'],
+    'leaks':                ['sheets_bookings', 'mat_pipeline', 'stripe_transactions'],
+    'opportunities':        ['mat_pipeline', 'sheets_bookings'],
+    'live-feed':            ['ghl_contacts', 'stripe_transactions', 'hyros_sales', 'posthog_events'],
+    'segments':             ['meta_ad_performance', 'ghl_contacts'],
+    'geo-intel':            ['mat_geo_revenue'],
+    'wistia':               ['posthog_events'],
+    'experiments':          ['posthog_events'],
+    'retargeting':          ['meta_ad_performance', 'posthog_events'],
+    'competitors':          ['meta_ad_performance'],
+    'worklists':            ['ghl_contacts', 'sheets_bookings'],
+    'ma-funnel':            ['mat_pipeline', 'stripe_transactions'],
   };
 
   // Client-side cache for data freshness (30 min TTL)
@@ -183,12 +196,18 @@ const API = (() => {
    */
   async function getPageFreshness(page) {
     const tables = PAGE_TABLES[page] || [];
-    if (!tables.length) return null;
     const map = await getDataFreshness();
+    if (!map.size) return null;
+    // If page has no mapping, return newest timestamp across all tables
+    if (!tables.length) {
+      let newest = 0;
+      for (const ts of map.values()) { if (ts > newest) newest = ts; }
+      return newest || null;
+    }
     let oldest = Infinity;
     for (const t of tables) {
-      const ts = map.get(t) || 0;
-      if (ts < oldest) oldest = ts;
+      const ts = map.get(t);
+      if (ts && ts < oldest) oldest = ts;
     }
     return oldest === Infinity ? null : oldest;
   }

@@ -452,7 +452,7 @@ const Shell = (() => {
       card.appendChild(dot);
 
       card.addEventListener('mouseenter', async () => {
-        const page = (window.location.hash || '').replace('#', '') || 'war-room';
+        const page = _currentPage || 'war-room';
         const ts = await API.getPageFreshness(page);
         if (ts) {
           const d = new Date(ts);

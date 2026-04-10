@@ -1257,7 +1257,7 @@ App.registerPage('war-room', async (container) => {
   butterflyCard.appendChild(bfTitle);
 
   const bfCanvas = document.createElement('canvas');
-  bfCanvas.style.cssText = 'width:100%;height:320px;display:block';
+  bfCanvas.style.cssText = 'display:block;height:320px';
   butterflyCard.appendChild(bfCanvas);
 
   const bfLegend = document.createElement('div');
@@ -1313,16 +1313,25 @@ App.registerPage('war-room', async (container) => {
     console.log('[butterfly] hyros rows:', (hyrosRows||[]).length, 'meta rows:', (metaRows||[]).length, 'stripe rows:', (stripeRows||[]).length);
 
     // Draw -- use rAF to ensure canvas has layout dimensions
-    requestAnimationFrame(() => _drawButterfly(bfCanvas, bfLegend, data));
-  });
+    requestAnimationFrame(() => {
+      try {
+        _drawButterfly(bfCanvas, bfLegend, data);
+      } catch (err) {
+        console.error('[butterfly] draw error:', err);
+      }
+    });
+  }).catch(err => console.error('[butterfly] fetch error:', err));
 
   function _drawButterfly(bfCanvas, bfLegend, data) {
     const dpr = window.devicePixelRatio || 1;
-    const rect = bfCanvas.getBoundingClientRect();
-    const W = rect.width || bfCanvas.clientWidth || 800;
-    const H = rect.height || bfCanvas.clientHeight || 320;
+    // Use parent card width since canvas might not have layout yet
+    const parent = bfCanvas.parentElement;
+    const W = (parent ? parent.clientWidth - 48 : 0) || bfCanvas.clientWidth || 800;
+    const H = 320;
     bfCanvas.width = W * dpr;
     bfCanvas.height = H * dpr;
+    bfCanvas.style.width = W + 'px';
+    bfCanvas.style.height = H + 'px';
     const ctx = bfCanvas.getContext('2d');
     ctx.scale(dpr, dpr);
     const pad = { top: 20, right: 60, bottom: 36, left: 60 };

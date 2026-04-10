@@ -1401,31 +1401,30 @@ App.registerPage('war-room', async (container) => {
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(pad.left, centerY); ctx.lineTo(W - pad.right, centerY); ctx.stroke();
 
-    // ---- Helper: rounded rect ----
-    function _roundedBar(x, y, w, h, r) {
+    // ---- Helper: draw a bar with rounded top edge ----
+    // dir: 'up' = grows upward from y, 'down' = grows downward from y
+    function _bar(x, y, w, h, r, dir) {
       if (h < 1) return;
-      r = Math.min(r, w / 2, Math.abs(h) / 2);
+      r = Math.min(r, w / 2, h / 2);
       ctx.beginPath();
-      if (h > 0) {
-        // downward bar
-        ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-        ctx.arcTo(x + w, y, x + w, y + r, r);
-        ctx.lineTo(x + w, y + h - r);
-        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-        ctx.lineTo(x + r, y + h);
-        ctx.arcTo(x, y + h, x, y + h - r, r);
-        ctx.lineTo(x, y + r);
-        ctx.arcTo(x, y, x + r, y, r);
+      if (dir === 'up') {
+        // Bar from y going up by h pixels. Bottom edge flat at y, top edge rounded.
+        const top = y - h;
+        ctx.moveTo(x, y);                          // bottom-left
+        ctx.lineTo(x, top + r);                    // left edge up
+        ctx.arcTo(x, top, x + r, top, r);          // top-left corner
+        ctx.lineTo(x + w - r, top);                // top edge
+        ctx.arcTo(x + w, top, x + w, top + r, r);  // top-right corner
+        ctx.lineTo(x + w, y);                      // right edge down
       } else {
-        // upward bar (negative h)
-        const absH = Math.abs(h);
-        const top = y + h;
-        ctx.moveTo(x + r, top); ctx.lineTo(x + w - r, top);
-        ctx.arcTo(x + w, top, x + w, top + r, r);
-        ctx.lineTo(x + w, top + absH);
-        ctx.lineTo(x, top + absH);
-        ctx.lineTo(x, top + r);
-        ctx.arcTo(x, top, x + r, top, r);
+        // Bar from y going down by h pixels. Top edge flat at y, bottom edge rounded.
+        const bot = y + h;
+        ctx.moveTo(x, y);                          // top-left
+        ctx.lineTo(x + w, y);                      // top edge
+        ctx.lineTo(x + w, bot - r);                // right edge down
+        ctx.arcTo(x + w, bot, x + w - r, bot, r);  // bottom-right corner
+        ctx.lineTo(x + r, bot);                    // bottom edge
+        ctx.arcTo(x, bot, x, bot - r, r);          // bottom-left corner
       }
       ctx.closePath();
     }
@@ -1437,19 +1436,18 @@ App.registerPage('war-room', async (container) => {
       const x = pad.left + i * slotW + (slotW - barW) / 2;
       const totalRev = d.ticket_revenue + d.enrollment_revenue;
 
-      // Enrollment revenue (green, stacked above tickets)
       const enrollH = totalRev > 0 ? (d.enrollment_revenue / maxRev) * halfH : 0;
       const ticketH = totalRev > 0 ? (d.ticket_revenue / maxRev) * halfH : 0;
-      const totalBarH = enrollH + ticketH;
 
+      // Enrollment revenue (green) -- sits on top of ticket bar
       if (enrollH > 1) {
-        const grad = ctx.createLinearGradient(0, centerY - totalBarH, 0, centerY - ticketH);
+        const barTop = centerY - ticketH - enrollH;
+        const grad = ctx.createLinearGradient(0, barTop, 0, centerY - ticketH);
         grad.addColorStop(0, '#22c55e');
         grad.addColorStop(1, '#16a34a');
         ctx.fillStyle = grad;
-        _roundedBar(x, centerY - ticketH, barW, -enrollH, radius);
+        _bar(x, centerY - ticketH, barW, enrollH, radius, 'up');
         ctx.fill();
-        // Glow
         ctx.shadowColor = 'rgba(34,197,94,0.25)';
         ctx.shadowBlur = 8;
         ctx.fill();
@@ -1457,28 +1455,25 @@ App.registerPage('war-room', async (container) => {
         ctx.shadowBlur = 0;
       }
 
+      // Ticket revenue (indigo) -- base of revenue stack, bottom at centerY
       if (ticketH > 1) {
         const grad = ctx.createLinearGradient(0, centerY - ticketH, 0, centerY);
         grad.addColorStop(0, '#818cf8');
         grad.addColorStop(1, '#6366f1');
         ctx.fillStyle = grad;
-        // Only round top corners if no enrollment above
-        if (enrollH <= 1) {
-          _roundedBar(x, centerY, barW, -ticketH, radius);
-        } else {
-          ctx.fillRect(x, centerY - ticketH, barW, ticketH);
-        }
+        // Round top only if no enrollment above
+        _bar(x, centerY, barW, ticketH, enrollH > 1 ? 0 : radius, 'up');
         ctx.fill();
       }
 
-      // Spend bar (red, going down)
+      // Spend bar (red, going down from center)
       const spendH = d.spend > 0 ? (d.spend / maxSpend) * halfH : 0;
       if (spendH > 1) {
         const grad = ctx.createLinearGradient(0, centerY + 2, 0, centerY + 2 + spendH);
         grad.addColorStop(0, '#ef4444');
         grad.addColorStop(1, '#dc2626');
         ctx.fillStyle = grad;
-        _roundedBar(x, centerY + 2, barW, spendH, radius);
+        _bar(x, centerY + 2, barW, spendH, radius, 'down');
         ctx.fill();
         ctx.shadowColor = 'rgba(239,68,68,0.2)';
         ctx.shadowBlur = 6;

@@ -731,3 +731,35 @@
 .gap-sm { gap: var(--space-sm); }
 .gap-md { gap: var(--space-md); }
 .gap-lg { gap: var(--space-lg); }
+
+/* ---- Sync Stamp (data freshness indicator on cards) ---- */
+.sync-stamp {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(100, 116, 139, 0.4);
+  transition: background 0.2s;
+  z-index: 2;
+}
+.card:hover .sync-stamp {
+  background: rgba(100, 116, 139, 0.7);
+}
+.sync-stamp[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -4px;
+  right: 14px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(148, 163, 184, 1);
+  font-size: 10px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}

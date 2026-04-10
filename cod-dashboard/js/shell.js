@@ -352,6 +352,9 @@ const Shell = (() => {
       }
     });
 
+    // Auto-stamp cards with sync time via MutationObserver
+    _initSyncStamps();
+
     // Load the page
     _loadCurrentPage();
   }
@@ -402,6 +405,61 @@ const Shell = (() => {
 
   function getCurrentPage() {
     return _currentPage;
+  }
+
+  // ---- Sync stamp auto-injection ----
+
+  function _initSyncStamps() {
+    const container = document.getElementById('page-container');
+    if (!container) return;
+
+    function _stampCard(card) {
+      if (card._syncStamped) return;
+      card._syncStamped = true;
+      card.style.position = 'relative';
+
+      const dot = document.createElement('div');
+      dot.className = 'sync-stamp';
+
+      card.appendChild(dot);
+
+      card.addEventListener('mouseenter', () => {
+        // Find the latest API fetch across all tracked queries
+        const meta = API.getAllMeta();
+        let latest = 0;
+        let serverTs = 0;
+        let anyCache = false;
+        for (const [, m] of meta) {
+          if (m.fetchedAt > latest) latest = m.fetchedAt;
+          if (m.cachedAt > serverTs) serverTs = m.cachedAt;
+          if (m.fromCache) anyCache = true;
+        }
+        if (latest) {
+          const ts = serverTs || latest;
+          const d = new Date(ts);
+          const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          dot.setAttribute('data-tooltip', `Synced ${day} ${time}${anyCache ? ' (cached)' : ''}`);
+        } else {
+          dot.setAttribute('data-tooltip', 'Not yet loaded');
+        }
+      });
+    }
+
+    // Stamp existing cards
+    container.querySelectorAll('.card').forEach(_stampCard);
+
+    // Watch for new cards
+    const observer = new MutationObserver(mutations => {
+      for (const m of mutations) {
+        for (const node of m.addedNodes) {
+          if (node.nodeType !== 1) continue;
+          if (node.classList && node.classList.contains('card')) _stampCard(node);
+          if (node.querySelectorAll) node.querySelectorAll('.card').forEach(_stampCard);
+        }
+      }
+    });
+    observer.observe(container, { childList: true, subtree: true });
   }
 
   // ---- Main entry point ----

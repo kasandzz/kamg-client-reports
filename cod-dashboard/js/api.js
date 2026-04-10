@@ -7,6 +7,7 @@ const API = (() => {
   const CACHE_TTL = 5 * 60 * 1000; // 5 min
   const _cache = new Map();
   const _inflight = new Map();
+  const _meta = new Map(); // page:query -> { fetchedAt, cachedAt, fromCache }
 
   /**
    * Build current filter params for API calls.
@@ -63,7 +64,13 @@ const API = (() => {
       }
       const json = await res.json();
       const data = json.data || [];
-      _cache.set(cacheKey, { data, ts: Date.now() });
+      const now = Date.now();
+      _cache.set(cacheKey, { data, ts: now });
+      _meta.set(`${page}:${queryName}`, {
+        fetchedAt: now,
+        cachedAt: json.cachedAt ? new Date(json.cachedAt).getTime() : now,
+        fromCache: !!json.cached
+      });
       return data;
     } catch (err) {
       console.warn(`[API] fetch error for ${page}/${queryName}:`, err.message);
@@ -90,5 +97,32 @@ const API = (() => {
     }
   }
 
-  return { query, getFilterParams, getLastUpdated, clearCache, BASE_URL };
+  /**
+   * Get metadata for a specific query (fetch timestamp, cache status).
+   * @param {string} page
+   * @param {string} queryName
+   * @returns {{ fetchedAt: number, cachedAt: number, fromCache: boolean }|null}
+   */
+  function getQueryMeta(page, queryName) {
+    return _meta.get(`${page}:${queryName}`) || null;
+  }
+
+  /**
+   * Format a timestamp as relative time string (e.g. "3m ago", "2h ago").
+   */
+  function timeAgo(ts) {
+    if (!ts) return 'unknown';
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+
+  /**
+   * Get all tracked query metadata.
+   */
+  function getAllMeta() { return _meta; }
+
+  return { query, getFilterParams, getLastUpdated, getQueryMeta, getAllMeta, timeAgo, clearCache, BASE_URL };
 })();

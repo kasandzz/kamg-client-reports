@@ -289,6 +289,53 @@ const Components = (() => {
     if (closeBtn) closeBtn.addEventListener('click', closeDrillDown);
   });
 
+  /**
+   * Stamp a card element with a "last synced" tooltip.
+   * Shows on hover in top-right corner.
+   * @param {HTMLElement} card - the .card element
+   * @param {string} page - API page name
+   * @param {string|string[]} queries - query name(s) used by this card
+   */
+  function stampSyncTime(card, page, queries) {
+    if (!card) return;
+    const qList = Array.isArray(queries) ? queries : [queries];
+
+    // Find the most recent fetch across all queries for this card
+    function getLabel() {
+      let latest = 0;
+      let serverTs = 0;
+      let anyCache = false;
+      for (const q of qList) {
+        const m = API.getQueryMeta(page, q);
+        if (m) {
+          if (m.fetchedAt > latest) latest = m.fetchedAt;
+          if (m.cachedAt > serverTs) serverTs = m.cachedAt;
+          if (m.fromCache) anyCache = true;
+        }
+      }
+      if (!latest) return null;
+      const ts = serverTs || latest;
+      const d = new Date(ts);
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `Synced ${day} ${time}` + (anyCache ? ' (cached)' : '');
+    }
+
+    // Create the dot indicator
+    const dot = document.createElement('div');
+    dot.className = 'sync-stamp';
+    dot.setAttribute('aria-label', 'Data freshness');
+    card.style.position = 'relative';
+    card.appendChild(dot);
+
+    // Update on hover
+    card.addEventListener('mouseenter', () => {
+      const label = getLabel();
+      if (label) dot.setAttribute('data-tooltip', label);
+      else dot.setAttribute('data-tooltip', 'Loading...');
+    });
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -296,5 +343,6 @@ const Components = (() => {
     closeDrillDown,
     isDrillDownOpen,
     renderTable,
+    stampSyncTime,
   };
 })();

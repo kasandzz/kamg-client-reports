@@ -41,8 +41,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.gross_revenue || 0,
       format: 'money',
       delta: _delta(cur.gross_revenue, prev.gross_revenue),
-      source: 'BigQuery: stripe_charges',
-      calc: 'SUM(amount_captured) WHERE status = "succeeded" AND created BETWEEN period_start AND period_end',
+      source: 'BigQuery: v_stripe_clean',
+      calc: 'SUM(amount) WHERE amount > 0 AND status = "succeeded" for period',
     },
     {
       label: 'Blended ROAS',
@@ -50,8 +50,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.roas || 0,
       format: 'num',
       delta: _delta(cur.roas, prev.roas),
-      source: 'BigQuery: hyros_sales + meta_ads_insights',
-      calc: 'SUM(hyros_sales.revenue) / SUM(meta_ads_insights.spend) for period',
+      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean',
+      calc: '(gross_revenue - refunds) / total_spend for period',
     },
     {
       label: 'Enrollments',
@@ -59,8 +59,8 @@ App.registerPage('war-room', async (container) => {
       prevValue: prev.enrollments || 0,
       format: 'num',
       delta: _delta(cur.enrollments, prev.enrollments),
-      source: 'BigQuery: hyros_sales',
-      calc: 'COUNT(DISTINCT sale_id) WHERE product_type != "ticket" AND date BETWEEN period_start AND period_end',
+      source: 'BigQuery: v_stripe_clean',
+      calc: 'COUNT(DISTINCT email) WHERE amount > 500 AND status = "succeeded" for period',
     },
     {
       label: 'CPB',
@@ -69,8 +69,8 @@ App.registerPage('war-room', async (container) => {
       format: 'money',
       invertCost: true,
       delta: _delta(cur.cpb, prev.cpb),
-      source: 'BigQuery: meta_ads_insights + stripe_charges',
-      calc: 'SUM(ad_spend) / COUNT(DISTINCT stripe_charges WHERE amount = 2700) for period',
+      source: 'BigQuery: v_meta_ads_clean + v_sheets_bookings_clean',
+      calc: 'total_spend / total_calls (all booked calls) for period',
     },
     {
       label: 'CPA (Avg)',
@@ -79,8 +79,8 @@ App.registerPage('war-room', async (container) => {
       format: 'money',
       invertCost: true,
       delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
-      source: 'BigQuery: meta_ads_insights + hyros_sales',
-      calc: 'SUM(ad_spend) / COUNT(DISTINCT enrollment_id) for period',
+      source: 'BigQuery: v_meta_ads_clean + v_stripe_clean',
+      calc: 'total_spend / COUNT(DISTINCT email WHERE amount > 500) for period',
     },
     {
       label: 'CPM',
@@ -106,16 +106,18 @@ App.registerPage('war-room', async (container) => {
   // Sales Team KPI strip -- uses war-room cur/prev + calls data
   const callsBooked = cur.total_calls || 0;
   const prevCallsBooked = prev.total_calls || 0;
-  const callsTaken = (cur.total_calls || 0) - (cur.no_shows || 0);
-  const prevCallsTaken = (prev.total_calls || 0) - (prev.no_shows || 0);
+  const callsTaken = cur.showed || ((cur.total_calls || 0) - (cur.no_shows || 0) - (cur.cancellations || 0));
+  const prevCallsTaken = prev.showed || ((prev.total_calls || 0) - (prev.no_shows || 0) - (prev.cancellations || 0));
   const totalCash = cur.gross_revenue || 0;
-  const totalContracts = cur.enrollment_revenue || totalCash;
-  const prevTotalContracts = prev.enrollment_revenue || prev.gross_revenue || 0;
+  const totalContracts = cur.enrollment_revenue || 0;
+  const prevTotalContracts = prev.enrollment_revenue || 0;
   const adSpend = cur.total_spend || 0;
   const cac = cur.enrollments > 0 ? adSpend / cur.enrollments : 0;
   const prevCac = prev.enrollments > 0 ? (prev.total_spend || 0) / prev.enrollments : 0;
-  const roas = adSpend > 0 ? totalCash / adSpend : 0;
-  const prevRoas = (prev.total_spend || 0) > 0 ? (prev.gross_revenue || 0) / prev.total_spend : 0;
+  const netRevenue = (cur.gross_revenue || 0) - (cur.refunds || 0);
+  const prevNetRevenue = (prev.gross_revenue || 0) - (prev.refunds || 0);
+  const roas = adSpend > 0 ? netRevenue / adSpend : 0;
+  const prevRoas = (prev.total_spend || 0) > 0 ? prevNetRevenue / prev.total_spend : 0;
 
   Components.renderKPIStrip(salesKpiContainer, [
     { label: 'Calls Booked (All)', value: callsBooked, prevValue: prevCallsBooked, format: 'num',
@@ -126,19 +128,19 @@ App.registerPage('war-room', async (container) => {
       source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE status != "no-show"' },
     { label: 'Total Cash', value: totalCash, prevValue: prev.gross_revenue || 0, format: 'money',
       delta: _delta(totalCash, prev.gross_revenue),
-      source: 'BigQuery: stripe_charges', calc: 'SUM(amount_captured) WHERE succeeded' },
-    { label: 'Total Contracts', value: totalContracts, prevValue: prevTotalContracts, format: 'money',
+      source: 'BigQuery: v_stripe_clean', calc: 'SUM(amount) WHERE amount > 0 AND succeeded' },
+    { label: 'Enrollment Revenue', value: totalContracts, prevValue: prevTotalContracts, format: 'money',
       delta: _delta(totalContracts, prevTotalContracts),
-      source: 'BigQuery: hyros_sales', calc: 'SUM(revenue) for all enrollment sales in period' },
+      source: 'BigQuery: v_stripe_clean', calc: 'SUM(amount) WHERE amount > 500 AND succeeded' },
     { label: 'Ad Spend', value: adSpend, prevValue: prev.total_spend || 0, format: 'money',
       delta: _delta(adSpend, prev.total_spend),
-      source: 'BigQuery: meta_ads_insights', calc: 'SUM(spend) for period' },
+      source: 'BigQuery: v_meta_ads_clean', calc: 'SUM(spend) for period' },
     { label: 'CAC', value: cac, prevValue: prevCac, format: 'money', invertCost: true,
       delta: prevCac > 0 ? _delta(cac, prevCac) : null,
-      source: 'BigQuery: meta_ads_insights + hyros_sales', calc: 'total_spend / enrollments' },
-    { label: 'ROAS', value: roas, prevValue: prevRoas, format: 'num',
+      source: 'BigQuery: v_meta_ads_clean + v_stripe_clean', calc: 'total_spend / enrollments (Stripe)' },
+    { label: 'Net ROAS', value: roas, prevValue: prevRoas, format: 'num',
       delta: prevRoas > 0 ? _delta(roas, prevRoas) : null,
-      source: 'BigQuery: stripe_charges + meta_ads_insights', calc: 'gross_revenue / total_spend' },
+      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean', calc: '(gross_revenue - refunds) / total_spend' },
   ]);
 
   // ---- CPA tooltip: hover on CPA KPI card shows per-channel breakdown ----
@@ -259,7 +261,7 @@ App.registerPage('war-room', async (container) => {
   barHTML += `<div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1px solid ${Theme.COLORS.border}">
     <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Ad Spend</div><div style="font-size:14px;font-weight:600;color:${Theme.COLORS.danger}">-${Theme.money(adSpend)}</div></div>
     <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Refunds</div><div style="font-size:14px;font-weight:600;color:${Theme.COLORS.danger}">-${Theme.money(refunds)}</div></div>
-    <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Net Profit</div><div style="font-size:16px;font-weight:700;color:${netRev >= 0 ? Theme.COLORS.success : Theme.COLORS.danger}">${Theme.money(netRev)}</div></div>
+    <div><div style="font-size:11px;color:${Theme.COLORS.textMuted}">Net After Ad Spend</div><div style="font-size:16px;font-weight:700;color:${netRev >= 0 ? Theme.COLORS.success : Theme.COLORS.danger}">${Theme.money(netRev)}</div></div>
   </div>`;
   barHTML += '</div>';
 
@@ -458,7 +460,7 @@ App.registerPage('war-room', async (container) => {
   chTitleRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px';
   const chTitle = document.createElement('div');
   chTitle.style.cssText = `font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:0.05em`;
-  chTitle.textContent = 'Channel Performance';
+  chTitle.textContent = 'Channel Performance (spend estimated by ticket share)';
   chTitleRow.appendChild(chTitle);
   chTitleRow.appendChild(_createAttribDropdown());
   channelCard.appendChild(chTitleRow);
@@ -1007,7 +1009,7 @@ App.registerPage('war-room', async (container) => {
   const grossRev = cur.gross_revenue || 0;
   const totalCalls = cur.total_calls || 0;
   const ticketRev2 = cur.ticket_revenue || 0;
-  const totalTickets = ticketRev2 > 0 ? Math.round(ticketRev2 / 27) : 0;
+  const totalTickets = cur.ticket_count || (ticketRev2 > 0 ? Math.round(ticketRev2 / 27) : 0);
   const curDPL = totalCalls > 0 ? grossRev / totalCalls : 0;
   const curCPT = totalTickets > 0 ? totalSpend / totalTickets : 0;
 
@@ -1015,7 +1017,7 @@ App.registerPage('war-room', async (container) => {
   const prevRev = prev.gross_revenue || 0;
   const prevCalls = prev.total_calls || 0;
   const prevTicketRev = prev.ticket_revenue || 0;
-  const prevTickets = prevTicketRev > 0 ? Math.round(prevTicketRev / 27) : 0;
+  const prevTickets = prev.ticket_count || (prevTicketRev > 0 ? Math.round(prevTicketRev / 27) : 0);
   const prevDPL = prevCalls > 0 ? prevRev / prevCalls : 0;
   const prevCPT = prevTickets > 0 ? prevSpend / prevTickets : 0;
 
@@ -1682,8 +1684,15 @@ App.registerPage('war-room', async (container) => {
     API.query('workshop', 'weeklyVelocity', { days: 90 }).catch(() => []),
     API.query('workshop', 'dailyVelocity', { days: 14 }).catch(() => [])
   ]).then(([weeklyRows, dailyRows]) => {
-    if (!weeklyRows || weeklyRows.length === 0) weeklyRows = _dummyWeeklyVelocity();
-    if (!dailyRows || dailyRows.length === 0) dailyRows = _dummyDailyVelocity();
+    let usingDummy = false;
+    if (!weeklyRows || weeklyRows.length === 0) { weeklyRows = _dummyWeeklyVelocity(); usingDummy = true; }
+    if (!dailyRows || dailyRows.length === 0) { dailyRows = _dummyDailyVelocity(); usingDummy = true; }
+    if (usingDummy) {
+      const warn = document.createElement('div');
+      warn.style.cssText = 'padding:6px 12px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:6px;color:#f59e0b;font-size:11px;margin-bottom:8px;text-align:center';
+      warn.textContent = 'Workshop velocity data unavailable -- showing sample data';
+      velocityCard.insertBefore(warn, velocityCard.firstChild);
+    }
     _renderVelocityTable(weeklyRows, dailyRows);
   });
 
@@ -1786,17 +1795,25 @@ function _aggregateWeekly(dailyRows) {
     weeks[weekKey].rows.push(row);
   });
 
-  const numKeys = ['traffic', 'all_tickets', 'vip', 'calls_booked', 'vip_upgrade_pct', 'booking_pct', 'ad_spend', 'cost_per_booked_call', 'paid_tickets', 'cost_per_ticket_purchase', 'ticket_revenue', 'cost_per_call_after_ticket_rev'];
+  const sumKeys = ['traffic', 'all_tickets', 'vip', 'calls_booked', 'ad_spend', 'paid_tickets', 'ticket_revenue'];
+  const ratioKeys = ['cost_per_booked_call', 'cost_per_ticket_purchase', 'cost_per_call_after_ticket_rev'];
 
   return Object.values(weeks)
     .sort((a, b) => b.weekStart.localeCompare(a.weekStart))
     .map(w => {
-      const avg = { date: { value: w.weekStart } };
-      numKeys.forEach(k => {
-        const vals = w.rows.map(r => parseFloat(r[k]) || 0).filter(v => v !== 0);
-        avg[k] = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      const agg = { date: { value: w.weekStart } };
+      // Sum absolute counts/amounts
+      sumKeys.forEach(k => {
+        agg[k] = w.rows.reduce((s, r) => s + (parseFloat(r[k]) || 0), 0);
       });
-      return avg;
+      // Recompute percentages from sums (not mean-of-means)
+      agg.vip_upgrade_pct = agg.all_tickets > 0 ? (agg.vip / agg.all_tickets) * 100 : 0;
+      agg.booking_pct = agg.all_tickets > 0 ? (agg.calls_booked / agg.all_tickets) * 100 : 0;
+      // Recompute ratios from sums
+      agg.cost_per_booked_call = agg.calls_booked > 0 ? agg.ad_spend / agg.calls_booked : 0;
+      agg.cost_per_ticket_purchase = agg.paid_tickets > 0 ? agg.ad_spend / agg.paid_tickets : 0;
+      agg.cost_per_call_after_ticket_rev = agg.calls_booked > 0 ? (agg.ad_spend - agg.ticket_revenue) / agg.calls_booked : 0;
+      return agg;
     });
 }
 

@@ -1422,6 +1422,31 @@ function getTrafficLight(kpi, value, prevValue) {
   return 'red';
 }
 
+// ---- Render: YTD Summary Strip ----
+async function renderYTD() {
+  var strip = document.getElementById('ytdStrip');
+  try {
+    var data = await API.query('workshop', 'ytd');
+    if (!data || data.length === 0) { strip.style.display = 'none'; return; }
+    var d = data[0];
+    var fmtN = function(n) { return (n || 0).toLocaleString(); };
+    var fmtP = function(n) { return (n || 0).toFixed(1) + '%'; };
+    var fmtM = function(n) { return '$' + Math.round(n || 0).toLocaleString(); };
+    strip.style.display = '';
+    strip.innerHTML =
+      '<div class="ytd-strip__title">2026 Year-to-Date</div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Tickets</span><span class="ytd-item__value">' + fmtN(d.tickets) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Attended</span><span class="ytd-item__value">' + fmtN(d.attended) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Show Rate</span><span class="ytd-item__value ytd-item__value--accent">' + fmtP(d.show_rate) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">VIP</span><span class="ytd-item__value ytd-item__value--gold">' + fmtN(d.vip) + ' (' + fmtP(d.vip_rate) + ')</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Booked</span><span class="ytd-item__value">' + fmtN(d.booked) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Booking Rate</span><span class="ytd-item__value ytd-item__value--accent">' + fmtP(d.booking_rate) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Enrolled</span><span class="ytd-item__value ytd-item__value--green">' + fmtN(d.enrolled) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Close Rate</span><span class="ytd-item__value ytd-item__value--green">' + fmtP(d.close_rate) + '</span></div>' +
+      '<div class="ytd-item"><span class="ytd-item__label">Enrollment Rev</span><span class="ytd-item__value ytd-item__value--green">' + fmtM(d.enrollment_revenue) + '</span></div>';
+  } catch(e) { strip.style.display = 'none'; }
+}
+
 // ---- Delta ----
 function calcDelta(current, previous) {
   if (previous === 0 || previous == null) return { pct: 0, direction: 'neutral' };
@@ -1966,21 +1991,14 @@ async function renderHeatmap() {
     html += '<div class="heatmap-row-label">' + slot + '</div>';
     days.forEach(function(day) {
       var val = (heatData[slot] && heatData[slot][day]) || 0;
-      // Normalize 0-1
       var norm = maxVal > minVal ? (val - minVal) / (maxVal - minVal) : 0.5;
       var bg;
       if (norm >= 0.66) {
-        // Green zone
-        var a = 0.35 + norm * 0.5;
-        bg = 'rgba(34,197,94,' + a.toFixed(2) + ')';
+        bg = 'linear-gradient(135deg, rgba(34,197,94,0.85), rgba(16,185,129,0.65))';
       } else if (norm >= 0.33) {
-        // Amber zone
-        var a = 0.35 + norm * 0.4;
-        bg = 'rgba(245,158,11,' + a.toFixed(2) + ')';
+        bg = 'linear-gradient(135deg, rgba(245,158,11,0.75), rgba(217,119,6,0.55))';
       } else {
-        // Red zone
-        var a = 0.3 + (1 - norm) * 0.4;
-        bg = 'rgba(239,68,68,' + a.toFixed(2) + ')';
+        bg = 'linear-gradient(135deg, rgba(239,68,68,0.7), rgba(185,28,28,0.55))';
       }
       html += '<div class="heatmap-cell" style="background:' + bg + '">' + val + '%</div>';
     });
@@ -2033,17 +2051,16 @@ async function renderTicketHeatmap() {
       var val = (ticketHeat[slot] && ticketHeat[slot][day]) || 0;
       var norm = maxVal > minVal ? (val - minVal) / (maxVal - minVal) : 0.5;
       var bg;
-      if (norm >= 0.7) {
-        var a = 0.4 + norm * 0.45;
-        bg = 'rgba(34,197,94,' + a.toFixed(2) + ')';
-      } else if (norm >= 0.4) {
-        var a = 0.3 + norm * 0.4;
-        bg = 'rgba(34,211,238,' + a.toFixed(2) + ')';
+      if (norm >= 0.75) {
+        bg = 'linear-gradient(135deg, rgba(34,197,94,0.85), rgba(16,185,129,0.7))';
+      } else if (norm >= 0.55) {
+        bg = 'linear-gradient(135deg, rgba(34,211,238,0.75), rgba(6,182,212,0.6))';
+      } else if (norm >= 0.35) {
+        bg = 'linear-gradient(135deg, rgba(99,102,241,0.7), rgba(124,58,237,0.55))';
       } else if (norm >= 0.15) {
-        var a = 0.2 + norm * 0.5;
-        bg = 'rgba(124,58,237,' + a.toFixed(2) + ')';
+        bg = 'linear-gradient(135deg, rgba(124,58,237,0.45), rgba(88,28,135,0.4))';
       } else {
-        bg = 'rgba(124,58,237,0.15)';
+        bg = 'linear-gradient(135deg, rgba(88,28,135,0.3), rgba(55,15,100,0.25))';
       }
       html += '<div class="heatmap-cell" style="background:' + bg + '">' + val + '</div>';
     });
@@ -2981,6 +2998,7 @@ async function renderAll(days) {
     previousRows = _funnelData.filter(function(r) { return r.period === 'previous'; }).sort(function(a,b){ return a.dt < b.dt ? -1 : 1; });
   }
 
+  renderYTD();
   renderKPICards(cur, prev, currentRows, previousRows);
   renderFunnelChart(days, currentRows, previousRows);
 

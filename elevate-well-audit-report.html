@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Audit Report: Elevate Well | KAMG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-base: #0a0a0f;
+  --bg-mid: #0f0f1a;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.12);
+  --text-primary: #f0eee8;
+  --text-secondary: rgba(240,238,232,0.65);
+  --text-muted: rgba(240,238,232,0.4);
+  --accent: #e8a0b4;
+  --accent-dim: rgba(232,160,180,0.15);
+  --accent-glow: rgba(232,160,180,0.3);
+  --red: #ff4444;
+  --red-dim: rgba(255,68,68,0.12);
+  --amber: #ffaa00;
+  --amber-dim: rgba(255,170,0,0.12);
+  --green: #44ff88;
+  --green-dim: rgba(68,255,136,0.12);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+  --font-body: 'Inter', sans-serif;
+  --font-head: 'Playfair Display', serif;
+  --radius: 16px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+.nav-brand {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-style: italic;
+}
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+@media (max-width: 768px) { .nav-links { display: none; } }
+
+/* SECTIONS */
+section { position: relative; z-index: 1; }
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+}
+
+/* TYPOGRAPHY */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: block;
+}
+h1, h2, h3 { font-family: var(--font-head); line-height: 1.2; }
+h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
+p { color: var(--text-secondary); }
+
+/* CARDS */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-card);
+  padding: 2rem;
+  transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+.glass-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+/* SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* SCORE BADGE */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: var(--font-body);
+}
+.score-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,68,68,0.3); }
+.score-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,170,0,0.3); }
+.score-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(68,255,136,0.3); }
+
+/* SEVERITY BADGES */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.badge-critical { background: rgba(255,68,68,0.15); color: var(--red); border: 1px solid rgba(255,68,68,0.3); }
+.badge-high { background: rgba(255,170,0,0.15); color: var(--amber); border: 1px solid rgba(255,170,0,0.3); }
+.badge-steal { background: rgba(68,255,136,0.15); color: var(--green); border: 1px solid rgba(68,255,136,0.3); }
+
+/* ===================== SECTION 1: COVER ===================== */
+#cover {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(232,160,180,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(100,60,120,0.15) 0%, transparent 60%),
+    conic-gradient(from 180deg at 50% 50%, #0a0a0f 0deg, #12101a 90deg, #0e0c18 180deg, #0a0a0f 360deg);
+  padding-top: 60px;
+}
+.cover-inner {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+.cover-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.cover-meta span { color: var(--accent); }
+.cover-meta::before, .cover-meta::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 60px;
+  background: var(--border-light);
+}
+.cover-title {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #f0eee8 0%, var(--accent) 60%, #c97090 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+.cover-subtitle {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  margin-bottom: 3rem;
+  letter-spacing: 0.02em;
+}
+.cover-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2rem 0 3rem;
+}
+.gauge-label-top {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+#gauge-svg { width: 280px; height: 160px; overflow: visible; }
+.gauge-score-display {
+  margin-top: -0.5rem;
+  font-family: var(--font-head);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--red);
+  line-height: 1;
+}
+.gauge-score-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+.cover-verdict {
+  background: rgba(255,68,68,0.08);
+  border: 1px solid rgba(255,68,68,0.2);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  font-size: 1rem;
+  color: rgba(240,238,232,0.8);
+  line-height: 1.7;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+}
+.cover-verdict strong { color: var(--red); }
+.cover-prepared {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.cover-prepared strong { color: var(--accent); }
+
+/* ===================== SECTION 2: EXECUTIVE SUMMARY ===================== */
+#exec-summary {
+  background:
+    radial-gradient(ellipse 70% 50% at 90% 20%, rgba(100,60,160,0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 10% 80%, rgba(232,160,180,0.07) 0%, transparent 60%),
+    var(--bg-mid);
+}
+.pyramid-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+@media (max-width: 768px) { .pyramid-grid { grid-template-columns: 1fr; } }
+.pyramid-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.pyramid-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.pyramid-card.situation::before { background: linear-gradient(90deg, var(--accent), transparent); }
+.pyramid-card.complication::before { background: linear-gradient(90deg, var(--red), transparent); }
+.pyramid-card.resolution::before { background: linear-gradient(90deg, var(--green), transparent); }
+.pyramid-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.situation .pyramid-label { color: var(--accent); }
+.complication .pyramid-label { color: var(--red); }
+.resolution .pyramid-label { color: var(--green); }
+.pyramid-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-head);
+}
+.pyramid-card p { font-size: 0.9rem; line-height: 1.7; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+@media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+.stat-number {
+  font-family: var(--font-head);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.stat-sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+.bottom-line {
+  background: linear-gradient(135deg, rgba(232,160,180,0.08), rgba(232,160,180,0.03));
+  border: 1px solid rgba(232,160,180,0.2);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+.bottom-line-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.bottom-line p { font-size: 1rem; line-height: 1.8; color: var(--text-primary); }
+
+/* ===================== SECTION 3: CATEGORY SCORING ===================== */
+#scoring {
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 50%, rgba(232,160,180,0.06) 0%, transparent 60%),
+    var(--bg-base);
+}
+.radar-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0;
+}
+#radar-svg {
+  width: 500px;
+  height: 500px;
+  max-width: 100%;
+}
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 3rem;
+}
+@media (max-width: 768px) { .category-grid { grid-template-columns: 1fr; } }
+.category-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.category-info { flex: 1; }
+.category-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+}
+.category-issue {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+.category-fix {
+  font-size: 0.75rem;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.category-fix::before { content: '→'; }
+.score-badge-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#cover" class="nav-brand">Elevate Well — CRO Audit</a>
+    <ul class="nav-links">
+      <li><a href="#exec-summary">Summary</a></li>
+      <li><a href="#scoring">Scores</a></li>
+      <li><a href="#findings">Findings</a></li>
+      <li><a href="#teardown">Teardown</a></li>
+      <li><a href="#competitive">Competitive</a></li>
+      <li><a href="#benchmarks">Benchmarks</a></li>
+      <li><a href="#psychology">Psychology</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#evidence">Evidence</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- SECTION 1: COVER -->
+<section id="cover">
+  <div class="cover-inner">
+    <div class="cover-meta">
+      <span>KAMG</span> CRO Audit Report <span>April 10, 2026</span>
+    </div>
+    <h1 class="cover-title">CRO Audit Report:<br>Elevate Well</h1>
+    <p class="cover-subtitle">Registration Page Performance Analysis — pages.elevatewell.net</p>
+
+    <div class="cover-gauge-wrap reveal">
+      <div class="gauge-label-top">Overall CRO Score</div>
+      <svg id="gauge-svg" viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#ff4444"/>
+            <stop offset="50%" style="stop-color:#ffaa00"/>
+            <stop offset="100%" style="stop-color:#44ff88"/>
+          </linearGradient>
+        </defs>
+        <!-- Track -->
+        <path d="M 30 140 A 110 110 0 0 1 250 140" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+        <!-- Score arc (3.4/10 = 34% = ~61deg of 180deg arc) -->
+        <path id="gauge-arc" d="M 30 140 A 110 110 0 0 1 250 140" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round"
+          stroke-dasharray="345.6" stroke-dashoffset="345.6"/>
+        <!-- Needle -->
+        <line id="gauge-needle" x1="140" y1="140" x2="140" y2="38" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round" transform="rotate(-86.4, 140, 140)" opacity="0"/>
+        <!-- Center dot -->
+        <circle cx="140" cy="140" r="6" fill="rgba(255,255,255,0.15)"/>
+        <!-- Labels -->
+        <text x="22" y="158" fill="rgba(255,255,255,0.3)" font-size="11" font-family="Inter">0</text>
+        <text x="140" y="22" fill="rgba(255,255,255,0.3)" font-size="11" font-family="Inter" text-anchor="middle">5</text>
+        <text x="252" y="158" fill="rgba(255,255,255,0.3)" font-size="11" font-family="Inter">10</text>
+      </svg>
+      <div class="gauge-score-display" id="gauge-score-display">0</div>
+      <div class="gauge-score-sub">out of 10 — Critical Failure</div>
+    </div>
+
+    <div class="cover-verdict reveal reveal-delay-1">
+      This page is converting at <strong>near 0%</strong> when industry benchmark is <strong>30%</strong>. An estimated <strong>97% of qualified traffic is being lost</strong> at the registration step — after ad spend has already been paid.
+    </div>
+
+    <div class="cover-prepared reveal reveal-delay-2">
+      Prepared by <strong>KAMG</strong> &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; April 10, 2026
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: EXECUTIVE SUMMARY -->
+<section id="exec-summary">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Executive Summary</span>
+    <h2 class="reveal">The Situation, The Problem,<br>and The Path Forward</h2>
+
+    <div class="pyramid-grid">
+      <div class="pyramid-card situation reveal reveal-delay-1">
+        <span class="pyramid-label">Situation</span>
+        <h3>The Ads Are Working</h3>
+        <p>Elevate Well's Facebook ads are delivering high-CTR clicks to a webinar registration page. The creative resonates. The audience is engaged and clicking. The top of the funnel is not the problem.</p>
+      </div>
+      <div class="pyramid-card complication reveal reveal-delay-2">
+        <span class="pyramid-label">Complication</span>
+        <h3>The Page Is Destroying the Investment</h3>
+        <p>The registration page converts near 0% — 3 registrations from hundreds of clicks. Industry benchmark for cold FB traffic to webinar reg is 30%. Three root causes: masculine template signals "wrong audience" in 50ms, zero social proof on a page asking strangers for personal data, and a generic CTA that kills momentum.</p>
+      </div>
+      <div class="pyramid-card resolution reveal reveal-delay-3">
+        <span class="pyramid-label">Resolution</span>
+        <h3>A Complete Rebuild, Backed by Evidence</h3>
+        <p>A complete page rebuild addressing all three root causes — backed by 85+ CRO findings from our Knowledge Base — is projected to bring conversion rate to the 20–35% range, representing a 800–1,000% lift from the current baseline.</p>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card glass-card reveal">
+        <div class="stat-number" style="color: var(--red);" data-count="3.4" data-suffix="/10" data-decimals="1">0</div>
+        <div class="stat-label">Overall Score</div>
+        <div class="stat-sub">Critical failure threshold</div>
+      </div>
+      <div class="stat-card glass-card reveal reveal-delay-1">
+        <div class="stat-number" style="color: var(--accent);" data-count="85" data-suffix="+">0</div>
+        <div class="stat-label">Total Findings</div>
+        <div class="stat-sub">Across 10 CRO categories</div>
+      </div>
+      <div class="stat-card glass-card reveal reveal-delay-2">
+        <div class="stat-number" style="color: var(--amber);" data-count="1000" data-suffix="%">0</div>
+        <div class="stat-label">Lift Potential</div>
+        <div class="stat-sub">Est. 800–1,000% from baseline</div>
+      </div>
+      <div class="stat-card glass-card reveal reveal-delay-3">
+        <div class="stat-number" style="color: var(--green);" data-count="30" data-suffix="x">0</div>
+        <div class="stat-label">Benchmark Gap</div>
+        <div class="stat-sub">Below industry standard</div>
+      </div>
+    </div>
+
+    <div class="bottom-line reveal">
+      <span class="bottom-line-label">Bottom Line</span>
+      <p>Every dollar spent on Facebook ads is currently buying a click that goes nowhere. The registration page is the single highest-leverage asset in Michelle's entire funnel — and it's the one that's failing. A rebuild is not optional; it's the difference between a business that works and one that doesn't.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CATEGORY SCORING -->
+<section id="scoring">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Category Scoring</span>
+    <h2 class="reveal">Ten Lenses. One Verdict.</h2>
+    <p class="reveal" style="max-width: 600px; margin-top: 1rem;">Every dimension of the registration page was scored against CRO best practices. The radar chart below shows where the page stands — and where the opportunity lives.</p>
+
+    <div class="radar-wrap reveal">
+      <svg id="radar-svg" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="radarGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color:rgba(232,160,180,0.3)"/>
+            <stop offset="100%" style="stop-color:rgba(232,160,180,0.05)"/>
+          </radialGradient>
+        </defs>
+        <!-- Grid rings -->
+        <g id="radar-grid"></g>
+        <!-- Axes -->
+        <g id="radar-axes"></g>
+        <!-- Score polygon -->
+        <polygon id="radar-poly" fill="url(#radarGrad)" stroke="var(--accent)" stroke-width="2" opacity="0" points=""/>
+        <!-- Labels -->
+        <g id="radar-labels"></g>
+      </svg>
+    </div>
+
+    <div class="category-grid">
+      <!-- Cards injected by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- Sections 4-10 will be added below -->
+<div id="sections-placeholder"></div>
+
+<style>
+/* ===================== SECTION 4: FINDINGS ===================== */
+#findings {
+  background:
+    radial-gradient(ellipse 80% 50% at 10% 30%, rgba(255,68,68,0.06) 0%, transparent 60%),
+    var(--bg-mid);
+}
+.findings-intro { max-width: 600px; margin-bottom: 3rem; }
+.finding-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.5rem;
+  align-items: start;
+  transition: background 0.3s, border-color 0.3s;
+}
+.finding-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+}
+.finding-number {
+  font-family: var(--font-head);
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.06);
+  line-height: 1;
+  width: 60px;
+}
+.finding-body { flex: 1; }
+.finding-title {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+}
+.finding-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 0.5rem 0;
+}
+.finding-evidence {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.finding-lift {
+  text-align: right;
+  white-space: nowrap;
+}
+.lift-value {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--green);
+  display: block;
+}
+.lift-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+@media (max-width: 640px) {
+  .finding-card { grid-template-columns: 1fr; }
+  .finding-number { font-size: 2rem; width: auto; }
+  .finding-lift { text-align: left; }
+}
+
+/* ===================== SECTION 5: TEARDOWN ===================== */
+#teardown {
+  background:
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(232,160,180,0.07) 0%, transparent 60%),
+    var(--bg-base);
+}
+.teardown-block { margin-bottom: 5rem; }
+.teardown-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  display: block;
+}
+.teardown-title {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}
+.ba-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 768px) { .ba-grid { grid-template-columns: 1fr; } }
+.ba-panel {
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+  min-height: 280px;
+}
+.ba-before {
+  background: #f8f9fa;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.ba-after {
+  background: linear-gradient(135deg, #fff8f5, #fdf0f3);
+  border: 1px solid rgba(232,160,180,0.3);
+}
+.ba-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+.ba-before .ba-tag { background: rgba(255,68,68,0.15); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); }
+.ba-after .ba-tag { background: rgba(68,255,136,0.15); color: #22cc66; border: 1px solid rgba(68,255,136,0.3); }
+.callout-bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+.callout-red { background: rgba(255,68,68,0.12); color: #ff6666; border: 1px solid rgba(255,68,68,0.25); }
+.callout-green { background: rgba(68,255,136,0.12); color: #33cc66; border: 1px solid rgba(68,255,136,0.25); }
+.callout-red::before { content: '✕'; font-size: 0.65rem; }
+.callout-green::before { content: '✓'; font-size: 0.65rem; }
+
+/* Mockup elements */
+.mockup-hero { padding: 1rem; }
+.mockup-headline {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+}
+.ba-before .mockup-headline { color: #111; }
+.ba-after .mockup-headline { color: #3d1a24; font-family: 'Playfair Display', serif; font-size: 1rem; }
+.mockup-image-box {
+  width: 80px;
+  height: 80px;
+  background: #ddd;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: #999;
+}
+.mockup-image-large {
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(135deg, #f0d5da, #e8b4c0);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #b07080;
+}
+.mockup-btn {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: default;
+}
+.btn-blue { background: #155EEF; color: white; }
+.btn-rose { background: #e8607a; color: white; }
+.mockup-form-field {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.7rem;
+  color: #999;
+  margin-bottom: 0.4rem;
+  width: 100%;
+}
+.mockup-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.6rem;
+  color: #888;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
+}
+.testimonial-mini {
+  background: white;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(232,160,180,0.2);
+}
+.testimonial-mini-name { font-size: 0.7rem; font-weight: 700; color: #3d1a24; }
+.testimonial-mini-result { font-size: 0.65rem; color: #b07080; }
+.testimonial-mini-quote { font-size: 0.65rem; color: #666; font-style: italic; margin-top: 0.25rem; }
+.radio-group { margin-bottom: 0.75rem; }
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: white;
+  border: 1px solid rgba(232,160,180,0.25);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+  cursor: default;
+}
+.radio-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #e8a0b4;
+  flex-shrink: 0;
+}
+.callouts-list { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; }
+
+/* ===================== SECTION 6: COMPETITIVE ===================== */
+#competitive {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 80%, rgba(100,60,160,0.08) 0%, transparent 60%),
+    var(--bg-mid);
+}
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.comp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  position: relative;
+}
+.comp-name {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+.comp-program { font-size: 0.75rem; color: var(--accent); margin-bottom: 1rem; }
+.comp-stat { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem; display: flex; gap: 0.5rem; }
+.comp-stat strong { color: var(--text-primary); }
+.steal-tag {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(68,255,136,0.12);
+  color: var(--green);
+  border: 1px solid rgba(68,255,136,0.25);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+.comp-table { width: 100%; border-collapse: collapse; margin-top: 3rem; }
+.comp-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.comp-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.comp-table tr:first-child td { color: var(--accent); font-weight: 600; }
+.cell-red { color: var(--red) !important; }
+.cell-green { color: var(--green) !important; }
+
+/* ===================== SECTION 7: BENCHMARKS ===================== */
+#benchmarks {
+  background:
+    radial-gradient(ellipse 50% 60% at 20% 50%, rgba(232,160,180,0.06) 0%, transparent 60%),
+    var(--bg-base);
+}
+.bench-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+.bench-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.bench-table td {
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.bench-table tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+.bar-chart-wrap { margin: 3rem 0; }
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.bar-label { font-size: 0.8rem; color: var(--text-secondary); width: 160px; flex-shrink: 0; }
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  width: 0;
+  transition: width 1.2s ease;
+}
+.bar-value { font-size: 0.8rem; font-weight: 600; width: 60px; text-align: right; }
+
+/* ===================== SECTION 8: PSYCHOLOGY ===================== */
+#psychology {
+  background:
+    radial-gradient(ellipse 80% 40% at 90% 60%, rgba(100,60,200,0.08) 0%, transparent 60%),
+    var(--bg-mid);
+}
+.psych-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.psych-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  border-left: 3px solid rgba(232,160,180,0.4);
+}
+.psych-id {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+.psych-name {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+.psych-current {
+  font-size: 0.8rem;
+  color: rgba(255,68,68,0.8);
+  background: var(--red-dim);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+.psych-intervention {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.psych-intervention strong { color: var(--accent); }
+
+/* ===================== SECTION 9: ARCHITECTURE ===================== */
+#architecture {
+  background:
+    radial-gradient(ellipse 60% 60% at 40% 40%, rgba(232,160,180,0.07) 0%, transparent 60%),
+    var(--bg-base);
+}
+.arch-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 700px;
+  margin: 3rem auto;
+}
+.arch-step {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.arch-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  flex-shrink: 0;
+}
+.arch-node {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.arch-line {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(180deg, var(--accent), rgba(232,160,180,0.1));
+  min-height: 20px;
+}
+.arch-content {
+  flex: 1;
+  padding: 0 1rem 2.5rem 1rem;
+}
+.arch-step:last-child .arch-line { display: none; }
+.arch-section-name {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+.arch-section-angle {
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.arch-section-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+.arch-priority {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  background: rgba(232,160,180,0.12);
+  color: var(--accent);
+  border: 1px solid rgba(232,160,180,0.2);
+}
+
+/* ===================== SECTION 10: EVIDENCE ===================== */
+#evidence {
+  background:
+    radial-gradient(ellipse 70% 50% at 60% 30%, rgba(100,60,160,0.08) 0%, transparent 60%),
+    var(--bg-mid);
+}
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+  margin: 3rem 0;
+}
+.evidence-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.5rem;
+}
+.evidence-id {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
+  margin-bottom: 0.5rem;
+}
+.evidence-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+.evidence-lift-track {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.evidence-lift-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), #e8607a);
+  width: 0;
+  transition: width 1.2s ease;
+}
+.evidence-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.evidence-lift-pct { font-size: 0.9rem; font-weight: 700; color: var(--green); }
+.evidence-source { font-size: 0.7rem; color: var(--text-muted); }
+.evidence-section { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.4rem; }
+
+/* FOOTER */
+footer {
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-brand {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  color: var(--accent);
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+.footer-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+@media print {
+  nav, .reveal { opacity: 1 !important; transform: none !important; }
+  body { background: white; color: #111; }
+  .glass-card { border: 1px solid #ddd; background: white; }
+}
+</style>
+
+<!-- SECTIONS 4-10 HTML -->
+<section id="findings">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Critical Findings</span>
+    <h2 class="reveal">10 Things Destroying Conversion — Right Now</h2>
+    <p class="reveal findings-intro" style="margin-top:1rem;">These are not opinions. Each finding is backed by controlled A/B test data from our CRO Knowledge Base. Fixing these 10 items alone represents the majority of available lift.</p>
+    <div id="findings-list"></div>
+  </div>
+</section>
+
+<section id="teardown">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Visual Teardown</span>
+    <h2 class="reveal">Before vs. After: Three Critical Sections</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:600px;">Side-by-side visual comparisons showing exactly what needs to change — and what it should look like instead.</p>
+
+    <!-- Teardown 1: Hero -->
+    <div class="teardown-block" style="margin-top:3rem;">
+      <div class="reveal">
+        <span class="teardown-label">Teardown 01</span>
+        <h3 class="teardown-title">Hero Section</h3>
+      </div>
+      <div class="ba-grid">
+        <div class="ba-panel ba-before reveal">
+          <div class="ba-tag">Before — Current State</div>
+          <div class="mockup-hero">
+            <div class="mockup-image-box">150px image</div>
+            <div class="mockup-headline" style="color:#111;">How To Turn Your Hormones from 'Enemy' To 'Ally' During Perimenopause...</div>
+            <div style="margin-bottom:0.5rem;"><span class="mockup-btn btn-blue">Continue</span></div>
+            <div class="callouts-list">
+              <span class="callout-bubble callout-red">Masculine blue template</span>
+              <span class="callout-bubble callout-red">Tiny 150px hero image</span>
+              <span class="callout-bubble callout-red">"Continue" = weakest CTA possible</span>
+              <span class="callout-bubble callout-red">Generic Inter font headline</span>
+            </div>
+          </div>
+        </div>
+        <div class="ba-panel ba-after reveal reveal-delay-1">
+          <div class="ba-tag">After — Recommended Rebuild</div>
+          <div class="mockup-hero">
+            <div class="mockup-image-large">Michelle — warm, approachable photo</div>
+            <div class="mockup-headline">Your Body Isn't Broken. You've Just Been Given the Wrong Instructions.</div>
+            <div style="font-size:0.7rem; color:#b07080; margin-bottom:0.5rem;">Free 90-Min Training for Moms Over 40 Who Are Done Starting Over</div>
+            <div style="margin-bottom:0.5rem;"><span class="mockup-btn btn-rose">Yes, Save My Free Spot</span></div>
+            <div class="callouts-list">
+              <span class="callout-bubble callout-green">Feminine warm palette + serif headline</span>
+              <span class="callout-bubble callout-green">Identity-based, reframe headline</span>
+              <span class="callout-bubble callout-green">First-person benefit CTA (+90% CTR)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teardown 2: Social Proof -->
+    <div class="teardown-block">
+      <div class="reveal">
+        <span class="teardown-label">Teardown 02</span>
+        <h3 class="teardown-title">Social Proof Section</h3>
+      </div>
+      <div class="ba-grid">
+        <div class="ba-panel ba-before reveal">
+          <div class="ba-tag">Before — Current State</div>
+          <div class="mockup-hero">
+            <div style="height:140px; background:rgba(0,0,0,0.03); border:2px dashed #ddd; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:0.75rem;">
+              <span style="font-size:0.75rem; color:#bbb; text-align:center;">Empty white space.<br>Nothing here.</span>
+            </div>
+            <div class="callouts-list">
+              <span class="callout-bubble callout-red">ZERO social proof — Trust Score: 1/10</span>
+              <span class="callout-bubble callout-red">No names, no results, no faces</span>
+              <span class="callout-bubble callout-red">Cold traffic has no reason to trust</span>
+            </div>
+          </div>
+        </div>
+        <div class="ba-panel ba-after reveal reveal-delay-1">
+          <div class="ba-tag">After — Recommended Rebuild</div>
+          <div class="mockup-hero">
+            <div class="testimonial-mini">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f0d5da,#e8b4c0);flex-shrink:0;"></div>
+                <div><div class="testimonial-mini-name">Sarah, 43 — Denver, CO</div><div class="testimonial-mini-result">Lost 24 lbs — no calorie counting</div></div>
+              </div>
+              <div class="testimonial-mini-quote">"Like getting my life back — I finally booked the beach trip I'd avoided for 10 years."</div>
+            </div>
+            <div class="testimonial-mini">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+                <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d5e8f0,#b4d4e8);flex-shrink:0;"></div>
+                <div><div class="testimonial-mini-name">Jennifer, 47 — Austin, TX</div><div class="testimonial-mini-result">Lost 28 lbs after Ozempic failed</div></div>
+              </div>
+              <div class="testimonial-mini-quote">"I finally feel like myself again." (said through tears)</div>
+            </div>
+            <div class="callouts-list">
+              <span class="callout-bubble callout-green">Named + aged + located testimonials</span>
+              <span class="callout-bubble callout-green">+34% conversion lift from testimonials (VWO)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teardown 3: CTA + Form -->
+    <div class="teardown-block">
+      <div class="reveal">
+        <span class="teardown-label">Teardown 03</span>
+        <h3 class="teardown-title">CTA + Registration Form</h3>
+      </div>
+      <div class="ba-grid">
+        <div class="ba-panel ba-before reveal">
+          <div class="ba-tag">Before — Current State</div>
+          <div class="mockup-hero">
+            <div class="mockup-form-field">Full Name</div>
+            <div class="mockup-form-field">Email Address</div>
+            <div class="mockup-checkbox-row">
+              <input type="checkbox" disabled style="margin-top:2px;"> <span>By registering, I agree to receive emails and consent to the privacy policy and terms of service of this site.</span>
+            </div>
+            <span class="mockup-btn btn-blue">Continue</span>
+            <div class="callouts-list" style="margin-top:0.75rem;">
+              <span class="callout-bubble callout-red">Legal checkbox = anxiety + hesitation</span>
+              <span class="callout-bubble callout-red">"Continue" is vague and weak</span>
+              <span class="callout-bubble callout-red">Single-step form = 4.5% avg CR</span>
+            </div>
+          </div>
+        </div>
+        <div class="ba-panel ba-after reveal reveal-delay-1">
+          <div class="ba-tag">After — 2-Step Recommended Form</div>
+          <div class="mockup-hero">
+            <div style="font-size:0.72rem; font-weight:700; color:#3d1a24; margin-bottom:0.5rem;">Step 1: What's your biggest struggle right now?</div>
+            <div class="radio-group">
+              <div class="radio-option"><div class="radio-dot"></div> Stubborn weight that won't budge</div>
+              <div class="radio-option"><div class="radio-dot"></div> No energy, constant fatigue</div>
+              <div class="radio-option"><div class="radio-dot"></div> Hormonal chaos (perimenopause)</div>
+              <div class="radio-option"><div class="radio-dot" style="background:#e8a0b4;border-color:#e8a0b4;"></div> All of the above</div>
+            </div>
+            <div style="font-size:0.72rem; font-weight:700; color:#3d1a24; margin-bottom:0.5rem;">Step 2: Where should I send your spot?</div>
+            <div class="mockup-form-field" style="border-color:rgba(232,160,180,0.3);">Your Name</div>
+            <div class="mockup-form-field" style="border-color:rgba(232,160,180,0.3);">Email Address</div>
+            <span class="mockup-btn btn-rose" style="width:100%;display:block;text-align:center;padding:0.6rem;">Yes, Save My Free Spot</span>
+            <div style="font-size:0.65rem;color:#b07080;text-align:center;margin-top:0.4rem;">100% free. 90 minutes. No credit card needed.</div>
+            <div class="callouts-list" style="margin-top:0.5rem;">
+              <span class="callout-bubble callout-green">Qualifying question = foot-in-door principle</span>
+              <span class="callout-bubble callout-green">First-person CTA + micro-copy below</span>
+              <span class="callout-bubble callout-green">Multi-step = 13.9% avg CR (3x lift)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="competitive">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Competitive Analysis</span>
+    <h2 class="reveal">What the Market Leaders Are Doing</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:600px;">Five competitors in the women's weight loss space — all targeting moms 40+. Each has earned their market position through specific tactics worth studying.</p>
+
+    <div class="comp-grid" id="comp-grid"></div>
+
+    <div class="reveal" style="margin-top:2rem;">
+      <h3 style="font-family:var(--font-head); margin-bottom:1.5rem;">Elevate Well vs. The Competition</h3>
+      <div style="overflow-x:auto;">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Elevate Well</th>
+              <th>Corinne Crabtree</th>
+              <th>Dr. Mindy Pelz</th>
+              <th>Fit Mother Project</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Social Proof</td>
+              <td class="cell-red">None (0 testimonials)</td>
+              <td class="cell-green">Massive (100s of named stories)</td>
+              <td class="cell-green">Video testimonials</td>
+              <td class="cell-green">Identity-matched stories</td>
+            </tr>
+            <tr>
+              <td>Founder Credentials</td>
+              <td class="cell-red">Hidden (not on page)</td>
+              <td class="cell-green">100-lb personal loss story IS the page</td>
+              <td class="cell-green">MD + bestselling book</td>
+              <td>Coaches visible</td>
+            </tr>
+            <tr>
+              <td>Audience Specificity</td>
+              <td class="cell-red">Generic "moms 40-55"</td>
+              <td class="cell-green">"No BS" identity</td>
+              <td class="cell-green">Medical authority + fasting protocol</td>
+              <td class="cell-green">Explicit "busy mom" identity</td>
+            </tr>
+            <tr>
+              <td>Page Design</td>
+              <td class="cell-red">Masculine blue template</td>
+              <td class="cell-green">Warm, personal, founder-led</td>
+              <td class="cell-green">Medical clean, authoritative</td>
+              <td class="cell-green">Feminine, identity-forward</td>
+            </tr>
+            <tr>
+              <td>Entry Price</td>
+              <td>Free (webinar)</td>
+              <td>$289 membership</td>
+              <td>$87/mo</td>
+              <td>Low entry</td>
+            </tr>
+            <tr>
+              <td>Urgency</td>
+              <td class="cell-red">None</td>
+              <td class="cell-green">Real scarcity</td>
+              <td class="cell-green">Countdown timers</td>
+              <td>Some</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="benchmarks">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Industry Benchmarks</span>
+    <h2 class="reveal">The Numbers That Define the Gap</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:600px;">Every metric below is sourced from controlled A/B test data across webinar registration pages and lead gen forms — specifically cold Facebook traffic.</p>
+
+    <div class="reveal" style="overflow-x:auto; margin:2rem 0;">
+      <table class="bench-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Current Page</th>
+            <th>Industry Benchmark</th>
+            <th>Target After Rebuild</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Webinar Reg Conversion Rate</td>
+            <td style="color:var(--red); font-weight:600;">~0%</td>
+            <td style="color:var(--amber); font-weight:600;">30%</td>
+            <td style="color:var(--green); font-weight:600;">20–35%</td>
+          </tr>
+          <tr>
+            <td>Social Proof Elements (above fold)</td>
+            <td style="color:var(--red);">0</td>
+            <td style="color:var(--amber);">3–5</td>
+            <td style="color:var(--green);">4–6</td>
+          </tr>
+          <tr>
+            <td>Form Steps</td>
+            <td style="color:var(--red);">1 step</td>
+            <td style="color:var(--amber);">2–3 steps</td>
+            <td style="color:var(--green);">2 steps</td>
+          </tr>
+          <tr>
+            <td>CTA Specificity</td>
+            <td style="color:var(--red);">Generic ("Continue")</td>
+            <td style="color:var(--amber);">Benefit-oriented</td>
+            <td style="color:var(--green);">First-person + benefit</td>
+          </tr>
+          <tr>
+            <td>Mobile CTA Visibility</td>
+            <td style="color:var(--red);">Below fold</td>
+            <td style="color:var(--amber);">Above fold</td>
+            <td style="color:var(--green);">Sticky bar + above fold</td>
+          </tr>
+          <tr>
+            <td>Credibility Signals</td>
+            <td style="color:var(--red);">0</td>
+            <td style="color:var(--amber);">3–5 (badges, certs, media)</td>
+            <td style="color:var(--green);">Credentials + proof bar</td>
+          </tr>
+          <tr>
+            <td>Urgency / Scarcity</td>
+            <td style="color:var(--red);">None</td>
+            <td style="color:var(--amber);">Real countdown + seat count</td>
+            <td style="color:var(--green);">Live countdown + genuine limit</td>
+          </tr>
+          <tr>
+            <td>Avg Form Conversion (single-step)</td>
+            <td style="color:var(--amber);">4.5%</td>
+            <td style="color:var(--amber);">4.5%</td>
+            <td style="color:var(--green);">13.9% (multi-step)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bar-chart-wrap reveal">
+      <h3 style="font-family:var(--font-head); margin-bottom:2rem;">Conversion Rate Gap — Current vs Benchmark vs Target</h3>
+      <div class="bar-row">
+        <div class="bar-label">Current Page</div>
+        <div class="bar-track"><div class="bar-fill" style="background:var(--red);" data-width="0.3"></div></div>
+        <div class="bar-value" style="color:var(--red);">~0%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Industry Benchmark</div>
+        <div class="bar-track"><div class="bar-fill" style="background:var(--amber);" data-width="30"></div></div>
+        <div class="bar-value" style="color:var(--amber);">30%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Target (After Rebuild)</div>
+        <div class="bar-track"><div class="bar-fill" style="background:var(--accent);" data-width="27.5"></div></div>
+        <div class="bar-value" style="color:var(--accent);">20–35%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Multi-Step Form Avg</div>
+        <div class="bar-track"><div class="bar-fill" style="background:var(--green);" data-width="13.9"></div></div>
+        <div class="bar-value" style="color:var(--green);">13.9%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="psychology">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Behavioral Psychology Playbook</span>
+    <h2 class="reveal">9 Rory Sutherland Models Applied</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:700px;">Behavioral economics explains <em>why</em> this page fails — and predicts exactly what interventions will work. Each model below maps to a specific problem on the current page and a specific fix.</p>
+    <div class="psych-grid" id="psych-grid"></div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Recommended Page Architecture</span>
+    <h2 class="reveal">The 10-Section Structure That Converts</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:700px;">Based on the behavioral framework, competitive analysis, and CRO evidence — this is the exact flow the rebuilt page should follow. Every section has a single job.</p>
+    <div class="arch-flow" id="arch-flow"></div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="section-inner">
+    <span class="eyebrow reveal">Evidence Base</span>
+    <h2 class="reveal">The Research Behind the Recommendations</h2>
+    <p class="reveal" style="margin-top:1rem; max-width:700px;">Every recommendation in this report is grounded in controlled A/B test data. The 15 findings below represent the highest-impact, most thoroughly tested interventions in the KAMG CRO Knowledge Base.</p>
+    <div class="evidence-grid" id="evidence-grid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">KAMG</div>
+    <div class="footer-sub">CRO Audit: Elevate Well — April 10, 2026 &nbsp;·&nbsp; Confidential Client Report &nbsp;·&nbsp; pages.elevatewell.net</div>
+  </div>
+</footer>
+
+<script>
+// ===== DATA =====
+const categories = [
+  { name: 'First Impression', score: 4, issue: 'Masculine template signals "tech webinar" not women\'s health — wrong audience signal in 50ms.', fix: 'Warm cream palette, serif headlines, feminine visual identity' },
+  { name: 'Headline & Value Prop', score: 6, issue: 'Hormone angle is strong but subheadline undersells the emotional transformation available.', fix: 'Identity-reframe headline + loss-framed subheadline' },
+  { name: 'Social Proof & Trust', score: 1, issue: 'ZERO social proof anywhere on the page — the #1 conversion killer for cold traffic.', fix: 'Add Sarah, Jennifer, Laurie testimonials above fold' },
+  { name: 'CTA Effectiveness', score: 3, issue: '"Continue" reveals nothing about what happens next. Blue button signals checkout anxiety.', fix: '"Yes, Save My Free Spot" in warm rose, first-person language' },
+  { name: 'Form Friction', score: 5, issue: 'Legal terms checkbox adds hesitation. "Continue" implies unknown steps ahead.', fix: '2-step form with qualifying question first, remove legal language' },
+  { name: 'Visual Design', score: 2, issue: 'Masculine blue template is a silent conversion killer — signals wrong audience instantly.', fix: 'Complete visual redesign: cream, sage, rose, Playfair Display headlines' },
+  { name: 'Mobile Experience', score: 3, issue: '150px hero image is invisible on mobile. 90% of FB traffic is mobile. Not thumb-friendly.', fix: 'Mobile-first layout, sticky CTA bar, 2-scroll max to form' },
+  { name: 'Urgency & Scarcity', score: 2, issue: 'One "ONLY!" in the preheadline. Zero countdown, no seat limit, no date. No reason to act now.', fix: 'Real countdown timer + genuine seat limit below CTA' },
+  { name: 'Objection Handling', score: 3, issue: 'None of the cold traffic objections are addressed: Is this legit? Will it work for me? What\'s the catch?', fix: 'FAQ section (3 questions max), Michelle credentials visible' },
+  { name: 'Page Load & Technical', score: 5, issue: 'Minimal design suggests acceptable load times, but mobile performance needs validation.', fix: 'Maintain lean page, optimize images for mobile delivery' },
+];
+
+const findings = [
+  { n: '01', badge: 'critical', title: 'Zero Social Proof', score: '1/10', desc: 'Asking strangers for personal data — their name, email, time — with zero evidence anyone has ever benefited. Cold Facebook traffic has no prior relationship with Michelle. Testimonials alone are worth +34% lift (VWO controlled study).', evidence: 'CF-008 + F-025: Above-fold testimonials → +34% conversion', lift: '+34%' },
+  { n: '02', badge: 'critical', title: 'Masculine Template on Feminine Offer', score: '2/10', desc: 'Blue/white tech template used for a women\'s wellness brand. The visual design creates a "wrong audience" signal within 50ms — before a single word is read. The brain pattern-matches the page to LinkedIn or a SaaS product, not a health transformation for moms.', evidence: 'CF-029: Low cognitive complexity → +23% trust signal', lift: '+23%' },
+  { n: '03', badge: 'critical', title: 'CTA Says "Continue"', score: '3/10', desc: '"Continue" is the weakest possible CTA word. It reveals nothing about what happens next, adds uncertainty (continue to what?), and uses blue which reads as "next step in a transaction" rather than a free training. "Save My Free Spot" tested at +90% CTR (CXL Institute).', evidence: 'APP-002: CTA micro-copy is highest-leverage change (Best Buy $300M test)', lift: '+90%' },
+  { n: '04', badge: 'critical', title: 'No Trust Before the Ask', score: 'n/a', desc: 'Cold Facebook traffic lands on this page and sees: headline, form, checkbox. That\'s it. No credentials, no results, no explanation of who Michelle is or why she\'s qualified. For women who\'ve failed multiple programs, this triggers maximum skepticism.', evidence: 'CF-014: Real human face + story → +102.5% (Basecamp test)', lift: '+100%+' },
+  { n: '05', badge: 'critical', title: 'Mobile Experience Is Hostile', score: '3/10', desc: '90% of Facebook traffic is mobile. The 150px hero image is effectively invisible on a 375px phone screen. The masculine template is not optimized for thumb-scrolling. There is no sticky CTA bar.', evidence: 'CF-092: Multi-step mobile optimization → +205% conversion', lift: '+200%+' },
+  { n: '06', badge: 'high', title: 'Zero Urgency or Scarcity', score: '2/10', desc: 'No countdown timer. No seat limit. No webinar date prominent. One "ONLY!" in the preheadline is not urgency — it reads as marketing noise. Without urgency, the mental decision is "I can do this later" — and later never comes.', evidence: 'CF-016: Real scarcity → +332%. F-022: Countdown → +8–20%', lift: '+332%' },
+  { n: '07', badge: 'high', title: 'Form Checkbox Adds Anxiety', score: 'n/a', desc: 'The legal-sounding consent checkbox is a decision friction point. "By registering, I agree to receive emails and consent to the privacy policy and terms of service" — this language triggers hesitation. Replace with "Send me my free training access."', evidence: 'CF-004: Multi-step form removes friction → 3x single-step conversion', lift: '3x lift' },
+  { n: '08', badge: 'high', title: 'No Objection Handling', score: '3/10', desc: '"Is this legit?" "Will this work for me even if I\'m in menopause?" "What\'s the catch with something free?" All three remain completely unanswered. Cold traffic arrives with these exact doubts — and leaves with them unresolved.', evidence: 'DR-08: "Even if" objection stacking in copy framework', lift: '+15–25%' },
+  { n: '09', badge: 'high', title: 'Copy Is Too Generic', score: 'n/a', desc: 'The copy doesn\'t sound like it was written for a specific mom over 40. No mirror language reflecting the ICP\'s exact words ("I\'m doing everything right," "nothing works," "hiding from photos"). Similarity signaling is worth +28% (CF-015).', evidence: 'CF-015 + CF-037: Similarity signaling → +28% conversion', lift: '+28%' },
+  { n: '10', badge: 'high', title: 'Michelle\'s Credentials Are Invisible', score: 'n/a', desc: 'Michelle is a certified nutrition coach, certified personal trainer, certified in biomechanics, and a former college athlete. None of this is visible on the registration page. Authority signals are not vanity — they are conversion levers.', evidence: 'CF-013: As Seen In / credentials logos → +15–35% trust conversion', lift: '+35%' },
+];
+
+const competitors = [
+  { name: 'Corinne Crabtree', program: 'No BS Weight Loss', price: '$289 membership', edge: 'Personal 100-lb loss story IS the entire page. No theory. No promises. Just: "I lost 100 lbs. These women lost theirs. Here\'s how."', steal: ['Personal founder loss story leads', 'Named member stories with specific lbs', 'Transparent pricing (anchors perceived value)'] },
+  { name: 'Dr. Mindy Pelz', program: 'Reset Academy', price: '$87/month', edge: 'Medical authority (MD credential + bestselling book "Fast Like a Girl") + video testimonials. The "doctor" frame adds instant legitimacy that no copywriting can manufacture.', steal: ['Video testimonials on page', 'Book as authority signal', 'Medical/clinical framing of method'] },
+  { name: 'JJ Virgin', program: 'JJ Virgin Certification', price: 'Multi-tier', edge: 'NYT bestselling author + multi-decade brand authority + podcast audience. The brand IS the proof.', steal: ['Media/press logos as social proof bar', 'Book anchor for authority', 'Podcast audience as warm traffic source'] },
+  { name: 'Autumn Calabrese', program: 'BODi (Beachbody)', price: 'Platform subscription', edge: 'Celebrity-tier recognition and platform distribution. Conversion happens on brand trust, not page optimization.', steal: ['Video-first hero section', 'Before/after result photography', 'Program track record numbers'] },
+  { name: 'Fit Mother Project', program: 'FM30X', price: 'Low-entry', edge: 'Same exact demographic as Elevate Well. Explicit "busy mom" identity language. Lower friction entry. Every headline speaks directly to moms — not women in general, not "40+", but moms.', steal: ['Explicit "mom" identity language in every headline', '"Busy mom" mirror copy throughout', 'Identity-first (not benefit-first) hook'] },
+];
+
+const psychCards = [
+  { id: 'APP-001', name: 'Psychological Moonshot', current: 'Page currently has too many sections fighting for attention — decision fatigue sets in before the CTA.', intervention: 'Cut to 6–8 sections max. A shorter page signals confidence. "We don\'t need to convince you of 15 things — just one." Match the architecture to a $0 impulse decision.' },
+  { id: 'APP-002', name: 'Dare to Be Trivial', current: '"Continue" is the biggest conversion killer on the page, and it costs nothing to fix.', intervention: '<strong>Change "Continue" to "Yes, Save My Free Spot."</strong> This is the highest-leverage, lowest-cost change available. Best Buy added $300M in revenue by changing one button word. This is not a trivial change.' },
+  { id: 'APP-008', name: 'Genuine Urgency Only', current: 'One "ONLY!" in the preheadline is not urgency — it\'s marketing noise. Fake urgency trains disbelief.', intervention: 'Real countdown to webinar date + real seat limit ("47 of 200 spots remaining"). Fake urgency = net negative at 90-day view. Real urgency = +332% conversion lift.' },
+  { id: 'APP-010', name: 'Reframing', current: 'Masculine template frames this as a tech product. "Crush goals" language vs. "Come home to yourself" are entirely different emotional registers.', intervention: 'Change the frame from performance optimization to identity return. Warm palette, serif type, lifestyle imagery — signal: "This is a place that understands you."' },
+  { id: 'APP-011', name: 'Specificity Over Generic', current: '"Struggling with weight?" could be on any page, for any person, for any product. Zero resonance.', intervention: '<strong>"Eating clean, walking daily, and still not losing — because no one told you perimenopause changes how your body processes carbs."</strong> Specificity = recognition = trust.' },
+  { id: 'APP-013', name: 'Two Reasons', current: 'Page only addresses the stated reason (health/weight loss). The real reasons — feeling invisible, wanting to be desired again, being seen by family — go unacknowledged.', intervention: 'Good reason = health. Real reason = feeling like yourself again. Address both. "This isn\'t about a number on a scale — it\'s about the woman who stopped showing up in her own photos."' },
+  { id: 'APP-014', name: 'Framing Arbitrage', current: 'Page presents "Free Webinar" with no anchor. Free with no context reads as: "What\'s the catch?"', intervention: 'Anchor the free webinar against a $300 hormone specialist session, or the $4,500 program cost. "This training delivers the same method taught in our $4,500 program — in 90 minutes, for free."' },
+  { id: 'APP-019', name: 'Decision Weight Match', current: 'Page architecture is built for a high-consideration purchase — but this is a $0 impulse decision.', intervention: 'Match the page length to the decision weight. 5–6 sections. Short = confident. Short = trustworthy. "We\'re not trying to convince you of everything — just enough to give 90 minutes."' },
+  { id: 'APP-022', name: 'Mobile Satisficing', current: 'Mobile users are not reading — they\'re scanning for a reason to stop and commit. Current page gives no visual anchor.', intervention: 'Sticky CTA bar at bottom on mobile. 2-scroll maximum to the form. Headline visible on scroll-stop. Thumb-zone CTA placement. Mobile users satisfice — make the decision frictionless.' },
+];
+
+const archSteps = [
+  { n: 1, name: 'Hero — Body Betrayal Reframe', angle: 'Angle 1: Your body isn\'t the enemy', desc: 'Headline: "Your Body Isn\'t Broken. You\'ve Just Been Given the Wrong Instructions." Large Michelle photo. Single CTA: "Yes, Save My Free Spot." Credibility line below.', priority: 'P0' },
+  { n: 2, name: 'Social Proof Bar', angle: 'Angle 5: Proof Arsenal', desc: '"Trusted by hundreds of moms" + credential badges + real client result numbers. One-line scan reads. Builds momentum without slowing scroll.', priority: 'P0' },
+  { n: 3, name: '"Does This Sound Like You?"', angle: 'Angle 2: The Invisible Mom', desc: '3–4 identity resonance questions from webinar script. "Doing everything right and still not losing?" "Catching your reflection and not recognizing yourself?" Creates emotional recognition.', priority: 'P0' },
+  { n: 4, name: 'What You\'ll Discover', angle: 'Curiosity gaps, not full methodology', desc: '3 bullets max. "How to X without Y" format. Tease the 5 Shifts without explaining them. Leave curiosity gaps that the webinar fills.', priority: 'P1' },
+  { n: 5, name: 'Real Results — Sarah, Jennifer, Laurie', angle: 'Angle 5: Specific proof, specific people', desc: 'Full testimonial cards. Photo + name + age + city + specific result + direct quote. "Lost 24 lbs" / "Lost 28 lbs" / "Lost 22 lbs in 12 weeks." Real numbers from real women.', priority: 'P0' },
+  { n: 6, name: 'About Michelle', angle: 'Authority + founder story', desc: 'Certified Nutrition Coach + PT + Biomechanics. Former college athlete. Warm headshot. "After watching hundreds of moms struggle with the same broken advice..." 2–3 sentences max.', priority: 'P1' },
+  { n: 7, name: 'The Method Preview', angle: 'Angle 3: Anti-Diet Rebellion', desc: '"This isn\'t another diet. It\'s the Hormonal Reset Method." Brief 4-step tease: Map, Fuel, Forge, Lock. Mechanism differentiation — why this works when everything else failed.', priority: 'P1' },
+  { n: 8, name: '2-Step Registration Form', angle: 'The Ask — matched to decision weight', desc: 'Step 1: Qualifying question (foot-in-door). Step 2: Name + Email + "Yes, Save My Free Spot." Real countdown below. "100% free. 90 minutes. No credit card."', priority: 'P0' },
+  { n: 9, name: 'FAQ — 3 Questions Only', angle: 'Objection handling at the finish line', desc: '"Is this really free?" / "How long is it?" / "Will this work even if I\'m in menopause?" Three objections. Three answers. No more.', priority: 'P1' },
+  { n: 10, name: 'Final CTA — Ticking Clock', angle: 'Angle 4: Loss Aversion', desc: '"Every week you wait is another week of not knowing why your body isn\'t cooperating." Repeat CTA button. Loss-framed urgency — real biological cost of delay.', priority: 'P1' },
+];
+
+const evidenceCards = [
+  { id: 'CF-008', title: 'Above-Fold Testimonials', lift: 34, source: 'VWO A/B Test Database', section: 'Social Proof Section' },
+  { id: 'CF-004', title: 'Multi-Step Form Conversion', lift: 214, source: 'Formstack Benchmark Report', section: 'Registration Form' },
+  { id: 'CF-092', title: 'Multi-Step Mobile Optimization', lift: 205, source: 'Mobile CRO Study', section: 'Mobile Form' },
+  { id: 'CF-014', title: 'Real Human Face + Story', lift: 102, source: 'Basecamp Case Study', section: 'Hero + About Section' },
+  { id: 'CF-019', title: 'Loss-Framed CTA Copy', lift: 11, source: 'CXL Institute', section: 'CTA Button' },
+  { id: 'APP-002', title: 'First-Person CTA Language', lift: 90, source: 'CXL Institute A/B Test', section: 'CTA Button' },
+  { id: 'CF-029', title: 'Low Visual Complexity = Trust', lift: 23, source: 'Nielsen Norman Group', section: 'Full Page Design' },
+  { id: 'CF-016', title: 'Real vs Fake Scarcity', lift: 332, source: 'ConversionXL Research', section: 'Below CTA' },
+  { id: 'CF-015', title: 'Similarity Signaling (Mirror Copy)', lift: 28, source: 'CRO KB Internal', section: 'Body Copy Throughout' },
+  { id: 'CF-013', title: 'As Seen In / Credential Logos', lift: 35, source: 'Trust Signal Studies', section: 'Social Proof Bar' },
+  { id: 'F-022', title: 'Countdown Timer', lift: 20, source: 'Email/LP Benchmark Studies', section: 'Below CTA + Hero' },
+  { id: 'CF-043', title: 'Scarcity + Social Proof Combo Widget', lift: 30, source: 'E-commerce CRO Studies', section: 'Registration Form Area' },
+  { id: 'DR-02', title: 'Identity Messaging ("Become the mom who...")', lift: 23, source: 'Direct Response KB', section: 'Hero Headline' },
+  { id: 'CF-041', title: 'Imperfect / Specific Reviews Convert Better', lift: 67, source: 'Reevoo Consumer Trust Study', section: 'Testimonials' },
+  { id: 'CF-026', title: 'Remove Navigation (Distraction Elimination)', lift: 34, source: 'Unbounce Conversion Study', section: 'Page Header' },
+];
+
+// ===== RADAR CHART =====
+function buildRadar() {
+  const svg = document.getElementById('radar-svg');
+  const cx = 250, cy = 250, r = 180;
+  const n = categories.length;
+  const levels = 5;
+  const grid = document.getElementById('radar-grid');
+  const axes = document.getElementById('radar-axes');
+  const labels = document.getElementById('radar-labels');
+  const poly = document.getElementById('radar-poly');
+
+  for (let l = 1; l <= levels; l++) {
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      pts.push((cx + r * l / levels * Math.cos(angle)).toFixed(1) + ',' + (cy + r * l / levels * Math.sin(angle)).toFixed(1));
+    }
+    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    polygon.setAttribute('points', pts.join(' '));
+    polygon.setAttribute('fill', 'none');
+    polygon.setAttribute('stroke', 'rgba(255,255,255,0.06)');
+    polygon.setAttribute('stroke-width', '1');
+    grid.appendChild(polygon);
+  }
+
+  const scorePts = [];
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', x.toFixed(1)); line.setAttribute('y2', y.toFixed(1));
+    line.setAttribute('stroke', 'rgba(255,255,255,0.06)'); line.setAttribute('stroke-width', '1');
+    axes.appendChild(line);
+
+    const score = categories[i].score;
+    const sx = cx + r * (score / 10) * Math.cos(angle);
+    const sy = cy + r * (score / 10) * Math.sin(angle);
+    scorePts.push(sx.toFixed(1) + ',' + sy.toFixed(1));
+
+    const lx = cx + (r + 26) * Math.cos(angle);
+    const ly = cy + (r + 26) * Math.sin(angle);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', lx.toFixed(1));
+    text.setAttribute('y', ly.toFixed(1));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', 'rgba(240,238,232,0.55)');
+    text.setAttribute('font-size', '11');
+    text.setAttribute('font-family', 'Inter, sans-serif');
+    const name = categories[i].name.split(' ').slice(0,2).join('\n');
+    const parts = name.split('\n');
+    if (parts.length > 1) {
+      parts.forEach((p, pi) => {
+        const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+        ts.setAttribute('x', lx.toFixed(1));
+        ts.setAttribute('dy', pi === 0 ? '-0.5em' : '1.2em');
+        ts.textContent = p;
+        text.appendChild(ts);
+      });
+    } else {
+      text.textContent = name;
+    }
+    labels.appendChild(text);
+  }
+
+  poly.setAttribute('points', scorePts.join(' '));
+  setTimeout(() => { poly.setAttribute('opacity', '1'); }, 400);
+}
+
+// ===== CATEGORY CARDS =====
+function buildCategoryCards() {
+  const grid = document.querySelector('.category-grid');
+  categories.forEach(cat => {
+    const scoreClass = cat.score <= 3 ? 'score-red' : cat.score <= 6 ? 'score-amber' : 'score-green';
+    const div = document.createElement('div');
+    div.className = 'category-card reveal';
+    div.innerHTML = `
+      <div class="score-badge-sm ${scoreClass}">${cat.score}</div>
+      <div class="category-info">
+        <div class="category-name">${cat.name}</div>
+        <div class="category-issue">${cat.issue}</div>
+        <div class="category-fix">${cat.fix}</div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ===== FINDINGS =====
+function buildFindings() {
+  const list = document.getElementById('findings-list');
+  findings.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'finding-card reveal';
+    div.style.transitionDelay = (i * 0.05) + 's';
+    div.innerHTML = `
+      <div class="finding-number">${f.n}</div>
+      <div class="finding-body">
+        <div><span class="badge badge-${f.badge}">${f.badge}</span></div>
+        <div class="finding-title">${f.title}</div>
+        <div class="finding-desc">${f.desc}</div>
+        <div class="finding-evidence">${f.evidence}</div>
+      </div>
+      <div class="finding-lift">
+        <span class="lift-value">${f.lift}</span>
+        <span class="lift-label">Est. Lift</span>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+// ===== COMPETITORS =====
+function buildCompetitors() {
+  const grid = document.getElementById('comp-grid');
+  competitors.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'comp-card reveal';
+    div.innerHTML = `
+      <div class="steal-tag">Study</div>
+      <div class="comp-name">${c.name}</div>
+      <div class="comp-program">${c.program}</div>
+      <div class="comp-stat"><strong>Entry Price:</strong> ${c.price}</div>
+      <div class="comp-stat" style="margin-bottom:1rem; line-height:1.6;">${c.edge}</div>
+      ${c.steal.map(s => `<div class="comp-stat"><span class="badge badge-steal" style="margin-right:0.5rem;">STEAL</span>${s}</div>`).join('')}`;
+    grid.appendChild(div);
+  });
+}
+
+// ===== PSYCHOLOGY =====
+function buildPsych() {
+  const grid = document.getElementById('psych-grid');
+  psychCards.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'psych-card reveal';
+    div.style.transitionDelay = (i * 0.05) + 's';
+    div.innerHTML = `
+      <div class="psych-id">${p.id}</div>
+      <div class="psych-name">${p.name}</div>
+      <div class="psych-current">${p.current}</div>
+      <div class="psych-intervention">${p.intervention}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ===== ARCHITECTURE =====
+function buildArch() {
+  const flow = document.getElementById('arch-flow');
+  archSteps.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'arch-step reveal';
+    div.style.transitionDelay = (i * 0.06) + 's';
+    div.innerHTML = `
+      <div class="arch-connector">
+        <div class="arch-node">${s.n}</div>
+        <div class="arch-line"></div>
+      </div>
+      <div class="arch-content">
+        <div class="arch-section-name">${s.name} <span class="arch-priority">${s.priority}</span></div>
+        <div class="arch-section-angle">${s.angle}</div>
+        <div class="arch-section-desc">${s.desc}</div>
+      </div>`;
+    flow.appendChild(div);
+  });
+}
+
+// ===== EVIDENCE =====
+function buildEvidence() {
+  const grid = document.getElementById('evidence-grid');
+  const maxLift = Math.max(...evidenceCards.map(e => e.lift));
+  evidenceCards.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'evidence-card reveal';
+    div.style.transitionDelay = (i * 0.04) + 's';
+    const pct = Math.min((e.lift / maxLift) * 100, 100);
+    div.innerHTML = `
+      <div class="evidence-id">${e.id}</div>
+      <div class="evidence-title">${e.title}</div>
+      <div class="evidence-lift-track"><div class="evidence-lift-fill" data-width="${pct}"></div></div>
+      <div class="evidence-meta">
+        <span class="evidence-lift-pct">+${e.lift}%</span>
+        <span class="evidence-source">${e.source}</span>
+      </div>
+      <div class="evidence-section">Applies to: ${e.section}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ===== GAUGE ANIMATION =====
+function animateGauge() {
+  const arc = document.getElementById('gauge-arc');
+  const needle = document.getElementById('gauge-needle');
+  const display = document.getElementById('gauge-score-display');
+  const totalLen = 345.6;
+  const targetPct = 3.4 / 10;
+  const targetOffset = totalLen * (1 - targetPct);
+
+  let start = null;
+  const duration = 1800;
+
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const offset = totalLen - (totalLen - targetOffset) * ease;
+    arc.setAttribute('stroke-dashoffset', offset.toFixed(2));
+
+    const rot = -90 + (180 * targetPct * ease);
+    needle.setAttribute('transform', `rotate(${rot.toFixed(2)}, 140, 140)`);
+    needle.setAttribute('opacity', (ease * 0.5).toString());
+
+    const score = (3.4 * ease).toFixed(1);
+    display.textContent = score;
+
+    if (p < 1) requestAnimationFrame(step);
+    else { display.textContent = '3.4'; }
+  }
+  requestAnimationFrame(step);
+}
+
+// ===== NUMBER COUNTERS =====
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const decimals = parseInt(el.dataset.decimals || '0');
+  const duration = 1600;
+  let start = null;
+
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = (target * ease).toFixed(decimals);
+    el.textContent = val + suffix;
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target.toFixed(decimals) + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+// ===== BAR FILLS =====
+function animateBars(container) {
+  container.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+    const w = parseFloat(bar.dataset.width);
+    bar.style.width = Math.min(w / 30 * 100, 100) + '%';
+  });
+  container.querySelectorAll('.evidence-lift-fill[data-width]').forEach(bar => {
+    bar.style.width = bar.dataset.width + '%';
+  });
+}
+
+// ===== INTERSECTION OBSERVER =====
+function initObserver() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        const el = entry.target;
+        if (el.dataset.count) animateCounter(el);
+        const section = el.closest('section');
+        if (section) {
+          section.querySelectorAll('.bar-fill[data-width], .evidence-lift-fill[data-width]').forEach(bar => {
+            const w = parseFloat(bar.dataset.width);
+            if (bar.classList.contains('evidence-lift-fill')) {
+              bar.style.width = w + '%';
+            } else {
+              bar.style.width = Math.min(w / 30 * 100, 100) + '%';
+            }
+          });
+        }
+        obs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  document.querySelectorAll('[data-count]').forEach(el => obs.observe(el));
+}
+
+// Gauge observer
+function initGaugeObserver() {
+  const gaugeEl = document.getElementById('gauge-svg');
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      animateGauge();
+      obs.disconnect();
+    }
+  }, { threshold: 0.3 });
+  obs.observe(gaugeEl);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  buildRadar();
+  buildCategoryCards();
+  buildFindings();
+  buildCompetitors();
+  buildPsych();
+  buildArch();
+  buildEvidence();
+  initObserver();
+  initGaugeObserver();
+
+  // Re-run observer after dynamic content
+  setTimeout(() => {
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) el.classList.add('visible');
+    });
+    initObserver();
+  }, 300);
+});
+</script>
+
+</body>
+</html>

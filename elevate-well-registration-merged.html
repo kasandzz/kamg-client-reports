@@ -99,11 +99,19 @@
         }
 
         .hero__headline {
-            font-size: clamp(30px, 5vw, 48px);
+            font-size: clamp(36px, 6vw, 58px);
             font-weight: 700;
             color: var(--primary-dark);
-            margin-bottom: 20px;
-            line-height: 1.15;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .hero__headline .hero__emphasis {
+            display: block;
+            font-size: 1.15em;
+            color: var(--coral);
+            font-style: italic;
         }
 
         .hero__subheadline {
@@ -112,6 +120,28 @@
             max-width: 640px;
             margin: 0 auto;
             line-height: 1.7;
+        }
+
+        .hero__cta {
+            display: none;
+            margin: 28px auto 0;
+            padding: 16px 36px;
+            background: var(--coral);
+            color: var(--white);
+            font-family: 'Nunito', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(224, 122, 106, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hero__cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(224, 122, 106, 0.45);
         }
 
         /* ========== TWO-COLUMN LAYOUT ========== */
@@ -147,14 +177,17 @@
             height: 180px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--teal), var(--coral));
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 20px;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 64px;
-            font-weight: 700;
-            color: var(--white);
+            overflow: hidden;
+            border: 4px solid var(--white);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .michelle-card__photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .michelle-card__name {
@@ -340,22 +373,25 @@
 
         .radio-card {
             border: 2px solid #e8e5e0;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 14px 16px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
             color: var(--text-body);
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             gap: 12px;
             background: var(--white);
+            position: relative;
         }
 
         .radio-card:hover {
             border-color: var(--coral);
             background: var(--coral-light);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(224, 122, 106, 0.15);
         }
 
         .radio-card:focus-visible {
@@ -366,31 +402,46 @@
         .radio-card.selected {
             border-color: var(--coral);
             background: var(--coral-light);
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(224, 122, 106, 0.2);
         }
 
-        .radio-card__dot {
-            width: 20px;
-            height: 20px;
+        .radio-card__emoji {
+            font-size: 24px;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .radio-card.selected .radio-card__emoji {
+            transform: scale(1.2);
+        }
+
+        .radio-card__check {
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             border: 2px solid #ccc;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
+            margin-left: auto;
         }
 
-        .radio-card.selected .radio-card__dot {
+        .radio-card.selected .radio-card__check {
             border-color: var(--coral);
             background: var(--coral);
         }
 
-        .radio-card.selected .radio-card__dot::after {
+        .radio-card.selected .radio-card__check::after {
             content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--white);
+            width: 6px;
+            height: 10px;
+            border: solid var(--white);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg) translate(-1px, -1px);
         }
 
         /* Step 2 */
@@ -680,6 +731,142 @@
             font-size: 13px;
             color: var(--text-muted);
             font-weight: 600;
+        }
+
+        .carousel-dots {
+            display: none;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d4d0ca;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .carousel-dot.active {
+            background: var(--coral);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* ========== INSTAGRAM REELS ========== */
+        .reels-section {
+            background: var(--warm-bg);
+            padding: 56px 20px;
+            overflow: hidden;
+        }
+
+        .reels-section__inner {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .reels-section__heading {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .reels-section__heading h2 {
+            font-size: clamp(22px, 3.5vw, 30px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .reels-section__heading p {
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        .reels-scroll {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--coral) transparent;
+        }
+
+        .reels-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .reels-scroll::-webkit-scrollbar-thumb {
+            background: var(--coral);
+            border-radius: 4px;
+        }
+
+        .reel-card {
+            flex: 0 0 300px;
+            scroll-snap-align: start;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--white);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .reel-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        }
+
+        .reel-card iframe {
+            width: 100%;
+            height: 420px;
+            border: none;
+        }
+
+        .reel-card__caption {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: var(--text-body);
+            line-height: 1.5;
+            border-top: 1px solid #f0ede8;
+        }
+
+        .reel-card__caption strong {
+            color: var(--primary-dark);
+        }
+
+        .reels-section__cta {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .reels-section__cta a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--coral);
+            text-decoration: none;
+            transition: gap 0.2s ease;
+        }
+
+        .reels-section__cta a:hover {
+            gap: 12px;
+        }
+
+        @media (max-width: 767px) {
+            .reel-card {
+                flex: 0 0 260px;
+            }
+
+            .reel-card iframe {
+                height: 360px;
+            }
         }
 
         /* ========== METHOD PREVIEW ========== */
@@ -992,8 +1179,33 @@
             }
 
             .testimonials-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
+                display: flex;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+                gap: 14px;
+                padding-bottom: 10px;
+                scrollbar-width: thin;
+                scrollbar-color: var(--coral) transparent;
+            }
+
+            .testimonials-grid::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .testimonials-grid::-webkit-scrollbar-thumb {
+                background: var(--coral);
+                border-radius: 4px;
+            }
+
+            .testimonial-card {
+                flex: 0 0 85vw;
+                max-width: 320px;
+                scroll-snap-align: center;
+            }
+
+            .carousel-dots {
+                display: flex;
             }
 
             .method-grid {
@@ -1005,6 +1217,12 @@
                 display: flex;
             }
 
+            .hero__cta {
+                display: inline-block;
+                width: 100%;
+                max-width: 340px;
+            }
+
             .michelle-card {
                 padding: 28px 20px;
             }
@@ -1012,7 +1230,6 @@
             .michelle-card__photo {
                 width: 140px;
                 height: 140px;
-                font-size: 52px;
             }
 
             .credential-pills {
@@ -1078,8 +1295,9 @@
     <!-- HERO -->
     <section class="hero" id="hero-section" aria-label="Hero">
         <p class="hero__preheadline">Free Training for Hard-Working Moms Over 40</p>
-        <h1 class="hero__headline">Your Body Isn't Broken.<br>You've Just Been Given the Wrong Instructions.</h1>
+        <h1 class="hero__headline"><span class="hero__emphasis">Your Body Isn't Broken.</span>You've Just Been Given the Wrong Instructions.</h1>
         <p class="hero__subheadline">Discover the Hormonal Reset Method that's helped women like you lose 20-40+ lbs -- without dieting, without hours of cardio, and without giving up the foods you love.</p>
+        <a href="#registration" class="hero__cta scroll-to-form">Yes, Save My Free Spot &rarr;</a>
     </section>
 
     <!-- TWO-COLUMN SECTION -->
@@ -1090,7 +1308,10 @@
 
             <!-- Michelle Card -->
             <div class="michelle-card reveal">
-                <div class="michelle-card__photo" aria-hidden="true">M</div>
+                <!-- TODO: Replace src with hosted Michelle headshot (save from IG @elevatewell.withmichelle) -->
+                <div class="michelle-card__photo">
+                    <img src="michelle-headshot.jpg" alt="Michelle Diniakos - Certified Nutrition Coach" loading="lazy" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';this.parentElement.innerHTML='<span style=font-size:64px;font-weight:700;color:#fff;font-family:serif>M</span>'">
+                </div>
                 <h2 class="michelle-card__name">Michelle Diniakos</h2>
                 <p class="michelle-card__title">Certified Nutrition Coach &amp; Personal Trainer</p>
                 <p class="michelle-card__bio">Helped hundreds of moms over 40 lose the weight and keep it off -- without restrictive diets, without endless cardio, and without drugs like Ozempic.</p>
@@ -1165,20 +1386,24 @@
                         <p class="form-step__question">What's your biggest struggle right now?</p>
                         <div class="radio-cards" role="radiogroup" aria-label="Biggest struggle">
                             <div class="radio-card" role="radio" tabindex="0" aria-checked="false" data-value="stubborn-weight">
-                                <span class="radio-card__dot" aria-hidden="true"></span>
+                                <span class="radio-card__emoji" aria-hidden="true">&#9878;&#65039;</span>
                                 Stubborn weight that won't budge
+                                <span class="radio-card__check" aria-hidden="true"></span>
                             </div>
                             <div class="radio-card" role="radio" tabindex="0" aria-checked="false" data-value="zero-energy">
-                                <span class="radio-card__dot" aria-hidden="true"></span>
+                                <span class="radio-card__emoji" aria-hidden="true">&#128171;</span>
                                 Zero energy -- exhausted by 3pm
+                                <span class="radio-card__check" aria-hidden="true"></span>
                             </div>
                             <div class="radio-card" role="radio" tabindex="0" aria-checked="false" data-value="hormonal-chaos">
-                                <span class="radio-card__dot" aria-hidden="true"></span>
+                                <span class="radio-card__emoji" aria-hidden="true">&#127777;&#65039;</span>
                                 Hormonal chaos -- hot flashes, mood swings, brain fog
+                                <span class="radio-card__check" aria-hidden="true"></span>
                             </div>
                             <div class="radio-card" role="radio" tabindex="0" aria-checked="false" data-value="all-above">
-                                <span class="radio-card__dot" aria-hidden="true"></span>
+                                <span class="radio-card__emoji" aria-hidden="true">&#128587;&#8205;&#9792;&#65039;</span>
                                 All of the above (honestly)
+                                <span class="radio-card__check" aria-hidden="true"></span>
                             </div>
                         </div>
                     </div>
@@ -1292,6 +1517,45 @@
                 </div>
 
             </div>
+            <div class="carousel-dots" id="testimonial-dots" aria-label="Testimonial navigation">
+                <button class="carousel-dot active" data-index="0" aria-label="Sarah's story"></button>
+                <button class="carousel-dot" data-index="1" aria-label="Jennifer's story"></button>
+                <button class="carousel-dot" data-index="2" aria-label="Laurie's story"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- INSTAGRAM REELS -->
+    <section class="reels-section" aria-label="See Michelle in action">
+        <div class="reels-section__inner">
+            <div class="reels-section__heading reveal">
+                <h2>See Michelle in Action</h2>
+                <p>Real coaching. Real transformations. No filters.</p>
+            </div>
+
+            <div class="reels-scroll">
+                <!-- REEL 1: Replace SHORTCODE_1 with actual IG reel shortcode -->
+                <div class="reel-card reveal">
+                    <iframe src="https://www.instagram.com/reel/SHORTCODE_1/embed/" loading="lazy" allowtransparency="true" title="Michelle coaching reel 1"></iframe>
+                    <div class="reel-card__caption"><strong>Why diets fail after 40</strong> -- the hormone truth no one talks about</div>
+                </div>
+
+                <!-- REEL 2: Replace SHORTCODE_2 with actual IG reel shortcode -->
+                <div class="reel-card reveal">
+                    <iframe src="https://www.instagram.com/reel/SHORTCODE_2/embed/" loading="lazy" allowtransparency="true" title="Michelle coaching reel 2"></iframe>
+                    <div class="reel-card__caption"><strong>Client transformation</strong> -- "I finally feel like myself again"</div>
+                </div>
+
+                <!-- REEL 3: Replace SHORTCODE_3 with actual IG reel shortcode -->
+                <div class="reel-card reveal">
+                    <iframe src="https://www.instagram.com/reel/SHORTCODE_3/embed/" loading="lazy" allowtransparency="true" title="Michelle coaching reel 3"></iframe>
+                    <div class="reel-card__caption"><strong>The #1 mistake</strong> -- why cardio is making it worse</div>
+                </div>
+            </div>
+
+            <div class="reels-section__cta">
+                <a href="https://www.instagram.com/elevatewell.withmichelle/" target="_blank" rel="noopener">Follow @elevatewell.withmichelle &rarr;</a>
+            </div>
         </div>
     </section>
 
@@ -1402,8 +1666,8 @@
         <div class="mobile-cta-bar__chevron" aria-hidden="true">
             <svg viewBox="0 0 20 12"><polyline points="2 10 10 2 18 10"/></svg>
         </div>
-        <span class="mobile-cta-bar__label">Free Training</span>
-        <button class="mobile-cta-bar__button scroll-to-form" type="button">Watch Now</button>
+        <span class="mobile-cta-bar__label">Free 90-Min Training</span>
+        <button class="mobile-cta-bar__button scroll-to-form" type="button">Save My Free Spot</button>
     </div>
 
     <script>
@@ -1587,6 +1851,36 @@
             }, { threshold: 0.1 });
 
             reveals.forEach(function(el) { revealObserver.observe(el); });
+
+            // ========== TESTIMONIAL CAROUSEL DOTS ==========
+            var testimonialsGrid = document.querySelector('.testimonials-grid');
+            var dots = document.querySelectorAll('.carousel-dot');
+            if (testimonialsGrid && dots.length) {
+                var cards = testimonialsGrid.querySelectorAll('.testimonial-card');
+
+                // Scroll listener to update active dot
+                var scrollTimeout;
+                testimonialsGrid.addEventListener('scroll', function() {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(function() {
+                        var scrollLeft = testimonialsGrid.scrollLeft;
+                        var cardWidth = cards[0].offsetWidth + 14; // gap
+                        var activeIndex = Math.round(scrollLeft / cardWidth);
+                        dots.forEach(function(d, i) {
+                            d.classList.toggle('active', i === activeIndex);
+                        });
+                    }, 50);
+                });
+
+                // Click dot to scroll to card
+                dots.forEach(function(dot) {
+                    dot.addEventListener('click', function() {
+                        var idx = parseInt(dot.getAttribute('data-index'));
+                        var cardWidth = cards[0].offsetWidth + 14;
+                        testimonialsGrid.scrollTo({ left: idx * cardWidth, behavior: 'smooth' });
+                    });
+                });
+            }
 
         })();
     </script>

@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Your Assessment Is Booked | Elevate Well with Michelle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-dark: #2d2d2d;
+            --coral: #e07a6a;
+            --coral-hover: #c9685a;
+            --coral-light: rgba(224, 122, 106, 0.08);
+            --teal: #5a9e8f;
+            --teal-light: #e8f3f0;
+            --warm-bg: #faf8f5;
+            --warm-bg-alt: #f3efe9;
+            --text-body: #3d3d3d;
+            --text-muted: #7a7a7a;
+            --white: #ffffff;
+            --green: #5cb85c;
+            --green-light: #eaf6ea;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.08);
+            --shadow-subtle: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-body);
+            background: var(--warm-bg);
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.25;
+        }
+
+        img { max-width: 100%; height: auto; }
+
+        a { color: var(--coral); text-decoration: none; }
+
+        /* ======== TOP BAR ======== */
+        .top-bar {
+            background: linear-gradient(135deg, var(--coral), var(--coral-hover));
+            color: var(--white);
+            text-align: center;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* ======== HERO ======== */
+        .hero {
+            text-align: center;
+            padding: 64px 20px 48px;
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        /* ---- Animated Checkmark ---- */
+        .check-wrap {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 32px;
+        }
+
+        .check-circle {
+            stroke: var(--green);
+            stroke-width: 3;
+            stroke-dasharray: 282;
+            stroke-dashoffset: 282;
+            fill: none;
+            animation: draw-circle 0.6s ease-out 0.2s forwards;
+            transform-origin: center;
+        }
+
+        .check-mark {
+            stroke: var(--green);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            fill: none;
+            animation: draw-check 0.4s ease-out 0.8s forwards;
+        }
+
+        .check-fill {
+            fill: var(--green-light);
+            opacity: 0;
+            animation: fill-in 0.3s ease-out 0.6s forwards;
+        }
+
+        @keyframes draw-circle {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes draw-check {
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes fill-in {
+            to { opacity: 1; }
+        }
+
+        .hero__label {
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 16px;
+        }
+
+        .hero__headline {
+            font-size: clamp(32px, 6vw, 52px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .hero__headline em {
+            color: var(--coral);
+            font-style: italic;
+            display: block;
+        }
+
+        .hero__sub {
+            font-size: clamp(16px, 2.5vw, 19px);
+            color: var(--text-muted);
+            max-width: 580px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ======== SECTION WRAPPER ======== */
+        .section {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section + .section {
+            margin-top: 0;
+        }
+
+        /* ======== CARDS ======== */
+        .card {
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            padding: 36px 32px;
+            margin-bottom: 32px;
+        }
+
+        .card--teal {
+            background: var(--teal-light);
+            border: 1.5px solid rgba(90, 158, 143, 0.2);
+            box-shadow: none;
+        }
+
+        .card--coral {
+            background: var(--coral-light);
+            border: 1.5px solid rgba(224, 122, 106, 0.2);
+            box-shadow: none;
+        }
+
+        .card--green {
+            background: var(--green-light);
+            border: 1.5px solid rgba(92, 184, 92, 0.2);
+            box-shadow: none;
+        }
+
+        /* ======== CONFIRMATION CARD ======== */
+        .confirm-header {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .confirm-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .confirm-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .confirm-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .confirm-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--teal-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .confirm-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--teal);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .confirm-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .confirm-value {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 15px;
+        }
+
+        /* ======== CALENDAR BUTTONS ======== */
+        .cal-section {
+            margin-bottom: 32px;
+        }
+
+        .cal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .cal-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .cal-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .cal-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .cal-btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .cal-btn--google {
+            background: var(--white);
+            color: var(--primary-dark);
+            border-color: #dadce0;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .cal-btn--apple {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+
+        .cal-btn--outlook {
+            background: #0078d4;
+            color: var(--white);
+        }
+
+        /* ======== VIDEO PLACEHOLDER ======== */
+        .video-wrap {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #1a1a2e;
+            cursor: pointer;
+            margin-bottom: 12px;
+            aspect-ratio: 16/9;
+            max-width: 100%;
+        }
+
+        .video-wrap__poster {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, #1a1a2e 0%, #2d1b3d 60%, #4a2040 100%);
+        }
+
+        .video-wrap__michelle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.3);
+            margin-bottom: 16px;
+        }
+
+        .video-wrap__michelle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 15%;
+        }
+
+        .video-wrap__play {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--coral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 12px rgba(224, 122, 106, 0.2);
+            margin-bottom: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .video-wrap:hover .video-wrap__play {
+            transform: scale(1.1);
+        }
+
+        .video-wrap__play svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--white);
+            margin-left: 4px;
+        }
+
+        .video-wrap__text {
+            color: rgba(255,255,255,0.9);
+            font-weight: 700;
+            font-size: 15px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .video-wrap__sub {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* ======== SECTION HEADINGS ======== */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--coral);
+            margin-bottom: 8px;
+        }
+
+        .section-heading {
+            font-size: clamp(26px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .section-sub {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            line-height: 1.65;
+        }
+
+        /* ======== PREP CARDS (3 things) ======== */
+        .prep-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .prep-card {
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: var(--shadow-subtle);
+            padding: 24px 24px 24px 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            border-left: 4px solid var(--teal);
+            transition: transform 0.2s ease;
+        }
+
+        .prep-card:hover {
+            transform: translateX(4px);
+        }
+
+        .prep-number {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--white);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .prep-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .prep-body {
+            font-size: 14px;
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        .prep-body strong {
+            color: var(--teal);
+        }
+
+        /* ======== WHAT TO EXPECT ======== */
+        .expect-box {
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            padding: 32px 28px;
+            margin-bottom: 32px;
+        }
+
+        .expect-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+
+        .expect-list {
+            list-style: none;
+            display: grid;
+            gap: 14px;
+        }
+
+        .expect-list li {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .expect-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--teal-light);
+            border: 2px solid var(--teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .expect-dot svg {
+            width: 10px;
+            height: 10px;
+            stroke: var(--teal);
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .expect-objection {
+            background: linear-gradient(135deg, var(--coral-light), rgba(224,122,106,0.04));
+            border: 1.5px solid rgba(224, 122, 106, 0.25);
+            border-radius: 12px;
+            padding: 20px 22px;
+            margin-top: 24px;
+        }
+
+        .expect-objection__q {
+            font-weight: 700;
+            color: var(--coral);
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .expect-objection__a {
+            font-size: 14px;
+            color: var(--text-body);
+            line-height: 1.65;
+        }
+
+        /* ======== TIMELINE ======== */
+        .timeline-wrap {
+            margin-bottom: 32px;
+        }
+
+        .timeline {
+            display: flex;
+            position: relative;
+            gap: 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: calc(12.5% + 22px);
+            right: calc(12.5% + 22px);
+            height: 3px;
+            background: linear-gradient(to right, var(--green) 33%, var(--teal-light) 33%);
+            z-index: 0;
+        }
+
+        .timeline-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-dot {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .timeline-dot--done {
+            background: var(--green);
+            color: var(--white);
+            box-shadow: 0 0 0 6px var(--green-light);
+        }
+
+        .timeline-dot--done svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--white);
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .timeline-dot--active {
+            background: var(--teal);
+            color: var(--white);
+            box-shadow: 0 0 0 6px var(--teal-light);
+        }
+
+        .timeline-dot--upcoming {
+            background: var(--warm-bg-alt);
+            color: var(--text-muted);
+            border: 2px solid #ddd;
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.3;
+        }
+
+        .timeline-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ======== TESTIMONIALS ======== */
+        .testimonials-wrap {
+            margin-bottom: 32px;
+        }
+
+        .testi-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .testi-card {
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: var(--shadow-subtle);
+            padding: 24px 24px 20px;
+            position: relative;
+        }
+
+        .testi-quote {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 16px;
+        }
+
+        .testi-quote::before {
+            content: '\201C';
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 52px;
+            color: var(--coral-light);
+            line-height: 0;
+            vertical-align: -20px;
+            margin-right: 4px;
+            color: rgba(224, 122, 106, 0.4);
+        }
+
+        .testi-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testi-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--coral));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .testi-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary-dark);
+        }
+
+        .testi-detail {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .testi-stars {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 12px;
+        }
+
+        .star {
+            width: 14px;
+            height: 14px;
+            fill: #f5a623;
+        }
+
+        /* ======== SMS BOX ======== */
+        .sms-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 14px;
+            padding: 32px 28px;
+            margin-bottom: 32px;
+            color: var(--white);
+            text-align: center;
+        }
+
+        .sms-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .sms-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: rgba(255,255,255,0.9);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .sms-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .sms-body {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.65;
+            margin-bottom: 20px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sms-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+            margin: 0 auto 20px;
+            text-align: left;
+        }
+
+        .sms-step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 14px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .sms-step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--coral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .sms-note {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ======== FOOTER ======== */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .footer__logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .footer__logo span {
+            color: var(--coral);
+        }
+
+        .footer__text {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 420px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .footer__contact {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer__contact a {
+            color: var(--teal);
+        }
+
+        /* ======== SCROLL REVEAL ======== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* ======== SECTION DIVIDERS ======== */
+        .spacer-sm { height: 24px; }
+        .spacer-md { height: 48px; }
+
+        /* ======== RESPONSIVE ======== */
+        @media (max-width: 600px) {
+            .hero { padding: 48px 20px 36px; }
+            .card { padding: 24px 20px; }
+            .cal-buttons { flex-direction: column; align-items: stretch; }
+            .cal-btn { justify-content: center; }
+            .timeline::before { display: none; }
+            .timeline { flex-direction: column; gap: 16px; }
+            .timeline-step { flex-direction: row; text-align: left; align-items: center; gap: 16px; }
+            .timeline-dot { margin-bottom: 0; flex-shrink: 0; }
+            .testi-grid { grid-template-columns: 1fr; }
+            .prep-card { flex-direction: column; gap: 12px; }
+            .sms-box { padding: 24px 20px; }
+        }
+
+        @media (min-width: 601px) {
+            .testi-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    Your Transformation Assessment is confirmed. Check your email for details.
+</div>
+
+<!-- HERO -->
+<section class="hero">
+    <!-- Animated SVG Checkmark -->
+    <div class="check-wrap">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle class="check-fill" cx="50" cy="50" r="48"/>
+            <circle class="check-circle" cx="50" cy="50" r="44" transform="rotate(-90 50 50)"/>
+            <polyline class="check-mark" points="26,52 42,68 74,36"/>
+        </svg>
+    </div>
+
+    <p class="hero__label">Assessment Confirmed</p>
+    <h1 class="hero__headline">
+        You Did It.
+        <em>Your Assessment Is Booked.</em>
+    </h1>
+    <p class="hero__sub">
+        This is the moment that changes everything, Michelle is genuinely excited to meet you. Read everything below before your call. It takes 5 minutes and makes a real difference.
+    </p>
+</section>
+
+<!-- CONFIRMATION CARD -->
+<div class="section">
+    <div class="card reveal">
+        <p class="confirm-header">Your Appointment Details</p>
+        <div class="confirm-grid">
+            <div class="confirm-row">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div>
+                    <p class="confirm-label">What</p>
+                    <p class="confirm-value">Free 40-Minute Transformation Assessment</p>
+                </div>
+            </div>
+            <div class="confirm-row">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <p class="confirm-label">Duration</p>
+                    <p class="confirm-value">40 minutes (please block 45 to be safe)</p>
+                </div>
+            </div>
+            <div class="confirm-row">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                    <p class="confirm-label">With</p>
+                    <p class="confirm-value">Michelle Diniakos, Elevate Well</p>
+                </div>
+            </div>
+            <div class="confirm-row">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.82v6.36a1 1 0 0 1-1.447.89L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"/></svg>
+                </div>
+                <div>
+                    <p class="confirm-label">Where</p>
+                    <p class="confirm-value">Private Zoom call (link in your confirmation email)</p>
+                </div>
+            </div>
+            <div class="confirm-row">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <div>
+                    <p class="confirm-label">Confirmation Sent To</p>
+                    <p class="confirm-value">Your email (check your inbox and spam folder)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CALENDAR BUTTONS -->
+<div class="section">
+    <div class="cal-section card reveal reveal-delay-1">
+        <p class="cal-title">Add to Your Calendar Now</p>
+        <p class="cal-sub">Do this right now, before you close this page. It takes 10 seconds.</p>
+        <div class="cal-buttons">
+            <a href="#" class="cal-btn cal-btn--google" onclick="addToGoogleCalendar(event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Google Calendar
+            </a>
+            <a href="#" class="cal-btn cal-btn--apple" onclick="addToAppleCalendar(event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Apple Calendar
+            </a>
+            <a href="#" class="cal-btn cal-btn--outlook" onclick="addToOutlook(event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Outlook
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- MICHELLE'S VIDEO -->
+<div class="section">
+    <div class="card reveal reveal-delay-2" style="padding-bottom: 28px;">
+        <p class="section-label">A Note From Michelle</p>
+        <h2 class="section-heading" style="margin-bottom: 16px;">She recorded something personal for you</h2>
+
+        <div class="video-wrap" id="videoPlaceholder" onclick="playVideo()">
+            <div class="video-wrap__poster" id="videoPoster">
+                <div class="video-wrap__michelle">
+                    <img src="michelle-headshot.png" alt="Michelle Diniakos" onerror="this.style.background='linear-gradient(135deg, #5a9e8f, #e07a6a)'; this.style.display='block';">
+                </div>
+                <div class="video-wrap__play">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+                <p class="video-wrap__text">Watch Michelle's personal message</p>
+                <p class="video-wrap__sub">1:47 min</p>
+            </div>
+            <!-- Replace src with your actual video embed when ready -->
+            <iframe id="videoFrame" style="display:none; position:absolute; inset:0; width:100%; height:100%; border:none;" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 10px;">
+            Michelle will also send you a personal email before your call. Watch for it.
+        </p>
+    </div>
+</div>
+
+<!-- 3 THINGS TO DO -->
+<div class="section">
+    <div class="spacer-sm"></div>
+    <p class="section-label reveal">Your Pre-Call Homework</p>
+    <h2 class="section-heading reveal">3 Things to Do Before Your Call</h2>
+    <p class="section-sub reveal">Women who come prepared get dramatically more value from this conversation. This takes about 20 minutes total.</p>
+
+    <div class="prep-grid">
+        <div class="prep-card reveal reveal-delay-1">
+            <div class="prep-number">1</div>
+            <div>
+                <p class="prep-title">Write Down Your "Enough Is Enough" Moment</p>
+                <p class="prep-body">
+                    What finally made you take this step? Write it down in a journal or notes app. Be specific: the morning you couldn't button your jeans, the vacation photo you avoided sharing, the energy crash at 2pm that felt like failure.
+                    <br><br>
+                    <strong>Why this matters:</strong> When you can articulate your real "why," Michelle can build a plan around it. This is the difference between generic advice and a roadmap that actually fits your life.
+                </p>
+            </div>
+        </div>
+
+        <div class="prep-card reveal reveal-delay-2">
+            <div class="prep-number">2</div>
+            <div>
+                <p class="prep-title">Track What You Eat and When for 2 Days</p>
+                <p class="prep-body">
+                    No judgment, no calorie counting. Just notice: what time you wake up and eat, what you reach for when stressed, when energy crashes happen, how often you skip meals.
+                    <br><br>
+                    <strong>Why this matters:</strong> Hormonal imbalance often shows up in patterns, not just food choices. Two days of honest observation gives Michelle something concrete to work with immediately.
+                </p>
+            </div>
+        </div>
+
+        <div class="prep-card reveal reveal-delay-3">
+            <div class="prep-number">3</div>
+            <div>
+                <p class="prep-title">Write Your 3 Biggest Frustrations Right Now</p>
+                <p class="prep-body">
+                    Examples: "I eat clean but can't lose weight," "I'm exhausted no matter how much I sleep," "I've tried everything and nothing sticks," "I don't recognize my own body anymore."
+                    <br><br>
+                    <strong>Why this matters:</strong> Michelle will spend the first part of your call understanding exactly where you are. Coming in with clarity cuts through the small talk and gets to real answers, faster.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="spacer-md"></div>
+</div>
+
+<!-- WHAT TO EXPECT -->
+<div class="section">
+    <div class="expect-box reveal">
+        <h2 class="expect-heading">What Actually Happens on Your Call</h2>
+        <ul class="expect-list">
+            <li>
+                <span class="expect-dot">
+                    <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+                </span>
+                <span><strong>Minutes 1-10:</strong> Michelle listens. She asks about your history, what you've tried, and where you're stuck. No rushing, no scripts.</span>
+            </li>
+            <li>
+                <span class="expect-dot">
+                    <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+                </span>
+                <span><strong>Minutes 10-25:</strong> Together you identify your specific hormonal patterns and what's actually blocking your progress. This alone is often worth the call.</span>
+            </li>
+            <li>
+                <span class="expect-dot">
+                    <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+                </span>
+                <span><strong>Minutes 25-35:</strong> Michelle walks you through what a personalized reset plan looks like for your body, your schedule, and your life.</span>
+            </li>
+            <li>
+                <span class="expect-dot">
+                    <svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg>
+                </span>
+                <span><strong>Minutes 35-40:</strong> If Michelle's Signature Transformation Program is a fit, she'll explain what working together looks like. Zero pressure. You decide on your own terms.</span>
+            </li>
+        </ul>
+
+        <div class="expect-objection">
+            <p class="expect-objection__q">Is this just a sales call?</p>
+            <p class="expect-objection__a">
+                Honestly: the last 5 minutes is where Michelle shares how she can help you further if you want that. But the first 35 minutes are a real assessment, not a pitch. Women leave this call with clarity they didn't have before, whether they work with Michelle or not. That's the point.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- VISUAL TIMELINE -->
+<div class="section">
+    <div class="spacer-sm"></div>
+    <p class="section-label reveal">Your Journey</p>
+    <h2 class="section-heading reveal" style="margin-bottom: 28px;">Where You Are Right Now</h2>
+
+    <div class="timeline-wrap card reveal">
+        <div class="timeline">
+            <div class="timeline-step">
+                <div class="timeline-dot timeline-dot--done">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p class="timeline-label">Registration</p>
+                <p class="timeline-sub">Done</p>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot timeline-dot--done">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p class="timeline-label">Free Training</p>
+                <p class="timeline-sub">Completed</p>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot timeline-dot--done">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p class="timeline-label">Book Call</p>
+                <p class="timeline-sub">Done</p>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot timeline-dot--active">4</div>
+                <p class="timeline-label">Assessment</p>
+                <p class="timeline-sub">Up next</p>
+            </div>
+        </div>
+    </div>
+    <div class="spacer-md"></div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="section">
+    <p class="section-label reveal">Real Women, Real Results</p>
+    <h2 class="section-heading reveal" style="margin-bottom: 8px;">They took this same step</h2>
+    <p class="section-sub reveal">These women were exactly where you are right now. Here's what happened next.</p>
+
+    <div class="testi-grid testimonials-wrap">
+        <div class="testi-card reveal reveal-delay-1">
+            <div class="testi-stars">
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">I almost didn't book the call. I thought it would be awkward or pushy. It was the opposite. Michelle spent the whole time actually listening. I left with a plan I understood for the first time.</p>
+            <div class="testi-author">
+                <div class="testi-avatar">R</div>
+                <div>
+                    <p class="testi-name">Rebecca S.</p>
+                    <p class="testi-detail">Lost 28 lbs, age 52</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testi-card reveal reveal-delay-2">
+            <div class="testi-stars">
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">That 40-minute call was more useful than 3 years of trying things on my own. She identified exactly what was going wrong with my cortisol and sleep. It finally clicked.</p>
+            <div class="testi-author">
+                <div class="testi-avatar" style="background: linear-gradient(135deg, #e07a6a, #c9685a);">M</div>
+                <div>
+                    <p class="testi-name">Morgen T.</p>
+                    <p class="testi-detail">42 lbs down, age 47</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testi-card reveal reveal-delay-3">
+            <div class="testi-stars">
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">I was skeptical. I've heard "this time is different" before. But the assessment was genuinely different. No fluff. Just real clarity on why I'd been stuck and what to do about it.</p>
+            <div class="testi-author">
+                <div class="testi-avatar" style="background: linear-gradient(135deg, #9b59b6, #5a9e8f);">T</div>
+                <div>
+                    <p class="testi-name">Talia R.</p>
+                    <p class="testi-detail">35 lbs down, age 49</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="testi-card reveal reveal-delay-4">
+            <div class="testi-stars">
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <p class="testi-quote">My call was at 7am. I was half-awake and half-convinced I'd cancel. I didn't. An hour later I was crying in the best way. I finally felt like someone understood what was actually happening in my body.</p>
+            <div class="testi-author">
+                <div class="testi-avatar" style="background: linear-gradient(135deg, #e07a6a, #9b59b6);">B</div>
+                <div>
+                    <p class="testi-name">Becca M.</p>
+                    <p class="testi-detail">Down 31 lbs, age 53</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SMS REMINDER BOX -->
+<div class="section">
+    <div class="sms-box reveal">
+        <div class="sms-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3 class="sms-heading">Set a Text Reminder Right Now</h3>
+        <p class="sms-body">
+            Life gets busy. The women who show up are the ones who planned to show up. Set a reminder before you close this page.
+        </p>
+        <div class="sms-steps">
+            <div class="sms-step">
+                <span class="sms-step-num">1</span>
+                <span>Open your phone's clock or calendar app</span>
+            </div>
+            <div class="sms-step">
+                <span class="sms-step-num">2</span>
+                <span>Set an alarm for 60 minutes before your call time</span>
+            </div>
+            <div class="sms-step">
+                <span class="sms-step-num">3</span>
+                <span>Label it: "Elevate Well Call, open the Zoom link from my email"</span>
+            </div>
+        </div>
+        <p class="sms-note">You will also receive email reminders from Michelle's team in the days leading up to your call.</p>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <p class="footer__logo">Elevate <span>Well</span></p>
+    <p class="footer__text">
+        A personal transformation practice for women 40 and over who are done settling for "this is just how it is."
+    </p>
+    <p class="footer__contact">
+        Questions before your call? Email <a href="mailto:support@elevatewell.net">support@elevatewell.net</a>
+    </p>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">
+        &copy; 2024 Elevate Well with Michelle Diniakos. All rights reserved.
+    </p>
+</footer>
+
+<script>
+    // ---- Scroll Reveal ----
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // ---- Video placeholder click ----
+    function playVideo() {
+        // Replace with your actual Wistia/Vimeo/YouTube embed when ready
+        // Example for Wistia: set iframe src to 'https://fast.wistia.net/embed/iframe/YOUR_ID?autoPlay=1'
+        const poster = document.getElementById('videoPoster');
+        const frame = document.getElementById('videoFrame');
+        // Placeholder: in production, set frame.src to your video embed URL and show iframe
+        poster.innerHTML = '<p style="color:rgba(255,255,255,0.7); font-size:14px; text-align:center; padding:20px;">Video coming soon. Michelle will send you a personal email before your call.</p>';
+    }
+
+    // ---- Calendar helpers ----
+    // These open with placeholder event details.
+    // Replace YYYY, MM, DD, HH, MM with actual booking time from your booking system.
+    function getEventDetails() {
+        return {
+            title: encodeURIComponent('Transformation Assessment with Michelle Diniakos'),
+            details: encodeURIComponent('Your free 40-minute Transformation Assessment. Zoom link will be in your confirmation email from Elevate Well.'),
+            location: encodeURIComponent('Zoom (link in your confirmation email)'),
+            // Placeholder dates: update with real booking system integration
+            startISO: '20241201T100000Z',
+            endISO:   '20241201T104000Z',
+        };
+    }
+
+    function addToGoogleCalendar(e) {
+        e.preventDefault();
+        const ev = getEventDetails();
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${ev.title}&details=${ev.details}&location=${ev.location}&dates=${ev.startISO}/${ev.endISO}`;
+        window.open(url, '_blank');
+    }
+
+    function addToAppleCalendar(e) {
+        e.preventDefault();
+        // Generate .ics file download
+        const ev = getEventDetails();
+        const ics = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'BEGIN:VEVENT',
+            'DTSTART:' + ev.startISO,
+            'DTEND:' + ev.endISO,
+            'SUMMARY:Transformation Assessment with Michelle Diniakos',
+            'DESCRIPTION:Your free 40-minute Transformation Assessment. Zoom link in your confirmation email.',
+            'LOCATION:Zoom',
+            'END:VEVENT',
+            'END:VCALENDAR'
+        ].join('\r\n');
+        const blob = new Blob([ics], { type: 'text/calendar' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'transformation-assessment.ics';
+        link.click();
+    }
+
+    function addToOutlook(e) {
+        e.preventDefault();
+        const ev = getEventDetails();
+        const url = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${ev.title}&body=${ev.details}&startdt=${ev.startISO}&enddt=${ev.endISO}&location=${ev.location}`;
+        window.open(url, '_blank');
+    }
+</script>
+
+</body>
+</html>

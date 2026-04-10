@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Affiliate Pipeline Deep Analysis | April 10, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --surface-3: #222233;
+  --border: #2a2a3d;
+  --text: #e8e8f0;
+  --text-muted: #8888aa;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.1);
+  --yellow: #eab308;
+  --yellow-bg: rgba(234,179,8,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --orange: #f97316;
+  --orange-bg: rgba(249,115,22,0.1);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.1);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.1);
+  --cyan: #06b6d4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-meta {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.meta-chip strong { color: var(--text); }
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon { font-size: 1.5rem; }
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.section-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  margin-left: auto;
+}
+
+.badge-critical { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.badge-warning { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+.badge-opportunity { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.badge-info { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+
+.tldr {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tldr h2 {
+  font-size: 1.25rem;
+  color: var(--accent-light);
+  margin-bottom: 1rem;
+}
+
+.tldr-item {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(99,102,241,0.15);
+  align-items: flex-start;
+}
+
+.tldr-item:last-child { border-bottom: none; }
+
+.tldr-num {
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.tldr-text { font-size: 0.95rem; }
+.tldr-text strong { color: var(--accent-light); }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-green .kpi-value { color: var(--green); }
+.kpi-red .kpi-value { color: var(--red); }
+.kpi-yellow .kpi-value { color: var(--yellow); }
+.kpi-accent .kpi-value { color: var(--accent-light); }
+.kpi-orange .kpi-value { color: var(--orange); }
+.kpi-blue .kpi-value { color: var(--blue); }
+.kpi-cyan .kpi-value { color: var(--cyan); }
+
+.bar-chart { margin: 1rem 0; }
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.bar-label {
+  width: 180px;
+  min-width: 180px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.bar-track {
+  flex: 1;
+  height: 24px;
+  background: var(--surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  min-width: fit-content;
+}
+
+.bar-green { background: linear-gradient(90deg, var(--green), #16a34a); }
+.bar-red { background: linear-gradient(90deg, var(--red), #dc2626); }
+.bar-yellow { background: linear-gradient(90deg, var(--yellow), #ca8a04); }
+.bar-accent { background: linear-gradient(90deg, var(--accent), #4f46e5); }
+.bar-orange { background: linear-gradient(90deg, var(--orange), #ea580c); }
+.bar-blue { background: linear-gradient(90deg, var(--blue), #2563eb); }
+.bar-purple { background: linear-gradient(90deg, var(--purple), #9333ea); }
+.bar-cyan { background: linear-gradient(90deg, var(--cyan), #0891b2); }
+
+.bar-value {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 50px;
+  text-align: right;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+
+th {
+  text-align: left;
+  padding: 0.75rem;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:hover td { background: rgba(99,102,241,0.05); }
+
+.action-box {
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+
+.action-critical {
+  background: var(--red-bg);
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.action-warning {
+  background: var(--yellow-bg);
+  border: 1px solid rgba(234,179,8,0.3);
+}
+
+.action-opportunity {
+  background: var(--green-bg);
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+.action-info {
+  background: var(--blue-bg);
+  border: 1px solid rgba(59,130,246,0.3);
+}
+
+.action-purple {
+  background: var(--purple-bg);
+  border: 1px solid rgba(168,85,247,0.3);
+}
+
+.action-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.action-critical .action-title { color: var(--red); }
+.action-warning .action-title { color: var(--yellow); }
+.action-opportunity .action-title { color: var(--green); }
+.action-info .action-title { color: var(--blue); }
+.action-purple .action-title { color: var(--purple); }
+
+.chase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.chase-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.chase-card.hot { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.05); }
+.chase-card.warm { border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.05); }
+.chase-card.cool { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.05); }
+
+.chase-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.chase-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.chase-note {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.tag-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.tag-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.tag-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+.tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.tag-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+.tag-cyan { background: rgba(6,182,212,0.1); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+.tag-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(249,115,22,0.3); }
+
+h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text);
+}
+
+h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent-light);
+  margin: 1rem 0 0.5rem;
+}
+
+p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.highlight-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  body { padding: 1rem; }
+  h1 { font-size: 1.75rem; }
+  .two-col { grid-template-columns: 1fr; }
+  .bar-label { width: 120px; min-width: 120px; }
+  .header-meta { gap: 0.75rem; }
+  .chase-grid { grid-template-columns: 1fr; }
+}
+
+.money-card {
+  background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(6,182,212,0.05));
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 0.75rem 0;
+}
+
+.money-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--green);
+}
+
+.money-meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.callout-new {
+  background: rgba(168,85,247,0.08);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.callout-new::before {
+  content: 'NEW';
+  display: inline-block;
+  background: var(--purple);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<h1>CPG Affiliate Pipeline</h1>
+<p class="subtitle">Deep Analysis Report -- Updated April 10, 2026</p>
+
+<div class="header-meta">
+  <div class="meta-chip"><strong>336</strong> Total Deals</div>
+  <div class="meta-chip"><strong>43</strong> Signed (incl. awaiting payment)</div>
+  <div class="meta-chip">Date range: <strong>May 2025 -- May 2026</strong></div>
+  <div class="meta-chip">Last sync: <strong>April 10, 2026</strong></div>
+  <div class="meta-chip">Overall close rate: <strong>12.8%</strong></div>
+</div>
+
+<!-- TL;DR -->
+<div class="tldr">
+  <h2>TL;DR -- Five Things That Matter Right Now</h2>
+  <div class="tldr-item">
+    <div class="tldr-num">1</div>
+    <div class="tldr-text"><strong>Juli and Krik just blitzed the pipeline.</strong> 69 deals received follow-ups on April 8-10 alone. That's a massive push -- but it also means the next 7 days are critical. Expect a wave of replies. Are you ready to handle them?</div>
+  </div>
+  <div class="tldr-item">
+    <div class="tldr-num">2</div>
+    <div class="tldr-text"><strong>8 meetings are already on the calendar for April 13-May 20.</strong> All booked by Krik. 6 are Tier 1 brands. The closest is Wild (April 13) with 1.49M monthly visitors. These calls need prep, not improvisation.</div>
+  </div>
+  <div class="tldr-item">
+    <div class="tldr-num">3</div>
+    <div class="tldr-text"><strong>$2 in signed-awaiting-payment money is sitting uncollected.</strong> CSN (collectible coins, Tier 1) and Capy-Era (plushies, Tier 1) are both "Signed, Awaiting payment." These are closed deals with no cash yet. Chase today.</div>
+  </div>
+  <div class="tldr-item">
+    <div class="tldr-num">4</div>
+    <div class="tldr-text"><strong>Setup fee objections are the single biggest revenue killer.</strong> 31 deals cite setup fees or upfront payment as a blocker -- that's 9.2% of the entire pipeline lost or stalled on one friction point. This needs a commercial fix, not a sales fix.</div>
+  </div>
+  <div class="tldr-item">
+    <div class="tldr-num">5</div>
+    <div class="tldr-text"><strong>Krik closes at 25.9% vs Juli at 8.5%.</strong> Krik works 85 deals and signs 22. Juli works 247 deals and signs 21. Same output, 3x the volume. Krik's time is 3x more valuable per deal worked. This asymmetry needs a structural response.</div>
+  </div>
+</div>
+
+<!-- SECTION 0: CALL SCHEDULE (NEW) -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">📅</span>
+    <span class="section-title">Upcoming Call Schedule</span>
+    <span class="section-badge badge-info">8 MEETINGS BOOKED</span>
+  </div>
+
+  <p>All 8 scheduled calls are booked by Krik. Six are Tier 1 brands. The pipeline is loaded for the next two weeks -- prep matters here.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue"><div class="kpi-value">8</div><div class="kpi-label">Calls Scheduled</div></div>
+    <div class="kpi-card kpi-accent"><div class="kpi-value">6</div><div class="kpi-label">Tier 1 Brands</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">2</div><div class="kpi-label">Tier 2 Brands</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-value">Apr 13</div><div class="kpi-label">Next Call (Wild)</div></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Brand</th>
+        <th>Tier</th>
+        <th>Category</th>
+        <th>Contact</th>
+        <th>Prep Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-red">Apr 13</span></td>
+        <td><strong>Wild</strong></td>
+        <td><span class="tag tag-blue">Tier 1</span></td>
+        <td>Deodorants, body wash</td>
+        <td>Mike Blumenthal (Publisher)</td>
+        <td>1.49M monthly visitors. Mike is a publisher, not brand-side -- understand his deal structure before assuming direct brand terms.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">Apr 14</span></td>
+        <td><strong>Reggie</strong></td>
+        <td><span class="tag tag-blue">Tier 1</span></td>
+        <td>Dog supplements</td>
+        <td>Vanessa Doig (CEO)</td>
+        <td>27,334 traffic. CEO is contact -- decision maker on the call. Also has a Jul 14 entry with 13,713 traffic at Tier 2. Check if these are the same brand or two products.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">Apr 14</span></td>
+        <td><strong>Creative Arcades</strong></td>
+        <td><span class="tag tag-blue">Tier 1</span></td>
+        <td>Arcade games</td>
+        <td>Brian Horowitz (CEO)</td>
+        <td>44,971 traffic. Previously on July 21 entry (29,516 traffic) -- Brian wanted split setup fee payments (4x$500). Check if that offer still stands or if starting fresh.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">Apr 15</span></td>
+        <td><strong>King Kanine</strong></td>
+        <td><span class="tag tag-yellow">Tier 2</span></td>
+        <td>Pet CBD</td>
+        <td>Jon Neveloff (CRO)</td>
+        <td>14,815 traffic. Also appears in Aug 12 entry (25,577 traffic, "Likely to sign" with Last FU 4/9/26). Same contact at both -- Jon has been followed up just yesterday. Come in with momentum.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">Apr 16</span></td>
+        <td><strong>Jawliner</strong></td>
+        <td><span class="tag tag-blue">Tier 1</span></td>
+        <td>Facial fitness</td>
+        <td>Anton Perl (Founder)</td>
+        <td>199,425 traffic. Founder on the call. German brand (.de domain) -- consider cross-border payment and attribution setup in the conversation.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">May 4</span></td>
+        <td><strong>Miracle Noodle</strong></td>
+        <td><span class="tag tag-blue">Tier 1</span></td>
+        <td>Low-carb noodles</td>
+        <td>Heidi Casas (Project Manager)</td>
+        <td>23,876 traffic. Contact is a Project Manager, not a founder -- may need escalation to decision maker to close. Clarify her authority early.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">May 5</span></td>
+        <td><strong>Egloow</strong></td>
+        <td><span class="tag tag-yellow">Tier 2</span></td>
+        <td>Health and wellness</td>
+        <td>Benjaminas Sveikata (Founder)</td>
+        <td>No traffic data. Founder contact, direct decision maker. Health/wellness brands are strong performers in this pipeline -- come in with relevant case studies.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">May 20</span></td>
+        <td><strong>Super Organics</strong></td>
+        <td>No tier</td>
+        <td>Superfood supplements</td>
+        <td>TBD</td>
+        <td>No traffic data, no contact listed yet. Also appears as "Working with Sash" in a May 2025 entry. Confirm this is a fresh prospecting call vs a re-approach.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="action-box action-info">
+    <div class="action-title">Prep Protocol for This Week's Calls</div>
+    <div style="font-size:0.88rem; color:var(--text-muted);">Wild (Apr 13) is the biggest by traffic. King Kanine (Apr 15) has been recently followed up -- they know you're active. Creative Arcades (Apr 14) has history around split setup fee payments -- address it proactively.</div>
+  </div>
+</div>
+
+<!-- SECTION 1: OPPORTUNITIES -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">🎯</span>
+    <span class="section-title">Section 1: Opportunities</span>
+    <span class="section-badge badge-opportunity">ACTION REQUIRED</span>
+  </div>
+
+  <!-- Chase Now -->
+  <h3>Chase Now -- Ping-Backs Due</h3>
+  <p>Two deals are on "Ping on April" status as of today. They are overdue for contact. Six more are "Ping on May."</p>
+
+  <h4>Ping on April (Overdue)</h4>
+  <div class="chase-grid">
+    <div class="chase-card hot">
+      <div class="chase-brand">Primal Queen <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Jan 29 call -- Krik -- Beef supplements -- 3.045M traffic</div>
+      <div class="chase-note">They want to run "holdout tests" across channels and integrate with Triple Whale before committing. They were starting with Meta and Axon first. Ping now to check if those channel tests have run and whether they're ready to include us.</div>
+    </div>
+    <div class="chase-card hot">
+      <div class="chase-brand">Vital Sleep <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Sep 23 call -- Juli -- Anti-snoring mouthpieces -- 41,808 traffic</div>
+      <div class="chase-note">$22 CPA, $65 AOV, running coupons because sales are slow. Was told to reconnect "in two or three weeks" back in September -- Last FU was Feb 24. Significantly overdue. Inventory issue may be resolved by now.</div>
+    </div>
+  </div>
+
+  <h4>Ping on May (Queue These Now)</h4>
+  <div class="chase-grid">
+    <div class="chase-card warm">
+      <div class="chase-brand">Sleep AI <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Mar 25 call -- Krik -- Sleepy Pillow Inserts -- 28,667 traffic</div>
+      <div class="chase-note">Building a sample rebill offer first. Ping in May to check if the rebill product is ready to launch.</div>
+    </div>
+    <div class="chase-card warm">
+      <div class="chase-brand">Loulou Lollipop <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Mar 2 call -- Krik -- Baby accessories -- 19,129 traffic</div>
+      <div class="chase-note">Restructuring logistics internally. Reconnect in 2-3 months from March -- May is the right window.</div>
+    </div>
+    <div class="chase-card warm">
+      <div class="chase-brand">Pure Essence <span class="tag tag-yellow">Tier 3</span></div>
+      <div class="chase-meta">Feb 20 call -- Juli -- Dietary supplements</div>
+      <div class="chase-note">$50 CPA agreed, $75 AOV. New owner needs to approve the model. Ping to see if internal decision has been made.</div>
+    </div>
+    <div class="chase-card warm">
+      <div class="chase-brand">Righteous Felon Craft Jerky <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Jan 15 call -- Krik -- Artisanal jerky -- 169,000 traffic</div>
+      <div class="chase-note">Last FU was Mar 2. May ping is the next agreed window. Premium brand with solid traffic.</div>
+    </div>
+    <div class="chase-card warm">
+      <div class="chase-brand">PlankPad <span class="tag tag-yellow">Tier 2</span></div>
+      <div class="chase-meta">Nov 19 call -- Juli -- Balance board</div>
+      <div class="chase-note">$149 AOV, no ads spend. Reviewing CPA options. Last FU Dec 10 -- significantly overdue for May ping.</div>
+    </div>
+    <div class="chase-card warm">
+      <div class="chase-brand">Primal Queen (Juli's entry) <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Oct 29 call -- Juli -- Beef supplements -- 3.583M traffic</div>
+      <div class="chase-note">Same brand, different sales contact. $45 CPA agreed. She was new at the company, very busy. Last FU Jan 7 -- needs fresh contact.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Likely to Sign Stalled -->
+  <h3>Likely to Sign -- Stalled Deals</h3>
+  <p>24 deals are currently tagged with "Likely to sign." Several have gone cold. The April 8-9 follow-up push touched many of them. Prioritize the ones with fresh engagement.</p>
+
+  <h4>Hot -- Freshly touched (Last FU: 4/8 or 4/9)</h4>
+  <div class="action-box action-opportunity">
+    <div class="action-title">These 12 "Likely to Sign" deals got follow-ups in the last 48 hours</div>
+    <table>
+      <thead>
+        <tr><th>Brand</th><th>Lead</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Juvenon</strong></td><td>Juli</td><td>Anti-aging supplements. Reevaluating affiliate program structure. Aug 18 call.</td></tr>
+        <tr><td><strong>King Kanine (Jon)</strong></td><td>Juli</td><td>Pet CBD. Aug 12 entry. Same contact as upcoming April 15 call -- great timing.</td></tr>
+        <tr><td><strong>Thera Box (Jun 18)</strong></td><td>Juli</td><td>Self-care subscription boxes. Has been likely to sign since June.</td></tr>
+        <tr><td><strong>Spicy Cubes</strong></td><td>Juli</td><td>Intimacy gummies. No setup fee + $2k CPA budget request. Needs negotiation.</td></tr>
+        <tr><td><strong>Focus Fuel</strong></td><td>Juli</td><td>Energy gummies. $38 AOV. Sep 10 call. AOV is thin -- confirm CPA math works.</td></tr>
+        <tr><td><strong>Lumebox</strong></td><td>Juli</td><td>Red Light Therapy. $80 CPA agreed. 17:1 ROAS on their own ops. Strong prospect.</td></tr>
+        <tr><td><strong>Fire Dept Coffee</strong></td><td>Juli</td><td>$20 CPA, 22% discount code agreed. 50% subscription revenue -- great LTV play.</td></tr>
+        <tr><td><strong>ALLMAX</strong></td><td>Juli</td><td>Nutrition. Tier 1. Lovely client per notes. Likely to sign.</td></tr>
+        <tr><td><strong>Thera Box (Mar 18)</strong></td><td>Juli</td><td>Second Thera Box entry. Doesn't want setup fee -- key blocker to resolve.</td></tr>
+        <tr><td><strong>Statik</strong></td><td>Juli</td><td>Tech solutions. 1M traffic. Negotiated down to $2k setup fee. Last offer: $10k CPA budget, no setup. Held at impasse.</td></tr>
+        <tr><td><strong>Thera ICE</strong></td><td>Juli</td><td>Joint meeting completed. Awaiting feedback from internal discussion.</td></tr>
+        <tr><td><strong>Codex Labs</strong></td><td>Juli</td><td>Biotech skincare. Rescheduled for "next week" -- that was Apr 8. Follow through today.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Cold -- Likely to Sign but no recent contact</h4>
+  <div class="action-box action-warning">
+    <div class="action-title">These deals are "Likely to Sign" but Last FU is 60+ days old</div>
+    <table>
+      <thead>
+        <tr><th>Brand</th><th>Lead</th><th>Last FU</th><th>Risk</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Dyna Vap</strong></td><td>Juli</td><td>Jan 7</td><td>3 entries in pipeline, one signed already. This one may have gone cold.</td></tr>
+        <tr><td><strong>Nutsola</strong></td><td>Juli</td><td>Feb 24</td><td>Wants to avoid setup fee again (they were a client). Needs a workaround offer.</td></tr>
+        <tr><td><strong>Essence / Essence Ring</strong></td><td>Krik</td><td>Feb 24</td><td>Completed onboarding checklist -- just waiting for payment. Escalate.</td></tr>
+        <tr><td><strong>Wonder Project</strong></td><td>Krik</td><td>Feb 24</td><td>EPC play, $5 CPC. Was "ready to move forward in Q1." Q1 is over.</td></tr>
+        <tr><td><strong>Happy Hippo</strong></td><td>Juli</td><td>Feb 18</td><td>Kratom. Pretty likely per notes. 80+ days without contact.</td></tr>
+        <tr><td><strong>Crane Wellness</strong></td><td>Juli</td><td>Feb 23</td><td>Tier 3. Small brand. Low priority but quick win if they're still interested.</td></tr>
+        <tr><td><strong>Snorinator</strong></td><td>Krik</td><td>Mar 31</td><td>Tier 1, $1 anti-snoring pillows, CEO contact. Last FU 10 days ago. Worth a nudge.</td></tr>
+        <tr><td><strong>Ignite Attachments</strong></td><td>Krik</td><td>Apr 1</td><td>Confirming 20% rev share. Very recent -- active.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Awaiting CEO Call -->
+  <h3>Awaiting CEO Call</h3>
+  <p>Three deals are waiting on a CEO-level call to close. These need executive involvement to unlock.</p>
+
+  <div class="chase-grid">
+    <div class="chase-card cool">
+      <div class="chase-brand">Rythm Health <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Oct 9 call -- Juli -- At-home blood test kit -- 42,080 traffic -- Last FU: 4/10/26</div>
+      <div class="chase-note">CAC of $70. Monthly subscription model. Just followed up today (Apr 10). High-value brand if CEO call comes through.</div>
+    </div>
+    <div class="chase-card cool">
+      <div class="chase-brand">DankGeek <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Jun 9 call -- Juli -- Smoking accessories -- 94,764 traffic -- Last FU: 4/9/26</div>
+      <div class="chase-note">Just followed up yesterday. Smoking accessories brand -- restricted category with strong affiliate potential based on pipeline patterns.</div>
+    </div>
+    <div class="chase-card cool">
+      <div class="chase-brand">Clean Monday Meals <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Feb 23 call -- Juli -- Healthy meals -- 67,863 traffic -- Last FU: 3/11/26</div>
+      <div class="chase-note">Affiliate Manager shared CEO's email. CEO was reached out to in February but hasn't replied. Ping the CEO directly again or loop in the Affiliate Manager to chase internally.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Signed Awaiting Payment (NEW) -->
+  <h3>Signed, Awaiting Payment -- Money on the Table</h3>
+  <p>Two deals have signed but cash has not been collected. These are priority collection tasks.</p>
+
+  <div class="chase-grid">
+    <div class="chase-card hot">
+      <div class="chase-brand">CSN <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Mar 27 call -- Juli -- Collectible and investment coins -- 75,624 traffic</div>
+      <div class="chase-note">Contact: Michelle Green (Director). Last FU: 4/6/26. Already followed up 4 days ago -- no payment yet. Escalate today with a specific payment deadline.</div>
+    </div>
+    <div class="chase-card hot">
+      <div class="chase-brand">Capy-Era / Capybara <span class="tag tag-blue">Tier 1</span></div>
+      <div class="chase-meta">Feb 20 call -- Juli -- Plushies -- 33,200 traffic</div>
+      <div class="chase-note">Contact: James Lee. Last FU: 4/8/26. "90% sure he will sign" per notes, and he apparently did. Two days since last follow-up and still no payment. Send payment link directly.</div>
+    </div>
+  </div>
+
+  <div class="action-box action-critical">
+    <div class="action-title">Both "Signed, Awaiting Payment" deals need same-day action</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);">Don't let signed deals wait. Send a direct payment link today. If CSN needs a call, book it -- they already had their last follow-up April 6.</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Multi-Touch Brands -->
+  <h3>Multi-Touch Brands (Appeared 2+ Times)</h3>
+  <p>31 brands appear in the pipeline more than once. This represents either multiple contacts at the same company, or re-approaches at different points in time. Top multi-touch brands:</p>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Dyna Vap</div><div class="bar-track"><div class="bar-fill bar-accent" style="width:100%">3 entries</div></div><div class="bar-value">1 signed</div></div>
+    <div class="bar-row"><div class="bar-label">Treblab</div><div class="bar-track"><div class="bar-fill bar-red" style="width:100%">3 entries</div></div><div class="bar-value">0 signed</div></div>
+    <div class="bar-row"><div class="bar-label">Primal Queen</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:67%">2 entries</div></div><div class="bar-value">Ping April/May</div></div>
+    <div class="bar-row"><div class="bar-label">Happy Hippo</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:67%">2 entries</div></div><div class="bar-value">Likely to sign</div></div>
+    <div class="bar-row"><div class="bar-label">Creative Arcades</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:67%">2 entries</div></div><div class="bar-value">Call scheduled Apr 14</div></div>
+    <div class="bar-row"><div class="bar-label">Thera Box</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:67%">2 entries</div></div><div class="bar-value">Likely to sign (both)</div></div>
+    <div class="bar-row"><div class="bar-label">Reggie</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:67%">2 entries</div></div><div class="bar-value">Call scheduled Apr 14</div></div>
+  </div>
+
+  <div class="callout-new">Dyna Vap appears 3 times with 1 signed deal. The two remaining entries are still in progress. For brands with 2+ entries, ensure the team is coordinating to avoid duplicate outreach sending conflicting signals.</div>
+</div>
+
+<!-- SECTION 2: LEAKS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">🔍</span>
+    <span class="section-title">Section 2: Leaks</span>
+    <span class="section-badge badge-critical">WHERE DEALS DIE</span>
+  </div>
+
+  <!-- Stage Distribution -->
+  <h3>Stage Distribution -- Full Pipeline Count</h3>
+  <p>336 total deals across all stages. The funnel has a severe conversion problem at the meeting-to-signed stage.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue"><div class="kpi-value">8</div><div class="kpi-label">Call Schedule</div></div>
+    <div class="kpi-card kpi-accent"><div class="kpi-value">115</div><div class="kpi-label">Meeting Completed / Follow Up</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">38</div><div class="kpi-label">No Show</div></div>
+    <div class="kpi-card kpi-orange"><div class="kpi-value">24</div><div class="kpi-label">Likely to Sign</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-value">43</div><div class="kpi-label">Signed (incl. awaiting pmt)</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">74</div><div class="kpi-label">Dead (not a fit / declined / bad lead)</div></div>
+  </div>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Meeting Completed</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:100%">58</div></div><div class="bar-value">17.3%</div></div>
+    <div class="bar-row"><div class="bar-label">Signed, New Client</div><div class="bar-track"><div class="bar-fill bar-green" style="width:69%">40</div></div><div class="bar-value">11.9%</div></div>
+    <div class="bar-row"><div class="bar-label">No Show</div><div class="bar-track"><div class="bar-fill bar-red" style="width:65%">38</div></div><div class="bar-value">11.3%</div></div>
+    <div class="bar-row"><div class="bar-label">Meeting + Follow Up</div><div class="bar-track"><div class="bar-fill bar-cyan" style="width:65%">38</div></div><div class="bar-value">11.3%</div></div>
+    <div class="bar-row"><div class="bar-label">Not a Fit</div><div class="bar-track"><div class="bar-fill bar-red" style="width:48%">28</div></div><div class="bar-value">8.3%</div></div>
+    <div class="bar-row"><div class="bar-label">Follow Up</div><div class="bar-track"><div class="bar-fill bar-accent" style="width:33%">19</div></div><div class="bar-value">5.7%</div></div>
+    <div class="bar-row"><div class="bar-label">Bad Lead</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:41%">24</div></div><div class="bar-value">7.1%</div></div>
+    <div class="bar-row"><div class="bar-label">They Declined</div><div class="bar-track"><div class="bar-fill bar-red" style="width:38%">22</div></div><div class="bar-value">6.5%</div></div>
+    <div class="bar-row"><div class="bar-label">Likely to Sign</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:29%">24</div></div><div class="bar-value">7.1%</div></div>
+    <div class="bar-row"><div class="bar-label">Ping on May</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:10%">6</div></div><div class="bar-value">1.8%</div></div>
+    <div class="bar-row"><div class="bar-label">Working with Net Team</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:12%">7</div></div><div class="bar-value">2.1%</div></div>
+    <div class="bar-row"><div class="bar-label">Call Schedule</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:14%">8</div></div><div class="bar-value">2.4%</div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Conversion Funnel -->
+  <h3>Conversion Funnel Analysis</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-accent"><div class="kpi-value">336</div><div class="kpi-label">Total Deals</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">~258</div><div class="kpi-label">Meetings Held (non-no-show)</div></div>
+    <div class="kpi-card kpi-orange"><div class="kpi-value">76.8%</div><div class="kpi-label">Show Rate</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-value">43</div><div class="kpi-label">Signed</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">12.8%</div><div class="kpi-label">Overall Close Rate</div></div>
+    <div class="kpi-card kpi-blue"><div class="kpi-value">16.7%</div><div class="kpi-label">Meeting-to-Signed Rate</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Funnel bottleneck:</strong> Of 258 meetings held, only 43 have signed (16.7%). The biggest leak is not at "meeting completed" to "likely to sign" -- it's the 115 deals stuck in Meeting Completed / Follow Up with no clear next stage. Many of these have gone cold.
+  </div>
+
+  <hr class="divider">
+
+  <!-- No Show Analysis -->
+  <h3>No-Show Analysis -- A Serious Problem</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-red"><div class="kpi-value">38</div><div class="kpi-label">Total No-Shows</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">11.3%</div><div class="kpi-label">No-Show Rate</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">6</div><div class="kpi-label">Krik No-Shows</div></div>
+    <div class="kpi-card kpi-orange"><div class="kpi-value">38</div><div class="kpi-label">Juli No-Shows</div></div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h4>Krik No-Show Rate</h4>
+      <p>6 no-shows out of 85 deals = <strong>7.1% no-show rate</strong></p>
+    </div>
+    <div>
+      <h4>Juli No-Show Rate</h4>
+      <p>38 no-shows out of 247 deals = <strong>15.4% no-show rate</strong></p>
+    </div>
+  </div>
+
+  <div class="action-box action-critical">
+    <div class="action-title">Juli's no-show rate is 2x Krik's. 38 no-shows = 38 wasted appointment slots.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);">If even 25% of Juli's no-shows had attended, that's roughly 10 additional qualified meetings. A 24-hour confirmation text/email system would likely recover 4-6 of those per month.</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Not a Fit Breakdown -->
+  <h3>"Not a Fit" Reasons -- 28 Deals</h3>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Setup fee objection</div><div class="bar-track"><div class="bar-fill bar-red" style="width:54%">15 deals</div></div><div class="bar-value">54% of NaF</div></div>
+    <div class="bar-row"><div class="bar-label">Too small / low traffic</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:18%">5 deals</div></div><div class="bar-value">18% of NaF</div></div>
+    <div class="bar-row"><div class="bar-label">Low AOV / poor unit econ</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:14%">4 deals</div></div><div class="bar-value">14% of NaF</div></div>
+    <div class="bar-row"><div class="bar-label">Geography mismatch</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:11%">3 deals</div></div><div class="bar-value">11% of NaF</div></div>
+    <div class="bar-row"><div class="bar-label">Channel mismatch</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:7%">1 deal</div></div><div class="bar-value">4% of NaF</div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Bad Lead Breakdown -->
+  <h3>Bad Leads -- 24 Deals</h3>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Setup fee / prepay objection</div><div class="bar-track"><div class="bar-fill bar-red" style="width:50%">12</div></div><div class="bar-value">50%</div></div>
+    <div class="bar-row"><div class="bar-label">Geographic / market mismatch</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:21%">5</div></div><div class="bar-value">21%</div></div>
+    <div class="bar-row"><div class="bar-label">Wrong business model</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:17%">4</div></div><div class="bar-value">17%</div></div>
+    <div class="bar-row"><div class="bar-label">Disrespectful / disqualified</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:13%">3</div></div><div class="bar-value">13%</div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Setup Fee Objections -->
+  <h3>Setup Fee Objections -- The Biggest Single Leak</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-red"><div class="kpi-value">31</div><div class="kpi-label">Deals Mentioning Setup Fee Objection</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">9.2%</div><div class="kpi-label">% of Total Pipeline Affected</div></div>
+    <div class="kpi-card kpi-orange"><div class="kpi-value">~$62K+</div><div class="kpi-label">Estimated Lost Setup Revenue</div></div>
+  </div>
+
+  <p>Notable setup fee objections across the pipeline include: Vanity Couture ("doesn't want to pay anything upfront"), Power Sutra (wanted deduction-at-sale only), LY ("comfortable paying anything upfront"), Sport Eyes, OMGSwim ($7k too high), Groove, Moogco Baby ($2k concern), Freddo, Blue Apron, Lexington Law (both explicitly said "no setup fees"), Sierra Madre ("sign with no setup fee"), Statik (negotiated down to $2k, now wants $0), Spicy Cubes ("asking no set up fee"), Thera Box (Mar 18 entry).</p>
+
+  <div class="action-box action-critical">
+    <div class="action-title">This is a commercial policy issue, not a sales skills issue</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);">At 31 objections across 336 deals, the setup fee is the single highest-frequency blocker in the pipeline. Options to test: (1) Tier-based fee reduction for Tier 1 brands, (2) Deferred fee model (paid from first CPA earnings), (3) Performance guarantee paired with the fee to reframe it as risk protection.</div>
+  </div>
+</div>
+
+<!-- SECTION 3: INVISIBLE PATTERNS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">🧠</span>
+    <span class="section-title">Section 3: Invisible Patterns</span>
+    <span class="section-badge badge-info">STRATEGIC INSIGHTS</span>
+  </div>
+
+  <!-- Lead Owner Performance -->
+  <h3>Lead Owner Performance -- The Asymmetry</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-accent"><div class="kpi-value">85</div><div class="kpi-label">Krik Total Deals</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-value">22</div><div class="kpi-label">Krik Signed</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-value">25.9%</div><div class="kpi-label">Krik Close Rate</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">6</div><div class="kpi-label">Krik No-Shows</div></div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue"><div class="kpi-value">247</div><div class="kpi-label">Juli Total Deals</div></div>
+    <div class="kpi-card kpi-orange"><div class="kpi-value">21</div><div class="kpi-label">Juli Signed</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">8.5%</div><div class="kpi-label">Juli Close Rate</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">38</div><div class="kpi-label">Juli No-Shows</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Key asymmetry:</strong> Krik closes 1 in 4 deals. Juli closes 1 in 12. Both have signed roughly the same absolute number of clients (22 vs 21), but Krik achieves this with 65% fewer deals worked. Per deal, Krik is 3x more efficient.
+    <br><br>
+    This does NOT mean Juli is underperforming. It likely reflects different prospect quality and outreach channels being fed to each rep. The question to investigate: what is Krik doing differently at qualification or pitch stage?
+  </div>
+
+  <div class="bar-chart">
+    <div style="margin-bottom:0.5rem;font-size:0.85rem;color:var(--text-muted);">Signed deals comparison:</div>
+    <div class="bar-row"><div class="bar-label">Krik (85 deals)</div><div class="bar-track"><div class="bar-fill bar-green" style="width:100%">22 signed (25.9%)</div></div></div>
+    <div class="bar-row"><div class="bar-label">Juli (247 deals)</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:33%">21 signed (8.5%)</div></div></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Tier Distribution -->
+  <h3>Tier Distribution and Win Rates</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">186</div><div class="kpi-label">Tier 1 Deals</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">31</div><div class="kpi-label">Tier 1 Signed</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">16.7%</div><div class="kpi-label">Tier 1 Close Rate</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">87</div><div class="kpi-label">Tier 2 Deals</div>
+    </div>
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">11</div><div class="kpi-label">Tier 2 Signed</div>
+    </div>
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">12.6%</div><div class="kpi-label">Tier 2 Close Rate</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-red">
+      <div class="kpi-value">61</div><div class="kpi-label">Tier 3 Deals</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-value">1</div><div class="kpi-label">Tier 3 Signed</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-value">1.6%</div><div class="kpi-label">Tier 3 Close Rate</div>
+    </div>
+  </div>
+
+  <div class="action-box action-critical">
+    <div class="action-title">Tier 3 is nearly a complete waste of sales time</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);">61 Tier 3 deals have produced 1 signed client (Pwdrs, Oct 28). That's a 1.6% close rate vs 16.7% for Tier 1. If Juli spent those 61 Tier 3 deal slots on Tier 1 prospects, at Tier 1's close rate, that's potentially 10 additional signed clients. Implement a hard Tier 3 filter to stop wasting capacity.</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Product Vertical Analysis -->
+  <h3>Product Vertical Analysis</h3>
+  <p>Health and Supplements is the dominant category. Apparel and Fitness Sports have zero signed clients despite meaningful volume.</p>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Health & Supplements</div><div class="bar-track"><div class="bar-fill bar-green" style="width:100%">67 deals</div></div><div class="bar-value">14 signed (20.9%)</div></div>
+    <div class="bar-row"><div class="bar-label">Food & Beverage</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:57%">38 deals</div></div><div class="bar-value">5 signed (13.2%)</div></div>
+    <div class="bar-row"><div class="bar-label">Beauty & Skincare</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:37%">25 deals</div></div><div class="bar-value">5 signed (20%)</div></div>
+    <div class="bar-row"><div class="bar-label">Apparel & Fashion</div><div class="bar-track"><div class="bar-fill bar-red" style="width:36%">24 deals</div></div><div class="bar-value">0 signed (0%)</div></div>
+    <div class="bar-row"><div class="bar-label">Home & Garden</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:27%">18 deals</div></div><div class="bar-value">1 signed (5.6%)</div></div>
+    <div class="bar-row"><div class="bar-label">Jewelry & Accessories</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:20%">13 deals</div></div><div class="bar-value">2 signed (15.4%)</div></div>
+    <div class="bar-row"><div class="bar-label">Tech & Electronics</div><div class="bar-track"><div class="bar-fill bar-cyan" style="width:20%">13 deals</div></div><div class="bar-value">2 signed (15.4%)</div></div>
+    <div class="bar-row"><div class="bar-label">Fitness & Sports</div><div class="bar-track"><div class="bar-fill bar-red" style="width:9%">6 deals</div></div><div class="bar-value">0 signed (0%)</div></div>
+    <div class="bar-row"><div class="bar-label">Pet Products</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:5%">3 deals</div></div><div class="bar-value">0 signed (0%)</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Best verticals by close rate:</strong> Health and Supplements (20.9%) and Beauty/Skincare (20%) close at roughly 1 in 5. These should be the primary ICP focus.<br><br>
+    <strong>Apparel has 24 deals and 0 signed.</strong> Either the category economics don't work with this model, or the pitch needs significant adjustment for fashion brands.
+  </div>
+
+  <hr class="divider">
+
+  <!-- Contact Role Analysis -->
+  <h3>Contact Role -- Who Closes</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">192</div><div class="kpi-label">CEO / Founder Contacts</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">25</div><div class="kpi-label">CEO/Founder Signed</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">13%</div><div class="kpi-label">CEO/Founder Close Rate</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">57</div><div class="kpi-label">Marketing Contacts</div>
+    </div>
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">11</div><div class="kpi-label">Marketing Signed</div>
+    </div>
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">19.3%</div><div class="kpi-label">Marketing Close Rate</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-value">54</div><div class="kpi-label">"Other" Contacts</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-value">5</div><div class="kpi-label">Other Signed</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-value">9.3%</div><div class="kpi-label">Other Close Rate</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Counterintuitive finding:</strong> Marketing contacts close at 19.3%, higher than CEO/Founders at 13%. This may be because Marketing contacts are already bought into affiliate channels, while Founders need to be convinced of the model from scratch. Consider tailoring the pitch differently for each contact type.
+  </div>
+
+  <hr class="divider">
+
+  <!-- ADS Column Analysis (NEW) -->
+  <h3>ADS Column Analysis -- Do Brands That Run Ads Close Better?</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-yellow">
+      <div class="kpi-value">21</div><div class="kpi-label">Brands Running Ads</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-value">2</div><div class="kpi-label">Ads=Yes Signed</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-value">9.5%</div><div class="kpi-label">Ads=Yes Close Rate</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-value">308</div><div class="kpi-label">Brands Not Running Ads</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">41</div><div class="kpi-label">Ads=No Signed</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-value">13.3%</div><div class="kpi-label">Ads=No Close Rate</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Surprising: brands NOT running ads close at a higher rate (13.3% vs 9.5%).</strong> This makes intuitive sense -- brands already spending heavily on paid ads have existing attribution and budget infrastructure that may make them more resistant to a setup fee model. Brands NOT running ads are more open to trying a performance channel as a primary growth lever.
+    <br><br>
+    Note: the ADS column is sparsely filled (only 21 Yes entries). This finding should be treated as directional, not conclusive, until more data is tagged.
+  </div>
+
+  <hr class="divider">
+
+  <!-- Network Team Pipeline (NEW) -->
+  <h3>Working with Network Team / Sash Pipeline</h3>
+  <p>7 deals are routed through the network team or directly through Sash. These represent an indirect sales channel. None are categorized as "Signed, New Client" yet.</p>
+
+  <table>
+    <thead>
+      <tr><th>Brand</th><th>Status</th><th>Category</th><th>Traffic</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Musa Affiliate</strong></td><td><span class="tag tag-purple">Net Team</span></td><td>Agency</td><td>92,163</td><td>Works with brands through Impact. Connected with Sol.</td></tr>
+      <tr><td><strong>Zwift</strong></td><td><span class="tag tag-purple">Net Team</span></td><td>Virtual training</td><td>3.205M</td><td>Working through Impact first, potential direct relationship later.</td></tr>
+      <tr><td><strong>ZYN</strong></td><td><span class="tag tag-purple">Net Team</span></td><td>Turmeric drinks</td><td>6,440</td><td>Sol agreed to 15% CPS on Impact. Revenue flow unclear.</td></tr>
+      <tr><td><strong>Quince</strong></td><td><span class="tag tag-purple">Net Team</span></td><td>Fashion</td><td>42.5M</td><td>Connecting with Impact. Second largest traffic brand in pipeline.</td></tr>
+      <tr><td><strong>Super Power</strong></td><td><span class="tag tag-cyan">Sash</span></td><td>Preventive diagnostics</td><td>171,772</td><td>$50-100 CPA target. Unit economics are tight.</td></tr>
+      <tr><td><strong>North Biomedical</strong></td><td><span class="tag tag-cyan">Sash</span></td><td>Retinol serum</td><td>--</td><td>Small brand, no traffic data.</td></tr>
+      <tr><td><strong>Super Organics</strong></td><td><span class="tag tag-cyan">Sash</span></td><td>Superfood powders</td><td>--</td><td>Also has a Call Schedule entry for May 20. Dual-tracked.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout-new">Quince has 42.5M monthly visitors -- the second largest brand in the pipeline. It's currently in the network team channel. Consider if there's a path to bring this direct if the Impact relationship stalls.</div>
+</div>
+
+<!-- SECTION 4: TRENDS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">📈</span>
+    <span class="section-title">Section 4: Trends</span>
+    <span class="section-badge badge-warning">PIPELINE HEALTH</span>
+  </div>
+
+  <h3>Monthly Pipeline Volume</h3>
+  <p>The pipeline shows strong mid-year peaks (July, November) and a December crash, followed by a recovery in Q1 2026. March 2026 was the highest volume month in the tracked period.</p>
+
+  <div class="bar-chart">
+    <div class="bar-row"><div class="bar-label">Jul 2025</div><div class="bar-track"><div class="bar-fill bar-green" style="width:95%">37 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Aug 2025</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:77%">30 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Sep 2025</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:77%">30 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Oct 2025</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:54%">21 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Nov 2025</div><div class="bar-track"><div class="bar-fill bar-green" style="width:92%">36 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Dec 2025</div><div class="bar-track"><div class="bar-fill bar-red" style="width:31%">12 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Jan 2026</div><div class="bar-track"><div class="bar-fill bar-orange" style="width:67%">26 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Feb 2026</div><div class="bar-track"><div class="bar-fill bar-blue" style="width:69%">27 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Mar 2026</div><div class="bar-track"><div class="bar-fill bar-green" style="width:95%">37 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">Apr 2026</div><div class="bar-track"><div class="bar-fill bar-yellow" style="width:56%">22 deals</div></div></div>
+    <div class="bar-row"><div class="bar-label">May 2026</div><div class="bar-track"><div class="bar-fill bar-cyan" style="width:69%">27 deals (includes scheduled)</div></div></div>
+    <div class="bar-row"><div class="bar-label">Jun 2026</div><div class="bar-track"><div class="bar-fill bar-purple" style="width:79%">31 deals</div></div></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>Pattern:</strong> December is always a dead month (12 deals -- less than a third of peak months). January rebounds strongly. March 2026 tied the all-time high at 37 deals. April 2026 is lower at 22 so far, but only 10 days in -- volume may be on track.
+  </div>
+
+  <hr class="divider">
+
+  <h3>Deal Velocity Observations</h3>
+
+  <div class="two-col">
+    <div class="action-box action-info">
+      <div class="action-title">Positive Signals</div>
+      <ul style="font-size:0.85rem;color:var(--text-muted);padding-left:1.25rem;line-height:2;">
+        <li>March 2026 was the highest-volume month on record</li>
+        <li>69 deals followed up April 8-10 -- massive push</li>
+        <li>8 scheduled calls in April-May</li>
+        <li>New April entries showing fresh pipeline (Rotten, Caswell-Massey, Montreal Weights, Stinger, ALLMAX, Eco Nugenics, Crafting Table, Thera Box, etc.)</li>
+      </ul>
+    </div>
+    <div class="action-box action-warning">
+      <div class="action-title">Warning Signals</div>
+      <ul style="font-size:0.85rem;color:var(--text-muted);padding-left:1.25rem;line-height:2;">
+        <li>Many "Follow Up" deals have Last FU in Feb 2026 -- likely cold</li>
+        <li>Several "Likely to Sign" deals have been stalled for 60-90 days</li>
+        <li>Tier 1 win rate has held steady but Tier 3 is near zero</li>
+        <li>ADS=Yes brands showing lower close rate than ADS=No</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h3>Follow-Up Freshness Analysis (NEW)</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-green"><div class="kpi-value">69</div><div class="kpi-label">Deals Touched April 8-10</div></div>
+    <div class="kpi-card kpi-yellow"><div class="kpi-value">~150</div><div class="kpi-label">Deals with No 2026 FU</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-value">~60</div><div class="kpi-label">Active Deals with Last FU Before Feb</div></div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>The April 8-10 push was significant.</strong> Juli and Krik touched 69 deals in approximately 48 hours. This is likely the biggest single-period follow-up activity in the tracked history. The response rate from this push will be a strong signal of how much dead weight is in the pipeline vs genuine future deals.
+    <br><br>
+    <strong>The untouched problem:</strong> Roughly 150 deals in the pipeline have no Last FU recorded in 2026. Many of these are in "Meeting Completed" or "Follow Up" status from mid-2025. These are likely dormant. A systematic quarterly cull is needed to archive dead deals and keep the active pipeline clean.
+  </div>
+</div>
+
+<!-- SECTION 5: SUGGESTIONS & TESTS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">💡</span>
+    <span class="section-title">Section 5: Suggestions and Tests</span>
+    <span class="section-badge badge-opportunity">STRATEGIC FIXES</span>
+  </div>
+
+  <h3>1. Fix the Setup Fee -- This is P0</h3>
+  <div class="action-box action-critical">
+    <div class="action-title">31 deals cite setup fee as the blocker. This is a commercial product problem, not a rep skill problem.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      <strong>Tests to run:</strong><br>
+      -- <strong>Deferred fee model:</strong> Setup fee is charged from first 60 days of CPA earnings, not upfront. Reduces perceived risk to zero.<br>
+      -- <strong>Tier-based pricing:</strong> Tier 1 brands get discounted setup ($1,500 instead of $2,000-3,000) in exchange for higher CPA commitment. Tier 3 must pay full rate (discouraging Tier 3 altogether).<br>
+      -- <strong>Performance bond framing:</strong> Reframe the setup fee as a "performance fund" -- money held and applied against the first X conversions at the agreed CPA, then replenished. Brands see it as CPA budget, not a fee.<br>
+      -- <strong>Current data:</strong> 31/336 deals = 9.2% of pipeline directly blocked by this issue.
+    </div>
+  </div>
+
+  <h3>2. Follow-Up Cadence -- Formalize the Process</h3>
+  <div class="action-box action-warning">
+    <div class="action-title">The April 8-10 blitz shows the team CAN do mass follow-ups. The problem is it's not systematic.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Implement a 7-day / 14-day / 30-day follow-up cadence for all "Meeting Completed" deals.<br>
+      -- Any deal with no contact in 90 days should be moved to "Dormant" and only contacted quarterly.<br>
+      -- Build a simple tracking system so the blitz becomes weekly, not quarterly.<br>
+      -- <strong>Current gap:</strong> ~150 deals in pipeline with no 2026 Last FU recorded.
+    </div>
+  </div>
+
+  <h3>3. No-Show Recovery Protocol</h3>
+  <div class="action-box action-warning">
+    <div class="action-title">38 no-shows = 38 wasted booking slots. A 24-hour reminder + same-day reschedule prompt would recover an estimated 30-40%.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Send a 24h text + email reminder for every booked call.<br>
+      -- If no-show occurs, send a reschedule link within 1 hour.<br>
+      -- Track no-show by rep -- Juli's 15.4% rate vs Krik's 7.1% suggests different prospect quality or booking channels.<br>
+      -- <strong>If recovering 10 no-shows at 16.7% meeting-to-signed rate = 1.7 additional clients.</strong>
+    </div>
+  </div>
+
+  <h3>4. ICP Refinement -- Stop Taking Tier 3 Deals</h3>
+  <div class="action-box action-critical">
+    <div class="action-title">Tier 3 close rate: 1.6%. 61 deals for 1 signed client. This is a resource drain.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Implement a hard minimum: 10,000+ monthly traffic, $50+ AOV, minimum $1,500 test budget.<br>
+      -- Tier 3 prospects should be declined at qualification rather than booked for calls.<br>
+      -- If redirected to Tier 1 leads at a 16.7% close rate, those 61 Tier 3 deal slots could theoretically yield 10 additional signed clients.<br>
+      -- <strong>Health, Beauty, Food/Beverage are the top-performing verticals. Double down on those.</strong>
+    </div>
+  </div>
+
+  <h3>5. Qualification Checklist Before Booking</h3>
+  <div class="action-box action-info">
+    <div class="action-title">Add 3 knockout questions before any call gets booked.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- "Are you open to a performance partnership with a small upfront setup investment?" -- kills 9% of pipeline waste before the call.<br>
+      -- "What is your monthly website traffic and average order value?" -- filters Tier 3 at source.<br>
+      -- "Are you the decision maker or would others need to be involved?" -- sets expectation for CEO calls when needed.<br>
+      -- <strong>Estimated impact:</strong> 15-20% reduction in dead-end calls, more time for qualified prospects.
+    </div>
+  </div>
+
+  <h3>6. Krik-Close Protocol for Big Deals</h3>
+  <div class="action-box action-opportunity">
+    <div class="action-title">Krik closes at 25.9%. Use Krik as a second-touch closer on high-value Juli deals.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- For Tier 1 deals that have been in "Meeting Completed, Likely to Sign" for 30+ days without conversion, introduce Krik as a "senior partner review" call.<br>
+      -- This adds a new touch, a higher-authority voice, and resets the prospect's engagement.<br>
+      -- Prioritize: Juvenon, Happy Hippo, Wonder Project, Statik, Essence/Essence Ring -- all Likely to Sign with 60+ day staleness.
+    </div>
+  </div>
+
+  <h3>7. Referral Program -- Leverage Signed Clients</h3>
+  <div class="action-box action-opportunity">
+    <div class="action-title">43 signed clients. Have any been asked for referrals systematically?</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Derma Dreams notes "referral from Stephen Ezell from Trully Free" -- this model works.<br>
+      -- Implement a 60-day post-onboarding referral ask to all signed clients.<br>
+      -- Even a 10% referral conversion rate on 43 clients = 4 inbound qualified leads for free.<br>
+      -- Health and Supplements clients (14 signed) are the best network for referrals given category clustering.
+    </div>
+  </div>
+
+  <h3>8. Pipeline Hygiene -- Archive Dead Deals</h3>
+  <div class="action-box action-info">
+    <div class="action-title">~150 deals have no 2026 Last FU. These are clogging the active pipeline view.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Archive any deal with no contact in 180+ days that isn't in a scheduled ping status.<br>
+      -- Create a "Dormant" stage for deals with 90-180 day gaps -- ping once per quarter, then archive if no response.<br>
+      -- Clean pipeline = accurate close rate data = better sales decisions.
+    </div>
+  </div>
+
+  <h3>9. Apparel Vertical -- Fix or Exit (NEW)</h3>
+  <div class="action-box action-critical">
+    <div class="action-title">24 Apparel and Fashion deals. 0 signed. Investigate why before booking more.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Review all declined apparel deals for common objections (Studio Seven, Boujee Hippie x2, Bondi Born, Postum, etc.).<br>
+      -- Likely issues: fashion brands have lower margins, complex seasonal inventory, higher return rates making CPA math difficult.<br>
+      -- Either develop an apparel-specific CPA/rev-share structure, or stop targeting apparel brands entirely and redirect that time to Health/Beauty where the win rate is 20%.
+    </div>
+  </div>
+
+  <h3>10. Ads=No Brands Are Better Prospects (NEW)</h3>
+  <div class="action-box action-info">
+    <div class="action-title">Brands NOT running paid ads close at 13.3% vs 9.5% for brands that are running ads.</div>
+    <div style="font-size:0.88rem;color:var(--text-muted);margin-top:0.5rem;">
+      -- Update outreach targeting criteria to prioritize brands with strong organic traffic but limited or no paid media presence.<br>
+      -- This segment is more likely to see affiliate as an incremental growth channel rather than a competitive channel.<br>
+      -- Pitch angle: "You've built this traffic without paid ads -- we can monetize it without cannibalizing what's already working."<br>
+      -- Note: the ADS column needs to be filled in more consistently for this insight to be fully trusted.
+    </div>
+  </div>
+</div>
+
+<!-- IMMEDIATE ACTION LIST -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-icon">⚡</span>
+    <span class="section-title">Immediate Action List</span>
+    <span class="section-badge badge-critical">THIS WEEK</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Action</th>
+        <th>Owner</th>
+        <th>Deadline</th>
+        <th>Expected Outcome</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-red">P0</span></td>
+        <td><strong>Collect CSN payment</strong> -- Signed, Awaiting Payment. Last FU April 6. Send payment link or book a 10-min call today.</td>
+        <td>Juli</td>
+        <td>Today</td>
+        <td>Cash collection on closed deal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">P0</span></td>
+        <td><strong>Collect Capy-Era payment</strong> -- Signed, Awaiting Payment. Last FU April 8. 48 hours since last contact.</td>
+        <td>Juli</td>
+        <td>Today</td>
+        <td>Cash collection on closed deal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">P0</span></td>
+        <td><strong>Prep Wild call (April 13)</strong> -- 1.49M traffic. Note: contact is a publisher (Mike Blumenthal), not brand-side. Clarify deal structure.</td>
+        <td>Krik</td>
+        <td>April 12</td>
+        <td>Qualified Tier 1 call</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">P0</span></td>
+        <td><strong>Prep Creative Arcades call (April 14)</strong> -- Previous split-payment offer on table. Come in with a clear decision path.</td>
+        <td>Krik</td>
+        <td>April 13</td>
+        <td>Re-engage stalled Tier 1 deal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">P0</span></td>
+        <td><strong>Prep Reggie call (April 14)</strong> -- CEO on the call. Check if this is the same brand as the July 14 Tier 2 entry.</td>
+        <td>Krik</td>
+        <td>April 13</td>
+        <td>Decision-maker meeting</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">P1</span></td>
+        <td><strong>Ping Primal Queen (Krik)</strong> -- Ping on April status. No follow-up logged. They're running channel tests that should be concluding now.</td>
+        <td>Krik</td>
+        <td>Today</td>
+        <td>Re-engage high-traffic brand (3M visitors)</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">P1</span></td>
+        <td><strong>Ping Vital Sleep</strong> -- Ping on April status, Last FU Feb 24. Inventory issue may be resolved. Over 30 days overdue.</td>
+        <td>Juli</td>
+        <td>Today</td>
+        <td>Re-qualify or archive</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">P1</span></td>
+        <td><strong>Follow up Codex Labs</strong> -- Rescheduled for "next week" on April 8. That week is now. Book the call.</td>
+        <td>Juli</td>
+        <td>Today</td>
+        <td>Convert Likely to Sign to Signed</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">P1</span></td>
+        <td><strong>Chase Essence / Essence Ring payment</strong> -- Completed onboarding checklist, waiting for payment since Feb 24.</td>
+        <td>Krik</td>
+        <td>This week</td>
+        <td>Payment collection on near-closed deal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">P1</span></td>
+        <td><strong>Respond to April 8-10 follow-up replies</strong> -- 69 deals were touched. Replies will come in this week. Prioritize Tier 1 replies first.</td>
+        <td>Juli + Krik</td>
+        <td>Daily this week</td>
+        <td>Convert warm responses into meetings/closings</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">P2</span></td>
+        <td><strong>Prep King Kanine call (April 15)</strong> -- Jon Neveloff was followed up yesterday. He knows you're active. Come in strong.</td>
+        <td>Krik</td>
+        <td>April 14</td>
+        <td>Tier 2 Pet CBD deal</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">P2</span></td>
+        <td><strong>Archive stalled Follow Up deals older than 180 days with no 2026 contact</strong> -- dozens of deals from mid-2025 are cluttering the active pipeline.</td>
+        <td>Juli</td>
+        <td>This week</td>
+        <td>Pipeline hygiene, better reporting accuracy</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-yellow">P2</span></td>
+        <td><strong>Escalate Wonder Project</strong> -- Promised to move forward in Q1. Q1 is over. Krik should reach out directly.</td>
+        <td>Krik</td>
+        <td>This week</td>
+        <td>Close or kill a stalled Likely to Sign</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">P3</span></td>
+        <td><strong>Propose setup fee alternatives internally</strong> -- 31 deals blocked by this. Draft 2-3 structural options (deferred, performance bond, tiered pricing) for leadership review.</td>
+        <td>Management</td>
+        <td>Next 2 weeks</td>
+        <td>Unlock 9.2% of blocked pipeline</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  KAMG Intelligence | CPG Affiliate Pipeline Analysis | Generated April 10, 2026<br>
+  Data: 336 deals | Synced from Google Sheets (source tab: Sheet1) | Analysis based on full row-level count
+</footer>
+
+</div>
+</body>
+</html>

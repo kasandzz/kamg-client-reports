@@ -26,8 +26,8 @@
       --gray-hi:     #c8d0e0;
       --gray-mid:    #8892a4;
       --gray-lo:     #4a5568;
-      --red-accent:  rgba(255,80,80,0.6);
-      --amber:       rgba(255,180,60,0.6);
+      --red-accent:  rgba(255,80,80,0.9);
+      --amber:       rgba(255,180,60,0.9);
       --border:      rgba(255,255,255,0.07);
       --border-hi:   rgba(255,255,255,0.12);
       --radius-sm:   8px;
@@ -56,7 +56,7 @@
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.03;
+      opacity: 0.045;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
       background-size: 300px 300px;
     }
@@ -247,9 +247,9 @@
       pointer-events: none;
       z-index: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(0,212,170,0.07) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 60% at 20% 70%, rgba(80,140,255,0.06) 0%, transparent 65%),
-        conic-gradient(from 200deg at 55% 45%, rgba(0,212,170,0.04) 0deg, transparent 90deg, rgba(80,140,255,0.04) 180deg, transparent 270deg);
+        radial-gradient(ellipse 65% 55% at 72% 38%, rgba(0,212,170,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 65% at 18% 72%, rgba(80,140,255,0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 10%, rgba(0,212,170,0.08) 0%, transparent 70%);
     }
 
     .hero-inner {
@@ -265,17 +265,23 @@
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 24px;
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
     }
 
     .hero-headline {
       font-family: var(--font-heading);
-      font-size: clamp(36px, 5.5vw, 72px);
+      font-size: clamp(42px, 6.5vw, 84px);
       font-weight: 900;
-      line-height: 1.08;
+      line-height: 1.03;
       color: var(--white);
       margin-bottom: 24px;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
     }
 
     .hero-sub {
@@ -311,7 +317,7 @@
     #proof-bar {
       position: relative;
       z-index: 1;
-      background: linear-gradient(180deg, #080c16 0%, #06090f 100%);
+      background: radial-gradient(ellipse 80% 100% at 50% 50%, rgba(0,212,170,0.06) 0%, #07090f 55%), linear-gradient(180deg, #080c16 0%, #06090f 100%);
       border-top: 1px solid rgba(0,212,170,0.2);
       border-bottom: 1px solid rgba(0,212,170,0.2);
       padding: 52px 0;
@@ -320,7 +326,7 @@
     .proof-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 40px 24px;
+      gap: 32px 40px;
     }
     @media (min-width: 768px) {
       .proof-grid { grid-template-columns: repeat(4,1fr); gap: 0; }
@@ -342,12 +348,13 @@
 
     .proof-number {
       font-family: var(--font-heading);
-      font-size: clamp(38px, 4.5vw, 58px);
+      font-size: clamp(44px, 5vw, 68px);
       font-weight: 700;
       color: var(--white);
       letter-spacing: -0.03em;
       line-height: 1;
       display: block;
+      text-shadow: 0 0 40px rgba(0,212,170,0.35), 0 0 80px rgba(0,212,170,0.15);
     }
     .proof-number .accent-plus { color: var(--accent); }
 
@@ -439,13 +446,14 @@
 
 
     /* ══════════════════════════════════════════════════════════════
-       SECTION 5: THE PROBLEM
+       SECTION 5: THE PROBLEM -- Storytelling scroll experience
     ══════════════════════════════════════════════════════════════ */
     #problem {
       position: relative;
       z-index: 1;
-      background: linear-gradient(180deg, #08101c 0%, #060810 100%);
-      padding: 96px 0;
+      background: linear-gradient(180deg, #06080e 0%, #0a0610 50%, #060810 100%);
+      padding: 0;
+      overflow: hidden;
     }
 
     #problem::before {
@@ -454,66 +462,201 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(ellipse 50% 40% at 80% 60%, rgba(255,80,80,0.04) 0%, transparent 70%);
+        radial-gradient(ellipse 60% 40% at 75% 30%, rgba(255,60,60,0.06) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 50% at 20% 70%, rgba(255,140,40,0.04) 0%, transparent 65%);
     }
 
     .problem-inner { position: relative; z-index: 1; }
 
-    .problem-header { margin-bottom: 56px; }
+    .problem-header {
+      padding: 120px 0 80px;
+      text-align: center;
+    }
 
     .problem-header .section-heading {
-      font-size: clamp(30px, 3.8vw, 50px);
-      margin-top: 12px;
-      max-width: 560px;
+      font-size: clamp(40px, 5.5vw, 72px);
+      margin-top: 16px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
     }
 
-    .problem-cards {
+    .problem-header .problem-intro {
+      font-size: clamp(16px, 1.6vw, 19px);
+      color: var(--gray-mid);
+      max-width: 580px;
+      margin: 24px auto 0;
+      line-height: 1.7;
+    }
+
+    /* Storytelling blocks -- each takes at least half viewport */
+    .story-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 70vh;
+      align-items: center;
+      gap: 60px;
+      padding: 80px 0;
+      position: relative;
+    }
+    @media (max-width: 768px) {
+      .story-block {
+        grid-template-columns: 1fr;
+        min-height: auto;
+        padding: 60px 0;
+        gap: 40px;
+      }
+    }
+    .story-block.reverse { direction: rtl; }
+    .story-block.reverse > * { direction: ltr; }
+
+    /* Visual side -- animated graphic */
+    .story-visual {
+      position: relative;
       display: flex;
-      flex-direction: column;
-      gap: 24px;
-      max-width: 760px;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
     }
 
-    .problem-card {
-      padding: 32px 32px 32px 28px;
-      border-radius: var(--radius-md);
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--red-accent);
-      transition: var(--transition);
+    .story-visual .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.2s ease;
     }
-    .problem-card:nth-child(2) { border-left-color: var(--amber); }
-    .problem-card:hover {
-      background: rgba(255,255,255,0.05);
-      transform: translateX(4px);
-    }
+    .story-block.visible .glow-orb { opacity: 1; }
 
-    .problem-card-title {
-      font-family: var(--font-body);
+    /* Animated metric display */
+    .metric-display {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .metric-display .big-number {
+      font-family: var(--font-heading);
+      font-size: clamp(72px, 10vw, 120px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .story-block.visible .big-number {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .metric-display .big-number.red { color: #ff4444; text-shadow: 0 0 60px rgba(255,68,68,0.4), 0 0 120px rgba(255,68,68,0.15); }
+    .metric-display .big-number.amber { color: #f0a030; text-shadow: 0 0 60px rgba(240,160,48,0.4), 0 0 120px rgba(240,160,48,0.15); }
+    .metric-display .big-number.crimson { color: #ff6b6b; text-shadow: 0 0 60px rgba(255,107,107,0.3), 0 0 120px rgba(255,107,107,0.1); }
+    .metric-display .metric-label {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--gray-lo);
+      margin-top: 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s;
+    }
+    .story-block.visible .metric-label { opacity: 1; transform: translateY(0); }
+
+    /* Animated bar chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+      position: relative;
+      z-index: 2;
+      padding: 0 20px;
+    }
+    .bar-chart .bar {
+      flex: 1;
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      min-width: 40px;
+      transform-origin: bottom;
+      transform: scaleY(0);
+      transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
+    }
+    .story-block.visible .bar { transform: scaleY(1); }
+    .bar-chart .bar:nth-child(1) { transition-delay: 0.1s; }
+    .bar-chart .bar:nth-child(2) { transition-delay: 0.2s; }
+    .bar-chart .bar:nth-child(3) { transition-delay: 0.3s; }
+    .bar-chart .bar:nth-child(4) { transition-delay: 0.4s; }
+    .bar-chart .bar:nth-child(5) { transition-delay: 0.5s; }
+    .bar-chart .bar .bar-label {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--gray-lo);
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+    .bar-chart .bar .bar-value {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--gray-hi);
-      margin-bottom: 10px;
+      white-space: nowrap;
     }
 
-    .problem-card-body {
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--gray-mid);
-      margin-bottom: 18px;
+    /* Text/narrative side */
+    .story-text {
+      max-width: 480px;
     }
-
-    .problem-quote {
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      font-style: italic;
+    .story-text .story-number {
+      font-family: var(--font-heading);
       font-size: 14px;
-      color: var(--gray-lo);
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.5;
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+    .story-text h3 {
+      font-family: var(--font-heading);
+      font-size: clamp(28px, 3.2vw, 42px);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .story-text p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--gray-mid);
+      margin-bottom: 16px;
+    }
+    .story-text .highlight-line {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--white);
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+      margin: 24px 0;
       line-height: 1.6;
     }
-    .problem-quote::before { content: '"'; margin-right: 2px; }
+
+    /* Divider between stories */
+    .story-divider {
+      width: 1px;
+      height: 80px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 0 auto;
+    }
     .problem-quote::after  { content: '"'; margin-left: 2px; }
 
 
@@ -525,6 +668,7 @@
       z-index: 1;
       background: linear-gradient(180deg, #060810 0%, #070d18 100%);
       padding: 96px 0;
+      border-top: 1px solid rgba(0,212,170,0.08);
     }
 
     #solution::before {
@@ -543,7 +687,7 @@
       margin-bottom: 56px;
     }
     .solution-header .section-heading {
-      font-size: clamp(28px, 3.6vw, 48px);
+      font-size: clamp(34px, 4.2vw, 54px);
       max-width: 600px;
       margin: 12px auto 0;
     }
@@ -573,17 +717,19 @@
       pointer-events: none;
     }
     .solution-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(0,212,170,0.5);
-      box-shadow: 0 16px 48px rgba(0,212,170,0.1);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,212,170,0.18), 0 0 0 1px rgba(0,212,170,0.3);
     }
 
     .sol-num {
       font-family: var(--font-heading);
-      font-size: 56px;
+      font-size: 64px;
       font-weight: 900;
-      color: var(--accent);
-      opacity: 0.25;
+      opacity: 0.6;
+      background: linear-gradient(135deg, var(--accent), rgba(80,140,255,0.6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
       margin-bottom: 4px;
       letter-spacing: -0.04em;
@@ -626,6 +772,7 @@
       z-index: 1;
       background: linear-gradient(180deg, #070d18 0%, #0a1020 100%);
       padding: 96px 0;
+      border-top: 1px solid rgba(80,140,255,0.06);
     }
 
     #escrow::before {
@@ -673,12 +820,14 @@
     .math-callout {
       background: rgba(0,212,170,0.06);
       border: 1px solid rgba(0,212,170,0.2);
+      border-left: 3px solid var(--accent);
       border-radius: var(--radius-md);
       padding: 24px 22px;
       margin-bottom: 20px;
     }
     .math-callout p {
-      font-size: 15px;
+      font-size: 17px;
+      font-weight: 600;
       line-height: 1.7;
       color: var(--gray-hi);
     }
@@ -688,6 +837,7 @@
       font-size: 12px;
       color: var(--gray-lo);
       letter-spacing: 0.04em;
+      margin-top: 8px;
     }
 
     /* Channels list */
@@ -798,6 +948,13 @@
 
     #founder .photo-wrapper {
       width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* Founder photo */
+    #founder [style*="width: 300px"] {
+      max-width: 100% !important;
+      width: 100% !important;
     }
 
     /* Testimonial arrows on mobile */
@@ -838,6 +995,12 @@
 
     #final-cta {
       padding: 80px 20px !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    #qualify > div {
+      padding: 60px 20px !important;
     }
   }
 
@@ -895,8 +1058,7 @@
       <span class="hero-kicker reveal">Performance Affiliate Marketing for DTC Brands</span>
 
       <h1 class="hero-headline reveal reveal-delay-1">
-        Your Affiliate Program Is Paying for Customers<br>
-        You Already Have.
+        Your Affiliate Program Is Paying for Customers You Already Have.
       </h1>
 
       <p class="hero-sub reveal reveal-delay-2">
@@ -913,6 +1075,10 @@
         </button>
         <span class="hero-trust-line">No retainers. Day-to-day contract.</span>
       </div>
+      <p class="reveal reveal-delay-4" style="margin-top: 20px; font-size: 12px; color: var(--gray-lo); display: flex; align-items: center; gap: 8px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; flex-shrink: 0;"></span>
+        Trusted by Coinbase, Lowe's, Everyday Dose, and 40+ DTC brands
+      </p>
     </div>
   </div>
 </section>
@@ -938,15 +1104,15 @@
       </div>
       <div class="proof-item reveal reveal-delay-2">
         <span class="proof-number">
-          <span class="counter" data-target="70" data-suffix="%+">0</span>
+          <span class="counter" data-target="50" data-suffix="%">0</span>
         </span>
-        <span class="proof-label">New Customer Rate</span>
+        <span class="proof-label">Average CPA Reduction</span>
       </div>
       <div class="proof-item reveal reveal-delay-3">
         <span class="proof-number">
-          <span class="counter" data-target="4" data-decimals="1" data-suffix="x">0</span>
+          <span class="counter" data-target="11" data-suffix="">0</span>
         </span>
-        <span class="proof-label">Average ROAS</span>
+        <span class="proof-label">Top Publisher Networks</span>
       </div>
     </div>
   </div>
@@ -964,55 +1130,29 @@
   <div class="carousel-wrapper reveal reveal-delay-1">
     <div class="carousel-track" id="carouselTrack">
       <!-- Set A -->
-      <div class="brand-card">
-        <div class="brand-name">Everyday Dose</div>
-        <div class="brand-result">$100M Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Magic Mind</div>
-        <div class="brand-result">$60M Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">True Earth</div>
-        <div class="brand-result">$100M+ Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Paramount</div>
-        <div class="brand-result">$2M/yr Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Miracle Sheets</div>
-        <div class="brand-result">$65–80 CPA at Scale</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Vix</div>
-        <div class="brand-result">$100K/mo Program</div>
-      </div>
+      <div class="brand-card"><div class="brand-name">Everyday Dose</div><div class="brand-result">$100M Revenue Program</div></div>
+      <div class="brand-card"><div class="brand-name">Magic Mind</div><div class="brand-result">$60M Revenue Program</div></div>
+      <div class="brand-card"><div class="brand-name">Coinbase</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Lowe's</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">The Grounding Co.</div><div class="brand-result">DTC Scaling</div></div>
+      <div class="brand-card"><div class="brand-name">SuperMush</div><div class="brand-result">New Customer Growth</div></div>
+      <div class="brand-card"><div class="brand-name">Harlo</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Sorelle</div><div class="brand-result">DTC Scaling</div></div>
+      <div class="brand-card"><div class="brand-name">MTN OPS</div><div class="brand-result">New Customer Growth</div></div>
+      <div class="brand-card"><div class="brand-name">Z-Quiet</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Laughland</div><div class="brand-result">DTC Scaling</div></div>
       <!-- Set B (duplicate for seamless loop) -->
-      <div class="brand-card">
-        <div class="brand-name">Everyday Dose</div>
-        <div class="brand-result">$100M Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Magic Mind</div>
-        <div class="brand-result">$60M Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">True Earth</div>
-        <div class="brand-result">$100M+ Revenue Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Paramount</div>
-        <div class="brand-result">$2M/yr Program</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Miracle Sheets</div>
-        <div class="brand-result">$65–80 CPA at Scale</div>
-      </div>
-      <div class="brand-card">
-        <div class="brand-name">Vix</div>
-        <div class="brand-result">$100K/mo Program</div>
-      </div>
+      <div class="brand-card"><div class="brand-name">Everyday Dose</div><div class="brand-result">$100M Revenue Program</div></div>
+      <div class="brand-card"><div class="brand-name">Magic Mind</div><div class="brand-result">$60M Revenue Program</div></div>
+      <div class="brand-card"><div class="brand-name">Coinbase</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Lowe's</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">The Grounding Co.</div><div class="brand-result">DTC Scaling</div></div>
+      <div class="brand-card"><div class="brand-name">SuperMush</div><div class="brand-result">New Customer Growth</div></div>
+      <div class="brand-card"><div class="brand-name">Harlo</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Sorelle</div><div class="brand-result">DTC Scaling</div></div>
+      <div class="brand-card"><div class="brand-name">MTN OPS</div><div class="brand-result">New Customer Growth</div></div>
+      <div class="brand-card"><div class="brand-name">Z-Quiet</div><div class="brand-result">Performance Affiliate</div></div>
+      <div class="brand-card"><div class="brand-name">Laughland</div><div class="brand-result">DTC Scaling</div></div>
     </div>
   </div>
 
@@ -1025,49 +1165,152 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════
+     SECTION 4b: PUBLISHER LOGOS
+══════════════════════════════════════════════════════════════ -->
+<section id="publishers" style="position: relative; z-index: 1; background: linear-gradient(180deg, #08101c 0%, #08101c 100%); padding: 56px 0; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04);">
+  <div class="container">
+    <p class="reveal" style="font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gray-lo); text-align: center; margin-bottom: 32px;">Your Brand, Placed with the World's Largest Publishers</p>
+  </div>
+  <div class="carousel-wrapper reveal reveal-delay-1">
+    <div class="publisher-track">
+      <!-- Set A -->
+      <div class="pub-name">Disney</div>
+      <div class="pub-name">Forbes</div>
+      <div class="pub-name">Capital One</div>
+      <div class="pub-name">CNN</div>
+      <div class="pub-name">NBC</div>
+      <div class="pub-name">BuzzFeed</div>
+      <div class="pub-name">Business Insider</div>
+      <div class="pub-name">USA Today</div>
+      <div class="pub-name">NY Post</div>
+      <div class="pub-name">Healthline</div>
+      <!-- Set B -->
+      <div class="pub-name">Disney</div>
+      <div class="pub-name">Forbes</div>
+      <div class="pub-name">Capital One</div>
+      <div class="pub-name">CNN</div>
+      <div class="pub-name">NBC</div>
+      <div class="pub-name">BuzzFeed</div>
+      <div class="pub-name">Business Insider</div>
+      <div class="pub-name">USA Today</div>
+      <div class="pub-name">NY Post</div>
+      <div class="pub-name">Healthline</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .publisher-track {
+    display: flex;
+    gap: 48px;
+    width: max-content;
+    animation: publisher-scroll 22s linear infinite;
+    align-items: center;
+    padding: 0 24px;
+  }
+  .publisher-track:hover { animation-play-state: paused; }
+  @keyframes publisher-scroll {
+    0%   { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+  .pub-name {
+    flex-shrink: 0;
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+    padding: 8px 0;
+  }
+  .pub-name:hover { color: rgba(255,255,255,0.55); }
+</style>
+
+<!-- ══════════════════════════════════════════════════════════════
      SECTION 5: THE PROBLEM
 ══════════════════════════════════════════════════════════════ -->
 <section id="problem">
   <div class="container problem-inner">
+
+    <!-- Header -->
     <div class="problem-header reveal">
       <span class="kicker">The Problem</span>
       <h2 class="section-heading">Why Most Affiliate Programs Fail</h2>
+      <p class="problem-intro">Three silent killers destroy affiliate programs from the inside. Most brands don't realize it until they've burned through budgets and trust.</p>
     </div>
 
-    <div class="problem-cards">
-      <div class="problem-card reveal reveal-delay-1">
-        <div class="problem-card-title">Coupon Parasites</div>
-        <p class="problem-card-body">
-          Agencies stuff your program with coupon sites. They get credit for sales you would have made anyway. Your CPA looks great on paper. Your customer acquisition is zero.
-        </p>
-        <div class="problem-quote">
-          Purple told me to drop from $50 CPA to $25... it was all coupon traffic.
-          <span style="display:block; margin-top:8px; font-style:normal; font-size:12px; color:var(--gray-lo);">-- DTC Brand Founder</span>
+    <!-- Story 1: Coupon Parasites -->
+    <div class="story-block" data-story="1">
+      <div class="story-visual">
+        <div class="glow-orb" style="width:300px;height:300px;background:rgba(255,60,60,0.12);top:10%;left:10%;"></div>
+        <div class="glow-orb" style="width:200px;height:200px;background:rgba(255,140,40,0.08);bottom:20%;right:15%;transition-delay:0.3s;"></div>
+        <div class="metric-display">
+          <div class="big-number red">$0</div>
+          <div class="metric-label">Real Customer Acquisition</div>
         </div>
       </div>
-
-      <div class="problem-card reveal reveal-delay-2">
-        <div class="problem-card-title">Repeat Customer ROAS Inflation</div>
-        <p class="problem-card-body">
-          Agencies chase high ROAS by driving repeat customers, not new ones. Your numbers look great. Your growth doesn't. You're paying a commission to re-acquire people already in your database.
-        </p>
-        <div class="problem-quote">
-          If you chase too-high ROAS, they start cheating by driving repeat customers.
-          <span style="display:block; margin-top:8px; font-style:normal; font-size:12px; color:var(--gray-lo);">-- Industry Veteran</span>
-        </div>
-      </div>
-
-      <div class="problem-card reveal reveal-delay-3">
-        <div class="problem-card-title">Zero Accountability</div>
-        <p class="problem-card-body">
-          Retainer agencies get paid whether you grow or not. Month after month. There's no incentive to perform because the invoice goes out regardless of the results.
-        </p>
-        <div class="problem-quote">
-          It sounded good, but maybe too good to be true.
-          <span style="display:block; margin-top:8px; font-style:normal; font-size:12px; color:var(--gray-lo);">-- Skeptical Prospect</span>
-        </div>
+      <div class="story-text reveal">
+        <div class="story-number">01</div>
+        <h3>Your "New Customers" Already Had the Cart Open</h3>
+        <p>Coupon affiliates wait for a customer to reach checkout, then inject a code at the last second. The affiliate gets credit. You pay a commission. The sale was already yours.</p>
+        <p>Your CPA report looks incredible. Your affiliate agency celebrates. But pull back the curtain and your actual new customer acquisition is flatlined.</p>
+        <div class="highlight-line">A previous agency told one of our clients to drop their CPA from $50 to $25. Every single sale was coupon traffic they would have gotten anyway.</div>
       </div>
     </div>
+
+    <div class="story-divider"></div>
+
+    <!-- Story 2: ROAS Inflation -->
+    <div class="story-block reverse" data-story="2">
+      <div class="story-visual">
+        <div class="glow-orb" style="width:280px;height:280px;background:rgba(240,160,48,0.12);top:15%;right:10%;"></div>
+        <div class="bar-chart">
+          <div class="bar" style="height:45%;background:linear-gradient(180deg,rgba(240,160,48,0.8),rgba(240,160,48,0.3));"><span class="bar-value" style="color:#f0a030;">12%</span><span class="bar-label">New</span></div>
+          <div class="bar" style="height:90%;background:linear-gradient(180deg,rgba(255,68,68,0.7),rgba(255,68,68,0.2));"><span class="bar-value" style="color:#ff4444;">88%</span><span class="bar-label">Repeat</span></div>
+          <div class="bar" style="height:70%;background:linear-gradient(180deg,rgba(255,100,60,0.6),rgba(255,100,60,0.2));"><span class="bar-value" style="color:#ff6b3d;">4.2x</span><span class="bar-label">ROAS</span></div>
+          <div class="bar" style="height:20%;background:linear-gradient(180deg,rgba(255,68,68,0.8),rgba(255,68,68,0.3));"><span class="bar-value" style="color:#ff4444;">0.3x</span><span class="bar-label">True ROAS</span></div>
+        </div>
+      </div>
+      <div class="story-text reveal">
+        <div class="story-number">02</div>
+        <h3>Your ROAS Is a Lie. Here's the Math.</h3>
+        <p>Affiliate agencies know how to hit impressive ROAS numbers. The trick is simple: drive repeat customers. People who already love your brand buy again through an affiliate link, and suddenly your "affiliate program" looks like a revenue machine.</p>
+        <p>The reality? You're paying a 15-30% commission on revenue that was already coming. Your true new-customer ROAS is a fraction of what's reported.</p>
+        <div class="highlight-line">If you chase too-high ROAS, agencies start cheating by driving repeat customers. The numbers look amazing. The growth is zero.</div>
+      </div>
+    </div>
+
+    <div class="story-divider"></div>
+
+    <!-- Story 3: Zero Accountability -->
+    <div class="story-block" data-story="3">
+      <div class="story-visual">
+        <div class="glow-orb" style="width:320px;height:320px;background:rgba(255,107,107,0.1);top:5%;left:5%;"></div>
+        <div class="glow-orb" style="width:180px;height:180px;background:rgba(80,140,255,0.06);bottom:10%;right:20%;transition-delay:0.4s;"></div>
+        <div class="metric-display">
+          <div style="display:flex;align-items:baseline;justify-content:center;gap:16px;">
+            <div>
+              <div class="big-number crimson" style="font-size:clamp(48px,7vw,80px);">$8K</div>
+              <div class="metric-label">Monthly Retainer</div>
+            </div>
+            <div style="font-family:var(--font-heading);font-size:36px;color:var(--gray-lo);opacity:0.3;">/</div>
+            <div>
+              <div class="big-number crimson" style="font-size:clamp(48px,7vw,80px);">$0</div>
+              <div class="metric-label">Performance Guarantee</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="story-text reveal">
+        <div class="story-number">03</div>
+        <h3>They Get Paid Whether You Grow or Not</h3>
+        <p>The retainer model is broken. Your agency charges $5,000-$15,000 per month regardless of results. If they drive zero incremental revenue, the invoice still goes out. If they lose your best publishers, the invoice still goes out.</p>
+        <p>There's no structural incentive to perform. No skin in the game. No accountability beyond a monthly call where they show you a dashboard you could have read yourself.</p>
+        <div class="highlight-line">The question isn't whether your affiliate agency is good. The question is whether they'd still work this hard if their revenue depended on yours.</div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1214,6 +1457,18 @@
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
     revealEls.forEach(function(el) { observer.observe(el); });
+
+    /* Story blocks get their own observer for the animated visuals */
+    var storyBlocks = document.querySelectorAll('.story-block');
+    var storyObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          storyObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
+    storyBlocks.forEach(function(el) { storyObserver.observe(el); });
   })();
 
   /* ── Animated counters ──────────────────────────────────────── */
@@ -1339,89 +1594,75 @@
       <div id="testimonial-track-wrapper" style="overflow: hidden; border-radius: 16px;">
         <div id="testimonial-track" style="display: flex; gap: 24px; transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); will-change: transform;">
 
-          <!-- Card 1 -->
+          <!-- Card 1 - Dan Webster -->
           <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,170,0.4), transparent);"></div>
-            <!-- Video play button -->
-            <div style="position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.3); background: rgba(0,212,170,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;" onmouseenter="this.style.background='rgba(0,212,170,0.15)'" onmouseleave="this.style.background='rgba(0,212,170,0.08)'">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="#00d4aa"><path d="M1 1l10 6L1 13V1z"/></svg>
-            </div>
-            <!-- Stars -->
-            <div style="display: flex; gap: 3px; margin-bottom: 20px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"That sounds very reasonable. The performance model is exactly what we've been looking for."</p>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"I have worked with several affiliate agencies... immediately impressed by CPG Affiliate Partners... immediate results on our offer."</p>
             <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Barbara</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">Codex Labs</p>
-              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Guaranteed $70 CPA</span>
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Dan Webster</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">CEO &amp; Co-Founder</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Immediate Results</span>
             </div>
           </div>
 
-          <!-- Card 2 -->
+          <!-- Card 2 - Jack Klauber -->
           <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(80,140,255,0.4), transparent);"></div>
-            <div style="position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.3); background: rgba(0,212,170,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;" onmouseenter="this.style.background='rgba(0,212,170,0.15)'" onmouseleave="this.style.background='rgba(0,212,170,0.08)'">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="#00d4aa"><path d="M1 1l10 6L1 13V1z"/></svg>
-            </div>
-            <div style="display: flex; gap: 3px; margin-bottom: 20px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"It sounds very good actually from this brand owner point of view. The transparency is refreshing."</p>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"CPG Affiliate Partners bring our CAC down while adapting to unit economic needs. It's a win-win partnership."</p>
             <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Veikko</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">JALG</p>
-              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">European DTC Expansion</span>
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Jack Klauber</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">CEO</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">CAC Reduction</span>
             </div>
           </div>
 
-          <!-- Card 3 -->
+          <!-- Card 3 - Russell Saks -->
           <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,170,0.4), transparent);"></div>
-            <div style="position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.3); background: rgba(0,212,170,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;" onmouseenter="this.style.background='rgba(0,212,170,0.15)'" onmouseleave="this.style.background='rgba(0,212,170,0.08)'">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="#00d4aa"><path d="M1 1l10 6L1 13V1z"/></svg>
-            </div>
-            <div style="display: flex; gap: 3px; margin-bottom: 20px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"I would like to find some good partners that know how to run at scale. This is the model."</p>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"Lowered our CPAs by 50%... under-promised, over-delivered... something you don't see from agencies."</p>
             <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Hannah</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">Enclave Bioactives</p>
-              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Scaling Natural Products</span>
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Russell Saks</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">CEO</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">50% CPA Reduction</span>
             </div>
           </div>
 
-          <!-- Card 4 -->
+          <!-- Card 4 - Jack McNamara -->
           <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
             <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(80,140,255,0.4), transparent);"></div>
-            <div style="position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(0,212,170,0.3); background: rgba(0,212,170,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;" onmouseenter="this.style.background='rgba(0,212,170,0.15)'" onmouseleave="this.style.background='rgba(0,212,170,0.08)'">
-              <svg width="12" height="14" viewBox="0 0 12 14" fill="#00d4aa"><path d="M1 1l10 6L1 13V1z"/></svg>
-            </div>
-            <div style="display: flex; gap: 3px; margin-bottom: 20px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"The 3-condition framework changed how we think about affiliate. No more vanity metrics."</p>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"Best-in-class... prove it each month through performance... one of our most trusted partners."</p>
             <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">DTC Brand Founder</p>
-              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">Health &amp; Wellness Category</p>
-              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Health &amp; Wellness Category</span>
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Jack McNamara</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">CEO</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Trusted Partner</span>
+            </div>
+          </div>
+
+          <!-- Card 5 - John Hagan -->
+          <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,212,170,0.4), transparent);"></div>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"Built our free trial offer to 5 figures of revenue quickly &amp; with high quality traffic... wealth of knowledge."</p>
+            <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">John Hagan</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">Director of Marketing</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">5-Figure Revenue Fast</span>
+            </div>
+          </div>
+
+          <!-- Card 6 - Ashvin Melwani -->
+          <div class="testimonial-card" style="min-width: 340px; flex-shrink: 0; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px; position: relative; overflow: hidden; transition: border-color 0.3s ease, transform 0.3s ease; cursor: pointer;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(80,140,255,0.4), transparent);"></div>
+            <div style="display: flex; gap: 3px; margin-bottom: 20px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#00d4aa"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+            <p style="font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; font-style: italic;">"Huge asset in our marketing strategy... run a tight ship... hands off... getting results it needs."</p>
+            <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+              <p style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; margin: 0 0 4px 0;">Ashvin Melwani</p>
+              <p style="font-family: 'Inter', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0 0 10px 0;">CEO</p>
+              <span style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2); border-radius: 6px; padding: 4px 10px; font-family: 'Inter', sans-serif; font-size: 11px; color: #00d4aa; font-weight: 600;">Hands-Off Results</span>
             </div>
           </div>
 
@@ -1443,6 +1684,8 @@
       <button class="carousel-dot" onclick="carouselGoTo(1)" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; padding: 0;"></button>
       <button class="carousel-dot" onclick="carouselGoTo(2)" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; padding: 0;"></button>
       <button class="carousel-dot" onclick="carouselGoTo(3)" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; padding: 0;"></button>
+      <button class="carousel-dot" onclick="carouselGoTo(4)" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; padding: 0;"></button>
+      <button class="carousel-dot" onclick="carouselGoTo(5)" style="width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; padding: 0;"></button>
     </div>
 
     <!-- CTA below carousel -->
@@ -1526,7 +1769,7 @@
       <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 44px); color: #fff; margin: 0; line-height: 1.2;">Everything You're Wondering</h2>
     </div>
 
-    <div id="faq-list" style="display: flex; flex-direction: column; gap: 2px;">
+    <div id="faq-list" style="display: flex; flex-direction: column; gap: 0;">
 
       <div class="faq-item" style="border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden; margin-bottom: 8px; transition: border-color 0.3s ease;">
         <button class="faq-trigger" onclick="toggleFaq(this)" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; background: rgba(255,255,255,0.02); border: none; color: #fff; cursor: pointer; text-align: left; transition: background 0.2s ease;">
@@ -1609,7 +1852,7 @@
      ============================================================ -->
 <section id="final-cta" style="position: relative; overflow: hidden; padding: 120px 40px;">
   <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #060c14 0%, #081820 40%, #050d18 100%);"></div>
-  <div style="position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 900px; height: 600px; background: radial-gradient(ellipse, rgba(0,212,170,0.08) 0%, rgba(80,140,255,0.05) 40%, transparent 70%); pointer-events: none;"></div>
+  <div style="position: absolute; top: -150px; left: 50%; transform: translateX(-50%); width: 900px; height: 600px; background: radial-gradient(ellipse, rgba(0,212,170,0.22) 0%, rgba(80,140,255,0.05) 40%, transparent 70%); pointer-events: none;"></div>
   <div style="position: absolute; inset: 0; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><radialGradient id=\"g\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"%2300d4aa\" stop-opacity=\"0.03\"/><stop offset=\"100%\" stop-color=\"%23000\" stop-opacity=\"0\"/></radialGradient></defs><ellipse cx=\"50\" cy=\"50\" rx=\"50\" ry=\"50\" fill=\"url(%23g)\"/></svg>') center/cover; pointer-events: none; opacity: 0.5;"></div>
 
   <div style="max-width: 700px; margin: 0 auto; text-align: center; position: relative; z-index: 2;">
@@ -1687,7 +1930,7 @@
 <div id="qualifier-overlay" onclick="closeQualifier()" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; backdrop-filter: blur(4px);"></div>
 
 <!-- Panel -->
-<div id="qualifier-panel" style="position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 100vw; background: linear-gradient(180deg, #0f1520 0%, #0a0e18 100%); border-left: 1px solid rgba(0,212,170,0.2); box-shadow: -8px 0 48px rgba(0,0,0,0.6), -1px 0 0 rgba(0,212,170,0.08); z-index: 1000; transform: translateX(100%); transition: transform 0.45s cubic-bezier(0.16,1,0.3,1); display: flex; flex-direction: column; overflow: hidden;">
+<div id="qualifier-panel" style="position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 100vw; background: linear-gradient(160deg, #121c2e 0%, #0a0f1c 40%, #0d1828 100%); border-left: 1px solid rgba(0,212,170,0.2); box-shadow: -16px 0 80px rgba(0,0,0,0.8), -4px 0 24px rgba(0,212,170,0.06); z-index: 1000; transform: translateX(100%); transition: transform 0.45s cubic-bezier(0.16,1,0.3,1); display: flex; flex-direction: column; overflow: hidden;">
 
   <!-- Top glow line -->
   <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #00d4aa, #508cff, transparent);"></div>
@@ -1884,7 +2127,7 @@
   // TESTIMONIAL CAROUSEL
   // ============================================================
   var carouselIndex = 0;
-  var carouselTotal = 4;
+  var carouselTotal = 6;
 
   function carouselGoTo(index) {
     carouselIndex = Math.max(0, Math.min(index, carouselTotal - 1));

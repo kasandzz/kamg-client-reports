@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Affiliate -- Team Intelligence Dossier</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #1a1a22;
+  --surface: #1e1e28;
+  --surface2: #252530;
+  --border: #2a2a35;
+  --text: #e0e0e0;
+  --text-dim: #8a8a9a;
+  --text-bright: #ffffff;
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.15);
+  --blue: #4fc3f7;
+  --green: #81c784;
+  --red: #e57373;
+  --amber: #ffb74d;
+  --teal: #4db6ac;
+  --purple: #b39ddb;
+  --pink: #f48fb1;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; line-height:1.6; }
+.container { max-width:1200px; margin:0 auto; padding:0 24px; }
+
+/* Header */
+.hero { background:linear-gradient(135deg, #0a0a0f 0%, #151520 50%, #0a0a0f 100%); padding:80px 0 60px; border-bottom:1px solid var(--border); position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:radial-gradient(ellipse at 30% 50%, rgba(200,169,110,0.04) 0%, transparent 70%); }
+.hero h1 { font-family:'Cormorant Garamond',serif; font-size:3.2rem; font-weight:700; color:var(--text-bright); letter-spacing:-0.02em; position:relative; }
+.hero h1 span { color:var(--gold); }
+.hero .subtitle { font-size:1.1rem; color:var(--text-dim); margin-top:8px; font-weight:300; position:relative; }
+.hero .meta-strip { display:flex; gap:32px; margin-top:24px; position:relative; }
+.hero .meta-strip .meta-item { font-size:0.85rem; color:var(--text-dim); }
+.hero .meta-strip .meta-item strong { color:var(--gold); font-weight:500; }
+
+/* Tabs */
+.tabs { display:flex; gap:4px; background:var(--bg2); padding:6px; border-radius:12px; margin:32px 0 24px; border:1px solid var(--border); overflow-x:auto; }
+.tab { padding:10px 20px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:500; color:var(--text-dim); transition:all 0.2s; white-space:nowrap; border:none; background:none; font-family:inherit; }
+.tab:hover { color:var(--text); background:var(--surface); }
+.tab.active { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(200,169,110,0.3); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Cards */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:28px; margin-bottom:20px; }
+.card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+.card h3 { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:600; color:var(--text-bright); }
+.card h4 { font-size:0.95rem; font-weight:600; color:var(--gold); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em; }
+
+/* Person Card */
+.person-card { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.person-card .left { display:flex; flex-direction:column; gap:16px; }
+.person-card .right { display:flex; flex-direction:column; gap:16px; }
+@media(max-width:768px) { .person-card { grid-template-columns:1fr; } }
+
+/* Tag Pills */
+.tag { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:500; margin-right:4px; margin-bottom:4px; }
+.tag-gold { background:var(--gold-dim); color:var(--gold); }
+.tag-blue { background:rgba(79,195,247,0.15); color:var(--blue); }
+.tag-green { background:rgba(129,199,132,0.15); color:var(--green); }
+.tag-red { background:rgba(229,115,115,0.15); color:var(--red); }
+.tag-amber { background:rgba(255,183,77,0.15); color:var(--amber); }
+.tag-teal { background:rgba(77,182,172,0.15); color:var(--teal); }
+.tag-purple { background:rgba(179,157,219,0.15); color:var(--purple); }
+.tag-pink { background:rgba(244,143,177,0.15); color:var(--pink); }
+
+/* DISC Bars */
+.disc-bar { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.disc-label { width:120px; font-size:0.85rem; color:var(--text-dim); font-weight:500; }
+.disc-track { flex:1; height:8px; background:var(--bg); border-radius:4px; overflow:hidden; }
+.disc-fill { height:100%; border-radius:4px; transition:width 0.5s ease; }
+.disc-score { width:30px; font-size:0.8rem; font-weight:600; text-align:right; font-family:'JetBrains Mono',monospace; }
+
+/* Quote Card */
+.quote { border-left:3px solid var(--gold); padding:12px 16px; background:var(--bg2); border-radius:0 8px 8px 0; margin:8px 0; font-style:italic; color:var(--text-dim); font-size:0.9rem; }
+.quote cite { display:block; font-style:normal; font-size:0.78rem; color:var(--gold); margin-top:6px; font-weight:500; }
+
+/* Stats Grid */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin:16px 0; }
+.stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center; }
+.stat-value { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--gold); }
+.stat-label { font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; margin-top:4px; }
+
+/* Table */
+table { width:100%; border-collapse:collapse; margin:12px 0; }
+th { text-align:left; padding:10px 12px; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold); border-bottom:1px solid var(--border); font-weight:600; }
+td { padding:10px 12px; font-size:0.88rem; border-bottom:1px solid rgba(42,42,53,0.5); color:var(--text); }
+tr:hover td { background:rgba(200,169,110,0.03); }
+
+/* Section */
+.section { padding:40px 0; }
+.section-alt { background:var(--bg2); }
+.section h2 { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:600; color:var(--text-bright); margin-bottom:24px; }
+.section h2 span { color:var(--gold); }
+
+/* Communication Guide */
+.comm-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; }
+.comm-card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.comm-card h5 { font-size:0.85rem; color:var(--gold); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; }
+.comm-card ul { list-style:none; padding:0; }
+.comm-card li { padding:4px 0; font-size:0.88rem; color:var(--text-dim); position:relative; padding-left:16px; }
+.comm-card li::before { content:''; position:absolute; left:0; top:11px; width:6px; height:6px; border-radius:50%; background:var(--gold); opacity:0.5; }
+
+/* Radar Chart */
+.radar-container { display:flex; justify-content:center; margin:24px 0; }
+
+/* Influence Map */
+.influence-item { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(42,42,53,0.3); }
+.influence-item:last-child { border:none; }
+.influence-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+
+/* Nav Person Selector */
+.person-nav { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+.person-btn { padding:8px 16px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:500; border:1px solid var(--border); background:var(--surface); color:var(--text-dim); transition:all 0.2s; font-family:inherit; }
+.person-btn:hover { border-color:var(--gold); color:var(--text); }
+.person-btn.active { background:var(--gold-dim); color:var(--gold); border-color:rgba(200,169,110,0.4); }
+.person-profile { display:none; }
+.person-profile.active { display:block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-dim); }
+
+/* Confidence Badge */
+.confidence { display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:500; }
+.confidence-high { background:rgba(129,199,132,0.15); color:var(--green); }
+.confidence-med { background:rgba(255,183,77,0.15); color:var(--amber); }
+.confidence-low { background:rgba(229,115,115,0.15); color:var(--red); }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:768px) { .grid-2 { grid-template-columns:1fr; } }
+
+.divider { border:none; border-top:1px solid var(--border); margin:24px 0; }
+
+ul.clean { list-style:none; padding:0; }
+ul.clean li { padding:6px 0; font-size:0.9rem; color:var(--text); padding-left:16px; position:relative; }
+ul.clean li::before { content:''; position:absolute; left:0; top:13px; width:6px; height:6px; border-radius:50%; }
+ul.clean.gold li::before { background:var(--gold); opacity:0.6; }
+ul.clean.red li::before { background:var(--red); opacity:0.6; }
+ul.clean.green li::before { background:var(--green); opacity:0.6; }
+ul.clean.blue li::before { background:var(--blue); opacity:0.6; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+<div class="container">
+<h1>CPG Affiliate <span>Team Intelligence</span></h1>
+<div class="subtitle">Deep behavioral profiles -- Krik Angacian, Stef Borghese, Julieta Oyanedel, Steven Bell, Mora de Azcuenaga</div>
+<div class="meta-strip">
+<div class="meta-item">Assessment: <strong>April 10, 2026</strong></div>
+<div class="meta-item">Sources: <strong>7 Fathom Calls + Slack + Pipeline Data</strong></div>
+<div class="meta-item">Analyst: <strong>KAMG Intelligence</strong></div>
+<div class="meta-item">Confidence: <strong>HIGH (Krik, Julieta, Steven) / MEDIUM (Stef, Mora)</strong></div>
+</div>
+</div>
+</div>
+
+<div class="container">
+
+<!-- TABS -->
+<div class="tabs" id="mainTabs">
+<button class="tab active" data-tab="overview">Overview</button>
+<button class="tab" data-tab="krik">Krik Angacian</button>
+<button class="tab" data-tab="stef">Stef Borghese</button>
+<button class="tab" data-tab="julieta">Julieta Oyanedel</button>
+<button class="tab" data-tab="steven">Steven Bell</button>
+<button class="tab" data-tab="mora">Mora + Others</button>
+<button class="tab" data-tab="dynamics">Team Dynamics</button>
+<button class="tab" data-tab="playbook">Communication Playbook</button>
+</div>
+
+<!-- =================== OVERVIEW TAB =================== -->
+<div class="tab-content active" id="overview">
+<div class="section">
+<h2>Executive <span>Summary</span></h2>
+
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value">10</div><div class="stat-label">Team Members Found</div></div>
+<div class="stat-card"><div class="stat-value">7+</div><div class="stat-label">Fathom Recordings</div></div>
+<div class="stat-card"><div class="stat-value">4</div><div class="stat-label">Countries</div></div>
+<div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Time Zones</div></div>
+</div>
+
+<div class="card" style="margin-top:24px;">
+<h4>Team Personality Map</h4>
+<table>
+<thead>
+<tr><th>Person</th><th>Role</th><th>DISC</th><th>MBTI</th><th>Archetype</th><th>Location</th></tr>
+</thead>
+<tbody>
+<tr><td style="color:var(--gold);font-weight:600;"><a href="https://linkedin.com/in/krik-d-angacian-aa31771a" target="_blank" style="color:var(--gold);text-decoration:none;">Krik D. Angacian</a></td><td>Founder & CEO</td><td><span class="tag tag-red">D5</span><span class="tag tag-amber">I4</span><span class="tag tag-blue">S2</span><span class="tag tag-teal">C1</span></td><td>ENTJ</td><td>The Commander</td><td>Puerto Escondido, MX</td></tr>
+<tr><td style="color:var(--gold);font-weight:600;"><a href="https://linkedin.com/in/stef-borghese-95b429172" target="_blank" style="color:var(--gold);text-decoration:none;">Stefania Borghese</a></td><td>COO / CFO</td><td><span class="tag tag-red">D2</span><span class="tag tag-amber">I2</span><span class="tag tag-blue">S3</span><span class="tag tag-teal">C5</span></td><td>ISTJ</td><td>The Logistician</td><td>Argentina</td></tr>
+<tr><td style="color:var(--gold);font-weight:600;"><a href="https://linkedin.com/in/julieta-oyanedel-b68538217" target="_blank" style="color:var(--gold);text-decoration:none;">Julieta Oyanedel</a></td><td>Business Development Manager</td><td><span class="tag tag-red">D2</span><span class="tag tag-amber">I4</span><span class="tag tag-blue">S4</span><span class="tag tag-teal">C3</span></td><td>ESFJ</td><td>The Consul</td><td>Argentina</td></tr>
+<tr><td style="color:var(--gold);font-weight:600;"><a href="https://linkedin.com/in/stevencraigbell" target="_blank" style="color:var(--gold);text-decoration:none;">Steven Bell</a></td><td>Head of Email Marketing</td><td><span class="tag tag-red">D2</span><span class="tag tag-amber">I3</span><span class="tag tag-blue">S4</span><span class="tag tag-teal">C3</span></td><td>ISFP</td><td>The Adventurer</td><td>Bali, Indonesia</td></tr>
+<tr><td style="color:var(--gold);font-weight:600;"><a href="https://linkedin.com/in/moradeazcuenagatepsich" target="_blank" style="color:var(--gold);text-decoration:none;">Mora de Azcuenaga</a></td><td>Senior Campaign Analyst</td><td><span class="tag tag-red">D2</span><span class="tag tag-amber">I3</span><span class="tag tag-blue">S4</span><span class="tag tag-teal">C3</span></td><td>ISFJ*</td><td>The Defender*</td><td>Argentina</td></tr>
+<tr><td style="color:var(--text-dim);">Anthony McCabe</td><td>CTO</td><td colspan="3"><span class="tag tag-purple">No behavioral data</span></td><td>San Diego, USA</td></tr>
+<tr><td style="color:var(--text-dim);">Sol Schmeigel</td><td>Head of Media Buying</td><td colspan="3"><span class="tag tag-purple">No behavioral data</span></td><td>Unknown</td></tr>
+<tr><td style="color:var(--text-dim);">Sasha Bernal</td><td>Head of Network Partnerships</td><td colspan="3"><span class="tag tag-purple">No behavioral data</span></td><td>Unknown</td></tr>
+<tr><td style="color:var(--text-dim);">Erica San Martin</td><td>Publisher Development Manager</td><td colspan="3"><span class="tag tag-purple">No behavioral data</span></td><td>Unknown</td></tr>
+<tr><td style="color:var(--text-dim);">Francine Butvilofsky</td><td>Head of Content</td><td colspan="3"><span class="tag tag-purple">No behavioral data</span></td><td>Unknown</td></tr>
+</tbody>
+</table>
+<p style="font-size:0.78rem;color:var(--text-dim);margin-top:8px;">* Low confidence -- insufficient direct interaction data. Estimated from role behavior and team descriptions.</p>
+</div>
+
+<div class="card">
+<h4>Top 5 Strategic Insights</h4>
+<ul class="clean gold">
+<li><strong>Krik is a sprint runner, not a marathon planner.</strong> He decides fast, gets bored with details, and equates action with progress. Frame everything as tests with 7-day results, not 90-day strategies.</li>
+<li><strong>Stef is the silent power center.</strong> She controls operations, institutional memory, and team coordination. Win Stef = win CPG. She won't tell you she disagrees -- she'll just quietly not execute.</li>
+<li><strong>Julieta is underleveraged.</strong> She wants more responsibility, has the interpersonal skills for it, but is trapped in manual lead qualification. Automating her admin work unlocks a mid-tier closer.</li>
+<li><strong>Steven operates on trust-based autonomy.</strong> 3+ years with zero oversight created performance drift (85% decline). The talent exists -- the accountability structure didn't. He needs creative challenges with KPIs, not micromanagement.</li>
+<li><strong>The team has no measurement culture.</strong> Krik openly admits "we have never done a good job of measuring." Nobody tracks close rates. Pipeline data lives in memory and spreadsheets. This is both the biggest risk and the biggest opportunity.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- =================== KRIK TAB =================== -->
+<div class="tab-content" id="krik">
+<div class="section">
+<h2>Krik <span>Angacian</span></h2>
+
+<div class="person-card">
+<div class="left">
+<div class="card">
+<h4>Identity</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:140px;">Role</td><td>CEO / Founder</td></tr>
+<tr><td style="color:var(--text-dim);">Company</td><td>CPG Affiliate Partners LLC</td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Puerto Escondido, Oaxaca, Mexico</td></tr>
+<tr><td style="color:var(--text-dim);">Origin</td><td>New York City</td></tr>
+<tr><td style="color:var(--text-dim);">Background</td><td>Serial CPG Founder + Ex-Investment Banker (M&A)</td></tr>
+<tr><td style="color:var(--text-dim);">Education</td><td>Boston College, Wallace E. Carroll School of Management (MBA)</td></tr>
+<tr><td style="color:var(--text-dim);">Email</td><td>krik@cpgaffiliate.com</td></tr>
+<tr><td style="color:var(--text-dim);">Personal Email</td><td>angaciank@gmail.com</td></tr>
+<tr><td style="color:var(--text-dim);">LinkedIn</td><td><a href="https://linkedin.com/in/krik-d-angacian-aa31771a" target="_blank" style="color:var(--blue);">krik-d-angacian</a></td></tr>
+<tr><td style="color:var(--text-dim);">Facebook</td><td><a href="https://facebook.com/krik.angacian" target="_blank" style="color:var(--blue);">krik.angacian</a></td></tr>
+<tr><td style="color:var(--text-dim);">Crunchbase</td><td><a href="https://crunchbase.com/person/krik-d-angacian" target="_blank" style="color:var(--blue);">Profile</a></td></tr>
+<tr><td style="color:var(--text-dim);">Telegram</td><td>@krikangacian</td></tr>
+<tr><td style="color:var(--text-dim);">Timezone</td><td>CST (UTC-6)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h4>Career Timeline</h4>
+<table>
+<thead><tr><th>Period</th><th>Role</th><th>Company</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td style="color:var(--text-dim);">~2008-2010</td><td>Wealth Mgmt Analyst</td><td>UBS, Zurich</td><td><span class="tag tag-teal">Past</span></td></tr>
+<tr><td style="color:var(--text-dim);">2011-2014</td><td>IB M&A Analyst (Food & Ag)</td><td>Rabobank, New York</td><td><span class="tag tag-teal">Past</span></td></tr>
+<tr><td style="color:var(--text-dim);">2013-2020</td><td>Co-founder & CEO</td><td>Protes Protein Snacks</td><td><span class="tag tag-green">Exited -- 12K+ retail locations, 10 countries, $1.2M raised</span></td></tr>
+<tr><td style="color:var(--text-dim);">2021-2023</td><td>Co-founder & CEO</td><td>CandyCan (keto gummies)</td><td><span class="tag tag-red">Closed 2023 -- sensitivity point</span></td></tr>
+<tr><td style="color:var(--text-dim);">2022-present</td><td>Founder & CEO</td><td>CPG Affiliate Partners LLC</td><td><span class="tag tag-gold">Active</span></td></tr>
+<tr><td style="color:var(--text-dim);">2023-present</td><td>Co-founder</td><td>Test Dryve (w/ Matt Matros)</td><td><span class="tag tag-gold">Active</span></td></tr>
+</tbody>
+</table>
+<p style="font-size:0.85rem;color:var(--text-dim);margin-top:8px;"><strong>Key insight:</strong> He sells the solution to his own prior pain points. As a brand owner (Protes, CandyCan), he paid agencies retainers and got burned. CPG Affiliate's "no retainer, no locked-in contracts" model is autobiographical.</p>
+</div>
+
+<div class="card">
+<h4>Podcast & Media Appearances</h4>
+<ul class="clean blue">
+<li><strong>OMG Commerce eCommerce Evolution:</strong> "What Do Dollar Shave Club, Manscaped, and CandyCan Know About Affiliate Marketing"</li>
+<li><strong>PricePlow Podcast #054:</strong> "CandyCan Makes Gummies Functional" (Oct 2021)</li>
+<li><strong>SnackNation Brand Builder Ep 86:</strong> "How Protes Flipped the Script on Chips" (Jan 2019)</li>
+<li><strong>Commerce Caffeine Podcast:</strong> Affiliate marketing for food & beverage</li>
+<li><strong>Collabs.io:</strong> Entrepreneurship + CandyCan interview</li>
+<li><strong>BevNET News:</strong> Featured in Matt Matros / Test Dryve launch article</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>DISC Profile <span class="confidence confidence-high">HIGH confidence</span></h4>
+<div class="disc-bar"><span class="disc-label">Dominance</span><div class="disc-track"><div class="disc-fill" style="width:100%;background:var(--red);"></div></div><span class="disc-score" style="color:var(--red);">5/5</span></div>
+<div class="disc-bar"><span class="disc-label">Influence</span><div class="disc-track"><div class="disc-fill" style="width:80%;background:var(--amber);"></div></div><span class="disc-score" style="color:var(--amber);">4/5</span></div>
+<div class="disc-bar"><span class="disc-label">Steadiness</span><div class="disc-track"><div class="disc-fill" style="width:40%;background:var(--blue);"></div></div><span class="disc-score" style="color:var(--blue);">2/5</span></div>
+<div class="disc-bar"><span class="disc-label">Compliance</span><div class="disc-track"><div class="disc-fill" style="width:20%;background:var(--teal);"></div></div><span class="disc-score" style="color:var(--teal);">1/5</span></div>
+<p style="margin-top:12px;font-size:0.88rem;">ENTJ "The Commander" -- High D/I pattern. Drives agenda, makes instant decisions, comfortable with conflict and risk. Low patience for process or detail. <strong>Boston College MBA + UBS/Rabobank IB background</strong> means he reads P&Ls and deal structures fluently -- speaks both operator and financial language.</p>
+</div>
+
+<div class="card">
+<h4>Personal Life</h4>
+<ul class="clean gold">
+<li>Married with daughter ("Princess Anna")</li>
+<li>Owns Doberman puppy</li>
+<li>Avid surfer -- misses surf when work prevents it</li>
+<li>Owns multiple real estate properties in Puerto Escondido</li>
+<li>Only takes Christmas, Easter, New Year's off</li>
+<li>Previously explored exit at $15M valuation (AMZ acquisition talks failed)</li>
+<li>Also co-founded Test Dryve (digital sampling) with Matt Matros (Limitless founder)</li>
+<li>Boston College MBA (Wallace E. Carroll Graduate School of Management)</li>
+<li>LLC registered in Syosset, NY (7 Oliver Street, NY 10038)</li>
+<li>Attended Affiliate Takeover Miami conference (March 2026)</li>
+</ul>
+</div>
+</div>
+
+<div class="right">
+<div class="card">
+<h4>Psychological Profile</h4>
+
+<div class="quote">"It's making more money, because that's the point of the business, and it's making money, that's it."<cite>-- Krik, Mar 24 Onboarding Call</cite></div>
+
+<div class="quote">"I'm an ex-investment banker, merchant acquisitions, like seven days a week, 100 hours. Everything else is a cakewalk to me."<cite>-- Krik, Mar 24 Onboarding Call</cite></div>
+
+<div class="quote">"I feel like there's a leaky boat, right? So I think we have the boat, and then we upgrade to whatever, yacht."<cite>-- Krik, Mar 24 Onboarding Call</cite></div>
+
+<div class="quote">"I didn't know the right questions to ask -- that's why you're here."<cite>-- Krik, Mar 24 Onboarding Call</cite></div>
+
+<div class="quote">"I don't take any holidays off, ever. I just do Christmas."<cite>-- Krik, Mar 24 Onboarding Call</cite></div>
+
+<h4 style="margin-top:20px;">Core Values (Observed)</h4>
+<ul class="clean gold">
+<li><strong>Revenue above everything.</strong> Every conversation circles back to money. He filters ideas through "will this generate revenue?"</li>
+<li><strong>Loyalty and team protection.</strong> Explicitly defended Steven multiple times: "He's a very smart guy." Won't tolerate team criticism from outsiders.</li>
+<li><strong>Action over planning.</strong> Wants tests, not decks. Pushed back on data warehouse initially: "fix the leaky boat first."</li>
+<li><strong>Work ethic as identity.</strong> Investment banking framing: 100-hour weeks normalized everything else. Works during holidays.</li>
+<li><strong>Wealth building in Puerto Escondido.</strong> Consciously chose cost-arbitrage lifestyle. Invests in real estate. Self-aware about avoiding Mexico City temptations (Rolexes, Soho Club).</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Behavioral Patterns</h4>
+<ul class="clean blue">
+<li><strong>Decision speed:</strong> Makes decisions in real-time on calls. "Done." "Cool." No deliberation period. Approved Vovik's cold email agency on the spot.</li>
+<li><strong>Communication style:</strong> Ultra-casual. "Bro," "dude," drops profanity naturally. Storytelling over abstractions. Short, punchy sentences.</li>
+<li><strong>Meeting behavior:</strong> Often multitasking (dog, daughter, security cameras). Gives control of calls to Kas ("Let me just follow your lead"). Doesn't like being talked at -- wants dialogue.</li>
+<li><strong>Delegation pattern:</strong> Delegates broadly but checks outcomes sporadically. Julieta "acts as kind of like an EA." Stef manages execution. Steven runs with autonomy.</li>
+<li><strong>Conflict style:</strong> Direct but not aggressive. Handles complaints with rescheduling (Iglo/Benjamin). Shows vulnerability: "I have no idea what my close rate is."</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Stress Triggers</h4>
+<ul class="clean red">
+<li>Revenue decline (profits dropped from $350K to $150K -- this is the dominant anxiety)</li>
+<li>Being chased or ignored by contacts (frustrated when Brian missed his calls)</li>
+<li>Ideas presented without execution plan ("I love all the tools, but it's got to have results")</li>
+<li>Team criticism from outsiders (protective shield around Steven)</li>
+<li>Feeling like he's being sold to, not partnered with</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Influence Triggers</h4>
+<ul class="clean green">
+<li><strong>Commitment/Consistency:</strong> Once he says yes, he follows through. "I'll read through everything. I'm sure it's good."</li>
+<li><strong>Authority:</strong> Respects demonstrated expertise. Was impressed when Kas showed COD data warehouse live. "Have you built data warehouses before?" -- needed proof.</li>
+<li><strong>Social Proof:</strong> Asked about LeadGen Jay, wanted to know if Kas knew them. Values network validation.</li>
+<li><strong>Scarcity framing:</strong> Responds to "clients that got away" narratives (Blue Apron, Lexington Law examples).</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Sales Performance Data</h4>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value">19%</div><div class="stat-label">Close Rate (Krik)</div></div>
+<div class="stat-card"><div class="stat-value">~30</div><div class="stat-label">Deals Signed (All Time)</div></div>
+<div class="stat-card"><div class="stat-value">$150K</div><div class="stat-label">Current Monthly Profit</div></div>
+<div class="stat-card"><div class="stat-value">$350K</div><div class="stat-label">Peak Monthly Profit</div></div>
+<div class="stat-card"><div class="stat-value">25</div><div class="stat-label">Current Direct Clients</div></div>
+<div class="stat-card"><div class="stat-value">$15M</div><div class="stat-label">Exit Target Valuation</div></div>
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Relationship with Kas</h4>
+<p style="font-size:0.9rem;color:var(--text);">Trust level: <span class="tag tag-green">HIGH</span> Krik treats Kas as a peer, not a vendor. He proactively reached out when Kas left his previous agency. Shares personal details freely (wife's health, daughter, fire near his house). The Lithuanian comment ("I like working with Eastern Europeans -- more honest, less bullshit") shows genuine cultural affinity and rapport. Krik asks about Kas's wife unprompted, shows his daughter on camera.</p>
+</div>
+</div>
+</div>
+
+<!-- =================== STEF TAB =================== -->
+<div class="tab-content" id="stef">
+<div class="section">
+<h2>Stef <span>Borghese</span></h2>
+
+<div class="person-card">
+<div class="left">
+<div class="card">
+<h4>Identity</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:140px;">Full Name</td><td>Stefania Borghese</td></tr>
+<tr><td style="color:var(--text-dim);">Role</td><td>COO / CFO (dual role -- explains overload)</td></tr>
+<tr><td style="color:var(--text-dim);">Company</td><td>CPG Affiliate Partners LLC</td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Argentina</td></tr>
+<tr><td style="color:var(--text-dim);">Email</td><td>stef@cpgaffiliate.com</td></tr>
+<tr><td style="color:var(--text-dim);">LinkedIn</td><td><a href="https://linkedin.com/in/stef-borghese-95b429172" target="_blank" style="color:var(--blue);">stef-borghese-95b429172</a></td></tr>
+<tr><td style="color:var(--text-dim);">Telegram</td><td>@stefborghese</td></tr>
+<tr><td style="color:var(--text-dim);">Timezone</td><td>ART (CST+2)</td></tr>
+<tr><td style="color:var(--text-dim);">Heritage</td><td>Italian-Argentine (Entre Rios province -- heavy Italian immigration)</td></tr>
+<tr><td style="color:var(--text-dim);">Education</td><td>Industrial Engineering, UTN Argentina</td></tr>
+<tr><td style="color:var(--text-dim);">Prior Career</td><td>Accenture Argentina (Commercial Ops Sr. Analyst) &rarr; Petropack SA</td></tr>
+<tr><td style="color:var(--text-dim);">Instagram</td><td><a href="https://instagram.com/stefborghese" target="_blank" style="color:var(--blue);">@stefborghese</a></td></tr>
+<tr><td style="color:var(--text-dim);">Twitter/X</td><td><a href="https://twitter.com/s_borghese" target="_blank" style="color:var(--blue);">@s_borghese</a></td></tr>
+<tr><td style="color:var(--text-dim);">Published</td><td><a href="https://startupcpg.com/blog/cpgaffiliatemarketing" target="_blank" style="color:var(--blue);">Startup CPG: "Dos and Don'ts of Affiliate Marketing"</a></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h4>DISC Profile <span class="confidence confidence-med">MEDIUM confidence</span></h4>
+<div class="disc-bar"><span class="disc-label">Dominance</span><div class="disc-track"><div class="disc-fill" style="width:40%;background:var(--red);"></div></div><span class="disc-score" style="color:var(--red);">2/5</span></div>
+<div class="disc-bar"><span class="disc-label">Influence</span><div class="disc-track"><div class="disc-fill" style="width:40%;background:var(--amber);"></div></div><span class="disc-score" style="color:var(--amber);">2/5</span></div>
+<div class="disc-bar"><span class="disc-label">Steadiness</span><div class="disc-track"><div class="disc-fill" style="width:60%;background:var(--blue);"></div></div><span class="disc-score" style="color:var(--blue);">3/5</span></div>
+<div class="disc-bar"><span class="disc-label">Compliance</span><div class="disc-track"><div class="disc-fill" style="width:100%;background:var(--teal);"></div></div><span class="disc-score" style="color:var(--teal);">5/5</span></div>
+<p style="margin-top:12px;font-size:0.88rem;">ISTJ "The Logistician" -- High C/S pattern. <strong>Industrial engineer by training</strong> (UTN Argentina), former Accenture commercial ops analyst. Detail-oriented, process-driven, fact-checking mentality. Not a marketer by background -- she's an engineer-turned-ops-leader. The institutional backbone of CPG.</p>
+</div>
+
+<div class="card">
+<h4>Krik on Stef</h4>
+<div class="quote">"She's very professional oriented. She's good with AI. She's very task oriented. But she is on a lot of projects right now. She's building a lot of systems. But she's doing a great job."<cite>-- Krik, Mar 24</cite></div>
+</div>
+</div>
+
+<div class="right">
+<div class="card">
+<h4>Psychological Profile</h4>
+
+<div class="quote">"Can I add something else? Also, he switches subject lines and front lines in order to improve deliverability."<cite>-- Stef, Mar 14 Team Call</cite></div>
+
+<h4 style="margin-top:16px;">Core Behavioral Patterns</h4>
+<ul class="clean blue">
+<li><strong>Speaks with surgical precision.</strong> Short, factual statements. Zero filler. When she interjects, it's to add critical context that prevents wrong conclusions about team members.</li>
+<li><strong>Protective of team reputation.</strong> Defended Steven's methodology twice in the Mar 14 call. She adds context ("he switches subject lines to improve deliverability") to prevent Kas from forming negative impressions.</li>
+<li><strong>Listens 80%, speaks 20%.</strong> In the 58-minute sales pipeline review, she had minimal direct speaking time but was clearly tracking everything. Processes internally.</li>
+<li><strong>Wants fewer meetings.</strong> Explicitly wants automated reporting to replace verbal check-ins. Her calendar is overloaded with status calls she considers low-value.</li>
+<li><strong>Fact-checks mentally.</strong> If you make a sweeping claim without data, she won't challenge you openly -- she'll just note it internally and wait for evidence.</li>
+</ul>
+
+<h4 style="margin-top:16px;">Stress Triggers</h4>
+<ul class="clean red">
+<li>Meeting overload (wanted to show calendar screenshot with red boxes around all check-ins)</li>
+<li>Being asked to do more without reducing existing load</li>
+<li>Sweeping claims without evidence</li>
+<li>External consultants who add complexity instead of reducing it</li>
+</ul>
+
+<h4 style="margin-top:16px;">Motivation Drivers</h4>
+<ul class="clean green">
+<li>Operational efficiency -- she'll champion anything that measurably reduces meetings or manual reporting</li>
+<li>Data visibility -- wants automated dashboards, not verbal status updates</li>
+<li>Team protection -- wants her people represented accurately to leadership</li>
+<li>Competence recognition -- responds to being treated as the institutional expert she is</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>How to Work with Stef</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Do</h5>
+<ul>
+<li>Be structured and specific with requests</li>
+<li>Respect her operational knowledge -- ask before assuming</li>
+<li>Frame everything as "reducing her burden"</li>
+<li>Give clear tasks with deadlines</li>
+<li>Show data, not promises</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Don't</h5>
+<ul>
+<li>Make sweeping claims without evidence</li>
+<li>Add tasks without removing existing ones</li>
+<li>Criticize team members she manages</li>
+<li>Overload meeting agendas (she prefers tight, 30-min focused calls)</li>
+<li>Mistake her silence for agreement</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- =================== JULIETA TAB =================== -->
+<div class="tab-content" id="julieta">
+<div class="section">
+<h2>Julieta <span>"Hooli" Oyanedel</span></h2>
+
+<div class="person-card">
+<div class="left">
+<div class="card">
+<h4>Identity</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:140px;">Role</td><td>Lead Gen / Sales (SDR/BDR)</td></tr>
+<tr><td style="color:var(--text-dim);">Nickname</td><td>"Hooli" / "Huli" (used by Krik)</td></tr>
+<tr><td style="color:var(--text-dim);">Company</td><td>CPG Affiliate Partners LLC</td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Argentina</td></tr>
+<tr><td style="color:var(--text-dim);">Email</td><td>julieta@cpgaffiliate.com</td></tr>
+<tr><td style="color:var(--text-dim);">Timezone</td><td>ART (CST+2)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h4>DISC Profile <span class="confidence confidence-high">HIGH confidence</span></h4>
+<div class="disc-bar"><span class="disc-label">Dominance</span><div class="disc-track"><div class="disc-fill" style="width:40%;background:var(--red);"></div></div><span class="disc-score" style="color:var(--red);">2/5</span></div>
+<div class="disc-bar"><span class="disc-label">Influence</span><div class="disc-track"><div class="disc-fill" style="width:80%;background:var(--amber);"></div></div><span class="disc-score" style="color:var(--amber);">4/5</span></div>
+<div class="disc-bar"><span class="disc-label">Steadiness</span><div class="disc-track"><div class="disc-fill" style="width:80%;background:var(--blue);"></div></div><span class="disc-score" style="color:var(--blue);">4/5</span></div>
+<div class="disc-bar"><span class="disc-label">Compliance</span><div class="disc-track"><div class="disc-fill" style="width:60%;background:var(--teal);"></div></div><span class="disc-score" style="color:var(--teal);">3/5</span></div>
+<p style="margin-top:12px;font-size:0.88rem;">ESFJ "The Consul" -- High I/S pattern. Socially warm, relationship-first, team connector. Deferential in strategy but precise on operational facts. Thrives on collaboration and clear roles.</p>
+</div>
+
+<div class="card">
+<h4>Sales Performance</h4>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value">11%</div><div class="stat-label">Close Rate</div></div>
+<div class="stat-card"><div class="stat-value">vs 19%</div><div class="stat-label">Krik's Rate</div></div>
+</div>
+<p style="font-size:0.85rem;color:var(--text-dim);margin-top:8px;">Gap is likely due to deal routing (Krik takes bigger/warmer deals) rather than skill deficit. Julieta handles all first-touch qualification -- her role is filtering, not closing. The 11% is her converting cold leads with minimal support.</p>
+</div>
+</div>
+
+<div class="right">
+<div class="card">
+<h4>Psychological Profile</h4>
+
+<div class="quote">"Great, great, great. I think they're about to join any minute."<cite>-- Julieta, Mar 14 (characteristic triple affirmation)</cite></div>
+
+<div class="quote">"Stef and I are based in Argentina, different cities. But, well, most of our team is based in Argentina."<cite>-- Julieta, Mar 14 (inclusive framing, team-first language)</cite></div>
+
+<h4 style="margin-top:16px;">Core Behavioral Patterns</h4>
+<ul class="clean blue">
+<li><strong>Triple affirmation pattern.</strong> Uses repeated positive confirmations ("Great, great, great" / "Nice, nice"). Creates warm, welcoming atmosphere. Natural relationship builder.</li>
+<li><strong>Team connector.</strong> First to speak, first to greet, fills silence comfortably. Noticed Kas's Star Wars background -- high social awareness.</li>
+<li><strong>Calls Kas "Kaz"</strong> -- informal, warm. Adopts nicknames quickly. Signals she treats people as friends, not colleagues.</li>
+<li><strong>Deferential in strategy, precise in operations.</strong> Won't push strategic ideas, but will correct operational facts with confidence ("Only the response" -- clarifying her exact scope).</li>
+<li><strong>Wants more responsibility.</strong> Multiple signals across meetings that she wants to do more closing, not just qualification. Bottleneck is lead volume, not willingness.</li>
+<li><strong>Organized and methodical.</strong> Prepared Google doc with lead gen topics before Kas even asked. Modified Calendly links per campaign for source tracking.</li>
+</ul>
+
+<h4 style="margin-top:16px;">Stress Triggers</h4>
+<ul class="clean red">
+<li>Feeling stuck in admin/qualification when she wants to sell</li>
+<li>Unclear role boundaries (overlapping responsibilities with Mora)</li>
+<li>Being interrogated rather than collaborated with</li>
+<li>Holiday/schedule disruptions (Argentine holidays affect her workflow)</li>
+</ul>
+
+<h4 style="margin-top:16px;">Motivation Drivers</h4>
+<ul class="clean green">
+<li>Career growth into mid-tier closer role</li>
+<li>Automation of repetitive tasks (manually qualifying all inbound)</li>
+<li>Clear team coordination and defined handoffs</li>
+<li>Recognition for sales wins (acknowledged Beat Basta close with team pride)</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>How to Work with Julieta</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Do</h5>
+<ul>
+<li>Open with small talk -- she needs warmth before business</li>
+<li>Acknowledge wins (Beat Basta close, successful scheduling)</li>
+<li>Ask specific operational questions, not vague ones</li>
+<li>Frame automation as "freeing her for what she's good at"</li>
+<li>Use warm, collaborative language</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Don't</h5>
+<ul>
+<li>Go straight to business without rapport</li>
+<li>Push strategic ideas she hasn't bought into yet</li>
+<li>Make her feel like she's being audited</li>
+<li>Skip including her in team decisions</li>
+<li>Underestimate her operational precision</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- =================== STEVEN TAB =================== -->
+<div class="tab-content" id="steven">
+<div class="section">
+<h2>Steven <span>Bell</span></h2>
+
+<div class="person-card">
+<div class="left">
+<div class="card">
+<h4>Identity</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:140px;">Role</td><td>Head of Email Marketing</td></tr>
+<tr><td style="color:var(--text-dim);">Company</td><td>CPG Affiliate (outsourced contractor)</td></tr>
+<tr><td style="color:var(--text-dim);">Own Business</td><td>Email Profits (Klaviyo email marketing agency)</td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Bali, Indonesia</td></tr>
+<tr><td style="color:var(--text-dim);">Email (work)</td><td>contact@emailprofits.co</td></tr>
+<tr><td style="color:var(--text-dim);">Email (personal)</td><td>stevencraigbell@gmail.com</td></tr>
+<tr><td style="color:var(--text-dim);">LinkedIn</td><td>linkedin.com/in/stevencraigbell</td></tr>
+<tr><td style="color:var(--text-dim);">Timezone</td><td>WITA (UTC+8) -- 14hrs ahead of Kas</td></tr>
+<tr><td style="color:var(--text-dim);">Education</td><td>Universiteit Antwerpen / Antwerp Mgmt School -- European Business (2013)</td></tr>
+<tr><td style="color:var(--text-dim);">Prior Venture</td><td>Skyba LLC (2016-2023) -- Amazon FBA non-slip socks, 8 countries</td></tr>
+<tr><td style="color:var(--text-dim);">Booking</td><td>portal.emailprofits.co/meetings/steven-bell-30min</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h4>DISC Profile <span class="confidence confidence-med">MEDIUM confidence</span></h4>
+<div class="disc-bar"><span class="disc-label">Dominance</span><div class="disc-track"><div class="disc-fill" style="width:40%;background:var(--red);"></div></div><span class="disc-score" style="color:var(--red);">2/5</span></div>
+<div class="disc-bar"><span class="disc-label">Influence</span><div class="disc-track"><div class="disc-fill" style="width:60%;background:var(--amber);"></div></div><span class="disc-score" style="color:var(--amber);">3/5</span></div>
+<div class="disc-bar"><span class="disc-label">Steadiness</span><div class="disc-track"><div class="disc-fill" style="width:80%;background:var(--blue);"></div></div><span class="disc-score" style="color:var(--blue);">4/5</span></div>
+<div class="disc-bar"><span class="disc-label">Compliance</span><div class="disc-track"><div class="disc-fill" style="width:60%;background:var(--teal);"></div></div><span class="disc-score" style="color:var(--teal);">3/5</span></div>
+<p style="margin-top:12px;font-size:0.88rem;">ISFP "The Adventurer" -- S-I type. Long-horizon operator who builds systems and sticks with them for years. Values craftsmanship over scale, freedom over security, creative problem-solving over procedural execution.</p>
+</div>
+</div>
+
+<div class="right">
+<div class="card">
+<h4>Psychological Profile</h4>
+
+<div class="quote">"You don't even need to buy these lists. They're not that good."<cite>-- Steven to Krik (re: Agency Access list purchase) -- expertise defense pattern</cite></div>
+
+<h4 style="margin-top:16px;">Dual Identity Tension</h4>
+<p style="font-size:0.9rem;">Steven's <strong>public brand</strong> (Email Profits) is sophisticated Klaviyo retention marketing for e-commerce. His <strong>CPG role</strong> is cold outbound operations using Instantly. These are different skill sets. Frame improvements as "elevating his email expertise," not "fixing cold email."</p>
+
+<h4 style="margin-top:16px;">Core Behavioral Patterns</h4>
+<ul class="clean blue">
+<li><strong>Creative thinker.</strong> Proposed Shopify app intent tracking idea. Krik: "fucking smart bro!" Innovation channels well under pressure.</li>
+<li><strong>Expertise defense under threat.</strong> When competence is questioned, he pushes back with domain knowledge (dismissing purchased lists). Coping mechanism, not hostility.</li>
+<li><strong>Autonomy as core value.</strong> Every career choice (own agency, Bali, contractor status) prioritizes independence. Management structures must feel collaborative, not directive.</li>
+<li><strong>Under-managed for 3+ years.</strong> Operated with high autonomy, low oversight. 85% decline from peak campaign performance = performance drift, not incompetence.</li>
+<li><strong>Receptive to new direction.</strong> Took Kas's "leveling up" framing well. Clay + Claude personalization test has his buy-in. Initial signals positive (warm Slack DMs, quick scheduling).</li>
+</ul>
+
+<h4 style="margin-top:16px;">Stress Triggers</h4>
+<ul class="clean red">
+<li>Performance scrutiny without context (historical reasons for decline)</li>
+<li>Loss of autonomy or micromanagement</li>
+<li>External competition threats (Vovik's parallel agency)</li>
+<li>Being compared unfavorably to "how things used to be"</li>
+</ul>
+
+<h4 style="margin-top:16px;">Recommended Approach</h4>
+<ul class="clean green">
+<li>Lead with curiosity, not conclusions</li>
+<li>Acknowledge tenure and expertise before introducing changes</li>
+<li>Frame everything as "testing together" rather than "directing"</li>
+<li>Give him a quick win he owns in Week 1</li>
+<li>Build trust through shared credit when reporting to Krik</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- =================== MORA + OTHERS TAB =================== -->
+<div class="tab-content" id="mora">
+<div class="section">
+<h2>Mora + <span>Extended Team</span></h2>
+
+<div class="card">
+<h4>Mora de Azcuenaga <span class="confidence confidence-low">LOW confidence</span></h4>
+<table>
+<tr><td style="color:var(--text-dim);width:140px;">Role</td><td>Senior Campaign Analyst (website) / Client Onboarding (meeting descriptions)</td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Argentina</td></tr>
+<tr><td style="color:var(--text-dim);">Timezone</td><td>ART (CST+2)</td></tr>
+<tr><td style="color:var(--text-dim);">LinkedIn</td><td><a href="https://linkedin.com/in/moradeazcuenagatepsich" target="_blank" style="color:var(--blue);">moradeazcuenagatepsich</a></td></tr>
+<tr><td style="color:var(--text-dim);">Heritage</td><td>"de Azcuenaga" = Argentine patrician family (founding families of independence). "Tepsich" = rare Croatian/Slavic surname (39% of global holders in Argentina). Dual heritage: old-money BA + Croatian.</td></tr>
+<tr><td style="color:var(--text-dim);">TikTok</td><td><a href="https://tiktok.com/@moradeazcuenaga" target="_blank" style="color:var(--blue);">@moradeazcuenaga</a> -- comfortable with digital self-presentation despite upper-class background</td></tr>
+<tr><td style="color:var(--text-dim);">Full Name</td><td>Mora de Azcuenaga Tepsich</td></tr>
+</table>
+<hr class="divider">
+<h4>What We Know</h4>
+<ul class="clean blue">
+<li>Being elevated to cover Krik's sales calls while he's absent</li>
+<li>First time in this expanded role -- untested in sales</li>
+<li>Was introduced to Beat Basta client as part of onboarding handoff</li>
+<li>Scheduled to join Maison Obsidian call with Aaron</li>
+<li>Krik chose her for coverage, which signals trust in her reliability</li>
+</ul>
+<h4 style="margin-top:12px;">Estimated Profile (Low Confidence)</h4>
+<p style="font-size:0.9rem;color:var(--text-dim);">Likely ISFJ ("The Defender") based on onboarding role = detail-oriented, supportive, process-following. Argentine upper-class background suggests strong social skills and professional presentation. Being trusted with sales coverage despite limited experience suggests dependability and composure under pressure.</p>
+</div>
+
+<div class="grid-2" style="margin-top:20px;">
+<div class="card">
+<h4>Valeria Galarza</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:100px;">Role</td><td>Appointment Setting / Legacy Campaigns</td></tr>
+<tr><td style="color:var(--text-dim);">Status</td><td><span class="tag tag-amber">Historical reference</span></td></tr>
+</table>
+<p style="font-size:0.88rem;margin-top:8px;">Generated 300-357 opps per campaign at peak -- the benchmark all current campaigns are measured against. Her era represents CPG's email golden age. Attended the Apr 2 weekly sales review, suggesting she still has some involvement.</p>
+</div>
+
+<div class="card">
+<h4>Nachi Levy</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:100px;">Role</td><td>Unknown (attended Apr 2 weekly review)</td></tr>
+<tr><td style="color:var(--text-dim);">Status</td><td><span class="tag tag-blue">Active team member</span></td></tr>
+</table>
+<p style="font-size:0.88rem;margin-top:8px;">Appeared on the Apr 2 Weekly Sales Development Review Call. Insufficient data for profiling.</p>
+</div>
+
+<div class="card">
+<h4>Mateo Jackson</h4>
+<table>
+<tr><td style="color:var(--text-dim);width:100px;">Role</td><td>LinkedIn Partner (external, not employee)</td></tr>
+<tr><td style="color:var(--text-dim);">LinkedIn</td><td><a href="https://mx.linkedin.com/in/mateo-jackson-b522a383" target="_blank" style="color:var(--blue);">mateo-jackson</a></td></tr>
+<tr><td style="color:var(--text-dim);">Location</td><td>Puerto Escondido, Mexico</td></tr>
+<tr><td style="color:var(--text-dim);">Education</td><td>Universidad de Granada, Spain (2010-2014)</td></tr>
+<tr><td style="color:var(--text-dim);">Languages</td><td>English/Spanish (native), Dutch (professional), French (limited)</td></tr>
+<tr><td style="color:var(--text-dim);">Status</td><td><span class="tag tag-amber">Being evaluated</span></td></tr>
+</table>
+<p style="font-size:0.88rem;margin-top:8px;">Digital nomad profile (Brussels, Berlin, Spain, Sydney, Bangkok, Malaga). Currently at SalesGenius. 4K+ LinkedIn followers. Bio: "I build revenue systems using AI, automation, and full stack growth marketing." Achieved $3 ROAS from listicles for luxury retail. AIESEC volunteer (rural India teaching). Responds to data-driven, ROI-first framing.</p>
+</div>
+
+<div class="card">
+<h4>Full Team Roster (from cpgaffiliate.com)</h4>
+<table>
+<thead><tr><th>Name</th><th>Title</th><th>LinkedIn</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td style="color:var(--amber);">Anthony McCabe</td><td>CTO</td><td><a href="https://linkedin.com/in/anthony-mccabe-3851b424" target="_blank" style="color:var(--blue);">Profile</a></td><td>San Diego. Krik said "You don't want to meet him" -- likely sarcastic or inside joke, since he's listed as CTO on the website. No behavioral data.</td></tr>
+<tr><td style="color:var(--amber);">Sol Schmeigel</td><td>Head of Media Buying</td><td><a href="https://linkedin.com/in/solschmeigel" target="_blank" style="color:var(--blue);">Profile</a></td><td>Not mentioned in any meeting. Unknown to Kas. May handle paid media campaigns for clients.</td></tr>
+<tr><td style="color:var(--amber);">Sasha Bernal</td><td>Head of Network Partnerships</td><td><a href="https://linkedin.com/in/sasha-bernal" target="_blank" style="color:var(--blue);">Profile</a></td><td>Mar del Plata, Argentina. CAECE university. Background in translation/dubbing before CPG. Mentioned in Mar 6 call by Krik as "SDR/Biz Dev" -- website title is more senior. Manages AOR/network side.</td></tr>
+<tr><td style="color:var(--amber);">Erica San Martin</td><td>Publisher Development Manager</td><td><a href="https://linkedin.com/in/erica-san-martin-6825611ba" target="_blank" style="color:var(--blue);">Profile</a></td><td>Julieta handed off publisher calls to "Eri" during sales focus. Handles publisher-side outreach and backlinks.</td></tr>
+<tr><td style="color:var(--amber);">Francine Butvilofsky</td><td>Head of Content</td><td><a href="https://linkedin.com/in/francine-butvilofsky" target="_blank" style="color:var(--blue);">Profile</a></td><td>Not mentioned in any meeting. Unknown to Kas. Content role may be dormant or SEO-focused.</td></tr>
+</tbody>
+</table>
+
+<h4 style="margin-top:16px;">External Partners</h4>
+<ul class="clean gold">
+<li><strong>Daniel Hall</strong> -- External (Google Ads). Building $2K/mo test campaigns. Not CPG staff.</li>
+<li><strong>Mateo</strong> -- LinkedIn partner, Puerto Escondido. Friend of Krik's. Being evaluated.</li>
+<li><strong>Vovik Tsybulskyi</strong> -- External cold email agency (Chapters). Kas introduced for parallel test. 4-6 week engagement approved.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- =================== TEAM DYNAMICS TAB =================== -->
+<div class="tab-content" id="dynamics">
+<div class="section">
+<h2>Team <span>Dynamics</span></h2>
+
+<div class="card">
+<h4>Power Structure</h4>
+<div style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;padding:16px;background:var(--bg);border-radius:8px;line-height:2;color:var(--text-dim);">
+<span style="color:var(--gold);">KRIK D. ANGACIAN (Founder & CEO)</span> -- All final decisions, closes big deals, sets direction<br>
+&nbsp;&nbsp;<span style="color:var(--teal);">|-- STEFANIA BORGHESE (COO/CFO)</span> -- Execution engine, operations, finance, team coordination<br>
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue);">|-- MORA DE AZCUENAGA</span> -- Senior Campaign Analyst, backup sales<br>
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue);">|-- ERICA SAN MARTIN</span> -- Publisher Development Manager<br>
+&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--blue);">|-- FRANCINE BUTVILOFSKY</span> -- Head of Content<br>
+&nbsp;&nbsp;<span style="color:var(--amber);">|-- JULIETA OYANEDEL (Biz Dev)</span> -- First-touch qualification, SDR, EA to Krik<br>
+&nbsp;&nbsp;<span style="color:var(--purple);">|-- STEVEN BELL (Email)</span> -- Cold email infrastructure + campaigns (autonomous, Bali)<br>
+&nbsp;&nbsp;<span style="color:var(--pink);">|-- ANTHONY MCCABE (CTO)</span> -- Technical infrastructure (San Diego, low visibility)<br>
+&nbsp;&nbsp;<span style="color:var(--pink);">|-- SOL SCHMEIGEL</span> -- Head of Media Buying<br>
+&nbsp;&nbsp;<span style="color:var(--pink);">|-- SASHA BERNAL</span> -- Head of Network Partnerships (AOR/network side)<br>
+&nbsp;&nbsp;<span style="color:var(--text-dim);">|-- MATEO (LinkedIn)</span> -- Secondary channel, being evaluated<br>
+<br>
+<span style="color:var(--green);">KAS ANDZ (Fractional CMO)</span> -- Strategic oversight, AI/data systems, reports to Krik
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Relationship Dynamics</h4>
+
+<table>
+<thead>
+<tr><th>Relationship</th><th>Dynamic</th><th>Risk Level</th></tr>
+</thead>
+<tbody>
+<tr><td style="color:var(--gold);">Krik <> Stef</td><td>High trust. Krik delegates broadly to Stef. She's the one person whose pushback he actually processes. He overloads her but respects her.</td><td><span class="tag tag-amber">MEDIUM</span> -- Stef burnout risk</td></tr>
+<tr><td style="color:var(--gold);">Krik <> Julieta</td><td>Paternal dynamic. Calls her "Huli," uses her as EA + SDR + sales. Protective but limits her growth by routing all big deals to himself.</td><td><span class="tag tag-amber">MEDIUM</span> -- Underutilization</td></tr>
+<tr><td style="color:var(--gold);">Krik <> Steven</td><td>Explicitly protective. Defends Steven to Kas multiple times. 3+ year loyalty bond. But low oversight = performance drift went unchecked.</td><td><span class="tag tag-red">HIGH</span> -- Loyalty > accountability</td></tr>
+<tr><td style="color:var(--gold);">Stef <> Julieta</td><td>Close collaborators. Both Argentina-based. Stef provides operational backbone; Julieta provides relational warmth. Complementary partnership.</td><td><span class="tag tag-green">LOW</span></td></tr>
+<tr><td style="color:var(--gold);">Stef <> Steven</td><td>Stef defends Steven's methods to Kas (Mar 14: "he switches subject lines..."). Acts as translator between Steven's autonomous work and team expectations.</td><td><span class="tag tag-green">LOW</span></td></tr>
+<tr><td style="color:var(--gold);">Julieta <> Mora</td><td>Handoff relationship. Julieta is training Mora to cover sales during Krik's absence. Shared Argentina base. Likely mentoring dynamic.</td><td><span class="tag tag-green">LOW</span></td></tr>
+<tr><td style="color:var(--gold);">Kas <> Team</td><td>New entrant (3 weeks). High trust with Krik. Warm reception from Julieta/Stef. Steven receptive but untested under performance pressure. Mora/others minimal interaction.</td><td><span class="tag tag-amber">MEDIUM</span> -- Trust still forming</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Cultural Dynamics</h4>
+<ul class="clean gold">
+<li><strong>Argentine core:</strong> Stef, Julieta, Mora, Sasha, Erica -- all Argentina-based. Shared cultural context, schedule alignment (ART timezone), holiday calendar. This is the operational heartbeat.</li>
+<li><strong>Mexico axis:</strong> Krik (Puerto Escondido) + Kas (Mexico City) + Mateo (Puerto Escondido). Leadership cluster. Same timezone advantage.</li>
+<li><strong>Isolated node:</strong> Steven in Bali. 14-hour offset from Kas/Krik. Async-only. This isolation enabled both his autonomy and his performance drift.</li>
+<li><strong>Language:</strong> All calls in English. Argentine team likely Spanish-primary. Krik code-switches between formal and ultra-casual depending on audience.</li>
+<li><strong>Rapport signals:</strong> Yerba mate discussion (Stef offered to ship to Kas). Julieta noticed Star Wars background. Krik showed daughter/puppy. Team bonds through personal sharing, not just work.</li>
+</ul>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Team Risks</h4>
+<ul class="clean red">
+<li><strong>Krik single point of failure for big deals.</strong> He closes at 19% but is the only person who handles enterprise clients. If he's traveling or burned out, pipeline stalls. Already visible: Benjamin/Iglo complained about his availability.</li>
+<li><strong>Stef burnout trajectory.</strong> COO running "a lot of projects," building systems, attending status meetings she considers waste. She's the load-bearing wall -- if she breaks, operations collapse.</li>
+<li><strong>Steven's 14-hour timezone gap.</strong> Creates accountability void. He can't attend real-time reviews. Performance data arrives late. Easy to "coast" when the boss sleeps while you work.</li>
+<li><strong>No measurement culture.</strong> Krik: "We have never done a good job of measuring." Nobody knows the close rate. No CRM. Pipeline lives in memory. This means nobody can be held accountable to data -- everything is vibes.</li>
+<li><strong>Mora untested in sales.</strong> Being asked to cover Krik's sales calls with zero track record. If she fails, pipeline takes a hit during Krik's absence.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- =================== PLAYBOOK TAB =================== -->
+<div class="tab-content" id="playbook">
+<div class="section">
+<h2>Communication <span>Playbook</span></h2>
+
+<p style="color:var(--text-dim);margin-bottom:24px;">Tactical guides for engaging each team member based on behavioral analysis. Use these in calls, Slack, and written communications.</p>
+
+<div class="card">
+<h4>Krik Angacian -- "The Commander"</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Channel Preferences</h5>
+<ul>
+<li>Slack for quick updates (3 bullets max)</li>
+<li>Calls for decisions (keep under 15 min)</li>
+<li>Email for formal proposals (5 sentences max)</li>
+<li>Never make him chase -- update proactively</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Framing That Works</h5>
+<ul>
+<li>"This patches the leak" (his metaphor)</li>
+<li>"Test this for 7 days, measure, decide"</li>
+<li>"Here's the revenue impact: $X"</li>
+<li>Binary choices: "Option A or B?"</li>
+<li>Never: "Let me research and get back to you"</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Meeting Rules</h5>
+<ul>
+<li>He decides on calls -- bring decisions, not presentations</li>
+<li>Let him multitask (dog, kid, phone)</li>
+<li>Match his energy: casual, direct, humor OK</li>
+<li>Don't criticize Steven -- frame as "enhancement"</li>
+<li>End with: "Here's what I'm doing next"</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Stef Borghese -- "The Logistician"</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Channel Preferences</h5>
+<ul>
+<li>Slack for structured requests with deadlines</li>
+<li>Telegram: @stefborghese</li>
+<li>30-min focused calls (no padding)</li>
+<li>Written > verbal for complex asks</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Framing That Works</h5>
+<ul>
+<li>"This eliminates your Wednesday status meeting"</li>
+<li>"Here's the data" (show, don't tell)</li>
+<li>"I need X by [date] to unblock Y"</li>
+<li>Frame asks as burden reduction</li>
+<li>Never: vague timelines or scope creep</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Meeting Rules</h5>
+<ul>
+<li>Tight agenda, specific outcomes expected</li>
+<li>She processes internally -- give space</li>
+<li>Silence != agreement (ask explicitly)</li>
+<li>Acknowledge her operational knowledge first</li>
+<li>End with: clear owner + deadline for each item</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Julieta Oyanedel -- "The Consul"</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Channel Preferences</h5>
+<ul>
+<li>Slack for warm, conversational updates</li>
+<li>Calls for anything requiring collaboration</li>
+<li>Opens with small talk -- allow 2-3 min</li>
+<li>She'll send docs proactively if she trusts you</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Framing That Works</h5>
+<ul>
+<li>"This frees you up to do more selling"</li>
+<li>"Great job on [specific win]" (acknowledgment)</li>
+<li>"Walk me through your process step by step"</li>
+<li>Team language: "we" not "you"</li>
+<li>Never: interrogation-style questions</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Meeting Rules</h5>
+<ul>
+<li>Warm up with personal topic first</li>
+<li>Ask operational questions, not strategic</li>
+<li>She won't flag bottlenecks -- ask specifically</li>
+<li>Plant seeds for change, don't push</li>
+<li>End with: mutual excitement about next steps</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+<h4>Steven Bell -- "The Adventurer"</h4>
+<div class="comm-grid">
+<div class="comm-card">
+<h5>Channel Preferences</h5>
+<ul>
+<li>Slack async (14-hr timezone gap)</li>
+<li>Early AM Kas (~6am) = 8pm Steven</li>
+<li>Late PM Kas (~9pm) = 11am Steven</li>
+<li>Calls require advance scheduling</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Framing That Works</h5>
+<ul>
+<li>"Let's test this together" (collaborative)</li>
+<li>"Your Shopify app idea was brilliant" (expertise recognition)</li>
+<li>"What would you try if budget wasn't a constraint?"</li>
+<li>Frame changes as experiments, not fixes</li>
+<li>Never: "why hasn't this been done?"</li>
+</ul>
+</div>
+<div class="comm-card">
+<h5>Management Rules</h5>
+<ul>
+<li>Give creative challenges with measurable outcomes</li>
+<li>Share credit with Krik when reporting wins</li>
+<li>Acknowledge his 3-year expertise before suggesting changes</li>
+<li>The Clay + Claude test is HIS initiative now -- let him own it</li>
+<li>KPIs must feel collaborative, not imposed</li>
+</ul>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<div style="text-align:center;padding:40px 0;color:var(--text-dim);font-size:0.78rem;border-top:1px solid var(--border);margin-top:40px;">
+CPG Affiliate Team Intelligence Dossier | KAMG Intelligence | April 10, 2026<br>
+Sources: 7 Fathom recordings, Slack history, pipeline data (331 deals), meeting synthesis (11 meetings)<br>
+Classification: Internal Use Only
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

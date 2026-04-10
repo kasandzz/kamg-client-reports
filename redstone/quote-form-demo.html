@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redstone Manufacturing -Request a Quote</title>
+    <title>Redstone Manufacturing - Request a Quote</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -128,6 +128,7 @@
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 10px;
+            cursor: pointer;
         }
         .field-group label .req { color: #B21E24; font-weight: 700; }
         .field-group .helper {
@@ -136,6 +137,12 @@
             margin-top: 8px;
             line-height: 1.5;
             font-style: italic;
+        }
+        .field-group .select-all-hint {
+            font-size: 0.78em;
+            color: #B21E24;
+            font-weight: 500;
+            margin-bottom: 10px;
         }
 
         .field-group input,
@@ -164,6 +171,31 @@
         .field-group textarea { min-height: 120px; resize: vertical; }
         .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
+        /* ---- VALIDATION ---- */
+        .field-group.error input,
+        .field-group.error select,
+        .field-group.error textarea {
+            border-color: #B21E24;
+            background: #fef6f6;
+        }
+        .field-group .error-msg {
+            font-size: 0.78em;
+            color: #B21E24;
+            font-weight: 600;
+            margin-top: 6px;
+            display: none;
+        }
+        .field-group.error .error-msg { display: block; }
+        .option-cards-wrapper.error .option-cards { outline: 2px solid #B21E24; border-radius: 12px; }
+        .option-cards-wrapper .error-msg {
+            font-size: 0.78em;
+            color: #B21E24;
+            font-weight: 600;
+            margin-top: 6px;
+            display: none;
+        }
+        .option-cards-wrapper.error .error-msg { display: block; }
+
         /* ---- OPTION CARDS ---- */
         .option-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .option-card {
@@ -190,12 +222,6 @@
             font-weight: 700;
             color: #222;
         }
-        .option-card .option-desc {
-            font-size: 0.78em;
-            color: #999;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
         .option-card .check-icon {
             position: absolute;
             top: 14px;
@@ -221,6 +247,7 @@
             cursor: pointer;
             transition: all 0.2s;
             background: #FAFAFA;
+            position: relative;
         }
         .upload-zone:hover {
             border-color: #B21E24;
@@ -239,6 +266,37 @@
             padding: 4px 12px;
             border-radius: 4px;
             letter-spacing: 0.02em;
+        }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .file-list { margin-top: 12px; }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.82em;
+            font-weight: 500;
+            color: #166534;
+        }
+        .file-item .remove-file {
+            cursor: pointer;
+            color: #B21E24;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: none;
+            background: none;
+            padding: 0 4px;
         }
 
         /* ---- SECTION DIVIDER ---- */
@@ -325,6 +383,13 @@
             font-weight: 500;
             line-height: 1.5;
         }
+        .reassurance .trust-logos {
+            font-size: 0.78em;
+            color: #15803d;
+            margin-top: 6px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
 
         /* ---- STEPS ---- */
         .form-step { display: none; }
@@ -343,6 +408,7 @@
             .option-cards { grid-template-columns: 1fr; }
             .form-progress .step { padding: 14px 4px; font-size: 0.65em; }
             .form-progress .step .step-num { width: 24px; height: 24px; font-size: 0.8em; }
+            .form-progress .step .step-label { display: none; }
             .btn-next, .btn-submit { padding: 14px 28px; }
         }
     </style>
@@ -374,7 +440,7 @@
         </div>
     </div>
     <div class="progress-fill">
-        <div class="progress-fill-bar" style="width: 25%;"></div>
+        <div class="progress-fill-bar" style="width: 0%;"></div>
     </div>
 
     <!-- STEP 1 -->
@@ -383,20 +449,21 @@
             <h2>Tell us about your project</h2>
             <p class="step-desc">We use this to match you with the right facility and process.</p>
 
-            <div class="field-group">
-                <label>Current Stage of Production <span class="req">*</span></label>
-                <select>
+            <div class="field-group" data-required>
+                <label for="prod-stage">Current Stage of Production <span class="req">*</span></label>
+                <select id="prod-stage">
                     <option value="" disabled selected>Select your current stage...</option>
                     <option>Already in Production</option>
                     <option>Ready to Start Production</option>
                     <option>Design Phase</option>
                 </select>
+                <div class="error-msg">Please select your current stage.</div>
                 <div class="helper">Where you are helps us estimate timelines accurately.</div>
             </div>
 
-            <div class="field-group">
-                <label>Type of Manufacturing Process <span class="req">*</span></label>
-                <select>
+            <div class="field-group" data-required>
+                <label for="mfg-process">Type of Manufacturing Process <span class="req">*</span></label>
+                <select id="mfg-process">
                     <option value="" disabled selected>Select process type...</option>
                     <option>Stamping</option>
                     <option>Die Casting</option>
@@ -406,30 +473,35 @@
                     <option>Forging</option>
                     <option>Other</option>
                 </select>
-                <div class="helper">Not sure? Select the closest match -our engineers will confirm during review.</div>
+                <div class="error-msg">Please select a manufacturing process.</div>
+                <div class="helper">Not sure? Select the closest match - our engineers will confirm during review.</div>
             </div>
 
             <div class="section-divider"></div>
 
             <div class="field-group">
                 <label>Main Reason for Requesting a Quote <span class="req">*</span></label>
-                <div class="option-cards">
-                    <div class="option-card" onclick="toggleCard(this)">
-                        <div class="check-icon"></div>
-                        <div class="option-title">Reduce Costs</div>
+                <div class="option-cards-wrapper" data-required-cards>
+                    <div class="select-all-hint">Select all that apply</div>
+                    <div class="option-cards">
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Reduce Costs</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Quality Issues</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Supply Chain Risk</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">New Product</div>
+                        </div>
                     </div>
-                    <div class="option-card" onclick="toggleCard(this)">
-                        <div class="check-icon"></div>
-                        <div class="option-title">Quality Issues</div>
-                    </div>
-                    <div class="option-card" onclick="toggleCard(this)">
-                        <div class="check-icon"></div>
-                        <div class="option-title">Supply Chain Risk</div>
-                    </div>
-                    <div class="option-card" onclick="toggleCard(this)">
-                        <div class="check-icon"></div>
-                        <div class="option-title">New Product</div>
-                    </div>
+                    <div class="error-msg">Please select at least one reason.</div>
                 </div>
             </div>
 
@@ -437,13 +509,20 @@
 
             <div class="field-row">
                 <div class="field-group">
-                    <label>Target First Shipment</label>
-                    <input type="date" />
+                    <label for="timeline">Target First Shipment</label>
+                    <select id="timeline">
+                        <option value="" disabled selected>Select timeline...</option>
+                        <option>Within 30 days</option>
+                        <option>1 - 3 months</option>
+                        <option>3 - 6 months</option>
+                        <option>6+ months</option>
+                        <option>Not sure yet</option>
+                    </select>
                     <div class="helper">Approximate is fine. Helps us prioritize.</div>
                 </div>
-                <div class="field-group">
-                    <label>Estimated Annual Volume <span class="req">*</span></label>
-                    <select>
+                <div class="field-group" data-required>
+                    <label for="annual-vol">Estimated Annual Spend <span class="req">*</span></label>
+                    <select id="annual-vol">
                         <option value="" disabled selected>Select range...</option>
                         <option>$0 - $50K</option>
                         <option>$50K - $150K</option>
@@ -451,12 +530,13 @@
                         <option>$500K - $1.5M</option>
                         <option>$1.5M+</option>
                     </select>
+                    <div class="error-msg">Please select an estimated range.</div>
                 </div>
             </div>
         </div>
         <div class="form-actions">
             <div></div>
-            <button class="btn-next" onclick="goToStep(2)">Continue &rarr;</button>
+            <button class="btn-next" onclick="validateAndGo(1, 2)">Continue &rarr;</button>
         </div>
     </div>
 
@@ -467,8 +547,8 @@
             <p class="step-desc">Share what you can now. Our engineers will follow up on any details we need.</p>
 
             <div class="field-group">
-                <label>Describe Your Part or Product</label>
-                <textarea placeholder="Materials, dimensions, tolerances, quantity per order, any special requirements..."></textarea>
+                <label for="part-desc">Describe Your Part or Product</label>
+                <textarea id="part-desc" placeholder="Materials, dimensions, tolerances, quantity per order, any special requirements..."></textarea>
                 <div class="helper">The more detail you provide, the more accurate our estimate. Don't worry if you don't have everything.</div>
             </div>
 
@@ -476,20 +556,22 @@
 
             <div class="field-group">
                 <label>Upload Drawings or Documents</label>
-                <div class="upload-zone">
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="file-upload" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf,.step,.stp,.igs,.iges" />
                     <div class="upload-icon">&#128196;</div>
                     <div class="upload-title">Drag files here or click to browse</div>
                     <div class="upload-sub">Up to 10 files, 128MB max each</div>
                     <div class="upload-formats">PDF, JPG, PNG, DWG, DXF accepted</div>
                 </div>
-                <div class="helper">CAD drawings, spec sheets, photos of existing parts -anything that helps.</div>
+                <div class="file-list" id="file-list"></div>
+                <div class="helper">CAD drawings, spec sheets, photos of existing parts - anything that helps.</div>
             </div>
 
             <div class="section-divider"></div>
 
             <div class="field-group">
-                <label>Current Country of Production</label>
-                <input type="text" placeholder="e.g. China, India, domestic, none yet" />
+                <label for="current-country">Current Country of Production</label>
+                <input type="text" id="current-country" placeholder="e.g. China, India, domestic, none yet" />
                 <div class="helper">Helps us benchmark your current costs and lead times.</div>
             </div>
         </div>
@@ -507,6 +589,7 @@
 
             <div class="field-group">
                 <label>Preferred Manufacturing Regions</label>
+                <div class="select-all-hint">Select all that apply</div>
                 <div class="option-cards">
                     <div class="option-card" onclick="toggleCard(this)">
                         <div class="check-icon"></div>
@@ -525,18 +608,18 @@
                         <div class="option-title">Taiwan</div>
                     </div>
                 </div>
-                <div class="helper">No preference? That's fine -we'll recommend the best fit.</div>
+                <div class="helper">No preference? That's fine - we'll recommend the best fit.</div>
             </div>
 
             <div class="section-divider"></div>
 
             <div class="field-group">
-                <label>Experience with Overseas Manufacturing</label>
-                <select>
+                <label for="experience">Experience with Overseas Manufacturing</label>
+                <select id="experience">
                     <option value="" disabled selected>Select your experience level...</option>
-                    <option>First time -need full guidance</option>
-                    <option>Some experience -know the basics</option>
-                    <option>Experienced -currently manufacturing overseas</option>
+                    <option>First time - need full guidance</option>
+                    <option>Some experience - know the basics</option>
+                    <option>Experienced - currently manufacturing overseas</option>
                 </select>
                 <div class="helper">Helps us calibrate how much support you need.</div>
             </div>
@@ -553,35 +636,38 @@
             <h2>Last step</h2>
 
             <div class="field-row">
-                <div class="field-group">
-                    <label>Full Name <span class="req">*</span></label>
-                    <input type="text" placeholder="First Last" />
+                <div class="field-group" data-required>
+                    <label for="full-name">Full Name <span class="req">*</span></label>
+                    <input type="text" id="full-name" placeholder="First Last" />
+                    <div class="error-msg">Please enter your name.</div>
                 </div>
-                <div class="field-group">
-                    <label>Company <span class="req">*</span></label>
-                    <input type="text" placeholder="Your company name" />
-                </div>
-            </div>
-
-            <div class="field-row">
-                <div class="field-group">
-                    <label>Job Title</label>
-                    <input type="text" placeholder="e.g. Procurement Manager" />
-                </div>
-                <div class="field-group">
-                    <label>Work Email <span class="req">*</span></label>
-                    <input type="email" placeholder="you@company.com" />
+                <div class="field-group" data-required>
+                    <label for="company">Company <span class="req">*</span></label>
+                    <input type="text" id="company" placeholder="Your company name" />
+                    <div class="error-msg">Please enter your company.</div>
                 </div>
             </div>
 
             <div class="field-row">
                 <div class="field-group">
-                    <label>Phone <span class="req">*</span></label>
-                    <input type="tel" placeholder="(555) 000-0000" />
+                    <label for="job-title">Job Title</label>
+                    <input type="text" id="job-title" placeholder="e.g. Procurement Manager" />
+                </div>
+                <div class="field-group" data-required>
+                    <label for="work-email">Work Email <span class="req">*</span></label>
+                    <input type="email" id="work-email" placeholder="you@company.com" />
+                    <div class="error-msg">Please enter a valid work email.</div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field-group">
+                    <label for="phone">Best Number to Reach You</label>
+                    <input type="tel" id="phone" placeholder="(555) 000-0000" />
                 </div>
                 <div class="field-group">
-                    <label>Preferred Contact Method</label>
-                    <select>
+                    <label for="contact-method">Preferred Contact Method</label>
+                    <select id="contact-method">
                         <option>Phone Call</option>
                         <option>Video Meeting</option>
                         <option>Email First</option>
@@ -591,12 +677,15 @@
 
             <div class="reassurance">
                 <span class="r-icon">&#9989;</span>
-                <p>Engineers on our team will review your project and we will reach out to schedule a quote review.</p>
+                <div>
+                    <p>Engineers on our team will review your project and we will reach out to schedule a quote review.</p>
+                    <div class="trust-logos">Trusted by Honda, Armstrong, and CircOR</div>
+                </div>
             </div>
         </div>
         <div class="form-actions">
             <button class="btn-back" onclick="goToStep(3)">&larr; Back</button>
-            <button class="btn-submit">Submit Quote Request &rarr;</button>
+            <button class="btn-submit" onclick="validateAndSubmit()">Submit Quote Request &rarr;</button>
         </div>
     </div>
 
@@ -609,6 +698,8 @@
 </div>
 
 <script>
+    let uploadedFiles = [];
+
     function goToStep(n) {
         document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
         document.getElementById('step-' + n).classList.add('active');
@@ -624,13 +715,113 @@
         document.querySelectorAll('.form-progress .step:not(.completed) .step-num').forEach(el => {
             if (!el.textContent.match(/\d/)) el.textContent = el.closest('.step').dataset.step;
         });
-        document.querySelector('.progress-fill-bar').style.width = (n * 25) + '%';
+        document.querySelector('.progress-fill-bar').style.width = ((n - 1) / 3 * 100) + '%';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    function validateStep(stepNum) {
+        const step = document.getElementById('step-' + stepNum);
+        let valid = true;
+
+        // Validate required selects and inputs
+        step.querySelectorAll('.field-group[data-required]').forEach(group => {
+            const input = group.querySelector('input, select, textarea');
+            group.classList.remove('error');
+            if (input && ((input.tagName === 'SELECT' && !input.value) || (input.tagName !== 'SELECT' && !input.value.trim()))) {
+                group.classList.add('error');
+                valid = false;
+            }
+            // Email validation
+            if (input && input.type === 'email' && input.value.trim()) {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim())) {
+                    group.classList.add('error');
+                    valid = false;
+                }
+            }
+        });
+
+        // Validate required option cards
+        step.querySelectorAll('[data-required-cards]').forEach(wrapper => {
+            wrapper.classList.remove('error');
+            if (!wrapper.querySelector('.option-card.selected')) {
+                wrapper.classList.add('error');
+                valid = false;
+            }
+        });
+
+        return valid;
+    }
+
+    function validateAndGo(fromStep, toStep) {
+        if (validateStep(fromStep)) {
+            goToStep(toStep);
+        } else {
+            const firstError = document.querySelector('#step-' + fromStep + ' .error');
+            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function validateAndSubmit() {
+        if (validateStep(4)) {
+            // Would submit here
+            alert('Quote request submitted! Our team will reach out to schedule a review.');
+        } else {
+            const firstError = document.querySelector('#step-4 .error');
+            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
     function toggleCard(el) {
         el.classList.toggle('selected');
         el.querySelector('.check-icon').textContent = el.classList.contains('selected') ? '\u2713' : '';
+        // Clear error state when a card is selected
+        const wrapper = el.closest('[data-required-cards]');
+        if (wrapper && wrapper.querySelector('.option-card.selected')) {
+            wrapper.classList.remove('error');
+        }
     }
+
+    // Clear error on input
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', () => {
+            const group = el.closest('.field-group');
+            if (group) group.classList.remove('error');
+        });
+        el.addEventListener('change', () => {
+            const group = el.closest('.field-group');
+            if (group) group.classList.remove('error');
+        });
+    });
+
+    // File upload handling
+    const fileInput = document.getElementById('file-upload');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const newFiles = Array.from(this.files);
+            newFiles.forEach(f => {
+                if (uploadedFiles.length < 10) uploadedFiles.push(f);
+            });
+            renderFileList();
+            this.value = '';
+        });
+    }
+
+    function renderFileList() {
+        const list = document.getElementById('file-list');
+        if (!uploadedFiles.length) { list.innerHTML = ''; return; }
+        list.innerHTML = uploadedFiles.map((f, i) =>
+            `<div class="file-item">
+                <span>${f.name} (${(f.size / 1024).toFixed(0)} KB)</span>
+                <button class="remove-file" onclick="removeFile(${i})">&times;</button>
+            </div>`
+        ).join('');
+    }
+
+    function removeFile(index) {
+        uploadedFiles.splice(index, 1);
+        renderFileList();
+    }
+
     document.querySelectorAll('.form-progress .step').forEach(s => {
         s.addEventListener('click', () => goToStep(parseInt(s.dataset.step)));
     });

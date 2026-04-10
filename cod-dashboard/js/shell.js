@@ -441,34 +441,40 @@ const Shell = (() => {
     const container = document.getElementById('page-container');
     if (!container) return;
 
+    let _stampLabel = 'Loading...';
+    let _stampClass = '';
+
+    // Preload freshness data eagerly on page init
+    const page = _currentPage || 'war-room';
+    API.getPageFreshness(page).then(ts => {
+      if (ts) {
+        const d = new Date(ts);
+        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        const ageH = (Date.now() - ts) / (1000 * 60 * 60);
+        _stampLabel = `Data as of ${day} ${time}`;
+        _stampClass = ageH < 1 ? 'sync-stamp--fresh' : ageH < 6 ? 'sync-stamp--warn' : 'sync-stamp--stale';
+      } else {
+        _stampLabel = 'Freshness unknown';
+        _stampClass = '';
+      }
+      // Retroactively update any dots already on the page
+      container.querySelectorAll('.sync-stamp').forEach(dot => {
+        dot.setAttribute('data-tooltip', _stampLabel);
+        dot.classList.remove('sync-stamp--fresh', 'sync-stamp--warn', 'sync-stamp--stale');
+        if (_stampClass) dot.classList.add(_stampClass);
+      });
+    });
+
     function _stampCard(card) {
       if (card._syncStamped) return;
       card._syncStamped = true;
       card.style.position = 'relative';
 
       const dot = document.createElement('div');
-      dot.className = 'sync-stamp';
-
+      dot.className = 'sync-stamp' + (_stampClass ? ' ' + _stampClass : '');
+      dot.setAttribute('data-tooltip', _stampLabel);
       card.appendChild(dot);
-
-      card.addEventListener('mouseenter', async () => {
-        const page = _currentPage || 'war-room';
-        const ts = await API.getPageFreshness(page);
-        if (ts) {
-          const d = new Date(ts);
-          const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-          const ageMs = Date.now() - ts;
-          const ageH = ageMs / (1000 * 60 * 60);
-          dot.classList.remove('sync-stamp--fresh', 'sync-stamp--warn', 'sync-stamp--stale');
-          if (ageH < 1) dot.classList.add('sync-stamp--fresh');
-          else if (ageH < 6) dot.classList.add('sync-stamp--warn');
-          else dot.classList.add('sync-stamp--stale');
-          dot.setAttribute('data-tooltip', `Data as of ${day} ${time}`);
-        } else {
-          dot.setAttribute('data-tooltip', 'Freshness unknown');
-        }
-      });
     }
 
     // Stamp existing cards

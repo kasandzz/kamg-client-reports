@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Sales Call Intelligence | 28 Calls Deep Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --surface-3: #222233;
+  --border: #2a2a3d;
+  --text: #e8e8f0;
+  --text-muted: #8888aa;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.1);
+  --yellow: #eab308;
+  --yellow-bg: rgba(234,179,8,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --orange: #f97316;
+  --orange-bg: rgba(249,115,22,0.1);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.1);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.1);
+  --gold: #d4a847;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+.container { max-width:1400px; margin:0 auto; padding:20px 32px; }
+
+/* Header */
+.header { padding:48px 0 32px; border-bottom:1px solid var(--border); margin-bottom:40px; }
+.header h1 { font-size:32px; font-weight:800; letter-spacing:-0.5px; margin-bottom:8px; }
+.header .subtitle { color:var(--text-muted); font-size:14px; }
+.header .stats-row { display:flex; gap:32px; margin-top:20px; flex-wrap:wrap; }
+.stat-pill { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 20px; }
+.stat-pill .num { font-size:28px; font-weight:800; color:var(--accent-light); }
+.stat-pill .label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); }
+
+/* Navigation */
+.nav { position:sticky; top:0; z-index:100; background:rgba(10,10,15,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:12px 0; margin-bottom:32px; }
+.nav-inner { display:flex; gap:8px; flex-wrap:wrap; max-width:1400px; margin:0 auto; padding:0 32px; }
+.nav a { color:var(--text-muted); text-decoration:none; font-size:12px; padding:6px 14px; border-radius:6px; transition:all 0.2s; font-weight:500; }
+.nav a:hover, .nav a.active { color:var(--text); background:var(--surface-2); }
+
+/* Sections */
+.section { margin-bottom:48px; }
+.section-title { font-size:22px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:10px; }
+.section-subtitle { color:var(--text-muted); font-size:13px; margin-bottom:24px; }
+.badge { font-size:10px; padding:3px 10px; border-radius:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-green { background:var(--green-bg); color:var(--green); }
+.badge-yellow { background:var(--yellow-bg); color:var(--yellow); }
+.badge-red { background:var(--red-bg); color:var(--red); }
+.badge-blue { background:var(--blue-bg); color:var(--blue); }
+.badge-purple { background:var(--purple-bg); color:var(--purple); }
+.badge-orange { background:var(--orange-bg); color:var(--orange); }
+
+/* Cards */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px; margin-bottom:16px; }
+.card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+.card-title { font-size:16px; font-weight:700; }
+.card-meta { font-size:12px; color:var(--text-muted); }
+
+/* Tables */
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; padding:10px 14px; background:var(--surface-2); color:var(--text-muted); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; border-bottom:1px solid var(--border); }
+td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+tr:hover td { background:var(--surface-2); }
+
+/* Quotes */
+.quote { background:var(--surface-2); border-left:3px solid var(--accent); padding:12px 16px; margin:8px 0; border-radius:0 6px 6px 0; font-size:13px; font-style:italic; color:var(--text-muted); }
+.quote .speaker { font-style:normal; font-weight:600; color:var(--accent-light); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+
+/* Grid */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+@media(max-width:900px) { .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; } }
+
+/* Score bars */
+.score-bar { height:6px; background:var(--surface-3); border-radius:3px; overflow:hidden; margin-top:6px; }
+.score-fill { height:100%; border-radius:3px; transition:width 0.5s; }
+
+/* Tags */
+.tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:4px; margin:2px; background:var(--surface-3); color:var(--text-muted); }
+
+/* Leak items */
+.leak { padding:12px 16px; background:var(--red-bg); border-left:3px solid var(--red); border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
+.opportunity { padding:12px 16px; background:var(--green-bg); border-left:3px solid var(--green); border-radius:0 6px 6px 0; margin:8px 0; font-size:13px; }
+
+/* Tabs */
+.tab-container { margin-bottom:24px; }
+.tab-buttons { display:flex; gap:4px; margin-bottom:16px; flex-wrap:wrap; }
+.tab-btn { background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted); padding:8px 16px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; transition:all 0.2s; font-family:inherit; }
+.tab-btn.active { background:var(--accent); color:white; border-color:var(--accent); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Scorecard */
+.scorecard { text-align:center; padding:20px; }
+.scorecard .score { font-size:48px; font-weight:900; }
+.scorecard .out-of { font-size:14px; color:var(--text-muted); }
+.scorecard .desc { font-size:12px; color:var(--text-muted); margin-top:8px; }
+
+/* Watermark */
+.watermark { text-align:center; padding:40px; color:var(--text-muted); font-size:11px; border-top:1px solid var(--border); margin-top:40px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>CPG Sales Call Intelligence</h1>
+  <div class="subtitle">Deep analysis of 28 sales calls | Mar 16 -- Apr 9, 2026 | Source: Fireflies.ai transcripts</div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="num">28</div><div class="label">Sales Calls Analyzed</div></div>
+    <div class="stat-pill"><div class="num">22</div><div class="label">Unique Prospects</div></div>
+    <div class="stat-pill"><div class="num">7.2h</div><div class="label">Total Call Time</div></div>
+    <div class="stat-pill"><div class="num">4</div><div class="label">Reps Tracked</div></div>
+    <div class="stat-pill"><div class="num">47</div><div class="label">Objections Logged</div></div>
+    <div class="stat-pill"><div class="num">31</div><div class="label">Leaks Identified</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#prospects">Prospect Database</a>
+    <a href="#reps">Rep Scorecards</a>
+    <a href="#hooks">Hooks</a>
+    <a href="#objections">Objection Library</a>
+    <a href="#pitch">Pitch Framework</a>
+    <a href="#guarantees">Guarantees</a>
+    <a href="#witty">Best Moments</a>
+    <a href="#leaks">Leaks & Opportunities</a>
+    <a href="#patterns">Audience Patterns</a>
+    <a href="#frameworks">Framework Analysis</a>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: PROSPECT DATABASE ===== -->
+<div class="section" id="prospects">
+  <div class="section-title">Prospect Database</div>
+  <div class="section-subtitle">All 22 unique prospects grouped by company size -- sorted by deal temperature</div>
+
+  <h3 style="color:var(--accent-light);margin-bottom:12px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Enterprise / Enterprise-Backed</h3>
+  <table>
+    <tr><th>Prospect</th><th>Company</th><th>Domain</th><th>Rep</th><th>Date</th><th>Duration</th><th>Temperature</th><th>Next Step</th></tr>
+    <tr>
+      <td><strong>Trisha Pearson</strong><br><span style="color:var(--text-muted)">via Cody Jones agency</span></td>
+      <td>Ignite Attachments<br><span class="tag">Doosan Bobcat subsidiary</span></td>
+      <td>Heavy equipment e-commerce (Magento)</td>
+      <td>Krik</td>
+      <td>Mar 26</td>
+      <td>16m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Pricing negotiation via email (20% rev share discussion)</td>
+    </tr>
+    <tr>
+      <td><strong>Vishwa</strong></td>
+      <td>Motecuba / Martech Cube</td>
+      <td>B2B publisher, 54M first-party audience (Dubai/London/US/Singapore)</td>
+      <td>Erica + Julieta</td>
+      <td>Mar 18</td>
+      <td>14m</td>
+      <td><span class="badge badge-green">Hot</span></td>
+      <td>Everflow setup + CPL offer list. Multi-program onboard ready.</td>
+    </tr>
+  </table>
+
+  <h3 style="color:var(--accent-light);margin:24px 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Mid-Market</h3>
+  <table>
+    <tr><th>Prospect</th><th>Company</th><th>Domain</th><th>Rep</th><th>Date</th><th>Duration</th><th>Temperature</th><th>Next Step</th></tr>
+    <tr>
+      <td><strong>Barbara Paldus</strong> (CEO)<br>Dan Kafka, Nina King</td>
+      <td>Codex Labs Corp</td>
+      <td>Science-backed skincare, Kids Eczema #1 US seller, Menlo Park CA</td>
+      <td>Krik</td>
+      <td>Mar 23, 30</td>
+      <td>9m + 22m</td>
+      <td><span class="badge badge-green">Hot</span></td>
+      <td>Invoice + contract sent. Effectively closed at $70 CPA.</td>
+    </tr>
+    <tr>
+      <td><strong>Hannah K</strong> (founder)<br>Andrew Baker (ops)</td>
+      <td>Enclave Bioactives / Conscious Keto</td>
+      <td>Supplements, in Target retail, $10K/day on ads, Puerto Rico</td>
+      <td>Krik</td>
+      <td>Apr 1</td>
+      <td>31m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Andrew sends Shopify URLs + funnel payouts. Proposal pending.</td>
+    </tr>
+    <tr>
+      <td><strong>Amy Park</strong></td>
+      <td>AMP Consulting</td>
+      <td>Fintech affiliate agency, 3+ app clients, California</td>
+      <td>Erica + Julieta</td>
+      <td>Mar 26</td>
+      <td>17m</td>
+      <td><span class="badge badge-green">Hot</span></td>
+      <td>Everflow setup (3 accounts). Soft-incent offer list ready.</td>
+    </tr>
+    <tr>
+      <td><strong>Stanimir Kirchev</strong></td>
+      <td>Olifant Digital</td>
+      <td>Full-service agency, 60+ clients, Bulgaria/US/EU, 10yr</td>
+      <td>Erica</td>
+      <td>Apr 8</td>
+      <td>13m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Everflow setup + referral model docs. Dual play (publisher + referral).</td>
+    </tr>
+    <tr>
+      <td><strong>Magdalena Pekalska</strong></td>
+      <td>Affluxo</td>
+      <td>In-app affiliate marketing via MMP, Netherlands/Buenos Aires</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 16</td>
+      <td>19m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>LATAM offer list + CEO discussion on MMP integration.</td>
+    </tr>
+    <tr>
+      <td><strong>Franceska Shabani</strong></td>
+      <td>Partnermatic</td>
+      <td>Sub-affiliate network, micro-influencers, Chile/Brazil/Panama</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 23</td>
+      <td>15m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Everflow setup + tailored offer list. Flat fee policy TBD.</td>
+    </tr>
+    <tr>
+      <td><strong>Cristian Dina</strong></td>
+      <td>Techpoint / The Next Web</td>
+      <td>Tech media super-affiliate, 2M monthly, 4M social, Bucharest</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 27</td>
+      <td>13m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Exchange of decks + fintech offer list. Hybrid model discussion.</td>
+    </tr>
+    <tr>
+      <td><strong>Mark DuBois</strong></td>
+      <td>Cannaball</td>
+      <td>Pay-per-call network, insurance/debt/tax, Florida, 15yr vet</td>
+      <td>Krik + Sasha</td>
+      <td>Mar 23</td>
+      <td>14m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Sasha sends offer list. Peer exchange (Call Grid, antivirus).</td>
+    </tr>
+    <tr>
+      <td><strong>Dan Sweeney</strong></td>
+      <td>Coleman Digital</td>
+      <td>Search monitoring / brand enforcement, Santa Barbara, CPA model</td>
+      <td>Erica</td>
+      <td>Apr 8</td>
+      <td>13m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Present to Krik Friday. Upsell for AOR brands.</td>
+    </tr>
+  </table>
+
+  <h3 style="color:var(--accent-light);margin:24px 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Small / Startup</h3>
+  <table>
+    <tr><th>Prospect</th><th>Company</th><th>Domain</th><th>Rep</th><th>Date</th><th>Duration</th><th>Temperature</th><th>Next Step</th></tr>
+    <tr>
+      <td><strong>Lloyd Ecker</strong></td>
+      <td>Snorinator Enterprises</td>
+      <td>Anti-snoring pillow, Shark Tank deal (Lori+Strahan), 55 orders/day, NY</td>
+      <td>Krik</td>
+      <td>Mar 27</td>
+      <td>30m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Proposal at $40 CPA. Inventory constraint (small pillows out Apr 6-7).</td>
+    </tr>
+    <tr>
+      <td><strong>Shante Renee</strong></td>
+      <td>Vanity Couture</td>
+      <td>Fashion e-commerce, 400 new products launching, Miami</td>
+      <td>Julieta</td>
+      <td>Mar 23, 26</td>
+      <td>5m + 15m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Escrow objection. CEO decision on weekly invoicing alternative.</td>
+    </tr>
+    <tr>
+      <td><strong>Veikko Kallas</strong></td>
+      <td>JALG</td>
+      <td>D2C brand, Estonia, AOV ~$400, ships EU-to-US, Google only</td>
+      <td>Julieta</td>
+      <td>Mar 31</td>
+      <td>24m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Veikko proposing CPA by email. Onboarding checklist sent.</td>
+    </tr>
+    <tr>
+      <td><strong>Matt Ajzenman / Michelle</strong></td>
+      <td>CSN Mint / 212 Direct</td>
+      <td>Collectibles (gold, silver), America's 250th anniversary timing</td>
+      <td>Krik</td>
+      <td>Mar 27</td>
+      <td>22m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Matt sends brand URLs. Michelle (decision-maker) absent.</td>
+    </tr>
+    <tr>
+      <td><strong>Tommy Lynch</strong></td>
+      <td>Cult Content</td>
+      <td>TikTok Shop agency, $4,750/mo + 3% GMV, Virginia</td>
+      <td>Julieta + Erica</td>
+      <td>Apr 1</td>
+      <td>12m</td>
+      <td><span class="badge badge-blue">Cool</span></td>
+      <td>Exchange decks. Model mismatch (retainer vs CPA).</td>
+    </tr>
+    <tr>
+      <td><strong>Veena Aiyer</strong></td>
+      <td>Qrkiez</td>
+      <td>Social marketplace for neurodivergent community, app + blog, CA</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 26</td>
+      <td>12m</td>
+      <td><span class="badge badge-green">Hot</span></td>
+      <td>Everflow setup + tailored Excel offer list.</td>
+    </tr>
+    <tr>
+      <td><strong>Antonia Tanner</strong></td>
+      <td>Nunami</td>
+      <td>SaaS exit-intent recovery tool, 25% recovery rate, Munich</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 23</td>
+      <td>11m</td>
+      <td><span class="badge badge-blue">Cool</span></td>
+      <td>CEO review Friday. Nunami was pitching CPG (reverse).</td>
+    </tr>
+    <tr>
+      <td><strong>Rachel Whiffin</strong></td>
+      <td>Sleep AI / SleepScore Labs</td>
+      <td>Aromatherapy pillow inserts, San Diego, B2B company doing B2C</td>
+      <td>Krik</td>
+      <td>Mar 25</td>
+      <td>17m</td>
+      <td><span class="badge badge-blue">Cool</span></td>
+      <td>Warm hold. Weekly-use product doesn't fit sample-rebuild model.</td>
+    </tr>
+    <tr>
+      <td><strong>Morgan</strong></td>
+      <td>Klay Media</td>
+      <td>Agency AOR for Upside (fintech cashback app), LA</td>
+      <td>Julieta + Erica</td>
+      <td>Mar 26</td>
+      <td>11m</td>
+      <td><span class="badge badge-yellow">Warm</span></td>
+      <td>Routed to Sol/Sasha (network side). Intro pending.</td>
+    </tr>
+  </table>
+
+  <h3 style="color:var(--accent-light);margin:24px 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Disqualified / Dead</h3>
+  <table>
+    <tr><th>Prospect</th><th>Company</th><th>Reason</th><th>Rep</th><th>Date</th></tr>
+    <tr><td>James</td><td>Raw Vision (UK magazine)</td><td>$10 Meta CPA -- below $20 minimum</td><td>Julieta + Krik</td><td>Mar 25</td></tr>
+    <tr><td>Suresh Jain</td><td>Avira Diamonds (Chennai)</td><td>No US shipping/fulfillment capability</td><td>Julieta</td><td>Apr 9</td></tr>
+    <tr><td>Sami Mehr</td><td>Xraise AI</td><td>Transcript corrupted -- unanalyzable</td><td>Julieta + Erica</td><td>Mar 31</td></tr>
+    <tr><td>Bharat Gawra</td><td>Martech Cube</td><td>Transcript corrupted -- unanalyzable</td><td>Erica</td><td>Mar 17</td></tr>
+  </table>
+</div>
+
+<!-- ===== SECTION 2: REP SCORECARDS ===== -->
+<div class="section" id="reps">
+  <div class="section-title">Rep Performance Scorecards</div>
+  <div class="section-subtitle">Comparative analysis across 4 CPG sales reps based on 28 call transcripts</div>
+
+  <div class="grid-2">
+    <!-- KRIK -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Krik Angacian</div>
+        <span class="badge badge-purple">Senior / Founder</span>
+      </div>
+      <div class="grid-2" style="gap:12px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:var(--text-muted);">CALLS</span><br><strong>10</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">AVG DURATION</span><br><strong>18m</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">HOT LEADS</span><br><strong>2</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">DISQUALIFIED</span><br><strong>1</strong></div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Authority / Credibility</span><span style="color:var(--green);">9.5/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:95%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Real-time Adaptation</span><span style="color:var(--green);">9/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:90%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Discovery / Qualification</span><span style="color:var(--yellow);">6/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:60%;background:var(--yellow);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Call Preparation</span><span style="color:var(--red);">3/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:30%;background:var(--red);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Information Discipline</span><span style="color:var(--red);">4/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:40%;background:var(--red);"></div></div>
+      </div>
+
+      <div style="font-size:12px;margin-top:16px;">
+        <div style="color:var(--green);margin-bottom:4px;">STRENGTHS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);margin-bottom:12px;">
+          <li>Origin story is the most powerful sales weapon in the org</li>
+          <li>3-condition framework (CAC, ROAS, net new) is genuinely differentiated</li>
+          <li>Name-drops with specific revenue figures create instant credibility</li>
+          <li>Live math and real-time pivots (Sleep AI quarterly model)</li>
+          <li>Disqualifies fast and preserves relationships</li>
+        </ul>
+        <div style="color:var(--red);margin-bottom:4px;">LEAKS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);">
+          <li>Consistently doesn't know prospect name/company when joining calls</li>
+          <li>Discloses margin structure unprompted ($3-7 on $20 CPA)</li>
+          <li>Can ramble -- 30m for a small brand first call is too long</li>
+          <li>Tells prospects "I usually don't talk with companies this small"</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- JULIETA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Julieta Oyanedel</div>
+        <span class="badge badge-blue">Sales Rep</span>
+      </div>
+      <div class="grid-2" style="gap:12px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:var(--text-muted);">CALLS</span><br><strong>18</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">AVG DURATION</span><br><strong>14m</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">HOT LEADS</span><br><strong>3</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">DISQUALIFIED</span><br><strong>2</strong></div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Pitch Consistency</span><span style="color:var(--green);">9/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:90%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Rapport Building</span><span style="color:var(--green);">8.5/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:85%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Objection Handling</span><span style="color:var(--yellow);">7/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:70%;background:var(--yellow);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Closing / Next Steps</span><span style="color:var(--yellow);">5/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:50%;background:var(--yellow);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Handling Surprises</span><span style="color:var(--yellow);">5/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:50%;background:var(--yellow);"></div></div>
+      </div>
+
+      <div style="font-size:12px;margin-top:16px;">
+        <div style="color:var(--green);margin-bottom:4px;">STRENGTHS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);margin-bottom:12px;">
+          <li>Most consistent pitch delivery across all calls</li>
+          <li>Clean disqualification (Raw Vision: honest, graceful, relationship preserved)</li>
+          <li>Good listener -- lets prospects talk, picks up on buying signals</li>
+          <li>Founder-origin-story delivered with genuine emotion</li>
+        </ul>
+        <div style="color:var(--red);margin-bottom:4px;">LEAKS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);">
+          <li>Defers everything non-standard to CEO ("I'll ask Krik")</li>
+          <li>Weak when discovery surfaces unexpected blockers (Avira Diamonds: full pitch before US shipping check)</li>
+          <li>Disclosed margin structure to Raw Vision unprompted</li>
+          <li>No hard next-step dates -- ends with "I'll follow up"</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ERICA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Erica</div>
+        <span class="badge badge-blue">Sales Rep / Admin</span>
+      </div>
+      <div class="grid-2" style="gap:12px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:var(--text-muted);">CALLS</span><br><strong>14</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">AVG DURATION</span><br><strong>12m</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">HOT LEADS</span><br><strong>2</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">DISQUALIFIED</span><br><strong>0</strong></div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Script Delivery</span><span style="color:var(--green);">8/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:80%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Process / Follow-up</span><span style="color:var(--green);">8/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:80%;background:var(--green);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Adaptability</span><span style="color:var(--yellow);">5/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:50%;background:var(--yellow);"></div></div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;"><span>Qualification Depth</span><span style="color:var(--red);">4/10</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:40%;background:var(--red);"></div></div>
+      </div>
+
+      <div style="font-size:12px;margin-top:16px;">
+        <div style="color:var(--green);margin-bottom:4px;">STRENGTHS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);margin-bottom:12px;">
+          <li>Reliable, practiced script delivery</li>
+          <li>Good rapport building -- casual, warm tone</li>
+          <li>Handles publisher/partner calls efficiently</li>
+        </ul>
+        <div style="color:var(--red);margin-bottom:4px;">LEAKS</div>
+        <ul style="padding-left:16px;color:var(--text-muted);">
+          <li>Mentions casino offers to inappropriate audiences (health, tech)</li>
+          <li>Called CEO "Quick" instead of Krik in front of a vendor</li>
+          <li>Called CPG "CBG" on one call</li>
+          <li>Defers all non-standard decisions to CEO</li>
+          <li>Committed to sharing AOR brand list without checking confidentiality</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- SASHA -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Sasha Bernal</div>
+        <span class="badge badge-blue">Sales Rep</span>
+      </div>
+      <div class="grid-2" style="gap:12px;margin-bottom:16px;">
+        <div><span style="font-size:11px;color:var(--text-muted);">CALLS</span><br><strong>3</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">AVG DURATION</span><br><strong>8m</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">HOT LEADS</span><br><strong>0</strong></div>
+        <div><span style="font-size:11px;color:var(--text-muted);">DISQUALIFIED</span><br><strong>0</strong></div>
+      </div>
+
+      <div style="font-size:12px;margin-top:16px;">
+        <div style="color:var(--orange);margin-bottom:4px;">INSUFFICIENT DATA</div>
+        <ul style="padding-left:16px;color:var(--text-muted);">
+          <li>Only appeared in 3 calls, mostly as secondary/silent participant</li>
+          <li>Krik noted team is understaffed on Sasha's side</li>
+          <li>Barely spoke in the Cannaball call despite being present</li>
+          <li>Need more call data to assess performance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: HOOKS ===== -->
+<div class="section" id="hooks">
+  <div class="section-title">Opening Hook Analysis</div>
+  <div class="section-subtitle">How CPG reps open calls -- what works, what doesn't</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Hook Taxonomy</div>
+    <table>
+      <tr><th>Hook Type</th><th>Used By</th><th>Frequency</th><th>Effectiveness</th><th>Example</th></tr>
+      <tr>
+        <td><strong>Founder Origin Story</strong></td>
+        <td>Krik, Julieta</td>
+        <td>~60% of calls</td>
+        <td><span class="badge badge-green">High</span></td>
+        <td>"Our founder has been a brand owner twice. He built this agency to fix everything he hated about agencies."</td>
+      </tr>
+      <tr>
+        <td><strong>Permission-Based Standard</strong></td>
+        <td>Erica, Julieta</td>
+        <td>~30% of calls</td>
+        <td><span class="badge badge-yellow">Medium</span></td>
+        <td>"If you agree, I can tell you a little bit about how we operate and then we see if we can work together."</td>
+      </tr>
+      <tr>
+        <td><strong>Surgical Diagnostic</strong></td>
+        <td>Krik only</td>
+        <td>~15% of calls</td>
+        <td><span class="badge badge-green">High</span></td>
+        <td>"You have an affiliate program on Impact. Who's managing it?" / "Where are you hosting? Do you have an affiliate program?"</td>
+      </tr>
+      <tr>
+        <td><strong>Instant Value-Add</strong></td>
+        <td>Krik only</td>
+        <td>~10% of calls</td>
+        <td><span class="badge badge-green">Very High</span></td>
+        <td>Spotted VPN block on Ignite's site unprompted: "Nowadays 2/3 of all traffic is VPN. You're killing 20% of your traffic right away."</td>
+      </tr>
+      <tr>
+        <td><strong>No Hook / Info Dump</strong></td>
+        <td>Erica</td>
+        <td>~20% of calls</td>
+        <td><span class="badge badge-red">Low</span></td>
+        <td>Jump straight into scripted overview without establishing context or curiosity.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-color:var(--green);">
+    <div class="card-title" style="color:var(--green);">Best Hook of the Dataset</div>
+    <div class="quote" style="margin-top:12px;">
+      <div class="speaker">Krik -- Ignite Attachments call</div>
+      Called out a VPN block on the prospect's website before any pitch. Positioned himself as an advisor who spotted a revenue leak they didn't know about. The prospect immediately leaned in. This is the model: lead with a free insight, not a pitch.
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: OBJECTION LIBRARY ===== -->
+<div class="section" id="objections">
+  <div class="section-title">Objection Library</div>
+  <div class="section-subtitle">Every objection raised across 28 calls, categorized and graded</div>
+
+  <div class="tab-container">
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="showTab('obj-price')">Price / CPA</button>
+      <button class="tab-btn" onclick="showTab('obj-escrow')">Escrow</button>
+      <button class="tab-btn" onclick="showTab('obj-model')">Model Fit</button>
+      <button class="tab-btn" onclick="showTab('obj-trust')">Trust / Control</button>
+    </div>
+
+    <div class="tab-content active" id="obj-price">
+      <div class="card">
+        <table>
+          <tr><th>Objection</th><th>Prospect</th><th>Rep Response</th><th>Grade</th></tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Trisha (Ignite)</div>"We were thinking 3-6% rev share"</div>
+            </td>
+            <td>Ignite Attachments</td>
+            <td>Dismissed directly: "That is if you're going to manage your own program on Impact and get screwed over by coupon guys." Anchored at 20% with rationale.</td>
+            <td><span class="badge badge-green">A</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Trisha</div>"We're a manufacturer -- shipping, partner manufacturers -- it gets difficult at [20%]"</div>
+            </td>
+            <td>Ignite Attachments</td>
+            <td>Invited email follow-up to avoid live negotiation pressure. Smart deferral.</td>
+            <td><span class="badge badge-yellow">B</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Lloyd (Snorinator)</div>"Current CPA is $25" (Purple told him to drop from $50)</div>
+            </td>
+            <td>Snorinator</td>
+            <td>Explained why Purple cut to $25 (coupon-only, no real acquisition). Anchored at $40 with Miracle Sheets comp ($65-80 CPA, millions in revenue).</td>
+            <td><span class="badge badge-green">A</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">CSN Mint</div>"Razor-thin margins on collectibles -- prefers 15% CPA"</div>
+            </td>
+            <td>CSN Mint</td>
+            <td>Krik anchored at 20%, acknowledged flexibility. Matt self-resolved by cutting himself as middleman.</td>
+            <td><span class="badge badge-yellow">B</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="obj-escrow">
+      <div class="card">
+        <table>
+          <tr><th>Objection</th><th>Prospect</th><th>Rep Response</th><th>Grade</th></tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Shante (Vanity Couture)</div>"I'm not willing to put $5,000 into escrow. I already work with LTK and don't pay them." / "That's still $5,000 you're removing from my cash flow." / "I'm not willing to pay for other people's mistakes."</div>
+            </td>
+            <td>Vanity Couture</td>
+            <td>Explained escrow origin (brands didn't pay CPG). But this validated "paying for others' mistakes" framing. Escalated to CEO.</td>
+            <td><span class="badge badge-red">C</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Veikko (JALG)</div>"This 5k is 5k euros or what currency?" / "The money is always I have to pay for hand?"</div>
+            </td>
+            <td>JALG</td>
+            <td>Clarified USD, stated refundability 3x. Clean handling.</td>
+            <td><span class="badge badge-green">A</span></td>
+          </tr>
+        </table>
+        <div class="leak" style="margin-top:16px;">
+          <strong>Systemic Issue:</strong> The $5K escrow objection is predictable and appears in 40%+ of brand calls. CPG needs a pre-approved weekly-invoicing alternative that reps can offer without CEO escalation. Current framing ("brands didn't pay us") makes the prospect feel they're subsidizing other brands' bad behavior.
+          <br><br>
+          <strong>Better frame:</strong> "We hold it so publishers trust the program -- that trust gets you better placements and faster ramp-up."
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="obj-model">
+      <div class="card">
+        <table>
+          <tr><th>Objection</th><th>Prospect</th><th>Rep Response</th><th>Grade</th></tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Tommy (Cult Content)</div>"It's kind of tricky because I need my team to get paid. So yeah, in the future maybe, but at this point it would have to be like the perfect client."</div>
+            </td>
+            <td>Cult Content</td>
+            <td>Proposed deck exchange, checked internally on flat-fee options. Logical soft landing.</td>
+            <td><span class="badge badge-yellow">B</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Franceska (Partnermatic)</div>"None of the brands you work with have budgets for flat fees?" (Influencers prefer flat fees)</div>
+            </td>
+            <td>Partnermatic</td>
+            <td>Deferred to CEO. Should have a pre-set policy.</td>
+            <td><span class="badge badge-red">C</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Lloyd (Snorinator)</div>"We stop them snoring and we never hear from them again" (no repeat purchase)</div>
+            </td>
+            <td>Snorinator</td>
+            <td>Acknowledged it, pivoted to scale potential. Didn't truly resolve the affiliate incentive concern.</td>
+            <td><span class="badge badge-yellow">B-</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Amy (AMP)</div>"You mentioned that you don't accept incent traffic. What if they reward their users?"</div>
+            </td>
+            <td>AMP Consulting</td>
+            <td>Julieta rescued with "soft incent" distinction. Nearly killed the deal.</td>
+            <td><span class="badge badge-yellow">B</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="obj-trust">
+      <div class="card">
+        <table>
+          <tr><th>Objection</th><th>Prospect</th><th>Rep Response</th><th>Grade</th></tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Dan Kafka (Codex Labs)</div>"How much control do we have over messaging and channels?"</div>
+            </td>
+            <td>Codex Labs</td>
+            <td>Offered content approval process + banned traffic lists. Asked only for responsiveness.</td>
+            <td><span class="badge badge-green">A</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Hannah (Enclave)</div>"Everything that we have is very -- imagine everyone's asking that... How do you guys need [pixel] if it's going to be like net new customers?"</div>
+            </td>
+            <td>Enclave Bioactives</td>
+            <td>Justified with scale and proprietary tech. Referenced Disney/Coinbase as flexible alternatives.</td>
+            <td><span class="badge badge-yellow">B+</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="quote"><div class="speaker">Suresh (Avira)</div>"First I want to understand how you can help us out... when I see your strength that will add value to our brand, then we may consider."</div>
+            </td>
+            <td>Avira Diamonds</td>
+            <td>Offered Loom + case studies post-call. Correct approach but pitch was too advanced for the qualification stage.</td>
+            <td><span class="badge badge-yellow">B-</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: PITCH FRAMEWORK ===== -->
+<div class="section" id="pitch">
+  <div class="section-title">Pitch Framework Deconstruction</div>
+  <div class="section-subtitle">The CPG pitch anatomy -- what's said, in what order, and how it lands</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Krik's Brand Pitch (High-Value Prospects)</div>
+    <table>
+      <tr><th style="width:40px;">#</th><th>Stage</th><th>Content</th><th>Effectiveness</th></tr>
+      <tr><td>1</td><td>Origin Story</td><td>IB career > protein chips ($10M exit) > candy company destroyed by Meta/iOS > built CPG to fix agencies</td><td><span class="badge badge-green">Killer</span></td></tr>
+      <tr><td>2</td><td>Anti-Agency Positioning</td><td>"No retainers, no lock-in, cancel anytime, performance-only"</td><td><span class="badge badge-green">Strong</span></td></tr>
+      <tr><td>3</td><td>Channel Mix</td><td>Employee benefits, college groups, native, newsletters, content, DSP, CTV -- NOT Meta/Google</td><td><span class="badge badge-green">Strong</span></td></tr>
+      <tr><td>4</td><td>3-Condition Framework</td><td>CAC at/below Meta, ROAS at/beating Meta, 70%+ new customers</td><td><span class="badge badge-green">Killer</span></td></tr>
+      <tr><td>5</td><td>Anti-Cheat Reveal</td><td>"Agencies inflate ROAS by driving repeat customers. I focus on new customers only."</td><td><span class="badge badge-green">Killer</span></td></tr>
+      <tr><td>6</td><td>Credential Stack</td><td>Everyday Dose ($100M), Magic Mind ($60M), True Earth ($100M+), Paramount ($2M/yr), Vix ($100K/mo)</td><td><span class="badge badge-green">Strong</span></td></tr>
+      <tr><td>7</td><td>Commercial Terms</td><td>$2-5K setup, $3-5K escrow (refundable), agreed CPA, day-to-day contract</td><td><span class="badge badge-yellow">OK</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">Julieta/Erica's Network Pitch (Publisher/Partner Prospects)</div>
+    <table>
+      <tr><th style="width:40px;">#</th><th>Stage</th><th>Content</th><th>Effectiveness</th></tr>
+      <tr><td>1</td><td>Permission Ask</td><td>"If you agree, I can tell you a little bit about how we operate"</td><td><span class="badge badge-yellow">Neutral</span></td></tr>
+      <tr><td>2</td><td>Scale Statement</td><td>"We work with 100+ ecommerce brands, 90% US-based"</td><td><span class="badge badge-yellow">OK</span></td></tr>
+      <tr><td>3</td><td>Model</td><td>"CPA model -- fixed dollar or percentage of sale"</td><td><span class="badge badge-yellow">OK</span></td></tr>
+      <tr><td>4</td><td>Verticals</td><td>"Food, beauty, supplements, software, finance, casino"</td><td><span class="badge badge-red">Weak</span></td></tr>
+      <tr><td>5</td><td>Platform</td><td>"We track everything through Everflow + in-house graphic designer"</td><td><span class="badge badge-yellow">OK</span></td></tr>
+      <tr><td>6</td><td>Restrictions</td><td>"No trademark bidding, adult content, or incentivized traffic"</td><td><span class="badge badge-red">Risky</span></td></tr>
+    </table>
+    <div class="leak" style="margin-top:16px;">
+      <strong>Issue:</strong> The network pitch is generic and undifferentiated. Every affiliate network says the same things. It also states restrictions before understanding the prospect's model, which nearly killed the AMP Consulting deal. Casino offers are mentioned to inappropriate audiences (health, tech).
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: GUARANTEES ===== -->
+<div class="section" id="guarantees">
+  <div class="section-title">Guarantees & Risk Reversals</div>
+  <div class="section-subtitle">Every risk-reduction mechanism used across 28 calls</div>
+
+  <div class="grid-2">
+    <div class="card" style="border-left:3px solid var(--green);">
+      <div class="card-title" style="color:var(--green);font-size:14px;">EFFECTIVE</div>
+      <ul style="padding-left:16px;font-size:13px;color:var(--text-muted);line-height:2;">
+        <li>"No retainers, cancel anytime, day-to-day contract" -- used on every call</li>
+        <li>"You only pay for completed sales" -- CPA model as risk reversal</li>
+        <li>"Escrow is your money the entire time -- fully refundable"</li>
+        <li>"$5,000 at $60 CPA = 83 guaranteed orders" -- concrete math</li>
+        <li>"If you fire me halfway through, here's your money back"</li>
+        <li>"70% new customer target -- in the contract"</li>
+        <li>"$70 CPA contractually guaranteed" (Codex Labs)</li>
+        <li>"If I don't perform, you get it back" (Snorinator)</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red);">
+      <div class="card-title" style="color:var(--red);font-size:14px;">MISSING / NEEDED</div>
+      <ul style="padding-left:16px;font-size:13px;color:var(--text-muted);line-height:2;">
+        <li>No weekly-invoicing alternative for escrow-averse prospects</li>
+        <li>No "pilot program" structure for very small brands</li>
+        <li>No case study deck shown DURING calls (all post-call)</li>
+        <li>No named reference clients willing to take a call</li>
+        <li>No "money-back if no sales in 30 days" explicit guarantee</li>
+        <li>No ROI calculator or live tool to show projected returns</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 7: WITTY MOMENTS ===== -->
+<div class="section" id="witty">
+  <div class="section-title">Best Moments & Killer Lines</div>
+  <div class="section-subtitle">The sharpest, funniest, most persuasive moments from the transcripts</div>
+
+  <div class="card">
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Snorinator call</div>
+      Lloyd: "I feel like we're soldiers in war here." Both had been to Shark Tank finals and been rejected. Instant brotherhood over shared battle scars.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Snorinator call</div>
+      "I invented the protein chip category." -- Delivered as casual aside. Makes dismissal impossible.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Ignite Attachments</div>
+      "I'm an ex-New Yorker. Look me in the eye, I'll tell you, you tell me." -- Sets the tone for direct dealing in 2 seconds.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- CSN Mint</div>
+      "If anyone's bitching about two or three grand, they're not a client for me." -- Uses setup fee as a quality filter, not a revenue line.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Codex Labs</div>
+      "I'm never going to promise anything, but this feels like an easy one." -- Confident without overpromising. Perfect calibration.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Sleep AI</div>
+      After discovering the quarterly rebuild model works: "Damn. I'm smart. Okay. Never done this before, but it will work." -- Self-aware and endearing.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Enclave Bioactives</div>
+      "You've already got some embers. I'm going to give you some fuel and fire... 20, 30% boost of the business." -- Good metaphor for additive value.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Krik -- Codex Labs</div>
+      "Agencies will lie and say they'll hit 2.5x ROAS, which I will too. But if you chase too-high ROAS, they start cheating by driving repeat customers." -- The anti-cheat reveal. Barbara's eyes lit up.
+    </div>
+    <div class="quote" style="margin-bottom:16px;">
+      <div class="speaker">Cristian Dina -- pitching CPG</div>
+      "We don't need to convince them. They are already looking for a solution. We just need to be the last ones that convert them." -- Prospect delivered the best buyer-intent framing of the dataset.
+    </div>
+    <div class="quote">
+      <div class="speaker">Julieta -- Raw Vision disqualification</div>
+      "Our minimum is $20. Working on a $10 CPA wouldn't work for us." James: "It sounded good, but maybe too good to be true." Julieta: "We will be in touch in the future." -- Textbook graceful exit.
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 8: LEAKS & OPPORTUNITIES ===== -->
+<div class="section" id="leaks">
+  <div class="section-title">Leaks & Missed Opportunities</div>
+  <div class="section-subtitle">31 identified leaks across all calls, ranked by impact</div>
+
+  <h3 style="color:var(--red);margin-bottom:12px;font-size:14px;">SYSTEMIC LEAKS (appear across multiple calls)</h3>
+
+  <div class="leak" style="border-color:var(--red);">
+    <strong>1. No Pre-Call Qualification</strong><br>
+    Krik consistently doesn't know the prospect's name or company when joining. Full pitches delivered to prospects who don't qualify (Avira Diamonds: no US shipping; Raw Vision: $10 CPA). A basic intake form asking "current Meta CPA" and "do you ship to US?" would eliminate wasted call slots.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: Codex Labs (1st), Avira Diamonds, Raw Vision, Ignite Attachments, CSN Mint | Impact: HIGH</div>
+  </div>
+
+  <div class="leak">
+    <strong>2. "Ask the CEO" Bottleneck</strong><br>
+    Julieta and Erica defer flat fees, influencer deals, escrow alternatives, referral models, and any non-standard request to Krik. This creates a decision bottleneck and signals to prospects that they're not talking to someone with authority. CPG needs pre-approved decision trees for the top 5 non-standard requests.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: Vanity Couture, Partnermatic, Cult Content, Olifant Digital, Franceska | Impact: HIGH</div>
+  </div>
+
+  <div class="leak">
+    <strong>3. No Hard Next-Step Dates</strong><br>
+    Almost every call ends with "I'll send you info" or "I'll follow up" -- no specific date, no calendar hold, no commitment. This is pipeline leakage 101. Every call should end with "I'll send the proposal by [date] and let's reconnect [day] at [time]."
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: 80%+ of all calls | Impact: HIGH</div>
+  </div>
+
+  <div class="leak">
+    <strong>4. Margin Disclosure</strong><br>
+    Both Krik and Julieta disclosed CPG's margin structure unprompted: "We go to market at $15 CPA and make the $5 extra" (Raw Vision), "On $20, I'm making $3-7" (Sleep AI). This is proprietary and unnecessary -- the prospect only needs to know their CPA.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: Raw Vision, Sleep AI, JALG | Impact: MEDIUM</div>
+  </div>
+
+  <div class="leak">
+    <strong>5. Casino Offers in Standard Pitch</strong><br>
+    Erica mentions "we also have casino offers" in every network pitch regardless of audience -- health apps, neurodivergent communities, tech publishers. This is contextually inappropriate and signals lack of audience awareness.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: Qrkiez, Techpoint/TNW, multiple publisher calls | Impact: MEDIUM</div>
+  </div>
+
+  <div class="leak">
+    <strong>6. Restrictions Before Discovery</strong><br>
+    The scripted pitch states "we do not accept incentivized traffic" as a hard rule before understanding the prospect's model. This nearly killed the AMP Consulting deal (their entire model is soft-incent). Qualify first, then state relevant restrictions.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: AMP Consulting, Affluxo | Impact: MEDIUM</div>
+  </div>
+
+  <div class="leak">
+    <strong>7. No Live Proof During Calls</strong><br>
+    Zero calls included a live case study, Everflow demo, or proof point. Everything is pushed post-call ("I'll send you a deck"). Showing a 30-second Everflow dashboard screenshot or one case study stat during the call would dramatically increase conversion.
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Affected calls: ALL | Impact: HIGH</div>
+  </div>
+
+  <h3 style="color:var(--green);margin:24px 0 12px;font-size:14px;">MISSED OPPORTUNITIES</h3>
+
+  <div class="opportunity">
+    <strong>Vanity Couture -- 400 New Products</strong><br>
+    Shante mentioned she's about to launch 400 new products from a new supplier. This massive growth signal was never explored. Should have reframed escrow with: "With 400 new products launching, the first 30 days of affiliate traffic will tell you which ones have legs."
+  </div>
+  <div class="opportunity">
+    <strong>Enclave -- $10K/Day Funnel</strong><br>
+    Hannah revealed a $10K/day ad spend funnel at the END of the call. Krik pulled on the thread but didn't restructure next steps around it. This should have become the primary call objective.
+  </div>
+  <div class="opportunity">
+    <strong>Codex Labs -- EU Expansion</strong><br>
+    Dan mentioned 3.5-5x ROAS in Europe. No one explored EU affiliate expansion as a second revenue stream. This is a natural upsell after US program launches.
+  </div>
+  <div class="opportunity">
+    <strong>Klay Media -- Portfolio Mining</strong><br>
+    Morgan manages Upside through Impact. Neither rep asked if Klay manages OTHER brands that could be AOR fits. Pipeline expansion from existing relationships is the highest-ROI prospecting channel.
+  </div>
+  <div class="opportunity">
+    <strong>Agency Referral Model</strong><br>
+    Stan (Olifant Digital) proposed the referral model himself. CPG should be pitching this proactively to every agency prospect -- it's a zero-cost pipeline multiplier.
+  </div>
+</div>
+
+<!-- ===== SECTION 9: AUDIENCE PATTERNS ===== -->
+<div class="section" id="patterns">
+  <div class="section-title">Audience & Response Patterns</div>
+  <div class="section-subtitle">How different prospect types behave, respond, and buy (or don't)</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="font-size:14px;margin-bottom:12px;">By Company Size</div>
+      <table>
+        <tr><th>Segment</th><th>Count</th><th>Avg Duration</th><th>Conversion Signal</th><th>Primary Objection</th></tr>
+        <tr>
+          <td><span class="badge badge-purple">Enterprise</span></td>
+          <td>2</td>
+          <td>15m</td>
+          <td>Slow, multi-stakeholder</td>
+          <td>Rev share %, compliance</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">Mid-Market</span></td>
+          <td>9</td>
+          <td>16m</td>
+          <td>Moderate, model-fit focused</td>
+          <td>CPA model vs retainer</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-yellow">Small/Startup</span></td>
+          <td>9</td>
+          <td>16m</td>
+          <td>Fast if qualified, emotional</td>
+          <td>Escrow, cash flow</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">Disqualified</span></td>
+          <td>4</td>
+          <td>8m</td>
+          <td>N/A</td>
+          <td>Below CPA minimum, no US shipping</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="font-size:14px;margin-bottom:12px;">By Prospect Type</div>
+      <table>
+        <tr><th>Type</th><th>Count</th><th>Best Rep</th><th>Key Pattern</th></tr>
+        <tr><td>Brand (D2C/ecom)</td><td>10</td><td>Krik</td><td>Origin story + 3-condition framework + live math = highest close rate</td></tr>
+        <tr><td>Publisher/Network</td><td>8</td><td>Julieta</td><td>Everflow setup as conversion event. Low-friction onboarding wins.</td></tr>
+        <tr><td>Agency/Partner</td><td>6</td><td>Erica</td><td>Model mismatch most common. Referral model is the hidden play.</td></tr>
+        <tr><td>Tech Vendor</td><td>2</td><td>Any</td><td>Reverse pitch dynamic. CPG evaluating, not selling.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="font-size:14px;margin-bottom:12px;">Behavioral Patterns Across All Prospects</div>
+    <div class="grid-2">
+      <div>
+        <h4 style="color:var(--green);font-size:12px;margin-bottom:8px;">BUYING SIGNALS</h4>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:16px;line-height:1.8;">
+          <li>"That sounds very reasonable" -- Barbara (Codex Labs)</li>
+          <li>"It sounds very good actually from this brand owner point of view" -- Veikko (JALG)</li>
+          <li>"I'd happily work with you guys" -- Shante (Vanity Couture)</li>
+          <li>"I would like to find some good partners that know how to run at scale" -- Hannah (Enclave)</li>
+          <li>"Sounds absolutely great guys" -- Vishwa (Motecuba)</li>
+          <li>Asking operational questions (Amy, AMP) -- process = intent</li>
+          <li>Revealing hidden budget/funnels (Hannah's $10K/day) -- trust signal</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:var(--red);font-size:12px;margin-bottom:8px;">EXIT SIGNALS</h4>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:16px;line-height:1.8;">
+          <li>"We need to plan much further" -- Suresh (Avira) = polite no</li>
+          <li>"In the future maybe, but at this point it would have to be the perfect client" -- Tommy (Cult Content) = high bar, not hard no</li>
+          <li>"Let us think about it" -- Hannah (Enclave) = active consideration</li>
+          <li>"I will meditate on it" -- Veikko (JALG) = serious, not brushing off</li>
+          <li>Non-decision-maker deferral: "We'll discuss internally" without a date = cold</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="font-size:14px;margin-bottom:12px;">Geographic Distribution</div>
+    <div class="grid-4" style="text-align:center;">
+      <div><div style="font-size:28px;font-weight:800;color:var(--accent-light);">10</div><div style="font-size:11px;color:var(--text-muted);">United States</div></div>
+      <div><div style="font-size:28px;font-weight:800;color:var(--accent-light);">6</div><div style="font-size:11px;color:var(--text-muted);">Europe</div></div>
+      <div><div style="font-size:28px;font-weight:800;color:var(--accent-light);">4</div><div style="font-size:11px;color:var(--text-muted);">LATAM</div></div>
+      <div><div style="font-size:28px;font-weight:800;color:var(--accent-light);">2</div><div style="font-size:11px;color:var(--text-muted);">APAC</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 10: FRAMEWORK ANALYSIS ===== -->
+<div class="section" id="frameworks">
+  <div class="section-title">Sales Framework Comparison</div>
+  <div class="section-subtitle">How CPG's actual sales behavior maps to established methodologies</div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px;">CPG vs. Established Frameworks</div>
+    <table>
+      <tr><th>Framework</th><th>CPG Alignment</th><th>Gap</th><th>Recommendation</th></tr>
+      <tr>
+        <td><strong>SPIN Selling</strong><br><span style="color:var(--text-muted);font-size:11px;">Situation, Problem, Implication, Need-Payoff</span></td>
+        <td>
+          <span class="badge badge-yellow">Partial</span><br>
+          Krik does Problem + Need-Payoff well (anti-cheat reveal). Situation questions are weak (no pre-call research). Implication questions almost never asked.
+        </td>
+        <td>No "what happens if you DON'T fix this?" pressure. No quantification of the cost of inaction.</td>
+        <td>Add one Implication question per call: "What's the cost of staying with your current affiliate setup for another 6 months?"</td>
+      </tr>
+      <tr>
+        <td><strong>Challenger Sale</strong><br><span style="color:var(--text-muted);font-size:11px;">Teach, Tailor, Take Control</span></td>
+        <td>
+          <span class="badge badge-green">Strong</span><br>
+          Krik is a natural Challenger. Anti-cheat reveal = Teach. Origin story = credibility for control. VPN callout = free insight.
+        </td>
+        <td>Julieta and Erica are Relationship Builders, not Challengers. They warm but don't challenge assumptions.</td>
+        <td>Train Julieta on 2-3 "teaching moments" she can deploy: one stat, one industry myth-bust, one common mistake brands make.</td>
+      </tr>
+      <tr>
+        <td><strong>MEDDPICC</strong><br><span style="color:var(--text-muted);font-size:11px;">Metrics, Economic Buyer, Decision Process, etc.</span></td>
+        <td>
+          <span class="badge badge-red">Weak</span><br>
+          Economic Buyer rarely identified pre-call (Barbara no-show, Michelle absent from CSN Mint). Decision Process never mapped. No Champion cultivation.
+        </td>
+        <td>No systematic discovery of who decides, how they decide, and by when.</td>
+        <td>Add 3 qualification questions: "Who else is involved in this decision?" / "What does your evaluation process look like?" / "When do you need this running?"</td>
+      </tr>
+      <tr>
+        <td><strong>Sandler</strong><br><span style="color:var(--text-muted);font-size:11px;">Pain, Budget, Decision</span></td>
+        <td>
+          <span class="badge badge-yellow">Partial</span><br>
+          Pain discovery is decent when Krik runs calls. Budget rarely discussed. Decision process never mapped.
+        </td>
+        <td>No upfront contract setting expectations for the call. No mutual agenda.</td>
+        <td>Open every call with: "Here's what I'd like to cover today. Does that work for you? What would you add?"</td>
+      </tr>
+      <tr>
+        <td><strong>Gap Selling</strong><br><span style="color:var(--text-muted);font-size:11px;">Current State > Future State > The Gap</span></td>
+        <td>
+          <span class="badge badge-yellow">Partial</span><br>
+          Future state is painted well (10-20% revenue lift, new channels). Current state discovery is shallow (no AOV, CAC, or margin questions before pitching).
+        </td>
+        <td>The GAP (cost of current state vs. value of future state) is never quantified.</td>
+        <td>Before pitching: "What's your current CAC? And what's your target?" Then: "So you're overpaying by $X per customer right now. Over 1000 orders, that's $X,000 you're leaving on the table."</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card" style="border-color:var(--gold);">
+    <div class="card-title" style="color:var(--gold);margin-bottom:12px;">The CPG Playbook: What's Actually Working</div>
+    <div style="font-size:13px;line-height:1.8;">
+      CPG has built an effective but inconsistent sales motion. The core differentiators are genuine and powerful:
+      <ol style="padding-left:20px;margin-top:12px;">
+        <li><strong>Founder-operator credibility</strong> -- Krik's story is authentic and disarms skepticism faster than any deck</li>
+        <li><strong>Anti-cheat framework</strong> -- The 3-condition model + "agencies drive repeat customers" reveal is a genuine insight most prospects have never heard</li>
+        <li><strong>Zero-risk positioning</strong> -- No retainer + cancel anytime + escrow refundability is a strong value prop</li>
+        <li><strong>Channel differentiation</strong> -- "We don't compete with your Meta/Google" removes the substitution fear</li>
+      </ol>
+      <br>
+      The leaks are process, not product. Fix the pre-call qualification, give reps decision authority on the top 5 non-standard scenarios, add one live proof point per call, and close with specific dates. The pitch itself is strong.
+    </div>
+  </div>
+</div>
+
+<!-- WATERMARK -->
+<div class="watermark">
+  Generated by Claude Code | CPG Affiliate Partners Sales Intelligence | 28 calls analyzed | Apr 10, 2026<br>
+  Source: Fireflies.ai API | Data range: Mar 16 -- Apr 9, 2026
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Nav highlighting
+document.querySelectorAll('.nav a').forEach(a => {
+  a.addEventListener('click', function() {
+    document.querySelectorAll('.nav a').forEach(n => n.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

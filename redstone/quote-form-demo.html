@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redstone Manufacturing - Request a Quote</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background: #EBEBEB;
             color: #1a1a1a;
             line-height: 1.7;
@@ -151,7 +151,7 @@
             width: 100%;
             padding: 14px 18px;
             font-size: 0.95em;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             border: 1.5px solid #e0e0e0;
             border-radius: 8px;
             background: #FAFAFA;
@@ -318,7 +318,7 @@
         .btn-back {
             font-size: 0.82em; font-weight: 600; color: #888; background: #fff;
             border: 1.5px solid #ddd; border-radius: 8px; padding: 13px 28px;
-            cursor: pointer; font-family: 'Inter', sans-serif;
+            cursor: pointer; font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.04em; transition: all 0.2s;
         }
         .btn-back:hover { color: #333; border-color: #999; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
@@ -326,7 +326,7 @@
             font-size: 0.85em; font-weight: 700; color: #fff;
             background: linear-gradient(135deg, #B21E24, #c92a30);
             border: none; border-radius: 8px; padding: 14px 44px;
-            cursor: pointer; font-family: 'Inter', sans-serif;
+            cursor: pointer; font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.06em; transition: all 0.2s;
             box-shadow: 0 2px 8px rgba(178,30,36,0.2);
         }
@@ -335,7 +335,7 @@
             font-size: 0.85em; font-weight: 700; color: #fff;
             background: linear-gradient(135deg, #16a34a, #1db954);
             border: none; border-radius: 8px; padding: 14px 48px;
-            cursor: pointer; font-family: 'Inter', sans-serif;
+            cursor: pointer; font-family: 'Montserrat', sans-serif;
             letter-spacing: 0.06em; transition: all 0.2s;
             box-shadow: 0 2px 8px rgba(22,163,74,0.25);
         }
@@ -447,15 +447,14 @@
     <div class="form-step active" id="step-1">
         <div class="form-body">
             <h2>Tell us about your project</h2>
-            <p class="step-desc">We use this to match you with the right facility and process.</p>
 
             <div class="field-group" data-required>
                 <label for="prod-stage">Current Stage of Production <span class="req">*</span></label>
                 <select id="prod-stage">
                     <option value="" disabled selected>Select your current stage...</option>
                     <option>Already in Production</option>
-                    <option>Ready to Start Production</option>
-                    <option>Design Phase</option>
+                    <option>Ready to Start Production - Prototyping Complete</option>
+                    <option>Design Phase - Prototyping Not Complete</option>
                 </select>
                 <div class="error-msg">Please select your current stage.</div>
                 <div class="helper">Where you are helps us estimate timelines accurately.</div>
@@ -465,13 +464,14 @@
                 <label for="mfg-process">Type of Manufacturing Process <span class="req">*</span></label>
                 <select id="mfg-process">
                     <option value="" disabled selected>Select process type...</option>
-                    <option>Stamping</option>
+                    <option>Stamping/Sheet Metal Fabrication</option>
                     <option>Die Casting</option>
                     <option>Sand Casting</option>
                     <option>Investment Casting</option>
                     <option>CNC Machining</option>
-                    <option>Forging</option>
-                    <option>Other</option>
+                    <option>Metal Injection Molding</option>
+                    <option>Plastic Injection Molding</option>
+                    <option>Not Sure/Other</option>
                 </select>
                 <div class="error-msg">Please select a manufacturing process.</div>
                 <div class="helper">Not sure? Select the closest match - our engineers will confirm during review.</div>
@@ -486,19 +486,23 @@
                     <div class="option-cards">
                         <div class="option-card" onclick="toggleCard(this)">
                             <div class="check-icon"></div>
-                            <div class="option-title">Reduce Costs</div>
+                            <div class="option-title">Reduce costs</div>
                         </div>
                         <div class="option-card" onclick="toggleCard(this)">
                             <div class="check-icon"></div>
-                            <div class="option-title">Quality Issues</div>
+                            <div class="option-title">Reduce quality issues</div>
                         </div>
                         <div class="option-card" onclick="toggleCard(this)">
                             <div class="check-icon"></div>
-                            <div class="option-title">Supply Chain Risk</div>
+                            <div class="option-title">Faster lead times</div>
                         </div>
                         <div class="option-card" onclick="toggleCard(this)">
                             <div class="check-icon"></div>
-                            <div class="option-title">New Product</div>
+                            <div class="option-title">New part, no supplier currently</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Cannot be produced in China</div>
                         </div>
                     </div>
                     <div class="error-msg">Please select at least one reason.</div>
@@ -524,11 +528,13 @@
                     <label for="annual-vol">Estimated Annual Spend <span class="req">*</span></label>
                     <select id="annual-vol">
                         <option value="" disabled selected>Select range...</option>
-                        <option>$0 - $50K</option>
-                        <option>$50K - $150K</option>
-                        <option>$150K - $500K</option>
-                        <option>$500K - $1.5M</option>
-                        <option>$1.5M+</option>
+                        <option>$0 - $50,000</option>
+                        <option>$50,000 - $150,000</option>
+                        <option>$150,000 - $300,000</option>
+                        <option>$300,000 - $750,000</option>
+                        <option>$750,000 - $1,500,000</option>
+                        <option>$1,500,000+</option>
+                        <option>Not Sure / Other</option>
                     </select>
                     <div class="error-msg">Please select an estimated range.</div>
                 </div>
@@ -544,7 +550,6 @@
     <div class="form-step" id="step-2">
         <div class="form-body">
             <h2>Production specifications</h2>
-            <p class="step-desc">Share what you can now. Our engineers will follow up on any details we need.</p>
 
             <div class="field-group">
                 <label for="part-desc">Describe Your Part or Product</label>
@@ -557,11 +562,11 @@
             <div class="field-group">
                 <label>Upload Drawings or Documents</label>
                 <div class="upload-zone" id="upload-zone">
-                    <input type="file" id="file-upload" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf,.step,.stp,.igs,.iges" />
+                    <input type="file" id="file-upload" multiple accept=".pdf,.stp,.step,.dxf" />
                     <div class="upload-icon">&#128196;</div>
                     <div class="upload-title">Drag files here or click to browse</div>
                     <div class="upload-sub">Up to 10 files, 128MB max each</div>
-                    <div class="upload-formats">PDF, JPG, PNG, DWG, DXF accepted</div>
+                    <div class="upload-formats">PDF, STP, STEP, DXF accepted</div>
                 </div>
                 <div class="file-list" id="file-list"></div>
                 <div class="helper">CAD drawings, spec sheets, photos of existing parts - anything that helps.</div>
@@ -584,13 +589,14 @@
     <!-- STEP 3 -->
     <div class="form-step" id="step-3">
         <div class="form-body">
-            <h2>Where would you like to manufacture?</h2>
-            <p class="step-desc">Select all regions you're open to. We operate facilities across four countries.</p>
-
             <div class="field-group">
-                <label>Preferred Manufacturing Regions</label>
+                <label>Preferred Manufacturing Locations</label>
                 <div class="select-all-hint">Select all that apply</div>
                 <div class="option-cards">
+                    <div class="option-card" onclick="toggleCard(this)">
+                        <div class="check-icon"></div>
+                        <div class="option-title">USA</div>
+                    </div>
                     <div class="option-card" onclick="toggleCard(this)">
                         <div class="check-icon"></div>
                         <div class="option-title">Mexico</div>
@@ -617,9 +623,9 @@
                 <label for="experience">Experience with Overseas Manufacturing</label>
                 <select id="experience">
                     <option value="" disabled selected>Select your experience level...</option>
-                    <option>First time - need full guidance</option>
-                    <option>Some experience - know the basics</option>
-                    <option>Experienced - currently manufacturing overseas</option>
+                    <option>First time</option>
+                    <option>Some experience</option>
+                    <option>Experienced</option>
                 </select>
                 <div class="helper">Helps us calibrate how much support you need.</div>
             </div>
@@ -649,9 +655,10 @@
             </div>
 
             <div class="field-row">
-                <div class="field-group">
-                    <label for="job-title">Job Title</label>
+                <div class="field-group" data-required>
+                    <label for="job-title">Job Title <span class="req">*</span></label>
                     <input type="text" id="job-title" placeholder="e.g. Procurement Manager" />
+                    <div class="error-msg">Please enter your job title.</div>
                 </div>
                 <div class="field-group" data-required>
                     <label for="work-email">Work Email <span class="req">*</span></label>
@@ -662,16 +669,33 @@
 
             <div class="field-row">
                 <div class="field-group">
-                    <label for="phone">Best Number to Reach You</label>
+                    <label for="phone">Phone Number</label>
                     <input type="tel" id="phone" placeholder="(555) 000-0000" />
                 </div>
-                <div class="field-group">
-                    <label for="contact-method">Preferred Contact Method</label>
-                    <select id="contact-method">
-                        <option>Phone Call</option>
-                        <option>Video Meeting</option>
-                        <option>Email First</option>
-                    </select>
+                <div class="field-group"></div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="field-group">
+                <label>My Organization Has <span class="req">*</span></label>
+                <div class="option-cards-wrapper" data-required-cards>
+                    <div class="select-all-hint">Check all that apply</div>
+                    <div class="option-cards">
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Supply Chain Manager / Director</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">Supply Chain Team</div>
+                        </div>
+                        <div class="option-card" onclick="toggleCard(this)">
+                            <div class="check-icon"></div>
+                            <div class="option-title">None</div>
+                        </div>
+                    </div>
+                    <div class="error-msg">Please select at least one option.</div>
                 </div>
             </div>
 
@@ -679,7 +703,6 @@
                 <span class="r-icon">&#9989;</span>
                 <div>
                     <p>Engineers on our team will review your project and we will reach out to schedule a quote review.</p>
-                    <div class="trust-logos">Trusted by Honda, Armstrong, and CircOR</div>
                 </div>
             </div>
         </div>

@@ -1283,9 +1283,13 @@ App.registerPage('war-room', async (container) => {
       byDate[dateStr] = { date: dateStr, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
     }
 
+    // Normalize any date value to YYYY-MM-DD string
+    function _ds(v) { return v ? String(v).slice(0, 10) : null; }
+
     // Layer 1: Hyros daily split (ticket + enrollment revenue from attribution)
     (hyrosRows || []).forEach(r => {
-      const d = r.day;
+      const d = _ds(r.day);
+      if (!d) return;
       if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
       byDate[d].ticket_revenue += (r.ticket_revenue || 0);
       byDate[d].enrollment_revenue += (r.enrollment_revenue || 0);
@@ -1293,7 +1297,8 @@ App.registerPage('war-room', async (container) => {
 
     // Layer 2: Meta ad spend
     (metaRows || []).forEach(r => {
-      const d = r.ad_date;
+      const d = _ds(r.ad_date);
+      if (!d) return;
       if (!byDate[d]) byDate[d] = { date: d, ticket_revenue: 0, enrollment_revenue: 0, spend: 0 };
       byDate[d].spend += (r.spend || 0);
     });
@@ -1302,12 +1307,12 @@ App.registerPage('war-room', async (container) => {
     const hyrosHasTickets = (hyrosRows || []).some(r => (r.ticket_revenue || 0) > 0);
     if (!hyrosHasTickets) {
       (stripeRows || []).forEach(r => {
-        const d = r.date;
-        if (byDate[d]) byDate[d].ticket_revenue += (r.ticket_revenue || 0);
+        const d = _ds(r.date);
+        if (d && byDate[d]) byDate[d].ticket_revenue += (r.ticket_revenue || 0);
       });
     }
 
-    let data = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    let data = Object.values(byDate).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 
     console.log('[butterfly] data points:', data.length, 'sample:', data.slice(0,2));
     console.log('[butterfly] hyros rows:', (hyrosRows||[]).length, 'meta rows:', (metaRows||[]).length, 'stripe rows:', (stripeRows||[]).length);

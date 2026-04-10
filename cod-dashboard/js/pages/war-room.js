@@ -34,53 +34,16 @@ App.registerPage('war-room', async (container) => {
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
+  // Top strip: funnel flow (spend -> efficiency -> outcomes -> return)
   Components.renderKPIStrip(kpiContainer, [
     {
-      label: 'Revenue (Collected)',
-      value: cur.gross_revenue || 0,
-      prevValue: prev.gross_revenue || 0,
+      label: 'Ad Spend',
+      value: cur.total_spend || 0,
+      prevValue: prev.total_spend || 0,
       format: 'money',
-      delta: _delta(cur.gross_revenue, prev.gross_revenue),
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'SUM(amount) WHERE amount > 0 AND status = "succeeded" for period',
-    },
-    {
-      label: 'Blended ROAS',
-      value: cur.roas || 0,
-      prevValue: prev.roas || 0,
-      format: 'num',
-      delta: _delta(cur.roas, prev.roas),
-      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean',
-      calc: '(gross_revenue - refunds) / total_spend for period',
-    },
-    {
-      label: 'Enrollments',
-      value: cur.enrollments || 0,
-      prevValue: prev.enrollments || 0,
-      format: 'num',
-      delta: _delta(cur.enrollments, prev.enrollments),
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'COUNT(DISTINCT email) WHERE amount > 500 AND status = "succeeded" for period',
-    },
-    {
-      label: 'CPB',
-      value: cur.cpb || 0,
-      prevValue: prev.cpb || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cpb, prev.cpb),
-      source: 'BigQuery: v_meta_ads_clean + v_sheets_bookings_clean',
-      calc: 'total_spend / total_calls (all booked calls) for period',
-    },
-    {
-      label: 'CPA (Avg)',
-      value: cur.cost_per_enrollment || 0,
-      prevValue: prev.cost_per_enrollment || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
-      source: 'BigQuery: v_meta_ads_clean + v_stripe_clean',
-      calc: 'total_spend / COUNT(DISTINCT email WHERE amount > 500) for period',
+      delta: _delta(cur.total_spend, prev.total_spend),
+      source: 'BigQuery: v_meta_ads_clean',
+      calc: 'SUM(spend) for period',
     },
     {
       label: 'CPM',
@@ -90,7 +53,54 @@ App.registerPage('war-room', async (container) => {
       invertCost: true,
       delta: _delta(cur.cpm, prev.cpm),
       source: 'Meta Marketing API: meta_ads_insights',
-      calc: '(SUM(spend) / SUM(impressions)) * 1000, aggregated across all active campaigns for period',
+      calc: '(SUM(spend) / SUM(impressions)) * 1000',
+    },
+    {
+      label: 'CPB',
+      value: cur.cpb || 0,
+      prevValue: prev.cpb || 0,
+      format: 'money',
+      invertCost: true,
+      delta: _delta(cur.cpb, prev.cpb),
+      source: 'BigQuery: v_meta_ads_clean + v_sheets_bookings_clean',
+      calc: 'total_spend / total_calls for period',
+    },
+    {
+      label: 'CPA',
+      value: cur.cost_per_enrollment || 0,
+      prevValue: prev.cost_per_enrollment || 0,
+      format: 'money',
+      invertCost: true,
+      delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
+      source: 'BigQuery: v_meta_ads_clean + v_stripe_clean',
+      calc: 'total_spend / enrollments for period',
+    },
+    {
+      label: 'Enrollments',
+      value: cur.enrollments || 0,
+      prevValue: prev.enrollments || 0,
+      format: 'num',
+      delta: _delta(cur.enrollments, prev.enrollments),
+      source: 'BigQuery: v_stripe_clean',
+      calc: 'COUNT(DISTINCT email) WHERE amount > 500',
+    },
+    {
+      label: 'Revenue',
+      value: cur.gross_revenue || 0,
+      prevValue: prev.gross_revenue || 0,
+      format: 'money',
+      delta: _delta(cur.gross_revenue, prev.gross_revenue),
+      source: 'BigQuery: v_stripe_clean',
+      calc: 'SUM(amount) WHERE succeeded for period',
+    },
+    {
+      label: 'ROAS',
+      value: cur.roas || 0,
+      prevValue: prev.roas || 0,
+      format: 'num',
+      delta: _delta(cur.roas, prev.roas),
+      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean',
+      calc: '(gross_revenue - refunds) / total_spend',
     },
   ]);
 
@@ -103,44 +113,29 @@ App.registerPage('war-room', async (container) => {
   const salesKpiContainer = document.createElement('div');
   container.appendChild(salesKpiContainer);
 
-  // Sales Team KPI strip -- uses war-room cur/prev + calls data
+  // Sales Team KPI strip -- activity + conversion rates
   const callsBooked = cur.total_calls || 0;
   const prevCallsBooked = prev.total_calls || 0;
   const callsTaken = cur.showed || ((cur.total_calls || 0) - (cur.no_shows || 0) - (cur.cancellations || 0));
   const prevCallsTaken = prev.showed || ((prev.total_calls || 0) - (prev.no_shows || 0) - (prev.cancellations || 0));
-  const totalCash = cur.gross_revenue || 0;
-  const totalContracts = cur.enrollment_revenue || 0;
-  const prevTotalContracts = prev.enrollment_revenue || 0;
-  const adSpend = cur.total_spend || 0;
-  const cac = cur.enrollments > 0 ? adSpend / cur.enrollments : 0;
-  const prevCac = prev.enrollments > 0 ? (prev.total_spend || 0) / prev.enrollments : 0;
-  const netRevenue = (cur.gross_revenue || 0) - (cur.refunds || 0);
-  const prevNetRevenue = (prev.gross_revenue || 0) - (prev.refunds || 0);
-  const roas = adSpend > 0 ? netRevenue / adSpend : 0;
-  const prevRoas = (prev.total_spend || 0) > 0 ? prevNetRevenue / prev.total_spend : 0;
+  const showRate = callsBooked > 0 ? (callsTaken / callsBooked) * 100 : 0;
+  const prevShowRate = prevCallsBooked > 0 ? (prevCallsTaken / prevCallsBooked) * 100 : 0;
+  const closeRate = callsTaken > 0 ? ((cur.enrollments || 0) / callsTaken) * 100 : 0;
+  const prevCloseRate = prevCallsTaken > 0 ? ((prev.enrollments || 0) / prevCallsTaken) * 100 : 0;
 
   Components.renderKPIStrip(salesKpiContainer, [
-    { label: 'Calls Booked (All)', value: callsBooked, prevValue: prevCallsBooked, format: 'num',
+    { label: 'Calls Booked', value: callsBooked, prevValue: prevCallsBooked, format: 'num',
       delta: _delta(callsBooked, prevCallsBooked),
       source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE call_date in period' },
     { label: 'Calls Taken', value: callsTaken, prevValue: prevCallsTaken, format: 'num',
       delta: _delta(callsTaken, prevCallsTaken),
       source: 'BigQuery: v_sheets_bookings_clean', calc: 'COUNT(*) WHERE status != "no-show"' },
-    { label: 'Total Cash', value: totalCash, prevValue: prev.gross_revenue || 0, format: 'money',
-      delta: _delta(totalCash, prev.gross_revenue),
-      source: 'BigQuery: v_stripe_clean', calc: 'SUM(amount) WHERE amount > 0 AND succeeded' },
-    { label: 'Enrollment Revenue', value: totalContracts, prevValue: prevTotalContracts, format: 'money',
-      delta: _delta(totalContracts, prevTotalContracts),
-      source: 'BigQuery: v_stripe_clean', calc: 'SUM(amount) WHERE amount > 500 AND succeeded' },
-    { label: 'Ad Spend', value: adSpend, prevValue: prev.total_spend || 0, format: 'money',
-      delta: _delta(adSpend, prev.total_spend),
-      source: 'BigQuery: v_meta_ads_clean', calc: 'SUM(spend) for period' },
-    { label: 'CAC', value: cac, prevValue: prevCac, format: 'money', invertCost: true,
-      delta: prevCac > 0 ? _delta(cac, prevCac) : null,
-      source: 'BigQuery: v_meta_ads_clean + v_stripe_clean', calc: 'total_spend / enrollments (Stripe)' },
-    { label: 'Net ROAS', value: roas, prevValue: prevRoas, format: 'num',
-      delta: prevRoas > 0 ? _delta(roas, prevRoas) : null,
-      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean', calc: '(gross_revenue - refunds) / total_spend' },
+    { label: 'Show Rate', value: showRate, prevValue: prevShowRate, format: 'pct',
+      delta: _delta(showRate, prevShowRate),
+      source: 'Computed', calc: 'calls_taken / calls_booked * 100' },
+    { label: 'Close Rate', value: closeRate, prevValue: prevCloseRate, format: 'pct',
+      delta: _delta(closeRate, prevCloseRate),
+      source: 'Computed', calc: 'enrollments / calls_taken * 100' },
   ]);
 
   // ---- CPA tooltip: hover on CPA KPI card shows per-channel breakdown ----

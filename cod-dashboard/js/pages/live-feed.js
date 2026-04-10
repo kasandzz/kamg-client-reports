@@ -7,6 +7,7 @@
 (function () {
   const EVENT_META = {
     ticket_purchased: { emoji: '🎟', label: 'Ticket Purchased', color: '#6366f1' },
+    vip_purchased:    { emoji: '🎟', label: 'Ticket & VIP',     color: '#f59e0b' },
     lead_created:     { emoji: '👤', label: 'Opt-In',           color: '#38bdf8' },
     call_booked:      { emoji: '📞', label: 'Call Booked',      color: '#a855f7' },
     lp_enrollment:    { emoji: '🎓', label: 'Enrollment',       color: '#22c55e' },
@@ -316,8 +317,8 @@
       const tr = document.createElement('tr');
       if (isNew) tr.className = 'lf-new';
 
-      // Event type
       tr.innerHTML = `
+        <td style="font-size:11px;color:${Theme.COLORS.textMuted};white-space:nowrap">${relTime}</td>
         <td>
           <span class="lf-event-badge">
             <span class="lf-event-dot" style="background:${meta.color}"></span>
@@ -341,7 +342,6 @@
             : `<span style="font-size:11px;color:${Theme.COLORS.textMuted}">--</span>`
           }
         </td>
-        <td style="font-size:11px;color:${Theme.COLORS.textMuted};text-align:right">${relTime}</td>
       `;
 
       return tr;
@@ -397,6 +397,7 @@
       table.className = 'lf-table';
       table.innerHTML = `
         <thead><tr>
+          <th>When</th>
           <th>Event</th>
           <th>Contact</th>
           <th>Amount</th>
@@ -404,7 +405,6 @@
           <th>First Ad Click</th>
           <th>Last Ad Click</th>
           <th>Session</th>
-          <th style="text-align:right">When</th>
         </tr></thead>
       `;
 

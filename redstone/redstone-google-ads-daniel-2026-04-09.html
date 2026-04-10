@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landing Page & Conversion Updates | Daniel Hall | April 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF;
+    color: #000000;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  .report-header {
+    background: #000000;
+    color: #FFFFFF;
+    padding: 60px;
+    border-bottom: 4px solid #B21E24;
+  }
+
+  .header-meta {
+    font-size: 0.75em;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999999;
+    margin-bottom: 20px;
+  }
+
+  .header-meta span {
+    margin-right: 24px;
+  }
+
+  .header-meta .divider {
+    color: #444444;
+    margin-right: 24px;
+  }
+
+  .report-title {
+    font-size: 2.4em;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    color: #FFFFFF;
+  }
+
+  .report-subtitle {
+    font-size: 1em;
+    font-weight: 400;
+    color: #999999;
+    max-width: 600px;
+  }
+
+  /* SECTION BANDS */
+  .band-dark {
+    background: #000000;
+    color: #FFFFFF;
+    padding: 60px;
+  }
+
+  .band-white {
+    background: #FFFFFF;
+    color: #000000;
+    padding: 60px;
+    border-bottom: 1px solid #E0E0E0;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* SECTION HEADERS */
+  .section-label {
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #B21E24;
+    margin-bottom: 8px;
+  }
+
+  .band-dark .section-label {
+    color: #B21E24;
+  }
+
+  .section-title {
+    font-size: 1.55em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    color: inherit;
+  }
+
+  .section-intro {
+    font-size: 0.92em;
+    color: #666666;
+    max-width: 760px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .band-dark .section-intro {
+    color: #AAAAAA;
+  }
+
+  .acknowledgement {
+    background: #111111;
+    border-left: 3px solid #B21E24;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    font-size: 0.88em;
+    color: #CCCCCC;
+    line-height: 1.6;
+  }
+
+  /* TABLES */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88em;
+  }
+
+  .data-table thead th {
+    text-align: left;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border-bottom: 2px solid #B21E24;
+    white-space: nowrap;
+  }
+
+  /* Dark band table headers */
+  .band-dark .data-table thead th {
+    color: #999999;
+    border-bottom: 2px solid #B21E24;
+    background: #000000;
+  }
+
+  /* White band table headers */
+  .band-white .data-table thead th {
+    color: #666666;
+    background: #F5F5F5;
+    border-bottom: 2px solid #B21E24;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid #1E1E1E;
+  }
+
+  .band-white .data-table tbody tr {
+    border-bottom: 1px solid #E0E0E0;
+  }
+
+  .data-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .data-table tbody td {
+    padding: 14px 16px;
+    vertical-align: top;
+    line-height: 1.55;
+    color: #CCCCCC;
+  }
+
+  .band-white .data-table tbody td {
+    color: #000000;
+  }
+
+  .data-table tbody td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+    color: #FFFFFF;
+  }
+
+  .band-white .data-table tbody td:first-child {
+    color: #000000;
+  }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-block;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid;
+  }
+
+  .badge-active {
+    color: #16a34a;
+    border-color: #16a34a;
+    background: rgba(22, 163, 74, 0.08);
+  }
+
+  .badge-inprogress {
+    color: #2563eb;
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+  }
+
+  .badge-starting {
+    color: #ea580c;
+    border-color: #ea580c;
+    background: rgba(234, 88, 12, 0.08);
+  }
+
+  .badge-verifying {
+    color: #ca8a04;
+    border-color: #ca8a04;
+    background: rgba(202, 138, 4, 0.08);
+  }
+
+  /* COMPETITOR TAGS */
+  .tag-competitor {
+    color: #7c3aed;
+    font-weight: 500;
+  }
+
+  /* METRIC NUMBERS */
+  .metric-value {
+    font-size: 1em;
+    font-weight: 700;
+    color: #2563eb;
+  }
+
+  .band-dark .metric-value {
+    color: #60a5fa;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    height: 1px;
+    background: #E0E0E0;
+    margin: 0;
+  }
+
+  /* FOOTER */
+  .report-footer {
+    background: #F5F5F5;
+    padding: 40px 60px;
+    border-top: 1px solid #E0E0E0;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  .footer-block p {
+    font-size: 0.78em;
+    color: #999999;
+    line-height: 1.6;
+  }
+
+  .footer-block strong {
+    color: #666666;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.72em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .footer-sources {
+    font-size: 0.75em;
+    color: #999999;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #E0E0E0;
+  }
+
+  .footer-sources p {
+    margin-bottom: 4px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .report-header,
+    .band-dark,
+    .band-white,
+    .report-footer { padding: 32px 24px; }
+
+    .report-title { font-size: 1.7em; }
+
+    .footer-inner { flex-direction: column; gap: 20px; }
+
+    .data-table { font-size: 0.82em; }
+
+    .data-table thead th,
+    .data-table tbody td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="report-header">
+  <div class="header-meta">
+    <span>KAMG</span>
+    <span class="divider">|</span>
+    <span>For Daniel Hall</span>
+    <span class="divider">|</span>
+    <span>April 9, 2026</span>
+    <span class="divider">|</span>
+    <span>Redstone Manufacturing</span>
+  </div>
+  <h1 class="report-title">Landing Page &amp; Conversion Updates</h1>
+  <p class="report-subtitle">What We're Building to Support Your Campaigns</p>
+</header>
+
+
+<!-- SECTION 1: WHAT WE'RE BUILDING (DARK) -->
+<section class="band-dark">
+  <div class="section-inner">
+    <p class="section-label">Section 01</p>
+    <h2 class="section-title">What We're Building</h2>
+
+    <div class="acknowledgement">
+      You flagged the conversion tracking gap early -- that was the right call. Running campaigns without verified tracking is exactly the kind of thing that inflates reported leads and burns budget on noise. We've been focused on the conversion side so your campaigns have proper landing pages to send traffic to and accurate data to optimize against.
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:22%">Initiative</th>
+          <th style="width:20%">Status</th>
+          <th>What It Means for Ads</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Service-specific landing pages</td>
+          <td><span class="badge badge-inprogress">In Progress</span><br><span style="font-size:0.8em;color:#777;font-weight:400;margin-top:4px;display:block">Leo leading</span></td>
+          <td>Each keyword category gets its own page. Die casting ads land on a die casting page with specs, certifications, and a quote form. CNC ads land on a CNC page. Eliminates homepage landing -- a primary driver of poor Quality Scores.</td>
+        </tr>
+        <tr>
+          <td>Quote form with file upload</td>
+          <td><span class="badge badge-inprogress">In Progress</span></td>
+          <td>CAD, STEP, and IGES upload capability built into the form. Engineers can submit specs directly without a phone call. Matches what Xometry and Protolabs offer as the baseline UX expectation for this audience.</td>
+        </tr>
+        <tr>
+          <td>Niche keyword pages</td>
+          <td><span class="badge badge-starting">Starting This Week</span><br><span style="font-size:0.8em;color:#777;font-weight:400;margin-top:4px;display:block">Days to complete</span></td>
+          <td>Hyper-relevant pages per keyword group. Stronger keyword-to-page relevance improves Quality Score, which lowers CPC and improves ad rank -- without increasing bids.</td>
+        </tr>
+        <tr>
+          <td>Conversion tracking verification</td>
+          <td><span class="badge badge-verifying">Being Re-verified</span></td>
+          <td>Full audit of what's firing, what's counting, and what's noise. Goal is clean data before any scaling decisions are made. The 8-leads-vs-1-reality issue gets resolved here.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 2: LP PREVIEW (WHITE) -->
+<section class="band-white">
+  <div class="section-inner">
+    <p class="section-label">Section 02</p>
+    <h2 class="section-title">New Landing Page Structure</h2>
+    <p class="section-intro">Each service page will follow the same structural template. The goal is to give engineers the information they need to self-qualify and submit a request without friction.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:20%">Element</th>
+          <th style="width:35%">What We're Building</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Headline</td>
+          <td>Keyword-matched (e.g., "Custom Die Casting Services for Industrial Applications")</td>
+          <td>Ad copy to headline message match is the single largest Quality Score factor. Also confirms to the visitor they landed in the right place.</td>
+        </tr>
+        <tr>
+          <td>Trust signals</td>
+          <td>ISO 9001 and IATF 16949 certifications, prominently placed above the fold</td>
+          <td>Redstone's strongest differentiators for procurement teams. Aerospace and automotive buyers filter on certs before anything else.</td>
+        </tr>
+        <tr>
+          <td>Technical specs</td>
+          <td>Tolerances, materials, max dimensions, and surface finish options per service</td>
+          <td>Engineers self-qualify without a phone call. Reduces unqualified leads. Increases contact-to-close rate.</td>
+        </tr>
+        <tr>
+          <td>Quote form</td>
+          <td>Company, name, email, service dropdown, part quantity, timeline, and file upload (CAD/STEP/IGES)</td>
+          <td>Matches the UX standard set by Xometry and Protolabs. File upload is a key differentiator for serious engineering buyers vs. casual inquiries.</td>
+        </tr>
+        <tr>
+          <td>Social proof</td>
+          <td>Client logos and brief case studies where available</td>
+          <td>Procurement and engineering teams want peer references. B2B buying cycles involve multiple stakeholders -- logos accelerate internal approvals.</td>
+        </tr>
+        <tr>
+          <td>Phone number</td>
+          <td>Prominently displayed in header and near the form</td>
+          <td>B2B buyers with complex requirements prefer a conversation before committing. Phone visibility increases qualified lead volume alongside form submissions.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 3: COMPETITIVE CONTEXT (DARK) -->
+<section class="band-dark">
+  <div class="section-inner">
+    <p class="section-label">Section 03</p>
+    <h2 class="section-title">Competitive Context</h2>
+    <p class="section-intro">For context only -- what the major players are doing in Google Ads and on their landing pages. No action items here. Purely background for strategic decisions when the time is right.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:14%">Competitor</th>
+          <th style="width:28%">Google Ads Approach</th>
+          <th style="width:28%">Landing Page Setup</th>
+          <th>Conversion Mechanism</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="tag-competitor">Xometry</td>
+          <td>Massive keyword coverage across 5,000+ pages. Heavy remarketing investment. Aggressive on all manufacturing categories.</td>
+          <td>Service-specific pages per process and material combination. Extremely granular -- separate pages for aluminum die casting vs. zinc die casting, etc.</td>
+          <td>AI-powered instant quote. CAD upload required. No human interaction until quote is reviewed.</td>
+        </tr>
+        <tr>
+          <td class="tag-competitor">Protolabs</td>
+          <td>Aggressive bidding on CNC machining, injection molding, and sheet metal. Primary CTA is "Get Instant Quote" throughout all ads.</td>
+          <td>Dedicated pages per service with full spec sheets -- tolerances, 30+ materials, surface finishes, lead times. Engineers can validate fit before contacting.</td>
+          <td>Automated quote with DFM (Design for Manufacturability) feedback. Instant pricing is the hook.</td>
+        </tr>
+        <tr>
+          <td class="tag-competitor">Fictiv</td>
+          <td>Runs competitor conquest campaigns. "Xometry alternative" and "Protolabs alternative" pages for in-market buyers already researching.</td>
+          <td>Quality-focused messaging. Case studies with brand-name clients (Honeywell, etc.) above the fold.</td>
+          <td>Online quote with managed process. Positions as concierge vs. automated.</td>
+        </tr>
+        <tr>
+          <td class="tag-competitor">SendCutSend</td>
+          <td>Performance marketing focus. 170+ materials as a core selling point in ad copy.</td>
+          <td>Widely considered best UX in manufacturing. Parts Builder tool allows visitors to build and price before ever contacting.</td>
+          <td>Instant pricing with CAD upload or template selection. Checkout-style flow -- no sales contact required for standard orders.</td>
+        </tr>
+        <tr>
+          <td class="tag-competitor">RapidDirect</td>
+          <td>Aggressive Google Ads spend. Comparison blog content targeting buyers researching options (Xometry vs. RapidDirect, etc.).</td>
+          <td>Free DFM feedback prominently featured as the lead offer. Lowers the barrier to first contact.</td>
+          <td>Instant quote plus DFM review. Two conversion paths: quote-first and review-first.</td>
+        </tr>
+        <tr>
+          <td class="tag-competitor">Dynacast</td>
+          <td>Moderate spend, brand-focused rather than keyword-aggressive. Less performance-oriented than the others listed.</td>
+          <td>"Speak to an Engineer" CTA. More traditional B2B approach -- less automation, more relationship.</td>
+          <td>Quote request form. No instant pricing. Longer sales cycle expected.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 4: IDEAS TO CONSIDER (WHITE) -->
+<section class="band-white">
+  <div class="section-inner">
+    <p class="section-label">Section 04</p>
+    <h2 class="section-title">Ideas to Consider</h2>
+    <p class="section-intro">Patterns from the competitive research that might be worth exploring once the landing pages are live and tracking is clean. These are ideas for discussion -- not prescriptions. You'll know better than we will which are relevant given current campaign state.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:18%">Idea</th>
+          <th style="width:26%">What It Is</th>
+          <th style="width:26%">Potential Impact</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Remarketing</td>
+          <td>Display ads targeting site visitors who didn't convert. Standard Google Display Network setup.</td>
+          <td>Highest ROI campaign type for B2B -- stays top of mind during long procurement cycles. Estimated $300-500/mo budget.</td>
+          <td>Makes more sense once service-specific LPs are live and conversion tracking is verified. No point running it against the current homepage.</td>
+        </tr>
+        <tr>
+          <td>Ad extensions</td>
+          <td>Sitelinks, callouts, structured snippets, and call extension additions to existing campaigns.</td>
+          <td>CTR lift of 10-15% is typical. No additional cost per impression -- purely additive to existing spend.</td>
+          <td>May already be set up in the account -- worth checking current state. If not, low-effort high-return addition.</td>
+        </tr>
+        <tr>
+          <td>Negative keyword list</td>
+          <td>Block terms like -jobs, -DIY, -how to, -salary, -cheap, -training, -course from triggering ads.</td>
+          <td>Could reclaim 20-30% of budget currently going to non-buyer traffic at $5.70 average CPC.</td>
+          <td>Standard practice on mature accounts -- you likely already have some. Worth auditing what's currently excluded vs. what might be missing.</td>
+        </tr>
+        <tr>
+          <td>Nearshore / reshoring terms</td>
+          <td>Keywords like "nearshore manufacturing," "reshoring from China," "manufacturing outsourcing Mexico."</td>
+          <td>Very low competition, low CPC. Redstone's Mexico + US setup is a natural fit for reshoring narratives in current market conditions.</td>
+          <td>Redstone already bids on "Mexico" variants. This expands into a broader reshoring and supply chain diversification narrative that's trending in industrial buying conversations.</td>
+        </tr>
+        <tr>
+          <td>Competitor conquest</td>
+          <td>Bidding on "Xometry alternative," "Protolabs alternative," and similar comparison-intent keywords.</td>
+          <td>High intent -- these buyers are already in-market and actively evaluating. Fictiv runs this approach with dedicated comparison pages.</td>
+          <td>Requires a dedicated landing page making the case directly. Would need Eric's input on how aggressively to position vs. the major platforms.</td>
+        </tr>
+        <tr>
+          <td>US-capability keywords</td>
+          <td>"Die casting USA," "CNC machining company USA," "American manufacturer die casting."</td>
+          <td>Captures buyers with domestic-only requirements. Eric mentioned approximately 20% of prospects want US manufacturing per onboarding notes.</td>
+          <td>Redstone's Seattle facility covers this. Current keyword set may not be explicitly targeting domestic-only intent -- could be a gap worth checking.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 5: BENCHMARKS (DARK) -->
+<section class="band-dark">
+  <div class="section-inner">
+    <p class="section-label">Section 05</p>
+    <h2 class="section-title">Industry Benchmarks</h2>
+    <p class="section-intro">Reference figures for Industrial and Commercial category via WordStream 2025. For context when evaluating campaign performance once tracking is clean.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:30%">Metric</th>
+          <th style="width:35%">Industry Average (Industrial &amp; Commercial)</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Average CPC</td>
+          <td><span class="metric-value">$5.70</span></td>
+          <td>WordStream Google Ads Benchmarks 2025</td>
+        </tr>
+        <tr>
+          <td>Average CTR</td>
+          <td><span class="metric-value">6.23%</span></td>
+          <td>WordStream Google Ads Benchmarks 2025</td>
+        </tr>
+        <tr>
+          <td>Average Conversion Rate</td>
+          <td><span class="metric-value">7.17%</span></td>
+          <td>WordStream Google Ads Benchmarks 2025</td>
+        </tr>
+        <tr>
+          <td>Average Cost per Lead</td>
+          <td><span class="metric-value">$85.63</span></td>
+          <td>WordStream Google Ads Benchmarks 2025</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div class="footer-inner">
+    <div class="footer-block">
+      <strong>Prepared By</strong>
+      <p>KAMG</p>
+      <p>April 9, 2026</p>
+    </div>
+    <div class="footer-block">
+      <strong>For</strong>
+      <p>Daniel Hall</p>
+      <p>Google Ads Freelancer</p>
+      <p>daniel@blogtrepreneur.co.uk</p>
+    </div>
+    <div class="footer-block">
+      <strong>Account</strong>
+      <p>Redstone Manufacturing</p>
+      <p>Manager ID: 401-376-2535</p>
+    </div>
+    <div class="footer-block">
+      <strong>Questions</strong>
+      <p>Contact Kas Andz</p>
+      <p>k@kasandz.com</p>
+    </div>
+  </div>
+  <div class="footer-inner footer-sources">
+    <div>
+      <p>Sources: WordStream Google Ads Industry Benchmarks 2025 (Industrial &amp; Commercial category). Competitive intelligence gathered April 2026 via public ad library research, competitor landing page analysis, and keyword research tools. All competitor data is observational and not independently verified.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

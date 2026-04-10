@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Your Performance Assessment | The Iron Initiative</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* =====================
+       RESET & BASE
+    ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f14;
+      --card: #1a1a24;
+      --elevated: #222232;
+      --text: #f0f0f0;
+      --muted: #a0a0b0;
+      --gold: #c9a227;
+      --gold-dim: rgba(201,162,39,0.15);
+      --gold-border: rgba(201,162,39,0.35);
+      --blue: #188bf6;
+      --max: 1100px;
+      --pad-section: 80px;
+      --pad-section-mob: 48px;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* =====================
+       SVG NOISE OVERLAY
+    ===================== */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* =====================
+       GRADIENT MESH
+    ===================== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 20%, rgba(201,162,39,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 85% 75%, rgba(24,139,246,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 50% 50%, rgba(201,162,39,0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* =====================
+       PROGRESS BAR
+    ===================== */
+    .progress-bar {
+      background: var(--card);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 18px 0;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 8px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #555568;
+      white-space: nowrap;
+    }
+
+    .step.done {
+      color: var(--gold);
+    }
+
+    .step.active {
+      color: var(--gold);
+    }
+
+    .step.upcoming {
+      color: #555568;
+    }
+
+    .step-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step.done .step-icon {
+      background: var(--gold);
+      color: #0f0f14;
+    }
+
+    .step.active .step-icon {
+      background: var(--gold);
+      color: #0f0f14;
+      box-shadow: 0 0 12px rgba(201,162,39,0.45);
+    }
+
+    .step.upcoming .step-icon {
+      background: #2a2a3a;
+      color: #555568;
+      border: 1px solid #333348;
+    }
+
+    .step-connector {
+      width: 32px;
+      height: 2px;
+      background: #2a2a3a;
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .step-connector.done {
+      background: var(--gold);
+    }
+
+    @media (max-width: 600px) {
+      .step { font-size: 11px; gap: 5px; }
+      .step-connector { width: 16px; }
+      .step-icon { width: 18px; height: 18px; font-size: 10px; }
+    }
+
+    /* =====================
+       HERO
+    ===================== */
+    .hero {
+      padding: var(--pad-section) 0 60px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold-border);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .hero-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    /* =====================
+       WHAT TO EXPECT
+    ===================== */
+    .expect-header {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .expect-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+
+    .expect-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .expect-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #0f0f14;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .expect-text {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* =====================
+       TESTIMONIAL CARD
+    ===================== */
+    .testimonial-card {
+      background: var(--card);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .testimonial-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .testimonial-quote {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.75;
+      font-style: italic;
+      margin-bottom: 18px;
+    }
+
+    .testimonial-quote::before {
+      content: '\201C';
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: var(--gold);
+      line-height: 0;
+      vertical-align: -18px;
+      margin-right: 4px;
+    }
+
+    .testimonial-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testimonial-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #8a6d15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f0f14;
+      flex-shrink: 0;
+    }
+
+    .testimonial-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .testimonial-stats {
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    /* =====================
+       COACH CREDENTIALS
+    ===================== */
+    .coach-card {
+      background: var(--elevated);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .coach-photo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a2a3a, #1a1a24);
+      border: 2px solid var(--gold-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .coach-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .coach-title {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .coach-years {
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    /* =====================
+       CALENDAR WIDGET COLUMN
+    ===================== */
+    .calendar-col {
+      position: sticky;
+      top: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .calendar-col {
+        position: static;
+        order: -1;
+      }
+    }
+
+    .calendar-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.45);
+    }
+
+    .calendar-header {
+      background: linear-gradient(135deg, var(--gold), #a8831a);
+      padding: 20px 24px;
+      text-align: center;
+    }
+
+    .calendar-header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f0f14;
+      margin-bottom: 4px;
+    }
+
+    .calendar-header-sub {
+      font-size: 13px;
+      color: rgba(15,15,20,0.75);
+      font-weight: 500;
+    }
+
+    .calendar-widget-area {
+      min-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      padding: 32px 24px;
+    }
+
+    .calendar-placeholder {
+      text-align: center;
+      width: 100%;
+    }
+
+    .calendar-placeholder-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .calendar-placeholder-text {
+      font-size: 14px;
+      color: var(--muted);
+      font-family: 'Inter', monospace;
+      background: var(--elevated);
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      display: inline-block;
+      letter-spacing: 0.02em;
+    }
+
+    .calendar-footer {
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      background: var(--elevated);
+    }
+
+    .cal-detail {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .cal-detail:last-child { margin-bottom: 0; }
+
+    .cal-detail svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .cal-detail a {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .cal-detail a:hover { text-decoration: underline; }
+
+    /* =====================
+       FAQ / ACCORDION
+    ===================== */
+    .faq-section {
+      padding: var(--pad-section) 0;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 3.5vw, 38px);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 40px;
+    }
+
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    details.faq-item {
+      background: var(--card);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    details.faq-item[open] {
+      border-color: var(--gold);
+    }
+
+    details.faq-item summary {
+      list-style: none;
+      padding: 20px 24px;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      user-select: none;
+    }
+
+    details.faq-item summary::-webkit-details-marker { display: none; }
+
+    details.faq-item summary::after {
+      content: '+';
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      line-height: 1;
+    }
+
+    details.faq-item[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      padding: 0 24px 22px;
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.75;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 18px;
+    }
+
+    /* =====================
+       SOCIAL PROOF
+    ===================== */
+    .proof-section {
+      padding: 48px 0;
+      text-align: center;
+    }
+
+    .proof-inner {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius);
+      padding: 40px 48px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .proof-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 56px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .proof-label {
+      font-size: 16px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 320px;
+    }
+
+    .proof-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .proof-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.3;
+    }
+
+    .proof-dot:nth-child(1) { opacity: 1; }
+    .proof-dot:nth-child(2) { opacity: 0.6; }
+    .proof-dot:nth-child(3) { opacity: 0.4; }
+
+    /* =====================
+       SECOND CTA
+    ===================== */
+    .cta-section {
+      padding: var(--pad-section) 0;
+    }
+
+    .cta-box {
+      background: var(--card);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius);
+      padding: 56px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .cta-eyebrow {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .cta-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      max-width: 620px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-copy {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 540px;
+      margin: 0 auto 36px;
+    }
+
+    .btn-gold {
+      display: inline-block;
+      background: var(--gold);
+      color: #0f0f14;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 18px 40px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 8px 32px rgba(201,162,39,0.3);
+    }
+
+    .btn-gold:hover {
+      background: #ddb535;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(201,162,39,0.45);
+    }
+
+    .btn-gold:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      .cta-box {
+        padding: 40px 24px;
+      }
+    }
+
+    /* =====================
+       FOOTER
+    ===================== */
+    .footer {
+      background: var(--card);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .footer-tagline {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-copy {
+      font-size: 12px;
+      color: #555568;
+      margin-top: 20px;
+    }
+
+    /* =====================
+       MOBILE ADJUSTMENTS
+    ===================== */
+    @media (max-width: 768px) {
+      .hero { padding: var(--pad-section-mob) 0 40px; }
+      .faq-section { padding: var(--pad-section-mob) 0; }
+      .cta-section { padding: var(--pad-section-mob) 0; }
+
+      .proof-inner { padding: 32px 24px; }
+      .proof-number { font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- PROGRESS BAR -->
+  <nav class="progress-bar">
+    <div class="container">
+      <div class="progress-steps">
+        <div class="step done">
+          <div class="step-icon">&#10003;</div>
+          Registration
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step done">
+          <div class="step-icon">&#10003;</div>
+          Masterclass
+        </div>
+        <div class="step-connector done"></div>
+        <div class="step active">
+          <div class="step-icon">3</div>
+          Book Your Call
+        </div>
+        <div class="step-connector"></div>
+        <div class="step upcoming">
+          <div class="step-icon">4</div>
+          Get Started
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div style="margin-bottom: 32px;">
+        <div class="badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          Step 3 of 4: Book Your Performance Assessment
+        </div>
+      </div>
+
+      <div class="hero-grid">
+        <!-- LEFT COLUMN -->
+        <div class="hero-left">
+          <h1 class="hero-headline">Get Your Custom Physical Performance Plan</h1>
+          <p class="hero-sub">In 45 minutes, we'll map exactly what's broken in your biology and show you the fastest path to restoring full physical command.</p>
+
+          <!-- WHAT TO EXPECT -->
+          <p class="expect-header">What Happens On This Call:</p>
+          <div class="expect-list">
+            <div class="expect-item">
+              <div class="expect-num">1</div>
+              <p class="expect-text">We'll review your current health situation and identify the specific biological roadblocks holding you back.</p>
+            </div>
+            <div class="expect-item">
+              <div class="expect-num">2</div>
+              <p class="expect-text">Coach Morgan's team will show you exactly what's fixable and what timeline to expect based on men like you.</p>
+            </div>
+            <div class="expect-item">
+              <div class="expect-num">3</div>
+              <p class="expect-text">You'll get a custom action plan whether you work with us or not. No obligation. No pressure.</p>
+            </div>
+          </div>
+
+          <!-- TESTIMONIAL -->
+          <div class="testimonial-card">
+            <p class="testimonial-quote">My testosterone was at 280, I'd gained 35 pounds, and my marriage was suffering. Coach Morgan's team ran real bloodwork, found what was broken, and fixed it. Today my T is over 650, I've dropped 32 lbs, and my wife can't keep her hands off me.</p>
+            <div class="testimonial-meta">
+              <div class="testimonial-avatar">M</div>
+              <div>
+                <div class="testimonial-name">Michael R., Executive Director</div>
+                <div class="testimonial-stats">Lost 32 lbs &nbsp;|&nbsp; Testosterone 280 to 650+ &nbsp;|&nbsp; 12 Weeks</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COACH CREDENTIALS -->
+          <div class="coach-card">
+            <div class="coach-photo">&#127944;</div>
+            <div>
+              <div class="coach-name">Coach J. Morgan</div>
+              <div class="coach-title">Former Strength Coach, Philadelphia 76ers and St. Joseph's University</div>
+              <div class="coach-years">20+ years transforming executives and athletes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: CALENDAR -->
+        <div class="calendar-col">
+          <div class="calendar-card">
+            <div class="calendar-header">
+              <div class="calendar-header-title">Book Your Free Assessment</div>
+              <div class="calendar-header-sub">Select a time that works for you</div>
+            </div>
+            <div class="calendar-widget-area" id="calendar-anchor">
+              <!-- REPLACE THIS BLOCK WITH YOUR CALENDAR EMBED -->
+              <div class="calendar-placeholder">
+                <div class="calendar-placeholder-icon">&#128197;</div>
+                <div class="calendar-placeholder-text">[ PLACEHOLDER: CALENDLY_OR_GHL_CALENDAR_WIDGET ]</div>
+              </div>
+              <!-- END CALENDAR PLACEHOLDER -->
+            </div>
+            <div class="calendar-footer">
+              <div class="cal-detail">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                45-minute Zoom call with Coach Morgan's team
+              </div>
+              <div class="cal-detail">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 9.81a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8a16 16 0 0 0 7.91 7.91l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 24 17z"/></svg>
+                <a href="tel:3025986019">(302) 598-6019</a>
+              </div>
+              <div class="cal-detail">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <a href="mailto:support@theironinitiative.com">support@theironinitiative.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="faq-section">
+    <div class="container" style="text-align: center;">
+      <p class="section-label">No Pressure</p>
+      <h2 class="section-title">Common Questions Before Booking</h2>
+    </div>
+    <div class="container">
+      <div class="faq-list">
+
+        <details class="faq-item">
+          <summary>Is this really free?</summary>
+          <div class="faq-answer">Yes. We do these assessments at no cost because we believe once you see what's actually broken in your biology, the solution becomes obvious. No hard sell. No pressure. Just data and a path forward.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>How is this different from a doctor visit?</summary>
+          <div class="faq-answer">Your annual physical checks basic panels. We analyze testosterone, thyroid, cortisol, inflammation markers, and insulin sensitivity. The markers that actually determine whether your body can build muscle and burn fat. Most doctors never look at any of this.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>I've tried programs before and they didn't work</summary>
+          <div class="faq-answer">That's exactly why we start with data. Those programs failed because they were guessing. We don't guess. We test, we find what's broken, and we fix it with precision. If we can't identify the specific issue, we'll tell you that too.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>What if I'm not ready to invest in a program?</summary>
+          <div class="faq-answer">Then you still walk away with a clear picture of what's going on in your body and what needs to happen. That alone is worth the 45 minutes. Most men leave this call with more clarity than they've had in years, regardless of what they decide next.</div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="proof-section">
+    <div class="container" style="display: flex; justify-content: center;">
+      <div class="proof-inner">
+        <div class="proof-number">200+</div>
+        <div class="proof-label">Executives who've already taken the first step toward reclaiming their physical command</div>
+        <div class="proof-dots">
+          <div class="proof-dot"></div>
+          <div class="proof-dot"></div>
+          <div class="proof-dot"></div>
+          <div class="proof-dot"></div>
+          <div class="proof-dot"></div>
+        </div>
+        <!-- PLACEHOLDER: Replace 200+ with live count when available -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SECOND CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <p class="cta-eyebrow">Still on the fence?</p>
+        <h2 class="cta-headline">Your Kids Aren't Waiting for You to Figure This Out</h2>
+        <p class="cta-copy">Every week you delay is another week they see a tired father instead of the man they want to become. The biology is fixable. The only question is when you decide to fix it.</p>
+        <a href="#calendar-anchor" class="btn-gold">Book Your Free Assessment</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">The Iron Initiative</div>
+      <div class="footer-tagline">Performance Restoration for High-Achieving Men</div>
+      <div class="footer-links">
+        <a href="tel:3025986019">(302) 598-6019</a>
+        <a href="mailto:support@theironinitiative.com">support@theironinitiative.com</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div class="footer-copy">&copy; 2024 The Iron Initiative. All rights reserved. Results may vary. Individual outcomes depend on effort, adherence, and biology.</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

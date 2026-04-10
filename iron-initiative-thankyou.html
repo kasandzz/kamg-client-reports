@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You're Confirmed | The Iron Initiative</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================
+       BASE / RESET
+    ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0f0f14;
+      --card:       #1a1a24;
+      --elevated:   #222232;
+      --text:       #f0f0f0;
+      --muted:      #a0a0b0;
+      --gold:       #c9a227;
+      --gold-light: #e8c145;
+      --blue:       #188bf6;
+      --border:     rgba(201,162,39,0.18);
+      --radius:     12px;
+      --max-w:      1100px;
+      --sec-pad:    80px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ============================================
+       SVG NOISE OVERLAY
+    ============================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ============================================
+       GRADIENT MESH BACKGROUND
+    ============================================ */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(201,162,39,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 85% 80%, rgba(24,139,246,0.05) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 50% 50%, rgba(201,162,39,0.03) 0%, transparent 70%);
+    }
+
+    /* ============================================
+       LAYOUT
+    ============================================ */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    section {
+      padding: var(--sec-pad) 0;
+    }
+
+    /* ============================================
+       CONFETTI ANIMATION
+    ============================================ */
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      opacity: 0;
+      animation: confetti-fall linear forwards;
+    }
+
+    @keyframes confetti-fall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      80%  { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(110vh) rotate(720deg) scale(0.5); }
+    }
+
+    /* Generate 30 confetti pieces via nth-child */
+    .confetti-piece:nth-child(1)  { left: 3%;  background: var(--gold);  width: 6px;  height: 10px; animation-duration: 3.2s; animation-delay: 0.1s; }
+    .confetti-piece:nth-child(2)  { left: 8%;  background: #f0f0f0;      width: 8px;  height: 6px;  animation-duration: 2.8s; animation-delay: 0.3s; }
+    .confetti-piece:nth-child(3)  { left: 14%; background: var(--gold);  width: 5px;  height: 12px; animation-duration: 3.5s; animation-delay: 0.0s; }
+    .confetti-piece:nth-child(4)  { left: 20%; background: var(--blue);  width: 7px;  height: 7px;  animation-duration: 2.6s; animation-delay: 0.5s; }
+    .confetti-piece:nth-child(5)  { left: 27%; background: var(--gold);  width: 9px;  height: 5px;  animation-duration: 3.0s; animation-delay: 0.2s; }
+    .confetti-piece:nth-child(6)  { left: 33%; background: #f0f0f0;      width: 6px;  height: 9px;  animation-duration: 3.4s; animation-delay: 0.7s; }
+    .confetti-piece:nth-child(7)  { left: 40%; background: var(--gold);  width: 8px;  height: 8px;  animation-duration: 2.9s; animation-delay: 0.1s; border-radius: 50%; }
+    .confetti-piece:nth-child(8)  { left: 47%; background: var(--blue);  width: 5px;  height: 11px; animation-duration: 3.1s; animation-delay: 0.4s; }
+    .confetti-piece:nth-child(9)  { left: 54%; background: var(--gold);  width: 10px; height: 6px;  animation-duration: 2.7s; animation-delay: 0.6s; }
+    .confetti-piece:nth-child(10) { left: 60%; background: #f0f0f0;      width: 7px;  height: 7px;  animation-duration: 3.3s; animation-delay: 0.2s; border-radius: 50%; }
+    .confetti-piece:nth-child(11) { left: 67%; background: var(--gold);  width: 6px;  height: 10px; animation-duration: 3.0s; animation-delay: 0.8s; }
+    .confetti-piece:nth-child(12) { left: 73%; background: var(--blue);  width: 8px;  height: 5px;  animation-duration: 2.5s; animation-delay: 0.3s; }
+    .confetti-piece:nth-child(13) { left: 80%; background: var(--gold);  width: 5px;  height: 9px;  animation-duration: 3.6s; animation-delay: 0.1s; }
+    .confetti-piece:nth-child(14) { left: 86%; background: #f0f0f0;      width: 9px;  height: 6px;  animation-duration: 2.8s; animation-delay: 0.5s; }
+    .confetti-piece:nth-child(15) { left: 93%; background: var(--gold);  width: 7px;  height: 8px;  animation-duration: 3.2s; animation-delay: 0.0s; }
+    .confetti-piece:nth-child(16) { left: 5%;  background: var(--gold);  width: 4px;  height: 12px; animation-duration: 4.0s; animation-delay: 1.2s; }
+    .confetti-piece:nth-child(17) { left: 12%; background: var(--blue);  width: 8px;  height: 8px;  animation-duration: 3.8s; animation-delay: 1.5s; border-radius: 50%; }
+    .confetti-piece:nth-child(18) { left: 22%; background: var(--gold);  width: 6px;  height: 6px;  animation-duration: 3.5s; animation-delay: 1.0s; }
+    .confetti-piece:nth-child(19) { left: 35%; background: #f0f0f0;      width: 10px; height: 5px;  animation-duration: 3.9s; animation-delay: 1.3s; }
+    .confetti-piece:nth-child(20) { left: 50%; background: var(--gold);  width: 7px;  height: 9px;  animation-duration: 4.2s; animation-delay: 0.9s; }
+    .confetti-piece:nth-child(21) { left: 63%; background: var(--blue);  width: 5px;  height: 7px;  animation-duration: 3.7s; animation-delay: 1.1s; }
+    .confetti-piece:nth-child(22) { left: 75%; background: var(--gold);  width: 9px;  height: 5px;  animation-duration: 3.3s; animation-delay: 1.4s; }
+    .confetti-piece:nth-child(23) { left: 88%; background: #f0f0f0;      width: 6px;  height: 8px;  animation-duration: 4.1s; animation-delay: 1.6s; }
+    .confetti-piece:nth-child(24) { left: 95%; background: var(--gold);  width: 8px;  height: 6px;  animation-duration: 3.6s; animation-delay: 0.7s; border-radius: 50%; }
+    .confetti-piece:nth-child(25) { left: 18%; background: var(--gold);  width: 5px;  height: 10px; animation-duration: 4.4s; animation-delay: 1.8s; }
+    .confetti-piece:nth-child(26) { left: 30%; background: var(--blue);  width: 7px;  height: 7px;  animation-duration: 3.9s; animation-delay: 2.0s; }
+    .confetti-piece:nth-child(27) { left: 45%; background: var(--gold);  width: 9px;  height: 9px;  animation-duration: 4.3s; animation-delay: 1.7s; border-radius: 50%; }
+    .confetti-piece:nth-child(28) { left: 58%; background: #f0f0f0;      width: 6px;  height: 6px;  animation-duration: 3.5s; animation-delay: 2.2s; }
+    .confetti-piece:nth-child(29) { left: 70%; background: var(--gold);  width: 8px;  height: 10px; animation-duration: 4.0s; animation-delay: 1.9s; }
+    .confetti-piece:nth-child(30) { left: 83%; background: var(--blue);  width: 5px;  height: 5px;  animation-duration: 3.7s; animation-delay: 2.1s; border-radius: 50%; }
+
+    /* ============================================
+       HEADER / NAV BAR
+    ============================================ */
+    .site-header {
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(201,162,39,0.12);
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    /* ============================================
+       PROGRESS BAR
+    ============================================ */
+    .progress-bar-section {
+      padding: 32px 0 0;
+    }
+
+    .progress-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      position: relative;
+    }
+
+    .step-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-circle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .step-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gold);
+      text-align: center;
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+      max-width: 80px;
+    }
+
+    .step-connector {
+      height: 2px;
+      flex: 1;
+      background: var(--gold);
+      margin-bottom: 28px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .hero-section {
+      padding: 60px 0 var(--sec-pad);
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,162,39,0.12);
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .hero-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .hero-checkmark {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 32px;
+    }
+
+    @keyframes check-draw {
+      0%   { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes circle-draw {
+      0%   { stroke-dashoffset: 280; opacity: 0; }
+      20%  { opacity: 1; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .check-circle {
+      stroke-dasharray: 280;
+      stroke-dashoffset: 280;
+      animation: circle-draw 1s ease-out 0.2s forwards;
+    }
+
+    .check-path {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: check-draw 0.6s ease-out 0.9s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-subtitle {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       CALENDAR SECTION
+    ============================================ */
+    .calendar-section {
+      padding: var(--sec-pad) 0;
+      background: rgba(201,162,39,0.04);
+      border-top: 1px solid rgba(201,162,39,0.1);
+      border-bottom: 1px solid rgba(201,162,39,0.1);
+    }
+
+    .calendar-mandate {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .calendar-mandate p {
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 700;
+      color: var(--text);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .calendar-mandate strong {
+      color: var(--gold);
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .calendar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 24px 28px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(201,162,39,0.35);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 16px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+    }
+
+    .calendar-btn:hover {
+      background: rgba(201,162,39,0.12);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(201,162,39,0.2);
+    }
+
+    .calendar-btn-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .calendar-btn-text {
+      text-align: left;
+    }
+
+    .calendar-btn-text span {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ============================================
+       SECTION HEADERS
+    ============================================ */
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+
+    /* ============================================
+       PREP CARDS (HOMEWORK)
+    ============================================ */
+    .prep-section {
+      padding: var(--sec-pad) 0;
+    }
+
+    .prep-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .prep-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top: 3px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      position: relative;
+    }
+
+    .prep-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(201,162,39,0.15);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .prep-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+
+    .prep-card-body {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .prep-card-body strong {
+      color: var(--text);
+      font-style: italic;
+    }
+
+    /* ============================================
+       WHAT TO EXPECT / TIMELINE
+    ============================================ */
+    .expect-section {
+      padding: var(--sec-pad) 0;
+      background: rgba(201,162,39,0.03);
+      border-top: 1px solid rgba(201,162,39,0.08);
+      border-bottom: 1px solid rgba(201,162,39,0.08);
+    }
+
+    .timeline {
+      max-width: 560px;
+      margin: 0 auto 36px;
+      position: relative;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 19px;
+      top: 20px;
+      bottom: 20px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--gold), rgba(201,162,39,0.2));
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-dot-inner {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .timeline-content {
+      padding-top: 6px;
+    }
+
+    .timeline-step-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .timeline-step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .timeline-step-body {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .call-meta {
+      max-width: 560px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(201,162,39,0.2);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+    }
+
+    .call-meta-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .call-meta-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .call-meta-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .call-meta-text {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .call-meta-text strong {
+      color: var(--text);
+    }
+
+    /* ============================================
+       TESTIMONIALS
+    ============================================ */
+    .testimonials-section {
+      padding: var(--sec-pad) 0;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testi-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .testi-quote-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      color: var(--gold);
+      opacity: 0.4;
+      line-height: 1;
+      margin-bottom: -8px;
+    }
+
+    .testi-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .testi-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .testi-results {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(201,162,39,0.1);
+      border: 1px solid rgba(201,162,39,0.25);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testi-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), rgba(201,162,39,0.4));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .testi-name {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .testi-role {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    /* ============================================
+       WISTIA VIDEO SECTION
+    ============================================ */
+    .video-section {
+      padding: var(--sec-pad) 0;
+      background: rgba(24,139,246,0.03);
+      border-top: 1px solid rgba(24,139,246,0.08);
+      border-bottom: 1px solid rgba(24,139,246,0.08);
+    }
+
+    .wistia-wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .wistia-inner {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .wistia-inner iframe,
+    .wistia-inner .wistia_embed {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .wistia-thumbnail {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+      cursor: pointer;
+    }
+
+    .wistia-thumbnail.hidden {
+      display: none;
+    }
+
+    .play-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 40px rgba(201,162,39,0.5);
+    }
+
+    .play-btn svg {
+      width: 32px;
+      height: 32px;
+      margin-left: 4px;
+    }
+
+    .wistia-caption {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ============================================
+       RESCHEDULE SECTION
+    ============================================ */
+    .reschedule-section {
+      padding: 48px 0;
+    }
+
+    .reschedule-card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      text-align: center;
+    }
+
+    .reschedule-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .reschedule-body {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.65;
+    }
+
+    .btn-reschedule {
+      display: inline-block;
+      padding: 14px 32px;
+      background: transparent;
+      border: 1.5px solid rgba(201,162,39,0.5);
+      border-radius: 8px;
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      margin-bottom: 28px;
+    }
+
+    .btn-reschedule:hover {
+      background: rgba(201,162,39,0.1);
+      border-color: var(--gold);
+    }
+
+    .contact-line {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .contact-line a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .contact-line a:hover {
+      color: var(--gold);
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .site-footer {
+      padding: 40px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .footer-logo span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(160,160,176,0.5);
+    }
+
+    /* ============================================
+       DIVIDER
+    ============================================ */
+    .gold-divider {
+      width: 48px;
+      height: 2px;
+      background: var(--gold);
+      margin: 0 auto 32px;
+      border-radius: 2px;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 900px) {
+      :root { --sec-pad: 56px; }
+
+      .prep-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .calendar-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      :root { --sec-pad: 48px; }
+
+      .container { padding: 0 16px; }
+
+      .progress-track { gap: 0; }
+      .step-label { font-size: 9px; max-width: 60px; }
+      .step-circle { width: 28px; height: 28px; }
+      .step-circle svg { width: 12px; height: 12px; }
+
+      .hero-checkmark { width: 60px; height: 60px; }
+
+      .reschedule-card { padding: 28px 20px; }
+
+      .calendar-btn { padding: 18px 20px; font-size: 15px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Confetti particles -->
+  <div class="confetti-container" aria-hidden="true">
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+    <div class="confetti-piece"></div>
+  </div>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#" class="logo">The Iron <span>Initiative</span></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== PROGRESS BAR ===================== -->
+  <div class="progress-bar-section">
+    <div class="container">
+      <div class="progress-track">
+        <!-- Step 1 -->
+        <div class="progress-step">
+          <div class="step-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="step-label">Registration</div>
+        </div>
+        <div class="step-connector"></div>
+        <!-- Step 2 -->
+        <div class="progress-step">
+          <div class="step-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="step-label">Masterclass</div>
+        </div>
+        <div class="step-connector"></div>
+        <!-- Step 3 -->
+        <div class="progress-step">
+          <div class="step-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="step-label">Book Your Call</div>
+        </div>
+        <div class="step-connector"></div>
+        <!-- Step 4 -->
+        <div class="progress-step">
+          <div class="step-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="step-label">Confirmed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero-section">
+    <div class="container" style="text-align:center;">
+
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Assessment Booked
+      </div>
+
+      <!-- Animated checkmark -->
+      <svg class="hero-checkmark" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle class="check-circle" cx="45" cy="45" r="42" stroke="#c9a227" stroke-width="3" fill="rgba(201,162,39,0.08)"/>
+        <polyline class="check-path" points="26,47 39,60 64,32" stroke="#c9a227" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+
+      <h1 class="hero-title">
+        You're In.<br/><em>Your Assessment Is Booked.</em>
+      </h1>
+
+      <p class="hero-subtitle">
+        Coach Morgan's team is preparing your custom performance analysis. Here's how to make the most of your call.
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ===================== CALENDAR SECTION ===================== -->
+  <section class="calendar-section">
+    <div class="container">
+
+      <div class="calendar-mandate">
+        <p>
+          <strong>Add this to your calendar NOW.</strong><br/>
+          Men who calendar the call show up. Men who don't, don't.
+        </p>
+      </div>
+
+      <div class="calendar-grid">
+
+        <!-- Google Calendar -->
+        <a href="{{appointment.add_to_google_calendar}}" class="calendar-btn" target="_blank" rel="noopener">
+          <svg class="calendar-btn-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="36" height="36" rx="4" fill="#fff"/>
+            <rect x="6" y="6" width="36" height="10" rx="4" fill="#1a73e8"/>
+            <rect x="6" y="10" width="36" height="6" fill="#1a73e8"/>
+            <rect x="14" y="4" width="4" height="8" rx="2" fill="#1a73e8"/>
+            <rect x="30" y="4" width="4" height="8" rx="2" fill="#1a73e8"/>
+            <text x="24" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#1a73e8">G</text>
+          </svg>
+          <div class="calendar-btn-text">
+            Add to Google Calendar
+            <span>Syncs instantly to Gmail</span>
+          </div>
+        </a>
+
+        <!-- Outlook / iCal -->
+        <a href="{{appointment.add_to_ical_outlook}}" class="calendar-btn" target="_blank" rel="noopener">
+          <svg class="calendar-btn-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="8" width="36" height="32" rx="4" fill="#0078d4"/>
+            <rect x="14" y="4" width="4" height="8" rx="2" fill="#fff"/>
+            <rect x="30" y="4" width="4" height="8" rx="2" fill="#fff"/>
+            <rect x="6" y="18" width="36" height="2" fill="rgba(255,255,255,0.3)"/>
+            <rect x="12" y="24" width="6" height="2" rx="1" fill="#fff"/>
+            <rect x="22" y="24" width="6" height="2" rx="1" fill="#fff"/>
+            <rect x="32" y="24" width="6" height="2" rx="1" fill="#fff"/>
+            <rect x="12" y="30" width="6" height="2" rx="1" fill="#fff"/>
+            <rect x="22" y="30" width="6" height="2" rx="1" fill="#fff"/>
+          </svg>
+          <div class="calendar-btn-text">
+            Add to Outlook / iCal
+            <span>Works with Apple Calendar too</span>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== PRE-CALL HOMEWORK ===================== -->
+  <section class="prep-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-eyebrow">Before Your Call</div>
+        <h2 class="section-title">Your Pre-Call Assignment</h2>
+        <p class="section-subtitle">
+          Complete this before your call and you'll get 3x more value from the conversation.
+        </p>
+        <div class="gold-divider" style="margin-top:24px;"></div>
+      </div>
+
+      <div class="prep-grid">
+
+        <!-- Card 1 -->
+        <div class="prep-card">
+          <div class="prep-number">1</div>
+          <h3 class="prep-card-title">Write Down Your Top 3</h3>
+          <p class="prep-card-body">
+            What are the 3 specific things about your health that keep you up at night? Be specific.
+            <br/><br/>
+            <strong>"Low energy" is not specific.</strong>
+            <br/><br/>
+            <strong>"I crash at 2 PM every day and need 3 coffees to make it to 5"</strong> is specific.
+            <br/><br/>
+            Bring these to your call.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="prep-card">
+          <div class="prep-number">2</div>
+          <h3 class="prep-card-title">Know Your Numbers</h3>
+          <p class="prep-card-body">
+            When was your last comprehensive blood panel?
+            <br/><br/>
+            If you've had one in the past 12 months, have it ready to reference.
+            <br/><br/>
+            If you haven't, that tells us something important too.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="prep-card">
+          <div class="prep-number">3</div>
+          <h3 class="prep-card-title">Set Your 12-Week Target</h3>
+          <p class="prep-card-body">
+            If we could fix ONE thing about your health in 12 weeks, what would it be?
+            <br/><br/>
+            Weight? Energy? Testosterone? Sleep? Mental clarity?
+            <br/><br/>
+            Pick one. We'll build your plan around it.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== WHAT TO EXPECT ===================== -->
+  <section class="expect-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-eyebrow">The Call</div>
+        <h2 class="section-title">Your Call in 3 Steps</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-line" aria-hidden="true"></div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-step-label">Step 1</div>
+            <div class="timeline-step-title">Assessment</div>
+            <p class="timeline-step-body">We'll review your current situation, health history, and goals. No judgment. Just data.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-step-label">Step 2</div>
+            <div class="timeline-step-title">Analysis</div>
+            <p class="timeline-step-body">Using your data, we'll identify exactly what's broken and what's fixable in your timeframe.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-step-label">Step 3</div>
+            <div class="timeline-step-title">Action Plan</div>
+            <p class="timeline-step-body">You'll leave with a clear roadmap whether you work with us or not.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="call-meta">
+        <div class="call-meta-row">
+          <svg class="call-meta-icon" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <p class="call-meta-text"><strong>Duration: 45 minutes on Zoom.</strong> Block it. Don't double-book yourself.</p>
+        </div>
+        <div class="call-meta-row">
+          <svg class="call-meta-icon" viewBox="0 0 24 24" fill="none" stroke="#c9a227" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <p class="call-meta-text">Your call is with Coach Morgan's team. <strong>Come with questions. We'll have answers.</strong></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== TESTIMONIALS ===================== -->
+  <section class="testimonials-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-eyebrow">Client Results</div>
+        <h2 class="section-title">Men Who Took This Exact Step</h2>
+        <div class="gold-divider" style="margin-top:20px;"></div>
+      </div>
+
+      <div class="testimonials-grid">
+
+        <!-- Michael -->
+        <div class="testi-card">
+          <div class="testi-quote-mark">"</div>
+          <p class="testi-headline">My energy is back, my wife noticed, and I'm finally myself again</p>
+          <p class="testi-body">My testosterone was at 280, I'd gained 35 pounds, and my marriage was suffering. Coach Morgan's team ran real bloodwork, found what was broken, and fixed it.</p>
+          <div class="testi-results">Lost 32 lbs &nbsp;|&nbsp; T: 280 to 650+ &nbsp;|&nbsp; 12 Weeks</div>
+          <div class="testi-author">
+            <div class="testi-avatar">M</div>
+            <div>
+              <div class="testi-name">Michael</div>
+              <div class="testi-role">Iron Initiative Client</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- David -->
+        <div class="testi-card">
+          <div class="testi-quote-mark">"</div>
+          <p class="testi-headline">270 pounds and embarrassed. Today my kids ask me to play again.</p>
+          <p class="testi-body">I used to be the athletic guy. Career took off, health went to priority ten. I didn't recognize myself. The Iron Initiative changed everything -- for me and for my family.</p>
+          <div class="testi-results">Lost 52 lbs &nbsp;|&nbsp; T: 240 to 620 &nbsp;|&nbsp; 12 Weeks</div>
+          <div class="testi-author">
+            <div class="testi-avatar">D</div>
+            <div>
+              <div class="testi-name">David</div>
+              <div class="testi-role">Iron Initiative Client</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coach Morgan -->
+        <div class="testi-card">
+          <div class="testi-quote-mark">"</div>
+          <p class="testi-headline">I built this program because I needed it myself.</p>
+          <p class="testi-body">47 years old. Four kids under 10. Multiple businesses. I play basketball twice a week with guys half my age. The Iron Protocol is what I live every single day -- not just what I teach.</p>
+          <div class="testi-results">Playing with guys half his age at 47</div>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#c9a227,rgba(201,162,39,0.6));">J</div>
+            <div>
+              <div class="testi-name">Coach J. Morgan</div>
+              <div class="testi-role">Founder, The Iron Initiative</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== MASTERCLASS REPLAY ===================== -->
+  <section class="video-section">
+    <div class="container">
+
+      <div class="section-header">
+        <div class="section-eyebrow">Masterclass</div>
+        <h2 class="section-title">Watch (or Rewatch) the Masterclass</h2>
+        <p class="section-subtitle">Use the time before your call to re-engage with the material. The more context you bring, the better your call.</p>
+      </div>
+
+      <div class="wistia-wrapper">
+        <div class="wistia-inner">
+          <!-- Click-to-play thumbnail overlay -->
+          <div class="wistia-thumbnail" id="videoThumb" onclick="loadVideo()" role="button" tabindex="0" aria-label="Play masterclass video" onkeydown="if(event.key==='Enter')loadVideo()">
+            <div style="text-align:center;">
+              <div class="play-btn">
+                <svg viewBox="0 0 24 24" fill="#0f0f14" xmlns="http://www.w3.org/2000/svg">
+                  <polygon points="6,3 22,12 6,21"/>
+                </svg>
+              </div>
+              <p style="margin-top:20px;font-size:14px;color:rgba(160,160,176,0.7);font-weight:500;">Click to play</p>
+            </div>
+          </div>
+          <!-- Wistia embed loads on click -->
+          <div id="wistiaEmbed" style="display:none;position:absolute;inset:0;"></div>
+        </div>
+      </div>
+
+      <p class="wistia-caption">The Iron Protocol Masterclass -- Full Session Replay</p>
+
+    </div>
+  </section>
+
+  <!-- ===================== RESCHEDULE ===================== -->
+  <section class="reschedule-section">
+    <div class="container">
+      <div class="reschedule-card">
+        <h3 class="reschedule-title">Need to reschedule?</h3>
+        <p class="reschedule-body">
+          Life happens. But don't ghost us. Reschedule your call instead of canceling -- your spot is valuable and another man could use it.
+        </p>
+        <a href="{{RESCHEDULE_URL}}" class="btn-reschedule">Reschedule My Call</a>
+        <div class="contact-line">
+          Questions? Reach us at
+          <a href="tel:+13025986019">(302) 598-6019</a>
+          &nbsp;|&nbsp;
+          <a href="mailto:support@theironinitiative.com">support@theironinitiative.com</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-logo">The Iron <span>Initiative</span></div>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="mailto:support@theironinitiative.com">Contact</a>
+        <a href="{{RESCHEDULE_URL}}">Reschedule</a>
+      </div>
+      <p class="footer-copy">
+        &copy; 2024 The Iron Initiative. All rights reserved.<br/>
+        Results may vary. Individual outcomes depend on adherence, starting point, and program compliance.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ===================== VIDEO SCRIPT ===================== -->
+  <script>
+    function loadVideo() {
+      var thumb = document.getElementById('videoThumb');
+      var embed = document.getElementById('wistiaEmbed');
+      thumb.classList.add('hidden');
+      embed.style.display = 'block';
+      embed.innerHTML =
+        '<script src="https://fast.wistia.com/embed/medias/hiq2ivd3ze.jsonp" async><\/script>' +
+        '<script src="https://fast.wistia.com/assets/external/E-v1.js" async><\/script>' +
+        '<div class="wistia_embed wistia_async_hiq2ivd3ze videoFoam=true" style="height:100%;position:absolute;width:100%;left:0;top:0;">&nbsp;</div>';
+    }
+  </script>
+
+</body>
+</html>

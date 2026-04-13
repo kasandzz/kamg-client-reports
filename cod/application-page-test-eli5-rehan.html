@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>COD — Application Page Test: ELI5 Build Guide for Rehan</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#111114; --panel2:#161619; --line:#22222a;
+    --ink:#f1f5f9; --muted:#94a3b8; --gold:#c8a96e; --mint:#5ee1c6; --red:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+  a{color:var(--mint);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:940px;margin:0 auto;padding:44px 22px 120px}
+  h1{font:600 32px/1.2 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 6px}
+  h2{font-size:20px;margin:40px 0 10px;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{font-size:16px;margin:22px 0 8px;color:var(--mint)}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:720px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0}
+  .card.warn{border-color:#4a2530;background:#1a0f12}
+  .card.ok{border-color:#1f3a35;background:#0e1c18}
+  .card.quote{border-left:3px solid var(--gold);border-radius:0 10px 10px 0;background:#14110c}
+  code.inline{background:#05070c;padding:2px 7px;border-radius:4px;color:#ffd796;font-family:"JetBrains Mono",Consolas,monospace;font-size:13px}
+  pre{background:#05070c;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 "JetBrains Mono",Consolas,monospace;color:#d8dee9}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  ol li,ul li{margin:6px 0}
+  .chip{display:inline-block;background:#1c1c22;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+  .chip.g{color:#111;background:var(--gold);border-color:var(--gold);font-weight:600}
+  .hdr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .step{display:flex;gap:14px;margin:16px 0}
+  .step .num{flex:0 0 36px;height:36px;border-radius:50%;background:var(--gold);color:#111;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .body{flex:1;min-width:0}
+  .kv{display:grid;grid-template-columns:180px 1fr;gap:10px 18px;font-size:14px}
+  .kv div:nth-child(odd){color:var(--muted)}
+  .bad{color:var(--red)} .good{color:var(--mint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <span class="chip g">Client: COD</span>
+    <span class="chip">Owner: Rehan</span>
+    <span class="chip">Target: clientsondemand.live/application</span>
+    <span class="chip">Priority: P0</span>
+  </div>
+  <h1>Application Page Test — ELI5 Build Guide</h1>
+  <p class="sub">Ground truth for Rehan to implement Kas's proposed application page redesign in GHL. Built from the Slack thread in <code class="inline">#clients-on-demand-pro</code> (Akari, Franzi +3), plus Matt's GHL-specific constraints around how forms, custom fields, and the calendar hand-off work.</p>
+
+  <h2>1. What Kas flagged in Slack</h2>
+  <div class="card quote">
+    <p><b>Kas @ 3:37 PM</b> — "Application Pages"</p>
+    <p><b>Kas @ 3:39 PM</b> — "We have a <span class="bad">75% dropoff on the booking page currently</span>." <span class="muted">[screenshot of funnel stats]</span></p>
+    <p><b>Kas @ 3:40 PM</b> — "It's also broken on mobile a bit: <a href="https://clientsondemand.live/application">https://clientsondemand.live/application</a>"</p>
+    <p><b>Kas @ 3:41 PM</b> — "If I select any of the bottom options on the first question, the form disappears from the screen (because it shrinks). I scrolled up in this screenshot to demonstrate." <span class="muted">[IMG_7899]</span></p>
+    <p><b>Kas @ 3:42 PM</b> — "That's because GHL Forms suck."</p>
+    <p><b>Kas @ 3:42 PM</b> — "My Proposed Solution: <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html</a>"</p>
+    <ul style="margin-top:6px">
+      <li>Improved UX, reduced scrolling required vs current form → less friction</li>
+      <li>No bug (no shrinking/disappearing on option select)</li>
+      <li>Redesigned to match the front-end funnel page styling</li>
+      <li>Designed mobile-first (vast majority of our traffic is mobile)</li>
+    </ul>
+  </div>
+
+  <h2>2. Why the current page is bleeding money</h2>
+  <div class="card warn">
+    <p><b>The bug:</b> GHL's native form component re-heights itself when you pick certain options on Step 1. On mobile, the newly-rendered short form ends up <i>above</i> the scroll viewport — so the user sees a blank screen after tapping an answer and assumes the page is broken. They bounce.</p>
+    <p><b>The math:</b> 75% dropoff on the booking page = 3 out of every 4 qualified leads who made it through the $27 workshop / VSL never book a breakthrough call. Fixing this is a bigger lever than anything upstream.</p>
+    <p><b>Why GHL forms suck for this specifically:</b></p>
+    <ul>
+      <li>No control over post-selection scroll position</li>
+      <li>Dynamic height on multi-step = layout shift on every tap</li>
+      <li>No native "card-style" radio buttons (current form is dropdowns + labels → high cognitive load)</li>
+      <li>Mobile validation UX is weak</li>
+    </ul>
+  </div>
+
+  <h2>3. What we're replacing it with</h2>
+  <p class="sub">Kas's redesign is a self-contained HTML/CSS/JS page at <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">application-form-redesign.html</a>. It's a 4-step wizard with card-based choices, fixed viewport, smooth slide transitions, and no dependency on GHL's form renderer. Rehan's job is to make this the live application page and wire its output into GHL so the back-end (calendar, pipeline, automations) still works exactly like today.</p>
+
+  <div class="card">
+    <h3>The 4 steps in the redesign</h3>
+    <table>
+      <thead><tr><th>Step</th><th>Question</th><th>Input type</th><th>GHL custom field</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>What best describes your work? → healthcare / business / professional → sub-role</td><td>Card selector (2 levels)</td><td><code class="inline">professional_category</code> + <code class="inline">professional_role</code></td></tr>
+        <tr><td>2</td><td>In 1–2 sentences, what do you help people with?</td><td>Textarea (300 char)</td><td><code class="inline">what_you_help_with</code></td></tr>
+        <tr><td>3</td><td>When it comes to investing in your growth, which best describes you? (solo / spouse / business partner)</td><td>Card selector</td><td><code class="inline">decision_style</code></td></tr>
+        <tr><td>4</td><td>Where should we send your call details? (name / email / phone / SMS consent)</td><td>Standard fields</td><td><code class="inline">first_name</code>, <code class="inline">email</code>, <code class="inline">phone</code>, <code class="inline">sms_consent</code></td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin:10px 0 0">Field keys should match exactly — downstream automations (pipeline stage, tags, booking confirmation emails) are built around these names.</p>
+  </div>
+
+  <h2>4. GHL-specific constraints Matt flagged</h2>
+  <p class="sub">These are the things Matt has called out in the past about how GHL actually behaves under the hood. Respect them or this test will fail quietly.</p>
+
+  <div class="card">
+    <h3>A. Wiring form results into GHL fields</h3>
+    <ul>
+      <li>GHL will NOT auto-create a contact from a raw HTML form — it only recognizes submissions from its native <code class="inline">&lt;form&gt;</code> widget OR from an inbound webhook hitting <code class="inline">https://services.leadconnectorhq.com/hooks/...</code></li>
+      <li>Easiest reliable path: build the custom HTML page in GHL's <b>Funnel Builder → Custom Code block</b>, but use GHL's native <code class="inline">&lt;form&gt;</code> element as the hidden submission layer. JS at submit time copies <code class="inline">formData</code> into the hidden GHL form inputs, then calls <code class="inline">hiddenForm.submit()</code>.</li>
+      <li>Every custom field (all 5 from the table in section 3) must exist in <b>Settings → Custom Fields</b> before you build the page, otherwise GHL silently drops them.</li>
+      <li>Use field <b>keys</b> exactly as listed — Matt has warned before that GHL is case-sensitive and trailing spaces in labels cause "no such field" failures.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>B. URL passthrough to the calendar</h3>
+    <p>On submit, the user needs to land on the Breakthrough Call calendar with their name / email / phone <b>already filled in</b>. Matt's pattern for this:</p>
+<pre>https://app.clientsondemand.app/widget/bookings/breakthrough-call
+  ?first_name={{contact.first_name}}
+  &amp;last_name={{contact.last_name}}
+  &amp;email={{contact.email}}
+  &amp;phone={{contact.phone}}
+  &amp;professional_role={{contact.professional_role}}
+  &amp;what_you_help_with={{contact.what_you_help_with}}
+  &amp;decision_style={{contact.decision_style}}</pre>
+    <ul>
+      <li>Set this as the <b>Redirect URL</b> in the hidden GHL form's "On Submit" settings. GHL replaces the merge tags server-side after the contact is created/updated.</li>
+      <li>The calendar widget will prefill name/email/phone automatically from the query string — that's built-in GHL behavior as long as the parameter names match the contact field keys.</li>
+      <li><b>Do not</b> use <code class="inline">window.location.href</code> from JavaScript — merge tags won't resolve because GHL hasn't yet saved the contact at the moment the redirect fires. Always go through GHL's native redirect.</li>
+    </ul>
+    <div class="card warn" style="margin-top:10px">
+      <b>Gotcha Matt flagged:</b> the calendar must be in the same calendar group it's in today. If you clone or move it, merge fields stop resolving and every booking lands with blank contact info.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>C. Name passthrough has broken before</h3>
+    <p>On the $27 workshop funnel earlier this month, VIP emails went out with empty <code class="inline">{{contact.first_name}}</code> tags because the page wasn't saving the name. Root cause was a custom-built input that wasn't mapped to the GHL contact field. Avoid repeating that:</p>
+    <ul>
+      <li>The <b>Full Name</b> field in the redesign must be split into <code class="inline">first_name</code> + <code class="inline">last_name</code> before submit (use the first space as the split point).</li>
+      <li>Submit a test as yourself and verify both fields appear on the contact detail view in GHL before going live.</li>
+    </ul>
+  </div>
+
+  <h2>5. Step-by-step build order</h2>
+
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Grab the source HTML</h3>
+    <p>Download <code class="inline">application-form-redesign.html</code> from kamg-client-reports (the live link in the Slack thread). This is the design contract — don't restyle it. Preserve the Cormorant Garamond + Outfit fonts, the gold accent (<code class="inline">#c8a96e</code>), the card radii, and the step dots.</p>
+  </div></div>
+
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Create the 5 custom fields in GHL</h3>
+    <p>Settings → Custom Fields → New. Names and types:</p>
+    <div class="kv">
+      <div><code class="inline">professional_category</code></div><div>Single line — text</div>
+      <div><code class="inline">professional_role</code></div><div>Single line — text</div>
+      <div><code class="inline">what_you_help_with</code></div><div>Multi line — text</div>
+      <div><code class="inline">decision_style</code></div><div>Dropdown (3 values: solo / spouse / business-partner)</div>
+      <div><code class="inline">sms_consent</code></div><div>Checkbox (boolean)</div>
+    </div>
+  </div></div>
+
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Clone the existing application funnel step</h3>
+    <p>Sites → Funnels → <b>Application Funnel</b> → clone the <code class="inline">/application</code> step → rename to <code class="inline">application-v2</code> (draft slug) so we can A/B against the live page without breaking traffic.</p>
+  </div></div>
+
+  <div class="step"><div class="num">4</div><div class="body">
+    <h3>Replace the page body with a Custom Code block</h3>
+    <p>Delete all existing sections. Drop in one full-width <b>Custom Code</b> block. Paste Kas's HTML/CSS/JS inside. At the bottom, inject a hidden GHL form element (built using GHL's form builder, styled <code class="inline">display:none</code>) that contains all 5 custom fields + name/email/phone. Wire the real "Submit" button's <code class="inline">submitForm()</code> function to:</p>
+<pre>function submitForm(){
+  // existing formData capture…
+  const hf = document.getElementById('ghl-hidden-form');
+  hf.querySelector('[name="first_name"]').value = formData.name.split(' ')[0];
+  hf.querySelector('[name="last_name"]').value  = formData.name.split(' ').slice(1).join(' ');
+  hf.querySelector('[name="email"]').value      = formData.email;
+  hf.querySelector('[name="phone"]').value      = formData.phone;
+  hf.querySelector('[name="professional_category"]').value = formData.category;
+  hf.querySelector('[name="professional_role"]').value     = formData.role;
+  hf.querySelector('[name="what_you_help_with"]').value    = formData.description;
+  hf.querySelector('[name="decision_style"]').value        = formData.decision;
+  hf.querySelector('[name="sms_consent"]').checked         = formData.smsConsent;
+  hf.submit();
+}</pre>
+  </div></div>
+
+  <div class="step"><div class="num">5</div><div class="body">
+    <h3>Set the redirect URL on the hidden form</h3>
+    <p>In the hidden GHL form's settings → On Submit → <b>Redirect to URL</b> → paste the URL-passthrough string from section 4B above. Test by filling out the page as yourself and confirming the calendar loads with your name and email prefilled.</p>
+  </div></div>
+
+  <div class="step"><div class="num">6</div><div class="body">
+    <h3>Add tags + pipeline triggers</h3>
+    <p>Still on the hidden form → Actions:</p>
+    <ul>
+      <li>Add tag <code class="inline">application-submitted-v2</code></li>
+      <li>Add tag <code class="inline">step:applied</code></li>
+      <li>Move contact into pipeline <b>Applied — Awaiting Booking</b></li>
+    </ul>
+    <p>These tags let us segment the A/B test cleanly in the dashboard later.</p>
+  </div></div>
+
+  <div class="step"><div class="num">7</div><div class="body">
+    <h3>Ship it to a test URL, not production</h3>
+    <p>Publish to <code class="inline">clientsondemand.live/application-v2</code> first. Do NOT overwrite <code class="inline">/application</code> until QA passes. Kas will decide when to flip the A/B split.</p>
+  </div></div>
+
+  <h2>6. QA checklist (must all pass before Kas flips traffic)</h2>
+  <div class="card ok">
+    <ul>
+      <li><span class="good">✓</span> On mobile (iPhone Safari + Chrome Android), tapping ANY option on Step 1 — including the bottom options — does NOT cause the form to disappear or jump scroll position.</li>
+      <li><span class="good">✓</span> Full 4-step flow completes without horizontal scroll on a 375px viewport (iPhone SE).</li>
+      <li><span class="good">✓</span> Phone field accepts + formats US numbers <code class="inline">(123) 456-7890</code>.</li>
+      <li><span class="good">✓</span> Submit button is disabled until name, valid email, and 10-digit phone are all filled.</li>
+      <li><span class="good">✓</span> After submit, a new contact appears in GHL with ALL 5 custom fields + first_name + last_name + email + phone populated.</li>
+      <li><span class="good">✓</span> After submit, user lands on the Breakthrough Call calendar page with name/email/phone <b>already filled in</b> (verify by reading the prefilled widget, not just the URL).</li>
+      <li><span class="good">✓</span> Tag <code class="inline">application-submitted-v2</code> visible on the contact.</li>
+      <li><span class="good">✓</span> Contact has moved into <b>Applied — Awaiting Booking</b> pipeline stage.</li>
+      <li><span class="good">✓</span> Booking confirmation email fires correctly with <code class="inline">{{contact.first_name}}</code> resolved (NOT blank — this was the bug from the $27 funnel earlier).</li>
+      <li><span class="good">✓</span> Fonts (Cormorant Garamond + Outfit) load on first paint, no FOUT.</li>
+      <li><span class="good">✓</span> Page matches the visual style of the front-end funnel page (dark gold aesthetic).</li>
+    </ul>
+  </div>
+
+  <h2>7. Open items to confirm with Kas before building</h2>
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Why it matters</th></tr>
+      <tr><td>Which calendar group is the Breakthrough Call in?</td><td>Merge tag passthrough only works if we target the current widget URL — don't want to redirect to a stale one.</td></tr>
+      <tr><td>Should we keep the current page live as the A variant or just replace it?</td><td>Matt prefers A/B split; Kas may want a full cutover given the 75% dropoff is so severe.</td></tr>
+      <tr><td>Do we need PostHog events on each step completion?</td><td>To measure per-step dropoff in the new version (current page is a black box).</td></tr>
+      <tr><td>SMS consent — legal copy wording?</td><td>Must match FTC-compliant language the team has already approved elsewhere.</td></tr>
+    </table>
+  </div>
+
+  <p class="sub" style="margin-top:40px">Source thread: <b>#clients-on-demand-pro</b> (Akari, Franzi, +3) — Kas posted 3:37–3:43 PM Thursday. Reference design: <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">application-form-redesign.html</a>.</p>
+
+</div>
+</body>
+</html>

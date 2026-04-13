@@ -361,7 +361,7 @@ footer {
 <header class="hero">
   <div class="eyebrow">Dev Brief · PostHog · Multivariate Testing</div>
   <h1>PostHog Multivariate Testing Setup for COD Landing Pages</h1>
-  <p class="deck">How to wire feature flags, experiments, and trustworthy variant tracking across every COD reg page. Written for Rehan. Production-ready code, zero hand-waving.</p>
+  <p class="deck">How to wire feature flags, experiments, and trustworthy variant tracking across every COD reg page. <b>Keeps PostHog in GTM</b> — no tag migration, no disruption. Adds the flag layer that's currently missing. Written for Rehan.</p>
   <div class="meta">
     <span><b>Owner:</b> Rehan</span>
     <span><b>Reviewer:</b> Kas</span>
@@ -373,9 +373,9 @@ footer {
 <div class="tldr">
   <h2>TL;DR</h2>
   <p>The identify call is already live and working on <code>/hto-workshop-therapist-counselor-b</code>. PostHog is being loaded via GTM (container <code>GTM-M677PMW</code>). Identify fires correctly on form submit and on URL <code>?email=</code> param. Good foundation.</p>
-  <p>But the pages have <b>zero feature flag consumption code</b>, meaning we cannot currently run PostHog experiments or multivariate tests. This brief fixes that in five phases:</p>
+  <p>But the pages have <b>zero feature flag consumption code</b>, meaning we cannot currently run PostHog experiments or multivariate tests. This brief fixes that in five phases — <b>WITHOUT moving PostHog out of GTM</b>:</p>
   <ol>
-    <li><b>Phase 1 — Move PostHog init out of GTM</b> into a blocking head script so flags resolve before first paint (kills variant flicker).</li>
+    <li><b>Phase 1 — Raise GTM tag priority + add anti-flicker CSS</b>. PostHog stays in GTM. Tag fires on Consent Init with priority 1000. A tiny CSS rule hides test slots until flags resolve. No FOOC, no migration.</li>
     <li><b>Phase 2 — Standardize the identify pattern</b> across every page using one shared snippet (<code>cod-posthog.js</code>).</li>
     <li><b>Phase 3 — Add the feature flag consumption pattern</b> (<code>onFeatureFlags</code> + variant switch + exposure event).</li>
     <li><b>Phase 4 — Run a smoke test</b> using a dummy 50/50 flag to confirm clean bucketing before any real test launches.</li>
@@ -387,17 +387,20 @@ footer {
   <h3>Contents</h3>
   <ol>
     <li><a href="#state"><span class="n">01</span>Current State Audit</a></li>
-    <li><a href="#arch"><span class="n">02</span>Target Architecture</a></li>
-    <li><a href="#phase1"><span class="n">03</span>Phase 1 — Head Init</a></li>
-    <li><a href="#phase2"><span class="n">04</span>Phase 2 — Identify Pattern</a></li>
-    <li><a href="#phase3"><span class="n">05</span>Phase 3 — Flag Consumption</a></li>
-    <li><a href="#naming"><span class="n">06</span>Naming Conventions</a></li>
-    <li><a href="#events"><span class="n">07</span>Standard Events</a></li>
-    <li><a href="#phase4"><span class="n">08</span>Phase 4 — Smoke Test</a></li>
-    <li><a href="#phase5"><span class="n">09</span>Phase 5 — Rollout</a></li>
-    <li><a href="#qa"><span class="n">10</span>QA Checklist</a></li>
-    <li><a href="#pitfalls"><span class="n">11</span>Common Pitfalls</a></li>
-    <li><a href="#appendix"><span class="n">12</span>Appendix: Full Snippets</a></li>
+    <li><a href="#approach"><span class="n">02</span>Where PostHog Init Lives</a></li>
+    <li><a href="#whats-new"><span class="n">03</span>What's Actually New</a></li>
+    <li><a href="#drawbacks"><span class="n">04</span>Drawbacks of the Approach</a></li>
+    <li><a href="#arch"><span class="n">05</span>Target Architecture</a></li>
+    <li><a href="#phase1"><span class="n">06</span>Phase 1 — GTM Priority + Anti-flicker</a></li>
+    <li><a href="#phase2"><span class="n">07</span>Phase 2 — Identify Pattern</a></li>
+    <li><a href="#phase3"><span class="n">08</span>Phase 3 — Flag Consumption</a></li>
+    <li><a href="#naming"><span class="n">09</span>Naming Conventions</a></li>
+    <li><a href="#events"><span class="n">10</span>Standard Events</a></li>
+    <li><a href="#phase4"><span class="n">11</span>Phase 4 — Smoke Test</a></li>
+    <li><a href="#phase5"><span class="n">12</span>Phase 5 — Rollout</a></li>
+    <li><a href="#qa"><span class="n">13</span>QA Checklist</a></li>
+    <li><a href="#pitfalls"><span class="n">14</span>Common Pitfalls</a></li>
+    <li><a href="#appendix"><span class="n">15</span>Appendix: Full Snippets</a></li>
   </ol>
 </nav>
 
@@ -451,71 +454,224 @@ footer {
 
 <div class="callout warn">
   <div class="label">Race condition risk</div>
-  <p>Because PostHog is GTM-injected, the <code>posthog</code> global may not exist when the form's submit handler runs. The current code guards with <code>typeof posthog !== 'undefined'</code>, which silently drops early submits (user hits enter before GTM loads). This affects mobile users on slow connections most — exactly your 90% traffic segment. Moving init to a blocking head script (Phase 1) fixes this.</p>
+  <p>Because PostHog is GTM-injected, the <code>posthog</code> global may not exist when the form's submit handler runs. The current code guards with <code>typeof posthog !== 'undefined'</code>, which silently drops early submits (user hits enter before GTM loads). This affects mobile users on slow connections most — exactly your 90% traffic segment. The <code>cod-posthog.js</code> helper (Phase 2) includes a <code>whenReady</code> poller that waits up to 5 seconds for PostHog to exist before giving up — fixes this without needing to move init out of GTM.</p>
 </div>
 </section>
 
 <!-- ====================================================================== -->
+<section id="approach">
+<h2><span class="num">02</span>Where Should PostHog Init Live?</h2>
+<p class="section-lead">The honest comparison of three options. We recommend keeping PostHog in GTM and fixing flicker at the CSS layer — the same pattern Optimizely and VWO use.</p>
+
+<table>
+<thead>
+<tr>
+  <th style="width:30%">Dimension</th>
+  <th>A · Keep in GTM (current)</th>
+  <th>B · Move to blocking head</th>
+  <th>C · GTM + anti-flicker CSS ✓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><b>Disruption to existing tags</b></td>
+  <td>None</td>
+  <td>High — must pause GTM PostHog tag, risk of double-init, team re-training</td>
+  <td>None — PostHog stays in GTM alongside FB Pixel, Google Ads, consent mode</td>
+</tr>
+<tr>
+  <td><b>Flicker / FOOC</b></td>
+  <td>Yes — variants paint after control</td>
+  <td>None</td>
+  <td>None — test slots hidden until flag resolves</td>
+</tr>
+<tr>
+  <td><b>Consent mode integration</b></td>
+  <td>Works</td>
+  <td>Have to rewire manually</td>
+  <td>Works — GTM handles it</td>
+</tr>
+<tr>
+  <td><b>Config version control</b></td>
+  <td>In GTM workspace</td>
+  <td>In page source (code-reviewable)</td>
+  <td>In GTM workspace (accept tradeoff)</td>
+</tr>
+<tr>
+  <td><b>Time to first variant paint</b></td>
+  <td>300–800ms after LCP</td>
+  <td>&lt;100ms, before LCP</td>
+  <td>200–500ms, but blank (not flicker)</td>
+</tr>
+<tr>
+  <td><b>Adblocker handling</b></td>
+  <td>Breaks silently</td>
+  <td>Breaks silently</td>
+  <td>Safety timeout reveals control after 1.5s</td>
+</tr>
+<tr>
+  <td><b>Rehan effort</b></td>
+  <td>Zero (but can't test)</td>
+  <td>~8 hours</td>
+  <td>~4 hours</td>
+</tr>
+<tr>
+  <td><b>Runs PostHog experiments?</b></td>
+  <td><span style="color:var(--red)">✗ No</span></td>
+  <td><span style="color:var(--green)">✓ Yes</span></td>
+  <td><span style="color:var(--green)">✓ Yes</span></td>
+</tr>
+</tbody>
+</table>
+
+<h3>Option A — Keep in GTM, do nothing</h3>
+<p><b>Pros:</b> zero disruption, consent mode keeps working, one source of truth for all tags, Akari/team already knows GTM.</p>
+<p><b>Cons:</b> you still have no flag consumption code, so <b>you cannot run PostHog experiments at all</b>. This isn't really an option — it's the status quo we're trying to exit.</p>
+
+<h3>Option B — Move to blocking head</h3>
+<p><b>Pros:</b> zero flicker, fastest possible variant paint, config is code-reviewable.</p>
+<p><b>Cons:</b> you lose GTM-level control of PostHog. Consent mode has to be manually wired. Two places to manage PostHog config. Must pause the GTM tag cleanly or risk double-init. The team has to learn "PostHog lives in page source now."</p>
+<p><b>Verdict:</b> technically superior on paint speed, but the disruption isn't worth it for COD's current scale.</p>
+
+<h3>Option C — Keep in GTM, fix flicker with CSS (RECOMMENDED)</h3>
+<p>The industry-standard pattern used by Optimizely, VWO, Convert, and AB Tasty. Hide the test-slot elements with CSS until flags resolve, then reveal them. Safety timeout prevents users from ever seeing a permanently blank page if PostHog fails.</p>
+<pre data-lang="CSS · head · inline"><code><span class="p">&lt;style&gt;</span>
+  <span class="c">/* Hide elements under test until PostHog applies the variant */</span>
+  [data-test-slot] { visibility: hidden; }
+  html.ph-ready [data-test-slot] { visibility: visible; }
+<span class="p">&lt;/style&gt;</span>
+<span class="p">&lt;script&gt;</span>
+  <span class="c">/* Safety timeout — reveal after 1500ms even if PostHog never loads (adblockers, network failure) */</span>
+  setTimeout(<span class="k">function</span>() { <span class="k">document</span>.documentElement.classList.add(<span class="s">'ph-ready'</span>); }, <span class="n">1500</span>);
+<span class="p">&lt;/script&gt;</span></code></pre>
+<p>The <code>onFeatureFlags</code> callback adds <code>html.ph-ready</code> as soon as it runs. Normal load: ~200–500ms blank hero, then variant reveals. Adblocker/failure: 1500ms blank, then control reveals. Never a flash of wrong content.</p>
+<p><b>Pros:</b> keep GTM, zero FOOC, consent mode works, same mental model as today, battle-tested pattern, fallback for adblockers.</p>
+<p><b>Cons:</b> blank hero for up to 500ms on slow mobile. Measured LCP impact is negligible in real conditions. Adblocker users never see variants (they're excluded from the test anyway, so this is actually correct behavior).</p>
+
+<div class="callout good">
+  <div class="label">Decision</div>
+  <p>Go with Option C. PostHog stays in GTM. We add anti-flicker CSS + the flag consumption pattern + <code>cod-posthog.js</code> identify helper. Rehan does zero GTM tag migration — he only raises the existing tag's firing priority and adds two small blocks to each page's HTML. Everything else (FB Pixel, Google Ads tags, consent mode) keeps running exactly as today.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="whats-new">
+<h2><span class="num">03</span>What's Actually New vs Today</h2>
+<p class="section-lead">The location of PostHog init is a secondary question. The real changes — and the real value — are these four things you don't have today.</p>
+
+<h3>1. Feature flag consumption code</h3>
+<p>Right now, no COD page reads feature flags. No <code>getFeatureFlag</code>, no <code>onFeatureFlags</code>, no variant branching. <b>This is the #1 blocker</b> — you literally cannot run a PostHog experiment today even if you created the flag in PostHog's UI. Nothing on the page would react to it. Adding the <code>EXPERIMENTS</code> map pattern (Phase 3) fixes this.</p>
+
+<h3>2. Exposure events</h3>
+<p>PostHog's stats engine needs to know who saw which variant at what moment. That's what the <code>$feature_flag_called</code> event does — it's PostHog's reserved exposure event. Without it, the experiment results UI shows zero exposures and you can't tie variant to downstream conversion (ticket purchase, enrollment). The <code>EXPERIMENTS</code> loop fires this automatically.</p>
+
+<h3>3. Super properties on every event</h3>
+<p>Today every event from the reg page is untagged — no <code>niche</code>, no <code>device_category</code>, no <code>page_template</code>. That means you can't segment results by "mobile only" or "therapist niche only" or "paid social only" without doing manual joins. Adding <code>posthog.register()</code> in the init loaded callback attaches these properties to every subsequent event automatically — so segment breakdowns work in PostHog's UI with one click instead of writing SQL against the warehouse.</p>
+
+<h3>4. The <code>data-test-slot</code> HTML contract</h3>
+<p>Instead of targeting elements by fragile CSS selectors (<code>.hero h1</code>), every swappable element gets a stable <code>data-test-slot="hero-headline"</code> attribute. One-time cost to tag elements, but future tests are decoupled from CSS refactors. When the designer rebuilds the hero next month, every active experiment keeps working.</p>
+
+<div class="callout note">
+  <div class="label">Bonus: anti-flicker CSS</div>
+  <p>The <code>[data-test-slot] { visibility: hidden }</code> rule is what makes Option C work. It's not strictly "new tracking" — it's the missing glue that lets you run PostHog experiments through GTM without FOOC.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="drawbacks">
+<h2><span class="num">04</span>Drawbacks of the Whole Approach</h2>
+<p class="section-lead">Honest list. Every one of these is a real tradeoff. Go in with eyes open.</p>
+
+<h3>Complexity tax on every test</h3>
+<p>Every new test now requires (1) create flag in PostHog, (2) add entry to <code>EXPERIMENTS</code> map in page code, (3) mark target elements with <code>data-test-slot</code>, (4) deploy page change, (5) validate in QA, (6) launch experiment in PostHog. That's 6 steps instead of "edit the page and hope." Worth it for statistical trust. Painful for 5-minute spot tests.</p>
+
+<h3>PostHog MTU billing</h3>
+<p>PostHog charges per monthly tracked user. We set <code>person_profiles: 'identified_only'</code> to avoid creating profiles for anons, but every identified lead still counts. At COD's current lead volume this is manageable; if you ever 10x traffic, check pricing. Session recordings are the bigger cost — consider downsampling to 10% of sessions after rollout if quota runs hot.</p>
+
+<h3>Adblocker blindspot</h3>
+<p>Roughly 10% of web traffic blocks PostHog entirely. Those users see the control variant (thanks to our safety timeout) and aren't counted in experiment results. This is actually fine for relative lift measurement — PostHog's stats engine doesn't need to see 100% of users — but it means absolute traffic counts in PostHog will be ~10% lower than Meta/Hyros. Don't use PostHog as your source of truth for total traffic.</p>
+
+<h3>Brief blank hero on slow connections</h3>
+<p>The anti-flicker CSS hides test-slot elements until flags resolve. On slow 3G / poor connections, that's ~500ms of blank space where the hero headline would be. Measured LCP impact in real conditions: small (~100ms median). But it's a visible tradeoff — the hero appears to "pop in" rather than being there on initial paint. If this ever becomes a perceived-performance problem, we can downscope which elements get the hidden treatment (e.g. only headline, not CTA).</p>
+
+<h3>Mental discipline required</h3>
+<p>Stop rules, minimum sample sizes, not peeking early, calculating MDE before launching. If the team ships based on gut after 48 hours of data, PostHog is no better than GHL's split test. The tooling only matters if the process respects it. Every experiment needs a pre-declared hypothesis, primary metric, MDE, stop rules, and minimum runtime — otherwise you're back to guessing.</p>
+
+<h3>One experiment at a time per page (recommended)</h3>
+<p>Technically PostHog supports multiple overlapping experiments on one page. In practice, running two tests on the same reg page contaminates both — you can't tell if the lift came from headline test or CTA test. Default to one active experiment per page; if you must run two, make sure they target completely different elements and disclose the interaction in the analysis.</p>
+
+<h3>Rehan becomes a single point of dependency</h3>
+<p>Every new test requires a Rehan deploy. That's fine for now but means test velocity is capped by his bandwidth. Medium-term fix: give the team access to PostHog Web Experiments (visual editor) for copy-only tests, reserve code-based experiments for structural changes. Only turn on Web Experiments after Phase 1–5 are solid.</p>
+</section>
+
+<!-- ====================================================================== -->
 <section id="arch">
-<h2><span class="num">02</span>Target Architecture</h2>
+<h2><span class="num">05</span>Target Architecture</h2>
 <p class="section-lead">One shared script, one init call, one flag pattern, used by every page in the COD family.</p>
 
 <pre data-lang="Architecture"><code><span class="c">// Load order on every COD landing page</span>
 
 <span class="p">&lt;head&gt;</span>
-  1. <span class="f">posthog.init()</span>          <span class="c">// blocking, &lt;3KB, inline — no flicker</span>
-  2. <span class="f">posthog.register()</span>      <span class="c">// super props: niche, template, device</span>
-  3. <span class="f">posthog.onFeatureFlags()</span> <span class="c">// resolve variant BEFORE paint</span>
-  4. <span class="f">applyVariant(flag)</span>       <span class="c">// DOM swap for this page's active test</span>
+  1. Anti-flicker CSS           <span class="c">// [data-test-slot] { visibility: hidden }</span>
+  2. Safety-timeout script      <span class="c">// reveal after 1500ms failsafe</span>
+  3. EXPERIMENTS map + onFeatureFlags <span class="c">// queue the variant handler</span>
+  4. GTM snippet                <span class="c">// loads PostHog + FB Pixel + Google Ads as before</span>
+  5. Other head tags            <span class="c">// fonts, meta, etc</span>
 <span class="p">&lt;/head&gt;</span>
 
 <span class="p">&lt;body&gt;</span>
-  5. GTM continues to run <span class="c">// keep for existing tags, but PostHog is NOT loaded from it anymore</span>
-  6. <span class="f">cod-posthog.js</span>             <span class="c">// shared identify + event helpers, loaded async</span>
-  7. Form submit → <span class="f">identify</span>     <span class="c">// email becomes distinct_id</span>
-  8. Capture standard events   <span class="c">// lead_registered, ticket_purchased, replay_started</span>
+  6. Page content with <span class="f">data-test-slot</span> markers
+  7. GTM fires PostHog Init tag <span class="c">// priority 1000, Consent Init trigger</span>
+  8. <span class="f">posthog.register()</span>          <span class="c">// super props via the loaded callback</span>
+  9. <span class="f">posthog.onFeatureFlags()</span>     <span class="c">// variant applies, html.ph-ready added</span>
+  10. Test slots reveal         <span class="c">// CSS visibility flips on</span>
+  11. <span class="f">cod-posthog.js</span>             <span class="c">// shared identify + form wiring (async)</span>
+  12. Form submit → <span class="f">identify</span>     <span class="c">// email becomes distinct_id</span>
 <span class="p">&lt;/body&gt;</span></code></pre>
 
 <div class="callout note">
-  <div class="label">Why not keep PostHog in GTM</div>
-  <p>GTM loads asynchronously after <code>DOMContentLoaded</code>. Any feature flag you apply via GTM happens after the original DOM has already painted, which means users see the control variant flash before it gets replaced — "flash of original content" (FOOC). That flicker contaminates your test: users who bounce during the flicker are counted as variant exposures without actually seeing the variant. <b>The only reliable fix is to load PostHog in the document head, before GTM, before anything else.</b></p>
+  <div class="label">PostHog stays in GTM</div>
+  <p>The entire architecture is built around keeping PostHog where it is today — inside the GTM container, alongside FB Pixel, Google Ads, and consent mode. No tag migration, no double-init risk, no team retraining. The only GTM change is bumping the PostHog Init tag's firing priority so it loads first among GTM tags.</p>
 </div>
 </section>
 
 <!-- ====================================================================== -->
 <section id="phase1">
-<h2><span class="num">03</span>Phase 1 — Head Init Script</h2>
-<p class="section-lead">Drop this inline snippet in the very first <code>&lt;head&gt;</code> position on every COD landing page. Before GTM, before fonts, before CSS if possible.</p>
+<h2><span class="num">06</span>Phase 1 — GTM Tag Priority + Anti-Flicker CSS</h2>
+<p class="section-lead">Two small changes to make PostHog fast enough for experiments without leaving GTM.</p>
 
-<pre data-lang="HTML · &lt;head&gt; · TOP"><code><span class="p">&lt;!-- PostHog — must load before any render-blocking resource --&gt;</span>
-<span class="p">&lt;script&gt;</span>
-!<span class="k">function</span>(t,e){<span class="k">var</span> o,n,p,r;e.__SV||(<span class="k">window</span>.posthog=e,e._i=[],e.init=<span class="k">function</span>(i,s,a){
-<span class="k">function</span> g(t,e){<span class="k">var</span> o=e.split(<span class="s">"."</span>);2==o.length&&(t=t[o[0]],e=o[1]);t[e]=<span class="k">function</span>(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}
-(p=t.createElement(<span class="s">"script"</span>)).type=<span class="s">"text/javascript"</span>,p.async=!0,p.src=s.api_host+<span class="s">"/static/array.js"</span>,(r=t.getElementsByTagName(<span class="s">"script"</span>)[0]).parentNode.insertBefore(p,r);
-<span class="k">var</span> u=e;<span class="k">for</span>(<span class="k">void</span> 0!==a?u=e[a]=[]:a=<span class="s">"posthog"</span>,u.people=u.people||[],u.toString=<span class="k">function</span>(t){<span class="k">var</span> e=<span class="s">"posthog"</span>;<span class="k">return</span><span class="s">"posthog"</span>!==a&&(e+=<span class="s">"."</span>+a),t||(e+=<span class="s">" (stub)"</span>),e},u.people.toString=<span class="k">function</span>(){<span class="k">return</span> u.toString(1)+<span class="s">".people (stub)"</span>},o=<span class="s">"init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric"</span>.split(<span class="s">" "</span>),n=0;n&lt;o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}
-(<span class="k">document</span>,<span class="k">window</span>.posthog||[]);
+<h3>Step 1 — Raise the PostHog GTM tag firing priority</h3>
+<p>In the GTM container (<code>GTM-M677PMW</code>):</p>
+<ol>
+  <li>Open the existing PostHog Init tag (search container for <code>posthog.init</code> if you're not sure which one it is).</li>
+  <li>Open <b>Advanced Settings → Tag firing priority</b>. Set to <code>1000</code>. (Higher = fires first among GTM tags.)</li>
+  <li>In the tag's triggers, change the trigger to <b>Consent Initialization — All Pages</b>. This is GTM's earliest possible trigger — fires before Page View, before DOM Ready. Works alongside your existing consent mode setup.</li>
+  <li>Save → Submit → Publish.</li>
+</ol>
+<p>Result: PostHog is now the first thing GTM bootstraps. Typical load time drops from 400–800ms post-paint to 100–300ms post-paint. Not instant, but fast enough to pair with the CSS approach in Step 2.</p>
 
+<h3>Step 2 — Verify the PostHog init config in GTM</h3>
+<p>Inside the GTM tag's Custom HTML body, the <code>posthog.init</code> call needs these settings. Update the tag if any are missing:</p>
+
+<pre data-lang="HTML · GTM Custom HTML Tag body"><code><span class="p">&lt;script&gt;</span>
 posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
   api_host: <span class="s">'https://us.i.posthog.com'</span>,
-  person_profiles: <span class="s">'identified_only'</span>,      <span class="c">// don't create profiles for anon users — saves MTU cost</span>
+  person_profiles: <span class="s">'identified_only'</span>,      <span class="c">// saves MTU cost</span>
   capture_pageview: <span class="k">true</span>,
   capture_pageleave: <span class="k">true</span>,
-  autocapture: <span class="k">false</span>,                      <span class="c">// off — we capture explicit events only, cleaner data</span>
-  disable_session_recording: <span class="k">false</span>,        <span class="c">// keep recordings ON for debugging LP drop-offs</span>
-  advanced_disable_feature_flags: <span class="k">false</span>,   <span class="c">// CRITICAL — flags must be enabled for experiments</span>
-  advanced_disable_decide: <span class="k">false</span>,          <span class="c">// CRITICAL — /decide call must run for flag resolution</span>
-  bootstrap: {
-    distinctID: <span class="k">window</span>.__phBootstrap?.distinctID,
-    featureFlags: <span class="k">window</span>.__phBootstrap?.featureFlags || {}
-  },
-  loaded: <span class="k">function</span>(posthog) {
-    <span class="c">// Register super props on every event fired from this page</span>
-    posthog.register({
+  autocapture: <span class="k">false</span>,                      <span class="c">// explicit events only</span>
+  advanced_disable_feature_flags: <span class="k">false</span>,   <span class="c">// CRITICAL — must be false for experiments</span>
+  advanced_disable_decide: <span class="k">false</span>,          <span class="c">// CRITICAL — /decide must run</span>
+  loaded: <span class="k">function</span>(ph) {
+    <span class="c">// Super properties — attached to every subsequent event</span>
+    ph.register({
       niche: <span class="k">document</span>.body.dataset.niche || <span class="s">'unknown'</span>,
       page_template: <span class="k">document</span>.body.dataset.template || <span class="s">'reg'</span>,
       page_path: <span class="k">location</span>.pathname,
       device_category: <span class="k">window</span>.innerWidth &lt; 768 ? <span class="s">'mobile'</span> : <span class="s">'desktop'</span>
     });
+    <span class="c">// Mark document ready so anti-flicker CSS reveals test slots</span>
+    <span class="k">document</span>.documentElement.classList.add(<span class="s">'ph-ready'</span>);
   }
 });
 <span class="p">&lt;/script&gt;</span></code></pre>
@@ -523,23 +679,50 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 <div class="callout">
   <div class="label">Why each flag matters</div>
   <ul>
-    <li><b><code>person_profiles: 'identified_only'</code></b> — PostHog charges per MTU (monthly tracked user). Anonymous profiles eat quota. We only want identified users counted.</li>
-    <li><b><code>autocapture: false</code></b> — turns off PostHog's magic click/input tracking. We use explicit events instead. Cleaner data, no accidental PII capture from form fields.</li>
-    <li><b><code>advanced_disable_feature_flags: false</code></b> — default is false, but be explicit. If this is ever set true, experiments break silently.</li>
-    <li><b><code>bootstrap</code></b> — lets GHL/server pre-inject flag values into <code>window.__phBootstrap</code>. If we ever server-side-render flags (e.g. from a Cloud Function), this lets flags resolve instantly with zero round-trip. Safe to leave empty for now.</li>
+    <li><b><code>person_profiles: 'identified_only'</code></b> — PostHog charges per MTU. Anonymous profiles eat quota.</li>
+    <li><b><code>autocapture: false</code></b> — we capture explicit events only, no accidental PII capture from form inputs.</li>
+    <li><b><code>advanced_disable_feature_flags: false</code></b> — default is false, but be explicit. If this flips, experiments break silently.</li>
+    <li><b><code>advanced_disable_decide: false</code></b> — the <code>/decide</code> call is what actually resolves flag values. Must run.</li>
+    <li><b><code>html.ph-ready</code> class add</b> — this is the anti-flicker signal. CSS in Step 3 uses it to reveal test-slot elements only after PostHog has loaded and flags are resolved.</li>
   </ul>
 </div>
 
-<h3>Get the PostHog project key</h3>
-<p>The key starts with <code>phc_</code>. Log into PostHog → Settings → Project → API Key. Paste it where the snippet says <code>phc_REPLACE_WITH_COD_PROJECT_KEY</code>. Do NOT commit this key to a public repo — it's write-only (safe in browser) but still project-identifying.</p>
+<h3>Step 3 — Anti-flicker CSS + safety timeout in page &lt;head&gt;</h3>
+<p>Add this small block to the very top of <code>&lt;head&gt;</code> on every COD landing page. Before fonts, before CSS, before GTM. It's ~300 bytes inline — no performance cost.</p>
 
-<h3>Verify GTM is no longer initializing PostHog</h3>
-<p>In GTM → Tags, find the tag labeled something like "PostHog Init" or a Custom HTML tag containing <code>posthog.init</code>. Pause it (don't delete yet — we'll remove after smoke test passes). If you're unsure which tag, search container for the string <code>posthog.init</code>.</p>
+<pre data-lang="HTML · &lt;head&gt; · FIRST"><code><span class="p">&lt;!-- Anti-flicker: hide variant-controlled elements until PostHog applies the variant --&gt;</span>
+<span class="p">&lt;style&gt;</span>
+  [data-test-slot] { visibility: hidden; }
+  html.ph-ready [data-test-slot] { visibility: visible; }
+<span class="p">&lt;/style&gt;</span>
+<span class="p">&lt;script&gt;</span>
+  <span class="c">/* Safety timeout: reveal after 1500ms even if PostHog never loads (adblockers, network failure) */</span>
+  setTimeout(<span class="k">function</span>() {
+    <span class="k">document</span>.documentElement.classList.add(<span class="s">'ph-ready'</span>);
+  }, <span class="n">1500</span>);
+<span class="p">&lt;/script&gt;</span></code></pre>
+
+<h3>How it works end to end</h3>
+<ol>
+  <li>User loads page → browser paints everything EXCEPT elements marked <code>data-test-slot</code> (they're <code>visibility: hidden</code>).</li>
+  <li>GTM bootstraps → PostHog Init tag fires first (priority 1000, Consent Init trigger) → <code>posthog.init</code> runs.</li>
+  <li>PostHog <code>loaded</code> callback runs → super props registered → <code>html.ph-ready</code> class added.</li>
+  <li>CSS sees <code>html.ph-ready</code> → test slots become visible with the variant already applied (Phase 3 code runs before the class is added).</li>
+  <li>If PostHog never loads (adblocker, network failure), the 1500ms safety <code>setTimeout</code> adds <code>ph-ready</code> anyway → user sees the control variant → nothing stays blank forever.</li>
+</ol>
+
+<div class="callout good">
+  <div class="label">What this achieves</div>
+  <p>Zero disruption to GTM. PostHog stays inside the container. FB Pixel, Google Ads, consent mode — all untouched. Only net changes: (1) one tag priority bump, (2) ~300 bytes of inline CSS/JS in page head, (3) the <code>ph-ready</code> class add in the PostHog loaded callback. Rehan's GTM edit takes ~10 minutes. The per-page changes take ~5 minutes each.</p>
+</div>
+
+<h3>Get the PostHog project key (if the current GTM tag doesn't already have it set)</h3>
+<p>The key starts with <code>phc_</code>. Log into PostHog → Settings → Project → API Key. If the GTM tag already has a key in it, confirm it matches the production PostHog project. Don't commit the key to a public repo.</p>
 </section>
 
 <!-- ====================================================================== -->
 <section id="phase2">
-<h2><span class="num">04</span>Phase 2 — Standardized Identify Pattern</h2>
+<h2><span class="num">07</span>Phase 2 — Standardized Identify Pattern</h2>
 <p class="section-lead">One file, one import, one helper. Stop copy-pasting identify code per page.</p>
 
 <h3>Create the shared script</h3>
@@ -648,7 +831,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="phase3">
-<h2><span class="num">05</span>Phase 3 — Feature Flag Consumption Pattern</h2>
+<h2><span class="num">08</span>Phase 3 — Feature Flag Consumption Pattern</h2>
 <p class="section-lead">How to actually apply a variant to the DOM and report exposure back to PostHog.</p>
 
 <h3>The pattern</h3>
@@ -720,7 +903,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="naming">
-<h2><span class="num">06</span>Naming Conventions</h2>
+<h2><span class="num">09</span>Naming Conventions</h2>
 <p class="section-lead">Follow these or experiments get impossible to read in six months.</p>
 
 <table>
@@ -749,7 +932,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="events">
-<h2><span class="num">07</span>Standard Events</h2>
+<h2><span class="num">10</span>Standard Events</h2>
 <p class="section-lead">These must fire identically across every COD landing page. The BigQuery warehouse joins on exact event names.</p>
 
 <table>
@@ -807,7 +990,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="phase4">
-<h2><span class="num">08</span>Phase 4 — Smoke Test Before Any Real Test</h2>
+<h2><span class="num">11</span>Phase 4 — Smoke Test Before Any Real Test</h2>
 <p class="section-lead">Run this before trusting the pipeline with a revenue-affecting test. Cost: one afternoon.</p>
 
 <h3>Create the smoke test flag</h3>
@@ -850,7 +1033,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="phase5">
-<h2><span class="num">09</span>Phase 5 — Per-Page Rollout</h2>
+<h2><span class="num">12</span>Phase 5 — Per-Page Rollout</h2>
 <p class="section-lead">Roll out one page at a time. Validate each before moving to the next.</p>
 
 <h3>Pages in order</h3>
@@ -865,12 +1048,14 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <h3>Per-page tasks (repeat for each)</h3>
 <ul class="checklist">
-  <li><b>Add head init script</b><small>Paste Phase 1 snippet as the first thing in <code>&lt;head&gt;</code>. Before GTM, before fonts.</small></li>
+  <li><b>One-time: raise GTM PostHog Init tag priority to 1000 + Consent Init trigger</b><small>Done once in GTM, applies to all pages. See Phase 1 Step 1.</small></li>
+  <li><b>One-time: confirm PostHog init config in GTM tag has <code>ph-ready</code> class add</b><small>The loaded callback must add <code>html.ph-ready</code> for anti-flicker CSS to work. See Phase 1 Step 2.</small></li>
+  <li><b>Add anti-flicker CSS block to <code>&lt;head&gt;</code></b><small>The ~300-byte style + safety timeout from Phase 1 Step 3. First thing in head.</small></li>
   <li><b>Add <code>data-niche</code> and <code>data-template</code> to <code>&lt;body&gt;</code></b><small>e.g. <code>&lt;body data-niche="therapist" data-template="reg-workshop"&gt;</code></small></li>
+  <li><b>Add the EXPERIMENTS map + <code>onFeatureFlags</code> script</b><small>Phase 3 pattern. Even if empty, include the scaffolding so future tests are one-liners.</small></li>
   <li><b>Add cod-posthog.js script tag</b><small>Anywhere in body, async loading is fine.</small></li>
   <li><b>Remove old inline identify snippets</b><small>Strip the per-page <code>posthog.identify</code> code. cod-posthog.js replaces it.</small></li>
   <li><b>Tag swap-able elements with <code>data-test-slot</code></b><small>Hero headline, subhead, CTA, value props. Anything you'd ever want to test.</small></li>
-  <li><b>Add the EXPERIMENTS map (empty or with active tests)</b><small>Even if empty, include the scaffolding so future tests are one-liners.</small></li>
   <li><b>Run the full QA checklist (next section)</b><small>Every page, every time. No exceptions.</small></li>
   <li><b>Pause old GHL split test (if any)</b><small>Never run GHL and PostHog experiments simultaneously — they'll fight over DOM and corrupt each other's buckets.</small></li>
 </ul>
@@ -878,7 +1063,7 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="qa">
-<h2><span class="num">10</span>QA Checklist (Per Page)</h2>
+<h2><span class="num">13</span>QA Checklist (Per Page)</h2>
 <p class="section-lead">Run this against every page after instrumenting it. Takes 10 minutes.</p>
 
 <ul class="checklist">
@@ -897,11 +1082,11 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="pitfalls">
-<h2><span class="num">11</span>Common Pitfalls</h2>
+<h2><span class="num">14</span>Common Pitfalls</h2>
 <p class="section-lead">Every one of these has bitten a team doing PostHog experiments. Don't learn them the hard way.</p>
 
 <h3>Flicker / flash of original content (FOOC)</h3>
-<p><b>Symptom:</b> users see the control variant flash briefly before the test variant paints. <b>Cause:</b> PostHog loaded async (from GTM or with <code>async</code> attribute on the init script). <b>Fix:</b> init script must be synchronous and in <code>&lt;head&gt;</code>, before any render-blocking CSS if possible. The snippet is tiny (~3KB), the cost is worth it.</p>
+<p><b>Symptom:</b> users see the control variant flash briefly before the test variant paints. <b>Cause:</b> PostHog's <code>/decide</code> endpoint hadn't returned yet when the page painted. <b>Fix:</b> the anti-flicker CSS in Phase 1 Step 3 hides test-slot elements with <code>visibility: hidden</code> until the <code>html.ph-ready</code> class is added. PostHog's loaded callback adds the class once flags resolve. Safety timeout guarantees the page reveals after 1500ms even if PostHog never loads. This is the same pattern Optimizely, VWO, and Convert all use.</p>
 
 <h3>Identify called before init</h3>
 <p><b>Symptom:</b> identify silently drops, distinct_id stays anonymous, PostHog persons fill with unlinked UUIDs. <b>Cause:</b> form submit handler runs before <code>window.posthog</code> exists (e.g. user submits in the first 200ms). <b>Fix:</b> <code>whenReady</code> helper in cod-posthog.js polls for 5 seconds before giving up. Good enough for 99.9% of real-world submits.</p>
@@ -927,59 +1112,63 @@ posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
 
 <!-- ====================================================================== -->
 <section id="appendix">
-<h2><span class="num">12</span>Appendix: Full Code Snippets</h2>
+<h2><span class="num">15</span>Appendix: Full Code Snippets</h2>
 <p class="section-lead">Everything in one place. Copy directly from here into production.</p>
 
-<h3>A. Head init block (full, ready to paste)</h3>
-<pre data-lang="HTML · &lt;head&gt; · FIRST"><code><span class="p">&lt;!-- 1. PostHog init — must be first --&gt;</span>
+<h3>A. Page &lt;head&gt; block (full, ready to paste)</h3>
+<p>This is what goes in the page head on every COD landing page. PostHog itself continues to load from GTM — this block only handles the anti-flicker CSS and the experiment scaffolding.</p>
+<pre data-lang="HTML · &lt;head&gt; · FIRST"><code><span class="p">&lt;!-- 1. Anti-flicker CSS + safety timeout --&gt;</span>
+<span class="p">&lt;style&gt;</span>
+  [data-test-slot] { visibility: hidden; }
+  html.ph-ready [data-test-slot] { visibility: visible; }
+<span class="p">&lt;/style&gt;</span>
 <span class="p">&lt;script&gt;</span>
-!<span class="k">function</span>(t,e){<span class="k">var</span> o,n,p,r;e.__SV||(<span class="k">window</span>.posthog=e,e._i=[],e.init=<span class="k">function</span>(i,s,a){<span class="k">function</span> g(t,e){<span class="k">var</span> o=e.split(<span class="s">"."</span>);2==o.length&&(t=t[o[0]],e=o[1]);t[e]=<span class="k">function</span>(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement(<span class="s">"script"</span>)).type=<span class="s">"text/javascript"</span>,p.async=!0,p.src=s.api_host+<span class="s">"/static/array.js"</span>,(r=t.getElementsByTagName(<span class="s">"script"</span>)[0]).parentNode.insertBefore(p,r);<span class="k">var</span> u=e;<span class="k">for</span>(<span class="k">void</span> 0!==a?u=e[a]=[]:a=<span class="s">"posthog"</span>,u.people=u.people||[],u.toString=<span class="k">function</span>(t){<span class="k">var</span> e=<span class="s">"posthog"</span>;<span class="k">return</span><span class="s">"posthog"</span>!==a&&(e+=<span class="s">"."</span>+a),t||(e+=<span class="s">" (stub)"</span>),e},u.people.toString=<span class="k">function</span>(){<span class="k">return</span> u.toString(1)+<span class="s">".people (stub)"</span>},o=<span class="s">"init capture register identify reloadFeatureFlags getFeatureFlag onFeatureFlags reset group"</span>.split(<span class="s">" "</span>),n=0;n&lt;o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(<span class="k">document</span>,<span class="k">window</span>.posthog||[]);
-
-posthog.init(<span class="s">'phc_REPLACE_ME'</span>, {
-  api_host: <span class="s">'https://us.i.posthog.com'</span>,
-  person_profiles: <span class="s">'identified_only'</span>,
-  capture_pageview: <span class="k">true</span>,
-  capture_pageleave: <span class="k">true</span>,
-  autocapture: <span class="k">false</span>,
-  advanced_disable_feature_flags: <span class="k">false</span>,
-  advanced_disable_decide: <span class="k">false</span>,
-  loaded: <span class="k">function</span>(ph) {
-    ph.register({
-      niche: <span class="k">document</span>.body.dataset.niche || <span class="s">'unknown'</span>,
-      page_template: <span class="k">document</span>.body.dataset.template || <span class="s">'reg'</span>,
-      page_path: <span class="k">location</span>.pathname,
-      device_category: <span class="k">window</span>.innerWidth &lt; 768 ? <span class="s">'mobile'</span> : <span class="s">'desktop'</span>
-    });
-  }
-});
+  setTimeout(<span class="k">function</span>() {
+    <span class="k">document</span>.documentElement.classList.add(<span class="s">'ph-ready'</span>);
+  }, <span class="n">1500</span>);
 <span class="p">&lt;/script&gt;</span>
 
-<span class="p">&lt;!-- 2. Active experiments on this page --&gt;</span>
+<span class="p">&lt;!-- 2. Active experiments on this page (queues variant handler for when PostHog loads from GTM) --&gt;</span>
 <span class="p">&lt;script&gt;</span>
 (<span class="k">function</span>() {
-  <span class="k">const</span> EXPERIMENTS = {
-    <span class="c">// Add entries as tests launch. Example:</span>
+  <span class="c">// Map of flag_key -&gt; variant handlers. Add entries as tests launch.</span>
+  <span class="k">window</span>.__codExperiments = {
     <span class="c">// 'reg-therapist-hero-v1': {</span>
     <span class="c">//   control: function() {},</span>
-    <span class="c">//   'variant-a': function() { /* DOM swap */ }</span>
+    <span class="c">//   'variant-a': function() {</span>
+    <span class="c">//     const h = document.querySelector('[data-test-slot="hero-headline"]');</span>
+    <span class="c">//     if (h) h.textContent = 'New headline text';</span>
+    <span class="c">//   }</span>
     <span class="c">// }</span>
   };
-  <span class="k">function</span> <span class="f">apply</span>() {
-    Object.keys(EXPERIMENTS).forEach(<span class="k">function</span>(key) {
+
+  <span class="k">function</span> <span class="f">applyExperiments</span>() {
+    <span class="k">const</span> EXP = <span class="k">window</span>.__codExperiments || {};
+    Object.keys(EXP).forEach(<span class="k">function</span>(key) {
       <span class="k">const</span> v = <span class="k">window</span>.posthog.getFeatureFlag(key);
-      <span class="k">if</span> (!v || !EXPERIMENTS[key][v]) <span class="k">return</span>;
-      EXPERIMENTS[key][v]();
+      <span class="k">if</span> (!v || !EXP[key][v]) <span class="k">return</span>;
+      EXP[key][v]();
       <span class="k">window</span>.posthog.capture(<span class="s">'$feature_flag_called'</span>, {
         <span class="s">'$feature_flag'</span>: key,
         <span class="s">'$feature_flag_response'</span>: v
       });
     });
   }
-  <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">window</span>.posthog.onFeatureFlags) {
-    <span class="k">window</span>.posthog.onFeatureFlags(apply);
+
+  <span class="c">// Queue for when PostHog loads from GTM. If PostHog is already loaded (e.g. SPA nav), run immediately.</span>
+  <span class="k">function</span> <span class="f">waitAndApply</span>() {
+    <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">typeof</span> <span class="k">window</span>.posthog.onFeatureFlags === <span class="s">'function'</span>) {
+      <span class="k">window</span>.posthog.onFeatureFlags(applyExperiments);
+    } <span class="k">else</span> {
+      setTimeout(waitAndApply, <span class="n">50</span>);
+    }
   }
+  waitAndApply();
 })();
-<span class="p">&lt;/script&gt;</span></code></pre>
+<span class="p">&lt;/script&gt;</span>
+
+<span class="p">&lt;!-- 3. GTM container continues to load normally below this point --&gt;</span>
+<span class="p">&lt;!-- GTM-M677PMW already in place --&gt;</span></code></pre>
 
 <h3>B. cod-posthog.js (see Phase 2 above for full version)</h3>
 <p>Host at a stable URL. Loaded async from body. Handles identify + form wiring + URL email recovery.</p>

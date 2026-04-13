@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostHog Multivariate Setup — COD Landing Pages — Dev Brief for Rehan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e14;
+  --bg-raised: #121821;
+  --bg-code: #0d131b;
+  --border: #1f2937;
+  --border-soft: #161e2a;
+  --text: #e6edf3;
+  --text-dim: #8b98a8;
+  --text-faint: #576271;
+  --accent: #f6b83e;
+  --accent-soft: #f6b83e22;
+  --cyan: #5ad1e6;
+  --green: #4ade80;
+  --red: #f87171;
+  --purple: #c084fc;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 64px 32px 120px; }
+
+header.hero {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+header.hero .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+header.hero h1 {
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+header.hero .deck {
+  font-size: 18px;
+  color: var(--text-dim);
+  font-weight: 300;
+  max-width: 720px;
+}
+header.hero .meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-faint);
+  flex-wrap: wrap;
+}
+header.hero .meta span b { color: var(--text-dim); font-weight: 500; }
+
+.tldr {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 28px 32px;
+  margin-bottom: 56px;
+  border-radius: 2px;
+}
+.tldr h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.tldr p { color: var(--text); margin-bottom: 12px; }
+.tldr p:last-child { margin-bottom: 0; }
+.tldr ol { padding-left: 22px; color: var(--text-dim); }
+.tldr ol li { margin-bottom: 6px; }
+.tldr ol li b { color: var(--text); font-weight: 500; }
+
+section { margin-bottom: 64px; }
+section > h2 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+section > h2 .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  margin-right: 12px;
+  font-weight: 500;
+}
+section .section-lead {
+  color: var(--text-dim);
+  margin: 20px 0 28px;
+  font-size: 16px;
+}
+
+h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 36px 0 14px;
+  color: var(--text);
+}
+h3::before {
+  content: "▸ ";
+  color: var(--accent);
+  font-weight: 400;
+}
+
+p { margin-bottom: 14px; color: var(--text); }
+p + p { margin-top: -4px; }
+ul, ol { padding-left: 22px; margin-bottom: 18px; color: var(--text-dim); }
+ul li, ol li { margin-bottom: 6px; }
+ul li b, ol li b { color: var(--text); font-weight: 500; }
+
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--bg-code);
+  color: var(--cyan);
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border-soft);
+}
+
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 22px 24px;
+  overflow-x: auto;
+  margin: 18px 0 24px;
+  font-size: 13px;
+  line-height: 1.6;
+  position: relative;
+}
+pre::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--bg-raised);
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+.k { color: #c084fc; }  /* keyword */
+.s { color: #86efac; }  /* string */
+.c { color: #576271; font-style: italic; }  /* comment */
+.f { color: #5ad1e6; }  /* function */
+.n { color: #f6b83e; }  /* number/constant */
+.p { color: #e6edf3; }  /* plain */
+
+.callout {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 18px 24px;
+  margin: 20px 0;
+  border-radius: 2px;
+}
+.callout.warn { border-left-color: var(--red); }
+.callout.good { border-left-color: var(--green); }
+.callout.note { border-left-color: var(--purple); }
+.callout .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.callout.warn .label { color: var(--red); }
+.callout.good .label { color: var(--green); }
+.callout.note .label { color: var(--purple); }
+.callout p:last-child { margin-bottom: 0; }
+
+.status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
+}
+.status-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  padding: 18px 22px;
+  border-radius: 3px;
+}
+.status-card .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.status-card.live .tag { color: var(--green); }
+.status-card.gap .tag { color: var(--red); }
+.status-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.status-card p { font-size: 13px; color: var(--text-dim); margin: 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0 28px;
+  font-size: 13px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+th, td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+th {
+  background: var(--bg-code);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+td { color: var(--text-dim); }
+td b, td strong { color: var(--text); font-weight: 500; }
+tr:last-child td { border-bottom: none; }
+td code { font-size: 12px; }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li {
+  padding: 10px 0 10px 32px;
+  border-bottom: 1px solid var(--border-soft);
+  position: relative;
+  color: var(--text);
+}
+.checklist li::before {
+  content: "☐";
+  position: absolute;
+  left: 6px;
+  top: 9px;
+  color: var(--accent);
+  font-size: 16px;
+}
+.checklist li:last-child { border-bottom: none; }
+.checklist li b { color: var(--text); }
+.checklist li small {
+  display: block;
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.toc {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  padding: 20px 28px;
+  margin-bottom: 48px;
+  border-radius: 2px;
+}
+.toc h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+.toc h3::before { content: none; }
+.toc ol {
+  list-style: none;
+  padding: 0;
+  columns: 2;
+  column-gap: 32px;
+}
+.toc ol li {
+  padding: 4px 0;
+  font-size: 13px;
+  margin-bottom: 0;
+}
+.toc ol li a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  transition: color 0.15s;
+}
+.toc ol li a:hover { color: var(--accent); }
+.toc ol li a .n {
+  color: var(--text-faint);
+  margin-right: 8px;
+}
+
+footer {
+  margin-top: 80px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 40px 20px 80px; }
+  header.hero h1 { font-size: 28px; }
+  header.hero .deck { font-size: 16px; }
+  .status-grid { grid-template-columns: 1fr; }
+  .toc ol { columns: 1; }
+  pre { font-size: 12px; padding: 18px; }
+  table { font-size: 12px; }
+  th, td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Dev Brief · PostHog · Multivariate Testing</div>
+  <h1>PostHog Multivariate Testing Setup for COD Landing Pages</h1>
+  <p class="deck">How to wire feature flags, experiments, and trustworthy variant tracking across every COD reg page. Written for Rehan. Production-ready code, zero hand-waving.</p>
+  <div class="meta">
+    <span><b>Owner:</b> Rehan</span>
+    <span><b>Reviewer:</b> Kas</span>
+    <span><b>Pages in scope:</b> all COD landing pages (therapist, attorney, educators, coaches, main reg, future niches)</span>
+    <span><b>Est. effort:</b> 4–6 hours one-time + ~15 min per new test</span>
+  </div>
+</header>
+
+<div class="tldr">
+  <h2>TL;DR</h2>
+  <p>The identify call is already live and working on <code>/hto-workshop-therapist-counselor-b</code>. PostHog is being loaded via GTM (container <code>GTM-M677PMW</code>). Identify fires correctly on form submit and on URL <code>?email=</code> param. Good foundation.</p>
+  <p>But the pages have <b>zero feature flag consumption code</b>, meaning we cannot currently run PostHog experiments or multivariate tests. This brief fixes that in five phases:</p>
+  <ol>
+    <li><b>Phase 1 — Move PostHog init out of GTM</b> into a blocking head script so flags resolve before first paint (kills variant flicker).</li>
+    <li><b>Phase 2 — Standardize the identify pattern</b> across every page using one shared snippet (<code>cod-posthog.js</code>).</li>
+    <li><b>Phase 3 — Add the feature flag consumption pattern</b> (<code>onFeatureFlags</code> + variant switch + exposure event).</li>
+    <li><b>Phase 4 — Run a smoke test</b> using a dummy 50/50 flag to confirm clean bucketing before any real test launches.</li>
+    <li><b>Phase 5 — Roll out page by page</b> with a QA checklist per page.</li>
+  </ol>
+</div>
+
+<nav class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#state"><span class="n">01</span>Current State Audit</a></li>
+    <li><a href="#arch"><span class="n">02</span>Target Architecture</a></li>
+    <li><a href="#phase1"><span class="n">03</span>Phase 1 — Head Init</a></li>
+    <li><a href="#phase2"><span class="n">04</span>Phase 2 — Identify Pattern</a></li>
+    <li><a href="#phase3"><span class="n">05</span>Phase 3 — Flag Consumption</a></li>
+    <li><a href="#naming"><span class="n">06</span>Naming Conventions</a></li>
+    <li><a href="#events"><span class="n">07</span>Standard Events</a></li>
+    <li><a href="#phase4"><span class="n">08</span>Phase 4 — Smoke Test</a></li>
+    <li><a href="#phase5"><span class="n">09</span>Phase 5 — Rollout</a></li>
+    <li><a href="#qa"><span class="n">10</span>QA Checklist</a></li>
+    <li><a href="#pitfalls"><span class="n">11</span>Common Pitfalls</a></li>
+    <li><a href="#appendix"><span class="n">12</span>Appendix: Full Snippets</a></li>
+  </ol>
+</nav>
+
+<!-- ====================================================================== -->
+<section id="state">
+<h2><span class="num">01</span>Current State Audit</h2>
+<p class="section-lead">What is actually live on the pages right now, confirmed by fetching <code>clientsondemand.live/hto-workshop-therapist-counselor-b</code> and grepping the source.</p>
+
+<div class="status-grid">
+  <div class="status-card live">
+    <div class="tag">✓ Live</div>
+    <h4>GTM container loaded</h4>
+    <p><code>GTM-M677PMW</code> injected in <code>&lt;noscript&gt;</code> iframe fallback and head script.</p>
+  </div>
+  <div class="status-card live">
+    <div class="tag">✓ Live</div>
+    <h4>Identify on form submit</h4>
+    <p><code>posthog.identify(email, { full_name, source })</code> fires on <code>#_builder-form</code> submit.</p>
+  </div>
+  <div class="status-card live">
+    <div class="tag">✓ Live</div>
+    <h4>Identify on URL email param</h4>
+    <p><code>?email=…</code> triggers identify for returning visitors — good for nurture links.</p>
+  </div>
+  <div class="status-card live">
+    <div class="tag">✓ Live</div>
+    <h4>Idempotency guard</h4>
+    <p><code>form.dataset.posthogAttached</code> prevents double-firing. Clean.</p>
+  </div>
+  <div class="status-card gap">
+    <div class="tag">✗ Gap</div>
+    <h4>No <code>posthog.init</code> in page</h4>
+    <p>PostHog is initialized from inside GTM, not the page head. Means config is hidden and race-prone.</p>
+  </div>
+  <div class="status-card gap">
+    <div class="tag">✗ Gap</div>
+    <h4>No feature flag consumption</h4>
+    <p>No <code>getFeatureFlag</code>, no <code>onFeatureFlags</code>, no <code>$feature</code> reads. Cannot run experiments.</p>
+  </div>
+  <div class="status-card gap">
+    <div class="tag">✗ Gap</div>
+    <h4>No super properties</h4>
+    <p>No <code>posthog.register()</code> call to tag all events with niche / device / template. Every event has to be filtered manually.</p>
+  </div>
+  <div class="status-card gap">
+    <div class="tag">✗ Gap</div>
+    <h4>No exposure event</h4>
+    <p>No <code>$experiment_started</code> event. PostHog can't stitch variant → downstream conversion without this.</p>
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="label">Race condition risk</div>
+  <p>Because PostHog is GTM-injected, the <code>posthog</code> global may not exist when the form's submit handler runs. The current code guards with <code>typeof posthog !== 'undefined'</code>, which silently drops early submits (user hits enter before GTM loads). This affects mobile users on slow connections most — exactly your 90% traffic segment. Moving init to a blocking head script (Phase 1) fixes this.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="arch">
+<h2><span class="num">02</span>Target Architecture</h2>
+<p class="section-lead">One shared script, one init call, one flag pattern, used by every page in the COD family.</p>
+
+<pre data-lang="Architecture"><code><span class="c">// Load order on every COD landing page</span>
+
+<span class="p">&lt;head&gt;</span>
+  1. <span class="f">posthog.init()</span>          <span class="c">// blocking, &lt;3KB, inline — no flicker</span>
+  2. <span class="f">posthog.register()</span>      <span class="c">// super props: niche, template, device</span>
+  3. <span class="f">posthog.onFeatureFlags()</span> <span class="c">// resolve variant BEFORE paint</span>
+  4. <span class="f">applyVariant(flag)</span>       <span class="c">// DOM swap for this page's active test</span>
+<span class="p">&lt;/head&gt;</span>
+
+<span class="p">&lt;body&gt;</span>
+  5. GTM continues to run <span class="c">// keep for existing tags, but PostHog is NOT loaded from it anymore</span>
+  6. <span class="f">cod-posthog.js</span>             <span class="c">// shared identify + event helpers, loaded async</span>
+  7. Form submit → <span class="f">identify</span>     <span class="c">// email becomes distinct_id</span>
+  8. Capture standard events   <span class="c">// lead_registered, ticket_purchased, replay_started</span>
+<span class="p">&lt;/body&gt;</span></code></pre>
+
+<div class="callout note">
+  <div class="label">Why not keep PostHog in GTM</div>
+  <p>GTM loads asynchronously after <code>DOMContentLoaded</code>. Any feature flag you apply via GTM happens after the original DOM has already painted, which means users see the control variant flash before it gets replaced — "flash of original content" (FOOC). That flicker contaminates your test: users who bounce during the flicker are counted as variant exposures without actually seeing the variant. <b>The only reliable fix is to load PostHog in the document head, before GTM, before anything else.</b></p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="phase1">
+<h2><span class="num">03</span>Phase 1 — Head Init Script</h2>
+<p class="section-lead">Drop this inline snippet in the very first <code>&lt;head&gt;</code> position on every COD landing page. Before GTM, before fonts, before CSS if possible.</p>
+
+<pre data-lang="HTML · &lt;head&gt; · TOP"><code><span class="p">&lt;!-- PostHog — must load before any render-blocking resource --&gt;</span>
+<span class="p">&lt;script&gt;</span>
+!<span class="k">function</span>(t,e){<span class="k">var</span> o,n,p,r;e.__SV||(<span class="k">window</span>.posthog=e,e._i=[],e.init=<span class="k">function</span>(i,s,a){
+<span class="k">function</span> g(t,e){<span class="k">var</span> o=e.split(<span class="s">"."</span>);2==o.length&&(t=t[o[0]],e=o[1]);t[e]=<span class="k">function</span>(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}
+(p=t.createElement(<span class="s">"script"</span>)).type=<span class="s">"text/javascript"</span>,p.async=!0,p.src=s.api_host+<span class="s">"/static/array.js"</span>,(r=t.getElementsByTagName(<span class="s">"script"</span>)[0]).parentNode.insertBefore(p,r);
+<span class="k">var</span> u=e;<span class="k">for</span>(<span class="k">void</span> 0!==a?u=e[a]=[]:a=<span class="s">"posthog"</span>,u.people=u.people||[],u.toString=<span class="k">function</span>(t){<span class="k">var</span> e=<span class="s">"posthog"</span>;<span class="k">return</span><span class="s">"posthog"</span>!==a&&(e+=<span class="s">"."</span>+a),t||(e+=<span class="s">" (stub)"</span>),e},u.people.toString=<span class="k">function</span>(){<span class="k">return</span> u.toString(1)+<span class="s">".people (stub)"</span>},o=<span class="s">"init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric"</span>.split(<span class="s">" "</span>),n=0;n&lt;o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}
+(<span class="k">document</span>,<span class="k">window</span>.posthog||[]);
+
+posthog.init(<span class="s">'phc_REPLACE_WITH_COD_PROJECT_KEY'</span>, {
+  api_host: <span class="s">'https://us.i.posthog.com'</span>,
+  person_profiles: <span class="s">'identified_only'</span>,      <span class="c">// don't create profiles for anon users — saves MTU cost</span>
+  capture_pageview: <span class="k">true</span>,
+  capture_pageleave: <span class="k">true</span>,
+  autocapture: <span class="k">false</span>,                      <span class="c">// off — we capture explicit events only, cleaner data</span>
+  disable_session_recording: <span class="k">false</span>,        <span class="c">// keep recordings ON for debugging LP drop-offs</span>
+  advanced_disable_feature_flags: <span class="k">false</span>,   <span class="c">// CRITICAL — flags must be enabled for experiments</span>
+  advanced_disable_decide: <span class="k">false</span>,          <span class="c">// CRITICAL — /decide call must run for flag resolution</span>
+  bootstrap: {
+    distinctID: <span class="k">window</span>.__phBootstrap?.distinctID,
+    featureFlags: <span class="k">window</span>.__phBootstrap?.featureFlags || {}
+  },
+  loaded: <span class="k">function</span>(posthog) {
+    <span class="c">// Register super props on every event fired from this page</span>
+    posthog.register({
+      niche: <span class="k">document</span>.body.dataset.niche || <span class="s">'unknown'</span>,
+      page_template: <span class="k">document</span>.body.dataset.template || <span class="s">'reg'</span>,
+      page_path: <span class="k">location</span>.pathname,
+      device_category: <span class="k">window</span>.innerWidth &lt; 768 ? <span class="s">'mobile'</span> : <span class="s">'desktop'</span>
+    });
+  }
+});
+<span class="p">&lt;/script&gt;</span></code></pre>
+
+<div class="callout">
+  <div class="label">Why each flag matters</div>
+  <ul>
+    <li><b><code>person_profiles: 'identified_only'</code></b> — PostHog charges per MTU (monthly tracked user). Anonymous profiles eat quota. We only want identified users counted.</li>
+    <li><b><code>autocapture: false</code></b> — turns off PostHog's magic click/input tracking. We use explicit events instead. Cleaner data, no accidental PII capture from form fields.</li>
+    <li><b><code>advanced_disable_feature_flags: false</code></b> — default is false, but be explicit. If this is ever set true, experiments break silently.</li>
+    <li><b><code>bootstrap</code></b> — lets GHL/server pre-inject flag values into <code>window.__phBootstrap</code>. If we ever server-side-render flags (e.g. from a Cloud Function), this lets flags resolve instantly with zero round-trip. Safe to leave empty for now.</li>
+  </ul>
+</div>
+
+<h3>Get the PostHog project key</h3>
+<p>The key starts with <code>phc_</code>. Log into PostHog → Settings → Project → API Key. Paste it where the snippet says <code>phc_REPLACE_WITH_COD_PROJECT_KEY</code>. Do NOT commit this key to a public repo — it's write-only (safe in browser) but still project-identifying.</p>
+
+<h3>Verify GTM is no longer initializing PostHog</h3>
+<p>In GTM → Tags, find the tag labeled something like "PostHog Init" or a Custom HTML tag containing <code>posthog.init</code>. Pause it (don't delete yet — we'll remove after smoke test passes). If you're unsure which tag, search container for the string <code>posthog.init</code>.</p>
+</section>
+
+<!-- ====================================================================== -->
+<section id="phase2">
+<h2><span class="num">04</span>Phase 2 — Standardized Identify Pattern</h2>
+<p class="section-lead">One file, one import, one helper. Stop copy-pasting identify code per page.</p>
+
+<h3>Create the shared script</h3>
+<p>Host this at a stable URL (GHL media library, or a CDN like GitHub Pages). Reference it from every COD landing page.</p>
+
+<pre data-lang="JavaScript · cod-posthog.js"><code><span class="c">/* cod-posthog.js · v1.0.0 · shared identify + event helpers for COD landing pages */</span>
+(<span class="k">function</span>() {
+  <span class="s">'use strict'</span>;
+
+  <span class="c">// Wait for posthog to exist (init is in head, so this is usually instant)</span>
+  <span class="k">function</span> <span class="f">whenReady</span>(cb) {
+    <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">typeof</span> <span class="k">window</span>.posthog.identify === <span class="s">'function'</span>) <span class="k">return</span> cb();
+    <span class="k">let</span> tries = 0;
+    <span class="k">const</span> poll = setInterval(<span class="k">function</span>() {
+      <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">typeof</span> <span class="k">window</span>.posthog.identify === <span class="s">'function'</span>) {
+        clearInterval(poll);
+        cb();
+      } <span class="k">else</span> <span class="k">if</span> (++tries &gt; <span class="n">50</span>) {
+        clearInterval(poll);
+        <span class="k">console</span>.warn(<span class="s">'[cod-posthog] posthog never loaded after 5s'</span>);
+      }
+    }, <span class="n">100</span>);
+  }
+
+  <span class="c">// Normalize and validate an email before identifying</span>
+  <span class="k">function</span> <span class="f">cleanEmail</span>(raw) {
+    <span class="k">if</span> (!raw || <span class="k">typeof</span> raw !== <span class="s">'string'</span>) <span class="k">return</span> <span class="k">null</span>;
+    <span class="k">const</span> e = raw.toLowerCase().trim();
+    <span class="k">return</span> e.includes(<span class="s">'@'</span>) &amp;&amp; e.includes(<span class="s">'.'</span>) ? e : <span class="k">null</span>;
+  }
+
+  <span class="c">// Identify a user — call this on form submit, URL email param, or any known contact point</span>
+  <span class="k">window</span>.CODIdentify = <span class="k">function</span>(email, extras) {
+    <span class="k">const</span> clean = <span class="f">cleanEmail</span>(email);
+    <span class="k">if</span> (!clean) <span class="k">return</span> <span class="k">false</span>;
+    <span class="f">whenReady</span>(<span class="k">function</span>() {
+      <span class="k">window</span>.posthog.identify(clean, Object.assign({
+        email: clean,
+        source: <span class="k">location</span>.pathname,
+        first_touch_at: <span class="k">new</span> Date().toISOString(),
+        niche: <span class="k">document</span>.body.dataset.niche || <span class="s">'unknown'</span>
+      }, extras || {}));
+      <span class="k">console</span>.log(<span class="s">'[cod-posthog] identified'</span>, clean);
+    });
+    <span class="k">return</span> <span class="k">true</span>;
+  };
+
+  <span class="c">// Standard capture wrapper — enforces consistent event naming</span>
+  <span class="k">window</span>.CODCapture = <span class="k">function</span>(event, props) {
+    <span class="f">whenReady</span>(<span class="k">function</span>() {
+      <span class="k">window</span>.posthog.capture(event, props || {});
+    });
+  };
+
+  <span class="c">// Auto-wire form submit on any form tagged [data-cod-lead-form]</span>
+  <span class="k">function</span> <span class="f">wireForms</span>() {
+    <span class="k">const</span> forms = <span class="k">document</span>.querySelectorAll(<span class="s">'form[data-cod-lead-form], #_builder-form'</span>);
+    forms.forEach(<span class="k">function</span>(form) {
+      <span class="k">if</span> (form.dataset.phAttached) <span class="k">return</span>;
+      form.dataset.phAttached = <span class="s">'true'</span>;
+      form.addEventListener(<span class="s">'submit'</span>, <span class="k">function</span>() {
+        <span class="k">const</span> emailInput = form.querySelector(<span class="s">'input[type="email"], input[name*="email" i]'</span>);
+        <span class="k">const</span> nameInput = form.querySelector(<span class="s">'input[name*="name" i], input[name*="full_name" i]'</span>);
+        <span class="k">const</span> email = emailInput ? emailInput.value : <span class="k">null</span>;
+        <span class="k">const</span> name = nameInput ? nameInput.value : <span class="k">null</span>;
+        <span class="k">if</span> (email) {
+          <span class="k">window</span>.CODIdentify(email, { full_name: name, stage: <span class="s">'lead'</span> });
+          <span class="k">window</span>.CODCapture(<span class="s">'lead_registered'</span>, {
+            full_name: name,
+            form_id: form.id || form.className.split(<span class="s">' '</span>)[0]
+          });
+        }
+      });
+    });
+  }
+
+  <span class="c">// Auto-wire URL ?email= param for nurture link returns</span>
+  <span class="k">function</span> <span class="f">wireUrlEmail</span>() {
+    <span class="k">const</span> urlEmail = <span class="k">new</span> URLSearchParams(<span class="k">location</span>.search).get(<span class="s">'email'</span>);
+    <span class="k">if</span> (urlEmail) <span class="k">window</span>.CODIdentify(urlEmail, { source: <span class="s">'url-param'</span> });
+  }
+
+  <span class="k">if</span> (<span class="k">document</span>.readyState === <span class="s">'loading'</span>) {
+    <span class="k">document</span>.addEventListener(<span class="s">'DOMContentLoaded'</span>, <span class="k">function</span>() {
+      <span class="f">wireForms</span>();
+      <span class="f">wireUrlEmail</span>();
+    });
+  } <span class="k">else</span> {
+    <span class="f">wireForms</span>();
+    <span class="f">wireUrlEmail</span>();
+  }
+})();</code></pre>
+
+<h3>How pages load it</h3>
+<p>After the head init script, anywhere in body (async is fine):</p>
+<pre data-lang="HTML · page body"><code><span class="p">&lt;body</span> data-niche=<span class="s">"therapist"</span> data-template=<span class="s">"reg-workshop"</span><span class="p">&gt;</span>
+  ...
+  <span class="p">&lt;script src=</span><span class="s">"https://your-cdn/cod-posthog.js"</span><span class="p"> async&gt;&lt;/script&gt;</span>
+<span class="p">&lt;/body&gt;</span></code></pre>
+
+<div class="callout good">
+  <div class="label">Win</div>
+  <p>Once this is in place, every new COD landing page only needs two things: (1) the head init script, (2) this script tag. Identify and form tracking are automatic. No more copy-pasting inline handlers per page.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="phase3">
+<h2><span class="num">05</span>Phase 3 — Feature Flag Consumption Pattern</h2>
+<p class="section-lead">How to actually apply a variant to the DOM and report exposure back to PostHog.</p>
+
+<h3>The pattern</h3>
+<p>Add this to any page that has an active test. Nothing happens on pages without a test — the callback just no-ops.</p>
+
+<pre data-lang="HTML · &lt;head&gt; · AFTER posthog.init"><code><span class="p">&lt;script&gt;</span>
+(<span class="k">function</span>() {
+  <span class="c">// Map of flag_key -&gt; variant handlers</span>
+  <span class="c">// Add one entry per active experiment on this page</span>
+  <span class="k">const</span> EXPERIMENTS = {
+    <span class="s">'reg-therapist-hero-v1'</span>: {
+      control: <span class="k">function</span>() { <span class="c">/* do nothing, original DOM */</span> },
+      <span class="s">'variant-a'</span>: <span class="k">function</span>() {
+        <span class="k">const</span> h = <span class="k">document</span>.querySelector(<span class="s">'[data-test-slot="hero-headline"]'</span>);
+        <span class="k">if</span> (h) h.textContent = <span class="s">'The exact system therapists use to book $5K clients without being salesy'</span>;
+      },
+      <span class="s">'variant-b'</span>: <span class="k">function</span>() {
+        <span class="k">const</span> h = <span class="k">document</span>.querySelector(<span class="s">'[data-test-slot="hero-headline"]'</span>);
+        <span class="k">if</span> (h) h.textContent = <span class="s">'How 200+ therapists filled their practice in 90 days (no ads)'</span>;
+      }
+    }
+  };
+
+  <span class="k">function</span> <span class="f">applyExperiments</span>() {
+    Object.keys(EXPERIMENTS).forEach(<span class="k">function</span>(flagKey) {
+      <span class="k">const</span> variant = <span class="k">window</span>.posthog.getFeatureFlag(flagKey);
+      <span class="k">if</span> (!variant) <span class="k">return</span>;
+      <span class="k">const</span> handler = EXPERIMENTS[flagKey][variant];
+      <span class="k">if</span> (<span class="k">typeof</span> handler === <span class="s">'function'</span>) handler();
+
+      <span class="c">// Fire the exposure event so PostHog can attribute downstream conversions</span>
+      <span class="k">window</span>.posthog.capture(<span class="s">'$feature_flag_called'</span>, {
+        <span class="s">'$feature_flag'</span>: flagKey,
+        <span class="s">'$feature_flag_response'</span>: variant
+      });
+    });
+  }
+
+  <span class="c">// Run as soon as flags are ready — this resolves BEFORE first paint when init is in head</span>
+  <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">window</span>.posthog.onFeatureFlags) {
+    <span class="k">window</span>.posthog.onFeatureFlags(applyExperiments);
+  } <span class="k">else</span> {
+    <span class="c">// Fallback: queue it for when posthog loads</span>
+    (<span class="k">window</span>.posthog = <span class="k">window</span>.posthog || []).push([<span class="s">'onFeatureFlags'</span>, applyExperiments]);
+  }
+})();
+<span class="p">&lt;/script&gt;</span></code></pre>
+
+<h3>The HTML contract</h3>
+<p>Mark any element that might be swapped by a variant with a <code>data-test-slot</code> attribute. This keeps variant code decoupled from fragile CSS selectors.</p>
+
+<pre data-lang="HTML · page body"><code><span class="p">&lt;h1 data-test-slot=</span><span class="s">"hero-headline"</span><span class="p">&gt;</span>
+  Original headline that control sees
+<span class="p">&lt;/h1&gt;</span>
+
+<span class="p">&lt;p data-test-slot=</span><span class="s">"hero-subhead"</span><span class="p">&gt;</span>
+  Original subhead
+<span class="p">&lt;/p&gt;</span>
+
+<span class="p">&lt;button data-test-slot=</span><span class="s">"hero-cta"</span><span class="p">&gt;</span>
+  Register now
+<span class="p">&lt;/button&gt;</span></code></pre>
+
+<div class="callout note">
+  <div class="label">Why <code>data-test-slot</code> over class selectors</div>
+  <p>If we target <code>.hero h1</code>, a future CSS refactor breaks every active experiment silently. <code>data-test-slot</code> is a contract — it survives design changes, is searchable, and makes experiment code self-documenting.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="naming">
+<h2><span class="num">06</span>Naming Conventions</h2>
+<p class="section-lead">Follow these or experiments get impossible to read in six months.</p>
+
+<table>
+<thead>
+<tr><th>Thing</th><th>Format</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td>Feature flag key</td><td><code>{page}-{niche}-{element}-v{n}</code></td><td><code>reg-therapist-hero-v1</code></td></tr>
+<tr><td>Variant keys</td><td><code>control</code>, <code>variant-a</code>, <code>variant-b</code>, …</td><td>Never use winner/loser or headline text as keys</td></tr>
+<tr><td>Experiment name (human)</td><td><code>{Date} — {Page} — {Hypothesis}</code></td><td><code>2026-04-15 — Therapist Reg — Outcome-first headline beats curiosity</code></td></tr>
+<tr><td>Exposure event</td><td><code>$feature_flag_called</code> (reserved — PostHog ships this)</td><td>Do NOT invent a custom name</td></tr>
+<tr><td>Super property: niche</td><td>lowercase-kebab</td><td><code>therapist</code>, <code>attorney</code>, <code>educator</code>, <code>coach</code></td></tr>
+<tr><td>Super property: template</td><td>lowercase-kebab</td><td><code>reg-workshop</code>, <code>reg-vsl</code>, <code>reg-masterclass</code></td></tr>
+<tr><td>Conversion events</td><td>lowercase_snake, verb_noun</td><td><code>lead_registered</code>, <code>ticket_purchased</code>, <code>replay_started</code></td></tr>
+</tbody>
+</table>
+
+<h3>Flag lifecycle</h3>
+<ul>
+  <li><b>Running</b> — test is live, traffic is splitting, nobody touches the code</li>
+  <li><b>Concluded</b> — in PostHog, mark experiment complete. Note the winner in the experiment description.</li>
+  <li><b>Implemented</b> — the winning variant becomes the default DOM. Flag key stays in code but with all handlers pointing to the new default. Feature flag is set to 100% variant-X in PostHog.</li>
+  <li><b>Archived</b> — 30 days later, delete the flag from PostHog AND remove the handler from <code>EXPERIMENTS</code>. Keeps the experiment file clean.</li>
+</ul>
+</section>
+
+<!-- ====================================================================== -->
+<section id="events">
+<h2><span class="num">07</span>Standard Events</h2>
+<p class="section-lead">These must fire identically across every COD landing page. The BigQuery warehouse joins on exact event names.</p>
+
+<table>
+<thead>
+<tr><th>Event</th><th>When</th><th>Required properties</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>$pageview</code></td>
+  <td>Automatic from PostHog init</td>
+  <td>— (auto: <code>$current_url</code>, <code>$referrer</code>)</td>
+</tr>
+<tr>
+  <td><code>lead_registered</code></td>
+  <td>Form submit succeeds</td>
+  <td><code>full_name</code>, <code>form_id</code></td>
+</tr>
+<tr>
+  <td><code>ticket_purchased</code></td>
+  <td>Stripe success page / webhook redirect</td>
+  <td><code>amount</code>, <code>ticket_type</code> (<code>$27</code>, <code>$54</code>), <code>order_id</code></td>
+</tr>
+<tr>
+  <td><code>video_started</code></td>
+  <td>Workshop video play event (Wistia)</td>
+  <td><code>video_id</code>, <code>video_length_sec</code></td>
+</tr>
+<tr>
+  <td><code>video_progress</code></td>
+  <td>25/50/75/90/100% playhead</td>
+  <td><code>percent</code>, <code>video_id</code></td>
+</tr>
+<tr>
+  <td><code>cta_clicked</code></td>
+  <td>Any sticky CTA or button</td>
+  <td><code>cta_label</code>, <code>cta_position</code> (hero/mid/footer/sticky)</td>
+</tr>
+<tr>
+  <td><code>$feature_flag_called</code></td>
+  <td>Automatic from Phase 3 pattern</td>
+  <td><code>$feature_flag</code>, <code>$feature_flag_response</code></td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout warn">
+  <div class="label">Do NOT capture these</div>
+  <ul>
+    <li><b>PII in event properties</b> — no passwords, no full credit cards, no phone numbers. Email is OK because it's the identity key.</li>
+    <li><b>Every scroll position</b> — PostHog already has heatmaps. Capturing scroll events at high frequency burns MTU.</li>
+    <li><b>Anonymous browsing events with autocapture</b> — we turned autocapture off in Phase 1, keep it off.</li>
+  </ul>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="phase4">
+<h2><span class="num">08</span>Phase 4 — Smoke Test Before Any Real Test</h2>
+<p class="section-lead">Run this before trusting the pipeline with a revenue-affecting test. Cost: one afternoon.</p>
+
+<h3>Create the smoke test flag</h3>
+<ol>
+  <li>PostHog → Feature Flags → New feature flag</li>
+  <li>Key: <code>infra-smoke-test</code></li>
+  <li>Type: Multiple variants → <code>control</code> (50%), <code>variant-a</code> (50%)</li>
+  <li>Release conditions: 100% of users</li>
+</ol>
+
+<h3>Wire it into one page</h3>
+<p>Add a harmless DOM change to the therapist reg page so you can visually confirm which bucket you're in:</p>
+
+<pre data-lang="JavaScript"><code><span class="k">const</span> EXPERIMENTS = {
+  <span class="s">'infra-smoke-test'</span>: {
+    control: <span class="k">function</span>() {
+      <span class="k">document</span>.title = <span class="s">'[A] '</span> + <span class="k">document</span>.title;
+    },
+    <span class="s">'variant-a'</span>: <span class="k">function</span>() {
+      <span class="k">document</span>.title = <span class="s">'[B] '</span> + <span class="k">document</span>.title;
+    }
+  }
+};</code></pre>
+
+<h3>Validation checks (all must pass)</h3>
+<ul>
+  <li><b>Incognito tab 1:</b> load page → check tab title has <code>[A]</code> or <code>[B]</code> prefix → no flicker → submit form → PostHog Persons shows email distinct_id.</li>
+  <li><b>Incognito tab 2:</b> repeat. Different browser. Confirm you get a different bucket at least once over ~10 incognito sessions.</li>
+  <li><b>PostHog → Events → Live:</b> confirm <code>$pageview</code> fires BEFORE <code>$feature_flag_called</code>, and both fire before <code>lead_registered</code>.</li>
+  <li><b>PostHog → Persons:</b> after 20 sessions, verify the <code>infra-smoke-test</code> property on each person is set and roughly 50/50 distribution.</li>
+  <li><b>Network tab:</b> <code>/decide/</code> request returns before any DOM paint containing the variant. If the request is slow (>200ms), flags fall back to bootstrap/cached.</li>
+  <li><b>PostHog → Session recordings:</b> open one recording. Confirm no flicker on hero headline swap during load.</li>
+</ul>
+
+<div class="callout good">
+  <div class="label">Pass criteria</div>
+  <p>All six checks green → proceed to Phase 5 rollout. If ANY check fails, do not run real experiments. Debug first. The most common failure is <code>/decide</code> firing too late — fix by ensuring the PostHog snippet is the first script in <code>&lt;head&gt;</code>.</p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section id="phase5">
+<h2><span class="num">09</span>Phase 5 — Per-Page Rollout</h2>
+<p class="section-lead">Roll out one page at a time. Validate each before moving to the next.</p>
+
+<h3>Pages in order</h3>
+<ol>
+  <li><b>Therapist reg (B variant)</b> — already has identify; lowest risk; validates the pattern</li>
+  <li><b>Attorney reg</b> — next highest traffic niche</li>
+  <li><b>Educator reg v2</b> — just built, good time to instrument from scratch</li>
+  <li><b>Coaches reg</b> — <code>/coaches-page-bAh</code></li>
+  <li><b>Main <code>$27</code> reg page</b> — highest traffic, highest risk, do last</li>
+  <li><b>Any future niche LPs</b> — built with the pattern from day one</li>
+</ol>
+
+<h3>Per-page tasks (repeat for each)</h3>
+<ul class="checklist">
+  <li><b>Add head init script</b><small>Paste Phase 1 snippet as the first thing in <code>&lt;head&gt;</code>. Before GTM, before fonts.</small></li>
+  <li><b>Add <code>data-niche</code> and <code>data-template</code> to <code>&lt;body&gt;</code></b><small>e.g. <code>&lt;body data-niche="therapist" data-template="reg-workshop"&gt;</code></small></li>
+  <li><b>Add cod-posthog.js script tag</b><small>Anywhere in body, async loading is fine.</small></li>
+  <li><b>Remove old inline identify snippets</b><small>Strip the per-page <code>posthog.identify</code> code. cod-posthog.js replaces it.</small></li>
+  <li><b>Tag swap-able elements with <code>data-test-slot</code></b><small>Hero headline, subhead, CTA, value props. Anything you'd ever want to test.</small></li>
+  <li><b>Add the EXPERIMENTS map (empty or with active tests)</b><small>Even if empty, include the scaffolding so future tests are one-liners.</small></li>
+  <li><b>Run the full QA checklist (next section)</b><small>Every page, every time. No exceptions.</small></li>
+  <li><b>Pause old GHL split test (if any)</b><small>Never run GHL and PostHog experiments simultaneously — they'll fight over DOM and corrupt each other's buckets.</small></li>
+</ul>
+</section>
+
+<!-- ====================================================================== -->
+<section id="qa">
+<h2><span class="num">10</span>QA Checklist (Per Page)</h2>
+<p class="section-lead">Run this against every page after instrumenting it. Takes 10 minutes.</p>
+
+<ul class="checklist">
+  <li><b>Incognito load → PostHog Persons shows an anon UUID distinct_id</b><small>Not null, not missing. Confirms init fired.</small></li>
+  <li><b>Submit form with test email → PostHog Persons updates distinct_id to email</b><small>The anon UUID should merge into the email profile, not create two separate persons.</small></li>
+  <li><b>Network tab → <code>/decide/</code> request fires before any variant DOM write</b><small>Sort requests by start time. decide/ should come from PostHog host and return &lt;300ms.</small></li>
+  <li><b>No flicker on variant swap</b><small>Load page 5× in incognito on a throttled connection ("Slow 3G" in DevTools). Watch hero area. Zero flash of original content.</small></li>
+  <li><b><code>$pageview</code> event appears in PostHog Live Events within 2 seconds</b><small>If not, init is broken or blocked by adblocker. Test in non-adblock browser.</small></li>
+  <li><b><code>lead_registered</code> event fires on form submit with correct properties</b><small>Check <code>form_id</code>, <code>full_name</code>, super props all present.</small></li>
+  <li><b>Super properties appear on every event</b><small>Every event should have <code>niche</code>, <code>page_template</code>, <code>page_path</code>, <code>device_category</code>. If missing, <code>posthog.register()</code> in head init didn't run.</small></li>
+  <li><b>Mobile test: Safari iOS + Chrome Android</b><small>90% of COD traffic is mobile. Anything that passes desktop but fails mobile is a broken test.</small></li>
+  <li><b>Session recording captures the variant</b><small>Open a recording and verify the recorded DOM matches the variant (not the control).</small></li>
+  <li><b>GHL native split test is OFF on this page</b><small>Confirm in GHL funnel editor that no A/B split is active on the instrumented page.</small></li>
+</ul>
+</section>
+
+<!-- ====================================================================== -->
+<section id="pitfalls">
+<h2><span class="num">11</span>Common Pitfalls</h2>
+<p class="section-lead">Every one of these has bitten a team doing PostHog experiments. Don't learn them the hard way.</p>
+
+<h3>Flicker / flash of original content (FOOC)</h3>
+<p><b>Symptom:</b> users see the control variant flash briefly before the test variant paints. <b>Cause:</b> PostHog loaded async (from GTM or with <code>async</code> attribute on the init script). <b>Fix:</b> init script must be synchronous and in <code>&lt;head&gt;</code>, before any render-blocking CSS if possible. The snippet is tiny (~3KB), the cost is worth it.</p>
+
+<h3>Identify called before init</h3>
+<p><b>Symptom:</b> identify silently drops, distinct_id stays anonymous, PostHog persons fill with unlinked UUIDs. <b>Cause:</b> form submit handler runs before <code>window.posthog</code> exists (e.g. user submits in the first 200ms). <b>Fix:</b> <code>whenReady</code> helper in cod-posthog.js polls for 5 seconds before giving up. Good enough for 99.9% of real-world submits.</p>
+
+<h3>Using <code>alias</code> instead of <code>identify</code></h3>
+<p><b>Symptom:</b> anonymous and identified profiles never merge, conversions look orphaned. <b>Cause:</b> someone copy-pasted a snippet from an older PostHog doc. <b>Fix:</b> always use <code>identify</code>. <code>alias</code> is legacy and not needed for this setup.</p>
+
+<h3>Changing flag variants mid-test</h3>
+<p><b>Symptom:</b> users who joined variant-a in week 1 suddenly see variant-b in week 2, conversions look random. <b>Cause:</b> edit to the flag's rollout % or variant definition after traffic started. <b>Fix:</b> once a test is live, the flag is frozen. If you need to change it, kill the experiment and start a new flag with <code>-v2</code> suffix.</p>
+
+<h3>Running GHL and PostHog tests on the same page</h3>
+<p><b>Symptom:</b> bucket contamination, inconsistent results, unexplainable lifts/drops. <b>Cause:</b> both systems trying to rewrite the DOM. <b>Fix:</b> pick one. PostHog for real tests, GHL only for emergencies.</p>
+
+<h3>Forgetting to fire the exposure event</h3>
+<p><b>Symptom:</b> PostHog experiments view shows zero exposures even though people are obviously seeing variants. <b>Cause:</b> calling <code>getFeatureFlag()</code> does NOT auto-fire <code>$feature_flag_called</code> in all client libs — you have to capture it explicitly. <b>Fix:</b> the Phase 3 pattern fires it inside the EXPERIMENTS loop. Don't remove that line.</p>
+
+<h3>Testing too small a change with too little traffic</h3>
+<p><b>Symptom:</b> 6-week test returns "no significant result," team shrugs and moves on. <b>Cause:</b> MDE was bigger than the realistic effect size. <b>Fix:</b> before starting a test, use PostHog's built-in experiment calculator. If your MDE at current traffic is 20%+ and the change is a button color, don't run it. Test bigger swings instead.</p>
+
+<h3>Not waiting for PostHog's recommended sample size</h3>
+<p><b>Symptom:</b> team declares winner after 3 days, ships it, conversion drops. <b>Cause:</b> peeking early with frequentist mindset. <b>Fix:</b> PostHog Bayesian mode is fine to peek on, BUT only ship when probability-to-beat-control ≥ 95% AND minimum sample size (usually 300+ conversions per variant) is hit. Not one without the other.</p>
+</section>
+
+<!-- ====================================================================== -->
+<section id="appendix">
+<h2><span class="num">12</span>Appendix: Full Code Snippets</h2>
+<p class="section-lead">Everything in one place. Copy directly from here into production.</p>
+
+<h3>A. Head init block (full, ready to paste)</h3>
+<pre data-lang="HTML · &lt;head&gt; · FIRST"><code><span class="p">&lt;!-- 1. PostHog init — must be first --&gt;</span>
+<span class="p">&lt;script&gt;</span>
+!<span class="k">function</span>(t,e){<span class="k">var</span> o,n,p,r;e.__SV||(<span class="k">window</span>.posthog=e,e._i=[],e.init=<span class="k">function</span>(i,s,a){<span class="k">function</span> g(t,e){<span class="k">var</span> o=e.split(<span class="s">"."</span>);2==o.length&&(t=t[o[0]],e=o[1]);t[e]=<span class="k">function</span>(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement(<span class="s">"script"</span>)).type=<span class="s">"text/javascript"</span>,p.async=!0,p.src=s.api_host+<span class="s">"/static/array.js"</span>,(r=t.getElementsByTagName(<span class="s">"script"</span>)[0]).parentNode.insertBefore(p,r);<span class="k">var</span> u=e;<span class="k">for</span>(<span class="k">void</span> 0!==a?u=e[a]=[]:a=<span class="s">"posthog"</span>,u.people=u.people||[],u.toString=<span class="k">function</span>(t){<span class="k">var</span> e=<span class="s">"posthog"</span>;<span class="k">return</span><span class="s">"posthog"</span>!==a&&(e+=<span class="s">"."</span>+a),t||(e+=<span class="s">" (stub)"</span>),e},u.people.toString=<span class="k">function</span>(){<span class="k">return</span> u.toString(1)+<span class="s">".people (stub)"</span>},o=<span class="s">"init capture register identify reloadFeatureFlags getFeatureFlag onFeatureFlags reset group"</span>.split(<span class="s">" "</span>),n=0;n&lt;o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(<span class="k">document</span>,<span class="k">window</span>.posthog||[]);
+
+posthog.init(<span class="s">'phc_REPLACE_ME'</span>, {
+  api_host: <span class="s">'https://us.i.posthog.com'</span>,
+  person_profiles: <span class="s">'identified_only'</span>,
+  capture_pageview: <span class="k">true</span>,
+  capture_pageleave: <span class="k">true</span>,
+  autocapture: <span class="k">false</span>,
+  advanced_disable_feature_flags: <span class="k">false</span>,
+  advanced_disable_decide: <span class="k">false</span>,
+  loaded: <span class="k">function</span>(ph) {
+    ph.register({
+      niche: <span class="k">document</span>.body.dataset.niche || <span class="s">'unknown'</span>,
+      page_template: <span class="k">document</span>.body.dataset.template || <span class="s">'reg'</span>,
+      page_path: <span class="k">location</span>.pathname,
+      device_category: <span class="k">window</span>.innerWidth &lt; 768 ? <span class="s">'mobile'</span> : <span class="s">'desktop'</span>
+    });
+  }
+});
+<span class="p">&lt;/script&gt;</span>
+
+<span class="p">&lt;!-- 2. Active experiments on this page --&gt;</span>
+<span class="p">&lt;script&gt;</span>
+(<span class="k">function</span>() {
+  <span class="k">const</span> EXPERIMENTS = {
+    <span class="c">// Add entries as tests launch. Example:</span>
+    <span class="c">// 'reg-therapist-hero-v1': {</span>
+    <span class="c">//   control: function() {},</span>
+    <span class="c">//   'variant-a': function() { /* DOM swap */ }</span>
+    <span class="c">// }</span>
+  };
+  <span class="k">function</span> <span class="f">apply</span>() {
+    Object.keys(EXPERIMENTS).forEach(<span class="k">function</span>(key) {
+      <span class="k">const</span> v = <span class="k">window</span>.posthog.getFeatureFlag(key);
+      <span class="k">if</span> (!v || !EXPERIMENTS[key][v]) <span class="k">return</span>;
+      EXPERIMENTS[key][v]();
+      <span class="k">window</span>.posthog.capture(<span class="s">'$feature_flag_called'</span>, {
+        <span class="s">'$feature_flag'</span>: key,
+        <span class="s">'$feature_flag_response'</span>: v
+      });
+    });
+  }
+  <span class="k">if</span> (<span class="k">window</span>.posthog &amp;&amp; <span class="k">window</span>.posthog.onFeatureFlags) {
+    <span class="k">window</span>.posthog.onFeatureFlags(apply);
+  }
+})();
+<span class="p">&lt;/script&gt;</span></code></pre>
+
+<h3>B. cod-posthog.js (see Phase 2 above for full version)</h3>
+<p>Host at a stable URL. Loaded async from body. Handles identify + form wiring + URL email recovery.</p>
+
+<h3>C. Body tag</h3>
+<pre data-lang="HTML"><code><span class="p">&lt;body</span>
+  data-niche=<span class="s">"therapist"</span>
+  data-template=<span class="s">"reg-workshop"</span>
+<span class="p">&gt;</span></code></pre>
+
+<h3>D. Test-swappable elements</h3>
+<pre data-lang="HTML"><code><span class="p">&lt;h1 data-test-slot=</span><span class="s">"hero-headline"</span><span class="p">&gt;</span>...<span class="p">&lt;/h1&gt;</span>
+<span class="p">&lt;p  data-test-slot=</span><span class="s">"hero-subhead"</span><span class="p">&gt;</span>...<span class="p">&lt;/p&gt;</span>
+<span class="p">&lt;button data-test-slot=</span><span class="s">"hero-cta"</span><span class="p">&gt;</span>...<span class="p">&lt;/button&gt;</span>
+<span class="p">&lt;div data-test-slot=</span><span class="s">"value-stack"</span><span class="p">&gt;</span>...<span class="p">&lt;/div&gt;</span></code></pre>
+</section>
+
+<footer>
+  <span>COD · Dev Brief · PostHog Multivariate Setup</span>
+  <span>v1.0 · 2026-04-13 · Kas → Rehan</span>
+</footer>
+
+</div>
+</body>
+</html>

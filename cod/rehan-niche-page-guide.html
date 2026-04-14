@@ -89,6 +89,10 @@
   <p><strong>Read this first.</strong> Akari flagged copy on 2026-04-14. Russ publicly endorsed the catches ("These are all good catches Akari"). These rules are now permanent on every niche LP — educators, coaches, attorneys, and any future niche page. Move slow. When in doubt, stop and ask Kas.</p>
 </div>
 
+<div class="callout bad">
+  <p><strong>Scope — read carefully.</strong> The 4 URLs in the table below are the <strong>B variants</strong> of a full-page A/B test. The 12 compliance patches in this guide apply to the <strong>B side only</strong>. Kas has confirmed the A variants already comply with all 7 Akari rules and do <em>not</em> need these patches. Do <strong>not</strong> touch the A variant pages. If you think you've found a violation on an A variant, stop and tell Kas — do not fix it yourself.</p>
+</div>
+
 <h2>The 7 hard rules — never break</h2>
 <div class="rules">
   <ol>
@@ -102,9 +106,10 @@
   </ol>
 </div>
 
-<h2>The 4 pages</h2>
+<h2>The 4 B variants</h2>
+<p>These are the only pages you touch for compliance. All 4 are B-side variants of an A/B test. Kas has confirmed the A variants are already clean and must not be modified.</p>
 <table>
-  <thead><tr><th style="width:60px">#</th><th style="width:110px">Priority</th><th>Page</th><th style="width:110px">Edits</th></tr></thead>
+  <thead><tr><th style="width:60px">#</th><th style="width:110px">Priority</th><th>B variant page</th><th style="width:110px">Edits</th></tr></thead>
   <tbody>
     <tr><td>1</td><td><span class="pill p0">P0 · FTC</span></td><td><a href="https://clientsondemand.live/educator-page-page" target="_blank">educator-page-page</a></td><td>12</td></tr>
     <tr><td>2</td><td><span class="pill p1">P1</span></td><td><a href="https://clientsondemand.live/attorney-registration-page-727492" target="_blank">attorney-registration-page-727492</a></td><td>9</td></tr>
@@ -658,26 +663,25 @@ Both pages post to the same order form so conversions roll up cleanly.</code></p
 
 <p>This keeps the canonical URL unchanged (no ad or email relinking), lets you ship radically different full-page builds as variant-b, and avoids the element-swap pattern entirely. Downside: you maintain two pages per niche while the test runs — any hotfix has to be applied twice.</p>
 
-<h3>Step 6 — Locate the existing B variants + apply copy changes</h3>
+<h3>Step 6 — B variants (already done) + locate A variants</h3>
 <div class="callout good">
-  <p><strong>You already have the B variants in GHL.</strong> This step is about locating them, applying the specific copy changes you already know, and confirming their URLs so we can wire the flag redirect from A → B.</p>
+  <p><strong>The B variants are the 4 pages you already patched in the compliance section above.</strong> You do not need to clone, rebuild, or relocate anything for the B side. The 12 Akari patches you just shipped <em>are</em> the B side of this experiment.</p>
 </div>
+<p>The A variants are separate URLs — <strong>Kas will provide them</strong>. They are already compliant with Akari's rules, so you will not be editing their copy. Your A-side work is limited to pasting HEAD BLOCK 2A (the flag redirect) into their <code>&lt;head&gt;</code>, nothing else.</p>
 <ol>
-  <li>In GHL, open each of the 4 B variant pages you already have set up. Note the full URL slug for each — you'll need it in Step 10's page-pair table.</li>
-  <li>Apply the exact copy changes to the B variants that Kas already briefed you on (the full-page variant build).</li>
-  <li>On each B variant, re-verify all 12 compliance edits from the patch sections above are present. If the B variant was built before the Akari flag, some of these edits will be missing and must be applied to the B variant too. <strong>Never ship a B variant that has even one of the 7 banned phrases — Akari will catch it immediately.</strong></li>
-  <li>Confirm on each B variant:
+  <li>Ping Kas in Slack: <em>"Need the 4 A variant URLs for the niche-LP flag redirect wiring."</em></li>
+  <li>When Kas sends them, confirm for each A ↔ B pair:
     <ul>
-      <li>The order form points at the same COD checkout URL as the A variant (so conversions roll up cleanly into one flag).</li>
-      <li>The thank-you / post-purchase redirect step is the same as the A variant.</li>
-      <li>The PostHog init block from Step 1 is installed in its <code>&lt;head&gt;</code>.</li>
-      <li>The <code>data-niche</code> body attribute from Step 2 is set to the same niche as the A variant.</li>
+      <li>The A variant order form points at the same COD checkout URL as the B variant (so conversions roll up cleanly).</li>
+      <li>The A variant thank-you / post-purchase redirect step is the same as the B variant.</li>
+      <li>The A variant already has the PostHog init block from Step 1 and the <code>data-niche</code> body attribute from Step 2 (or add them if missing — those are safe to add to A).</li>
+      <li>The A variant does <strong>not</strong> contain any of the 7 banned phrases. If it does, stop immediately and tell Kas — his claim that "A already complies" was wrong and the scope changes.</li>
     </ul>
   </li>
-  <li>Send Kas the 4 B variant URLs so he can confirm before you wire the redirect.</li>
+  <li>Write the 4 A variant URLs into the Step 10 page-pair table before you paste HEAD BLOCK 2A anywhere.</li>
 </ol>
 <div class="callout warn">
-  <p>If any A ↔ B pair has a mismatched checkout URL, mismatched niche attribute, or missing compliance patches, stop and tell Kas. The redirect test will look fine but conversions will roll up wrong and the experiment result will be garbage.</p>
+  <p>If any A ↔ B pair has a mismatched checkout URL or mismatched niche attribute, stop and tell Kas. The redirect test will look fine but conversions will roll up wrong and the experiment result will be garbage.</p>
 </div>
 
 <h3>Step 7 — Create one multivariate flag per niche in PostHog</h3>
@@ -718,9 +722,9 @@ Both pages post to the same order form so conversions roll up cleanly.</code></p
   html:not(.ph-ready) body { visibility: hidden; }
 &lt;/style&gt;
 &lt;script&gt;
-  // CHANGE THESE two per page
+  // CHANGE THESE two per page. B URLs are confirmed; swap in per-page value from Step 10 table.
   var EXPERIMENT_KEY = 'niche-lp-educator-v1';
-  var VARIANT_B_URL  = '/educator-page-b';
+  var VARIANT_B_URL  = '/educator-page-page'; // B variant (confirmed)
 
   // Safety reveal so users are never stuck on a blank page
   setTimeout(function(){ document.documentElement.classList.add('ph-ready'); }, 1500);
@@ -776,18 +780,18 @@ Both pages post to the same order form so conversions roll up cleanly.</code></p
 </div>
 
 <h3>Step 10 — Page-pair reference table</h3>
-<p>Fill in the B variant URLs from Step 6 before you paste the head blocks into GHL. These URLs go into the <code>VARIANT_B_URL</code> constant inside HEAD BLOCK 2A (Step 8).</p>
+<p>The B variant column is confirmed. The A variant column is pending URLs from Kas. Fill in the A URLs before pasting HEAD BLOCK 2A anywhere.</p>
 <table>
-  <thead><tr><th>Niche</th><th>Flag key</th><th>A variant (canonical) URL</th><th>B variant URL</th></tr></thead>
+  <thead><tr><th>Niche</th><th>Flag key</th><th>A variant URL (canonical · pending)</th><th>B variant URL (confirmed)</th></tr></thead>
   <tbody>
-    <tr><td>Educator</td><td><code>niche-lp-educator-v1</code></td><td>/educator-page-page</td><td>[fill in from GHL]</td></tr>
-    <tr><td>Attorney</td><td><code>niche-lp-attorney-v1</code></td><td>/attorney-registration-page-727492</td><td>[fill in from GHL]</td></tr>
-    <tr><td>Coach</td><td><code>niche-lp-coach-v1</code></td><td>/coaches-page-b</td><td>[fill in from GHL]</td></tr>
-    <tr><td>Therapist</td><td><code>niche-lp-therapist-v1</code></td><td>/hto-workshop-therapist-counselor-b</td><td>[fill in from GHL]</td></tr>
+    <tr><td>Educator</td><td><code>niche-lp-educator-v1</code></td><td>[pending — Kas]</td><td>/educator-page-page</td></tr>
+    <tr><td>Attorney</td><td><code>niche-lp-attorney-v1</code></td><td>[pending — Kas]</td><td>/attorney-registration-page-727492</td></tr>
+    <tr><td>Coach</td><td><code>niche-lp-coach-v1</code></td><td>[pending — Kas]</td><td>/coaches-page-b</td></tr>
+    <tr><td>Therapist</td><td><code>niche-lp-therapist-v1</code></td><td>[pending — Kas]</td><td>/hto-workshop-therapist-counselor-b</td></tr>
   </tbody>
 </table>
 <div class="callout warn">
-  <p>Kas will confirm the 4 B variant URLs before you paste them into the head blocks. The flag variant name inside PostHog is always <code>variant-b</code> — the B variant URL slug is separate from the flag variant name. Do not rename the flag.</p>
+  <p>The flag variant name inside PostHog is always <code>variant-b</code> — note that two of the B variants (<code>coaches-page-b</code>, <code>hto-workshop-therapist-counselor-b</code>) have <code>-b</code> in their URL slug already. That's a URL convention, <em>not</em> the PostHog flag variant name. They're separate. Do not rename the flag.</p>
 </div>
 
 <h3>Step 11 — Verify the full-page redirect in the browser</h3>
@@ -814,12 +818,12 @@ location.reload();</code></pre>
 <h3>Step 12 — Hand off to Kas before launching the experiment</h3>
 <p>When all 4 page-pairs pass Step 11, post in Slack <code>#brickellads</code>:</p>
 <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>Niche LP full-page A/B wiring live on all 4 pairs:
-- educator:  A=/educator-page-page                  ↔  B=[B URL]
-- attorney:  A=/attorney-registration-page-727492   ↔  B=[B URL]
-- coach:     A=/coaches-page-b                      ↔  B=[B URL]
-- therapist: A=/hto-workshop-therapist-counselor-b  ↔  B=[B URL]
+- educator:  A=[A URL]   ↔  B=/educator-page-page
+- attorney:  A=[A URL]   ↔  B=/attorney-registration-page-727492
+- coach:     A=[A URL]   ↔  B=/coaches-page-b
+- therapist: A=[A URL]   ↔  B=/hto-workshop-therapist-counselor-b
 
-4 flags in PostHog (draft). Copy patches verified on both A and B sides — zero banned phrases. Redirect verified both directions, zero flicker, query params preserved, safety timeout fires. Ready for Kas + Matt to launch experiments.</code></pre>
+4 flags in PostHog (draft). Akari copy patches verified on B side (A side already compliant, untouched). Redirect verified both directions, zero flicker, query params preserved, safety timeout fires. Ready for Kas + Matt to launch experiments.</code></pre>
 <div class="callout bad">
   <p><strong>Do NOT launch the experiment yourself.</strong> Kas + Matt review the variant-b builds and click launch in PostHog's Experiments UI. Your job ends at "plumbing verified, ready to launch."</p>
 </div>
@@ -834,19 +838,13 @@ location.reload();</code></pre>
   <li>GTM PostHog Init tag confirmed paused + note added + container published</li>
   <li>Confirmed in PostHog Live Events that all 4 niches are firing with correct <code>niche</code> super property</li>
   <li>Zero double-init across all 4 canonical pages (1× <code>/decide</code> per load, not 2×)</li>
-  <li>4 existing B variant pages located in GHL, URLs confirmed with Kas, copy changes applied per his brief</li>
-  <li>Copy patches (Edits 01–12 above) re-verified on all 4 B variant pages — zero banned phrases present</li>
-  <li>B variants confirmed to share the same checkout URL + post-purchase redirect as their A variant</li>
+  <li>Copy patches (Edits 01–12 above) applied to all 4 B variant pages — zero banned phrases present</li>
   <li>B variants have the PostHog init block (Step 1) and <code>data-niche</code> body attribute (Step 2) installed</li>
-  <li>4 multivariate feature flags created in PostHog (educator / attorney / coach / therapist), each with <code>control</code> + <code>variant-b</code> at 50/50, gated by <code>niche</code> super property</li>
-  <li>Experiments created in PostHog but left in <strong>draft</strong> (not launched)</li>
-  <li>Flag-redirect block added to each <em>canonical</em> page's head (HEAD BLOCK 2A)</li>
-  <li>Exposure-confirm block added to each <em>variant-b twin</em> page's head (HEAD BLOCK 2B)</li>
-  <li>Forced-override test passed on all 4 page-pairs: control stays, variant-b redirects, zero flicker</li>
-  <li>Query-string preservation verified (utm_source, fbclid, gclid, hyros params survive the redirect)</li>
-  <li>Safety timeout verified: blocking posthog network requests reveals the page after 1500ms as control fallback</li>
-  <li>PostHog Live Events shows <code>control-entry → variant-b-landed</code> sequence on variant-b loads</li>
-  <li>Final summary posted in Slack tagging Kas + Matt — plumbing ready, awaiting variant-b builds + launch</li>
+  <li>Exposure-confirm block (HEAD BLOCK 2B) added to each B variant page's head</li>
+  <li><strong>Pending from Kas:</strong> 4 A variant URLs — once received, paste into Step 10 table and wire HEAD BLOCK 2A on A side</li>
+  <li>4 multivariate feature flags created in PostHog (educator / attorney / coach / therapist), <code>control</code> + <code>variant-b</code> at 50/50, gated by <code>niche</code> super property</li>
+  <li>Experiments left in <strong>draft</strong> — Kas + Matt launch, not you</li>
+  <li>Final summary posted in Slack tagging Kas + Matt — B side shipped, awaiting A URLs</li>
 </ul>
 
 <div class="callout warn">

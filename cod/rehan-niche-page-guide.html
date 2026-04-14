@@ -632,6 +632,118 @@
 <p>In Slack <code>#brickellads</code>, post one line per page in this format:</p>
 <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>[niche] head-init live · token ok · 1× /decide · ph-ready · Live Events show niche=[niche]</code></pre>
 
+<h3>Step 6 — Create the multivariate feature flag in PostHog (one per page)</h3>
+<p>Each niche page gets its own A/B experiment flag. Flag key = <code>niche-lp-{niche}-headline-v1</code>. Variants = <code>control</code> (50%) and <code>variant-b</code> (50%).</p>
+<ol>
+  <li>PostHog → <strong>Feature flags</strong> → <strong>New feature flag</strong>.</li>
+  <li>Key: <code>niche-lp-educator-headline-v1</code> (repeat for attorney, coach, therapist — 4 flags total).</li>
+  <li>Flag type: <strong>Multiple variants (multivariate)</strong>.</li>
+  <li>Variants:
+    <ul>
+      <li><code>control</code> — rollout 50% — description: "Current live headline"</li>
+      <li><code>variant-b</code> — rollout 50% — description: "Challenger headline from Akari patch"</li>
+    </ul>
+  </li>
+  <li>Release conditions: <strong>100% of users</strong> matching <code>properties.niche = [niche]</code>. This locks each flag to its own page by reading the super property we set in Step 1.</li>
+  <li>Save → Enable.</li>
+  <li>Then PostHog → <strong>Experiments</strong> → <strong>New experiment</strong> → link to the flag → primary metric: <code>$27 ticket purchase</code> (or whichever conversion event Matt wants as primary) → secondary: <code>$pageview</code> bounce. Do <em>not</em> launch yet. Leave in draft.</li>
+</ol>
+<div class="callout warn">
+  <p>Do not launch the experiment from PostHog until Steps 7–8 are shipped on the page <em>and</em> Kas has reviewed the variant copy. Launching with broken wiring pollutes the experiment history.</p>
+</div>
+
+<h3>Step 7 — Add the EXPERIMENTS map + flag handler to each page's &lt;head&gt;</h3>
+<p>Append this block to the same Header custom code slot in GHL, directly <em>after</em> the PostHog init block from Step 1.</p>
+
+<div class="edit">
+  <div class="edit-head"><span class="edit-num">HEAD BLOCK 2</span><span class="edit-title">Experiment flag handler + variant application</span></div>
+  <p class="loc">Paste below the PostHog init block. Change <code>EXPERIMENT_KEY</code> to match the current page's flag.</p>
+  <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#cfd5e0;margin:12px 0"><code>&lt;!-- Experiment wiring · niche LP multivariate --&gt;
+&lt;script&gt;
+  // CHANGE THIS per page: educator / attorney / coach / therapist
+  var EXPERIMENT_KEY = 'niche-lp-educator-headline-v1';
+
+  // Variant copy. Keep 'control' in sync with whatever is currently live on the page.
+  var VARIANTS = {
+    'hero-headline': {
+      control:     'CURRENT LIVE HEADLINE — do not change',
+      'variant-b': 'NEW CHALLENGER HEADLINE from Kas'
+    }
+  };
+
+  function applyVariant(variantKey) {
+    Object.keys(VARIANTS).forEach(function(slot){
+      var el = document.querySelector('[data-test-slot="' + slot + '"]');
+      if (!el) return;
+      var copy = VARIANTS[slot][variantKey];
+      if (copy) el.textContent = copy;
+    });
+    document.documentElement.classList.add('ph-ready');
+  }
+
+  // Wait for PostHog to be ready, then read the flag
+  window.posthog = window.posthog || [];
+  posthog.onFeatureFlags(function() {
+    var variant = posthog.getFeatureFlag(EXPERIMENT_KEY) || 'control';
+    applyVariant(variant);
+
+    // Fire the exposure event so PostHog's stats engine counts this user
+    posthog.capture('$feature_flag_called', {
+      $feature_flag: EXPERIMENT_KEY,
+      $feature_flag_response: variant
+    });
+  });
+&lt;/script&gt;
+&lt;!-- /Experiment wiring --&gt;</code></pre>
+  <div class="changed">
+    <strong>Per-page changes:</strong> update <code>EXPERIMENT_KEY</code> to match the flag key for that niche (educator / attorney / coach / therapist). Update <code>VARIANTS['hero-headline'].control</code> to the exact current live headline. Update <code>variant-b</code> to the challenger headline Kas gives you.
+  </div>
+</div>
+
+<h3>Step 8 — Mark the tested element with <code>data-test-slot</code></h3>
+<p>Find the hero headline element on each page in GHL's builder. Add a custom attribute:</p>
+<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>data-test-slot="hero-headline"</code></pre>
+<p>This is the only attribute you need to add. The anti-flicker CSS from Step 1 (<code>[data-test-slot] { visibility: hidden; }</code>) will keep it invisible until the flag handler flips it to the correct variant. Users never see a flash of the wrong copy.</p>
+<div class="callout bad">
+  <p><strong>If you cannot add a custom attribute to that specific element in GHL</strong> (some GHL builder elements don't support it), stop and tell Kas. Do not work around it with fragile CSS selectors like <code>.hero h1</code> — that breaks the moment a designer touches the page.</p>
+</div>
+
+<h3>Step 9 — Variant copy per page</h3>
+<p>Kas will provide the challenger headlines. Until then, use the current live headline as both <code>control</code> AND <code>variant-b</code> (a no-op test) just to verify the plumbing works end-to-end. Once Kas delivers the challengers, update the <code>VARIANTS</code> map and redeploy.</p>
+<table>
+  <thead><tr><th>Page</th><th>EXPERIMENT_KEY</th><th>Current headline (control)</th><th>Challenger (variant-b)</th></tr></thead>
+  <tbody>
+    <tr><td>educator</td><td><code>niche-lp-educator-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
+    <tr><td>attorney</td><td><code>niche-lp-attorney-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
+    <tr><td>coach</td><td><code>niche-lp-coach-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
+    <tr><td>therapist</td><td><code>niche-lp-therapist-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
+  </tbody>
+</table>
+
+<h3>Step 10 — Verify the multivariate wiring in the browser</h3>
+<ol>
+  <li>Open the educator page in incognito. In DevTools console run <code>posthog.getFeatureFlag('niche-lp-educator-headline-v1')</code> — should return <code>'control'</code> or <code>'variant-b'</code>.</li>
+  <li>Force each variant to confirm swap works:
+    <ul>
+      <li><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-headline-v1': 'control' }); location.reload();</code></li>
+      <li>Confirm the headline matches the control copy.</li>
+      <li><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-headline-v1': 'variant-b' }); location.reload();</code></li>
+      <li>Confirm the headline swaps to variant-b copy.</li>
+      <li><code>posthog.featureFlags.overrideFeatureFlags(false); location.reload();</code> — clears the override.</li>
+    </ul>
+  </li>
+  <li>In PostHog <strong>Live Events</strong>, confirm a <code>$feature_flag_called</code> event fires on each load with the correct <code>$feature_flag_response</code>.</li>
+  <li>Repeat for attorney, coach, therapist.</li>
+  <li>Check there is <strong>no visible flash</strong> of the control headline before variant-b applies. If you see a flash, the anti-flicker CSS isn't catching the element — verify the <code>data-test-slot</code> attribute is on the actual headline element, not its parent.</li>
+</ol>
+
+<h3>Step 11 — Hand off to Kas before launching the experiment</h3>
+<p>When all 4 pages pass Step 10, post in Slack <code>#brickellads</code>:</p>
+<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>Niche LP multivariate wiring live on all 4 pages. Flags created in PostHog (draft). Variant swap confirmed via override on each page. No flicker. Ready for Kas + Matt to review challenger copy and launch experiments.</code></pre>
+<div class="callout bad">
+  <p><strong>Do NOT launch the experiment yourself.</strong> Kas + Matt review the challenger copy and click launch in PostHog's Experiments UI. Your job ends at "plumbing verified, ready to launch."</p>
+</div>
+
 <h3>Verification checklist</h3>
 <ul class="check">
   <li>Got PostHog project key from Kas (DM only, not posted publicly)</li>
@@ -642,7 +754,13 @@
   <li>GTM PostHog Init tag confirmed paused + note added + container published</li>
   <li>Confirmed in PostHog Live Events that all 4 niches are firing with correct <code>niche</code> super property</li>
   <li>Zero double-init across all 4 pages (1× <code>/decide</code> per load, not 2×)</li>
-  <li>Final summary posted in Slack tagging Kas + Matt</li>
+  <li>4 multivariate feature flags created in PostHog (educator / attorney / coach / therapist), each with <code>control</code> + <code>variant-b</code> at 50/50, gated by <code>niche</code> super property</li>
+  <li>Experiments created in PostHog but left in <strong>draft</strong> (not launched)</li>
+  <li>EXPERIMENTS map + flag handler added to each page's head</li>
+  <li><code>data-test-slot="hero-headline"</code> attribute added to the hero headline element on each page</li>
+  <li>Variant override tested in incognito on all 4 pages (control + variant-b both swap correctly, zero flicker)</li>
+  <li><code>$feature_flag_called</code> exposure event confirmed firing in PostHog Live Events</li>
+  <li>Final summary posted in Slack tagging Kas + Matt — plumbing ready, awaiting challenger copy + launch</li>
 </ul>
 
 <div class="callout warn">

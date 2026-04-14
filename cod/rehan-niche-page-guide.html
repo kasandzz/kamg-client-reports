@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rehan Guide — COD Niche LP Build & Launch Protocol</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --bg-card: #12161b;
+    --bg-elev: #181d23;
+    --border: #242b33;
+    --text: #e6ebf0;
+    --text-dim: #9aa5b1;
+    --text-faint: #6b7480;
+    --accent: #7dd3fc;
+    --accent-soft: #1e3a52;
+    --red: #f87171;
+    --red-soft: #3a1d1d;
+    --green: #4ade80;
+    --green-soft: #16371f;
+    --yellow: #fbbf24;
+    --mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    padding: 48px 24px 96px;
+  }
+  .container { max-width: 820px; margin: 0 auto; }
+  header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 12px; }
+  .meta { font-size: 13px; color: var(--text-faint); }
+  .meta span + span::before { content: " · "; margin: 0 4px; }
+  h2 {
+    font-size: 20px; font-weight: 700; margin: 48px 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    letter-spacing: -0.01em;
+  }
+  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
+  p { margin-bottom: 14px; color: var(--text); }
+  p.lead { color: var(--text-dim); font-size: 15px; }
+  strong { color: var(--text); font-weight: 600; }
+  em { color: var(--text-dim); }
+  ul, ol { margin: 12px 0 16px 20px; }
+  li { margin-bottom: 8px; color: var(--text); }
+  code {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--bg-elev); padding: 2px 6px; border-radius: 4px;
+    color: var(--accent); border: 1px solid var(--border);
+  }
+  pre {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px; overflow-x: auto;
+    font-family: var(--mono); font-size: 13px; color: var(--text);
+    margin: 16px 0;
+  }
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; font-size: 14px;
+  }
+  th {
+    background: var(--bg-elev); text-align: left; padding: 12px 14px;
+    font-weight: 600; color: var(--text-dim); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .callout {
+    background: var(--bg-card); border-left: 3px solid var(--accent);
+    border-radius: 6px; padding: 16px 20px; margin: 20px 0;
+  }
+  .callout.warn { border-left-color: var(--yellow); }
+  .callout.danger { border-left-color: var(--red); background: var(--red-soft); }
+  .callout.good { border-left-color: var(--green); }
+  .callout strong { color: var(--accent); }
+  .callout.warn strong { color: var(--yellow); }
+  .callout.danger strong { color: var(--red); }
+  .callout.good strong { color: var(--green); }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px;
+    border-radius: 3px; margin-right: 6px;
+  }
+  .badge.rule { background: var(--red-soft); color: var(--red); }
+  .badge.process { background: var(--accent-soft); color: var(--accent); }
+  .badge.safe { background: var(--green-soft); color: var(--green); }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li {
+    padding-left: 26px; position: relative; margin-bottom: 10px;
+  }
+  .checklist li::before {
+    content: "☐"; position: absolute; left: 0; top: 0;
+    color: var(--text-faint); font-size: 16px;
+  }
+  .rule-no { color: var(--red); font-family: var(--mono); font-weight: 700; }
+  .rule-yes { color: var(--green); font-family: var(--mono); font-weight: 700; }
+  footer {
+    margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text-faint); text-align: center;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  @media (max-width: 640px) {
+    body { padding: 24px 16px 60px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 17px; }
+    table { font-size: 13px; }
+    th, td { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">COD · Internal Guide · v1.0</div>
+  <h1>Rehan Guide — COD Niche LP Build & Launch Protocol</h1>
+  <div class="meta">
+    <span>Owner: Kas</span>
+    <span>Audience: Rehan</span>
+    <span>Published: 2026-04-14</span>
+  </div>
+</header>
+
+<p class="lead">You're building COD niche landing pages ($27 workshop) for multiple audiences: therapists (live), coaches, attorneys, educators, and more incoming. This guide is the full protocol. Follow it exactly. If something is unclear, ask Kas in DM before you act — do not guess inside GHL.</p>
+
+<div class="callout">
+<strong>Source of truth:</strong> <code>russ-lp-permanent-rules.md</code>. Read that first, every single time you touch a niche page. This guide sits on top of it.
+</div>
+
+<h2>1. Hard rules — never break</h2>
+
+<h3>1a. Copy & messaging (FTC + brand)</h3>
+<p>Akari flagged the following on 2026-04-14. Russ endorsed the catches publicly ("These are all good catches Akari"). They are now permanent rules across <strong>every niche LP</strong> — educators, coaches, attorneys, and any future niche page.</p>
+
+<table>
+<thead>
+<tr><th style="width:45%">Never write <span class="rule-no">✗</span></th><th>Write instead / rule <span class="rule-yes">✓</span></th></tr>
+</thead>
+<tbody>
+<tr><td>"The River <em>method</em>"</td><td>"The River <em>approach</em>". River is an analogy, not a method. Strip "method" wherever it appears.</td></tr>
+<tr><td>"Adapted for educators / attorneys / coaches / [industry]"</td><td>Remove entirely. The workshop is not adapted for any industry. Niche framing lives in the copy — it is not claimed as a product variant.</td></tr>
+<tr><td>"This makes it profitable"</td><td>Remove. Income claim, not verifiable, FTC risk.</td></tr>
+<tr><td>"No new software to master"</td><td>Remove. Not true.</td></tr>
+<tr><td>"Consulting offers"</td><td>"Coaching programs" — matches the actual offer language.</td></tr>
+<tr><td>"Private Q&amp;A"</td><td>"LIVE Q&amp;A" — "private" collides with the 1:1 offer mapping.</td></tr>
+<tr><td>Income-based hooks for avatars who are not income-motivated (e.g. "Teachers want income and freedom")</td><td>Lead with the motivation the avatar actually has. For teachers: impact, classroom control, getting their life back. NOT income.</td></tr>
+</tbody>
+</table>
+
+<h3>1b. Visual & structure</h3>
+<ul>
+<li><strong>Logo</strong> must be the current COD logo on every page. No variants.</li>
+<li><strong>Footer</strong> must be identical across all niche pages: FTC disclaimer block, canonical privacy/terms links, COD address. Copy the footer from the therapist control page — do not rebuild it.</li>
+<li><strong>"Old way vs New way" box</strong> — if the old way is shown first visually, the label on the first block must say "Old way". Match label order to visual order. Do not swap halfway down the page.</li>
+<li><strong>Hook / hero</strong> — every niche page hero must pass Kas's review before it goes live. Do not self-approve niche hero copy.</li>
+</ul>
+
+<h3>1c. Mobile-first</h3>
+<p>90% of COD traffic is mobile. Every change you make gets tested on a real phone (not just the GHL preview) before you mark it done.</p>
+
+<h3>1d. FTC pre-pass</h3>
+<p>Before you hand any niche page to the team for review, run it through the FTC income-claims checker. Save anything the checker misses into a note and ping Kas — those become new permanent rules.</p>
+
+<h2>2. Launch communication protocol — never break</h2>
+
+<div class="callout warn">
+<strong>Hard rule from Akari 2026-04-14:</strong><br>
+<em>"I shouldn't have to ask. If you launched something, you should communicate that before being asked."</em>
+</div>
+
+<p><strong>Every time you launch, change, or end anything</strong> — a split test, a new variant, an ad asset swap, a GHL automation toggle — you post a one-line note in <code>#brickellads-clients-on-demand-pedro</code>.</p>
+
+<pre>Launching now: [what] on [which URL]. Test vs [control URL]. Traffic split [X/Y]. No ads-side changes.</pre>
+
+<p>Posting the note takes 20 seconds. Not posting it costs the team trust. Non-negotiable.</p>
+
+<h2>3. The "delete" rule — never break</h2>
+
+<div class="callout danger">
+<strong>You do not use "delete" inside GHL. Ever.</strong>
+</div>
+
+<p>If a split test needs to end: <strong>end the test, then create a new variant with a new URL.</strong> Do not delete the prior variant. Do not delete the registration page. Do not delete a split test that "looks inactive" — if traffic split is 100% on control, that is a deliberate setting, not a finished test.</p>
+
+<p>Matt Freeman has your back on this — if you are unsure whether ending a test will remove something important, message Matt FIRST in <code>#brickellads</code> or DM. Two-minute check saves an hour of recreation.</p>
+
+<p><em>Context: on 2026-04-13, <code>registration2</code> appeared deleted. It wasn't — a new test overwrote it. It cost the team an hour and hit the trust ledger. Don't repeat.</em></p>
+
+<h2>4. Split-test infrastructure</h2>
+
+<h3>4a. Tracking (PostHog is the goal)</h3>
+<p>Kas and Matt are moving niche-page split tests to <strong>PostHog Option B</strong> (anti-flash installation) for accuracy. Until Kas confirms PostHog is live on a given page:</p>
+<ul>
+<li>Use GHL default split testing</li>
+<li>Count page views + registrations from GHL + cross-reference Meta Ads Manager</li>
+<li>Do NOT self-install PostHog or touch Google Tag Manager. Ask Kas or Matt.</li>
+</ul>
+
+<h3>4b. URL integrity</h3>
+<p>Every split test must run on the URL that ads actually drive traffic to. Before you launch a test, check the Meta ad set destination URL. If ads point at <code>clientsondemand.live/registration2</code> but you set up the test on <code>clientsondemand.live/hto-workshop</code>, the test captures no data.</p>
+<p><em>This happened on 2026-04-13 for coaches — fix in progress.</em></p>
+
+<h3>Pre-launch checklist</h3>
+<ul class="checklist">
+<li>Ads destination URL confirmed</li>
+<li>Split-test setup matches ads destination URL</li>
+<li>Test purchase completed on mobile AND desktop</li>
+<li>Page passes FTC pre-pass</li>
+<li>Footer matches canonical</li>
+<li>Logo is current</li>
+<li>Akari / Kas have seen the copy</li>
+<li>One-liner posted in <code>#brickellads</code></li>
+</ul>
+
+<h2>5. Niche-page audit — apply Akari's 04-14 catches</h2>
+<p>Do this <strong>now</strong>, in this order, on the pages Kas assigns you.</p>
+
+<h3>Page 1: Educators v2</h3>
+<ul class="checklist">
+<li>Hero rewrite — remove "income, freedom, impact" teacher hook. Replace with motivation teachers actually have (impact / classroom control / boundaries). Kas approves copy.</li>
+<li>"Old way vs New way" box — fix label order to match visual order</li>
+<li>Remove "No new software to master"</li>
+<li>"Consulting offers" → "Coaching programs"</li>
+<li>Remove "this makes it profitable"</li>
+<li>Remove "River method" framing — replace with "River approach" or similar</li>
+<li>Remove "Find Clients Already Looking for You. The 'River' method…" block or rewrite</li>
+<li>"Private Q&amp;A" → "LIVE Q&amp;A"</li>
+<li>Remove "adapted for educators"</li>
+<li>Logo → current COD logo</li>
+<li>Footer → canonical footer</li>
+<li>FTC pre-pass re-run after edits</li>
+<li>Mobile test purchase</li>
+</ul>
+
+<h3>Page 2: Coaches (currently at <code>registration2</code>)</h3>
+<ul class="checklist">
+<li>Apply ALL items from Page 1 list that exist on this page</li>
+<li>Fix split-test URL mismatch: test is set up on <code>/hto-workshop</code> but ads run to <code>/registration2</code>. Re-point the test.</li>
+<li>Mobile test purchase</li>
+</ul>
+
+<h3>Page 3: Attorneys</h3>
+<ul class="checklist">
+<li>Apply ALL items from Page 1 list</li>
+<li>Remove "adapted for licensed professionals"</li>
+<li>Mobile test purchase</li>
+</ul>
+
+<h3>Page 4+ (future niches — gym owners, etc.)</h3>
+<ul class="checklist">
+<li>Use Page 1 list as template BEFORE writing new copy</li>
+<li>Read <code>russ-lp-permanent-rules.md</code> before every new build</li>
+</ul>
+
+<h2>6. Escalation</h2>
+<table>
+<thead><tr><th>Situation</th><th>Who to ping</th><th>Channel</th></tr></thead>
+<tbody>
+<tr><td>GHL is misbehaving</td><td>Matt Freeman</td><td><code>#brickellads</code></td></tr>
+<tr><td>Ads destination URL unclear</td><td>Pedro</td><td><code>#brickellads</code></td></tr>
+<tr><td>Copy approval needed</td><td>Kas, then Akari</td><td><code>#brickellads</code> (tag both)</td></tr>
+<tr><td>Before anything that looks like "delete"</td><td>Kas OR Matt</td><td>DM first</td></tr>
+<tr><td>Launch announcement</td><td>(no one — you post it)</td><td><code>#brickellads</code> one-liner</td></tr>
+<tr><td>FTC uncertainty</td><td>Kas</td><td>DM</td></tr>
+</tbody>
+</table>
+
+<h2>7. What success looks like</h2>
+<ol>
+<li>Zero "did you launch X?" questions from Akari or Russ. They see your launch note before they have to ask.</li>
+<li>Zero copy catches from Akari that belong on the FTC-permanent-rules list. Those are one-strike — once we know the rule, the rule is applied everywhere, forever.</li>
+<li>Zero URL mismatches between ads destination and split-test setup.</li>
+<li>Every niche page loads cleanly on mobile, first try.</li>
+<li>Kas does not have to re-explain any rule in this document twice.</li>
+</ol>
+
+<div class="callout good">
+<strong>Read this again before you touch the Educators page. And once a week after that.</strong>
+</div>
+
+<footer>
+  COD Internal · Rehan Guide v1.0 · 2026-04-14
+</footer>
+
+</div>
+</body>
+</html>

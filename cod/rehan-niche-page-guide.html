@@ -632,116 +632,199 @@
 <p>In Slack <code>#brickellads</code>, post one line per page in this format:</p>
 <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>[niche] head-init live · token ok · 1× /decide · ph-ready · Live Events show niche=[niche]</code></pre>
 
-<h3>Step 6 — Create the multivariate feature flag in PostHog (one per page)</h3>
-<p>Each niche page gets its own A/B experiment flag. Flag key = <code>niche-lp-{niche}-headline-v1</code>. Variants = <code>control</code> (50%) and <code>variant-b</code> (50%).</p>
-<ol>
-  <li>PostHog → <strong>Feature flags</strong> → <strong>New feature flag</strong>.</li>
-  <li>Key: <code>niche-lp-educator-headline-v1</code> (repeat for attorney, coach, therapist — 4 flags total).</li>
-  <li>Flag type: <strong>Multiple variants (multivariate)</strong>.</li>
-  <li>Variants:
-    <ul>
-      <li><code>control</code> — rollout 50% — description: "Current live headline"</li>
-      <li><code>variant-b</code> — rollout 50% — description: "Challenger headline from Akari patch"</li>
-    </ul>
-  </li>
-  <li>Release conditions: <strong>100% of users</strong> matching <code>properties.niche = [niche]</code>. This locks each flag to its own page by reading the super property we set in Step 1.</li>
-  <li>Save → Enable.</li>
-  <li>Then PostHog → <strong>Experiments</strong> → <strong>New experiment</strong> → link to the flag → primary metric: <code>$27 ticket purchase</code> (or whichever conversion event Matt wants as primary) → secondary: <code>$pageview</code> bounce. Do <em>not</em> launch yet. Leave in draft.</li>
-</ol>
-<div class="callout warn">
-  <p>Do not launch the experiment from PostHog until Steps 7–8 are shipped on the page <em>and</em> Kas has reviewed the variant copy. Launching with broken wiring pollutes the experiment history.</p>
+<h2>Full-page variant testing · architecture</h2>
+
+<div class="callout good">
+  <p><strong>Kas's call 2026-04-14:</strong> test is whole-page A vs whole-page B, not element-by-element. That means each niche needs <strong>two complete GHL pages</strong> — the current one (control) and a full duplicate with the variant build (variant-b) — plus a tiny flag-redirect script on the canonical URL that sends each user to one or the other.</p>
 </div>
 
-<h3>Step 7 — Add the EXPERIMENTS map + flag handler to each page's &lt;head&gt;</h3>
-<p>Append this block to the same Header custom code slot in GHL, directly <em>after</em> the PostHog init block from Step 1.</p>
+<h3>Architecture in one picture</h3>
+<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#cfd5e0;margin:12px 0"><code>Ad traffic
+    │
+    ▼
+clientsondemand.live/educator-page-page     ← "canonical" entry URL (control build)
+    │
+    ▼  &lt;head&gt; script reads PostHog flag
+    │
+    ├── control  (50%) ───► stay on /educator-page-page           ← this page IS the control
+    │
+    └── variant-b (50%) ──► location.replace('/educator-page-b')  ← full duplicate with variant copy
+                                │
+                                ▼
+                           clientsondemand.live/educator-page-b
+
+Both pages fire `$feature_flag_called` on first paint so PostHog counts the exposure.
+Both pages post to the same order form so conversions roll up cleanly.</code></pre>
+
+<p>This keeps the canonical URL unchanged (no ad or email relinking), lets you ship radically different full-page builds as variant-b, and avoids the element-swap pattern entirely. Downside: you maintain two pages per niche while the test runs — any hotfix has to be applied twice.</p>
+
+<h3>Step 6 — Duplicate each niche page in GHL to create the variant-b twin</h3>
+<ol>
+  <li>In GHL, open <code>educator-page-page</code> in the Funnels builder.</li>
+  <li>Use <strong>Clone step</strong> (GHL funnel-level clone) to create an exact duplicate.</li>
+  <li>Rename the clone's slug to <code>educator-page-b</code>. Leave the clone's page title identical to the original for now — just the URL slug changes.</li>
+  <li>Repeat for the other three niches so you end up with these 4 new URLs:
+    <ul>
+      <li><code>clientsondemand.live/educator-page-b</code></li>
+      <li><code>clientsondemand.live/attorney-registration-page-b</code></li>
+      <li><code>clientsondemand.live/coaches-page-c</code> <em>(coaches-page-b is already taken as the current live page — bump to <code>-c</code> to avoid collision)</em></li>
+      <li><code>clientsondemand.live/hto-workshop-therapist-counselor-c</code> <em>(same collision — bump to <code>-c</code>)</em></li>
+    </ul>
+  </li>
+  <li>On each new twin page, confirm:
+    <ul>
+      <li>The order form still points at the same COD checkout URL (so conversions roll up).</li>
+      <li>The thank-you / redirect step is the same as the original.</li>
+      <li>The compliance patches from Steps 1–12 above are already applied (since you cloned <em>after</em> patching the original).</li>
+    </ul>
+  </li>
+  <li>Do <strong>not</strong> change any copy on the twins yet. Kas delivers the variant-b build separately. Until then the twin is an exact copy of control.</li>
+</ol>
+<div class="callout warn">
+  <p>Ping Kas after cloning and before making any variant changes. He will either hand you the variant-b HTML or sit with you to rebuild the twin page in GHL.</p>
+</div>
+
+<h3>Step 7 — Create one multivariate flag per niche in PostHog</h3>
+<p>Each niche = one flag controlling one A/B experiment at the full-page level.</p>
+<ol>
+  <li>PostHog → <strong>Feature flags</strong> → <strong>New feature flag</strong>.</li>
+  <li>Flag key (create all 4):
+    <ul>
+      <li><code>niche-lp-educator-v1</code></li>
+      <li><code>niche-lp-attorney-v1</code></li>
+      <li><code>niche-lp-coach-v1</code></li>
+      <li><code>niche-lp-therapist-v1</code></li>
+    </ul>
+  </li>
+  <li>Type: <strong>Multiple variants (multivariate)</strong>.</li>
+  <li>Variants:
+    <ul>
+      <li><code>control</code> — 50% — "Current live page"</li>
+      <li><code>variant-b</code> — 50% — "Full-page rebuild"</li>
+    </ul>
+  </li>
+  <li>Release conditions: <strong>100% of users</strong> matching <code>properties.niche = [niche]</code>.</li>
+  <li>Save → Enable.</li>
+  <li>PostHog → <strong>Experiments</strong> → <strong>New experiment</strong> → link each flag → primary metric: <code>$27 ticket purchase</code> → secondary: <code>$pageview</code> bounce + <code>application_submit</code> → leave in <strong>draft</strong>. Kas + Matt launch after plumbing is green.</li>
+</ol>
+
+<h3>Step 8 — Add the flag-redirect block to the canonical (control) page &lt;head&gt;</h3>
+<p>This goes <em>only</em> on the 4 canonical control pages (the original live URLs). The variant-b twins do <strong>not</strong> get this block — they just need the PostHog init block from Step 1 + the exposure-firing block from Step 9.</p>
 
 <div class="edit">
-  <div class="edit-head"><span class="edit-num">HEAD BLOCK 2</span><span class="edit-title">Experiment flag handler + variant application</span></div>
-  <p class="loc">Paste below the PostHog init block. Change <code>EXPERIMENT_KEY</code> to match the current page's flag.</p>
-  <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#cfd5e0;margin:12px 0"><code>&lt;!-- Experiment wiring · niche LP multivariate --&gt;
+  <div class="edit-head"><span class="edit-num">HEAD BLOCK 2A</span><span class="edit-title">Flag redirect · canonical pages only</span></div>
+  <p class="loc">Paste below the PostHog init block from Step 1 on each of the 4 <em>canonical</em> pages. Change <code>EXPERIMENT_KEY</code> and <code>VARIANT_B_URL</code> per page.</p>
+  <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#cfd5e0;margin:12px 0"><code>&lt;!-- Full-page A/B · flag redirect · CANONICAL (control) pages only --&gt;
+&lt;style&gt;
+  /* Hide the body until the flag resolves so users never see the control flash
+     before being redirected to variant-b. Safety timeout reveals after 1500ms
+     in case PostHog fails so nobody ever sits on a blank page. */
+  html:not(.ph-ready) body { visibility: hidden; }
+&lt;/style&gt;
 &lt;script&gt;
-  // CHANGE THIS per page: educator / attorney / coach / therapist
-  var EXPERIMENT_KEY = 'niche-lp-educator-headline-v1';
+  // CHANGE THESE two per page
+  var EXPERIMENT_KEY = 'niche-lp-educator-v1';
+  var VARIANT_B_URL  = '/educator-page-b';
 
-  // Variant copy. Keep 'control' in sync with whatever is currently live on the page.
-  var VARIANTS = {
-    'hero-headline': {
-      control:     'CURRENT LIVE HEADLINE — do not change',
-      'variant-b': 'NEW CHALLENGER HEADLINE from Kas'
-    }
-  };
+  // Safety reveal so users are never stuck on a blank page
+  setTimeout(function(){ document.documentElement.classList.add('ph-ready'); }, 1500);
 
-  function applyVariant(variantKey) {
-    Object.keys(VARIANTS).forEach(function(slot){
-      var el = document.querySelector('[data-test-slot="' + slot + '"]');
-      if (!el) return;
-      var copy = VARIANTS[slot][variantKey];
-      if (copy) el.textContent = copy;
-    });
-    document.documentElement.classList.add('ph-ready');
-  }
-
-  // Wait for PostHog to be ready, then read the flag
   window.posthog = window.posthog || [];
   posthog.onFeatureFlags(function() {
     var variant = posthog.getFeatureFlag(EXPERIMENT_KEY) || 'control';
-    applyVariant(variant);
 
-    // Fire the exposure event so PostHog's stats engine counts this user
+    // Fire exposure BEFORE redirecting so PostHog counts both arms
     posthog.capture('$feature_flag_called', {
       $feature_flag: EXPERIMENT_KEY,
-      $feature_flag_response: variant
+      $feature_flag_response: variant,
+      $variant_side: 'control-entry'
     });
+
+    if (variant === 'variant-b') {
+      // Preserve query string (utm_*, fbclid, gclid, hyros params) across the redirect
+      var qs = location.search || '';
+      location.replace(VARIANT_B_URL + qs);
+      return;
+    }
+
+    // User stays on control — reveal the page
+    document.documentElement.classList.add('ph-ready');
   });
 &lt;/script&gt;
-&lt;!-- /Experiment wiring --&gt;</code></pre>
-  <div class="changed">
-    <strong>Per-page changes:</strong> update <code>EXPERIMENT_KEY</code> to match the flag key for that niche (educator / attorney / coach / therapist). Update <code>VARIANTS['hero-headline'].control</code> to the exact current live headline. Update <code>variant-b</code> to the challenger headline Kas gives you.
-  </div>
+&lt;!-- /Flag redirect --&gt;</code></pre>
+  <div class="changed"><strong>Why <code>location.replace</code> not <code>location.href</code>:</strong> <code>replace</code> does not push a history entry, so the back button skips the canonical URL and goes straight to where the user came from. Avoids a weird browser-history loop.</div>
+  <div class="changed"><strong>Why exposure fires before redirect:</strong> if we redirected first, we'd miss the exposure event on the variant-b arm because the page unloads too fast. Firing first guarantees PostHog counts every user on both arms.</div>
 </div>
 
-<h3>Step 8 — Mark the tested element with <code>data-test-slot</code></h3>
-<p>Find the hero headline element on each page in GHL's builder. Add a custom attribute:</p>
-<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>data-test-slot="hero-headline"</code></pre>
-<p>This is the only attribute you need to add. The anti-flicker CSS from Step 1 (<code>[data-test-slot] { visibility: hidden; }</code>) will keep it invisible until the flag handler flips it to the correct variant. Users never see a flash of the wrong copy.</p>
-<div class="callout bad">
-  <p><strong>If you cannot add a custom attribute to that specific element in GHL</strong> (some GHL builder elements don't support it), stop and tell Kas. Do not work around it with fragile CSS selectors like <code>.hero h1</code> — that breaks the moment a designer touches the page.</p>
+<h3>Step 9 — Add the exposure-firing block to the variant-b twins</h3>
+<p>Variant-b twins need to fire their own <code>$feature_flag_called</code> event so PostHog's stats engine correctly attributes conversions back to the variant. Without this, PostHog thinks the user "left" after the control exposure and never reached variant-b.</p>
+
+<div class="edit">
+  <div class="edit-head"><span class="edit-num">HEAD BLOCK 2B</span><span class="edit-title">Exposure confirm · variant-b twins only</span></div>
+  <p class="loc">Paste below the PostHog init block from Step 1 on each of the 4 <em>variant-b</em> twin pages.</p>
+  <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#cfd5e0;margin:12px 0"><code>&lt;!-- Variant-b exposure confirm --&gt;
+&lt;script&gt;
+  var EXPERIMENT_KEY = 'niche-lp-educator-v1'; // CHANGE per niche
+
+  window.posthog = window.posthog || [];
+  posthog.onFeatureFlags(function() {
+    posthog.capture('$feature_flag_called', {
+      $feature_flag: EXPERIMENT_KEY,
+      $feature_flag_response: 'variant-b',
+      $variant_side: 'variant-b-landed'
+    });
+    document.documentElement.classList.add('ph-ready');
+  });
+&lt;/script&gt;
+&lt;!-- /Variant-b exposure confirm --&gt;</code></pre>
 </div>
 
-<h3>Step 9 — Variant copy per page</h3>
-<p>Kas will provide the challenger headlines. Until then, use the current live headline as both <code>control</code> AND <code>variant-b</code> (a no-op test) just to verify the plumbing works end-to-end. Once Kas delivers the challengers, update the <code>VARIANTS</code> map and redeploy.</p>
+<h3>Step 10 — Page-pair reference table</h3>
 <table>
-  <thead><tr><th>Page</th><th>EXPERIMENT_KEY</th><th>Current headline (control)</th><th>Challenger (variant-b)</th></tr></thead>
+  <thead><tr><th>Niche</th><th>Flag key</th><th>Control (canonical) URL</th><th>Variant-b (twin) URL</th></tr></thead>
   <tbody>
-    <tr><td>educator</td><td><code>niche-lp-educator-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
-    <tr><td>attorney</td><td><code>niche-lp-attorney-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
-    <tr><td>coach</td><td><code>niche-lp-coach-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
-    <tr><td>therapist</td><td><code>niche-lp-therapist-headline-v1</code></td><td>[pull from live page]</td><td>[pending — Kas]</td></tr>
+    <tr><td>Educator</td><td><code>niche-lp-educator-v1</code></td><td>/educator-page-page</td><td>/educator-page-b</td></tr>
+    <tr><td>Attorney</td><td><code>niche-lp-attorney-v1</code></td><td>/attorney-registration-page-727492</td><td>/attorney-registration-page-b</td></tr>
+    <tr><td>Coach</td><td><code>niche-lp-coach-v1</code></td><td>/coaches-page-b</td><td>/coaches-page-c</td></tr>
+    <tr><td>Therapist</td><td><code>niche-lp-therapist-v1</code></td><td>/hto-workshop-therapist-counselor-b</td><td>/hto-workshop-therapist-counselor-c</td></tr>
   </tbody>
 </table>
+<div class="callout warn">
+  <p>Coach + therapist canonical pages already have <code>-b</code> in their slug (legacy naming from before this test). To avoid URL collisions, their variant-b twins bump to <code>-c</code>. The flag variant name is still <code>variant-b</code> — only the URL slug changes. Do not rename the flag.</p>
+</div>
 
-<h3>Step 10 — Verify the multivariate wiring in the browser</h3>
+<h3>Step 11 — Verify the full-page redirect in the browser</h3>
 <ol>
-  <li>Open the educator page in incognito. In DevTools console run <code>posthog.getFeatureFlag('niche-lp-educator-headline-v1')</code> — should return <code>'control'</code> or <code>'variant-b'</code>.</li>
-  <li>Force each variant to confirm swap works:
-    <ul>
-      <li><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-headline-v1': 'control' }); location.reload();</code></li>
-      <li>Confirm the headline matches the control copy.</li>
-      <li><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-headline-v1': 'variant-b' }); location.reload();</code></li>
-      <li>Confirm the headline swaps to variant-b copy.</li>
-      <li><code>posthog.featureFlags.overrideFeatureFlags(false); location.reload();</code> — clears the override.</li>
-    </ul>
+  <li>Open the educator canonical URL in incognito with DevTools open (preserve log on navigation).</li>
+  <li>In the Console, run:
+    <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:12px;margin:6px 0;font-family:var(--mono);font-size:12px;color:#cfd5e0"><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-v1': 'control' });
+location.reload();</code></pre>
+    Expected: you stay on <code>/educator-page-page</code>, page fully renders, <code>$feature_flag_called</code> fires with <code>$variant_side=control-entry</code>.
   </li>
-  <li>In PostHog <strong>Live Events</strong>, confirm a <code>$feature_flag_called</code> event fires on each load with the correct <code>$feature_flag_response</code>.</li>
-  <li>Repeat for attorney, coach, therapist.</li>
-  <li>Check there is <strong>no visible flash</strong> of the control headline before variant-b applies. If you see a flash, the anti-flicker CSS isn't catching the element — verify the <code>data-test-slot</code> attribute is on the actual headline element, not its parent.</li>
+  <li>Then:
+    <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:12px;margin:6px 0;font-family:var(--mono);font-size:12px;color:#cfd5e0"><code>posthog.featureFlags.overrideFeatureFlags({ 'niche-lp-educator-v1': 'variant-b' });
+location.reload();</code></pre>
+    Expected: URL bar flips to <code>/educator-page-b</code> within ~200ms with zero flash of the control page, variant-b content renders, PostHog Live Events shows <strong>two</strong> events in order: <code>control-entry → variant-b-landed</code>. Both carry the same <code>$feature_flag</code>.
+  </li>
+  <li>Clear the override:
+    <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:12px;margin:6px 0;font-family:var(--mono);font-size:12px;color:#cfd5e0"><code>posthog.featureFlags.overrideFeatureFlags(false); location.reload();</code></pre>
+  </li>
+  <li>Test the query-string preservation: open <code>/educator-page-page?utm_source=test&fbclid=abc123</code>, force variant-b, confirm the redirect lands you on <code>/educator-page-b?utm_source=test&fbclid=abc123</code> with all params intact. If the params are dropped, attribution is broken — stop and tell Kas.</li>
+  <li>Test the safety timeout: in DevTools <strong>Network</strong> tab, block all <code>posthog</code> requests, then reload the canonical page. Expected: after ~1500ms the page reveals as control (safety fallback). Nobody should ever see a permanently blank page.</li>
+  <li>Repeat all 6 checks for attorney, coach, therapist.</li>
 </ol>
 
-<h3>Step 11 — Hand off to Kas before launching the experiment</h3>
-<p>When all 4 pages pass Step 10, post in Slack <code>#brickellads</code>:</p>
-<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>Niche LP multivariate wiring live on all 4 pages. Flags created in PostHog (draft). Variant swap confirmed via override on each page. No flicker. Ready for Kas + Matt to review challenger copy and launch experiments.</code></pre>
+<h3>Step 12 — Hand off to Kas before launching the experiment</h3>
+<p>When all 4 page-pairs pass Step 11, post in Slack <code>#brickellads</code>:</p>
+<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>Niche LP full-page A/B wiring live on all 4 pairs:
+- educator-page-page ↔ educator-page-b
+- attorney-registration-page-727492 ↔ attorney-registration-page-b
+- coaches-page-b ↔ coaches-page-c
+- hto-workshop-therapist-counselor-b ↔ hto-workshop-therapist-counselor-c
+
+4 flags in PostHog (draft). Redirect verified both directions, zero flicker, query params preserved, safety timeout fires. Ready for Kas + Matt to review variant-b copy and launch experiments.</code></pre>
 <div class="callout bad">
-  <p><strong>Do NOT launch the experiment yourself.</strong> Kas + Matt review the challenger copy and click launch in PostHog's Experiments UI. Your job ends at "plumbing verified, ready to launch."</p>
+  <p><strong>Do NOT launch the experiment yourself.</strong> Kas + Matt review the variant-b builds and click launch in PostHog's Experiments UI. Your job ends at "plumbing verified, ready to launch."</p>
 </div>
 
 <h3>Verification checklist</h3>
@@ -753,14 +836,18 @@
   <li>Therapist · head block pasted · body data-niche set · 6 browser checks pass · Slack posted</li>
   <li>GTM PostHog Init tag confirmed paused + note added + container published</li>
   <li>Confirmed in PostHog Live Events that all 4 niches are firing with correct <code>niche</code> super property</li>
-  <li>Zero double-init across all 4 pages (1× <code>/decide</code> per load, not 2×)</li>
+  <li>Zero double-init across all 4 canonical pages (1× <code>/decide</code> per load, not 2×)</li>
+  <li>4 variant-b twin pages cloned in GHL (educator-page-b, attorney-registration-page-b, coaches-page-c, hto-workshop-therapist-counselor-c)</li>
+  <li>Copy patches (Edits 01–12 above) confirmed present on all 4 <em>twin</em> pages too, since they were cloned from the patched originals</li>
   <li>4 multivariate feature flags created in PostHog (educator / attorney / coach / therapist), each with <code>control</code> + <code>variant-b</code> at 50/50, gated by <code>niche</code> super property</li>
   <li>Experiments created in PostHog but left in <strong>draft</strong> (not launched)</li>
-  <li>EXPERIMENTS map + flag handler added to each page's head</li>
-  <li><code>data-test-slot="hero-headline"</code> attribute added to the hero headline element on each page</li>
-  <li>Variant override tested in incognito on all 4 pages (control + variant-b both swap correctly, zero flicker)</li>
-  <li><code>$feature_flag_called</code> exposure event confirmed firing in PostHog Live Events</li>
-  <li>Final summary posted in Slack tagging Kas + Matt — plumbing ready, awaiting challenger copy + launch</li>
+  <li>Flag-redirect block added to each <em>canonical</em> page's head (HEAD BLOCK 2A)</li>
+  <li>Exposure-confirm block added to each <em>variant-b twin</em> page's head (HEAD BLOCK 2B)</li>
+  <li>Forced-override test passed on all 4 page-pairs: control stays, variant-b redirects, zero flicker</li>
+  <li>Query-string preservation verified (utm_source, fbclid, gclid, hyros params survive the redirect)</li>
+  <li>Safety timeout verified: blocking posthog network requests reveals the page after 1500ms as control fallback</li>
+  <li>PostHog Live Events shows <code>control-entry → variant-b-landed</code> sequence on variant-b loads</li>
+  <li>Final summary posted in Slack tagging Kas + Matt — plumbing ready, awaiting variant-b builds + launch</li>
 </ul>
 
 <div class="callout warn">

@@ -166,6 +166,64 @@ footer{padding:48px 0;background:var(--white);border-top:1px solid var(--gray-20
       </div>
     </div>
 
+    <div class="unlocks" style="margin-top:32px">
+      <div class="unlocks-h">
+        <div class="eyebrow"><span class="bar"></span>Setup &middot; HubSpot Connection</div>
+        <h3>How the connection gets wired.</h3>
+        <p>Five steps. Total active time ~30 minutes once Eric clicks the button. Then it's automatic forever.</p>
+      </div>
+      <div style="background:var(--white);padding:8px 0">
+        <div style="display:grid;grid-template-columns:1fr;gap:0">
+
+          <div style="display:grid;grid-template-columns:60px 1fr 130px;gap:18px;padding:20px 28px;border-bottom:1px solid var(--gray-150);align-items:start">
+            <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--red);line-height:1">01</div>
+            <div>
+              <div style="font-family:var(--display);font-size:15px;font-weight:800;color:var(--gray-900);margin-bottom:4px">Eric enables Private Apps</div>
+              <div style="font-size:13px;color:var(--gray-600);line-height:1.55">HubSpot &rarr; Settings &rarr; Integrations &rarr; Private Apps &rarr; toggle "Allow Private Apps". Super Admin only. ~2 minutes. <b style="color:var(--gray-900)">This is the blocker right now.</b></div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber-text);background:var(--amber-soft);border:1px solid rgba(199,119,0,0.3);padding:6px 10px;border-radius:99px;text-align:center;align-self:center">Eric &middot; pending</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:60px 1fr 130px;gap:18px;padding:20px 28px;border-bottom:1px solid var(--gray-150);align-items:start">
+            <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--red);line-height:1">02</div>
+            <div>
+              <div style="font-family:var(--display);font-size:15px;font-weight:800;color:var(--gray-900);margin-bottom:4px">Rehan creates the Private App + scopes</div>
+              <div style="font-size:13px;color:var(--gray-600);line-height:1.55">Name: <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">KAMG Lead Tracker Sync</code> &middot; scopes: <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">crm.objects.contacts.read</code>, <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">crm.objects.deals.read</code>, <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">forms</code>, <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">forms-uploaded-files</code>. Read-only.</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-600);background:var(--gray-100);border:1px solid var(--gray-200);padding:6px 10px;border-radius:99px;text-align:center;align-self:center">Rehan &middot; ready</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:60px 1fr 130px;gap:18px;padding:20px 28px;border-bottom:1px solid var(--gray-150);align-items:start">
+            <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--red);line-height:1">03</div>
+            <div>
+              <div style="font-family:var(--display);font-size:15px;font-weight:800;color:var(--gray-900);margin-bottom:4px">Token handoff to Kas (encrypted)</div>
+              <div style="font-size:13px;color:var(--gray-600);line-height:1.55">Token shared via 1Password vault &middot; stored in GCP Secret Manager &middot; never committed to git &middot; rotated every 90 days. The token reads only &mdash; it cannot edit or delete anything in HubSpot.</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-600);background:var(--gray-100);border:1px solid var(--gray-200);padding:6px 10px;border-radius:99px;text-align:center;align-self:center">Kas &middot; ready</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:60px 1fr 130px;gap:18px;padding:20px 28px;border-bottom:1px solid var(--gray-150);align-items:start">
+            <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--red);line-height:1">04</div>
+            <div>
+              <div style="font-family:var(--display);font-size:15px;font-weight:800;color:var(--gray-900);margin-bottom:4px">Cloud Function: contacts + deals + forms &rarr; BigQuery</div>
+              <div style="font-size:13px;color:var(--gray-600);line-height:1.55">Python Cloud Function on Cloud Scheduler, runs every 6h: pulls new contacts, deal stage changes, and form submissions; writes incremental rows to <code style="font-family:var(--mono);font-size:12px;background:var(--gray-100);padding:1px 6px;border-radius:4px">redstone_warehouse.hubspot_*</code>. Same pattern as the COD warehouse (Stripe, Hyros, SendGrid, Zoom).</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-600);background:var(--gray-100);border:1px solid var(--gray-200);padding:6px 10px;border-radius:99px;text-align:center;align-self:center">Kas &middot; ~4h build</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:60px 1fr 130px;gap:18px;padding:20px 28px;align-items:start">
+            <div style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--red);line-height:1">05</div>
+            <div>
+              <div style="font-family:var(--display);font-size:15px;font-weight:800;color:var(--gray-900);margin-bottom:4px">This page wires up to the warehouse</div>
+              <div style="font-size:13px;color:var(--gray-600);line-height:1.55">Live form submissions table, stat tiles (Leads/Pipeline/Avg Quote/Won %), source-attribution view joining HubSpot deals with Google Ads + GA4 click IDs. Updates every page load. Mon/Thu Leo review still applies.</div>
+            </div>
+            <div style="font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-600);background:var(--gray-100);border:1px solid var(--gray-200);padding:6px 10px;border-radius:99px;text-align:center;align-self:center">Kas &middot; ~2h build</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <div class="placeholder-table" aria-hidden="true">
       <div class="pt-h">Form Submissions &mdash; Last 14 Days <span style="color:var(--gray-600);font-weight:400;font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-left:8px">layout preview</span></div>
       <table class="pt-table">

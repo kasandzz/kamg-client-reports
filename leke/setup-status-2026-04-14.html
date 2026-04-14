@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leke Services — Google Ads Setup Status</title>
+<style>
+  :root {
+    --bg: #0a0b0f;
+    --panel: #11131a;
+    --panel-2: #161925;
+    --line: #232638;
+    --text: #e6e8ef;
+    --muted: #8a8fa3;
+    --accent: #f5c451;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --serif: "Canela", "Tiempos Headline", Georgia, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(245,196,81,0.3); }
+  a:hover { border-bottom-color: var(--accent); }
+  .container { max-width: 960px; margin: 0 auto; padding: 64px 32px 96px; }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 32px; margin-bottom: 48px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  h1 { font-family: var(--serif); font-size: 44px; line-height: 1.1; font-weight: 400; margin: 0 0 16px; letter-spacing: -0.01em; }
+  .subtitle { color: var(--muted); font-size: 17px; max-width: 680px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .meta span strong { color: var(--text); font-weight: 500; }
+  h2 { font-family: var(--serif); font-size: 26px; font-weight: 400; margin: 56px 0 20px; padding-bottom: 10px; border-bottom: 1px solid var(--line); letter-spacing: -0.005em; }
+  h3 { font-family: var(--sans); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 28px 0 12px; }
+  p { margin: 0 0 16px; }
+  .status-card { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--amber); padding: 24px 28px; border-radius: 4px; margin-bottom: 32px; }
+  .status-card.live { border-left-color: var(--green); }
+  .status-card.paused { border-left-color: var(--amber); }
+  .status-card h3 { margin-top: 0; color: var(--amber); }
+  .status-card.live h3 { color: var(--green); }
+  .status-headline { font-family: var(--serif); font-size: 22px; color: var(--text); margin: 4px 0 8px; font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 24px 0; }
+  .tile { background: var(--panel); border: 1px solid var(--line); padding: 20px 22px; border-radius: 4px; }
+  .tile .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .tile .value { font-family: var(--serif); font-size: 20px; color: var(--text); font-weight: 400; line-height: 1.3; }
+  .tile .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 12px 16px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:first-child { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; width: 110px; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+  .pill.green { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+  .pill.amber { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+  .pill.red { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+  .pill.muted { background: rgba(138,143,163,0.12); color: var(--muted); border: 1px solid rgba(138,143,163,0.25); }
+  ul.clean { list-style: none; padding: 0; margin: 0 0 24px; }
+  ul.clean li { padding: 12px 0 12px 24px; border-bottom: 1px solid var(--line); position: relative; }
+  ul.clean li:before { content: ""; position: absolute; left: 0; top: 22px; width: 10px; height: 1px; background: var(--muted); }
+  ul.clean li:last-child { border-bottom: none; }
+  .timeline { border-left: 1px solid var(--line); padding-left: 28px; margin: 24px 0 8px; position: relative; }
+  .event { margin-bottom: 28px; position: relative; }
+  .event:before { content: ""; position: absolute; left: -33px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--panel); border: 1px solid var(--muted); }
+  .event.milestone:before { background: var(--accent); border-color: var(--accent); }
+  .event .when { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .event .what { font-size: 15px; }
+  .event .who { color: var(--muted); font-size: 13px; font-family: var(--mono); }
+  .callout { background: var(--panel-2); border: 1px solid var(--line); padding: 20px 24px; border-radius: 4px; margin: 24px 0; font-size: 14px; color: var(--muted); }
+  .callout strong { color: var(--text); }
+  footer { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 720px) {
+    .container { padding: 40px 20px 64px; }
+    h1 { font-size: 32px; }
+    .two-col { grid-template-columns: 1fr; }
+    td:first-child { width: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Client Status Brief · Leke Services</div>
+  <h1>Google Ads build complete. Launch held.</h1>
+  <p class="subtitle">Campaign infrastructure, tracking, and creative are fully built against the post-pivot strategy. Ads are not currently running pending client-side confirmation.</p>
+  <div class="meta">
+    <span><strong>Client:</strong> Leke Services</span>
+    <span><strong>Contact:</strong> Laolu Adeola / Temitope Dada</span>
+    <span><strong>Channel:</strong> Google Ads</span>
+    <span><strong>Partner:</strong> Daniel Hall (Veni Vidi Vici Ltd)</span>
+    <span><strong>As of:</strong> 2026-04-14</span>
+  </div>
+</header>
+
+<div class="status-card paused">
+  <h3>Current Status</h3>
+  <div class="status-headline">Built. Tracked. Not live.</div>
+  <p style="margin:0;color:var(--muted);">All systems green on our side. Campaigns are constructed, tracking is firing, and Daniel has confirmed launch-ready state. No spend is active at this moment.</p>
+</div>
+
+<h2>At a glance</h2>
+<div class="grid">
+  <div class="tile">
+    <div class="label">Campaign Build</div>
+    <div class="value">Complete</div>
+    <div class="sub">Post-pivot audience, copy and extensions shipped by Daniel</div>
+  </div>
+  <div class="tile">
+    <div class="label">Conversion Tracking</div>
+    <div class="value">Live</div>
+    <div class="sub">Typeform via API upload; Calendly wired</div>
+  </div>
+  <div class="tile">
+    <div class="label">Ad Spend</div>
+    <div class="value">Paused</div>
+    <div class="sub">Ready to switch on the moment we get the go-ahead</div>
+  </div>
+  <div class="tile">
+    <div class="label">Next Unblock</div>
+    <div class="value">Friday call</div>
+    <div class="sub">Temitope check-in, Apr 17 — 12:00 Mexico City</div>
+  </div>
+</div>
+
+<h2>Strategy &amp; targeting (post-pivot)</h2>
+<p>Laolu flagged a significant strategy pivot on April 1. Fleet managers lack buying authority — the real decision-makers are business owners who operate fleets and private-equity firms with fleet-heavy portfolio companies. The Google Ads build was reworked accordingly.</p>
+
+<div class="two-col">
+  <div>
+    <h3>Audience</h3>
+    <ul class="clean">
+      <li>Business owners operating fleets</li>
+      <li>PE operating partners (fleet-heavy portfolios)</li>
+      <li>Heads of finance &amp; procurement</li>
+      <li><span style="color:var(--muted);text-decoration:line-through;">Fleet managers / sustainability leads</span></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Geo</h3>
+    <ul class="clean">
+      <li>California</li>
+      <li>Texas</li>
+      <li>Florida</li>
+      <li>North Carolina</li>
+      <li>CARB states</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Copy framing</h3>
+<ul class="clean">
+  <li>Retained hooks: <strong>$100K+ savings</strong> and <strong>zero upfront capital</strong></li>
+  <li>Reframed around <strong>P&amp;L impact and margin improvement</strong>, not operational checklists</li>
+  <li>Urgency angle: <strong>rising oil prices</strong> / hedge against fuel costs</li>
+  <li>Brand language shift: "Risk Free Electrification" → <strong>"Fleet Electrification Savings Guarantee"</strong></li>
+</ul>
+
+<h3>Creative shipped by Daniel (Apr 2)</h3>
+<table>
+  <thead><tr><th>Element</th><th>Before</th><th>After</th></tr></thead>
+  <tbody>
+    <tr><td>H1</td><td>Pay Nothing For Our Initial Analysis…</td><td>Combat Rising Fuel Costs. Lock In Savings With A Guaranteed Fleet Electrification Plan.</td></tr>
+    <tr><td>New Headline</td><td>—</td><td>Hedge Against Fuel Costs</td></tr>
+    <tr><td>Callout Ext.</td><td>—</td><td>Hedge Against Fuel Costs</td></tr>
+    <tr><td>Sitelink</td><td>Risk-Free Electrification</td><td>Savings Guarantee <span class="pill muted">25-char cap</span></td></tr>
+  </tbody>
+</table>
+
+<h2>Tracking architecture</h2>
+<p>Rehan completed the tracking build on April 13 and handed over to Daniel. Everything is firing.</p>
+
+<ul class="clean">
+  <li><strong>Status:</strong> Tracking live and ready to go <span class="pill green">Live</span></li>
+  <li><strong>Typeform:</strong> Handled via <strong>API upload</strong>. Enhanced tracking isn't viable — the form is embedded in an iframe with logic-based questions, so URL-redirect conversion isn't an option either. Typeform's UI may display "inactive" because conversions are pushed via API rather than native integration.</li>
+  <li><strong>Calendly:</strong> Wired via granted access (sorted via Temitope after Apr 10 chase).</li>
+  <li><strong>Legacy tracking:</strong> Left in place and not deleted. New tracking is highlighted in the account for quick reference.</li>
+</ul>
+
+<h2>Timeline</h2>
+<div class="timeline">
+  <div class="event milestone">
+    <div class="when">Apr 1 · 2026</div>
+    <div class="what">Kas → Daniel: strategy pivot briefed. Audience, copy framing, brand language, and setup-fee question raised.</div>
+    <div class="who">kas@kasandz.com → daniel@blogtrepreneur.co.uk</div>
+  </div>
+  <div class="event">
+    <div class="when">Apr 2 · 2026</div>
+    <div class="what">Daniel ships updated H1, new headline, callout extension, and sitelink to match the new framing.</div>
+    <div class="who">daniel@blogtrepreneur.co.uk</div>
+  </div>
+  <div class="event">
+    <div class="when">Apr 3 – 10 · 2026</div>
+    <div class="what">Tracking access chased with Leke side. Temitope grants Typeform + Calendly access after multiple rounds; delay acknowledged.</div>
+    <div class="who">Temitope Dada · Leke Services</div>
+  </div>
+  <div class="event milestone">
+    <div class="when">Apr 13 · 2026</div>
+    <div class="what">Rehan completes tracking: Typeform via API upload, Calendly wired, legacy tracking preserved. Handed to Daniel.</div>
+    <div class="who">rehan@kasandz.com → daniel@blogtrepreneur.co.uk</div>
+  </div>
+  <div class="event milestone">
+    <div class="when">Apr 14 · 2026</div>
+    <div class="what">Daniel confirms build is live-ready. Launch held pending internal alignment — ads are not currently running.</div>
+    <div class="who">daniel@blogtrepreneur.co.uk</div>
+  </div>
+  <div class="event">
+    <div class="when">Apr 17 · 2026 <span class="pill amber">Scheduled</span></div>
+    <div class="what">Check-in call with Temitope — status review + regular cadence. 12:00 noon Mexico City (CST, UTC-6).</div>
+    <div class="who">temitope@leke.services</div>
+  </div>
+</div>
+
+<h2>Open threads</h2>
+<table>
+  <thead><tr><th>Item</th><th>Owner</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Launch decision</td><td>Kas / Laolu</td><td>Everything is ready. Needs go / no-go on spend.</td></tr>
+    <tr><td>Setup fee for pivot work</td><td>Kas ↔ Daniel</td><td>Floated Apr 1, parked at "let's talk". Not closed.</td></tr>
+    <tr><td>Extension &amp; full-copy audit vs new audience</td><td>Daniel</td><td>Core headlines updated. A full sweep of all extensions against the PE/owner framing is still worth doing before spend flows.</td></tr>
+    <tr><td>Regular check-in cadence</td><td>Kas ↔ Temitope</td><td>Agenda item for Friday call.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>Bottom line —</strong> The delivery side is done. Campaigns, tracking, copy, and audience targeting are aligned with the April strategy pivot. The only thing standing between current state and paid traffic is a launch decision and a short extension-copy sweep.
+</div>
+
+<footer>
+  <span>Leke Services · Google Ads Setup Brief</span>
+  <span>Generated 2026-04-14 · Kas Andz Marketing Group</span>
+</footer>
+
+</div>
+</body>
+</html>

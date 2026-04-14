@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone &mdash; Lead Tracker (coming online)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#B21E24;--red-dark:#8B1519;--red-soft:#FCE9EA;
+  --gray-900:#1A1A1A;--gray-700:#3F3F3F;--gray-600:#616060;
+  --gray-300:#D4D4D4;--gray-200:#EAEAEA;--gray-150:#EFEFEF;--gray-100:#F4F4F5;
+  --gray-75:#F7F7F8;--gray-50:#FAFAFA;--white:#FFFFFF;
+  --green:#1F9D55;--green-soft:#E5F5EC;--green-text:#15803D;
+  --amber:#C77700;--amber-text:#9E5E00;--amber-soft:#FBF1E2;
+  --display:'Bricolage Grotesque',serif;
+  --body:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+  --radius:17px;--radius-md:12px;
+  --shadow:0 4px 14px rgba(15,15,17,0.08);
+  --shadow-sm:0 1px 3px rgba(15,15,17,0.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--gray-75);color:var(--gray-700);font-family:var(--body);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:0 36px}
+a{color:var(--red);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 0;position:sticky;top:0;z-index:50}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:42px;height:42px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;clip-path:polygon(0 0,100% 0,100% 78%,78% 100%,0 100%)}
+.brand-name{font-family:var(--display);font-weight:800;font-size:16px;color:var(--gray-900)}
+.brand-sub{font-size:11px;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-top:1px}
+.back{font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.back:hover{color:var(--red)}
+
+.hero{padding:64px 0 32px;background:var(--white);border-bottom:1px solid var(--gray-200);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;top:30px;right:60px;font-family:var(--display);font-size:200px;font-weight:800;color:var(--red);opacity:0.05;line-height:0.85}
+.hero h1{font-family:var(--display);font-size:clamp(2em,4.5vw,3em);font-weight:700;letter-spacing:-0.025em;color:var(--gray-900);margin-bottom:14px;line-height:1.04}
+.hero h1 em{font-style:normal;color:var(--red);font-weight:800}
+.hero p{color:var(--gray-600);font-size:16px;max-width:680px}
+.hero p b{color:var(--gray-900);font-weight:600}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-600);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow .bar{width:24px;height:2px;background:var(--red)}
+
+.section{padding:48px 0}
+
+/* OFFLINE banner — the centerpiece */
+.offline{background:linear-gradient(135deg,#fff 0%,var(--amber-soft) 220%);border:1px solid rgba(199,119,0,0.3);border-left:5px solid var(--amber);border-radius:var(--radius);padding:32px 36px;box-shadow:var(--shadow);margin-bottom:32px}
+.offline-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber-text);background:var(--white);padding:6px 12px;border-radius:99px;border:1px solid rgba(199,119,0,0.3);margin-bottom:14px}
+.offline-tag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 3px rgba(199,119,0,0.2)}
+.offline h2{font-family:var(--display);font-size:24px;font-weight:800;color:var(--gray-900);margin-bottom:10px;line-height:1.15}
+.offline p{font-size:14px;color:var(--gray-700);max-width:680px;line-height:1.6;margin-bottom:18px}
+.offline p b{color:var(--gray-900);font-weight:700}
+.offline-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}
+.action{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--gray-700);box-shadow:var(--shadow-sm)}
+.action b{font-family:var(--display);color:var(--gray-900);font-weight:700;font-size:14px;display:block;margin-bottom:2px}
+.action .num{font-family:var(--display);font-size:22px;font-weight:800;color:var(--red);min-width:30px;text-align:center}
+
+.unlocks{margin-top:36px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.unlocks-h{padding:22px 28px;border-bottom:1px solid var(--gray-200);background:linear-gradient(135deg,var(--white) 0%,var(--green-soft) 280%)}
+.unlocks-h .eyebrow{margin-bottom:6px;color:var(--green-text)}
+.unlocks-h .eyebrow .bar{background:var(--green)}
+.unlocks-h h3{font-family:var(--display);font-size:18px;font-weight:800;color:var(--gray-900)}
+.unlocks-h p{font-size:13px;color:var(--gray-600);margin-top:4px}
+.unlocks-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--gray-200)}
+.unlock{background:var(--white);padding:22px 24px}
+.unlock h4{font-family:var(--display);font-size:14px;font-weight:800;color:var(--gray-900);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.unlock h4::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+.unlock p{font-size:12px;color:var(--gray-600);line-height:1.55}
+
+.placeholder-table{margin-top:28px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;opacity:0.55;filter:grayscale(40%)}
+.placeholder-table::before{content:"FAKE DATA \2014 ILLUSTRATIVE LAYOUT ONLY";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-6deg);font-family:var(--display);font-size:34px;font-weight:800;color:var(--red);letter-spacing:0.04em;background:var(--white);padding:14px 28px;border:3px solid var(--red);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:10;white-space:nowrap;pointer-events:none}
+.pt-h{padding:20px 28px;border-bottom:1px solid var(--gray-200);font-family:var(--display);font-size:14px;font-weight:700;color:var(--gray-900)}
+.pt-table{width:100%;border-collapse:collapse}
+.pt-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-600);font-weight:700;padding:14px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.pt-table td{padding:18px 28px;border-bottom:1px solid var(--gray-150);font-size:14px;color:var(--gray-700)}
+.pt-table .name{color:var(--gray-900);font-weight:700}
+.pt-table .co{color:var(--gray-600);font-size:12px}
+.pt-table .v{font-family:var(--display);font-weight:700;color:var(--gray-900)}
+
+footer{padding:48px 0;background:var(--white);border-top:1px solid var(--gray-200);margin-top:60px}
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.08em}
+.footer-row b{color:var(--gray-900);font-weight:700}
+
+@media(max-width:780px){
+  .wrap{padding:0 20px}
+  .hero{padding:48px 0 24px}
+  .unlocks-grid{grid-template-columns:1fr}
+  .placeholder-table::before{font-size:18px;padding:10px 16px}
+  .offline{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-name">REDSTONE MANUFACTURING</div>
+        <div class="brand-sub">Lead Tracker &middot; coming online</div>
+      </div>
+    </div>
+    <a class="back" href="tracker-dashboard.html">&larr; Back to tracker</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="bar"></span>Inbound Pipeline</div>
+    <h1>Live <em>Lead Tracker</em><br>coming online soon.</h1>
+    <p>This page will show every quote-form submission, attribution path, and pipeline value as soon as the HubSpot API is connected. Right now it&rsquo;s a <b>placeholder shell</b> &mdash; the structure is in place, the data isn&rsquo;t.</p>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="offline">
+      <div class="offline-tag">Awaiting Data &middot; Eric action required</div>
+      <h2>Why this page is empty.</h2>
+      <p>Rehan now has HubSpot UI access (granted today by Eric). To pipe real data into this dashboard we need <b>Eric to enable the HubSpot Private App / API access</b> for the workspace. That&rsquo;s the only blocker.</p>
+      <div class="offline-actions">
+        <div class="action"><div class="num">1.</div><div><b>Eric enables HubSpot API</b>Workspace settings &middot; Private Apps &middot; ~5 min</div></div>
+        <div class="action"><div class="num">2.</div><div><b>Rehan generates token</b>Reads contacts, deals, form events</div></div>
+        <div class="action"><div class="num">3.</div><div><b>Kas wires the sync</b>Live data flows within 24h of token</div></div>
+      </div>
+    </div>
+
+    <div class="unlocks">
+      <div class="unlocks-h">
+        <div class="eyebrow"><span class="bar"></span>What this unlocks</div>
+        <h3>Closed-loop attribution &mdash; which ads actually drive revenue.</h3>
+        <p>Today we can see clicks and form-fills. Tomorrow we can see <b>which campaign, which keyword, which creative</b> turned into an actual quote and an actual sale.</p>
+      </div>
+      <div class="unlocks-grid">
+        <div class="unlock">
+          <h4>Ad &rarr; Sale attribution</h4>
+          <p>Every quote-form submission tagged with the originating ad source. We&rsquo;ll know exactly which Google / Bing campaigns produced real revenue, not just clicks.</p>
+        </div>
+        <div class="unlock">
+          <h4>True cost-per-customer</h4>
+          <p>Ad spend divided by closed-won deals, not form-fills. We can finally answer &ldquo;is this campaign profitable?&rdquo; instead of guessing from CTR.</p>
+        </div>
+        <div class="unlock">
+          <h4>Quote-value-by-source breakdown</h4>
+          <p>Are inbound leads from Bing worth more than Google? Are referrals 3&times; the average? The HubSpot deal pipeline answers this in one query once it&rsquo;s synced.</p>
+        </div>
+        <div class="unlock">
+          <h4>Lead velocity + sales-cycle length</h4>
+          <p>How long from form-fill to quote to close? Where do leads stall? With deal-stage timestamps we can spot the bottleneck and fix it.</p>
+        </div>
+        <div class="unlock">
+          <h4>Killer-content + killer-page reports</h4>
+          <p>Which landing pages produce the highest-value deals? Which blog posts? Reroute SEO + ad budget to whatever&rsquo;s actually closing.</p>
+        </div>
+        <div class="unlock">
+          <h4>Lost-deal pattern recognition</h4>
+          <p>Which lost deals share an industry, geography, or part type? The HubSpot API gives us deal &times; reason data we can&rsquo;t see today.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="placeholder-table" aria-hidden="true">
+      <div class="pt-h">Form Submissions &mdash; Last 14 Days <span style="color:var(--gray-600);font-weight:400;font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;margin-left:8px">layout preview</span></div>
+      <table class="pt-table">
+        <thead><tr><th>Received</th><th>Lead</th><th>Part Type</th><th>Est. Value</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>&mdash;</td><td><div class="name">&mdash;</div><div class="co">company</div></td><td>&mdash;</td><td class="v">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>&mdash;</td><td><div class="name">&mdash;</div><div class="co">company</div></td><td>&mdash;</td><td class="v">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>&mdash;</td><td><div class="name">&mdash;</div><div class="co">company</div></td><td>&mdash;</td><td class="v">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>&mdash;</td><td><div class="name">&mdash;</div><div class="co">company</div></td><td>&mdash;</td><td class="v">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>&mdash;</td><td><div class="name">&mdash;</div><div class="co">company</div></td><td>&mdash;</td><td class="v">&mdash;</td><td>&mdash;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <div>BUILT <b>13 APR 2026</b> &middot; STATUS <b>OFFLINE</b> &middot; OWNER <b>KAS &middot; LEO</b></div>
+    <div><a href="tracker-dashboard.html">&larr; back to growth tracker</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

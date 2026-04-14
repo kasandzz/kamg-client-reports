@@ -351,6 +351,24 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
 /* Placeholder flag inline in KPI sub */
 .placeholder-flag{display:inline-block;font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber-text);background:var(--amber-soft);padding:1px 6px;border-radius:99px;margin-left:6px;vertical-align:middle}
 
+/* Source attribution chip — every number must trace to a source */
+.src-tag{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);background:var(--gray-100);border:1px solid var(--gray-200);padding:2px 7px;border-radius:99px;margin-top:6px;line-height:1.3;white-space:nowrap}
+.src-tag::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gray-400)}
+.src-tag.live::before{background:var(--green);animation:pulse 2s infinite}
+.src-tag.live{color:var(--green-text);background:var(--green-soft);border-color:rgba(31,157,85,0.2)}
+.src-tag.placeholder::before{background:var(--amber)}
+.src-tag.placeholder{color:var(--amber-text);background:var(--amber-soft);border-color:rgba(199,119,0,0.2)}
+.src-tag.manual::before{background:var(--blue)}
+.src-tag.manual{color:var(--blue);background:var(--blue-soft);border-color:rgba(31,95,204,0.2)}
+.kpi-src{margin-top:6px;display:flex}
+.focus-meta .src{font-family:var(--mono);font-size:10px;color:var(--gray-600);font-weight:600;font-style:italic}
+.focus-meta .src::before{content:"src: "}
+.sources-card{margin-top:18px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:18px 22px;box-shadow:var(--shadow-sm)}
+.sources-card h4{font-family:var(--display);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-900);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sources-card h4::before{content:"";width:3px;height:12px;background:var(--red)}
+.sources-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 18px;font-size:11px;color:var(--gray-600);font-family:var(--mono);line-height:1.45}
+.sources-list b{color:var(--gray-900);font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+
 /* Awaiting-from-Eric strip */
 .eric-strip{margin-top:18px;background:linear-gradient(135deg,#fff 0%,var(--red-soft) 220%);border:1px solid rgba(178,30,36,0.22);border-left:4px solid var(--red);border-radius:var(--radius);padding:18px 24px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;box-shadow:var(--shadow-sm)}
 .eric-strip-l{display:flex;flex-direction:column;gap:4px;min-width:200px}
@@ -442,6 +460,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
     </div>
     <div class="topbar-meta">
       <span class="live-pill">Live</span>
+      <a class="item" href="lead-tracker.html" style="opacity:0.55;text-decoration:none;color:var(--gray-600);border:1px dashed var(--gray-300);border-radius:99px;padding:4px 10px">LEAD TRACKER <b style="color:var(--amber-text)">OFFLINE</b></a>
       <div class="item">UPDATED <b>13 APR 2026</b></div>
       <div class="item">RHYTHM <b>MON &middot; THU</b></div>
       <div class="item">OWNER <b>KAS &middot; LEO</b></div>
@@ -454,119 +473,73 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
   <div class="wrap hero-inner">
     <div class="hero-eyebrow"><span class="bar"></span>Q2 2026 &middot; SPRINT VIEW</div>
     <h1>Growth <em>Tracker</em><br>built to ship,<br>not to admire.</h1>
-    <p>Live dashboard replacing the Google Sheet. Lead pipeline up top, the eight-item focus list for the next 30 days, full Gantt with workstream grouping, and accordion drawers for everything else. Toggle <b>Show Done</b> on the Gantt to see what's already shipped &mdash; <b>10 wins</b> since Mar 17 kickoff.</p>
+    <p>Live dashboard replacing the Google Sheet. Eight-item focus list for the next 30 days, full Gantt with workstream grouping, accordion drawers for everything else. Toggle <b>Show Done</b> on the Gantt to see what's already shipped &mdash; <b>14 wins</b> since Mar 10 kickoff. <a href="lead-tracker.html" style="color:var(--amber-text);font-weight:600">Lead Tracker is offline &rarr;</a></p>
 
     <div class="kpi-strip">
       <div class="kpi">
-        <div class="kpi-label">Pipeline</div>
-        <div class="kpi-val red">$1.04M</div>
-        <div class="kpi-sub">open opportunity value <em class="placeholder-flag">placeholder</em></div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Leads MTD</div>
-        <div class="kpi-val blue">47</div>
-        <div class="kpi-sub"><span class="kpi-trend">&uarr; 32% MoM</span></div>
+        <div class="kpi-label">Shipped</div>
+        <div class="kpi-val green">14</div>
+        <div class="kpi-sub">deliverables since Mar 10</div>
+        <div class="kpi-src"><span class="src-tag manual">Completed log &middot; verified</span></div>
       </div>
       <div class="kpi">
         <div class="kpi-label">Active Now</div>
         <div class="kpi-val amber">8</div>
         <div class="kpi-sub">in next 30 days</div>
+        <div class="kpi-src"><span class="src-tag manual">This dashboard &middot; Mon/Thu</span></div>
       </div>
       <div class="kpi">
-        <div class="kpi-label">Shipped</div>
-        <div class="kpi-val green">10</div>
-        <div class="kpi-sub"><span class="kpi-trend">&uarr; since Mar 17</span></div>
+        <div class="kpi-label">New LPs queued</div>
+        <div class="kpi-val red">9</div>
+        <div class="kpi-sub">7 service + 2 geo (India, Mexico)</div>
+        <div class="kpi-src"><span class="src-tag manual">Daniel Hall brief &middot; Apr 13</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Cold email infra</div>
+        <div class="kpi-val">15</div>
+        <div class="kpi-sub">inboxes warming &middot; 5 domains</div>
+        <div class="kpi-src"><span class="src-tag manual">Lemlist &middot; Apr 2</span></div>
       </div>
       <div class="kpi">
         <div class="kpi-label">Initiatives</div>
         <div class="kpi-val">26</div>
         <div class="kpi-sub">across 5 workstreams</div>
+        <div class="kpi-src"><span class="src-tag manual">Sprint roadmap</span></div>
       </div>
       <div class="kpi">
-        <div class="kpi-label">Backlog</div>
-        <div class="kpi-val">8</div>
-        <div class="kpi-sub">P3 / P4 future</div>
+        <div class="kpi-label">Pipeline</div>
+        <div class="kpi-val">&mdash;</div>
+        <div class="kpi-sub" style="color:var(--amber-text)">awaiting HubSpot API</div>
+        <div class="kpi-src"><span class="src-tag placeholder">Eric needs to enable</span></div>
       </div>
     </div>
 
-    <!-- Awaiting from Eric callout -->
-    <div class="eric-strip" role="note" aria-label="Awaiting from Eric">
+    <!-- What HubSpot API unlocks -->
+    <div class="eric-strip" role="note" aria-label="What HubSpot API unlocks">
       <div class="eric-strip-l">
-        <span class="eric-tag">Awaiting from Eric</span>
-        <span class="eric-sub">3 unblock items &middot; updated Mon Apr 13 by Leo &middot; next refresh Thu Apr 16</span>
+        <span class="eric-tag">HubSpot API &middot; what it unlocks</span>
+        <span class="eric-sub">Eric gave Rehan UI access today &middot; Private App token = closed-loop attribution</span>
       </div>
       <div class="eric-strip-r">
-        <div class="eric-item"><b>1.</b> Stack 3 hero copy sign-off <span class="wait">3d waiting</span></div>
-        <div class="eric-item"><b>2.</b> HubSpot Private App token <span class="wait">5d waiting</span></div>
-        <div class="eric-item"><b>3.</b> GSC + GA4 owner access <span class="wait">2d waiting</span></div>
+        <div class="eric-item"><b>&rarr;</b> Which ads drive <b>actual sales</b>, not just clicks <span class="wait">unlock</span></div>
+        <div class="eric-item"><b>&rarr;</b> True <b>cost-per-customer</b> by source <span class="wait">unlock</span></div>
+        <div class="eric-item"><b>&rarr;</b> Quote-value-by-source &amp; lost-deal patterns <span class="wait">unlock</span></div>
       </div>
     </div>
   </div>
 </header>
 
-<!-- ==================== LEAD TRACKER ==================== -->
+<!-- ==================== LEAD TRACKER (moved to its own page) ==================== -->
 <section class="section">
   <div class="wrap">
-    <div class="section-head">
+    <a href="lead-tracker.html" style="display:block;text-decoration:none;background:linear-gradient(135deg,#fff 0%,var(--amber-soft) 260%);border:1px solid rgba(199,119,0,0.3);border-left:5px solid var(--amber);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center">
       <div>
-        <div class="section-eyebrow"><span class="bar"></span>Inbound Pipeline</div>
-        <h2 class="section-h">Live <em>Lead Tracker</em></h2>
+        <div style="font-family:var(--mono);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber-text);margin-bottom:8px">Lead Tracker &middot; OFFLINE</div>
+        <div style="font-family:var(--display);font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:6px">Live lead tracker is on its own page &mdash; coming online soon.</div>
+        <div style="font-size:13px;color:var(--gray-700);max-width:680px">Eric gave Rehan HubSpot UI access today. Once Eric enables the <b>Private App / API access</b>, every quote-form submission flows in with full ad-source attribution. <span style="color:var(--amber-text);font-weight:700">~24h after token issued.</span></div>
       </div>
-      <p class="section-desc">Auto-synced from quote form submissions. <b style="color:var(--amber-text)">Placeholder data</b> &mdash; wire to HubSpot webhook in Phase 2.</p>
-    </div>
-    <div class="provenance">
-      <span><b>Sources:</b></span>
-      <span class="src live">Google Ads API</span>
-      <span class="src">HubSpot &middot; Phase 2</span>
-      <span class="src">Manual &middot; Mon &middot; Thu by Leo</span>
-      <span class="src">GSC + GA4 &middot; pending Eric access</span>
-    </div>
-
-    <div class="leads-grid">
-      <div class="card">
-        <div class="card-head">
-          <h3><span class="live-pill">Live</span>Form Submissions &mdash; Last 14 Days</h3>
-          <div class="meta">SOURCE &middot; redstonemanufacturing.com/quote</div>
-        </div>
-        <table class="leads-table">
-          <thead>
-            <tr><th>Received</th><th>Lead</th><th>Part Type</th><th>Est. Value</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            <tr><td class="lead-time">APR 13 &middot; 09:42</td><td><div class="lead-name">Marcus Holden</div><div class="lead-co">Velocity Defense Systems</div></td><td>Aluminium brackets &middot; 8K units</td><td class="lead-val">$124,000</td><td><span class="pill pill-new">New</span></td></tr>
-            <tr><td class="lead-time">APR 12 &middot; 16:18</td><td><div class="lead-name">Sarah Kim</div><div class="lead-co">Northshore Medical Devices</div></td><td>Titanium housings &middot; 2.5K units</td><td class="lead-val">$87,500</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
-            <tr><td class="lead-time">APR 12 &middot; 11:07</td><td><div class="lead-name">David Brennan</div><div class="lead-co">Tetra Industrial Controls</div></td><td>Steel die casts &middot; 15K units</td><td class="lead-val">$210,000</td><td><span class="pill pill-quoted">Quoted</span></td></tr>
-            <tr><td class="lead-time">APR 11 &middot; 14:33</td><td><div class="lead-name">Priya Venkatesh</div><div class="lead-co">Halcyon Aerospace</div></td><td>Precision machined &middot; 500 units</td><td class="lead-val">$64,800</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
-            <tr><td class="lead-time">APR 10 &middot; 08:51</td><td><div class="lead-name">James Whitaker</div><div class="lead-co">Ironside Automotive Group</div></td><td>Zinc die cast &middot; 20K units</td><td class="lead-val">$312,000</td><td><span class="pill pill-won">Won</span></td></tr>
-            <tr><td class="lead-time">APR 09 &middot; 13:22</td><td><div class="lead-name">Elena Rodriguez</div><div class="lead-co">Crestline Robotics</div></td><td>Custom brackets &middot; 4K units</td><td class="lead-val">$56,200</td><td><span class="pill pill-quoted">Quoted</span></td></tr>
-            <tr><td class="lead-time">APR 08 &middot; 10:15</td><td><div class="lead-name">Robert Chen</div><div class="lead-co">Meridian Power Systems</div></td><td>Aluminium heat sinks &middot; 12K</td><td class="lead-val">$145,000</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="leads-stats">
-        <div class="stat">
-          <div class="stat-lbl">Leads This Week</div>
-          <div class="stat-v">12</div>
-          <div class="stat-foot">&uarr; 41% vs last week</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Pipeline Value</div>
-          <div class="stat-v">$999K</div>
-          <div class="stat-foot">&uarr; $218K week-on-week</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Avg Quote Value</div>
-          <div class="stat-v">$142K</div>
-          <div class="stat-foot">&uarr; 8% vs last month</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Quote &rarr; Won</div>
-          <div class="stat-v">28%</div>
-          <div class="stat-foot dim">target: 35%</div>
-        </div>
-      </div>
-    </div>
+      <div style="font-family:var(--display);font-size:14px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap">View page &rarr;</div>
+    </a>
   </div>
 </section>
 
@@ -597,11 +570,11 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">01</div>
         <div>
           <div class="focus-title">Homepage Stack 3 &mdash; production launch &nbsp;<span class="pill-overdue">Overdue +3d</span></div>
-          <div class="focus-sub">Staging at /updated-home/ &middot; awaiting "American made" copy sign-off</div>
+          <div class="focus-sub">Staging live at <a href="https://redstonemanufacturing.com/updated-home/" target="_blank" style="color:var(--gray-900)">/updated-home/</a> &middot; Daniel flagged "comparison-site feel, prove the 'vetted' claim" Apr 11 &middot; awaiting Eric copy sign-off</div>
           <div class="focus-meta">
-            <span class="next">Next: <b>Eric approves hero copy</b></span>
+            <span class="next">Next: <b>Eric approves hero copy + Daniel "vetted" proof block</b></span>
             <span class="blockedby">Blocked by: Eric &middot; 3d</span>
-            <span class="impact">Impact: ~+15% homepage CVR</span>
+            <span class="impact">Impact: clearer hero copy doubled CVR (5.3%&rarr;11.1%) in <a href="https://unbounce.com/conversion-rate-optimization/b2b-conversion-rates/" target="_blank" style="color:var(--gray-900);text-decoration:underline">Unbounce 2024</a> B2B dataset</span>
           </div>
         </div>
         <div class="owners"><div class="own rh">RH</div><div class="own ms">MS</div><div class="own er">ER</div></div>
@@ -613,10 +586,10 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">02</div>
         <div>
           <div class="focus-title">Quote form &mdash; final 3 items</div>
-          <div class="focus-sub">Prototype helper text + 2 HubSpot field verifications &middot; <b class="amber">16 of 19 already shipped</b></div>
+          <div class="focus-sub"><b class="amber">16 of 19 shipped Apr 10</b> (Montserrat font, "Your Parts" rename, file types PDF/STP/STEP/DXF, region list, ISO 9001 label, phone optional, trust logos removed). Open: prototype helper text + manuf. process list verify + estimated-spend ranges vs legacy HubSpot</div>
           <div class="focus-meta">
             <span class="next">Next: <b>Rehan ships helper-text variant</b></span>
-            <span class="impact">Impact: ~+8&ndash;12% form completion</span>
+            <span class="impact">Impact: each removed field ~+4.1% completion (<a href="https://baymard.com/learn/input-fields" target="_blank" style="color:var(--gray-900);text-decoration:underline">Baymard</a>); top-aligned labels read 28% faster</span>
           </div>
         </div>
         <div class="owners"><div class="own rh">RH</div><div class="own ka">KA</div></div>
@@ -627,11 +600,11 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
       <div class="focus-row">
         <div class="focus-num">03</div>
         <div>
-          <div class="focus-title">Niche LP #1 &mdash; Defense / Aerospace</div>
-          <div class="focus-sub">Service-page agent brief ready &middot; Daniel keyword cluster + Jack SEO sign-off pending</div>
+          <div class="focus-title">Service + Geo Landing Pages &mdash; 9 new pages</div>
+          <div class="focus-sub">Daniel Hall briefs finalised Apr 13. <b>7 service pages</b> (Custom Sheet Metal, CNC, Precision Machining, Custom CNC, CNC Machining Co, Custom Machining, Die Casting) + <b>2 geo</b> (India $9.87 CPC, Mexico). Mandatory trust bar: "ISO 9001 / IATF 16949 Certified Foundries Only"</div>
           <div class="focus-meta">
-            <span class="next">Next: <b>Daniel ships keyword cluster</b></span>
-            <span class="impact">Impact: $80&ndash;150K avg quote per win</span>
+            <span class="next">Next: <b>LP-builder agent ships first 2 service pages</b></span>
+            <span class="impact">Impact: covers highest-CPC ad groups; India + Mexico pages required for current Google Ads geo split</span>
           </div>
         </div>
         <div class="owners"><div class="own dh">DH</div><div class="own jk">JK</div><div class="own ka">KA</div></div>
@@ -643,10 +616,10 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">04</div>
         <div>
           <div class="focus-title">Bing Ads launch</div>
-          <div class="focus-sub">Mirror Google Search structure &middot; 79 keywords &middot; Daniel owns build</div>
+          <div class="focus-sub">Mirror Google Search structure (79 kw, 5 categories) &middot; Daniel owns build &middot; "Protolabs Mexico bait-and-switch" angle per Eric Apr 4</div>
           <div class="focus-meta">
             <span class="next">Next: <b>Daniel imports Google campaigns</b></span>
-            <span class="impact">Impact: ~+15&ndash;25 leads/mo</span>
+            <span class="impact">Impact: ~33% lower CPC + ~50% higher CTR in B2B (<a href="https://www.wordstream.com/blog/ws/2017/11/06/bing-ads-performance-benchmarks" target="_blank" style="color:var(--gray-900);text-decoration:underline">WordStream</a>)</span>
           </div>
         </div>
         <div class="owners"><div class="own dh">DH</div></div>
@@ -658,10 +631,10 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">05</div>
         <div>
           <div class="focus-title">PostHog / Hotjar &mdash; full event taxonomy</div>
-          <div class="focus-sub">GTM install in progress &middot; need form-fill + scroll-depth + replay events live</div>
+          <div class="focus-sub">Account created Apr 9 &middot; GTM install in progress (Rehan) &middot; need form-fill + scroll-depth + replay events live before A/B program can start</div>
           <div class="focus-meta">
             <span class="next">Next: <b>Rehan publishes GTM container</b></span>
-            <span class="impact">Impact: unlocks CRO test program</span>
+            <span class="impact">Impact: unlocks LP A/B testing + recording-driven CRO</span>
           </div>
         </div>
         <div class="owners"><div class="own rh">RH</div></div>
@@ -673,10 +646,10 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">06</div>
         <div>
           <div class="focus-title">SEO recovery &mdash; sprint 2 execution</div>
-          <div class="focus-sub">Jack roadmap exec &middot; technical fixes + content cluster #1 (Die Casting Mexico)</div>
+          <div class="focus-sub">Jack roadmap exec &middot; technical fixes + content cluster #1 (Die Casting Mexico) &middot; root-cause Sep-Nov drop + China supplier outranking still unresolved</div>
           <div class="focus-meta">
-            <span class="next">Next: <b>Jack publishes cluster brief</b></span>
-            <span class="impact">Impact: organic recovery target +30%</span>
+            <span class="next">Next: <b>Jack publishes cluster brief + Adam changelog retrospective</b></span>
+            <span class="impact">Impact: address China-supplier "Die Casting Mexico" SERP loss flagged Apr 9</span>
           </div>
         </div>
         <div class="owners"><div class="own jk">JK</div></div>
@@ -688,11 +661,11 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-num">07</div>
         <div>
           <div class="focus-title">Data warehouse &mdash; Phase 1 ingest</div>
-          <div class="focus-sub">GSC + GA4 + HubSpot &rarr; BigQuery &middot; <b class="amber">blocked on Eric GSC owner access</b></div>
+          <div class="focus-sub">GSC + GA4 + HubSpot &rarr; BigQuery &middot; PRD shared Mar 31 &middot; <b class="amber">blocked on Eric GSC owner access + HubSpot Private App</b></div>
           <div class="focus-meta">
-            <span class="next">Next: <b>Eric grants GSC + GA4 owner</b></span>
+            <span class="next">Next: <b>Eric grants GSC + GA4 owner + enables HubSpot API</b></span>
             <span class="blockedby">Blocked by: Eric &middot; 2d</span>
-            <span class="impact">Impact: unlocks reporting layer</span>
+            <span class="impact">Impact: unlocks lead tracker + closed-loop ad attribution</span>
           </div>
         </div>
         <div class="owners"><div class="own ka">KA</div><div class="own er">ER</div></div>
@@ -703,11 +676,11 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
       <div class="focus-row">
         <div class="focus-num">08</div>
         <div>
-          <div class="focus-title">Rachel cold-email list build</div>
-          <div class="focus-sub">Defense / aerospace ICP scrape &middot; 5K verified contacts &middot; first send week of May 5</div>
+          <div class="focus-title">Cold email &mdash; warmup &rarr; first send</div>
+          <div class="focus-sub">5 domains live (redstone-mfg.com, redstonemfg.co, redstonemanufacturing.co, redstonemanufacture.com, redstonemachining.com) &middot; 15 inboxes warming on Lemlist since Apr 2 &middot; rules: no eric@, lean alec@/sales@/info@/Manuel@/Jose@</div>
           <div class="focus-meta">
-            <span class="next">Next: <b>Rachel finalises ICP filters</b></span>
-            <span class="impact">Impact: ~+30 SQL/mo target</span>
+            <span class="next">Next: <b>Rachel finalises ICP list, first send week of May 5</b></span>
+            <span class="impact">Impact: 5-6% B2B avg reply rate, 15%+ top quartile (<a href="https://belkins.io/blog/cold-email-response-rates" target="_blank" style="color:var(--gray-900);text-decoration:underline">Belkins 2025</a>)</span>
           </div>
         </div>
         <div class="owners"><div class="own rg">RG</div><div class="own ka">KA</div></div>
@@ -767,7 +740,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
       <div class="gantt-toolbar">
         <div class="gantt-toolbar-l">WEEK <b>15</b> &middot; APR 13 &mdash; AUG 02 &middot; <b>16 WEEKS</b></div>
         <div class="gantt-toolbar-r">
-          <label class="toggle" for="showDone"><span>Show Done</span><span class="count">(10 shipped)</span><span class="switch"></span></label>
+          <label class="toggle" for="showDone"><span>Show Done</span><span class="count">(14 shipped)</span><span class="switch"></span></label>
         </div>
       </div>
 
@@ -794,25 +767,34 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
       </div>
 
       <!-- SEO RECOVERY -->
-      <div class="gantt-group seo"><span class="marker"></span>SEO RECOVERY <span class="count">3 ACTIVE &middot; 1 DONE</span></div>
+      <div class="gantt-group seo"><span class="marker"></span>SEO RECOVERY <span class="count">3 ACTIVE &middot; 2 DONE</span></div>
 
-      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">SEO Investigation Report</span><div class="own jk">JK</div></div>
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">SEO Forensic Report (Mar 29)</span><div class="own jk">JK</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 29</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">SEO Investigation Report v2</span><div class="own jk">JK</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 6</div></div></div>
 
       <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Google SEO Recovery &mdash; sprint 2+</span><div class="own jk">JK</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:43.75%">P0 &middot; 7w</div></div></div>
 
-      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Niche / Service LPs (8 pages)</span><div class="own dh">DH</div></div>
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Service + Geo LPs (9 pages: 7 service + India + Mexico)</span><div class="own dh">DH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:50%">P0 &middot; 8w</div></div></div>
 
       <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Bing SEO (parallel)</span><div class="own jk">JK</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:18.75%;width:31.25%">P0 &middot; 5w</div></div></div>
 
       <!-- PAID ADS -->
-      <div class="gantt-group ads"><span class="marker"></span>PAID ADS <span class="count">3 ACTIVE &middot; 1 DONE</span></div>
+      <div class="gantt-group ads"><span class="marker"></span>PAID ADS <span class="count">3 ACTIVE &middot; 3 DONE</span></div>
 
-      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Ads &mdash; initial launch</span><div class="own dh">DH</div></div>
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Ads &mdash; initial launch (79 kw / 5 cats)</span><div class="own dh">DH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 10</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Ads competitive intel + Eric/Daniel briefs</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 9</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Negative kw cleanup (3,409 &rarr; 7,044)</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 18</div></div></div>
 
       <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Google Ads &mdash; ongoing optimisation</span><div class="own dh">DH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:62.5%">P0 &middot; ongoing</div></div></div>
@@ -824,12 +806,18 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:15.625%;width:43.75%">P0 &middot; 7w</div></div></div>
 
       <!-- WEBSITE & CRO -->
-      <div class="gantt-group web"><span class="marker"></span>WEBSITE &amp; CRO <span class="count">3 ACTIVE &middot; 2 DONE</span></div>
+      <div class="gantt-group web"><span class="marker"></span>WEBSITE &amp; CRO <span class="count">3 ACTIVE &middot; 4 DONE</span></div>
 
-      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">WordPress maintenance fix</span><div class="own rh">RH</div></div>
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">GTM tracking fix + 6-month strategy doc</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 18</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Homepage Stack 3 staging build (/updated-home/)</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">STAGING APR 10</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">WordPress maintenance + Link Whisper fix (31 plugins)</span><div class="own rh">RH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 9</div></div></div>
 
-      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Quote form redesign 16/19</span><div class="own rh">RH</div></div>
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Quote form redesign 16/19 (Eric checklist)</span><div class="own rh">RH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 10</div></div></div>
 
       <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Homepage Stack 3 launch</span><div class="own rh">RH</div></div>
@@ -842,13 +830,25 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p1" style="left:25%;width:25%">P1 &middot; 4w</div></div></div>
 
       <!-- LEADS & SALES -->
-      <div class="gantt-group leads"><span class="marker"></span>LEADS &amp; SALES <span class="count">2 ACTIVE &middot; 2 DONE</span></div>
+      <div class="gantt-group leads"><span class="marker"></span>LEADS &amp; SALES <span class="count">3 ACTIVE &middot; 5 DONE</span></div>
 
-      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Cold email infra (5 dom &middot; 15 inbox)</span><div class="own ka">KA</div></div>
-        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 2</div></div></div>
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Haab in-person deep-dive (Eric + Rachel)</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 31</div></div></div>
 
       <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Reviews velocity pack</span><div class="own ka">KA</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 31</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">5 cold email domains + Workspace setup</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 1</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Lemlist provision &mdash; 5 seats / 15 inboxes warming</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 2</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">PostHog account + GTM kickoff</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 9</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Rachel ICP list build &amp; first send</span><div class="own rg">RG</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:25%">P0 &middot; 4w</div></div></div>
 
       <div class="gantt-row"><div class="gantt-label"><span class="pri p1"></span><span class="t">PostHog / Hotjar full setup</span><div class="own rh">RH</div></div>
         <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p1" style="left:9.375%;width:18.75%">P1 &middot; 3w</div></div></div>
@@ -885,18 +885,23 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <span class="acc-arrow"></span>
           <span class="acc-marker"></span>
           <span class="acc-title">SEO Recovery</span>
-          <span class="acc-meta"><span class="chip active">3 active</span><span class="chip done">1 done</span></span>
+          <span class="acc-meta"><span class="chip active">3 active</span><span class="chip done">2 done</span></span>
         </summary>
         <div class="acc-body">
           <div class="task">
             <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
-            <div class="task-t">Google SEO Recovery &mdash; sprint 2+</div>
+            <div class="task-t">Google SEO Recovery &mdash; sprint 2+ (China supplier "Die Casting Mexico" SERP loss)</div>
             <div class="task-foot"><div class="left"><div class="own jk">JK</div></div><div class="right">7w</div></div>
           </div>
           <div class="task">
             <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
-            <div class="task-t">Niche / Service LPs (8 pages)</div>
+            <div class="task-t">Service Pages &times; 7: Sheet Metal Fab, CNC Mfg, Precision Machining, Custom CNC, CNC Machining Co, Custom Machining, Die Casting</div>
             <div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own jk">JK</div></div><div class="right">8w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Geo Pages &times; 2: India ($9.87 CPC) + Mexico (dedicated location campaign)</div>
+            <div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right">3w</div></div>
           </div>
           <div class="task">
             <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
@@ -1008,10 +1013,14 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <span class="acc-arrow"></span>
           <span class="acc-marker"></span>
           <span class="acc-title">Completed &mdash; shipped since kickoff</span>
-          <span class="acc-meta"><span class="chip done">10 shipped</span><span class="chip">since Mar 17</span></span>
+          <span class="acc-meta"><span class="chip done">14 shipped</span><span class="chip">since Mar 10</span></span>
         </summary>
         <div class="acc-body">
-          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads-launch-summary.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 10</div></div><div class="task-t">Google Ads &mdash; initial campaign launch</div><div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right"><span class="proof">View report</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads-launch-summary.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 10</div></div><div class="task-t">Google Ads &mdash; initial campaign launch (79 kw / 5 cats)</div><div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right"><span class="proof">View report</span></div></div></a>
+
+          <a class="task done-task" href="#" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 18</div></div><div class="task-t">GTM tracking fix + 6-Month Strategy doc</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">Internal doc</span></div></div></a>
+
+          <a class="task done-task" href="#" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 29</div></div><div class="task-t">SEO Forensic Report (initial)</div><div class="task-foot"><div class="left"><div class="own jk">JK</div></div><div class="right"><span class="proof">View report</span></div></div></a>
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/haab-deep-dive-notes.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 31</div></div><div class="task-t">In-person deep-dive (Eric + Rachel @ Haab)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View notes</span></div></div></a>
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-reviews-velocity.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 31</div></div><div class="task-t">Google Reviews velocity package</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View package</span></div></div></a>
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/cold-email-infra.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 2</div></div><div class="task-t">Cold email infra (5 domains &middot; 15 inboxes)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View setup</span></div></div></a>
@@ -1020,7 +1029,9 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads-competitive-intel.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">Google Ads competitive intel report</div><div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own ka">KA</div></div><div class="right"><span class="proof">View report</span></div></div></a>
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-daniel-ads-brief.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">Eric &amp; Daniel Google Ads briefings</div><div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own ka">KA</div></div><div class="right"><span class="proof">View brief</span></div></div></a>
           <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/posthog-gtm-kickoff.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">PostHog account + GTM kickoff</div><div class="task-foot"><div class="left"><div class="own rh">RH</div></div><div class="right"><span class="proof">View setup</span></div></div></a>
-          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 10</div></div><div class="task-t">Quote form redesign (16 of 19 items)</div><div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own rg">RG</div></div><div class="right"><span class="proof">View demo</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 10</div></div><div class="task-t">Quote form redesign (16 of 19 items, Eric checklist)</div><div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own rg">RG</div></div><div class="right"><span class="proof">View demo</span></div></div></a>
+
+          <a class="task done-task" href="https://redstonemanufacturing.com/updated-home/" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">STAGING APR 10</div></div><div class="task-t">Homepage Stack 3 staging build (/updated-home/)</div><div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own ms">MS</div></div><div class="right"><span class="proof">View staging</span></div></div></a>
         </div>
       </details>
 

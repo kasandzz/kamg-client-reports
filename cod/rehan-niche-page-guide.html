@@ -1,304 +1,656 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rehan Guide — COD Niche LP Build & Launch Protocol</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>COD Niche LP Copy Patches — 2026-04-14</title>
 <style>
-  :root {
-    --bg: #0b0d10;
-    --bg-card: #12161b;
-    --bg-elev: #181d23;
-    --border: #242b33;
-    --text: #e6ebf0;
-    --text-dim: #9aa5b1;
-    --text-faint: #6b7480;
-    --accent: #7dd3fc;
-    --accent-soft: #1e3a52;
-    --red: #f87171;
-    --red-soft: #3a1d1d;
-    --green: #4ade80;
-    --green-soft: #16371f;
-    --yellow: #fbbf24;
-    --mono: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  :root{
+    --bg:#0a0c10;--panel:#11141b;--panel-2:#161a23;--line:#1f2430;
+    --ink:#e8ecf4;--ink-dim:#9aa3b2;--ink-mute:#6b7385;
+    --accent:#8ab4ff;--warn:#ffb454;--bad:#ff6b6b;--good:#6ee7a0;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    font-size: 15px;
-    line-height: 1.65;
-    padding: 48px 24px 96px;
-  }
-  .container { max-width: 820px; margin: 0 auto; }
-  header { border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 40px; }
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--accent);
-    margin-bottom: 10px;
-  }
-  h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 12px; }
-  .meta { font-size: 13px; color: var(--text-faint); }
-  .meta span + span::before { content: " · "; margin: 0 4px; }
-  h2 {
-    font-size: 20px; font-weight: 700; margin: 48px 0 16px;
-    padding-bottom: 8px; border-bottom: 1px solid var(--border);
-    letter-spacing: -0.01em;
-  }
-  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
-  p { margin-bottom: 14px; color: var(--text); }
-  p.lead { color: var(--text-dim); font-size: 15px; }
-  strong { color: var(--text); font-weight: 600; }
-  em { color: var(--text-dim); }
-  ul, ol { margin: 12px 0 16px 20px; }
-  li { margin-bottom: 8px; color: var(--text); }
-  code {
-    font-family: var(--mono); font-size: 13px;
-    background: var(--bg-elev); padding: 2px 6px; border-radius: 4px;
-    color: var(--accent); border: 1px solid var(--border);
-  }
-  pre {
-    background: var(--bg-elev); border: 1px solid var(--border);
-    border-radius: 8px; padding: 16px; overflow-x: auto;
-    font-family: var(--mono); font-size: 13px; color: var(--text);
-    margin: 16px 0;
-  }
-  table {
-    width: 100%; border-collapse: collapse; margin: 16px 0;
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
-    overflow: hidden; font-size: 14px;
-  }
-  th {
-    background: var(--bg-elev); text-align: left; padding: 12px 14px;
-    font-weight: 600; color: var(--text-dim); font-size: 12px;
-    text-transform: uppercase; letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 12px 14px; border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
-  tr:last-child td { border-bottom: none; }
-  .callout {
-    background: var(--bg-card); border-left: 3px solid var(--accent);
-    border-radius: 6px; padding: 16px 20px; margin: 20px 0;
-  }
-  .callout.warn { border-left-color: var(--yellow); }
-  .callout.danger { border-left-color: var(--red); background: var(--red-soft); }
-  .callout.good { border-left-color: var(--green); }
-  .callout strong { color: var(--accent); }
-  .callout.warn strong { color: var(--yellow); }
-  .callout.danger strong { color: var(--red); }
-  .callout.good strong { color: var(--green); }
-  .badge {
-    display: inline-block; font-family: var(--mono); font-size: 10px;
-    text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px;
-    border-radius: 3px; margin-right: 6px;
-  }
-  .badge.rule { background: var(--red-soft); color: var(--red); }
-  .badge.process { background: var(--accent-soft); color: var(--accent); }
-  .badge.safe { background: var(--green-soft); color: var(--green); }
-  .checklist { list-style: none; margin-left: 0; }
-  .checklist li {
-    padding-left: 26px; position: relative; margin-bottom: 10px;
-  }
-  .checklist li::before {
-    content: "☐"; position: absolute; left: 0; top: 0;
-    color: var(--text-faint); font-size: 16px;
-  }
-  .rule-no { color: var(--red); font-family: var(--mono); font-weight: 700; }
-  .rule-yes { color: var(--green); font-family: var(--mono); font-weight: 700; }
-  footer {
-    margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border);
-    font-size: 12px; color: var(--text-faint); text-align: center;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  @media (max-width: 640px) {
-    body { padding: 24px 16px 60px; }
-    h1 { font-size: 22px; }
-    h2 { font-size: 17px; }
-    table { font-size: 13px; }
-    th, td { padding: 10px; }
-  }
+  *{box-sizing:border-box}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:960px;margin:0 auto;padding:48px 24px 120px}
+  header{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:40px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--ink-mute);text-transform:uppercase}
+  h1{font-size:32px;line-height:1.15;margin:8px 0 4px;font-weight:700;letter-spacing:-.01em}
+  header .meta{color:var(--ink-dim);font-size:14px;margin-top:8px}
+  h2{font-size:22px;margin:48px 0 16px;letter-spacing:-.005em}
+  h3{font-size:15px;margin:28px 0 8px;color:var(--ink);font-weight:600}
+  h4{font-size:13px;margin:20px 0 6px;color:var(--ink-dim);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+  p{line-height:1.6;color:var(--ink-dim);margin:8px 0}
+  ul,ol{line-height:1.65;color:var(--ink-dim);padding-left:20px}
+  li{margin:4px 0}
+  strong{color:var(--ink)}
+  code{font-family:var(--mono);font-size:12.5px;background:#0d1017;border:1px solid var(--line);padding:1px 6px;border-radius:4px;color:#cfd5e0}
+  .callout{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:16px 20px;margin:16px 0}
+  .callout.warn{border-left-color:var(--warn)}
+  .callout.bad{border-left-color:var(--bad)}
+  .callout.good{border-left-color:var(--good)}
+  .callout p{margin:0;color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--ink-mute);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.1em;background:var(--panel)}
+  td{color:var(--ink)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:2px 8px;border-radius:100px;text-transform:uppercase}
+  .pill.p0{background:rgba(255,107,107,.15);color:#ff8a8a;border:1px solid rgba(255,107,107,.3)}
+  .pill.p1{background:rgba(255,180,84,.12);color:#ffc378;border:1px solid rgba(255,180,84,.25)}
+  .pill.p2{background:rgba(138,180,255,.12);color:#a3c2ff;border:1px solid rgba(138,180,255,.25)}
+  .pill.p3{background:rgba(154,163,178,.1);color:#c5ccda;border:1px solid rgba(154,163,178,.2)}
+  .rules{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin:20px 0}
+  .rules ol{margin:0;padding-left:18px}
+  .rules li{color:var(--ink);margin:6px 0}
+  .rules li span{color:var(--ink-dim)}
+  details.page{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:16px 0;overflow:hidden}
+  details.page[open]{border-color:#2a3243}
+  details.page > summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:14px;user-select:none}
+  details.page > summary::-webkit-details-marker{display:none}
+  details.page > summary::after{content:"+";margin-left:auto;font-family:var(--mono);color:var(--ink-mute);font-size:18px}
+  details.page[open] > summary::after{content:"−"}
+  details.page > summary h2{margin:0;font-size:18px}
+  details.page .body{padding:0 22px 24px;border-top:1px solid var(--line)}
+  .edit{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:18px 0}
+  .edit-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+  .edit-num{font-family:var(--mono);font-size:11px;color:var(--ink-mute);letter-spacing:.08em}
+  .edit-title{font-size:14px;font-weight:600;color:var(--ink)}
+  .loc{color:var(--ink-dim);font-size:13px;margin:4px 0 12px}
+  .ba{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+  @media(min-width:720px){.ba{grid-template-columns:1fr 1fr}}
+  .ba > div{background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .ba .label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .ba .before .label{color:#ff8a8a}
+  .ba .after .label{color:#6ee7a0}
+  .ba p{margin:0;color:var(--ink);font-size:13.5px;line-height:1.55}
+  .changed{font-size:12px;color:var(--ink-mute);margin-top:10px;font-style:italic}
+  .check{list-style:none;padding:0;margin:12px 0 0}
+  .check li{display:flex;align-items:flex-start;gap:10px;padding:6px 0;color:var(--ink);font-size:13.5px;border-top:1px dashed var(--line)}
+  .check li:first-child{border-top:none}
+  .check li::before{content:"☐";color:var(--ink-mute);font-size:16px;line-height:1.2}
+  footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);color:var(--ink-mute);font-size:12px;text-align:center}
+  .critical{background:rgba(255,107,107,.06);border-left-color:var(--bad)!important}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
 <header>
-  <div class="eyebrow">COD · Internal Guide · v1.0</div>
-  <h1>Rehan Guide — COD Niche LP Build & Launch Protocol</h1>
-  <div class="meta">
-    <span>Owner: Kas</span>
-    <span>Audience: Rehan</span>
-    <span>Published: 2026-04-14</span>
-  </div>
+  <div class="eyebrow">COD · Brickellads · Compliance Patch</div>
+  <h1>Niche LP Copy Patches</h1>
+  <div class="meta">Rehan's execution brief · 2026-04-14 · Akari-flagged FTC + brand rules · Russ-endorsed</div>
 </header>
 
-<p class="lead">You're building COD niche landing pages ($27 workshop) for multiple audiences: therapists (live), coaches, attorneys, educators, and more incoming. This guide is the full protocol. Follow it exactly. If something is unclear, ask Kas in DM before you act — do not guess inside GHL.</p>
-
-<div class="callout">
-<strong>Source of truth:</strong> <code>russ-lp-permanent-rules.md</code>. Read that first, every single time you touch a niche page. This guide sits on top of it.
-</div>
-
-<h2>1. Hard rules — never break</h2>
-
-<h3>1a. Copy & messaging (FTC + brand)</h3>
-<p>Akari flagged the following on 2026-04-14. Russ endorsed the catches publicly ("These are all good catches Akari"). They are now permanent rules across <strong>every niche LP</strong> — educators, coaches, attorneys, and any future niche page.</p>
-
-<table>
-<thead>
-<tr><th style="width:45%">Never write <span class="rule-no">✗</span></th><th>Write instead / rule <span class="rule-yes">✓</span></th></tr>
-</thead>
-<tbody>
-<tr><td>"The River <em>method</em>"</td><td>"The River <em>approach</em>". River is an analogy, not a method. Strip "method" wherever it appears.</td></tr>
-<tr><td>"Adapted for educators / attorneys / coaches / [industry]"</td><td>Remove entirely. The workshop is not adapted for any industry. Niche framing lives in the copy — it is not claimed as a product variant.</td></tr>
-<tr><td>"This makes it profitable"</td><td>Remove. Income claim, not verifiable, FTC risk.</td></tr>
-<tr><td>"No new software to master"</td><td>Remove. Not true.</td></tr>
-<tr><td>"Consulting offers"</td><td>"Coaching programs" — matches the actual offer language.</td></tr>
-<tr><td>"Private Q&amp;A"</td><td>"LIVE Q&amp;A" — "private" collides with the 1:1 offer mapping.</td></tr>
-<tr><td>Income-based hooks for avatars who are not income-motivated (e.g. "Teachers want income and freedom")</td><td>Lead with the motivation the avatar actually has. For teachers: impact, classroom control, getting their life back. NOT income.</td></tr>
-</tbody>
-</table>
-
-<h3>1b. Visual & structure</h3>
-<ul>
-<li><strong>Logo</strong> must be the current COD logo on every page. No variants.</li>
-<li><strong>Footer</strong> must be identical across all niche pages: FTC disclaimer block, canonical privacy/terms links, COD address. Copy the footer from the therapist control page — do not rebuild it.</li>
-<li><strong>"Old way vs New way" box</strong> — if the old way is shown first visually, the label on the first block must say "Old way". Match label order to visual order. Do not swap halfway down the page.</li>
-<li><strong>Hook / hero</strong> — every niche page hero must pass Kas's review before it goes live. Do not self-approve niche hero copy.</li>
-</ul>
-
-<h3>1c. Mobile-first</h3>
-<p>90% of COD traffic is mobile. Every change you make gets tested on a real phone (not just the GHL preview) before you mark it done.</p>
-
-<h3>1d. FTC pre-pass</h3>
-<p>Before you hand any niche page to the team for review, run it through the FTC income-claims checker. Save anything the checker misses into a note and ping Kas — those become new permanent rules.</p>
-
-<h2>2. Launch communication protocol — never break</h2>
-
 <div class="callout warn">
-<strong>Hard rule from Akari 2026-04-14:</strong><br>
-<em>"I shouldn't have to ask. If you launched something, you should communicate that before being asked."</em>
+  <p><strong>Read this first.</strong> Akari flagged copy on 2026-04-14. Russ publicly endorsed the catches ("These are all good catches Akari"). These rules are now permanent on every niche LP — educators, coaches, attorneys, and any future niche page. Move slow. When in doubt, stop and ask Kas.</p>
 </div>
 
-<p><strong>Every time you launch, change, or end anything</strong> — a split test, a new variant, an ad asset swap, a GHL automation toggle — you post a one-line note in <code>#brickellads-clients-on-demand-pedro</code>.</p>
-
-<pre>Launching now: [what] on [which URL]. Test vs [control URL]. Traffic split [X/Y]. No ads-side changes.</pre>
-
-<p>Posting the note takes 20 seconds. Not posting it costs the team trust. Non-negotiable.</p>
-
-<h2>3. The "delete" rule — never break</h2>
-
-<div class="callout danger">
-<strong>You do not use "delete" inside GHL. Ever.</strong>
+<h2>The 7 hard rules — never break</h2>
+<div class="rules">
+  <ol>
+    <li><strong>Never:</strong> "The River <em>method</em>" <span>→ write "The River <em>approach</em>". River is an analogy, not a method.</span></li>
+    <li><strong>Never:</strong> "adapted for [industry]" <span>→ remove entirely. Niche framing lives in the copy, not as a product variant.</span></li>
+    <li><strong>Never:</strong> "this makes it profitable" or any income claim <span>→ remove. FTC risk.</span></li>
+    <li><strong>Never:</strong> "no new software to master" <span>→ remove. Not true.</span></li>
+    <li><strong>Never:</strong> "consulting offers" <span>→ write "coaching programs".</span></li>
+    <li><strong>Never:</strong> "private Q&amp;A" <span>→ write "LIVE Q&amp;A".</span></li>
+    <li><strong>Never:</strong> income hooks for teachers <span>→ lead with impact, classroom control, getting their life back. NOT income.</span></li>
+  </ol>
 </div>
 
-<p>If a split test needs to end: <strong>end the test, then create a new variant with a new URL.</strong> Do not delete the prior variant. Do not delete the registration page. Do not delete a split test that "looks inactive" — if traffic split is 100% on control, that is a deliberate setting, not a finished test.</p>
-
-<p>Matt Freeman has your back on this — if you are unsure whether ending a test will remove something important, message Matt FIRST in <code>#brickellads</code> or DM. Two-minute check saves an hour of recreation.</p>
-
-<p><em>Context: on 2026-04-13, <code>registration2</code> appeared deleted. It wasn't — a new test overwrote it. It cost the team an hour and hit the trust ledger. Don't repeat.</em></p>
-
-<h2>4. Split-test infrastructure</h2>
-
-<h3>4a. Tracking (PostHog is the goal)</h3>
-<p>Kas and Matt are moving niche-page split tests to <strong>PostHog Option B</strong> (anti-flash installation) for accuracy. Until Kas confirms PostHog is live on a given page:</p>
-<ul>
-<li>Use GHL default split testing</li>
-<li>Count page views + registrations from GHL + cross-reference Meta Ads Manager</li>
-<li>Do NOT self-install PostHog or touch Google Tag Manager. Ask Kas or Matt.</li>
-</ul>
-
-<h3>4b. URL integrity</h3>
-<p>Every split test must run on the URL that ads actually drive traffic to. Before you launch a test, check the Meta ad set destination URL. If ads point at <code>clientsondemand.live/registration2</code> but you set up the test on <code>clientsondemand.live/hto-workshop</code>, the test captures no data.</p>
-<p><em>This happened on 2026-04-13 for coaches — fix in progress.</em></p>
-
-<h3>Pre-launch checklist</h3>
-<ul class="checklist">
-<li>Ads destination URL confirmed</li>
-<li>Split-test setup matches ads destination URL</li>
-<li>Test purchase completed on mobile AND desktop</li>
-<li>Page passes FTC pre-pass</li>
-<li>Footer matches canonical</li>
-<li>Logo is current</li>
-<li>Akari / Kas have seen the copy</li>
-<li>One-liner posted in <code>#brickellads</code></li>
-</ul>
-
-<h2>5. Niche-page audit — apply Akari's 04-14 catches</h2>
-<p>Do this <strong>now</strong>, in this order, on the pages Kas assigns you.</p>
-
-<h3>Page 1: Educators v2</h3>
-<ul class="checklist">
-<li>Hero rewrite — remove "income, freedom, impact" teacher hook. Replace with motivation teachers actually have (impact / classroom control / boundaries). Kas approves copy.</li>
-<li>"Old way vs New way" box — fix label order to match visual order</li>
-<li>Remove "No new software to master"</li>
-<li>"Consulting offers" → "Coaching programs"</li>
-<li>Remove "this makes it profitable"</li>
-<li>Remove "River method" framing — replace with "River approach" or similar</li>
-<li>Remove "Find Clients Already Looking for You. The 'River' method…" block or rewrite</li>
-<li>"Private Q&amp;A" → "LIVE Q&amp;A"</li>
-<li>Remove "adapted for educators"</li>
-<li>Logo → current COD logo</li>
-<li>Footer → canonical footer</li>
-<li>FTC pre-pass re-run after edits</li>
-<li>Mobile test purchase</li>
-</ul>
-
-<h3>Page 2: Coaches (currently at <code>registration2</code>)</h3>
-<ul class="checklist">
-<li>Apply ALL items from Page 1 list that exist on this page</li>
-<li>Fix split-test URL mismatch: test is set up on <code>/hto-workshop</code> but ads run to <code>/registration2</code>. Re-point the test.</li>
-<li>Mobile test purchase</li>
-</ul>
-
-<h3>Page 3: Attorneys</h3>
-<ul class="checklist">
-<li>Apply ALL items from Page 1 list</li>
-<li>Remove "adapted for licensed professionals"</li>
-<li>Mobile test purchase</li>
-</ul>
-
-<h3>Page 4+ (future niches — gym owners, etc.)</h3>
-<ul class="checklist">
-<li>Use Page 1 list as template BEFORE writing new copy</li>
-<li>Read <code>russ-lp-permanent-rules.md</code> before every new build</li>
-</ul>
-
-<h2>6. Escalation</h2>
+<h2>The 4 pages</h2>
 <table>
-<thead><tr><th>Situation</th><th>Who to ping</th><th>Channel</th></tr></thead>
-<tbody>
-<tr><td>GHL is misbehaving</td><td>Matt Freeman</td><td><code>#brickellads</code></td></tr>
-<tr><td>Ads destination URL unclear</td><td>Pedro</td><td><code>#brickellads</code></td></tr>
-<tr><td>Copy approval needed</td><td>Kas, then Akari</td><td><code>#brickellads</code> (tag both)</td></tr>
-<tr><td>Before anything that looks like "delete"</td><td>Kas OR Matt</td><td>DM first</td></tr>
-<tr><td>Launch announcement</td><td>(no one — you post it)</td><td><code>#brickellads</code> one-liner</td></tr>
-<tr><td>FTC uncertainty</td><td>Kas</td><td>DM</td></tr>
-</tbody>
+  <thead><tr><th style="width:60px">#</th><th style="width:110px">Priority</th><th>Page</th><th style="width:110px">Edits</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><span class="pill p0">P0 · FTC</span></td><td><a href="https://clientsondemand.live/educator-page-page" target="_blank">educator-page-page</a></td><td>12</td></tr>
+    <tr><td>2</td><td><span class="pill p1">P1</span></td><td><a href="https://clientsondemand.live/attorney-registration-page-727492" target="_blank">attorney-registration-page-727492</a></td><td>9</td></tr>
+    <tr><td>3</td><td><span class="pill p2">P2</span></td><td><a href="https://clientsondemand.live/coaches-page-b" target="_blank">coaches-page-b</a></td><td>5</td></tr>
+    <tr><td>4</td><td><span class="pill p3">P3</span></td><td><a href="https://clientsondemand.live/hto-workshop-therapist-counselor-b" target="_blank">hto-workshop-therapist-counselor-b</a></td><td>2–3</td></tr>
+  </tbody>
 </table>
 
-<h2>7. What success looks like</h2>
+<h2>How to work</h2>
 <ol>
-<li>Zero "did you launch X?" questions from Akari or Russ. They see your launch note before they have to ask.</li>
-<li>Zero copy catches from Akari that belong on the FTC-permanent-rules list. Those are one-strike — once we know the rule, the rule is applied everywhere, forever.</li>
-<li>Zero URL mismatches between ads destination and split-test setup.</li>
-<li>Every niche page loads cleanly on mobile, first try.</li>
-<li>Kas does not have to re-explain any rule in this document twice.</li>
+  <li><strong>Do P0 (educator) first.</strong> It has an FTC income claim. Finish it and ping Kas before touching anything else.</li>
+  <li>Log into GHL → Sites → Funnels → find the page by its slug → open the page builder.</li>
+  <li><strong>Use Ctrl+F</strong> inside the builder to find the exact BEFORE text. Do not eyeball.</li>
+  <li>Copy the BEFORE exactly. Paste the AFTER exactly. Do not rewrite in your own words.</li>
+  <li>Save every 2–3 edits. GHL can crash.</li>
+  <li>After saving, hard-refresh the live URL (Ctrl+Shift+R) and confirm the change is visible.</li>
+  <li>When a page is 100% done, post in Slack <code>#brickellads</code>: "Educator page patched and verified live" (or whichever page).</li>
+  <li><strong>Do not touch any other copy</strong> on these pages. Only what's listed below.</li>
+  <li>Pause between pages and wait for Kas's OK before moving to the next.</li>
 </ol>
 
+<div class="callout bad">
+  <p><strong>If you get stuck:</strong> phrase not found → tell Kas. Change would break a sentence → tell Kas. Something looks off on mobile → tell Kas. Never improvise.</p>
+</div>
+
+<!-- ========== EDUCATOR ========== -->
+<details class="page" open>
+  <summary><span class="pill p0">P0</span><h2>01 · Educator page</h2></summary>
+  <div class="body">
+    <p class="loc"><strong>URL:</strong> <a href="https://clientsondemand.live/educator-page-page" target="_blank">clientsondemand.live/educator-page-page</a> &nbsp;·&nbsp; <strong>Edits:</strong> 12 &nbsp;·&nbsp; <strong>Est time:</strong> 25 min</p>
+    <div class="callout critical"><p><strong>FTC risk:</strong> this page has a direct income claim and banned income/freedom hooks for teachers. It is the most urgent of the four. Do it first, stop, ping Kas.</p></div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 01</span><span class="edit-title">Pain point headline — income hook (banned for teachers)</span></div>
+      <p class="loc">Section: pain-point block near top, first red/X headline.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Your Income Got Capped by a Salary Schedule</p></div>
+        <div class="after"><span class="label">After</span><p>You're Giving Everything to a Classroom That Keeps Asking for More</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 02</span><span class="edit-title">Pain point headline — freedom hook (banned for teachers)</span></div>
+      <p class="loc">Section: pain-point block, second red/X headline directly under Edit 1.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Your Freedom Got Stolen by Someone Else's Schedule</p></div>
+        <div class="after"><span class="label">After</span><p>Your Calendar Belongs to Everyone Except You</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 03</span><span class="edit-title">"Real income" phrase</span></div>
+      <p class="loc">Section: paragraph about the "implementation gap" between what you know and an offer people can buy.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…You already have the content. You just need the blueprint that turns it into <strong>real income</strong>.</p></div>
+        <div class="after"><span class="label">After</span><p>…You already have the content. You just need the blueprint that turns it into <strong>something you can actually deliver</strong>.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 04</span><span class="edit-title">"No new software to master" — Rule 4</span></div>
+      <p class="loc">Section: paragraph about delivering online with Zoom, workbooks, frameworks.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…Zoom calls, workbooks, frameworks, assignments. <strong>No new software to master.</strong> No camera crew. No production studio…</p></div>
+        <div class="after"><span class="label">After</span><p>…Zoom calls, workbooks, frameworks, assignments. No camera crew. No production studio…</p></div>
+      </div>
+      <div class="changed">Delete the sentence "No new software to master." Everything else stays the same.</div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 05</span><span class="edit-title">"River" method → approach — Rule 1</span></div>
+      <p class="loc">Section: "Find Clients Already Looking for You" feature block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Stop waiting for word of mouth. The "River" <strong>method</strong> targets people already searching for the transformation your expertise delivers.</p></div>
+        <div class="after"><span class="label">After</span><p>Stop waiting for word of mouth. The "River" <strong>approach</strong> targets people already searching for the transformation your expertise delivers.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 06</span><span class="edit-title">"Consulting offers" → "coaching programs" — Rule 5</span></div>
+      <p class="loc">Section: CTA paragraph about stopping trading time for a salary.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Stop trading time for a salary and start packaging your expertise into premium <strong>consulting offers</strong>. See exactly why educators are making the switch.</p></div>
+        <div class="after"><span class="label">After</span><p>Stop trading time for a salary and start packaging your expertise into premium <strong>coaching programs</strong>. See exactly why educators are making the switch.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 07</span><span class="edit-title">"This makes it profitable" — Rule 3 · HIGHEST PRIORITY</span></div>
+      <p class="loc">Section: feature block about custom prompts that generate your curriculum.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…You already know how to build a syllabus. <strong>This makes it profitable.</strong></p></div>
+        <div class="after"><span class="label">After</span><p>…You already know how to build a syllabus. <strong>This gives you the structure to package it.</strong></p></div>
+      </div>
+      <div class="changed">Last sentence only. Everything before stays the same. This is the single most important edit on the page.</div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 08</span><span class="edit-title">"Private Q&amp;A" + "billable hour" — Rule 6 + industry fit</span></div>
+      <p class="loc">Section: the $27 bump / order bump block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…plus an AI trained on 13 years of high-ticket knowledge and a <strong>private Q&amp;A</strong> with Russ. That's less than a single <strong>billable hour</strong>.</p></div>
+        <div class="after"><span class="label">After</span><p>…plus an AI trained on 13 years of high-ticket knowledge and a <strong>LIVE Q&amp;A</strong> with Russ. That's less than a single <strong>tutoring session</strong>.</p></div>
+      </div>
+      <div class="changed">Teachers don't bill hours — swap "billable hour" for "tutoring session" on this page only.</div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 09</span><span class="edit-title">"Adapted for licensed professionals" — Rule 2</span></div>
+      <p class="loc">Section: the "6,247 successful consulting businesses" stat block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>The exact system behind 6,247 successful <strong>consulting</strong> businesses, <strong>adapted for licensed professionals</strong></p></div>
+        <div class="after"><span class="label">After</span><p>The exact system behind 6,247 successful businesses</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 10</span><span class="edit-title">FAQ industry-bleed bug — wrong audience</span></div>
+      <p class="loc">Section: FAQ answer that literally opens with "We hear this a lot from attorneys." This is a copy-paste mistake from the attorney template.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>We hear this a lot from <strong>attorneys</strong>… You BUILD your actual <strong>consulting offer</strong> using AI tools… You leave with a finished <strong>offer</strong>, not a binder of notes…</p></div>
+        <div class="after"><span class="label">After</span><p>We hear this a lot from <strong>educators</strong>… You BUILD your actual <strong>program</strong> using AI tools… You leave with a finished <strong>program</strong>, not a binder of notes…</p></div>
+      </div>
+      <div class="changed">Three swaps in this paragraph: attorneys→educators, consulting offer→program, finished offer→finished program.</div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 11</span><span class="edit-title">Qualifier checklist — income bullets</span></div>
+      <p class="loc">Section: the "Is this for you?" checklist with checkmark bullets.</p>
+      <h4>Bullet 1</h4>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>You're tired of salary caps and want a second income stream (or a full exit) built on your expertise</p></div>
+        <div class="after"><span class="label">After</span><p>You're tired of watching the system fail your students and want a way to teach on your own terms</p></div>
+      </div>
+      <h4>Bullet 2</h4>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>You've tried selling on TPT, tutoring, or adjunct teaching but it never scaled into real income</p></div>
+        <div class="after"><span class="label">After</span><p>You've tried selling on TPT, tutoring, or adjunct teaching but it never turned into a real business</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 12</span><span class="edit-title">Final CTA — "earn what your expertise is worth"</span></div>
+      <p class="loc">Section: final CTA paragraph near the bottom, starts with "You became an educator to change lives."</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…Build a program that lets you reach MORE people, <strong>earn what your expertise is actually worth</strong>, and teach on your own terms.</p></div>
+        <div class="after"><span class="label">After</span><p>…Build a program that lets you reach MORE people, <strong>protect your energy</strong>, and teach on your own terms.</p></div>
+      </div>
+    </div>
+
+    <h4>Verification checklist</h4>
+    <ul class="check">
+      <li>Edit 01 · income headline replaced</li>
+      <li>Edit 02 · freedom headline replaced</li>
+      <li>Edit 03 · "real income" phrase changed</li>
+      <li>Edit 04 · "no new software to master" sentence deleted</li>
+      <li>Edit 05 · River method → approach</li>
+      <li>Edit 06 · consulting offers → coaching programs</li>
+      <li>Edit 07 · "this makes it profitable" removed (FTC critical)</li>
+      <li>Edit 08 · private Q&amp;A → LIVE Q&amp;A + billable hour → tutoring session</li>
+      <li>Edit 09 · "adapted for licensed professionals" removed</li>
+      <li>Edit 10 · attorneys FAQ bug fixed → educators</li>
+      <li>Edit 11 · both qualifier bullets reworded</li>
+      <li>Edit 12 · "earn what your expertise is worth" replaced</li>
+      <li>Page saved in GHL</li>
+      <li>Hard-refreshed live URL, all 12 changes visible</li>
+      <li>Slack: "Educator page patched and verified live"</li>
+    </ul>
+    <div class="callout warn"><p><strong>Stop here.</strong> Wait for Kas to confirm before starting patch 02.</p></div>
+  </div>
+</details>
+
+<!-- ========== ATTORNEY ========== -->
+<details class="page">
+  <summary><span class="pill p1">P1</span><h2>02 · Attorney page</h2></summary>
+  <div class="body">
+    <p class="loc"><strong>URL:</strong> <a href="https://clientsondemand.live/attorney-registration-page-727492" target="_blank">clientsondemand.live/attorney-registration-page-727492</a> &nbsp;·&nbsp; <strong>Edits:</strong> 9 &nbsp;·&nbsp; <strong>Est time:</strong> 20 min</p>
+    <p>Most edits are replacing "consulting offer" with "coaching program". This page uses that phrase 7+ times.</p>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 01</span><span class="edit-title">Hero subheadline</span></div>
+      <p class="loc">Section: hero, subheadline directly below the main headline.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Join hundreds of attorneys who've used this 3-hour AI-powered workshop to package their legal expertise into a premium <strong>consulting offer</strong>…</p></div>
+        <div class="after"><span class="label">After</span><p>Join hundreds of attorneys who've used this 3-hour AI-powered workshop to package their legal expertise into a premium <strong>coaching program</strong>…</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 02</span><span class="edit-title">Hero compliance line</span></div>
+      <p class="loc">Section: directly under Edit 1.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>This workshop helps you build a <strong>consulting offer</strong> alongside your practice not replace it.</p></div>
+        <div class="after"><span class="label">After</span><p>This workshop helps you build a <strong>coaching program</strong> alongside your practice not replace it.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 03</span><span class="edit-title">"Exceptional lawyer" paragraph — 2 swaps</span></div>
+      <p class="loc">Section: paragraph about how the same skills that make you an exceptional lawyer make you great at high-ticket.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…make you a natural at high-ticket <strong>consulting</strong>. Attorneys in this program have built $5K–$20K <strong>consulting offers</strong> around estate planning…</p></div>
+        <div class="after"><span class="label">After</span><p>…make you a natural at high-ticket <strong>coaching</strong>. Attorneys in this program have built $5K–$20K <strong>coaching programs</strong> around estate planning…</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 04</span><span class="edit-title">"River" method → approach — Rule 1</span></div>
+      <p class="loc">Section: "Find Clients Already Looking for You" feature block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Stop cold marketing. The "River" <strong>method</strong> targets people already searching for the transformation you deliver.</p></div>
+        <div class="after"><span class="label">After</span><p>Stop cold marketing. The "River" <strong>approach</strong> targets people already searching for the transformation you deliver.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 05</span><span class="edit-title">"Private Q&amp;A" — Rule 6</span></div>
+      <p class="loc">Section: the $27 order bump block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…a <strong>private Q&amp;A</strong> with Russ. That's less than a single billable hour.</p></div>
+        <div class="after"><span class="label">After</span><p>…a <strong>LIVE Q&amp;A</strong> with Russ. That's less than a single billable hour.</p></div>
+      </div>
+      <div class="changed">"Billable hour" is correct for attorneys — leave it.</div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 06</span><span class="edit-title">"Adapted for licensed professionals" — Rule 2</span></div>
+      <p class="loc">Section: the "6,247 successful consulting businesses" stat block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>The exact system behind 6,247 successful <strong>consulting</strong> businesses, <strong>adapted for licensed professionals</strong></p></div>
+        <div class="after"><span class="label">After</span><p>The exact system behind 6,247 successful businesses</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 07</span><span class="edit-title">FAQ — practice areas</span></div>
+      <p class="loc">Section: FAQ answer listing practice areas (estate planning, trust, divorce, etc).</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Attorneys in our program have built <strong>consulting offers</strong> around estate planning, trust optimization, divorce coaching, business formation…</p></div>
+        <div class="after"><span class="label">After</span><p>Attorneys in our program have built <strong>coaching programs</strong> around estate planning, trust optimization, divorce coaching, business formation…</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 08</span><span class="edit-title">FAQ — "BUILD your actual consulting offer"</span></div>
+      <p class="loc">Section: FAQ answer that starts with "We hear this a lot from attorneys."</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…You BUILD your actual <strong>consulting offer</strong> using AI tools during the session… You leave with a finished <strong>offer</strong>, not a binder of notes.</p></div>
+        <div class="after"><span class="label">After</span><p>…You BUILD your actual <strong>coaching program</strong> using AI tools during the session… You leave with a finished <strong>program</strong>, not a binder of notes.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 09</span><span class="edit-title">Final CTA subheadline</span></div>
+      <p class="loc">Section: final CTA near bottom.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>3 hours. A finished <strong>consulting offer</strong> built from your legal expertise.</p></div>
+        <div class="after"><span class="label">After</span><p>3 hours. A finished <strong>coaching program</strong> built from your legal expertise.</p></div>
+      </div>
+    </div>
+
+    <h4>Verification checklist</h4>
+    <ul class="check">
+      <li>Edit 01 · hero sub fixed</li>
+      <li>Edit 02 · hero compliance line fixed</li>
+      <li>Edit 03 · "exceptional lawyer" paragraph (2 swaps)</li>
+      <li>Edit 04 · River method → approach</li>
+      <li>Edit 05 · private Q&amp;A → LIVE Q&amp;A</li>
+      <li>Edit 06 · "adapted for licensed professionals" removed</li>
+      <li>Edit 07 · practice-areas FAQ fixed</li>
+      <li>Edit 08 · "BUILD your actual" FAQ fixed (2 swaps)</li>
+      <li>Edit 09 · final CTA sub fixed</li>
+      <li>Page saved</li>
+      <li>Hard-refreshed, all 9 changes visible</li>
+      <li>Slack: "Attorney page patched and verified live"</li>
+    </ul>
+    <div class="callout warn"><p>Pause. Wait for Kas before starting patch 03.</p></div>
+  </div>
+</details>
+
+<!-- ========== COACHES ========== -->
+<details class="page">
+  <summary><span class="pill p2">P2</span><h2>03 · Coaches page</h2></summary>
+  <div class="body">
+    <p class="loc"><strong>URL:</strong> <a href="https://clientsondemand.live/coaches-page-b" target="_blank">clientsondemand.live/coaches-page-b</a> &nbsp;·&nbsp; <strong>Edits:</strong> 5 &nbsp;·&nbsp; <strong>Est time:</strong> 12 min</p>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 01</span><span class="edit-title">"Income disappears" — income hook</span></div>
+      <p class="loc">Section: comparison block, red-X side.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p><strong>Income</strong> disappears when you stop working</p></div>
+        <div class="after"><span class="label">After</span><p>Your business stops the second you stop working</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 02</span><span class="edit-title">"Real freedom" — freedom hook</span></div>
+      <p class="loc">Section: same comparison block, green-check side.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Serve your clients 100% online, with <strong>real freedom</strong></p></div>
+        <div class="after"><span class="label">After</span><p>Serve your clients 100% online, <strong>on your own schedule</strong></p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 03</span><span class="edit-title">"River" method → approach — Rule 1</span></div>
+      <p class="loc">Section: "Find Clients Already Looking for You" feature block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>Stop cold DMing. The "River" <strong>method</strong> targets people already searching for the transformation you deliver.</p></div>
+        <div class="after"><span class="label">After</span><p>Stop cold DMing. The "River" <strong>approach</strong> targets people already searching for the transformation you deliver.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 04</span><span class="edit-title">"Private Q&amp;A" — Rule 6</span></div>
+      <p class="loc">Section: the $27 order bump block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…a <strong>private Q&amp;A</strong> with Russ. That's less than a single coaching session.</p></div>
+        <div class="after"><span class="label">After</span><p>…a <strong>LIVE Q&amp;A</strong> with Russ. That's less than a single coaching session.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 05</span><span class="edit-title">"Adapted for coaches and consultants" — Rule 2</span></div>
+      <p class="loc">Section: the "6,247 successful consulting businesses" stat block.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>The exact system behind 6,247 successful <strong>consulting</strong> businesses, <strong>adapted for coaches and consultants</strong></p></div>
+        <div class="after"><span class="label">After</span><p>The exact system behind 6,247 successful businesses</p></div>
+      </div>
+    </div>
+
+    <h4>Verification checklist</h4>
+    <ul class="check">
+      <li>Edit 01 · income bullet replaced</li>
+      <li>Edit 02 · freedom bullet replaced</li>
+      <li>Edit 03 · River method → approach</li>
+      <li>Edit 04 · private Q&amp;A → LIVE Q&amp;A</li>
+      <li>Edit 05 · "adapted for coaches and consultants" removed</li>
+      <li>Page saved</li>
+      <li>Hard-refreshed, all 5 changes visible</li>
+      <li>Slack: "Coaches page patched and verified live"</li>
+    </ul>
+    <div class="callout warn"><p>Pause. Wait for Kas before starting patch 04.</p></div>
+  </div>
+</details>
+
+<!-- ========== THERAPIST ========== -->
+<details class="page">
+  <summary><span class="pill p3">P3</span><h2>04 · Therapist / counselor page</h2></summary>
+  <div class="body">
+    <p class="loc"><strong>URL:</strong> <a href="https://clientsondemand.live/hto-workshop-therapist-counselor-b" target="_blank">clientsondemand.live/hto-workshop-therapist-counselor-b</a> &nbsp;·&nbsp; <strong>Edits:</strong> 2–3 &nbsp;·&nbsp; <strong>Est time:</strong> 8 min</p>
+    <p>Cleanest page. Just template leftovers to clean up.</p>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 01</span><span class="edit-title">"River" method → approach — Rule 1</span></div>
+      <p class="loc">Section: "Find Clients Already Looking for You" feature block. Use Ctrl+F for <code>"River"</code>.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>The "River" <strong>method</strong> targets people already searching for the transformation you deliver.</p></div>
+        <div class="after"><span class="label">After</span><p>The "River" <strong>approach</strong> targets people already searching for the transformation you deliver.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 02</span><span class="edit-title">"Private Q&amp;A" — Rule 6</span></div>
+      <p class="loc">Section: $27 order bump block. Use Ctrl+F for <code>private Q&amp;A</code>.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>…a <strong>private Q&amp;A</strong> with Russ.</p></div>
+        <div class="after"><span class="label">After</span><p>…a <strong>LIVE Q&amp;A</strong> with Russ.</p></div>
+      </div>
+    </div>
+
+    <div class="edit">
+      <div class="edit-head"><span class="edit-num">EDIT 03</span><span class="edit-title">Verify "adapted for…" and remove if present</span></div>
+      <p class="loc">Section: the "6,247 successful consulting businesses" stat block. Use Ctrl+F for <code>6,247</code>.</p>
+      <div class="ba">
+        <div class="before"><span class="label">Before</span><p>The exact system behind 6,247 successful consulting businesses, <strong>adapted for [anything]</strong></p></div>
+        <div class="after"><span class="label">After</span><p>The exact system behind 6,247 successful businesses</p></div>
+      </div>
+      <div class="changed">If the page has no "adapted for…" clause at all, skip this edit and note it in Slack.</div>
+    </div>
+
+    <div class="callout good">
+      <p><strong>Sweep check.</strong> After edits 1–3, Ctrl+F the page for each of these words and screenshot anything you find, then send to Kas BEFORE editing: <code>income</code> · <code>freedom</code> · <code>profitable</code> · <code>no new software</code> · <code>consulting offer</code>. If zero hits, reply in Slack: "Therapist page clean on all 5 checks."</p>
+    </div>
+
+    <h4>Verification checklist</h4>
+    <ul class="check">
+      <li>Edit 01 · River method → approach</li>
+      <li>Edit 02 · private Q&amp;A → LIVE Q&amp;A</li>
+      <li>Edit 03 · "adapted for…" removed or noted as absent</li>
+      <li>Ran 5 Ctrl+F sweep checks and reported findings</li>
+      <li>Page saved</li>
+      <li>Hard-refreshed live URL</li>
+      <li>Slack: "Therapist page patched and verified live + sweep: [clean / flagged]"</li>
+    </ul>
+
+    <div class="callout good"><p><strong>When this page is done, all 4 pages are shipped.</strong> Post a summary in Slack <code>#brickellads</code> tagging Kas.</p></div>
+  </div>
+</details>
+
+<!-- ========== POSTHOG APPENDIX ========== -->
+<h2>Appendix · PostHog Option B (Matt approved 2026-04-14)</h2>
+
 <div class="callout good">
-<strong>Read this again before you touch the Educators page. And once a week after that.</strong>
+  <p><strong>Status:</strong> Matt approved moving PostHog init from the GTM tag into each page's <code>&lt;head&gt;</code> directly. This is <em>Option B</em> from the earlier PostHog guide — the "move to blocking head" path. Do this <strong>after</strong> all copy patches above are approved and live. It is additive, not urgent.</p>
+</div>
+
+<h3>Why Option B (from Matt's note)</h3>
+<table>
+  <thead><tr><th>Pros</th><th>Cons to watch</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>
+        <ul style="margin:0">
+          <li>Zero flicker. Flags resolve before first paint.</li>
+          <li>Init config lives in page source → version controlled, code-reviewable.</li>
+          <li>Fastest variant TTI.</li>
+        </ul>
+      </td>
+      <td>
+        <ul style="margin:0">
+          <li>Duplicated PostHog management (one in head, plus pause the GTM tag).</li>
+          <li>Loses GTM consent-mode hookup unless you manually wire it.</li>
+          <li>Akari has to learn that PostHog lives in page code now, not GTM.</li>
+          <li>Risk of double-init if the GTM tag isn't paused cleanly.</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Scope</h3>
+<p>Apply to <strong>all 4 niche LPs</strong> only. Do <em>not</em> touch other COD pages yet — this is a scoped pilot on the niche set.</p>
+<ul>
+  <li><a href="https://clientsondemand.live/educator-page-page" target="_blank">educator-page-page</a></li>
+  <li><a href="https://clientsondemand.live/attorney-registration-page-727492" target="_blank">attorney-registration-page-727492</a></li>
+  <li><a href="https://clientsondemand.live/coaches-page-b" target="_blank">coaches-page-b</a></li>
+  <li><a href="https://clientsondemand.live/hto-workshop-therapist-counselor-b" target="_blank">hto-workshop-therapist-counselor-b</a></li>
+</ul>
+
+<h3>Before you start — get these from Kas</h3>
+<ul>
+  <li><strong>PostHog project key</strong> — starts with <code>phc_…</code>. Pull it from the existing GTM PostHog Init tag in <code>GTM-M677PMW</code>, or ask Kas.</li>
+  <li><strong>Confirmation</strong> that the existing GTM PostHog Init tag can be paused. Kas will confirm before you disable anything in GTM.</li>
+</ul>
+
+<h3>Step 1 — Add the init block to each page's &lt;head&gt;</h3>
+<p>In GHL, open each page → <strong>Page Settings</strong> → <strong>Custom Code</strong> → <strong>Header</strong>. Paste the block below at the top of the header custom code. It must load <em>before</em> the GTM snippet.</p>
+
+<div class="edit">
+  <div class="edit-head"><span class="edit-num">HEAD BLOCK</span><span class="edit-title">PostHog init + anti-flicker safety</span></div>
+  <p class="loc">Paste at the top of the page's Header custom code slot in GHL.</p>
+  <pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.55;color:#cfd5e0;margin:12px 0"><code>&lt;!-- PostHog · Option B · head-loaded (2026-04-14, Matt approved) --&gt;
+&lt;style&gt;
+  /* Anti-flicker: hide anything tagged as a test slot until variant applies */
+  [data-test-slot] { visibility: hidden; }
+  html.ph-ready [data-test-slot] { visibility: visible; }
+&lt;/style&gt;
+&lt;script&gt;
+  /* Safety reveal after 1500ms even if PostHog fails (adblockers, network failure) */
+  setTimeout(function(){ document.documentElement.classList.add('ph-ready'); }, 1500);
+&lt;/script&gt;
+&lt;script&gt;
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},u.people=u.people||[]}(document,window.posthog||[]);
+
+  posthog.init('phc_REPLACE_WITH_COD_PROJECT_KEY', {
+    api_host: 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+    capture_pageview: true,
+    capture_pageleave: true,
+    autocapture: false,
+    advanced_disable_feature_flags: false,
+    advanced_disable_decide: false,
+    loaded: function(ph) {
+      ph.register({
+        niche: document.body.dataset.niche || 'unknown',
+        page_template: document.body.dataset.template || 'reg',
+        page_path: location.pathname,
+        device_category: window.innerWidth &lt; 768 ? 'mobile' : 'desktop'
+      });
+      document.documentElement.classList.add('ph-ready');
+    }
+  });
+&lt;/script&gt;
+&lt;!-- /PostHog --&gt;</code></pre>
+  <div class="changed">Replace <code>phc_REPLACE_WITH_COD_PROJECT_KEY</code> with the real key Kas gives you. Do not post the real key in public Slack — DM only. Use the full PostHog snippet loader from posthog.com/docs — the one above is a simplified placeholder; grab the canonical one from the PostHog project settings page to avoid typos.</div>
+</div>
+
+<h3>Step 2 — Tag the body with niche metadata</h3>
+<p>Each page needs a <code>data-niche</code> attribute on <code>&lt;body&gt;</code> so the <code>register()</code> call knows which niche to tag events with. In GHL this lives under <strong>Page Settings → Tracking Code → Body</strong>, or in the page's advanced HTML if GHL exposes it.</p>
+<table>
+  <thead><tr><th>Page</th><th>Add to &lt;body&gt;</th></tr></thead>
+  <tbody>
+    <tr><td>educator-page-page</td><td><code>data-niche="educator" data-template="reg"</code></td></tr>
+    <tr><td>attorney-registration-page-727492</td><td><code>data-niche="attorney" data-template="reg"</code></td></tr>
+    <tr><td>coaches-page-b</td><td><code>data-niche="coach" data-template="reg"</code></td></tr>
+    <tr><td>hto-workshop-therapist-counselor-b</td><td><code>data-niche="therapist" data-template="reg"</code></td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><p>If GHL does not let you add attributes directly to the <code>&lt;body&gt;</code> tag, tell Kas and stop. Do <strong>not</strong> fake it by injecting JS that re-reads URL — we need this right the first time.</p></div>
+
+<h3>Step 3 — Pause the GTM PostHog Init tag (double-init guard)</h3>
+<ol>
+  <li>Open GTM container <code>GTM-M677PMW</code>.</li>
+  <li>Find the existing <strong>PostHog Init</strong> tag (search for <code>posthog.init</code>).</li>
+  <li>Open it → <strong>Pause</strong> (do not delete). Add a note: <em>"Paused 2026-04-14 — PostHog now initialized from niche LP &lt;head&gt; (Option B, Matt approved). Do not re-enable without talking to Kas."</em></li>
+  <li>Save → Submit → Publish with message: <em>"Pause PostHog Init tag — niche LPs moved to head init"</em>.</li>
+</ol>
+<div class="callout bad">
+  <p><strong>Critical:</strong> If you enable head-init without pausing the GTM tag, PostHog fires twice on every page load. Duplicate events, broken experiments, billing risk. Steps 1 and 3 must both ship together.</p>
+</div>
+
+<h3>Step 4 — Verify in the browser (required before calling it done)</h3>
+<p>Open each of the 4 live pages in an incognito window. Open DevTools → Console and run each of these checks:</p>
+<ol>
+  <li><code>typeof posthog</code> → should return <code>"object"</code>. If <code>"undefined"</code>, init didn't load.</li>
+  <li><code>posthog.config.token</code> → should show the <code>phc_…</code> key.</li>
+  <li><code>posthog.get_distinct_id()</code> → should return a string. Proves init completed.</li>
+  <li>In the <strong>Network</strong> tab, filter for <code>posthog</code>. You should see exactly <strong>one</strong> <code>/decide</code> request, not two. Two = double-init, go back to Step 3.</li>
+  <li><code>document.documentElement.classList.contains('ph-ready')</code> → should return <code>true</code> within ~1s of page load.</li>
+  <li>Check PostHog's <strong>Live Events</strong> view in the PostHog web UI. Within 30 seconds of your page load, you should see a <code>$pageview</code> event with <code>niche</code> set correctly (educator / attorney / coach / therapist).</li>
+</ol>
+
+<h3>Step 5 — Report back</h3>
+<p>In Slack <code>#brickellads</code>, post one line per page in this format:</p>
+<pre style="background:#0d1017;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:var(--mono);font-size:12.5px;color:#cfd5e0"><code>[niche] head-init live · token ok · 1× /decide · ph-ready · Live Events show niche=[niche]</code></pre>
+
+<h3>Verification checklist</h3>
+<ul class="check">
+  <li>Got PostHog project key from Kas (DM only, not posted publicly)</li>
+  <li>Educator · head block pasted · body data-niche set · GTM tag paused · 6 browser checks pass · Slack posted</li>
+  <li>Attorney · head block pasted · body data-niche set · 6 browser checks pass · Slack posted</li>
+  <li>Coaches · head block pasted · body data-niche set · 6 browser checks pass · Slack posted</li>
+  <li>Therapist · head block pasted · body data-niche set · 6 browser checks pass · Slack posted</li>
+  <li>GTM PostHog Init tag confirmed paused + note added + container published</li>
+  <li>Confirmed in PostHog Live Events that all 4 niches are firing with correct <code>niche</code> super property</li>
+  <li>Zero double-init across all 4 pages (1× <code>/decide</code> per load, not 2×)</li>
+  <li>Final summary posted in Slack tagging Kas + Matt</li>
+</ul>
+
+<div class="callout warn">
+  <p><strong>Remember:</strong> do the 4 copy patches above FIRST. Get Kas's OK after each one. Only start the PostHog appendix after all copy patches are confirmed live.</p>
 </div>
 
 <footer>
-  COD Internal · Rehan Guide v1.0 · 2026-04-14
+  COD · Brickellads · 2026-04-14 · Akari flag response + Matt-approved PostHog Option B · Rehan execution brief
 </footer>
 
 </div>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone &mdash; Google Ads, Month 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#B21E24;--red-dark:#8B1519;--red-soft:#FCE9EA;
+  --gray-900:#1A1A1A;--gray-800:#2C2C2E;--gray-700:#3F3F3F;--gray-600:#616060;
+  --gray-500:#8C8C8C;--gray-400:#B1B1B1;--gray-300:#D4D4D4;
+  --gray-200:#EAEAEA;--gray-150:#EFEFEF;--gray-100:#F4F4F5;
+  --gray-75:#F7F7F8;--gray-50:#FAFAFA;--white:#FFFFFF;
+  --green:#1F9D55;--green-soft:#E5F5EC;--green-text:#15803D;
+  --amber:#C77700;--amber-text:#9E5E00;--amber-soft:#FBF1E2;
+  --display:'Bricolage Grotesque',serif;
+  --body:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+  --radius:17px;--radius-md:12px;--radius-sm:8px;
+  --shadow-sm:0 1px 3px rgba(15,15,17,0.06);
+  --shadow:0 4px 14px rgba(15,15,17,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--gray-75);color:var(--gray-700);font-family:var(--body);line-height:1.65;font-size:15.5px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 36px}
+a{color:var(--red);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 0;position:sticky;top:0;z-index:50;backdrop-filter:saturate(150%) blur(8px);background:rgba(255,255,255,0.92)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:42px;height:42px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;clip-path:polygon(0 0,100% 0,100% 78%,78% 100%,0 100%)}
+.brand-name{font-family:var(--display);font-weight:800;font-size:16px;color:var(--gray-900)}
+.brand-sub{font-size:11px;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-top:1px}
+.back{font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.back:hover{color:var(--red);text-decoration:none}
+
+.hero{padding:72px 0 44px;background:var(--white);border-bottom:1px solid var(--gray-200);position:relative;overflow:hidden}
+.hero::after{content:"01";position:absolute;top:30px;right:60px;font-family:var(--display);font-size:220px;font-weight:800;color:var(--red);opacity:0.05;line-height:0.85;pointer-events:none}
+.hero h1{font-family:var(--display);font-size:clamp(2em,4.6vw,3.1em);font-weight:700;letter-spacing:-0.025em;color:var(--gray-900);margin-bottom:16px;line-height:1.04}
+.hero h1 em{font-style:normal;color:var(--red);font-weight:800}
+.hero .lede{color:var(--gray-700);font-size:17px;max-width:740px;line-height:1.6}
+.hero .lede b{color:var(--gray-900);font-weight:700}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-600);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow .bar{width:24px;height:2px;background:var(--red)}
+.byline{font-family:var(--mono);font-size:11px;color:var(--gray-500);font-weight:600;margin-top:22px;letter-spacing:0.04em}
+.byline b{color:var(--gray-700);font-weight:700}
+
+.section{padding:56px 0}
+.section.alt{background:var(--white);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.section-h{font-family:var(--display);font-size:30px;font-weight:800;color:var(--gray-900);margin-bottom:10px;letter-spacing:-0.02em;line-height:1.1}
+.section-h em{font-style:normal;color:var(--red)}
+.section-desc{color:var(--gray-600);font-size:15px;margin-bottom:32px;max-width:680px}
+
+/* Headline numbers */
+.headline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px}
+.h-num{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow-sm)}
+.h-num .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-600);font-weight:700;margin-bottom:10px}
+.h-num .val{font-family:var(--display);font-size:36px;font-weight:800;color:var(--gray-900);line-height:1;letter-spacing:-0.025em}
+.h-num .val .ccy{font-size:20px;color:var(--gray-500);font-weight:600;margin-right:2px}
+.h-num .val.green{color:var(--green-text)}
+.h-num .val.amber{color:var(--amber-text)}
+.h-num .sub{font-size:11.5px;color:var(--gray-600);margin-top:8px;line-height:1.45}
+
+/* Story cards */
+.story{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:32px 36px;box-shadow:var(--shadow);margin-bottom:18px;position:relative}
+.story-num{position:absolute;top:24px;right:32px;font-family:var(--display);font-size:48px;font-weight:800;color:var(--red);opacity:0.12;line-height:1;letter-spacing:-0.02em}
+.story h3{font-family:var(--display);font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:14px;letter-spacing:-0.01em;line-height:1.2;max-width:80%}
+.story p{color:var(--gray-700);font-size:15px;line-height:1.7;margin-bottom:14px}
+.story p:last-child{margin-bottom:0}
+.story p b{color:var(--gray-900);font-weight:700}
+.story.amber{border-left:5px solid var(--amber);background:linear-gradient(135deg,#fff 0%,var(--amber-soft) 360%)}
+.story.green{border-left:5px solid var(--green);background:linear-gradient(135deg,#fff 0%,var(--green-soft) 360%)}
+.story.red{border-left:5px solid var(--red);background:linear-gradient(135deg,#fff 0%,var(--red-soft) 360%)}
+
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:5px 12px;border-radius:99px;border:1px solid;margin-bottom:14px}
+.tag.green{color:var(--green-text);background:var(--green-soft);border-color:rgba(31,157,85,0.3)}
+.tag.amber{color:var(--amber-text);background:var(--amber-soft);border-color:rgba(199,119,0,0.3)}
+.tag.red{color:var(--red);background:var(--red-soft);border-color:rgba(178,30,36,0.3)}
+
+/* CTR bars */
+.ctr-block{margin:18px 0 6px}
+.ctr-row{display:grid;grid-template-columns:160px 1fr 70px;align-items:center;gap:18px;margin-bottom:12px}
+.ctr-row .lbl{color:var(--gray-700);font-weight:600;font-size:13px}
+.ctr-row .bar{height:26px;background:var(--gray-100);border-radius:6px;position:relative;overflow:hidden}
+.ctr-row .fill{position:absolute;inset:0;background:linear-gradient(90deg,var(--red),var(--red-dark));border-radius:6px}
+.ctr-row .v{font-family:var(--display);font-weight:800;color:var(--gray-900);font-size:15px;text-align:right}
+
+/* Two-up split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 6px}
+.split-cell{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:20px 22px}
+.split-cell .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-600);font-weight:700;margin-bottom:8px}
+.split-cell .v{font-family:var(--display);font-size:30px;font-weight:800;color:var(--gray-900);line-height:1;letter-spacing:-0.02em}
+.split-cell .v .ccy{font-size:16px;color:var(--gray-500);font-weight:600}
+.split-cell .sub{font-size:12px;color:var(--gray-600);margin-top:6px}
+
+/* Top ad groups list */
+.ag-list{margin-top:18px;border-top:1px solid var(--gray-200)}
+.ag-row{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding:16px 0;border-bottom:1px solid var(--gray-150)}
+.ag-row .rank{font-family:var(--display);font-size:20px;font-weight:800;color:var(--red);min-width:32px;letter-spacing:-0.02em}
+.ag-row .name{color:var(--gray-900);font-weight:700;font-size:15px}
+.ag-row .lp{font-family:var(--mono);font-size:11px;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:0.06em}
+
+/* Next month checklist */
+.checklist{margin-top:14px;display:grid;gap:10px}
+.check-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;padding:14px 18px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md)}
+.check-row .dot{width:10px;height:10px;border-radius:50%;background:var(--red);margin-top:7px;flex-shrink:0}
+.check-row .body{font-size:14px;color:var(--gray-700);line-height:1.55}
+.check-row .body b{color:var(--gray-900);font-weight:700;display:block;margin-bottom:2px}
+
+footer{padding:48px 0;background:var(--white);border-top:1px solid var(--gray-200);margin-top:60px}
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.08em}
+.footer-row b{color:var(--gray-900);font-weight:700}
+
+@media(max-width:780px){
+  .wrap{padding:0 20px}
+  .hero{padding:48px 0 28px}
+  .headline{grid-template-columns:repeat(2,1fr)}
+  .split{grid-template-columns:1fr}
+  .ctr-row{grid-template-columns:120px 1fr 60px;gap:12px}
+  .story{padding:24px 22px}
+  .story h3{max-width:100%;font-size:19px}
+  .story-num{font-size:36px;top:18px;right:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-name">REDSTONE MANUFACTURING</div>
+        <div class="brand-sub">Google Ads &middot; Month 1 update</div>
+      </div>
+    </div>
+    <a class="back" href="tracker-dashboard.html">&larr; Back to tracker</a>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="bar"></span>Eric &middot; first month of your Google Ads</div>
+    <h1>Where your ad spend went,<br>and what's <em>coming next</em>.</h1>
+    <p class="lede">Your Google Ads campaigns went live on <b>10 March</b>. This is the first 30-day update from <b>Daniel</b>, the freelance Google Ads specialist running the day-to-day. Plain English, no jargon &mdash; just what we did, what we found, and what we're focused on for Month 2.</p>
+    <div class="byline">FROM <b>DANIEL HALL</b> &middot; SUMMARISED FOR ERIC BY <b>KAS</b> &middot; 14 APRIL 2026</div>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="eyebrow"><span class="bar"></span>The headline numbers</div>
+    <h2 class="section-h">Month 1 in <em>four numbers</em>.</h2>
+    <p class="section-desc">A note on the lead count below: our conversion tracking has been broken since launch (more on that in Section 1). The real lead total is almost certainly higher &mdash; we just can't prove it yet. Fixing this is the top priority for Month 2.</p>
+
+    <div class="headline">
+      <div class="h-num">
+        <div class="lbl">You spent</div>
+        <div class="val"><span class="ccy">$</span>4,919</div>
+        <div class="sub">10 Mar &rarr; 11 Apr</div>
+      </div>
+      <div class="h-num">
+        <div class="lbl">Tracked leads</div>
+        <div class="val amber">6</div>
+        <div class="sub">3 brochure downloads<br>+ 3 quote requests</div>
+      </div>
+      <div class="h-num">
+        <div class="lbl">Click-through rate</div>
+        <div class="val green">5.23%</div>
+        <div class="sub">Up from 3.89% week 1<br>(despite Easter)</div>
+      </div>
+      <div class="h-num">
+        <div class="lbl">Account changes</div>
+        <div class="val">10,164</div>
+        <div class="sub">Optimisations made<br>by Daniel this month</div>
+      </div>
+    </div>
+
+    <div class="story red">
+      <div class="story-num">01</div>
+      <span class="tag red">Top priority for Month 2</span>
+      <h3>The conversion tracking is broken &mdash; we're under-counting your leads.</h3>
+      <p>Every conversion tracking pixel in your Google Ads account has been flagging <b>"needs attention"</b> since launch. In plain English: the wires that tell Google "a quote was requested" never connected properly.</p>
+      <p>That means the <b>6 leads</b> figure above is almost certainly low. Your real number is higher &mdash; we just can't prove which clicks turned into quote requests, and Google can't optimise toward something it can't measure.</p>
+      <p><b>What we're doing:</b> Rehan is rebuilding the tracking from scratch using PostHog (a more reliable tool than the previous setup). Targeted live by <b>24 April</b>. Once it's live, we'll see Month 2's true cost-per-lead inside a week.</p>
+    </div>
+
+    <div class="story">
+      <div class="story-num">02</div>
+      <h3>10,164 changes &mdash; almost all of them adding "do not show ads for this" rules.</h3>
+      <p>The biggest job in Month 1 was teaching Google what <b>not</b> to show your ads for. Daniel grew your negative-keyword list from <b>3,409 &rarr; 7,044</b> &mdash; that's <b>3,635 new "do not show" rules</b> added in 31 days.</p>
+      <p>Why so many? Google has changed how keyword matching works. Even when we tell it "only show ads for <b>'precision CNC machining Mexico'</b>," it now also shows ads for vaguely related searches like <b>'machine shop hobby'</b> or <b>'CNC for sale'</b> &mdash; people who will never buy from Redstone. Daniel's job is to spot those wasted impressions every day and block them one by one.</p>
+      <p>It's tedious work, but it's the only way to clean up the traffic. And it's already working &mdash; which leads to the next number.</p>
+    </div>
+
+    <div class="story green">
+      <div class="story-num">03</div>
+      <span class="tag green">Trending up</span>
+      <h3>Click-through rate jumped 34% in 4 weeks, despite Easter.</h3>
+      <p>Click-through rate (CTR) is the cleanest signal that traffic quality is improving. The more relevant the people seeing your ads, the more of them click. Here's the trajectory:</p>
+      <div class="ctr-block">
+        <div class="ctr-row">
+          <div class="lbl">Week 1 (10 Mar)</div>
+          <div class="bar"><div class="fill" style="width:74%"></div></div>
+          <div class="v">3.89%</div>
+        </div>
+        <div class="ctr-row">
+          <div class="lbl">Easter week</div>
+          <div class="bar"><div class="fill" style="width:84%"></div></div>
+          <div class="v">4.42%</div>
+        </div>
+        <div class="ctr-row">
+          <div class="lbl">Easter-adjusted</div>
+          <div class="bar"><div class="fill" style="width:100%"></div></div>
+          <div class="v">5.23%</div>
+        </div>
+      </div>
+      <p>Easter is the second-worst week of the year for Google Ads (after Christmas) &mdash; B2B traffic always drops. So the <b>raw 4.42% in Easter week is actually equivalent to ~5.23% in a normal week</b>. Either way, the line is moving the right direction. Month 2 starts with all that negative-keyword groundwork already paid for.</p>
+    </div>
+
+    <div class="story">
+      <div class="story-num">04</div>
+      <h3>India + Mexico now have their own campaign &mdash; they were getting starved.</h3>
+      <p>When we launched, your India and Mexico location ad groups were sitting inside the main campaign &mdash; and getting <b>zero impressions</b>. The broader generic terms ("CNC manufacturing", "sheet metal fabrication") were eating the entire daily budget before the location ads got a chance to run.</p>
+      <p>Daniel built them out as a <b>separate campaign with their own dedicated budget</b>. Now they actually run. The catch: location-targeted clicks cost more.</p>
+      <div class="split">
+        <div class="split-cell">
+          <div class="lbl">Main campaign &mdash; cost per click</div>
+          <div class="v"><span class="ccy">$</span>4.70</div>
+          <div class="sub">Generic CNC / sheet metal terms</div>
+        </div>
+        <div class="split-cell">
+          <div class="lbl">India + Mexico &mdash; cost per click</div>
+          <div class="v"><span class="ccy">$</span>9.87</div>
+          <div class="sub">Geo-targeted location terms</div>
+        </div>
+      </div>
+      <p>Location clicks are <b>more than 2&times;</b> the price. That's the cost of buyers who are specifically searching for "CNC machining Mexico" instead of just "CNC machining." They're more qualified &mdash; but if they land on a generic page, we waste the click. That's why dedicated India and Mexico landing pages are now a Month 2 priority (see Section 7).</p>
+    </div>
+
+    <div class="story">
+      <div class="story-num">05</div>
+      <h3>We stopped showing your ads to 18&ndash;24 year olds.</h3>
+      <p>The 18&ndash;24 age bracket was the worst-performing audience in the account by every metric we track. They click but they don't buy &mdash; they're not making sourcing decisions for industrial parts. <b>Excluded mid-month.</b> Frees up budget for the actual buyers (engineers and sourcing managers, typically 30&ndash;60).</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="wrap">
+
+    <div class="eyebrow"><span class="bar"></span>What Daniel needs from your side</div>
+    <h2 class="section-h">Two things that <em>unlock Month 2</em>.</h2>
+    <p class="section-desc">These are the two items Daniel flagged that need a decision or a small unblock from you, Eric. Neither is heavy lift &mdash; they just need your sign-off so we can move.</p>
+
+    <div class="story amber">
+      <div class="story-num">06</div>
+      <span class="tag amber">Homepage trust</span>
+      <h3>"Your homepage looks like a comparison site &mdash; you need to prove the 'vetted' claim."</h3>
+      <p>Daniel's exact words on the staging build at <a href="https://redstonemanufacturing.com/updated-home/" target="_blank">/updated-home/</a>. Right now the page <em>says</em> Redstone vets every foundry, but there's nothing above the fold that <em>proves</em> it. Visitors arriving from a paid ad have ten seconds to decide if you're trustworthy &mdash; and "vetted" alone reads like marketing copy.</p>
+      <p>His specific fix &mdash; two lines added to the very top of the page:</p>
+      <div style="background:var(--white);border:1px solid var(--gray-200);border-left:4px solid var(--red);border-radius:var(--radius-md);padding:18px 22px;margin:14px 0;font-family:var(--display);font-weight:700;color:var(--gray-900);font-size:16px;line-height:1.4">
+        ISO 9001 and IATF 16949 Certified Foundries Only<br>
+        <span style="font-size:14px;color:var(--gray-700);font-weight:500">We've Been Helping Companies Since 2018</span>
+      </div>
+      <p>Both lines are now baked into the v2 staging build &mdash; the link is in your inbox today for sign-off. Once approved, it goes live and we'll have the trust signal Daniel asked for.</p>
+    </div>
+
+    <div class="story">
+      <div class="story-num">07</div>
+      <h3>The 7 service pages + 2 country pages we need built.</h3>
+      <p>Daniel pulled the spend data and ranked your ad groups by which ones are getting the most clicks. These are the searches your buyers are actually running &mdash; and right now we're sending them all to the same generic homepage instead of pages built for what they typed.</p>
+      <p>Build order, by spend:</p>
+      <div class="ag-list">
+        <div class="ag-row"><div class="rank">1</div><div class="name">Custom Sheet Metal Fabrication</div><div class="lp">/sheet-metal</div></div>
+        <div class="ag-row"><div class="rank">2</div><div class="name">CNC Manufacturing</div><div class="lp">/cnc</div></div>
+        <div class="ag-row"><div class="rank">3</div><div class="name">Precision Machining Services</div><div class="lp">/precision-machining</div></div>
+        <div class="ag-row"><div class="rank">4</div><div class="name">Custom CNC Machining</div><div class="lp">/custom-cnc</div></div>
+        <div class="ag-row"><div class="rank">5</div><div class="name">CNC Machining Company</div><div class="lp">/cnc-machining-company</div></div>
+        <div class="ag-row"><div class="rank">6</div><div class="name">Custom Machining Services</div><div class="lp">/custom-machining</div></div>
+        <div class="ag-row"><div class="rank">7</div><div class="name">Die Casting Company</div><div class="lp">/die-casting</div></div>
+      </div>
+      <p style="margin-top:18px">Plus two <b>country-specific</b> pages: <b>India</b> and <b>Mexico</b>. The location campaign is already live and burning $9.87 per click &mdash; if those clicks hit a page built for them instead of the generic homepage, the conversion rate jumps significantly.</p>
+      <p><b>Status:</b> Daniel finalised the briefs for all 9 pages. Build kicks off this week, target live by <b>22 April</b>.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="eyebrow"><span class="bar"></span>Month 2 plan</div>
+    <h2 class="section-h">What we're <em>focused on next</em>.</h2>
+    <p class="section-desc">The five things on Daniel's desk for the next 30 days. Everything here ties back to a numbered focus on the <a href="tracker-dashboard.html">main growth tracker</a>.</p>
+
+    <div class="checklist">
+      <div class="check-row">
+        <div class="dot"></div>
+        <div class="body"><b>Fix the conversion tracking (top priority)</b>Rehan rebuilds the pixels properly using PostHog. Once live, every quote request and brochure download gets counted, Google can finally optimise, and your real cost-per-lead becomes visible. Target: <b>24 April</b>.</div>
+      </div>
+      <div class="check-row">
+        <div class="dot"></div>
+        <div class="body"><b>Send you the homepage v2 for sign-off (today)</b>Updated staging at /updated-home/ with the new ISO 9001 / IATF 16949 trust bar Daniel asked for, plus the new quote form embedded. Your call to take it live.</div>
+      </div>
+      <div class="check-row">
+        <div class="dot"></div>
+        <div class="body"><b>Ship the 7 service pages + India & Mexico pages</b>Built off Daniel's briefs, in spend-priority order. Target: all 9 live by <b>22 April</b>. Each one matches the keyword the visitor typed.</div>
+      </div>
+      <div class="check-row">
+        <div class="dot"></div>
+        <div class="body"><b>Continue daily negative-keyword pruning</b>Daniel keeps adding "do not show" rules. Expect the CTR line to keep climbing as the traffic gets cleaner.</div>
+      </div>
+      <div class="check-row">
+        <div class="dot"></div>
+        <div class="body"><b>Wire HubSpot deals into the warehouse</b>Once you enable the HubSpot Private App, every closed deal gets matched back to the ad campaign that originally produced it. That's the missing link between "ad clicks" and "actual revenue." Blocked on your side &mdash; takes ~5 minutes in HubSpot settings.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <div>BUILT <b>14 APR 2026</b> &middot; SOURCE <b>DANIEL HALL MONTHLY REPORT</b> &middot; OWNER <b>KAS</b></div>
+    <div><a href="tracker-dashboard.html">&larr; back to growth tracker</a></div>
+  </div>
+</footer>
+
+</body>
+</html>

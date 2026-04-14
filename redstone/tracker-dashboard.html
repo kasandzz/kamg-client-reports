@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone &mdash; Growth Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Color */
+  --red:#B21E24; --red-dark:#8B1519; --red-light:#D4393F; --red-soft:#FCE9EA;
+  --ink:#0F0F11; --ink-2:#1F1F22;
+  --gray-900:#1A1A1A; --gray-800:#2C2C2E; --gray-700:#3F3F3F; --gray-600:#616060;
+  --gray-500:#8C8C8C; --gray-400:#B1B1B1; --gray-300:#D4D4D4; --gray-250:#E0E0E0;
+  --gray-200:#EAEAEA; --gray-150:#EFEFEF; --gray-100:#F4F4F5; --gray-75:#F7F7F8;
+  --gray-50:#FAFAFA; --white:#FFFFFF;
+  --green:#1F9D55; --green-soft:#E5F5EC; --green-text:#15803D;
+  --amber:#C77700; --amber-text:#9E5E00; --amber-soft:#FBF1E2;
+  --blue:#1F5FCC; --blue-soft:#E5EEFB;
+  --purple:#6E3AB5; --purple-soft:#EFE6F8;
+
+  /* Type */
+  --display:'Bricolage Grotesque','Astra',serif;
+  --body:'DM Sans','Astra',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+
+  /* Layout */
+  --container:1320px;
+  --radius:17px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-sm:0 1px 2px rgba(15,15,17,0.04),0 1px 3px rgba(15,15,17,0.06);
+  --shadow:0 4px 14px rgba(15,15,17,0.08);
+  --shadow-lg:0 12px 36px rgba(15,15,17,0.12);
+  --shadow-btn:0 12px 23px rgba(15,15,17,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--gray-75);color:var(--gray-700);font-family:var(--body);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1,"lnum" 1}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 36px}
+img{max-width:100%}
+button{font:inherit}
+
+/* ==================== TOP BAR ==================== */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 0;position:sticky;top:0;z-index:50;backdrop-filter:saturate(150%) blur(8px);background:rgba(255,255,255,0.92)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:42px;height:42px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.05em;clip-path:polygon(0 0,100% 0,100% 78%,78% 100%,0 100%)}
+.brand-name{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-0.01em;color:var(--gray-900)}
+.brand-sub{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-top:1px}
+.topbar-meta{display:flex;align-items:center;gap:22px;font-size:12px;color:var(--gray-500);font-weight:500}
+.topbar-meta .item{display:flex;align-items:center;gap:8px}
+.topbar-meta .item b{color:var(--gray-900);font-weight:700}
+.live-pill{display:inline-flex;align-items:center;gap:8px;background:var(--green-soft);color:var(--green);padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.live-pill::before{content:"";width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* ==================== HERO ==================== */
+.hero{padding:56px 0 40px;background:var(--white);position:relative;overflow:hidden;border-bottom:1px solid var(--gray-200)}
+.hero::before{content:"";position:absolute;top:0;right:0;width:520px;height:100%;background:linear-gradient(135deg,transparent 40%,var(--red-soft) 100%);clip-path:polygon(40% 0,100% 0,100% 100%,15% 100%);pointer-events:none;opacity:0.6}
+.hero::after{content:"R";position:absolute;top:30px;right:60px;font-family:var(--display);font-size:280px;font-weight:800;color:var(--red);opacity:0.06;line-height:0.85;letter-spacing:-0.05em;pointer-events:none}
+.hero-inner{position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:18px}
+.hero-eyebrow .bar{width:28px;height:2px;background:var(--red)}
+.hero h1{font-family:var(--display);font-size:clamp(2.4em,5vw,3.6em);font-weight:700;letter-spacing:-0.025em;line-height:1.02;color:var(--gray-900);margin-bottom:18px;max-width:820px}
+.hero h1 em{font-style:normal;color:var(--red);font-weight:800}
+.hero p{color:var(--gray-600);font-size:16px;max-width:680px;line-height:1.6}
+.hero p b{color:var(--gray-900);font-weight:600}
+
+/* ==================== KPI STRIP ==================== */
+.kpi-strip{margin-top:42px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(6,1fr);overflow:hidden;position:relative}
+.kpi{padding:24px 26px;border-right:1px solid var(--gray-200);position:relative}
+.kpi:last-child{border-right:none}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-500);font-weight:600;margin-bottom:10px}
+.kpi-val{font-family:var(--display);font-size:2.1em;font-weight:700;letter-spacing:-0.025em;line-height:1;color:var(--gray-900)}
+.kpi-val.red{color:var(--red)}
+.kpi-val.green{color:var(--green)}
+.kpi-val.amber{color:var(--amber)}
+.kpi-val.blue{color:var(--blue)}
+.kpi-val sup{font-size:0.5em;color:var(--gray-500);font-weight:600;margin-left:4px}
+.kpi-sub{font-size:12px;color:var(--gray-500);margin-top:8px;font-weight:500}
+.kpi-trend{display:inline-flex;align-items:center;gap:4px;color:var(--green);font-weight:700;font-size:11px;font-family:var(--mono)}
+.kpi-trend.dim{color:var(--gray-500)}
+
+/* ==================== SECTION ==================== */
+.section{padding:64px 0;position:relative}
+.section.alt{background:var(--white);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:24px;flex-wrap:wrap}
+.section-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.section-eyebrow .bar{width:24px;height:2px;background:var(--red)}
+.section-h{font-family:var(--display);font-size:2em;font-weight:700;letter-spacing:-0.022em;line-height:1.05;color:var(--gray-900);max-width:560px}
+.section-h em{font-style:normal;color:var(--red);font-weight:800}
+.section-desc{font-size:14px;color:var(--gray-600);max-width:440px;text-align:right;line-height:1.55}
+.section-desc b{color:var(--gray-900);font-weight:600}
+
+/* ==================== CARD BASE ==================== */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:20px 26px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.card-head h3{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:-0.005em;color:var(--gray-900);display:flex;align-items:center;gap:12px}
+.card-head .meta{font-size:11px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono)}
+
+/* ==================== LEAD TRACKER ==================== */
+.leads-grid{display:grid;grid-template-columns:2.1fr 1fr;gap:22px}
+.leads-table{width:100%;border-collapse:collapse}
+.leads-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;padding:14px 26px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.leads-table td{padding:18px 26px;border-bottom:1px solid var(--gray-150);font-size:14px;color:var(--gray-700);vertical-align:middle}
+.leads-table tr:last-child td{border-bottom:none}
+.leads-table tbody tr{transition:background .15s}
+.leads-table tbody tr:hover{background:var(--gray-50)}
+.lead-time{font-family:var(--mono);font-size:11px;color:var(--gray-500);font-weight:500}
+.lead-name{color:var(--gray-900);font-weight:700;font-size:14px}
+.lead-co{color:var(--gray-500);font-size:12px;margin-top:2px}
+.lead-val{font-family:var(--display);font-weight:700;color:var(--gray-900);font-size:15px}
+
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:99px;text-transform:uppercase;letter-spacing:0.05em;border:1px solid transparent;white-space:nowrap}
+.pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.pill-new{background:var(--green-soft);color:var(--green)}
+.pill-contacted{background:var(--blue-soft);color:var(--blue)}
+.pill-quoted{background:var(--amber-soft);color:var(--amber)}
+.pill-won{background:var(--red-soft);color:var(--red)}
+
+.leads-stats{display:flex;flex-direction:column;gap:14px}
+.stat{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:22px 24px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.stat::after{content:"";position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle at top right,var(--red-soft) 0%,transparent 70%);pointer-events:none;opacity:0.6}
+.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-500);font-weight:600;margin-bottom:10px}
+.stat-v{font-family:var(--display);font-size:2em;font-weight:700;line-height:1;letter-spacing:-0.02em;color:var(--gray-900)}
+.stat-foot{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--green);font-weight:600}
+.stat-foot.dim{color:var(--gray-500)}
+.stat-foot svg{width:12px;height:12px}
+
+/* ==================== FOCUS / NEXT 30 DAYS ==================== */
+.focus-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+.focus-head{padding:24px 28px 20px;background:linear-gradient(135deg,var(--white) 0%,var(--red-soft) 280%);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.focus-head-l h3{font-family:var(--display);font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.focus-head-l p{font-size:12px;color:var(--gray-500);font-weight:500}
+.focus-head-r{text-align:right}
+.focus-head-r .num{font-family:var(--display);font-size:2.2em;font-weight:800;color:var(--red);line-height:1}
+.focus-head-r .lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;margin-top:2px}
+
+.focus-row{display:grid;grid-template-columns:48px 1fr auto auto auto;gap:22px;align-items:center;padding:20px 28px;border-bottom:1px solid var(--gray-150);transition:background .15s;position:relative}
+.focus-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s}
+.focus-row:hover{background:var(--gray-50)}
+.focus-row:hover::before{background:var(--red)}
+.focus-row:last-child{border-bottom:none}
+.focus-num{font-family:var(--mono);font-size:11px;color:var(--gray-400);font-weight:500;letter-spacing:0.05em}
+.focus-title{font-size:15px;font-weight:700;color:var(--gray-900);font-family:var(--body);letter-spacing:-0.005em}
+.focus-sub{font-size:12px;color:var(--gray-500);margin-top:4px;line-height:1.5}
+.focus-sub b{color:var(--red);font-weight:700}
+.focus-sub b.amber{color:var(--amber)}
+.focus-eta{font-family:var(--mono);text-align:right;min-width:90px}
+.focus-eta b{display:block;font-size:13px;color:var(--gray-900);font-weight:600;margin-bottom:2px}
+.focus-eta span{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em}
+.focus-eta.urgent b{color:var(--red)}
+.focus-eta.soon b{color:var(--amber)}
+
+/* ==================== OWNER CHIPS ==================== */
+.owners{display:flex;align-items:center}
+.own{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:var(--body);border:2px solid var(--white);margin-left:-8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);letter-spacing:0.02em}
+.own:first-child{margin-left:0}
+.own.ka{background:linear-gradient(135deg,#B21E24,#8B1519)}
+.own.le{background:linear-gradient(135deg,#C77700,#9A5A00)}
+.own.rh{background:linear-gradient(135deg,#1F5FCC,#15489E)}
+.own.dh{background:linear-gradient(135deg,#6E3AB5,#502987)}
+.own.jk{background:linear-gradient(135deg,#1F9D55,#177540)}
+.own.ms{background:linear-gradient(135deg,#0EA5B3,#067884)}
+.own.er{background:linear-gradient(135deg,#616060,#3F3F3F)}
+.own.rg{background:linear-gradient(135deg,#D14694,#9F2D6E)}
+.owner-key{padding:18px 28px;background:var(--gray-50);border-top:1px solid var(--gray-200);display:flex;flex-wrap:wrap;gap:18px;font-size:11px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.owner-key span{display:flex;align-items:center;gap:8px}
+.owner-key .own{width:22px;height:22px;font-size:9px;border-width:1.5px;margin:0;box-shadow:none}
+
+/* ==================== STATUS PILLS ==================== */
+.status{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;border-radius:99px;border:1px solid;white-space:nowrap}
+.s-blocked{background:var(--red-soft);color:var(--red);border-color:rgba(178,30,36,0.18)}
+.s-progress{background:var(--amber-soft);color:var(--amber);border-color:rgba(199,119,0,0.2)}
+.s-next{background:var(--blue-soft);color:var(--blue);border-color:rgba(31,95,204,0.18)}
+.s-cadence{background:var(--purple-soft);color:var(--purple);border-color:rgba(110,58,181,0.18)}
+.s-done{background:var(--green-soft);color:var(--green);border-color:rgba(31,157,85,0.18)}
+
+/* ==================== GANTT ==================== */
+.gantt-toolbar{padding:20px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.gantt-toolbar-l{font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:500;text-transform:uppercase;letter-spacing:0.08em}
+.gantt-toolbar-l b{color:var(--gray-900);font-weight:700}
+.gantt-toolbar-r{display:flex;align-items:center;gap:14px}
+.toggle{display:inline-flex;align-items:center;gap:12px;cursor:pointer;user-select:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-700)}
+.toggle input{position:absolute;opacity:0;pointer-events:none}
+.toggle .switch{width:38px;height:22px;background:var(--gray-250);border-radius:99px;position:relative;transition:all .2s}
+.toggle .switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:all .2s}
+.toggle input:checked + .switch{background:var(--red)}
+.toggle input:checked + .switch::after{left:18px}
+
+.gantt-head-bar{display:grid;grid-template-columns:340px 1fr;background:var(--white);border-bottom:1px solid var(--gray-200)}
+.gantt-head-l{padding:14px 28px;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;border-right:1px solid var(--gray-200)}
+.gantt-head-r{display:grid;grid-template-columns:repeat(16,1fr)}
+.week{padding:12px 4px;text-align:center;font-size:9px;color:var(--gray-500);font-weight:600;border-right:1px solid var(--gray-150);font-family:var(--mono)}
+.week:last-child{border-right:none}
+.week b{display:block;color:var(--gray-700);font-weight:700;font-size:10px;margin-top:1px}
+.week.current{background:var(--red-soft)}
+.week.current,.week.current b{color:var(--red)}
+
+.gantt-group{padding:12px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray-700);font-weight:800;display:flex;align-items:center;gap:12px}
+.gantt-group .marker{width:3px;height:14px}
+.gantt-group .count{margin-left:auto;color:var(--gray-500);font-weight:600;font-family:var(--mono)}
+.gantt-group.seo .marker{background:var(--green)}
+.gantt-group.ads .marker{background:var(--purple)}
+.gantt-group.web .marker{background:var(--blue)}
+.gantt-group.leads .marker{background:var(--amber)}
+
+.gantt-row{display:grid;grid-template-columns:340px 1fr;border-bottom:1px solid var(--gray-150);min-height:48px;align-items:center;transition:background .15s}
+.gantt-row:hover{background:var(--gray-50)}
+.gantt-row:last-child{border-bottom:none}
+.gantt-label{padding:12px 28px;font-size:13px;color:var(--gray-700);border-right:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;height:100%}
+.gantt-label .pri{width:3px;height:24px;flex-shrink:0;border-radius:2px}
+.gantt-label .pri.p0{background:var(--red)}
+.gantt-label .pri.p1{background:var(--amber)}
+.gantt-label .pri.p2{background:var(--blue)}
+.gantt-label .pri.p3{background:var(--purple)}
+.gantt-label .pri.done{background:var(--green)}
+.gantt-label .t{color:var(--gray-900);font-weight:600;font-size:13px;flex:1;line-height:1.3;letter-spacing:-0.005em}
+.gantt-label .own{width:24px;height:24px;font-size:9px;border-width:1.5px;margin:0;flex-shrink:0}
+
+.gantt-track{position:relative;display:grid;grid-template-columns:repeat(16,1fr);height:100%}
+.gantt-cell{border-right:1px dashed var(--gray-150);height:100%}
+.gantt-cell:last-child{border-right:none}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);height:24px;display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+.bar-p0{background:linear-gradient(90deg,var(--red) 0%,var(--red-dark) 100%)}
+.bar-p1{background:linear-gradient(90deg,#E08A1E 0%,#9A5A00 100%)}
+.bar-p2{background:linear-gradient(90deg,#3A7AE0 0%,#15489E 100%)}
+.bar-p3{background:linear-gradient(90deg,#8855CC 0%,#502987 100%)}
+.bar-done{background:repeating-linear-gradient(45deg,#D6E9DD,#D6E9DD 6px,#E5F5EC 6px,#E5F5EC 12px);color:var(--green);box-shadow:none;border:1px solid rgba(31,157,85,0.25)}
+.gantt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--red);box-shadow:0 0 12px rgba(178,30,36,0.4);z-index:5;pointer-events:none;left:9.375%}
+.gantt-today::before{content:"NOW";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--red);font-weight:800;letter-spacing:0.12em;background:var(--white);padding:2px 6px;border-radius:4px;border:1px solid var(--red)}
+
+.gantt-row.done-row{display:none}
+#showDone:checked ~ .gantt-card .gantt-row.done-row{display:grid;background:var(--gray-50)}
+#showDone:checked ~ .gantt-card .gantt-row.done-row .gantt-label{opacity:0.78}
+
+.gantt-legend{display:flex;gap:22px;padding:18px 28px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:11px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:8px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.lg .sw{width:14px;height:14px;border-radius:3px}
+.lg .sw.p0{background:var(--red)}
+.lg .sw.p1{background:var(--amber)}
+.lg .sw.p2{background:var(--blue)}
+.lg .sw.p3{background:var(--purple)}
+.lg .sw.done{background:repeating-linear-gradient(45deg,#D6E9DD,#D6E9DD 3px,#E5F5EC 3px,#E5F5EC 6px);border:1px solid rgba(31,157,85,0.25)}
+
+#showDone{display:none}
+
+/* ==================== ACCORDIONS ==================== */
+.accordions{display:flex;flex-direction:column;gap:16px}
+details.acc{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .2s,border-color .2s}
+details.acc:hover{box-shadow:var(--shadow);border-color:var(--gray-250)}
+details.acc[open]{box-shadow:var(--shadow)}
+details.acc summary{list-style:none;cursor:pointer;padding:22px 28px;display:flex;align-items:center;gap:18px;user-select:none;transition:background .15s}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:hover{background:var(--gray-50)}
+.acc-arrow{width:11px;height:11px;border-right:2px solid var(--gray-500);border-bottom:2px solid var(--gray-500);transform:rotate(-45deg);transition:transform .2s;flex-shrink:0;margin-right:4px}
+details.acc[open] .acc-arrow{transform:rotate(45deg)}
+.acc-marker{width:4px;height:24px;flex-shrink:0;border-radius:2px}
+details.acc.seo .acc-marker{background:var(--green)}
+details.acc.ads .acc-marker{background:var(--purple)}
+details.acc.web .acc-marker{background:var(--blue)}
+details.acc.leads .acc-marker{background:var(--amber)}
+details.acc.backlog .acc-marker{background:var(--gray-400)}
+details.acc.done .acc-marker{background:var(--green)}
+.acc-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--gray-900);flex:1;letter-spacing:-0.005em}
+.acc-meta{display:flex;align-items:center;gap:18px;font-size:11px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-family:var(--mono)}
+.acc-meta .chip{padding:4px 10px;background:var(--gray-100);border-radius:99px;color:var(--gray-700)}
+.acc-meta .chip.active{background:var(--amber-soft);color:var(--amber)}
+.acc-meta .chip.done{background:var(--green-soft);color:var(--green)}
+.acc-body{padding:8px 18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;border-top:1px solid var(--gray-150);background:var(--gray-50)}
+.task{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:18px 20px;transition:all .2s;box-shadow:var(--shadow-sm)}
+.task:hover{border-color:var(--gray-300);transform:translateY(-2px);box-shadow:var(--shadow)}
+.task-pri{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.task-pri .pdot{width:7px;height:7px;border-radius:50%}
+.task-pri .pdot.p0{background:var(--red)}
+.task-pri .pdot.p1{background:var(--amber)}
+.task-pri .pdot.p2{background:var(--blue)}
+.task-pri .pdot.p3{background:var(--purple)}
+.task-pri .pdot.done{background:var(--green)}
+.task-pri .plbl{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono)}
+.task-t{font-size:14px;font-weight:700;color:var(--gray-900);line-height:1.4;margin-bottom:14px;letter-spacing:-0.005em}
+.task-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--gray-150)}
+.task-foot .own{width:24px;height:24px;font-size:9px;border-width:1.5px;margin:0}
+.task-foot .left{display:flex;align-items:center;gap:8px}
+.task-foot .right{font-family:var(--mono);font-size:11px;color:var(--gray-500);font-weight:600}
+.task.done-task .task-t{color:var(--gray-500);text-decoration:line-through;text-decoration-color:var(--gray-300);text-decoration-thickness:1.5px}
+.task.done-task{background:var(--gray-50)}
+.task.done-task .task-pri .plbl{color:var(--green)}
+
+/* ==================== FOOTER ==================== */
+footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gray-200)}
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+.footer-l{display:flex;align-items:center;gap:14px}
+.footer-l .brand-mark{width:32px;height:32px;font-size:16px}
+.footer-l .t{font-family:var(--display);font-weight:700;font-size:13px;color:var(--gray-900)}
+.footer-l .s{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.1em;font-weight:600}
+.footer-r{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;font-family:var(--mono)}
+.footer-r b{color:var(--gray-900);font-weight:700}
+
+/* ==================== RESPONSIVE ==================== */
+@media(max-width:1200px){
+  .kpi-strip{grid-template-columns:repeat(3,1fr)}
+  .kpi:nth-child(3){border-right:none}
+  .kpi:nth-child(-n+3){border-bottom:1px solid var(--gray-200)}
+  .leads-grid{grid-template-columns:1fr}
+  .gantt-head-bar,.gantt-row{grid-template-columns:240px 1fr}
+}
+@media(max-width:780px){
+  .wrap{padding:0 20px}
+  .topbar-meta{display:none}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+  .focus-row{grid-template-columns:36px 1fr;row-gap:8px}
+  .focus-row .owners,.focus-row .focus-eta,.focus-row .status{grid-column:2}
+  .focus-eta{text-align:left}
+  .gantt-head-r,.gantt-track{grid-template-columns:repeat(8,1fr)}
+  .week:nth-child(odd){display:none}
+  .hero h1{font-size:1.9em}
+  .acc-meta .chip{display:none}
+  .acc-meta .chip.active{display:inline-block}
+}
+@media(max-width:520px){
+  .kpi-strip{grid-template-columns:1fr}
+  .kpi{border-right:none;border-bottom:1px solid var(--gray-200)}
+  .acc-body{grid-template-columns:1fr}
+}
+
+/* ==================== A11Y + REVIEW FIXES ==================== */
+/* WCAG AA: bump secondary text from gray-500 (3.5:1) to gray-600 (5.7:1) */
+.kpi-sub,.lead-co,.lead-time,.focus-num,.focus-sub,.focus-eta span,
+.task-foot .right,.gantt-toolbar-l,.acc-meta,.gantt-head-l,.week,
+.section-eyebrow,.hero-eyebrow,.brand-sub,.topbar-meta,.footer-r,
+.focus-head-l p,.owner-key,.gantt-legend .lg,.card-head .meta{color:var(--gray-600)}
+
+/* Amber on amber-soft was 4.1:1 (FAIL). Use darker amber for text-on-tint */
+.pill-quoted{background:var(--amber-soft);color:var(--amber-text)}
+.focus-eta.soon b{color:var(--amber-text)}
+.focus-sub b.amber{color:var(--amber-text)}
+.acc-meta .chip.active{background:var(--amber-soft);color:var(--amber-text)}
+.s-progress{background:var(--amber-soft);color:var(--amber-text);border-color:rgba(158,94,0,0.22)}
+
+/* Won was red — collides with blocked/urgent semantics. Move to green. */
+.pill-won{background:var(--green-soft);color:var(--green-text);border-color:rgba(31,157,85,0.2)}
+
+/* Placeholder flag inline in KPI sub */
+.placeholder-flag{display:inline-block;font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber-text);background:var(--amber-soft);padding:1px 6px;border-radius:99px;margin-left:6px;vertical-align:middle}
+
+/* Awaiting-from-Eric strip */
+.eric-strip{margin-top:18px;background:linear-gradient(135deg,#fff 0%,var(--red-soft) 220%);border:1px solid rgba(178,30,36,0.22);border-left:4px solid var(--red);border-radius:var(--radius);padding:18px 24px;display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;box-shadow:var(--shadow-sm)}
+.eric-strip-l{display:flex;flex-direction:column;gap:4px;min-width:200px}
+.eric-tag{font-family:var(--display);font-size:13px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:0.06em}
+.eric-sub{font-size:11px;color:var(--gray-600);font-weight:500}
+.eric-strip-r{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.eric-item{font-size:12px;color:var(--gray-900);font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.35}
+.eric-item b{font-family:var(--display);color:var(--red);font-weight:800;font-size:14px}
+.eric-item .wait{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--red);background:rgba(178,30,36,0.1);padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:0.05em;margin-left:auto}
+
+/* Overdue urgency pill */
+.pill-overdue{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;background:var(--red);color:#fff;border-radius:99px;font-family:var(--mono);box-shadow:0 2px 6px rgba(178,30,36,0.3)}
+.pill-overdue::before{content:"!";display:inline-flex;width:13px;height:13px;background:#fff;color:var(--red);border-radius:50%;align-items:center;justify-content:center;font-size:10px;font-weight:900}
+
+/* Per-item next/blocker meta line */
+.focus-meta{display:flex;gap:14px;margin-top:6px;font-size:11px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.04em;flex-wrap:wrap}
+.focus-meta .next{color:var(--gray-600);font-weight:600}
+.focus-meta .next b{color:var(--gray-900);font-weight:700}
+.focus-meta .impact{color:var(--green-text);font-weight:700}
+.focus-meta .blockedby{color:var(--red);font-weight:700}
+
+/* Provenance line */
+.provenance{margin-top:14px;font-size:11px;color:var(--gray-600);text-transform:uppercase;letter-spacing:0.06em;font-family:var(--mono);display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.provenance b{color:var(--gray-900);font-weight:700}
+.provenance .src{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;background:var(--gray-100);border-radius:99px;border:1px solid var(--gray-200)}
+.provenance .src.live{background:var(--green-soft);color:var(--green-text);border-color:rgba(31,157,85,0.2)}
+.provenance .src.live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+
+/* Owner chip readability — min 26px, no letter-spacing */
+.own{letter-spacing:0;font-weight:800}
+.owner-key .own,.gantt-label .own,.task-foot .own{width:26px;height:26px;font-size:10px}
+
+/* Show Done counter + visible affordance */
+.toggle .count{font-family:var(--mono);color:var(--gray-600);font-weight:600;text-transform:none;letter-spacing:0;font-size:10px;margin-left:4px}
+
+/* Completed task = clickable proof link */
+.task.done-task{display:block;text-decoration:none;color:inherit;cursor:pointer}
+.task.done-task:hover{border-color:var(--green);box-shadow:0 4px 14px rgba(31,157,85,0.14)}
+.task.done-task .task-t{transition:color .15s}
+.task.done-task:hover .task-t{color:var(--green-text);text-decoration-color:var(--green)}
+.task.done-task .proof{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green-text);text-transform:uppercase;letter-spacing:0.06em}
+.task.done-task .proof::after{content:"\2197"}
+
+/* Mobile: kill the Gantt entirely, swap in a simple "this week / next / later" list */
+.gantt-mobile{display:none}
+@media(max-width:780px){
+  .gantt-card{display:none}
+  #showDone:checked ~ .gantt-card{display:none}
+  .gantt-mobile{display:block;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .gm-bucket{padding:18px 22px;border-bottom:1px solid var(--gray-150)}
+  .gm-bucket:last-child{border-bottom:none}
+  .gm-h{font-family:var(--display);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-900);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .gm-h .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+  .gm-h.next .dot{background:var(--amber)}
+  .gm-h.later .dot{background:var(--gray-400)}
+  .gm-row{font-size:13px;color:var(--gray-700);padding:6px 0;display:flex;justify-content:space-between;gap:10px;line-height:1.35}
+  .gm-row .when{font-family:var(--mono);font-size:10px;color:var(--gray-600);font-weight:700;flex-shrink:0}
+
+  /* Mobile focus rows: keep ETA pinned right of title */
+  .focus-row{grid-template-columns:1fr auto;grid-template-areas:"num eta" "title title" "owners status";row-gap:10px;column-gap:12px}
+  .focus-row .focus-num{grid-area:num;align-self:start}
+  .focus-row .focus-eta{grid-area:eta;text-align:right;min-width:0}
+  .focus-row > div:nth-child(2){grid-area:title;grid-column:1/-1}
+  .focus-row .owners{grid-area:owners;grid-column:1}
+  .focus-row .status{grid-area:status;justify-self:end}
+
+  /* Topbar — keep updated date visible on mobile */
+  .topbar-meta{display:flex;flex-wrap:wrap}
+  .topbar-meta .item:not(:first-of-type){display:none}
+  .topbar-meta .live-pill{display:none}
+
+  /* Eric strip stacks */
+  .eric-strip{grid-template-columns:1fr;gap:12px;padding:16px 18px}
+  .eric-strip-r{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== TOP BAR ==================== -->
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-name">REDSTONE MANUFACTURING</div>
+        <div class="brand-sub">Growth Operations Tracker</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <span class="live-pill">Live</span>
+      <div class="item">UPDATED <b>13 APR 2026</b></div>
+      <div class="item">RHYTHM <b>MON &middot; THU</b></div>
+      <div class="item">OWNER <b>KAS &middot; LEO</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-eyebrow"><span class="bar"></span>Q2 2026 &middot; SPRINT VIEW</div>
+    <h1>Growth <em>Tracker</em><br>built to ship,<br>not to admire.</h1>
+    <p>Live dashboard replacing the Google Sheet. Lead pipeline up top, the eight-item focus list for the next 30 days, full Gantt with workstream grouping, and accordion drawers for everything else. Toggle <b>Show Done</b> on the Gantt to see what's already shipped &mdash; <b>10 wins</b> since Mar 17 kickoff.</p>
+
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-label">Pipeline</div>
+        <div class="kpi-val red">$1.04M</div>
+        <div class="kpi-sub">open opportunity value <em class="placeholder-flag">placeholder</em></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Leads MTD</div>
+        <div class="kpi-val blue">47</div>
+        <div class="kpi-sub"><span class="kpi-trend">&uarr; 32% MoM</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Active Now</div>
+        <div class="kpi-val amber">8</div>
+        <div class="kpi-sub">in next 30 days</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Shipped</div>
+        <div class="kpi-val green">10</div>
+        <div class="kpi-sub"><span class="kpi-trend">&uarr; since Mar 17</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Initiatives</div>
+        <div class="kpi-val">26</div>
+        <div class="kpi-sub">across 5 workstreams</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Backlog</div>
+        <div class="kpi-val">8</div>
+        <div class="kpi-sub">P3 / P4 future</div>
+      </div>
+    </div>
+
+    <!-- Awaiting from Eric callout -->
+    <div class="eric-strip" role="note" aria-label="Awaiting from Eric">
+      <div class="eric-strip-l">
+        <span class="eric-tag">Awaiting from Eric</span>
+        <span class="eric-sub">3 unblock items &middot; updated Mon Apr 13 by Leo &middot; next refresh Thu Apr 16</span>
+      </div>
+      <div class="eric-strip-r">
+        <div class="eric-item"><b>1.</b> Stack 3 hero copy sign-off <span class="wait">3d waiting</span></div>
+        <div class="eric-item"><b>2.</b> HubSpot Private App token <span class="wait">5d waiting</span></div>
+        <div class="eric-item"><b>3.</b> GSC + GA4 owner access <span class="wait">2d waiting</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== LEAD TRACKER ==================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Inbound Pipeline</div>
+        <h2 class="section-h">Live <em>Lead Tracker</em></h2>
+      </div>
+      <p class="section-desc">Auto-synced from quote form submissions. <b style="color:var(--amber-text)">Placeholder data</b> &mdash; wire to HubSpot webhook in Phase 2.</p>
+    </div>
+    <div class="provenance">
+      <span><b>Sources:</b></span>
+      <span class="src live">Google Ads API</span>
+      <span class="src">HubSpot &middot; Phase 2</span>
+      <span class="src">Manual &middot; Mon &middot; Thu by Leo</span>
+      <span class="src">GSC + GA4 &middot; pending Eric access</span>
+    </div>
+
+    <div class="leads-grid">
+      <div class="card">
+        <div class="card-head">
+          <h3><span class="live-pill">Live</span>Form Submissions &mdash; Last 14 Days</h3>
+          <div class="meta">SOURCE &middot; redstonemanufacturing.com/quote</div>
+        </div>
+        <table class="leads-table">
+          <thead>
+            <tr><th>Received</th><th>Lead</th><th>Part Type</th><th>Est. Value</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="lead-time">APR 13 &middot; 09:42</td><td><div class="lead-name">Marcus Holden</div><div class="lead-co">Velocity Defense Systems</div></td><td>Aluminium brackets &middot; 8K units</td><td class="lead-val">$124,000</td><td><span class="pill pill-new">New</span></td></tr>
+            <tr><td class="lead-time">APR 12 &middot; 16:18</td><td><div class="lead-name">Sarah Kim</div><div class="lead-co">Northshore Medical Devices</div></td><td>Titanium housings &middot; 2.5K units</td><td class="lead-val">$87,500</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
+            <tr><td class="lead-time">APR 12 &middot; 11:07</td><td><div class="lead-name">David Brennan</div><div class="lead-co">Tetra Industrial Controls</div></td><td>Steel die casts &middot; 15K units</td><td class="lead-val">$210,000</td><td><span class="pill pill-quoted">Quoted</span></td></tr>
+            <tr><td class="lead-time">APR 11 &middot; 14:33</td><td><div class="lead-name">Priya Venkatesh</div><div class="lead-co">Halcyon Aerospace</div></td><td>Precision machined &middot; 500 units</td><td class="lead-val">$64,800</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
+            <tr><td class="lead-time">APR 10 &middot; 08:51</td><td><div class="lead-name">James Whitaker</div><div class="lead-co">Ironside Automotive Group</div></td><td>Zinc die cast &middot; 20K units</td><td class="lead-val">$312,000</td><td><span class="pill pill-won">Won</span></td></tr>
+            <tr><td class="lead-time">APR 09 &middot; 13:22</td><td><div class="lead-name">Elena Rodriguez</div><div class="lead-co">Crestline Robotics</div></td><td>Custom brackets &middot; 4K units</td><td class="lead-val">$56,200</td><td><span class="pill pill-quoted">Quoted</span></td></tr>
+            <tr><td class="lead-time">APR 08 &middot; 10:15</td><td><div class="lead-name">Robert Chen</div><div class="lead-co">Meridian Power Systems</div></td><td>Aluminium heat sinks &middot; 12K</td><td class="lead-val">$145,000</td><td><span class="pill pill-contacted">Contacted</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="leads-stats">
+        <div class="stat">
+          <div class="stat-lbl">Leads This Week</div>
+          <div class="stat-v">12</div>
+          <div class="stat-foot">&uarr; 41% vs last week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Pipeline Value</div>
+          <div class="stat-v">$999K</div>
+          <div class="stat-foot">&uarr; $218K week-on-week</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Avg Quote Value</div>
+          <div class="stat-v">$142K</div>
+          <div class="stat-foot">&uarr; 8% vs last month</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Quote &rarr; Won</div>
+          <div class="stat-v">28%</div>
+          <div class="stat-foot dim">target: 35%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== NEXT 30 DAYS ==================== -->
+<section class="section alt">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Active Focus</div>
+        <h2 class="section-h">Next <em>30 Days</em></h2>
+      </div>
+      <p class="section-desc">The only list that matters this sprint. Sorted by ETA. Updated every <b>Mon &amp; Thu</b> by Leo.</p>
+    </div>
+
+    <div class="focus-card">
+      <div class="focus-head">
+        <div class="focus-head-l">
+          <h3>Sprint Focus</h3>
+          <p>13 Apr &rarr; 13 May &middot; 8 items &middot; 5 owners</p>
+        </div>
+        <div class="focus-head-r">
+          <div class="num">8</div>
+          <div class="lbl">Initiatives</div>
+        </div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">01</div>
+        <div>
+          <div class="focus-title">Homepage Stack 3 &mdash; production launch &nbsp;<span class="pill-overdue">Overdue +3d</span></div>
+          <div class="focus-sub">Staging at /updated-home/ &middot; awaiting "American made" copy sign-off</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Eric approves hero copy</b></span>
+            <span class="blockedby">Blocked by: Eric &middot; 3d</span>
+            <span class="impact">Impact: ~+15% homepage CVR</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own rh">RH</div><div class="own ms">MS</div><div class="own er">ER</div></div>
+        <div class="focus-eta urgent"><b>APR 15</b><span>OVERDUE +3</span></div>
+        <span class="status s-blocked">&middot; Blocked</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">02</div>
+        <div>
+          <div class="focus-title">Quote form &mdash; final 3 items</div>
+          <div class="focus-sub">Prototype helper text + 2 HubSpot field verifications &middot; <b class="amber">16 of 19 already shipped</b></div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Rehan ships helper-text variant</b></span>
+            <span class="impact">Impact: ~+8&ndash;12% form completion</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own rh">RH</div><div class="own ka">KA</div></div>
+        <div class="focus-eta urgent"><b>APR 17</b><span>4 days</span></div>
+        <span class="status s-progress">&middot; In Progress</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">03</div>
+        <div>
+          <div class="focus-title">Niche LP #1 &mdash; Defense / Aerospace</div>
+          <div class="focus-sub">Service-page agent brief ready &middot; Daniel keyword cluster + Jack SEO sign-off pending</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Daniel ships keyword cluster</b></span>
+            <span class="impact">Impact: $80&ndash;150K avg quote per win</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own dh">DH</div><div class="own jk">JK</div><div class="own ka">KA</div></div>
+        <div class="focus-eta soon"><b>APR 22</b><span>9 days</span></div>
+        <span class="status s-next">&middot; Next Up</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">04</div>
+        <div>
+          <div class="focus-title">Bing Ads launch</div>
+          <div class="focus-sub">Mirror Google Search structure &middot; 79 keywords &middot; Daniel owns build</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Daniel imports Google campaigns</b></span>
+            <span class="impact">Impact: ~+15&ndash;25 leads/mo</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own dh">DH</div></div>
+        <div class="focus-eta soon"><b>APR 25</b><span>12 days</span></div>
+        <span class="status s-next">&middot; Next Up</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">05</div>
+        <div>
+          <div class="focus-title">PostHog / Hotjar &mdash; full event taxonomy</div>
+          <div class="focus-sub">GTM install in progress &middot; need form-fill + scroll-depth + replay events live</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Rehan publishes GTM container</b></span>
+            <span class="impact">Impact: unlocks CRO test program</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own rh">RH</div></div>
+        <div class="focus-eta"><b>APR 28</b><span>15 days</span></div>
+        <span class="status s-progress">&middot; In Progress</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">06</div>
+        <div>
+          <div class="focus-title">SEO recovery &mdash; sprint 2 execution</div>
+          <div class="focus-sub">Jack roadmap exec &middot; technical fixes + content cluster #1 (Die Casting Mexico)</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Jack publishes cluster brief</b></span>
+            <span class="impact">Impact: organic recovery target +30%</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own jk">JK</div></div>
+        <div class="focus-eta"><b>MAY 02</b><span>19 days</span></div>
+        <span class="status s-progress">&middot; In Progress</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">07</div>
+        <div>
+          <div class="focus-title">Data warehouse &mdash; Phase 1 ingest</div>
+          <div class="focus-sub">GSC + GA4 + HubSpot &rarr; BigQuery &middot; <b class="amber">blocked on Eric GSC owner access</b></div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Eric grants GSC + GA4 owner</b></span>
+            <span class="blockedby">Blocked by: Eric &middot; 2d</span>
+            <span class="impact">Impact: unlocks reporting layer</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own er">ER</div></div>
+        <div class="focus-eta"><b>MAY 08</b><span>25 days</span></div>
+        <span class="status s-blocked">&middot; Blocked</span>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">08</div>
+        <div>
+          <div class="focus-title">Rachel cold-email list build</div>
+          <div class="focus-sub">Defense / aerospace ICP scrape &middot; 5K verified contacts &middot; first send week of May 5</div>
+          <div class="focus-meta">
+            <span class="next">Next: <b>Rachel finalises ICP filters</b></span>
+            <span class="impact">Impact: ~+30 SQL/mo target</span>
+          </div>
+        </div>
+        <div class="owners"><div class="own rg">RG</div><div class="own ka">KA</div></div>
+        <div class="focus-eta"><b>MAY 05</b><span>22 days</span></div>
+        <span class="status s-next">&middot; Next Up</span>
+      </div>
+
+      <div class="owner-key">
+        <span><div class="own ka">KA</div>Kas</span>
+        <span><div class="own le">LE</div>Leo</span>
+        <span><div class="own rh">RH</div>Rehan</span>
+        <span><div class="own dh">DH</div>Daniel</span>
+        <span><div class="own jk">JK</div>Jack</span>
+        <span><div class="own ms">MS</div>Mostafa</span>
+        <span><div class="own rg">RG</div>Rachel</span>
+        <span><div class="own er">ER</div>Eric (input)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== GANTT ==================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Execution Timeline</div>
+        <h2 class="section-h">Roadmap <em>Gantt</em></h2>
+      </div>
+      <p class="section-desc">16-week view, grouped by workstream. Toggle <b>Show Done</b> to overlay completed initiatives.</p>
+    </div>
+
+    <input type="checkbox" id="showDone">
+
+    <!-- Mobile fallback: micro-Gantt unreadable below 780px, swap a clean list -->
+    <div class="gantt-mobile">
+      <div class="gm-bucket">
+        <div class="gm-h"><span class="dot"></span>This week &middot; W15</div>
+        <div class="gm-row"><span>Homepage Stack 3 &mdash; production launch</span><span class="when">APR 15</span></div>
+        <div class="gm-row"><span>Quote form &mdash; final 3 items</span><span class="when">APR 17</span></div>
+      </div>
+      <div class="gm-bucket">
+        <div class="gm-h next"><span class="dot"></span>Next 2 weeks</div>
+        <div class="gm-row"><span>Niche LP #1 &mdash; Defense / Aerospace</span><span class="when">APR 22</span></div>
+        <div class="gm-row"><span>Bing Ads launch</span><span class="when">APR 25</span></div>
+        <div class="gm-row"><span>PostHog / Hotjar event taxonomy</span><span class="when">APR 28</span></div>
+      </div>
+      <div class="gm-bucket">
+        <div class="gm-h later"><span class="dot"></span>Later this sprint</div>
+        <div class="gm-row"><span>SEO recovery &mdash; sprint 2</span><span class="when">MAY 02</span></div>
+        <div class="gm-row"><span>Rachel cold-email list build</span><span class="when">MAY 05</span></div>
+        <div class="gm-row"><span>Data warehouse Phase 1 ingest</span><span class="when">MAY 08</span></div>
+      </div>
+    </div>
+
+    <div class="card gantt-card">
+      <div class="gantt-toolbar">
+        <div class="gantt-toolbar-l">WEEK <b>15</b> &middot; APR 13 &mdash; AUG 02 &middot; <b>16 WEEKS</b></div>
+        <div class="gantt-toolbar-r">
+          <label class="toggle" for="showDone"><span>Show Done</span><span class="count">(10 shipped)</span><span class="switch"></span></label>
+        </div>
+      </div>
+
+      <div class="gantt-head-bar">
+        <div class="gantt-head-l">Initiative &middot; Owner</div>
+        <div class="gantt-head-r">
+          <div class="week">W14<b>APR 6</b></div>
+          <div class="week current">W15<b>APR 13</b></div>
+          <div class="week">W16<b>APR 20</b></div>
+          <div class="week">W17<b>APR 27</b></div>
+          <div class="week">W18<b>MAY 4</b></div>
+          <div class="week">W19<b>MAY 11</b></div>
+          <div class="week">W20<b>MAY 18</b></div>
+          <div class="week">W21<b>MAY 25</b></div>
+          <div class="week">W22<b>JUN 1</b></div>
+          <div class="week">W23<b>JUN 8</b></div>
+          <div class="week">W24<b>JUN 15</b></div>
+          <div class="week">W25<b>JUN 22</b></div>
+          <div class="week">W26<b>JUN 29</b></div>
+          <div class="week">W27<b>JUL 6</b></div>
+          <div class="week">W28<b>JUL 13</b></div>
+          <div class="week">W29<b>JUL 20</b></div>
+        </div>
+      </div>
+
+      <!-- SEO RECOVERY -->
+      <div class="gantt-group seo"><span class="marker"></span>SEO RECOVERY <span class="count">3 ACTIVE &middot; 1 DONE</span></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">SEO Investigation Report</span><div class="own jk">JK</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 6</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Google SEO Recovery &mdash; sprint 2+</span><div class="own jk">JK</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:43.75%">P0 &middot; 7w</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Niche / Service LPs (8 pages)</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:50%">P0 &middot; 8w</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Bing SEO (parallel)</span><div class="own jk">JK</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:18.75%;width:31.25%">P0 &middot; 5w</div></div></div>
+
+      <!-- PAID ADS -->
+      <div class="gantt-group ads"><span class="marker"></span>PAID ADS <span class="count">3 ACTIVE &middot; 1 DONE</span></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Ads &mdash; initial launch</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 10</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Google Ads &mdash; ongoing optimisation</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:62.5%">P0 &middot; ongoing</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Bing Ads launch</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:18.75%">P0 &middot; 3w</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Landing Page A/B Programme</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:15.625%;width:43.75%">P0 &middot; 7w</div></div></div>
+
+      <!-- WEBSITE & CRO -->
+      <div class="gantt-group web"><span class="marker"></span>WEBSITE &amp; CRO <span class="count">3 ACTIVE &middot; 2 DONE</span></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">WordPress maintenance fix</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 9</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Quote form redesign 16/19</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 10</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Homepage Stack 3 launch</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:6.25%">P0 &middot; OVERDUE</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p0"></span><span class="t">Quote form &mdash; last 3 items</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p0" style="left:9.375%;width:6.25%">P0 &middot; 1w</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p1"></span><span class="t">US Hub Landing Pages</span><div class="own dh">DH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p1" style="left:25%;width:25%">P1 &middot; 4w</div></div></div>
+
+      <!-- LEADS & SALES -->
+      <div class="gantt-group leads"><span class="marker"></span>LEADS &amp; SALES <span class="count">2 ACTIVE &middot; 2 DONE</span></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Cold email infra (5 dom &middot; 15 inbox)</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE APR 2</div></div></div>
+
+      <div class="gantt-row done-row"><div class="gantt-label"><span class="pri done"></span><span class="t">Google Reviews velocity pack</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-done" style="left:0%;width:6.25%">DONE MAR 31</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p1"></span><span class="t">PostHog / Hotjar full setup</span><div class="own rh">RH</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p1" style="left:9.375%;width:18.75%">P1 &middot; 3w</div></div></div>
+
+      <div class="gantt-row"><div class="gantt-label"><span class="pri p1"></span><span class="t">Data warehouse Phase 1</span><div class="own ka">KA</div></div>
+        <div class="gantt-track"><div class="gantt-today"></div><div class="gantt-bar bar-p1" style="left:15.625%;width:25%">P1 &middot; 4w</div></div></div>
+
+      <div class="gantt-legend">
+        <div class="lg"><div class="sw p0"></div>P0 Critical</div>
+        <div class="lg"><div class="sw p1"></div>P1 High</div>
+        <div class="lg"><div class="sw p2"></div>P2 Medium</div>
+        <div class="lg"><div class="sw p3"></div>P3 Low</div>
+        <div class="lg"><div class="sw done"></div>Completed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ACCORDIONS ==================== -->
+<section class="section alt">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Full Initiative Register</div>
+        <h2 class="section-h">By <em>Workstream</em></h2>
+      </div>
+      <p class="section-desc">All <b>26 initiatives</b> grouped by channel. Click any drawer to expand. Backlog and Completed start collapsed.</p>
+    </div>
+
+    <div class="accordions">
+
+      <details class="acc seo" open>
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">SEO Recovery</span>
+          <span class="acc-meta"><span class="chip active">3 active</span><span class="chip done">1 done</span></span>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Google SEO Recovery &mdash; sprint 2+</div>
+            <div class="task-foot"><div class="left"><div class="own jk">JK</div></div><div class="right">7w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Niche / Service LPs (8 pages)</div>
+            <div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own jk">JK</div></div><div class="right">8w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Bing SEO (parallel rollout)</div>
+            <div class="task-foot"><div class="left"><div class="own jk">JK</div></div><div class="right">5w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p1"></div><div class="plbl">P1 High</div></div>
+            <div class="task-t">Duplicate Content audit &amp; fix</div>
+            <div class="task-foot"><div class="left"><div class="own jk">JK</div><div class="own rh">RH</div></div><div class="right">3w</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc ads" open>
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">Paid Ads</span>
+          <span class="acc-meta"><span class="chip active">3 active</span><span class="chip done">1 done</span></span>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Google Ads ongoing optimisation</div>
+            <div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right">ongoing</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Bing Ads launch</div>
+            <div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right">3w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Landing Page A/B Testing Programme</div>
+            <div class="task-foot"><div class="left"><div class="own ka">KA</div><div class="own dh">DH</div></div><div class="right">7w</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc web" open>
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">Website &amp; CRO</span>
+          <span class="acc-meta"><span class="chip active">3 active</span><span class="chip done">2 done</span></span>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 &middot; OVERDUE</div></div>
+            <div class="task-t">Homepage Stack 3 production launch</div>
+            <div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own ms">MS</div><div class="own er">ER</div></div><div class="right">+3 days</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p0"></div><div class="plbl">P0 Critical</div></div>
+            <div class="task-t">Quote form &mdash; last 3 items (helper text + HubSpot)</div>
+            <div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own ka">KA</div></div><div class="right">1w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p1"></div><div class="plbl">P1 High</div></div>
+            <div class="task-t">US Hub Landing Pages</div>
+            <div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own rh">RH</div></div><div class="right">4w</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc leads" open>
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">Leads &amp; Sales</span>
+          <span class="acc-meta"><span class="chip active">2 active</span><span class="chip done">3 done</span></span>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><div class="pdot p1"></div><div class="plbl">P1 High</div></div>
+            <div class="task-t">PostHog / Hotjar full event taxonomy</div>
+            <div class="task-foot"><div class="left"><div class="own rh">RH</div></div><div class="right">3w</div></div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><div class="pdot p1"></div><div class="plbl">P1 High</div></div>
+            <div class="task-t">Data warehouse Phase 1 ingest</div>
+            <div class="task-foot"><div class="left"><div class="own ka">KA</div><div class="own er">ER</div></div><div class="right">4w</div></div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc backlog">
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">Backlog &mdash; P3 / P4 future</span>
+          <span class="acc-meta"><span class="chip">8 items</span><span class="chip">not started</span></span>
+        </summary>
+        <div class="acc-body">
+          <div class="task"><div class="task-pri"><div class="pdot p2"></div><div class="plbl">P2 Medium</div></div><div class="task-t">Automated Reporting (post warehouse)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right">3w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P3 Low</div></div><div class="task-t">Pre-Call Email Nurture Sequence</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right">3w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P3 Low</div></div><div class="task-t">Knowledge Hub / Resource Section</div><div class="task-foot"><div class="left"><div class="own rh">RH</div></div><div class="right">5w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P3 Low</div></div><div class="task-t">LLM / AI Search Optimisation</div><div class="task-foot"><div class="left"><div class="own jk">JK</div></div><div class="right">4w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P4 Backlog</div></div><div class="task-t">AI Personalised Proposal Generator</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right">6w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P4 Backlog</div></div><div class="task-t">Quote Database &amp; AI Agent</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right">8&ndash;16w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P4 Backlog</div></div><div class="task-t">Full Website Redesign (post A/B learnings)</div><div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own ms">MS</div></div><div class="right">16&ndash;24w</div></div></div>
+          <div class="task"><div class="task-pri"><div class="pdot p3"></div><div class="plbl">P4 Backlog</div></div><div class="task-t">Tertiary Channels (LinkedIn / YT / Events)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right">8&ndash;16w</div></div></div>
+        </div>
+      </details>
+
+      <details class="acc done">
+        <summary>
+          <span class="acc-arrow"></span>
+          <span class="acc-marker"></span>
+          <span class="acc-title">Completed &mdash; shipped since kickoff</span>
+          <span class="acc-meta"><span class="chip done">10 shipped</span><span class="chip">since Mar 17</span></span>
+        </summary>
+        <div class="acc-body">
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads-launch-summary.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 10</div></div><div class="task-t">Google Ads &mdash; initial campaign launch</div><div class="task-foot"><div class="left"><div class="own dh">DH</div></div><div class="right"><span class="proof">View report</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/haab-deep-dive-notes.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 31</div></div><div class="task-t">In-person deep-dive (Eric + Rachel @ Haab)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View notes</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-reviews-velocity.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED MAR 31</div></div><div class="task-t">Google Reviews velocity package</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View package</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/cold-email-infra.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 2</div></div><div class="task-t">Cold email infra (5 domains &middot; 15 inboxes)</div><div class="task-foot"><div class="left"><div class="own ka">KA</div></div><div class="right"><span class="proof">View setup</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/redstone-seo-report.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 6</div></div><div class="task-t">SEO Investigation Report</div><div class="task-foot"><div class="left"><div class="own jk">JK</div><div class="own ka">KA</div></div><div class="right"><span class="proof">View report</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/wordpress-maintenance-log.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">WordPress maintenance &amp; Link Whisper fix</div><div class="task-foot"><div class="left"><div class="own rh">RH</div></div><div class="right"><span class="proof">View log</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads-competitive-intel.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">Google Ads competitive intel report</div><div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own ka">KA</div></div><div class="right"><span class="proof">View report</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-daniel-ads-brief.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">Eric &amp; Daniel Google Ads briefings</div><div class="task-foot"><div class="left"><div class="own dh">DH</div><div class="own ka">KA</div></div><div class="right"><span class="proof">View brief</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/posthog-gtm-kickoff.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 9</div></div><div class="task-t">PostHog account + GTM kickoff</div><div class="task-foot"><div class="left"><div class="own rh">RH</div></div><div class="right"><span class="proof">View setup</span></div></div></a>
+          <a class="task done-task" href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank" rel="noopener"><div class="task-pri"><div class="pdot done"></div><div class="plbl">SHIPPED APR 10</div></div><div class="task-t">Quote form redesign (16 of 19 items)</div><div class="task-foot"><div class="left"><div class="own rh">RH</div><div class="own rg">RG</div></div><div class="right"><span class="proof">View demo</span></div></div></a>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="wrap footer-row">
+    <div class="footer-l">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="t">REDSTONE &times; KAMG</div>
+        <div class="s">Q2 Growth Tracker</div>
+      </div>
+    </div>
+    <div class="footer-r">
+      BUILT <b>13 APR 2026</b> &middot; NEXT REVIEW <b>THU APR 16</b> &middot; OWNER <b>LEO</b>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

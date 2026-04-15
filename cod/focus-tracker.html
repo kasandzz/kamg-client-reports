@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD &mdash; Focus Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14233F; --navy-dark:#0B1628; --navy-light:#223859; --navy-soft:#E8EDF7;
+  --gold:#C08A2E; --gold-dark:#8E6319; --gold-soft:#FBF1DC;
+  --ink:#0F0F11; --ink-2:#1F1F22;
+  --gray-900:#1A1A1A; --gray-800:#2C2C2E; --gray-700:#3F3F3F; --gray-600:#616060;
+  --gray-500:#8C8C8C; --gray-400:#B1B1B1; --gray-300:#D4D4D4; --gray-250:#E0E0E0;
+  --gray-200:#EAEAEA; --gray-150:#EFEFEF; --gray-100:#F4F4F5; --gray-75:#F7F7F8;
+  --gray-50:#FAFAFA; --white:#FFFFFF;
+  --green:#1F9D55; --green-soft:#E5F5EC;
+  --amber:#C77700; --amber-soft:#FBF1E2;
+  --blue:#1F5FCC; --blue-soft:#E5EEFB;
+  --purple:#6E3AB5; --purple-soft:#EFE6F8;
+  --red:#B21E24; --red-soft:#FCE9EA;
+
+  --display:'Bricolage Grotesque',serif;
+  --body:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+
+  --container:1320px;
+  --radius:17px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-sm:0 1px 2px rgba(15,15,17,0.04),0 1px 3px rgba(15,15,17,0.06);
+  --shadow:0 4px 14px rgba(15,15,17,0.08);
+  --shadow-lg:0 12px 36px rgba(15,15,17,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--gray-75);color:var(--gray-700);font-family:var(--body);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1,"lnum" 1}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 36px}
+
+/* TOP BAR */
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:16px 0;position:sticky;top:0;z-index:50;backdrop-filter:saturate(150%) blur(8px);background:rgba(255,255,255,0.92)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:42px;height:42px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:15px;color:var(--gold);letter-spacing:0.02em;border-radius:6px}
+.brand-name{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-0.01em;color:var(--gray-900)}
+.brand-sub{font-size:11px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-top:1px}
+.topbar-meta{display:flex;align-items:center;gap:22px;font-size:12px;color:var(--gray-500);font-weight:500}
+.topbar-meta .item{display:flex;align-items:center;gap:8px}
+.topbar-meta .item b{color:var(--gray-900);font-weight:700}
+.live-pill{display:inline-flex;align-items:center;gap:8px;background:var(--green-soft);color:var(--green);padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.live-pill::before{content:"";width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* HERO */
+.hero{padding:56px 0 40px;background:var(--white);position:relative;overflow:hidden;border-bottom:1px solid var(--gray-200)}
+.hero::before{content:"";position:absolute;top:0;right:0;width:520px;height:100%;background:linear-gradient(135deg,transparent 40%,var(--navy-soft) 100%);clip-path:polygon(40% 0,100% 0,100% 100%,15% 100%);pointer-events:none;opacity:0.7}
+.hero::after{content:"COD";position:absolute;top:40px;right:60px;font-family:var(--display);font-size:220px;font-weight:800;color:var(--navy);opacity:0.05;line-height:0.85;letter-spacing:-0.05em;pointer-events:none}
+.hero-inner{position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:18px}
+.hero-eyebrow .bar{width:28px;height:2px;background:var(--gold)}
+.hero h1{font-family:var(--display);font-size:clamp(2.4em,5vw,3.6em);font-weight:700;letter-spacing:-0.025em;line-height:1.02;color:var(--gray-900);margin-bottom:18px;max-width:820px}
+.hero h1 em{font-style:normal;color:var(--navy);font-weight:800}
+.hero h1 em.gold{color:var(--gold)}
+.hero p{color:var(--gray-600);font-size:16px;max-width:680px;line-height:1.6}
+.hero p b{color:var(--gray-900);font-weight:600}
+
+/* KPI STRIP */
+.kpi-strip{margin-top:42px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(5,1fr);overflow:hidden;position:relative}
+.kpi{padding:24px 26px;border-right:1px solid var(--gray-200);position:relative}
+.kpi:last-child{border-right:none}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-500);font-weight:600;margin-bottom:10px}
+.kpi-val{font-family:var(--display);font-size:2.1em;font-weight:700;letter-spacing:-0.025em;line-height:1;color:var(--gray-900)}
+.kpi-val.navy{color:var(--navy)}
+.kpi-val.gold{color:var(--gold)}
+.kpi-val.red{color:var(--red)}
+.kpi-val.amber{color:var(--amber)}
+.kpi-val.blue{color:var(--blue)}
+.kpi-val sup{font-size:0.5em;color:var(--gray-500);font-weight:600;margin-left:4px}
+.kpi-sub{font-size:12px;color:var(--gray-500);margin-top:8px;font-weight:500}
+
+/* SECTION */
+.section{padding:64px 0;position:relative}
+.section.alt{background:var(--white);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:24px;flex-wrap:wrap}
+.section-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.section-eyebrow .bar{width:24px;height:2px;background:var(--gold)}
+.section-h{font-family:var(--display);font-size:2em;font-weight:700;letter-spacing:-0.022em;line-height:1.05;color:var(--gray-900);max-width:620px}
+.section-h em{font-style:normal;color:var(--navy);font-weight:800}
+.section-desc{font-size:14px;color:var(--gray-600);max-width:460px;text-align:right;line-height:1.55}
+.section-desc b{color:var(--gray-900);font-weight:600}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:20px 26px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.card-head h3{font-family:var(--display);font-size:15px;font-weight:700;color:var(--gray-900)}
+.card-head .meta{font-size:11px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono)}
+
+/* FOCUS */
+.focus-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+.focus-head{padding:24px 28px 20px;background:linear-gradient(135deg,var(--white) 0%,var(--navy-soft) 280%);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:flex-end;gap:20px}
+.focus-head-l h3{font-family:var(--display);font-size:18px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.focus-head-l p{font-size:12px;color:var(--gray-500);font-weight:500}
+.focus-head-r{text-align:right}
+.focus-head-r .num{font-family:var(--display);font-size:2.2em;font-weight:800;color:var(--navy);line-height:1}
+.focus-head-r .lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;margin-top:2px}
+
+.focus-row{display:grid;grid-template-columns:48px 1fr auto auto auto;gap:22px;align-items:center;padding:20px 28px;border-bottom:1px solid var(--gray-150);transition:background .15s;position:relative}
+.focus-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s}
+.focus-row:hover{background:var(--gray-50)}
+.focus-row:hover::before{background:var(--gold)}
+.focus-row:last-child{border-bottom:none}
+.focus-num{font-family:var(--mono);font-size:11px;color:var(--gray-400);font-weight:500;letter-spacing:0.05em}
+.focus-title{font-size:15px;font-weight:700;color:var(--gray-900);font-family:var(--body);letter-spacing:-0.005em}
+.focus-sub{font-size:12px;color:var(--gray-500);margin-top:4px;line-height:1.5}
+.focus-sub b{color:var(--navy);font-weight:700}
+.focus-window{font-family:var(--mono);text-align:right;min-width:110px}
+.focus-window b{display:block;font-size:12px;color:var(--gray-900);font-weight:700;margin-bottom:2px}
+.focus-window span{font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em}
+
+/* OWNERS */
+.owners{display:flex;align-items:center}
+.own{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:var(--body);border:2px solid var(--white);margin-left:-8px;box-shadow:0 1px 3px rgba(0,0,0,0.12);letter-spacing:0.02em}
+.own:first-child{margin-left:0}
+.own.ka{background:linear-gradient(135deg,#14233F,#0B1628)}
+.own.rh{background:linear-gradient(135deg,#1F5FCC,#15489E)}
+.own.ak{background:linear-gradient(135deg,#C08A2E,#8E6319)}
+.own.mt{background:linear-gradient(135deg,#6E3AB5,#502987)}
+.own.cd{background:linear-gradient(135deg,#1F9D55,#177540)}
+.own.wh{background:linear-gradient(135deg,#0EA5B3,#067884)}
+.own.vo{background:linear-gradient(135deg,#B21E24,#8B1519)}
+.owner-key{padding:18px 28px;background:var(--gray-50);border-top:1px solid var(--gray-200);display:flex;flex-wrap:wrap;gap:18px;font-size:11px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.owner-key span{display:flex;align-items:center;gap:8px}
+.owner-key .own{width:22px;height:22px;font-size:9px;border-width:1.5px;margin:0;box-shadow:none}
+
+/* STATUS */
+.status{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;border-radius:99px;border:1px solid;white-space:nowrap}
+.s-progress{background:var(--amber-soft);color:var(--amber);border-color:rgba(199,119,0,0.2)}
+.s-planning{background:var(--purple-soft);color:var(--purple);border-color:rgba(110,58,181,0.18)}
+.s-todo{background:var(--blue-soft);color:var(--blue);border-color:rgba(31,95,204,0.18)}
+.s-cadence{background:var(--gray-100);color:var(--gray-700);border-color:var(--gray-250)}
+
+/* TIMELINE (weeks) */
+.timeline-toolbar{padding:20px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.timeline-toolbar-l{font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:500;text-transform:uppercase;letter-spacing:0.08em}
+.timeline-toolbar-l b{color:var(--gray-900);font-weight:700}
+
+.gantt-head-bar{display:grid;grid-template-columns:360px 1fr;background:var(--white);border-bottom:1px solid var(--gray-200)}
+.gantt-head-l{padding:14px 28px;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;border-right:1px solid var(--gray-200)}
+.gantt-head-r{display:grid;grid-template-columns:repeat(8,1fr)}
+.week{padding:12px 4px;text-align:center;font-size:9px;color:var(--gray-500);font-weight:600;border-right:1px solid var(--gray-150);font-family:var(--mono)}
+.week:last-child{border-right:none}
+.week b{display:block;color:var(--gray-700);font-weight:700;font-size:10px;margin-top:1px}
+.week.current{background:var(--navy-soft)}
+.week.current,.week.current b{color:var(--navy)}
+
+.gantt-group{padding:12px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray-700);font-weight:800;display:flex;align-items:center;gap:12px}
+.gantt-group .marker{width:3px;height:14px}
+.gantt-group .count{margin-left:auto;color:var(--gray-500);font-weight:600;font-family:var(--mono)}
+.gantt-group.critical .marker{background:var(--red)}
+.gantt-group.high .marker{background:var(--amber)}
+.gantt-group.medium .marker{background:var(--blue)}
+
+.gantt-row{display:grid;grid-template-columns:360px 1fr;border-bottom:1px solid var(--gray-150);min-height:52px;align-items:center;transition:background .15s}
+.gantt-row:hover{background:var(--gray-50)}
+.gantt-row:last-child{border-bottom:none}
+.gantt-label{padding:12px 28px;font-size:13px;color:var(--gray-700);border-right:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;height:100%}
+.gantt-label .pri{width:3px;height:28px;flex-shrink:0;border-radius:2px}
+.gantt-label .pri.p0{background:var(--red)}
+.gantt-label .pri.p1{background:var(--amber)}
+.gantt-label .pri.p2{background:var(--blue)}
+.gantt-label .t{color:var(--gray-900);font-weight:600;font-size:13px;flex:1;line-height:1.3;letter-spacing:-0.005em}
+.gantt-label .own{width:24px;height:24px;font-size:9px;border-width:1.5px;margin:0;flex-shrink:0}
+
+.gantt-track{position:relative;display:grid;grid-template-columns:repeat(8,1fr);height:100%}
+.gantt-cell{border-right:1px dashed var(--gray-150);height:100%}
+.gantt-cell:last-child{border-right:none}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);height:26px;display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.12)}
+.bar-p0{background:linear-gradient(90deg,var(--red) 0%,#8B1519 100%)}
+.bar-p1{background:linear-gradient(90deg,#E08A1E 0%,var(--gold-dark) 100%)}
+.bar-p2{background:linear-gradient(90deg,#3A7AE0 0%,#15489E 100%)}
+.gantt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--navy);box-shadow:0 0 12px rgba(20,35,63,0.4);z-index:5;pointer-events:none;left:6.25%}
+.gantt-today::before{content:"NOW";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--navy);font-weight:800;letter-spacing:0.12em;background:var(--white);padding:2px 6px;border-radius:4px;border:1px solid var(--navy)}
+
+.gantt-legend{display:flex;gap:22px;padding:18px 28px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:11px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:8px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.lg .sw{width:14px;height:14px;border-radius:3px}
+.lg .sw.p0{background:var(--red)}
+.lg .sw.p1{background:var(--amber)}
+.lg .sw.p2{background:var(--blue)}
+
+/* ACCORDIONS */
+.accordions{display:flex;flex-direction:column;gap:16px}
+details.acc{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .2s,border-color .2s}
+details.acc:hover{box-shadow:var(--shadow);border-color:var(--gray-250)}
+details.acc[open]{box-shadow:var(--shadow)}
+details.acc summary{list-style:none;cursor:pointer;padding:22px 28px;display:flex;align-items:center;gap:18px;user-select:none;transition:background .15s}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:hover{background:var(--gray-50)}
+.acc-arrow{width:11px;height:11px;border-right:2px solid var(--gray-500);border-bottom:2px solid var(--gray-500);transform:rotate(-45deg);transition:transform .2s;flex-shrink:0;margin-right:4px}
+details.acc[open] .acc-arrow{transform:rotate(45deg)}
+.acc-marker{width:4px;height:24px;flex-shrink:0;border-radius:2px}
+details.acc.ongoing .acc-marker{background:var(--green)}
+details.acc.backlog .acc-marker{background:var(--gray-400)}
+.acc-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--gray-900);flex:1;letter-spacing:-0.005em}
+.acc-meta{display:flex;align-items:center;gap:18px;font-size:11px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-family:var(--mono)}
+.acc-meta .chip{padding:4px 10px;background:var(--gray-100);border-radius:99px;color:var(--gray-700)}
+.acc-body{padding:8px 18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;border-top:1px solid var(--gray-150);background:var(--gray-50)}
+.task{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:18px 20px;transition:all .2s;box-shadow:var(--shadow-sm)}
+.task:hover{border-color:var(--gray-300);transform:translateY(-2px);box-shadow:var(--shadow)}
+.task-pri{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.task-pri .pdot{width:7px;height:7px;border-radius:50%;background:var(--gray-400)}
+.task-pri .plbl{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono)}
+.task-t{font-size:14px;font-weight:700;color:var(--gray-900);line-height:1.4;margin-bottom:4px;letter-spacing:-0.005em}
+.task-d{font-size:12px;color:var(--gray-500);line-height:1.5}
+
+/* FOOTER */
+footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gray-200)}
+.foot-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap}
+.foot-l{max-width:500px}
+.foot-l .brand{margin-bottom:14px}
+.foot-l p{font-size:12px;color:var(--gray-500);line-height:1.7}
+.foot-r{font-size:11px;color:var(--gray-500);text-align:right;font-family:var(--mono);font-weight:500;line-height:1.8;text-transform:uppercase;letter-spacing:0.05em}
+.foot-r b{color:var(--gray-900);font-weight:700}
+
+@media(max-width:1024px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .kpi{border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+  .gantt-head-bar,.gantt-row{grid-template-columns:240px 1fr}
+  .focus-row{grid-template-columns:32px 1fr auto;gap:14px}
+  .focus-row .owners,.focus-row .status{display:none}
+}
+@media(max-width:640px){
+  .wrap{padding:0 20px}
+  .hero{padding:36px 0 28px}
+  .section{padding:40px 0}
+  .topbar-meta{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">COD</div>
+      <div>
+        <div class="brand-name">Closers On Demand</div>
+        <div class="brand-sub">Focus Tracker &middot; Kas &amp; Team</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="item"><span>Week</span><b class="mono">W16 &middot; Apr 13&ndash;19</b></div>
+      <div class="item"><span>Owner</span><b>Kas Andz</b></div>
+      <span class="live-pill">Live</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-eyebrow"><span class="bar"></span>COD &middot; Workshop Funnel &middot; 2026 Q2</div>
+    <h1>Where the <em>team&rsquo;s attention</em> is going over the <em class="gold">next eight weeks</em>.</h1>
+    <p>This is the live view of COD focus areas &mdash; critical workstreams, supporting tests, and ongoing programs. Windows are expressed as <b>focus weeks</b>, not deadlines, because the real question isn&rsquo;t when something ends, it&rsquo;s <b>which week the team is inside it</b>.</p>
+
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-label">Critical Items</div>
+        <div class="kpi-val red">7</div>
+        <div class="kpi-sub">Ticket sales &amp; show rate</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">High Priority</div>
+        <div class="kpi-val amber">7</div>
+        <div class="kpi-sub">Data, MA, booking, reporting</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Medium</div>
+        <div class="kpi-val blue">4</div>
+        <div class="kpi-sub">LTV, niche pages, personalisation</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Ongoing</div>
+        <div class="kpi-val navy">5</div>
+        <div class="kpi-sub">Cadence &amp; relationships</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Backlog</div>
+        <div class="kpi-val gold">13</div>
+        <div class="kpi-sub">Tests &amp; agents on deck</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRITICAL FOCUS -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Critical Track</div>
+        <h2 class="section-h">Seven workstreams the team is <em>actively inside</em> this fortnight.</h2>
+      </div>
+      <p class="section-desc">These are the items that move <b>Friday call show rate</b>, <b>ticket sales</b>, and <b>tracking fidelity</b>. Everything else is supporting.</p>
+    </div>
+
+    <div class="focus-card">
+      <div class="focus-head">
+        <div class="focus-head-l">
+          <h3>Critical Focus &mdash; Weeks 16 through 19</h3>
+          <p>Apr 13 &ndash; May 10 &middot; Sorted by priority and owner load</p>
+        </div>
+        <div class="focus-head-r">
+          <div class="num">7</div>
+          <div class="lbl">Items in flight</div>
+        </div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">01</div>
+        <div>
+          <div class="focus-title">Rework VIP emails to drive Friday call show-up</div>
+          <div class="focus-sub">Category <b>Friday Call Show Rate</b> &middot; rewrite the confirmation and reminder sequence before VIP turnup collapses further</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div></div>
+        <span class="status s-planning">Planning</span>
+        <div class="focus-window"><b>W16 &ndash; W17</b><span>Apr 13 &ndash; Apr 26</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">02</div>
+        <div>
+          <div class="focus-title">Educator niche landing page</div>
+          <div class="focus-sub">Category <b>Ticket Sales</b> &middot; first of the segmented niche pages off the canonical template</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <span class="status s-progress">In progress</span>
+        <div class="focus-window"><b>W16 &ndash; W17</b><span>Apr 13 &ndash; Apr 26</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">03</div>
+        <div>
+          <div class="focus-title">Therapist niche landing page</div>
+          <div class="focus-sub">Category <b>Ticket Sales</b> &middot; same template, therapist-specific hooks, FTC-reviewed copy</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <span class="status s-progress">In progress</span>
+        <div class="focus-window"><b>W16 &ndash; W17</b><span>Apr 13 &ndash; Apr 26</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">04</div>
+        <div>
+          <div class="focus-title">Coach niche landing page</div>
+          <div class="focus-sub">Category <b>Ticket Sales</b> &middot; coach hook, value stack, proof section customised</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <span class="status s-progress">In progress</span>
+        <div class="focus-window"><b>W16 &ndash; W18</b><span>Apr 13 &ndash; May 3</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">05</div>
+        <div>
+          <div class="focus-title">Attorney niche landing page</div>
+          <div class="focus-sub">Category <b>Ticket Sales</b> &middot; highest-ACV niche; attorney-voice copy already researched</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <span class="status s-progress">In progress</span>
+        <div class="focus-window"><b>W16 &ndash; W18</b><span>Apr 13 &ndash; May 3</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">06</div>
+        <div>
+          <div class="focus-title">Licensed-professionals niche landing page</div>
+          <div class="focus-sub">Category <b>Ticket Sales</b> &middot; umbrella niche covering financial, medical, legal license holders</div>
+        </div>
+        <div class="owners"><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <span class="status s-planning">Planning</span>
+        <div class="focus-window"><b>W17 &ndash; W19</b><span>Apr 20 &ndash; May 10</span></div>
+      </div>
+
+      <div class="focus-row">
+        <div class="focus-num">07</div>
+        <div>
+          <div class="focus-title">PostHog A/B testing implementation</div>
+          <div class="focus-sub">Category <b>Tracking</b> &middot; unlocks every LP test that follows; blocked on <b>posthog.identify()</b> on workshop flow</div>
+        </div>
+        <div class="owners"><div class="own rh">RH</div></div>
+        <span class="status s-planning">Planning</span>
+        <div class="focus-window"><b>W16 &ndash; W18</b><span>Apr 13 &ndash; May 3</span></div>
+      </div>
+
+      <div class="owner-key">
+        <span><div class="own ka">KA</div>Kas &middot; lead</span>
+        <span><div class="own rh">RH</div>Rehan &middot; dev</span>
+        <span><div class="own ak">AK</div>Akari &middot; copy / FTC</span>
+        <span><div class="own mt">MT</div>Matt &middot; calendar / data</span>
+        <span><div class="own cd">CD</div>COD Team</span>
+        <span><div class="own wh">WH</div>Whit &middot; Google Ads</span>
+        <span><div class="own vo">VO</div>Vovik &middot; cold email</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section alt">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Weekly Timeline</div>
+        <h2 class="section-h">Eight weeks of focus, mapped across <em>critical</em>, high, and medium priority.</h2>
+      </div>
+      <p class="section-desc">Bars are focus windows, not deadlines. They reflect <b>when attention is scheduled</b> &mdash; slippage is read as rescheduling, not as missing a date.</p>
+    </div>
+
+    <div class="card">
+      <div class="timeline-toolbar">
+        <div class="timeline-toolbar-l">Timeline &middot; <b>W16 &rarr; W23</b> &middot; Apr 13 &rarr; Jun 7</div>
+        <div class="timeline-toolbar-l">Showing <b>18 items</b> &middot; critical, high, medium</div>
+      </div>
+
+      <div class="gantt-head-bar">
+        <div class="gantt-head-l">Workstream</div>
+        <div class="gantt-head-r">
+          <div class="week current">Apr 13<b>W16</b></div>
+          <div class="week">Apr 20<b>W17</b></div>
+          <div class="week">Apr 27<b>W18</b></div>
+          <div class="week">May 4<b>W19</b></div>
+          <div class="week">May 11<b>W20</b></div>
+          <div class="week">May 18<b>W21</b></div>
+          <div class="week">May 25<b>W22</b></div>
+          <div class="week">Jun 1<b>W23</b></div>
+        </div>
+      </div>
+
+      <div class="gantt-group critical"><span class="marker"></span>Critical <span class="count">7 items</span></div>
+
+      <!-- Critical rows -->
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">VIP email rework &middot; show rate</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-today"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:25%">Planning &rarr; ship</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Educator niche LP</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:25%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Therapist niche LP</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:25%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Coach niche LP</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:37.5%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Attorney niche LP</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:37.5%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Licensed professionals LP</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:12.5%;width:37.5%">Planning &rarr; build</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">PostHog A/B implementation</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:37.5%">Identify &rarr; ship</div>
+        </div>
+      </div>
+
+      <div class="gantt-group high"><span class="marker"></span>High <span class="count">7 items</span></div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">MA funnel tests</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:12.5%;width:37.5%">Test cycles</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Data validation &amp; agent</span><div class="own ak">AK</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:0%;width:50%">Validate &rarr; agent</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Reporting dashboard</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:0%;width:62.5%">Build &rarr; iterate</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Application test (booking %)</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:12.5%;width:37.5%">Test</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Email rewrite (show rate %)</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:12.5%;width:37.5%">Rewrite &rarr; ship</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">New workshop niche recordings</span><div class="own cd">CD</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:25%;width:37.5%">Record &rarr; upload</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Calendar test</span><div class="own mt">MT</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:12.5%;width:25%">Test cycles</div>
+        </div>
+      </div>
+
+      <div class="gantt-group medium"><span class="marker"></span>Medium <span class="count">4 items</span></div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">Hyper-personalisation system</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:37.5%;width:50%">Design &rarr; prototype</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">Licensed pro niche page</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:25%;width:37.5%">Build</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">Niche recordings &middot; booking rate</span><div class="own cd">CD</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:25%;width:37.5%">Record &rarr; test</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">LTV tracker &amp; upsell deep dive</span><div class="own cd">CD</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:37.5%;width:50%">Research &rarr; tracker</div>
+        </div>
+      </div>
+
+      <div class="gantt-legend">
+        <div class="lg"><span class="sw p0"></span>Critical</div>
+        <div class="lg"><span class="sw p1"></span>High</div>
+        <div class="lg"><span class="sw p2"></span>Medium</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ONGOING / BACKLOG -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Cadence &amp; Backlog</div>
+        <h2 class="section-h">Programs that run <em>every week</em>, and the tests queued behind them.</h2>
+      </div>
+      <p class="section-desc">Cadence items don&rsquo;t get focus weeks &mdash; they run continuously. Backlog items are the <b>next eligible pool</b> once a critical slot opens.</p>
+    </div>
+
+    <div class="accordions">
+      <details class="acc ongoing" open>
+        <summary>
+          <div class="acc-arrow"></div>
+          <div class="acc-marker"></div>
+          <div class="acc-title">Ongoing Programs</div>
+          <div class="acc-meta">
+            <span class="chip">5 items</span>
+            <span class="chip">Weekly cadence</span>
+          </div>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><span class="pdot"></span><span class="plbl">Cadence</span></div>
+            <div class="task-t">Google Ads management</div>
+            <div class="task-d">Running with Whit &middot; weekly review and optimisation</div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><span class="pdot"></span><span class="plbl">Cadence</span></div>
+            <div class="task-t">Cold email management</div>
+            <div class="task-d">Vovik lead, Franzi support &middot; deliverability + reply handling</div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><span class="pdot"></span><span class="plbl">Cadence</span></div>
+            <div class="task-t">Deliverability review</div>
+            <div class="task-d">Cross-sender health check on transactional and cold streams</div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><span class="pdot"></span><span class="plbl">Cadence</span></div>
+            <div class="task-t">LP upgrade &amp; customer journey review</div>
+            <div class="task-d">Continuous review of workshop journey from ad to replay</div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><span class="pdot"></span><span class="plbl">Cadence</span></div>
+            <div class="task-t">AOC relationship management</div>
+            <div class="task-d">Partner touchpoints, co-promo, and pipeline sync</div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc backlog">
+        <summary>
+          <div class="acc-arrow"></div>
+          <div class="acc-marker"></div>
+          <div class="acc-title">Backlog &middot; Next Eligible</div>
+          <div class="acc-meta">
+            <span class="chip">13 items</span>
+            <span class="chip">Awaiting slot</span>
+          </div>
+        </summary>
+        <div class="acc-body">
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Podcast bookings</div><div class="task-d">Outbound booking motion for host network</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Wins / leaks agent</div><div class="task-d">Auto-surfaced wins and leaks per dashboard page</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Lead scoring agent</div><div class="task-d">Replaces manual triage on workshop registrants</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Sales enablement agent</div><div class="task-d">Per-rep briefs before every sales call</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Call booking agent</div><div class="task-d">Automates reschedule and waitlist pushes</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">CRM event-based agent</div><div class="task-d">Reacts to stage changes and triggers next best action</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Double opt-in tests</div><div class="task-d">Deliverability vs. volume tradeoff testing</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Two-step checkout test</div><div class="task-d">$27 ticket checkout flow experiment</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Meta ads agent</div><div class="task-d">Autonomous pattern surfacing for COD Meta accounts</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">One-live-a-week test</div><div class="task-d">Cadence experiment on live workshop frequency</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Meta ads tests &middot; Kas batch</div><div class="task-d">Six-test Meta plan: therapist, retarget, LP A/B, CBO, Adv+, daypart</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Hide replay test</div><div class="task-d">Engagement vs. attendance pressure test</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Further reg-page testing</div><div class="task-d">Next iteration after current B-test reads</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Backlog</span></div><div class="task-t">Price raise test</div><div class="task-d">$27 &rarr; higher entry price elasticity read</div></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-l">
+      <div class="brand">
+        <div class="brand-mark">COD</div>
+        <div>
+          <div class="brand-name">Closers On Demand</div>
+          <div class="brand-sub">Focus Tracker</div>
+        </div>
+      </div>
+      <p>Live view of COD workstreams. Windows are expressed as focus weeks rather than deadlines &mdash; the goal is to make visible <b>which week the team is inside each initiative</b>, not to commit to dates that will be re-read as misses. Refresh as priorities shift.</p>
+    </div>
+    <div class="foot-r">
+      <div>Version <b>1.0</b></div>
+      <div>Updated <b>Apr 15 2026</b></div>
+      <div>Owner <b>Kas Andz</b></div>
+      <div>Source <b>Apr Gantt sheet</b></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

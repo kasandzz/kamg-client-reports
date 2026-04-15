@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-15</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .incident-banner { background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05)); border:1px solid #ef4444; border-radius:12px; padding:20px; margin-bottom:24px; }
+  .incident-banner h2 { color:#ef4444; font-size:16px; margin-bottom:8px; }
+  .incident-banner p { font-size:12px; color:#e2e8f0; margin-bottom:4px; }
+  .incident-banner .inc-id { font-family:'JetBrains Mono',monospace; background:#0a0e17; padding:2px 8px; border-radius:4px; color:#f59e0b; font-size:11px; }
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:90px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-personal { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-check.p0 { border-color:#ef4444; background:#ef4444; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; color:#0a0e17; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-red { color:#ef4444; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Wednesday, 2026-04-15 -- Afternoon catch-up (12:17 CST)</div>
+    <div class="meta">Generated 2026-04-15T18:25Z | BQ data 2026-04-01 to 2026-04-15 | Source: cloud (GCS) + MCP fallback</div>
+  </div>
+
+  <div class="incident-banner">
+    <h2>P0 INCIDENT -- COD Pixel / tracking disabled</h2>
+    <p><span class="inc-id">INC-2026-04-15-001</span> &nbsp; Actor: <strong>Ryan</strong> (Green U150VHQ8K or Lang UR96A8KHQ -- unconfirmed). Suspected start <strong>2026-04-12</strong>. Status: <strong>active</strong>. Logged in BQ <code>cod_warehouse.ops_incidents</code>.</p>
+    <p>Impact: <span class="hl-red">ROAS 0.24 MTD</span> ($18,606 rev / $77,989 spend), 3 enrollments in 15 days, <span class="hl-red">0 booked / 0 showed / 0 closed</span> in BQ. Pedro's "3X ROAAS" claim in #brickellads-pedro is a campaign-level ghost consistent with pixel-off attribution breakage.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Focus Statement</div>
+      <div class="card-subtitle">Afternoon catch-up mode -- most of the day is already burned. The only thing that matters is the Pixel incident.</div>
+      <div class="insight-item">
+        <div class="item-title">Today = pixel restoration day</div>
+        <div class="item-detail">Confront Ryan, restore the pixel, reconcile BQ 4/12 to 4/15, verify Meta API spend. Everything else slots behind this.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule (remaining)</div>
+      <div class="card-subtitle">Past events hidden per afternoon-catch-up time guard. No client meetings today.</div>
+      <div class="schedule-item">
+        <div class="schedule-time">12:00-13:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-personal">personal</span>Food</div>
+          <div class="schedule-prep">Now. Eat then pivot to pixel work.</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">18:00-19:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-personal">personal</span>Haircut</div>
+          <div class="schedule-prep">Hard stop for focused work at 18:00.</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">19:30-01:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-personal">personal</span>Rob's Things</div>
+          <div class="schedule-prep">Evening blocked.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-forward from yesterday</div>
+      <div class="concern-item">
+        <div class="item-title">Rehan Coach split-test URL decision</div>
+        <div class="item-detail">Still pending: /registration2 vs /hto-workshop. Rehan cannot apply edits to the Coach niche LP until Kas decides which URL the ads point to.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Jayne + Jodi discovery questions -- delivery channel</div>
+        <div class="item-detail">20-question set drafted yesterday. Still awaiting decision: groupchat, 1:1 with Jayne first, or async Google Doc?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cod">
+    <div class="card">
+      <div class="card-title">COD MTD KPIs (2026-04-01 to 2026-04-15)</div>
+      <div class="card-subtitle">All numbers suspect downstream of pixel-off. Treat as diagnostic signal, not source of truth.</div>
+      <div class="stat-grid">
+        <div class="stat-card red">
+          <div class="stat-value hl-red">0.24</div>
+          <div class="stat-label">ROAS</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">$18,606</div>
+          <div class="stat-label">Gross Revenue</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">$77,989</div>
+          <div class="stat-label">Ad Spend</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">3</div>
+          <div class="stat-label">Enrollments</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Showed</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Closed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">7-Day Trend (why we think Pixel broke 4/12)</div>
+      <div class="card-subtitle">fact_ad_spend drops to $0 from 4/12 onward. Cash also collapsed. Classic pixel-off signature.</div>
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Cash</th><th>Spend (BQ)</th><th>ROAS</th><th>Enrollments</th></tr></thead>
+        <tbody>
+          <tr><td>2026-04-08</td><td>$1,210</td><td>$7,855</td><td>0.15</td><td>0</td></tr>
+          <tr><td>2026-04-09</td><td>$947</td><td>$7,916</td><td>0.12</td><td>0</td></tr>
+          <tr><td>2026-04-10</td><td>$540</td><td>$6,744</td><td>0.08</td><td>0</td></tr>
+          <tr><td>2026-04-11</td><td>$513</td><td>$6,851</td><td>0.07</td><td>0</td></tr>
+          <tr><td style="color:#ef4444">2026-04-12</td><td>$540</td><td style="color:#ef4444">$0</td><td>-</td><td>0</td></tr>
+          <tr><td style="color:#ef4444">2026-04-13</td><td>$432</td><td style="color:#ef4444">$0</td><td>-</td><td>0</td></tr>
+          <tr><td style="color:#ef4444">2026-04-14</td><td>$486</td><td style="color:#ef4444">$0</td><td>-</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Funnel (BQ -- degraded by pixel incident)</div>
+      <div class="funnel-row"><div class="funnel-label">Leads</div><div class="funnel-bar" style="width:100%;background:#3b82f6">218</div><div class="funnel-pct">100%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Applied</div><div class="funnel-bar" style="width:34.9%;background:#8b5cf6">76</div><div class="funnel-pct">34.9% of leads</div></div>
+      <div class="funnel-row"><div class="funnel-label">Booked</div><div class="funnel-bar" style="width:2%;background:#ef4444">0</div><div class="funnel-pct">0% -- pixel broken</div></div>
+      <div class="funnel-row"><div class="funnel-label">Showed</div><div class="funnel-bar" style="width:2%;background:#ef4444">0</div><div class="funnel-pct">0% -- pixel broken</div></div>
+      <div class="funnel-row"><div class="funnel-label">Enrolled</div><div class="funnel-bar" style="width:3%;background:#f59e0b">3</div><div class="funnel-pct">via non-pixel path</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad Spend Concentration</div>
+      <table class="data-table">
+        <thead><tr><th>Campaign</th><th>Spend</th><th>CPM</th><th>CTR</th></tr></thead>
+        <tbody>
+          <tr><td>Paid Workshop - ABO (Cold) - Industry Adsets - Winning</td><td>$54,671</td><td>$115.19</td><td>5.65%</td></tr>
+          <tr><td>Paid Workshop - CBO | Licensed Therapists LMFT/LCSW/LPC</td><td>$17,511</td><td>-</td><td>-</td></tr>
+        </tbody>
+      </table>
+      <div class="item-detail" style="margin-top:12px">70% of spend on one ABO campaign. Kill switch needed until pixel is restored.</div>
+    </div>
+  </div>
+
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Slack Overnight -- COD (12 messages, last 12h)</div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#tech-titans -- @U01AT25727N</div>
+          <div class="overnight-text">AI-gen feature uploaded with Karen for review: https://www.clientsondemand.com/members/?aigen=true</div>
+        </div>
+        <div class="priority-badge priority-low">FYI</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#brickellads-pedro -- @U2W1GB5H6</div>
+          <div class="overnight-text">"FEEL IT / HEAR IT / SEE IT / 3X ROOOOOOOAAAAAAASSSS" -- contradicts account ROAS 0.24, consistent with pixel-off attribution</div>
+        </div>
+        <div class="priority-badge priority-high">FLAG</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#sales-team-help -- @UECDYRRBM</div>
+          <div class="overnight-text">Rachel Carr active in FB group, needs welcome post. John Wiley also missing welcome post.</div>
+        </div>
+        <div class="priority-badge priority-med">ACTION</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#cod-new-sales-eod 4/14 -- @U0AD58D7GLC</div>
+          <div class="overnight-text">4 new calls held. Stephan Doyon said YES but ClarityPay fraud-flagged (wife's card) -- needs resolution.</div>
+        </div>
+        <div class="priority-badge priority-med">WATCH</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#cod-new-sales-eod 4/14 -- @U08H8T7E814</div>
+          <div class="overnight-text">Dorian Matney has 4 sets booked Thursday Apr 16: Michael Ellis, Eric Enriquez (LinkedIn follow-up), +2</div>
+        </div>
+        <div class="priority-badge priority-low">FYI</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">#cod-new-sales-eod 4/13 -- @U8V881XGA</div>
+          <div class="overnight-text">Trinh Bender cancelled. Jamie McMillan reschedule. Danielle K "100% all in" pending husband approval.</div>
+        </div>
+        <div class="priority-badge priority-low">FYI</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Email Overnight (filtered)</div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Leo de Moura via Huly -- 05:00 UTC (6 tasks)</div>
+          <div class="overnight-text"><strong>CPG-37</strong> Slack pre-call brief to Krik (ongoing) | <strong>CPG-38</strong> LP factual corrections this week | <strong>CPG-39</strong> Clutch profile basic $1.5k/yr | <strong>CPG-40</strong> Ovatch sponsorship call | <strong>CPG-41</strong> 50min Zoom with Vovic Tue Apr 21 | <strong>CPG-42</strong> [Stef] PandaDoc vs DocuSign analysis</div>
+        </div>
+        <div class="priority-badge priority-high">ACTION</div>
+      </div>
+      <div class="item-detail" style="margin-top:12px; padding:10px; color:#64748b">GHL workflow error emails from Russ filtered per permanent memory rule.</div>
+    </div>
+  </div>
+
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Action Items (priority order)</div>
+
+      <div class="action-item">
+        <div class="action-check p0"></div>
+        <div class="action-text">
+          <strong>P0 -- Pixel restoration.</strong> Confront Ryan, identify exactly what was disabled, restore it, verify with Meta Business Manager, run BQ backfill reconciliation for 4/12 to 4/15.
+          <div class="action-context">Blocks everything else. Incident INC-2026-04-15-001.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Triage 6 Huly CPG tasks from Leo</strong> -- slot into week, respond on blockers (Clutch creds, Ovatch contact, DocuSign account access).
+          <div class="action-context">Assigned 05:00 UTC. Kas owns all 6.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Rehan Coach split-test URL decision</strong> -- /registration2 vs /hto-workshop. Rehan blocked without this.
+          <div class="action-context">Carry-forward from 2026-04-14.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Decide Jayne+Jodi discovery delivery channel</strong> -- groupchat, 1:1 with Jayne, or async doc?
+          <div class="action-context">20 questions drafted yesterday. Pending.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Re-auth morning-intel Cloud Function OAuth</strong> -- Calendar + Gmail both returning invalid_client. CF runs daily 5am CDMX; every run loses these two sources until fixed.
+          <div class="action-context">Non-blocking today (MCP bypass used). Must fix before next morning.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data Sources</div>
+      <table class="data-table">
+        <thead><tr><th>Source</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>GCS morning-intel blob</td><td class="hl-green">PASS</td><td>Read after gcloud re-auth. Age: ~1.5h.</td></tr>
+          <tr><td>BQ cod_warehouse</td><td class="hl-green">PASS</td><td>COD KPIs + trends_7d + funnel + ad_spend populated by CF.</td></tr>
+          <tr><td>COD Slack Bot (claude_sync)</td><td class="hl-green">PASS</td><td>12 messages from 7 channels (last 12h).</td></tr>
+          <tr><td>Google Calendar (CF OAuth)</td><td class="hl-red">FAIL</td><td>invalid_client -- CF OAuth broken.</td></tr>
+          <tr><td>Google Calendar (MCP bypass)</td><td class="hl-green">PASS</td><td>Used as fallback. 11 events pulled.</td></tr>
+          <tr><td>Gmail (CF OAuth)</td><td class="hl-red">FAIL</td><td>invalid_client -- CF OAuth broken.</td></tr>
+          <tr><td>Gmail (MCP bypass)</td><td class="hl-green">PASS</td><td>Used as fallback. 15 unread pulled.</td></tr>
+          <tr><td>Knowledge Compiler</td><td class="hl-green">HEALTHY</td><td>Last run 2026-04-15 08:00Z. 34 runs lifetime.</td></tr>
+          <tr><td>Agency Brain (PC-C)</td><td class="hl-amber">OFFLINE</td><td>Non-blocking. Not always running.</td></tr>
+          <tr><td>Backup log</td><td class="hl-amber">UNKNOWN</td><td>Expected path not found. Non-blocking.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Commits This Session</div>
+      <div class="item-detail" style="color:#e2e8f0; padding:8px 0">
+        <code>c66e9ff</code> vault(daily): morning catch-up 2026-04-15 -- COD ROAS collapse alert + Leo CPG tasks<br>
+        <code>cb45dfb</code> vault(daily): log COD Pixel incident INC-2026-04-15-001 to BQ ops_incidents
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">BQ Changes</div>
+      <div class="item-detail" style="color:#e2e8f0; padding:8px 0">
+        <strong>New table:</strong> <code>green-segment-491604-j8.cod_warehouse.ops_incidents</code> (partitioned by detected_at, clustered on severity/category/status)<br>
+        <strong>Inserted:</strong> INC-2026-04-15-001<br>
+        <strong>Updated:</strong> suspected_root_cause with Ryan + Slack user IDs
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">New Memory Rules</div>
+      <div class="item-detail" style="color:#e2e8f0; padding:8px 0">
+        <code>feedback_ignore_ghl_workflow_errors.md</code> -- GHL workflow error emails from Russ permanently filtered from morning/triage outputs.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

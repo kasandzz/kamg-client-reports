@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone Strategy Call Prep -- April 16, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #000000; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+/* BANDS */
+.band-dark { background: #000000; color: #FFFFFF; padding: 50px 60px; }
+.band-white { background: #FFFFFF; color: #000000; padding: 50px 60px; border-bottom: 1px solid #E0E0E0; }
+.band-surface { background: #F5F5F5; color: #000000; padding: 50px 60px; border-bottom: 1px solid #E0E0E0; }
+.inner { max-width: 1200px; margin: 0 auto; }
+
+/* HEADER */
+.report-header { background: #000000; color: #FFFFFF; padding: 50px 60px; border-bottom: 4px solid #B21E24; }
+.header-meta { font-size: 0.72em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #999; margin-bottom: 16px; }
+.header-meta span { margin-right: 20px; }
+.report-title { font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 8px; }
+.report-subtitle { font-size: 1em; color: #999; max-width: 700px; }
+
+/* MEETING CARD */
+.meeting-card { background: #111; border: 1px solid #333; padding: 20px 24px; margin-top: 24px; display: flex; gap: 40px; flex-wrap: wrap; align-items: center; }
+.meeting-card .mc-item { font-size: 0.85em; }
+.meeting-card .mc-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 4px; }
+.meeting-card .mc-value { color: #FFF; font-weight: 500; }
+.meeting-card .mc-value a { color: #60a5fa; text-decoration: none; }
+
+/* SECTION LABELS */
+.section-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #B21E24; margin-bottom: 6px; }
+.section-title { font-size: 1.5em; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+.section-intro { font-size: 0.9em; color: #666; max-width: 760px; margin-bottom: 28px; line-height: 1.6; }
+.band-dark .section-intro { color: #AAA; }
+
+/* CALLOUT */
+.callout { border-left: 4px solid #B21E24; padding: 16px 20px; margin-bottom: 28px; font-size: 0.88em; line-height: 1.6; }
+.band-dark .callout { background: #111; color: #CCC; }
+.band-white .callout { background: #F5F5F5; color: #333; }
+.callout-amber { border-left-color: #ea580c; }
+.callout-green { border-left-color: #16a34a; }
+
+/* TABLES */
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+thead th { text-align: left; font-size: 0.72em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px; border-bottom: 2px solid #B21E24; white-space: nowrap; }
+.band-dark thead th { color: #999; background: #000; }
+.band-white thead th, .band-surface thead th { color: #666; background: #F5F5F5; }
+tbody tr { border-bottom: 1px solid #E0E0E0; }
+.band-dark tbody tr { border-bottom: 1px solid #1E1E1E; }
+tbody td { padding: 12px 16px; vertical-align: top; line-height: 1.55; }
+.band-dark tbody td { color: #CCC; }
+tbody td:first-child { font-weight: 600; }
+.band-dark tbody td:first-child { color: #FFF; }
+
+/* BADGES */
+.badge { display: inline-block; font-size: 0.7em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border: 1px solid; }
+.badge-green { color: #16a34a; border-color: #16a34a; }
+.badge-blue { color: #2563eb; border-color: #2563eb; }
+.badge-amber { color: #ea580c; border-color: #ea580c; }
+.badge-red { color: #B21E24; border-color: #B21E24; }
+.badge-gray { color: #666; border-color: #666; }
+
+/* STAT GRID */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #333; border: 1px solid #333; margin-bottom: 32px; }
+.stat-cell { background: #111; padding: 24px 20px; }
+.stat-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+.stat-value { font-size: 1.8em; font-weight: 800; color: #FFF; letter-spacing: -0.02em; line-height: 1; }
+.stat-value-red { color: #B21E24; }
+.stat-value-green { color: #16a34a; }
+.stat-value-blue { color: #2563eb; }
+.stat-sub { font-size: 0.75em; color: #666; margin-top: 4px; }
+
+/* HIGHLIGHT */
+.hl { color: #2563eb; font-weight: 600; }
+.hl-red { color: #B21E24; font-weight: 600; }
+.hl-green { color: #16a34a; font-weight: 600; }
+.hl-amber { color: #ea580c; font-weight: 600; }
+
+/* TALKING POINT */
+.talk-block { background: #F5F5F5; border-left: 4px solid #B21E24; padding: 20px 24px; margin-bottom: 16px; }
+.talk-trigger { font-size: 0.78em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #B21E24; margin-bottom: 8px; }
+.talk-response { font-size: 0.92em; color: #333; line-height: 1.6; }
+.talk-evidence { font-size: 0.82em; color: #666; margin-top: 10px; padding-top: 10px; border-top: 1px solid #E0E0E0; }
+
+/* TIMELINE */
+.timeline-item { display: grid; grid-template-columns: 100px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid #E0E0E0; }
+.timeline-date { font-size: 0.8em; font-weight: 600; color: #666; }
+.timeline-content { font-size: 0.88em; color: #333; }
+
+/* PSYCH */
+.psych-card { background: #F5F5F5; border: 1px solid #E0E0E0; padding: 20px; margin-bottom: 12px; }
+.psych-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #B21E24; margin-bottom: 6px; }
+
+/* FOOTER */
+.report-footer { background: #F5F5F5; padding: 30px 60px; border-top: 1px solid #E0E0E0; }
+.footer-text { font-size: 0.78em; color: #999; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .band-dark, .band-white, .band-surface, .report-header, .report-footer { padding: 28px 20px; }
+  .report-title { font-size: 1.6em; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .meeting-card { flex-direction: column; gap: 16px; }
+  table { font-size: 0.82em; }
+  thead th, tbody td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="report-header">
+  <div class="inner">
+    <div class="header-meta">
+      <span>KAMG -- Internal Briefing</span>
+      <span>|</span>
+      <span>April 16, 2026</span>
+      <span>|</span>
+      <span>Kas Eyes Only</span>
+    </div>
+    <h1 class="report-title">Eric Redstone -- Strategy Call Prep</h1>
+    <p class="report-subtitle">Eric is frustrated. He doesn't understand what the $5K is buying him. This call is about rebuilding confidence with honesty, specifics, and a clear forward plan.</p>
+
+    <div class="meeting-card">
+      <div class="mc-item">
+        <div class="mc-label">Call Time</div>
+        <div class="mc-value">1:00 PM -- 2:00 PM CST</div>
+      </div>
+      <div class="mc-item">
+        <div class="mc-label">Attendees</div>
+        <div class="mc-value">Eric Millinger, Kas Andz</div>
+      </div>
+      <div class="mc-item">
+        <div class="mc-label">Eric's Mood</div>
+        <div class="mc-value" style="color:#ea580c;">Frustrated / Wants Clarity</div>
+      </div>
+      <div class="mc-item">
+        <div class="mc-label">Priority</div>
+        <div class="mc-value" style="color:#B21E24;">Address AdWords Concerns Head-On</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<!-- SECTION 0: SITUATION ANALYSIS -->
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label">Section 00</div>
+    <h2 class="section-title">The Situation</h2>
+    <p class="section-intro">Eric sent voice + text messages expressing frustration. He doesn't know what he's getting for the money. He wants specifics, not promises. This is a trust inflection point.</p>
+
+    <div class="callout">
+      <strong style="color:#ea580c;">Eric's exact words:</strong><br>
+      "I'm feeling like I'm not clear what I am getting for the 5k Adwords spend. In other words I have no idea where that money went and if it's working."<br><br>
+      "I've spent a lot of money on SEO last few months and haven't gotten results."<br><br>
+      "My priority is to get adwords going so we at least get some leads. Right now we aren't getting any adwords leads."<br><br>
+      Voice message: Wants to understand strategy, what's working/not, and a plan. Expects you to walk him through it. Wants this before the SCO meeting.
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">Total Clicks</div>
+        <div class="stat-value stat-value-blue">953</div>
+        <div class="stat-sub">Mar 18 -- Apr 16</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-value stat-value-red">0.42%</div>
+        <div class="stat-sub">4 conversions total</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Cost Per Conversion</div>
+        <div class="stat-value stat-value-red">$1,115</div>
+        <div class="stat-sub">Unsustainable</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Total Spend</div>
+        <div class="stat-value">$4.46K</div>
+        <div class="stat-sub">Of $5K monthly budget</div>
+      </div>
+    </div>
+
+    <div class="callout callout-amber">
+      <strong>Honest assessment:</strong> The ads ARE getting traffic (953 clicks at 5% CTR is excellent). The problem is the landing pages aren't converting that traffic into leads. We've been fixing the foundation -- tracking, pages, forms -- but Eric doesn't see that as "results" because he cares about one thing: leads.
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 1: WHAT HAS BEEN DONE (THE ANSWER TO "WHERE DID MY MONEY GO") -->
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 01</div>
+    <h2 class="section-title">What Has Been Done in the Account</h2>
+    <p class="section-intro">Every change made in the Google Ads account since takeover (Feb 16 - Apr 16). Pulled directly from the account change history -- 106,000 lines of logged activity across 27 working days.</p>
+
+    <div class="section-label" style="margin-top:28px;">Account Build (Feb 24)</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Action</th>
+          <th style="width:12%">Date</th>
+          <th style="width:12%">Status</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full account rebuild from scratch</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>Built the entire "Search 2026 (Mon-Fri)" campaign in one day. 112 ad groups across CNC Machining, Die Casting, and Sheet Metal Fabrication -- each with general + Mexico/India variants.</td>
+        </tr>
+        <tr>
+          <td>140 RSAs created</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>112 RSAs on launch day. 26 more for Location Specific campaign (Mar 26). 2 more for Brand campaign (Apr 12). Multiple headline/description combos per ad group.</td>
+        </tr>
+        <tr>
+          <td>Ad schedule set: Mon-Fri 8AM-6PM</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>All campaigns restricted to business hours only. No budget wasted on weekends or overnight when nobody's answering quote requests.</td>
+        </tr>
+        <tr>
+          <td>70+ countries excluded from targeting</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>Geo-targeting locked to relevant markets. Eliminated waste from irrelevant geographies (Samoa, Yemen, Zambia, Australia, etc.).</td>
+        </tr>
+        <tr>
+          <td>28 ad groups removed (same day)</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>Immediately removed Brazil-targeting groups, generic "Machining Company," and CNC Manufacturing Australia -- identified as irrelevant before any spend.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Negative Keywords (Ongoing -- Near-Daily)</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Campaign</th>
+          <th style="width:12%">Count</th>
+          <th style="width:12%">Period</th>
+          <th>What's Being Blocked</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Search 2026 (Mon-Fri)</td>
+          <td><span class="hl">5,229</span></td>
+          <td>Feb 24 -- Apr 16</td>
+          <td>Competitor names, hobby/DIY terms, job searches, equipment purchases, "cheap," "free," "how to," irrelevant materials, geographic noise.</td>
+        </tr>
+        <tr>
+          <td>Brand</td>
+          <td><span class="hl">3,024</span></td>
+          <td>Apr 12 -- 16</td>
+          <td>Bulk upload to protect brand campaign from non-brand searches.</td>
+        </tr>
+        <tr>
+          <td>Remarketing Only</td>
+          <td><span class="hl">2,674</span></td>
+          <td>Apr 16</td>
+          <td>589 phrase + 951 phrase + 337 broad + 767 exact match -- multi-session upload today.</td>
+        </tr>
+        <tr>
+          <td>Location Specific</td>
+          <td><span class="hl">1,463</span></td>
+          <td>Mar 26 -- Apr 14</td>
+          <td>Weekly refinement as search terms come in from Mexico/India targeting.</td>
+        </tr>
+        <tr>
+          <td>Performance Max 2026</td>
+          <td><span class="hl">1,316</span></td>
+          <td>Feb 24</td>
+          <td>Pre-loaded before pausing the PMax campaign.</td>
+        </tr>
+        <tr>
+          <td style="color:#B21E24; font-weight:700;">Total Negative Keywords Added</td>
+          <td style="color:#B21E24; font-weight:700;">13,706</td>
+          <td></td>
+          <td>Previous account had ~15 negative keywords. <span class="hl-red">We added 13,706.</span> Match types: phrase, exact, and broad. Only 2 removals in entire period.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Ad Copy & RSA Changes</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Change</th>
+          <th style="width:12%">Date</th>
+          <th style="width:12%">Scope</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Description copy updated</td>
+          <td>Feb 24</td>
+          <td>95 RSAs</td>
+          <td>Changed from "Receive Casting Samples For Your Approval, Prior To Production And At No Cost To You" to <span class="hl">"Free Casting Samples For Approval Before Production. High Volume Only. No Prototypes."</span></td>
+        </tr>
+        <tr>
+          <td>Headline copy refined</td>
+          <td>Mar 2</td>
+          <td>95 RSAs</td>
+          <td>Additional copy refinement across all Search 2026 ad groups.</td>
+        </tr>
+        <tr>
+          <td>ISO headline fix + URL update</td>
+          <td>Mar 8</td>
+          <td>95 RSAs</td>
+          <td>Changed "ISO 9001 Certified Factories" to <span class="hl">"ISO 9001 Certified Supplier"</span> (pinned position 2). Final URLs updated to service-specific deep links (/mexico/die-casting/, /mexico/cnc-machining/, etc.).</td>
+        </tr>
+        <tr>
+          <td>Ad copy cleanup (Eric's feedback)</td>
+          <td>Mar 27</td>
+          <td>Multiple</td>
+          <td>Removed "legal protection" and "neighborhoods" from ad copy per Eric's review. Added "facilities in 5 countries" messaging.</td>
+        </tr>
+        <tr>
+          <td>Brand campaign RSAs launched</td>
+          <td>Apr 12</td>
+          <td>2 RSAs</td>
+          <td>"Redstone CNC" + "Redstone Manufacturing" ads. Headlines: "Highest Quality Guaranteed," "International Factories," "Samples At No Charge," "We Reduce Your Costs." Descriptions: tariff-inclusive estimates, 3rd party QC, delivery guarantee.</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Total RSA modifications</td>
+          <td></td>
+          <td style="font-weight:700;">560</td>
+          <td>Four rounds of copy updates across the full ad group set. Every ad has been touched multiple times.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Campaign & Structure Changes</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Action</th>
+          <th style="width:12%">Date</th>
+          <th style="width:12%">Status</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Location Specific campaign created</td>
+          <td>Mar 26</td>
+          <td><span class="badge badge-green">Live</span></td>
+          <td>Separated Mexico + India targeting into its own campaign for isolated performance tracking. 26 ad groups moved. Manual CPC bidding ($10.39 bids on Die Casting Mexico). Budget: $17 -> $88/day as results validated.</td>
+        </tr>
+        <tr>
+          <td>24 ad groups paused in Search 2026</td>
+          <td>Mar 26</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>Location-specific groups moved to dedicated campaign -- no duplicate spend.</td>
+        </tr>
+        <tr>
+          <td>Precision CNC / Precision Machining paused</td>
+          <td>Mar 19</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>These ad groups drove clicks but zero conversions. Budget reallocated to converting keywords.</td>
+        </tr>
+        <tr>
+          <td>9 low-relevance ad groups removed</td>
+          <td>Mar 8</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>CNC Drilling, CNC India, Precision Engineering Mexico/India, Repetition Engineering/Machining variants -- trimmed to sharpen account focus.</td>
+        </tr>
+        <tr>
+          <td>Brand campaign launched</td>
+          <td>Apr 12</td>
+          <td><span class="badge badge-green">Live</span></td>
+          <td>$5/day. US + Canada, Search only. Protects brand terms. 31.82% CTR (7 clicks, 22 impressions).</td>
+        </tr>
+        <tr>
+          <td>Remarketing campaign launched</td>
+          <td>Apr 13</td>
+          <td><span class="badge badge-green">Live</span></td>
+          <td>$5/day Performance Max. US + Canada. Retargets previous visitors. 1 conversion from 18 clicks so far (5% conv rate).</td>
+        </tr>
+        <tr>
+          <td>PMax 2026 tested and paused</td>
+          <td>Feb 24</td>
+          <td><span class="badge badge-gray">Paused</span></td>
+          <td>Performance Max campaign created and paused same day -- decided Search was the right starting strategy.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Budget Management</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Campaign</th>
+          <th style="width:20%">Budget Journey</th>
+          <th style="width:15%">Current</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Search 2026 (Mon-Fri)</td>
+          <td>$81 -> $109 -> $217 -> $200 -> $207 -> $187 -> $129 -> $124 -> $141</td>
+          <td><span class="hl">$141/day</span></td>
+          <td>Scaled up to test, then pulled back as we identified wasted spend and paused ad groups. Currently optimized for remaining active groups.</td>
+        </tr>
+        <tr>
+          <td>Location Specific</td>
+          <td>$217 -> $17 -> $10 -> $30 -> $88</td>
+          <td><span class="hl">$88/day</span></td>
+          <td>Started conservative after split from main campaign. Increased as Mexico Die Casting showed promise. Switched to Manual CPC ($10.39 bids) for tighter control.</td>
+        </tr>
+        <tr>
+          <td>Brand + Remarketing</td>
+          <td>$5 each</td>
+          <td><span class="hl">$10/day</span></td>
+          <td>Low-cost defensive plays. Brand protects search terms. Remarketing captures return visitors.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Conversion Tracking</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Change</th>
+          <th style="width:12%">Date</th>
+          <th style="width:12%">Status</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vanity conversions demoted</td>
+          <td>Mar 12</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>"View Three Pages," "Session Duration 3 Mins," "FAQ Interaction," and legacy "Request a quote form submitted" all changed from Primary to Secondary. <span class="hl-red">No longer counted as conversions. This is why the number looks low -- it's honest now.</span></td>
+        </tr>
+        <tr>
+          <td>Conversion action swapped to GA4</td>
+          <td>Apr 1</td>
+          <td><span class="badge badge-green">Done</span></td>
+          <td>Switched primary conversion from "quote confirmation page view" to <span class="hl">"request_quote" form submission event via GA4</span>. Bidding now optimizes to actual form fills, not page loads.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-label" style="margin-top:32px;">Outside the Ad Account</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Action</th>
+          <th style="width:12%">Date</th>
+          <th style="width:12%">Status</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Homepage redesign</td>
+          <td>Mar 27 -- Apr 13</td>
+          <td><span class="badge badge-amber">Staging</span></td>
+          <td>Live at redstonemanufacturing.com/updated-home/. Eric has seen it, gave positive feedback. <span class="hl-red">NOT yet live as the main page. This is the single biggest conversion bottleneck.</span></td>
+        </tr>
+        <tr>
+          <td>Quote form rebuilt</td>
+          <td>Apr 9-13</td>
+          <td><span class="badge badge-amber">In Review</span></td>
+          <td>New form with file upload (CAD/STEP/IGES), streamlined fields per Eric + Rachel's 14-point feedback. Matches Xometry/Protolabs UX baseline.</td>
+        </tr>
+        <tr>
+          <td>PostHog tracking installed</td>
+          <td>Apr 9</td>
+          <td><span class="badge badge-blue">Installed</span></td>
+          <td>Behavioral tracking (scroll depth, form interactions, drop-offs) replaces CrazyEgg/Unbounce at lower cost.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="height:20px"></div>
+    <div class="callout callout-green">
+      <strong>Activity cadence:</strong> The account has been actively managed every working week since takeover. Negative keyword refinement happens daily as new search terms come in. Ad copy, bids, and structure are reviewed and adjusted multiple times per week. This is hands-on, continuous optimization -- not set-it-and-forget-it.
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 2: WHY CONVERSION RATE IS LOW -->
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">Why 0.42% Conversion Rate (and Why It's Fixable)</h2>
+    <p class="section-intro">The ads are working. The landing experience is not. Here's the honest breakdown.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%">Factor</th>
+          <th style="width:15%">Verdict</th>
+          <th>Explanation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Click-Through Rate (5%)</td>
+          <td><span class="badge badge-green">Strong</span></td>
+          <td>Industry average is 1-2%. We're at 5%. People ARE clicking the ads. The ad copy and keyword targeting are working.</td>
+        </tr>
+        <tr>
+          <td>Cost Per Click</td>
+          <td><span class="badge badge-green">Good</span></td>
+          <td>~$4.68/click is reasonable for B2B manufacturing. Not the problem.</td>
+        </tr>
+        <tr>
+          <td>Landing Page Experience</td>
+          <td><span class="badge badge-red">Root Cause</span></td>
+          <td>Ads send traffic to the current homepage which was not built for ad conversion. No keyword-matched headlines, weak form positioning, no service-specific pages. This is where 99.6% of visitors drop off.</td>
+        </tr>
+        <tr>
+          <td>Conversion Tracking (historical)</td>
+          <td><span class="badge badge-amber">Was Inflated</span></td>
+          <td>Previous tracking counted page views and FAQ clicks as "conversions." We cleaned this -- the 0.42% is now the REAL number. Before it looked better but was dishonest.</td>
+        </tr>
+        <tr>
+          <td>Quality Score</td>
+          <td><span class="badge badge-amber">Low</span></td>
+          <td>Landing page relevance is the biggest Quality Score factor. When homepage changes, QS will improve, which means lower CPCs and better ad positions -- same budget, more results.</td>
+        </tr>
+        <tr>
+          <td>Ad-to-Page Match</td>
+          <td><span class="badge badge-red">Mismatched</span></td>
+          <td>Someone searches "die casting Mexico," clicks the ad, lands on a generic homepage. They should land on a die casting-specific page with specs, certs, and a quote form. Service-specific LPs are in progress.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="height:24px"></div>
+    <div class="callout callout-green">
+      <strong>The fix:</strong> Launch the new homepage + service-specific landing pages. Based on industry benchmarks and the COD case study (where LP changes lifted conversion 50% in 3 days), we expect conversion rate to improve 2-5x once the new pages are live. That would take $1,115/conversion down to $220-$550 range.
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 3: THE FORWARD PLAN -->
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">The Plan -- What Happens Next</h2>
+    <p class="section-intro">Concrete actions with deadlines. Eric wants ETAs -- give him ETAs.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:5%">#</th>
+          <th style="width:25%">Action</th>
+          <th style="width:15%">ETA</th>
+          <th style="width:10%">Owner</th>
+          <th>Expected Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td style="color:#B21E24; font-weight:700;">Launch new homepage LIVE</td>
+          <td><span class="badge badge-red">This Week</span></td>
+          <td>Kas + Leo</td>
+          <td>Immediate Quality Score improvement. Better ad-to-page relevance. This unlocks everything else. Get Eric's final approval on call.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Deploy new quote form</td>
+          <td><span class="badge badge-amber">This Week</span></td>
+          <td>Kas + Leo</td>
+          <td>Streamlined form with file upload reduces friction. Eric + Rachel's feedback already incorporated.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Service-specific landing pages</td>
+          <td><span class="badge badge-blue">Next 2 Weeks</span></td>
+          <td>Leo + Kas</td>
+          <td>Die casting, CNC machining, injection molding, metal stamping -- each gets its own LP with keyword-matched headline, specs, certs, and quote form. Biggest expected conversion lift.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Update ad copy to match new pages</td>
+          <td><span class="badge badge-blue">After LP Launch</span></td>
+          <td>Daniel + Kas</td>
+          <td>RSAs updated with new headlines matching LP content. Improves message match and QS.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>A/B testing program</td>
+          <td><span class="badge badge-blue">Ongoing</span></td>
+          <td>Kas</td>
+          <td>Test form placement, CTA copy, social proof positioning. PostHog tracks everything. Weekly results shared.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Cold email launch</td>
+          <td><span class="badge badge-gray">~Apr 28</span></td>
+          <td>Kas</td>
+          <td>15 inboxes across 5 domains finishing warmup. Second lead channel that doesn't depend on ad spend.</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>SEO recovery roadmap (with Jack)</td>
+          <td><span class="badge badge-gray">TBD</span></td>
+          <td>Kas + Jack</td>
+          <td>Long-term play. Fix site structure, content, and undo damage from previous changes. 6-12 month timeline for meaningful recovery.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="height:24px"></div>
+    <div class="callout callout-green">
+      <strong>The honest timeline:</strong> Ads start producing consistent leads within 2-3 weeks of new landing pages going live. Cold email adds a second channel by end of April. SEO is a longer play -- 6-12 months. Short-term, AdWords + cold email are the lead engines.
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 4: TALKING POINTS -->
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 04</div>
+    <h2 class="section-title">Talking Points -- Prepared Responses</h2>
+    <p class="section-intro">Specific responses for what Eric is likely to say/ask. Lead with honesty, follow with the fix.</p>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"I don't know what I'm getting for the $5K"</div>
+      <div class="talk-response">
+        "That's fair, Eric, and I owe you more visibility on this. Let me walk you through exactly where the money went. Of the $4.46K spent, we got 953 clicks at about $4.68 each. The click-through rate is 5% -- that's 2.5x industry average. People are clicking. The problem is what happens after they click. They land on the current homepage, which wasn't built for conversion. That's why I've been rebuilding the homepage, the quote form, and the tracking -- so the traffic you're paying for actually converts. The ads are working. The landing experience needs to catch up, and it's almost ready."
+      </div>
+      <div class="talk-evidence">
+        <strong>Evidence:</strong> Google Ads dashboard shows 5% CTR vs 1-2% industry avg. 13,706 negative keywords added (old account had 15). Homepage staging: redstonemanufacturing.com/updated-home/
+      </div>
+    </div>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"We're not getting any leads from AdWords"</div>
+      <div class="talk-response">
+        "You're right -- 4 conversions from $4.46K is not acceptable. Here's why: when we took over, the tracking was counting page views and FAQ clicks as 'conversions.' We cleaned that up so now you're seeing the real number. The real fix is the landing pages. Right now, someone searches 'die casting Mexico,' clicks our ad, and lands on a generic homepage. They should land on a die casting-specific page with your certs, specs, and a quote form. Those service pages are in progress. Based on what I've seen with other accounts, that change alone should improve conversion 2-5x."
+      </div>
+      <div class="talk-evidence">
+        <strong>Evidence:</strong> Daniel's report documents the conversion tracking cleanup. Service-specific LP plan documented. COD case study: LP changes = 50% conversion lift in 3 days.
+      </div>
+    </div>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"I've spent a lot on SEO with no results"</div>
+      <div class="talk-response">
+        "The SEO situation is inherited, not something we caused. Your traffic went from 13,000 sessions/month down to under 1,000. The forensic report I sent identified the root causes: Google algorithm updates that penalized AI-generated content (which the previous contractor produced), plus duplicate page issues, plus a Chinese competitor who copied your site and now outranks you for 'die casting Mexico.' SEO recovery is a 6-12 month play. That's why my priority has been Google Ads and cold email first -- those produce leads now. SEO is the long game."
+      </div>
+      <div class="talk-evidence">
+        <strong>Evidence:</strong> SEO forensic report delivered Mar 29. Traffic decline correlates with Google Helpful Content Update timeline. China competitor (die casting Mexico rank #4) documented.
+      </div>
+    </div>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"What's the strategy? What's working and what's not?"</div>
+      <div class="talk-response">
+        "Here's the honest picture. What's working: ad targeting and copy. 5% CTR, reasonable CPCs, strong keyword coverage across your 5 categories. We've blocked 13,700+ bad search terms and are only spending on relevant searches now. What's not working: conversion. 0.42% is well below the 2-3% we need. The fix is straightforward -- better landing pages. The new homepage is staging, the quote form is rebuilt, and service-specific pages are next. Once those are live, the same traffic should produce 10-15 leads per month instead of 4."
+      </div>
+    </div>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"What specifically have you done in the account?"</div>
+      <div class="talk-response">
+        Walk him through Section 01 table line by line. He's an engineer -- he wants the detailed log. Key highlights: 13,706 negative keywords (vs 15 before), conversion tracking cleaned up, underperforming ad groups paused, new RSAs, 186 countries excluded, ad copy updated per his feedback. Then pivot to what's in progress: homepage, quote form, service LPs, PostHog tracking, cold email warmup.
+      </div>
+    </div>
+
+    <div class="talk-block">
+      <div class="talk-trigger">"When will I start seeing leads?"</div>
+      <div class="talk-response">
+        "Two things need to happen: the new homepage goes live, and service-specific landing pages launch. If we get the homepage approved and live this week, and service pages within 2 weeks, I'd expect to see meaningful lead improvement by early May. Cold email will add a second channel by end of April. I'm not going to promise a specific number until the pages are live and we have a week of data."
+      </div>
+    </div>
+
+    <div class="talk-block" style="border-left-color:#ea580c;">
+      <div class="talk-trigger" style="color:#ea580c;">"Should I pause the ad spend?"</div>
+      <div class="talk-response">
+        "I wouldn't, and here's why. The ads are already trained on good data -- 953 clicks, strong CTR, 13,700 negative keywords dialed in. If we pause and restart, we lose that learning. The moment the new pages go live, all that existing traffic starts converting better immediately. We're a week or two from the breakthrough. Pausing now would be like stopping construction a week before the building opens."
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 5: WHAT HASN'T BEEN DONE (OWN IT) -->
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label">Section 05</div>
+    <h2 class="section-title">What You Need to Own</h2>
+    <p class="section-intro">Eric values honesty over excuses. Acknowledge what's late before he asks.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Item</th>
+          <th style="width:20%">Original ETA</th>
+          <th style="width:20%">Current Status</th>
+          <th>What to Say</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Homepage live</td>
+          <td>Week of Apr 6</td>
+          <td><span class="badge badge-amber">10 days late</span></td>
+          <td>"The homepage should have been live earlier. It's ready on staging. I need your final approval today to push it live this week."</td>
+        </tr>
+        <tr>
+          <td>Project tracker with ETAs</td>
+          <td>Eric asked Apr 12</td>
+          <td><span class="badge badge-amber">Not sent</span></td>
+          <td>"I owe you the tracker with completion dates. I'll have it updated by end of day Thursday."</td>
+        </tr>
+        <tr>
+          <td>"Full report" promised</td>
+          <td>Apr 13</td>
+          <td><span class="badge badge-amber">Not delivered</span></td>
+          <td>"The report I promised Sunday hasn't been sent. I'll deliver it this week alongside the tracker."</td>
+        </tr>
+        <tr>
+          <td>Weekly Mon/Thu tracker updates</td>
+          <td>Ongoing</td>
+          <td><span class="badge badge-amber">Inconsistent</span></td>
+          <td>"I need to be more consistent with the Monday/Thursday updates. Starting this week."</td>
+        </tr>
+        <tr>
+          <td>HubSpot deal creation form</td>
+          <td>Eric asked Apr 13</td>
+          <td><span class="badge badge-gray">Open</span></td>
+          <td>"With the new intake form, we need to map submission fields to HubSpot deal fields. I'll design the mapping and share it."</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- SECTION 6: ERIC PROFILE REMINDERS -->
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 06</div>
+    <h2 class="section-title">Eric Profile -- How to Handle This Call</h2>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+      <div class="psych-card">
+        <div class="psych-label">DISC Profile</div>
+        <p><strong>High D (Dominant)</strong> -- Direct, results-focused, controls the agenda. Hates vagueness. Loves specifics and ETAs. Will interrupt if he's not getting what he needs.</p>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Trust Anchor</div>
+        <p><strong>Proof over promises.</strong> His trust activates when he sees concrete results (the COD case study worked). Right now trust is eroding because he hasn't seen leads.</p>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Communication Style</div>
+        <p><strong>Tables, not visuals.</strong> "I'm an engineer, I just want all the data." Walk him through line items. Don't summarize -- show the work.</p>
+      </div>
+      <div class="psych-card">
+        <div class="psych-label">Yellow Flags Active</div>
+        <p><strong>Self-policing schedule.</strong> He's asking "still on track?" repeatedly. He doesn't trust the rhythm. He needs to feel in control of the timeline.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Approach for this call:</strong><br>
+      1. <strong>Lead with acknowledgment</strong> -- "You're right to be frustrated. Let me show you exactly what's happening."<br>
+      2. <strong>Show the data</strong> -- Walk through the numbers honestly (5% CTR good, 0.42% conversion bad, here's why)<br>
+      3. <strong>Own what's late</strong> -- Homepage, tracker, report. Don't wait for him to bring it up<br>
+      4. <strong>Present the plan with dates</strong> -- Homepage this week, service LPs in 2 weeks, cold email end of April<br>
+      5. <strong>Get the homepage approval ON THIS CALL</strong> -- This is the unlock. Push for it.<br>
+      6. <strong>Don't oversell</strong> -- Eric remembers every promise. Under-promise, over-deliver.<br>
+      7. <strong>Positioning:</strong> Never say "sourcing company." Say "American-owned manufacturer with global facilities."
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 7: COMPETITIVE CONTEXT -->
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 07</div>
+    <h2 class="section-title">Competitive Context (If Eric Asks)</h2>
+    <p class="section-intro">From Daniel's competitive report. Use only if Eric asks about competitors.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Competitor</th>
+          <th>Est. Google Ads Budget</th>
+          <th>vs. Redstone</th>
+          <th>Key Tactic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Protolabs</td>
+          <td>$15-25M/yr</td>
+          <td>4,000x more</td>
+          <td>AI instant quotes, massive keyword coverage</td>
+        </tr>
+        <tr>
+          <td>Xometry</td>
+          <td>$10-15M/yr</td>
+          <td>2,500x more</td>
+          <td>5,000+ pages, heavy remarketing</td>
+        </tr>
+        <tr>
+          <td>Fictiv</td>
+          <td>$3-5M/yr</td>
+          <td>800x more</td>
+          <td>Conquest campaigns ("Xometry alternative")</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700; color:#B21E24;">Redstone</td>
+          <td style="color:#B21E24;">$5K/mo</td>
+          <td>--</td>
+          <td>Tariff-inclusive, 3rd party QC, free samples, "high volume only"</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="height:16px"></div>
+    <div class="callout callout-green">
+      <strong>Redstone's advantages that no competitor has in ad copy:</strong> Tariff-inclusive estimates, 3rd party QC inspections, free casting samples, "high volume only" pre-qualifier. These are genuine differentiators. The problem isn't the ads -- it's where the clicks land.
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 8: CALL AGENDA -->
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label">Section 08</div>
+    <h2 class="section-title">Suggested Call Flow (60 min)</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:12%">Time</th>
+          <th style="width:25%">Topic</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0:00-0:05</td>
+          <td>Acknowledge frustration</td>
+          <td>"I got your messages. You're right to want clarity. Let me walk you through everything." Don't be defensive.</td>
+        </tr>
+        <tr>
+          <td>0:05-0:15</td>
+          <td>Google Ads walkthrough</td>
+          <td>Share screen. Show the numbers: 953 clicks, 5% CTR, 0.42% conversion. Explain WHY (landing page, not ads). Show every change made in the account -- Daniel's work, negative keywords, ad groups paused.</td>
+        </tr>
+        <tr>
+          <td>0:15-0:25</td>
+          <td>Landing page / conversion fix</td>
+          <td>Show the staging homepage. Show the new quote form. Explain service-specific LP plan. This is the answer to "why no leads" and "what's the plan."</td>
+        </tr>
+        <tr>
+          <td>0:25-0:30</td>
+          <td>Get homepage approval</td>
+          <td>Push for approval on the call. "Can we go live with this by Friday?" This is the unlock.</td>
+        </tr>
+        <tr>
+          <td>0:30-0:40</td>
+          <td>Forward plan with dates</td>
+          <td>Walk through the 7-step plan. Homepage this week. Service LPs in 2 weeks. Cold email end of April. SEO is long-term.</td>
+        </tr>
+        <tr>
+          <td>0:40-0:50</td>
+          <td>SEO (if he raises it)</td>
+          <td>Keep brief. "SEO is a 6-12 month recovery. I've identified the root causes. AdWords and cold email are the immediate lead channels."</td>
+        </tr>
+        <tr>
+          <td>0:50-0:55</td>
+          <td>Own what's late</td>
+          <td>Proactively address: tracker with ETAs, promised report, Mon/Thu updates. Show accountability.</td>
+        </tr>
+        <tr>
+          <td>0:55-1:00</td>
+          <td>Next steps + commitments</td>
+          <td>Concrete deliverables by when. "By Friday: homepage live, tracker updated. By next Thursday: service LP drafts. End of April: cold email live."</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div class="inner">
+    <p class="footer-text">
+      <strong>KAMG Internal Briefing</strong> -- Kas Eyes Only -- April 16, 2026<br>
+      Sources: Google Ads dashboard (Mar 18 - Apr 16), Daniel's reports (Apr 9), Fathom transcripts, WhatsApp messages, vault meeting notes, eric-chronology.md
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

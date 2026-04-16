@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-16</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* -- Reset -- */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* -- Header -- */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; position:relative; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { display:inline-block; background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.3); color:#10b981; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px; margin-top:10px; letter-spacing:.5px; }
+  .stale-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); color:#f59e0b; font-size:11px; padding:8px 16px; border-radius:8px; margin-bottom:20px; text-align:center; }
+  .late-start-banner { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); color:#ef4444; font-size:11px; padding:8px 16px; border-radius:8px; margin-bottom:16px; text-align:center; }
+
+  /* -- Tabs -- */
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* -- Cards -- */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  /* -- Stat Grid -- */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  /* -- Sparkline -- */
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* -- List Items -- */
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  /* -- Schedule -- */
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:70px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-aoc { background:rgba(236,72,153,.15); color:#ec4899; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+
+  /* -- Overnight -- */
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+
+  /* -- Action Items -- */
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; cursor:pointer; transition:all .2s; }
+  .action-check.checked { background:#3b82f6; border-color:#3b82f6; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  /* -- Tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  /* -- Funnel -- */
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  /* -- Talking Points -- */
+  .talk-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .talk-trigger { font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px; }
+  .talk-response { font-size:11px; color:#e2e8f0; }
+  .talk-data { font-size:10px; color:#64748b; margin-top:6px; }
+
+  /* -- Russ Intel -- */
+  .russ-decision { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(139,92,246,.08); border-left:3px solid #8b5cf6; }
+  .russ-question { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .russ-date { font-size:10px; color:#64748b; }
+  .russ-source { font-size:9px; color:#64748b; margin-left:8px; }
+
+  /* -- Utility -- */
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+
+  /* -- Carry-forward -- */
+  .cf-item { display:flex; gap:10px; padding:10px 14px; background:rgba(59,130,246,.05); border:1px solid rgba(59,130,246,.15); border-radius:8px; margin-bottom:8px; align-items:flex-start; }
+  .cf-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; background:rgba(59,130,246,.15); color:#3b82f6; white-space:nowrap; flex-shrink:0; margin-top:2px; }
+  .cf-badge.p0 { background:rgba(239,68,68,.15); color:#ef4444; }
+  .cf-badge.p1 { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .cf-badge.p2 { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .cf-text { font-size:11px; flex:1; }
+
+  /* -- Source rows -- */
+  .source-row { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid #1e293b; font-size:11px; }
+  .source-row:last-child { border-bottom:none; }
+  .source-name { color:#94a3b8; }
+  .source-status { font-size:10px; font-weight:600; }
+  .status-pass { color:#10b981; }
+  .status-fail { color:#ef4444; }
+  .status-warn { color:#f59e0b; }
+  .status-na { color:#64748b; }
+
+  /* -- Section divider -- */
+  .section-header { font-size:11px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:.8px; margin:20px 0 10px; }
+
+  /* -- P0 alert -- */
+  .p0-alert { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.4); border-radius:10px; padding:14px 18px; margin-bottom:16px; }
+  .p0-alert-title { font-size:13px; font-weight:700; color:#ef4444; margin-bottom:6px; }
+  .p0-alert-body { font-size:11px; color:#fca5a5; }
+
+  /* -- No data -- */
+  .no-data { color:#64748b; font-size:11px; font-style:italic; padding:16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Thursday, April 16, 2026 -- Late Afternoon Sync</div>
+    <div class="meta">Generated 2026-04-16 ~17:00 CDT | Data as of 2026-04-15 11:00 UTC (30h stale)</div>
+    <div><span class="health-badge">Skill Health: OK -- 1 healthy, 0 warnings, 0 critical</span></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- MY DAY -->
+  <div class="section active" id="myday">
+
+    <div class="late-start-banner">
+      Running late afternoon sync (5 PM CST) -- sync-only mode. Calendar unavailable (MCP tools offline + Cloud OAuth expired).
+    </div>
+
+    <div class="card">
+      <div class="card-title">Calendar</div>
+      <div class="card-subtitle">2026-04-16</div>
+      <div class="no-data">No calendar events available -- MCP tools offline, cloud OAuth expired (invalid_client)</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sales Activity Today</div>
+      <div class="card-subtitle">From yesterday's Slack data -- COD</div>
+      <div class="insight-item">
+        <div class="item-title">Dorian Matney -- 4 sets booked for today (Apr 16)</div>
+        <div class="item-detail">Michael Ellis, Eric Enriquez + 2 more -- #cod-new-sales-eod. Monitor closing outcomes this afternoon.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-Forwards from 2026-04-15</div>
+      <div class="card-subtitle">Unresolved items from yesterday</div>
+
+      <div class="cf-item">
+        <span class="cf-badge p0">P0</span>
+        <span class="cf-text"><strong>COD Pixel Incident INC-2026-04-15-001</strong> -- Identify who disabled pixel, restore it, verify Meta API spend vs BQ, run backfill reconciliation for 4/12 through 4/15. Spend dropped to $0 from 4/12.</span>
+      </div>
+      <div class="cf-item">
+        <span class="cf-badge p1">P1</span>
+        <span class="cf-text"><strong>Fix GHL workflow error</strong> in COD sub-account.</span>
+      </div>
+      <div class="cf-item">
+        <span class="cf-badge p1">P1</span>
+        <span class="cf-text"><strong>Triage 6 Huly CPG tasks from Leo</strong> -- CPG-37 through CPG-42.</span>
+      </div>
+      <div class="cf-item">
+        <span class="cf-badge p1">P1</span>
+        <span class="cf-text"><strong>Reply to Rehan</strong> with Coach split-test URL decision.</span>
+      </div>
+      <div class="cf-item">
+        <span class="cf-badge p1">P1</span>
+        <span class="cf-text"><strong>Decide delivery channel</strong> for Jayne + Jodi discovery questions.</span>
+      </div>
+      <div class="cf-item">
+        <span class="cf-badge p2">P2</span>
+        <span class="cf-text"><strong>Re-auth morning-intel Cloud Function OAuth</strong> -- Calendar + Gmail both returning invalid_client.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COD INTEL -->
+  <div class="section" id="cod">
+
+    <div class="stale-banner">
+      Data from 2026-04-15 11:00 UTC (30h stale) -- cloud JSON local-fallback. All figures are MTD through 4/15.
+    </div>
+
+    <!-- P0 Pixel Alert -->
+    <div class="p0-alert">
+      <div class="p0-alert-title">P0 CRITICAL -- COD Pixel Incident INC-2026-04-15-001</div>
+      <div class="p0-alert-body">
+        Ad spend dropped to <strong>$0</strong> starting 4/12. Pixel suspected disabled -- ROAS has collapsed from baseline. Meta API spend vs BQ reconciliation required for 4/12 through 4/16. Identify who made the change, restore pixel immediately, run backfill. <strong>Every day unresolved = ~$7-8K in unattributed spend.</strong>
+      </div>
+    </div>
+
+    <!-- Stat Grid -->
+    <div class="stat-grid">
+      <div class="stat-card red">
+        <div class="stat-value" style="color:#ef4444;">$18,606</div>
+        <div class="stat-label">Gross Revenue MTD</div>
+        <div class="stat-delta down">Way below target</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-value" style="color:#ef4444;">0.24x</div>
+        <div class="stat-label">ROAS</div>
+        <div class="stat-delta down">Target 3.0+</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-value" style="color:#ef4444;">3</div>
+        <div class="stat-label">Enrollments MTD</div>
+        <div class="stat-delta down">Critical</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-value" style="color:#ef4444;">$77,989</div>
+        <div class="stat-label">Total Spend MTD</div>
+        <div class="stat-delta down">No return</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-value" style="color:#f59e0b;">$3,333</div>
+        <div class="stat-label">Avg Deal Size</div>
+        <div class="stat-delta flat">Monitor</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-value" style="color:#64748b;">N/A</div>
+        <div class="stat-label">Show Rate</div>
+        <div class="stat-delta flat">No data</div>
+      </div>
+    </div>
+
+    <!-- Sparklines -->
+    <div class="card">
+      <div class="card-title">7-Day Trend</div>
+      <div class="card-subtitle">Apr 9 -- Apr 15</div>
+
+      <div style="display:flex; align-items:center; margin-bottom:14px;">
+        <span style="font-size:11px; color:#94a3b8; width:120px;">Cash ($)</span>
+        <svg class="sparkline" width="70" height="28" viewBox="0 0 60 24">
+          <!-- values: 1210,947,540,513,540,432,486 -- scaled to 0-20 range (inverted y) -->
+          <!-- max=1210,min=432 range=778; scale: (v-432)/778*20 = y_data; y_svg=20-y_data -->
+          <!-- 1210->(20),947->(13.2),540->(2.8),513->(2.1),540->(2.8),432->(0),486->(1.4) -->
+          <polyline points="0,0 10,6.8 20,17.2 30,17.9 40,17.2 50,20 60,18.6" stroke="#3b82f6"/>
+        </svg>
+        <span style="font-size:10px; color:#64748b; margin-left:12px;">$1,210 -> $486</span>
+        <span class="stat-delta down" style="margin-left:8px;">-60% 7d</span>
+      </div>
+
+      <div style="display:flex; align-items:center;">
+        <span style="font-size:11px; color:#94a3b8; width:120px;">Spend ($)</span>
+        <svg class="sparkline" width="70" height="28" viewBox="0 0 60 24">
+          <!-- values: 7855,7916,6744,6851,0,0,0 -- max=7916 -->
+          <!-- 7855/7916*20=19.85, 7916/7916*20=20, 6744/7916*20=17.04, 6851/7916*20=17.30, 0,0,0 -->
+          <!-- y_svg = 20 - y_data -->
+          <polyline points="0,0.15 10,0 20,2.96 30,2.7 40,20 50,20 60,20" stroke="#ef4444"/>
+        </svg>
+        <span style="font-size:10px; color:#64748b; margin-left:12px;">$7,855 -> $0 (pixel off)</span>
+        <span class="stat-delta down" style="margin-left:8px;">Dropped 4/12</span>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div class="card">
+      <div class="card-title">COD Funnel -- MTD</div>
+      <div class="card-subtitle">Apr 1 -- Apr 15</div>
+
+      <div class="funnel-row">
+        <span class="funnel-label">Leads</span>
+        <div class="funnel-bar" style="background:#3b82f6; width:100%; max-width:400px; color:#fff;">218</div>
+        <span class="funnel-pct">100%</span>
+      </div>
+      <div class="funnel-row">
+        <span class="funnel-label">Applied</span>
+        <div class="funnel-bar" style="background:#8b5cf6; width:34.9%; max-width:400px; color:#fff; min-width:60px;">76</div>
+        <span class="funnel-pct">34.9%</span>
+      </div>
+      <div class="funnel-row">
+        <span class="funnel-label">Booked</span>
+        <div class="funnel-bar" style="background:#f59e0b; width:1%; max-width:400px; color:#fff; min-width:60px; opacity:.6;">0</div>
+        <span class="funnel-pct">0%</span>
+      </div>
+      <div class="funnel-row">
+        <span class="funnel-label">Showed</span>
+        <div class="funnel-bar" style="background:#ec4899; width:1%; max-width:400px; color:#fff; min-width:60px; opacity:.6;">0</div>
+        <span class="funnel-pct">0%</span>
+      </div>
+      <div class="funnel-row">
+        <span class="funnel-label">Enrolled</span>
+        <div class="funnel-bar" style="background:#10b981; width:1.4%; max-width:400px; color:#fff; min-width:60px;">3</div>
+        <span class="funnel-pct">1.4%</span>
+      </div>
+
+      <div style="margin-top:12px; padding:10px; background:rgba(245,158,11,.06); border-radius:8px; border-left:3px solid #f59e0b;">
+        <div style="font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px;">FUNNEL BREAK</div>
+        <div style="font-size:11px; color:#94a3b8;">Applied to Booked = 0 -- funnel is completely broken at booking stage. Pixel incident likely degrading audience quality + tracking. No closer data available.</div>
+      </div>
+    </div>
+
+    <!-- Ad Spend Breakdown -->
+    <div class="card">
+      <div class="card-title">Ad Spend Breakdown by Campaign</div>
+      <div class="card-subtitle">Meta Ads -- MTD Apr 1-15 | Total: $77,989</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Spend</th>
+              <th>Impressions</th>
+              <th>Clicks</th>
+              <th>CPM</th>
+              <th>CTR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="hl">ABO Cold Industry Winning</span></td>
+              <td style="color:#ef4444;">$54,671</td>
+              <td>474,622</td>
+              <td>26,838</td>
+              <td><span class="hl-amber">$115.19</span></td>
+              <td class="hl-green">5.65%</td>
+            </tr>
+            <tr>
+              <td>CBO Therapists LMFT</td>
+              <td>$17,511</td>
+              <td>193,847</td>
+              <td>13,347</td>
+              <td>$90.33</td>
+              <td class="hl-green">6.89%</td>
+            </tr>
+            <tr>
+              <td>Retargeting VSL Book Call</td>
+              <td>$4,401</td>
+              <td>19,867</td>
+              <td>498</td>
+              <td><span style="color:#ef4444;">$221.50</span></td>
+              <td>2.51%</td>
+            </tr>
+            <tr>
+              <td>TOF Cold Authority Reels</td>
+              <td>$1,082</td>
+              <td>108,863</td>
+              <td>656</td>
+              <td style="color:#10b981;">$9.94</td>
+              <td style="color:#64748b;">0.60%</td>
+            </tr>
+            <tr>
+              <td>Retarget Authority Reels</td>
+              <td>$324</td>
+              <td>37,094</td>
+              <td>410</td>
+              <td style="color:#10b981;">$8.74</td>
+              <td>1.11%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px; font-size:10px; color:#64748b;">Note: Retargeting VSL CPM of $221.50 is extremely high. TOF Reels have best CPM but lowest CTR. ABO Cold is 70% of total spend.</div>
+    </div>
+
+    <!-- Concerns -->
+    <div class="section-header">Key Concerns</div>
+    <div class="concern-item">
+      <div class="item-title">ROAS 0.24x -- Spending $77K to return $18K</div>
+      <div class="item-detail">Pixel incident is the primary driver. Until pixel is restored and backfill complete, ROAS figure is unreliable. True ROAS unknown.</div>
+    </div>
+    <div class="concern-item">
+      <div class="item-title">Zero booked calls despite 76 applications</div>
+      <div class="item-detail">Funnel completely stalled at booking stage. Possible GHL workflow error causing booking confirmation failures, or qualification bar too high.</div>
+    </div>
+    <div class="concern-item">
+      <div class="item-title">Pedro "3X ROAS" claim in Brickell Ads (#brickellads-pedro)</div>
+      <div class="item-detail">Single-campaign metric, not account-level. Account ROAS is 0.24x. Do not amplify this claim in any reporting or comms.</div>
+    </div>
+
+  </div>
+
+  <!-- OVERNIGHT -->
+  <div class="section" id="overnight">
+
+    <div class="stale-banner">
+      Slack data from 2026-04-14/15 cloud JSON (stale). Email: UNAVAILABLE -- MCP offline + OAuth expired.
+    </div>
+
+    <div class="section-header">HIGH Priority</div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-high">HIGH</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#cod-new-sales-eod -- 2026-04-15</div>
+        <div class="overnight-text"><strong>Stephan Doyon said YES -- ClarityPay fraud-flagged wife's card.</strong> Payment blocked. Enrollment at risk. Needs manual payment resolution or alternative method immediately.</div>
+      </div>
+    </div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-high">HIGH</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#cod-new-sales-eod -- 2026-04-15</div>
+        <div class="overnight-text"><strong>Dorian Matney: 4 sets booked for today (Apr 16).</strong> Michael Ellis, Eric Enriquez + 2 more. Monitor Slack for closing outcomes this afternoon/evening.</div>
+      </div>
+    </div>
+
+    <div class="section-header">MEDIUM Priority</div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-med">MED</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#tech-titans -- 2026-04-15</div>
+        <div class="overnight-text">AI-gen feature uploaded. Karen reviewing. Link: <span class="hl">clientsondemand.com/members/?aigen=true</span></div>
+      </div>
+    </div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-med">MED</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#brickellads-pedro -- 2026-04-14/15</div>
+        <div class="overnight-text"><span class="hl-amber">Pedro claiming "3X ROAS"</span> -- this is a single-campaign metric. Account-level ROAS is 0.24x. Do not surface or amplify in any client reporting or comms.</div>
+      </div>
+    </div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-med">MED</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#sales-team-help -- 2026-04-15</div>
+        <div class="overnight-text">FB group welcome posts needed for <strong>Rachel Carr</strong> + <strong>John Wiley</strong> -- currently missing. Assign or action.</div>
+      </div>
+    </div>
+
+    <div class="section-header">LOW Priority</div>
+
+    <div class="overnight-item">
+      <div>
+        <span class="priority-badge priority-low">LOW</span>
+      </div>
+      <div class="overnight-body">
+        <div class="overnight-source">#cod-new-sales-eod -- 2026-04-13</div>
+        <div class="overnight-text">Trinh Bender cancelled. Jamie McMillan rescheduled. Danielle K pending husband approval. Monitor for rebooking.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Email</div>
+      <div class="no-data">No email data available -- MCP tools offline + Cloud OAuth expired (invalid_client). Re-auth required.</div>
+    </div>
+
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="section" id="actions">
+
+    <div class="card">
+      <div class="card-title">Priority Actions -- 2026-04-16</div>
+      <div class="card-subtitle">Ordered by priority. Click boxes to mark done.</div>
+
+      <!-- P0 -->
+      <div class="section-header">P0 -- Critical</div>
+
+      <div class="action-item" style="border-left:3px solid #ef4444;">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>COD Pixel Incident INC-2026-04-15-001</strong> -- Identify who disabled pixel, restore it immediately, verify Meta API spend vs BQ, run backfill reconciliation for 4/12 through 4/16</div>
+          <div class="action-context">Carry-forward. ~$8K/day in unattributed spend. Every day unresolved costs accuracy + revenue.</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-left:3px solid #ef4444;">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>ClarityPay fraud flag -- Stephan Doyon</strong> -- Resolve payment method or lose enrollment. He said YES.</div>
+          <div class="action-context">From #cod-new-sales-eod. Wife's card fraud-flagged. Offer alternative payment path immediately.</div>
+        </div>
+      </div>
+
+      <!-- P1 -->
+      <div class="section-header">P1 -- High</div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Fix GHL workflow error</strong> in COD sub-account</div>
+          <div class="action-context">Carry-forward. Likely contributing to zero booked calls from 76 applications.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Triage 6 Huly CPG tasks from Leo</strong> -- CPG-37 through CPG-42</div>
+          <div class="action-context">Carry-forward. Unreviewed backlog blocking CPG progress.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Reply to Rehan</strong> -- Coach split-test URL decision</div>
+          <div class="action-context">Carry-forward. Blocking split-test deployment.</div>
+        </div>
+      </div>
+
+      <!-- P2 -->
+      <div class="section-header">P2 -- Normal</div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Re-auth morning-intel Cloud Function OAuth</strong> -- Calendar + Gmail both returning invalid_client</div>
+          <div class="action-context">Blocking calendar and email data in all future morning reports. GCP console -> OAuth credentials refresh.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Decide delivery channel</strong> for Jayne + Jodi discovery questions</div>
+          <div class="action-context">Carry-forward. Slack DM vs email vs async doc -- make the call.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check" onclick="toggleCheck(this)"></div>
+        <div>
+          <div class="action-text"><strong>Monitor Dorian Matney's 4 sets today</strong> -- Michael Ellis, Eric Enriquez + 2 more</div>
+          <div class="action-context">Check #cod-new-sales-eod this evening for closing outcomes.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section" id="sources">
+
+    <div class="card">
+      <div class="card-title">Data Sources</div>
+      <div class="card-subtitle">Integration health for 2026-04-16 report</div>
+
+      <div style="margin-bottom:8px;">
+        <span style="display:inline-block; background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.3); color:#f59e0b; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px;">Data Source: local-fallback (cloud JSON 30h stale)</span>
+      </div>
+
+      <div class="section-header">Core Sources</div>
+      <div class="source-row">
+        <span class="source-name">Cloud JSON</span>
+        <span class="source-status status-warn">STALE -- morning-intel-latest-2026-04-15 (30h, used as fallback)</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">BQ Data</span>
+        <span class="source-status status-warn">FROM CLOUD JSON -- period 2026-04-01 to 2026-04-15</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Slack COD</span>
+        <span class="source-status status-warn">12 messages from yesterday's cloud JSON (stale)</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Calendar</span>
+        <span class="source-status status-fail">UNAVAILABLE -- MCP tools not loading + CF OAuth invalid_client</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Gmail</span>
+        <span class="source-status status-fail">UNAVAILABLE -- MCP tools not loading + CF OAuth invalid_client</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Email</span>
+        <span class="source-status status-fail">UNAVAILABLE</span>
+      </div>
+
+      <div class="section-header">Integration Health</div>
+      <div class="source-row">
+        <span class="source-name">Slack Bot</span>
+        <span class="source-status status-pass">PASS</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Sheets</span>
+        <span class="source-status status-pass">PASS</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Fathom</span>
+        <span class="source-status status-fail">FAIL</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Figma</span>
+        <span class="source-status status-warn">Needs auth</span>
+      </div>
+
+      <div class="section-header">System Health</div>
+      <div class="source-row">
+        <span class="source-name">Knowledge Compiler</span>
+        <span class="source-status status-fail">CRITICAL -- 33h since last run</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Ares Brain</span>
+        <span class="source-status status-fail">OFFLINE</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Cache</span>
+        <span class="source-status status-pass">90/100 HEALTHY -- 91.2% hit rate, patch applied</span>
+      </div>
+      <div class="source-row">
+        <span class="source-name">Skill Health</span>
+        <span class="source-status status-pass">OK -- 1 healthy, 0 warnings, 0 critical, 0 triggers pending</span>
+      </div>
+
+      <div class="section-header">Errors</div>
+      <div style="background:#0a0e17; border-radius:8px; padding:12px; font-size:11px; color:#ef4444; font-family:'JetBrains Mono',monospace;">
+        <div>- Calendar: invalid_client</div>
+        <div>- Gmail: invalid_client</div>
+        <div>- MCP tools not loading in session</div>
+        <div>- Cloud JSON 30h stale</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const item = el.closest('.action-item');
+  if (el.classList.contains('checked')) {
+    item.style.opacity = '0.45';
+    el.style.background = '#3b82f6';
+    el.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>';
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+  } else {
+    item.style.opacity = '1';
+    el.style.background = 'transparent';
+    el.innerHTML = '';
+  }
+}
+</script>
+</body>
+</html>

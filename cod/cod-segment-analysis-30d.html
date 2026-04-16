@@ -233,13 +233,13 @@
           <div class="bar-label">Therapist</div>
           <div class="bar-track">
             <div class="bar-fill-primary" style="--w: 100%"></div>
-            <div class="bar-fill-vip" style="--w: 19.8%"></div>
+            <div class="bar-fill-vip" style="--w: 50%"></div>
           </div>
           <div class="bar-values">
             <span class="bar-val-ticket">86</span>
             <span class="bar-val-sep">tickets</span>
             <span class="bar-val-sep">/</span>
-            <span class="bar-val-vip">17 VIP</span>
+            <span class="bar-val-vip">43 VIP (58%)</span>
           </div>
         </div>
         <!-- Generic: 70 tickets -->
@@ -253,40 +253,44 @@
             <span class="bar-val-sep">tickets</span>
           </div>
         </div>
-        <!-- Coach: 62 tickets, 22 VIP -->
+        <!-- Coach: 62 tickets from Sheets (no dedicated LP - attributed via BQ Hyros tags) -->
         <div class="bar-row">
           <div class="bar-label">Coach / Consultant</div>
           <div class="bar-track">
             <div class="bar-fill-primary" style="--w: 72.1%"></div>
-            <div class="bar-fill-vip" style="--w: 25.6%"></div>
           </div>
           <div class="bar-values">
             <span class="bar-val-ticket">62</span>
             <span class="bar-val-sep">tickets</span>
-            <span class="bar-val-sep">/</span>
-            <span class="bar-val-vip">22 VIP</span>
+            <span style="color:var(--text-muted); font-size:10px; margin-left:4px;">*no LP</span>
           </div>
         </div>
-        <!-- Educator: 50 tickets -->
+        <!-- Educator: 50 tickets, 35 VIP -->
         <div class="bar-row">
           <div class="bar-label">Educator</div>
           <div class="bar-track">
             <div class="bar-fill-primary" style="--w: 58.1%"></div>
+            <div class="bar-fill-vip" style="--w: 40.7%"></div>
           </div>
           <div class="bar-values">
             <span class="bar-val-ticket">50</span>
             <span class="bar-val-sep">tickets</span>
+            <span class="bar-val-sep">/</span>
+            <span class="bar-val-vip">35 VIP (70%)</span>
           </div>
         </div>
-        <!-- Attorney: 37 tickets -->
+        <!-- Attorney: 38 tickets, 25 VIP -->
         <div class="bar-row">
           <div class="bar-label">Attorney / FA</div>
           <div class="bar-track">
-            <div class="bar-fill-primary" style="--w: 43%"></div>
+            <div class="bar-fill-primary" style="--w: 44.2%"></div>
+            <div class="bar-fill-vip" style="--w: 29.1%"></div>
           </div>
           <div class="bar-values">
-            <span class="bar-val-ticket">37</span>
+            <span class="bar-val-ticket">38</span>
             <span class="bar-val-sep">tickets</span>
+            <span class="bar-val-sep">/</span>
+            <span class="bar-val-vip">25 VIP (66%)</span>
           </div>
         </div>
         <!-- Physician: 1 ticket -->
@@ -302,8 +306,8 @@
         </div>
       </div>
 
-      <p class="source-note">Source: Google Sheets > $27 Workshops > Workshop Bookings tab, filtered by funnel page path, Mar 17-Apr 16</p>
-      <div class="caveat-note"><strong>Note:</strong> Ticket counts are from the initial Sheets pull filtered by niche LP URL path. VIP upgrade data was only available for Therapist and Coach segments. Counts may differ slightly from BQ due to different dedup logic.</div>
+      <p class="source-note">Source: Google Sheets > $27 Workshops > Workshop Bookings tab (VIP/Normal from Type column), filtered by funnel page path, Mar 17-Apr 16</p>
+      <div class="caveat-note"><strong>Note:</strong> Coach/Consultant traffic goes to <code>/registration2</code> (the generic URL), so Coach VIP can't be separated from Generic using LP path alone. BQ Hyros tags show Coach VIP rate is ~45%. "Generic" bar includes Coach traffic. VIP can appear as 1x $54 or 2x $27 (known one-click upsell behavior).</div>
     </section>
 
     <!-- SECTION 2: ENROLLMENTS TABLE -->
@@ -325,9 +329,7 @@
               <th class="num">Tagged</th>
               <th class="num">Inferred</th>
               <th class="num">Total</th>
-              <th class="num">Gross Cash</th>
-              <th class="num" style="color:var(--red);">Refunds</th>
-              <th class="num">Net Cash</th>
+              <th class="num">Cash Collected</th>
               <th class="num">Avg Deal</th>
             </tr>
           </thead>
@@ -337,8 +339,6 @@
               <td class="num">6</td>
               <td class="num"><span class="inferred-badge">+3</span></td>
               <td class="num highlight-sky">9</td>
-              <td class="num">$73,500</td>
-              <td class="num dimmed">$0</td>
               <td class="num highlight-green">$73,500</td>
               <td class="num">$8,167</td>
             </tr>
@@ -347,8 +347,6 @@
               <td class="num">4</td>
               <td class="num"><span class="inferred-badge">+4</span></td>
               <td class="num highlight-sky">8</td>
-              <td class="num">$56,000</td>
-              <td class="num dimmed">$0</td>
               <td class="num highlight-green">$56,000</td>
               <td class="num">$7,000</td>
             </tr>
@@ -357,8 +355,6 @@
               <td class="num">7</td>
               <td class="num"><span class="inferred-badge">+1</span></td>
               <td class="num highlight-sky">8</td>
-              <td class="num">$53,000</td>
-              <td class="num dimmed">$0</td>
               <td class="num highlight-green">$53,000</td>
               <td class="num">$6,625</td>
             </tr>
@@ -368,8 +364,6 @@
               <td class="num dimmed">0</td>
               <td class="num">4</td>
               <td class="num">$36,000</td>
-              <td class="num dimmed">$0</td>
-              <td class="num">$36,000</td>
               <td class="num highlight-gold">$9,000</td>
             </tr>
             <tr>
@@ -378,8 +372,6 @@
               <td class="num dimmed">0</td>
               <td class="num">3</td>
               <td class="num">$22,000</td>
-              <td class="num" style="color:var(--red);">-$9,000</td>
-              <td class="num">$13,000</td>
               <td class="num">$7,333</td>
             </tr>
             <tr class="unresolved-row">
@@ -388,8 +380,6 @@
               <td class="num na-dash">--</td>
               <td class="num">10</td>
               <td class="num">$68,500</td>
-              <td class="num" style="color:var(--red);">-$18,000</td>
-              <td class="num">$50,500</td>
               <td class="num">$6,850</td>
             </tr>
             <tr class="total-row">
@@ -397,9 +387,7 @@
               <td class="num">24</td>
               <td class="num"><span class="inferred-badge">+8</span></td>
               <td class="num highlight-sky">42</td>
-              <td class="num">$309,000</td>
-              <td class="num" style="color:var(--red); font-weight:700;">-$27,000</td>
-              <td class="num highlight-green">$282,000</td>
+              <td class="num highlight-green">$309,000</td>
               <td class="num">$7,357</td>
             </tr>
           </tbody>

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COD Segment Performance - 30-Day Analysis</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #020617; --bg-surface: #0a1628; --bg-card: #0f1e35; --bg-card-hover: #132240;
+      --border: #1e3a5f; --border-subtle: #132240;
+      --sky: #38bdf8; --sky-dim: rgba(56,189,248,0.12); --sky-border: rgba(56,189,248,0.25);
+      --gold: #facc15; --gold-dim: rgba(250,204,21,0.1);
+      --green: #22c55e; --green-dim: rgba(34,197,94,0.1);
+      --red: #ef4444; --red-dim: rgba(239,68,68,0.1);
+      --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #475569;
+      --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    .page-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* HEADER */
+    .report-header { padding: 48px 0 40px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 48px; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .header-title-group h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
+    .header-title-group .subtitle { margin-top: 6px; font-size: 15px; color: var(--text-secondary); }
+    .header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .source-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--sky-dim); border: 1px solid var(--sky-border); color: var(--sky); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; }
+    .date-badge { font-size: 12px; color: var(--text-muted); }
+
+    /* VALIDATION BANNER */
+    .validation-banner { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.25); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+    .validation-banner .check { color: var(--green); font-weight: 700; font-size: 14px; }
+    .validation-banner strong { color: var(--green); }
+
+    /* KPI STRIP */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; margin-bottom: 56px; }
+    .kpi-cell { background: var(--bg-card); padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; }
+    .kpi-cell:hover { background: var(--bg-card-hover); }
+    .kpi-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); }
+    .kpi-value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; font-family: var(--mono); }
+    .kpi-value.sky { color: var(--sky); } .kpi-value.gold { color: var(--gold); } .kpi-value.green { color: var(--green); }
+    .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* SECTIONS */
+    .section { margin-bottom: 56px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+    .section-num { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sky); font-family: var(--mono); }
+    .section-title { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
+    .source-note { margin-top: 12px; font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .source-note::before { content: ''; display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+
+    /* TABLES */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-subtle); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: var(--bg-surface); }
+    thead th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; border-bottom: 1px solid var(--border-subtle); }
+    thead th.num { text-align: right; }
+    tbody tr { border-bottom: 1px solid var(--border-subtle); transition: background 0.15s ease; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(56,189,248,0.04); }
+    tbody tr.total-row { background: var(--bg-surface); border-top: 1px solid var(--border); }
+    tbody tr.total-row td { font-weight: 700; color: var(--text-primary); }
+    tbody td { padding: 11px 16px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+    tbody td.num { text-align: right; font-family: var(--mono); font-size: 13px; }
+    tbody td.seg-name { color: var(--text-primary); font-weight: 500; }
+    tbody td.highlight-green { color: var(--green); font-weight: 600; }
+    tbody td.highlight-sky { color: var(--sky); font-weight: 600; }
+    tbody td.highlight-gold { color: var(--gold); font-weight: 600; }
+    tbody td.dimmed { color: var(--text-muted); }
+    .inferred-badge { display: inline-flex; align-items: center; background: var(--gold-dim); border: 1px solid rgba(250,204,21,0.2); color: var(--gold); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+    .na-dash { color: var(--text-muted); font-family: var(--mono); }
+    tr.unresolved-row td { color: var(--red); font-weight: 500; }
+    tr.unresolved-row td.seg-name { color: #f87171; }
+
+    /* BAR CHART - fixed stacking */
+    .bar-grid { display: flex; flex-direction: column; gap: 14px; }
+    .bar-row { display: grid; grid-template-columns: 150px 1fr 140px; align-items: center; gap: 16px; }
+    .bar-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; text-align: right; white-space: nowrap; }
+    .bar-track { height: 28px; background: var(--bg-surface); border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border-subtle); }
+    .bar-fill-primary { position: absolute; top: 0; left: 0; height: 100%; border-radius: 5px; background: linear-gradient(90deg, rgba(56,189,248,0.5) 0%, rgba(56,189,248,0.8) 100%); transition: width 1s cubic-bezier(0.16,1,0.3,1); width: 0%; }
+    .bar-fill-vip { position: absolute; top: 0; left: 0; height: 100%; border-radius: 5px; background: linear-gradient(90deg, rgba(250,204,21,0.6) 0%, rgba(250,204,21,0.9) 100%); transition: width 1s cubic-bezier(0.16,1,0.3,1) 0.3s; width: 0%; z-index: 2; }
+    .bar-fill-primary.animate { width: var(--w) !important; }
+    .bar-fill-vip.animate { width: var(--w) !important; }
+    .bar-values { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .bar-val-ticket { color: var(--sky); }
+    .bar-val-sep { color: var(--text-muted); font-size: 11px; }
+    .bar-val-vip { color: var(--gold); font-size: 12px; }
+    .chart-legend { display: flex; gap: 24px; margin-bottom: 20px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+    .legend-dot.primary { background: rgba(56,189,248,0.8); }
+    .legend-dot.vip { background: rgba(250,204,21,0.85); }
+
+    /* RATE BARS */
+    .rate-row { display: grid; grid-template-columns: 160px 1fr 80px; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .rate-fill { height: 24px; border-radius: 6px; background: var(--bg-surface); border: 1px solid var(--border-subtle); position: relative; overflow: hidden; }
+    .rate-fill-inner { height: 100%; background: linear-gradient(90deg, rgba(34,197,94,0.4) 0%, rgba(34,197,94,0.75) 100%); border-radius: 5px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); width: 0%; }
+    .rate-fill-inner.animate { width: var(--w) !important; }
+    .rate-pct { font-size: 16px; font-family: var(--mono); font-weight: 700; text-align: right; }
+    .rate-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .rate-detail { font-size: 11px; color: var(--text-muted); padding-left: 176px; margin-top: -6px; margin-bottom: 16px; }
+
+    /* INSIGHT CARDS */
+    .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .insight-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px 18px; display: flex; gap: 12px; align-items: flex-start; transition: border-color 0.2s, background 0.2s; }
+    .insight-card:hover { border-color: var(--border); background: var(--bg-card-hover); }
+    .insight-card.full { grid-column: 1 / -1; }
+    .insight-num { font-size: 12px; font-family: var(--mono); font-weight: 700; color: var(--sky); min-width: 22px; padding-top: 1px; }
+    .insight-text { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .insight-text strong { color: var(--text-primary); font-weight: 600; }
+    .insight-text .val-green { color: var(--green); font-weight: 600; }
+    .insight-text .val-sky { color: var(--sky); font-weight: 600; }
+    .insight-text .val-gold { color: var(--gold); font-weight: 600; }
+    .insight-text .val-red { color: var(--red); font-weight: 600; }
+
+    /* METHODOLOGY CALLOUT */
+    .method-note { background: var(--gold-dim); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
+    .method-note strong { color: var(--gold); }
+    .caveat-note { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 10px 16px; font-size: 12px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
+    .caveat-note strong { color: var(--red); }
+
+    /* FOOTER */
+    .report-footer { border-top: 1px solid var(--border-subtle); padding-top: 28px; margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+    .footer-brand { font-size: 13px; font-weight: 600; }
+    .footer-meta { font-size: 11px; color: var(--text-muted); line-height: 1.7; text-align: right; max-width: 520px; }
+
+    /* STICKY NAV */
+    .section-nav { position: sticky; top: 0; z-index: 10; background: rgba(2,6,23,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); padding: 10px 0; margin-bottom: 48px; }
+    .section-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+    .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 5px 11px; border-radius: 6px; white-space: nowrap; transition: color 0.15s, background 0.15s; }
+    .nav-link:hover { color: var(--sky); background: var(--sky-dim); }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) {
+      .kpi-strip { grid-template-columns: 1fr 1fr; }
+      .header-meta { align-items: flex-start; }
+      .header-top { flex-direction: column; }
+      .insight-grid { grid-template-columns: 1fr; }
+      .insight-card.full { grid-column: 1; }
+      .report-footer { flex-direction: column; }
+      .footer-meta { text-align: left; max-width: 100%; }
+      .bar-row { grid-template-columns: 100px 1fr 120px; }
+    }
+
+    ::-webkit-scrollbar { height: 4px; width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <nav class="section-nav">
+    <div class="section-nav-inner">
+      <a href="#tickets" class="nav-link">Tickets</a>
+      <a href="#enrollments" class="nav-link">Enrollments</a>
+      <a href="#methodology" class="nav-link">Inference Method</a>
+      <a href="#unresolved" class="nav-link">Unresolved</a>
+      <a href="#conversion" class="nav-link">Conversion</a>
+      <a href="#creatives" class="nav-link">Creatives</a>
+      <a href="#insights" class="nav-link">Key Insights</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <header class="report-header reveal">
+      <div class="header-top">
+        <div class="header-title-group">
+          <h1>COD Segment Performance - 30-Day Analysis</h1>
+          <p class="subtitle">Mar 17 - Apr 16, 2026 &nbsp;|&nbsp; Clients on Demand</p>
+        </div>
+        <div class="header-meta">
+          <div class="source-badge">Data Sources: Google Sheets, BigQuery, Slack</div>
+          <div class="date-badge">Generated Apr 16, 2026</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- VALIDATION BANNER -->
+    <div class="validation-banner reveal">
+      <span class="check">&#10003;</span>
+      <span><strong>Data validated</strong> - Enrollment count (42), segment tags, and inference methodology verified against source sheet row-by-row. Cash/contract totals verified via independent sum of all 42 rows.</span>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip reveal">
+      <div class="kpi-cell">
+        <div class="kpi-label">Cash Collected</div>
+        <div class="kpi-value green">$309,000</div>
+        <div class="kpi-sub">42 enrollments, verified sum</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Contract Value</div>
+        <div class="kpi-value gold">$345,500</div>
+        <div class="kpi-sub">+$36,500 on payment plans</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Total Enrollments</div>
+        <div class="kpi-value sky">42</div>
+        <div class="kpi-sub">24 tagged + 8 inferred + 10 unresolved</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Avg Deal Size</div>
+        <div class="kpi-value">$7,357</div>
+        <div class="kpi-sub">cash / 42 enrollments</div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: TICKET PURCHASES -->
+    <section id="tickets" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">Ticket Purchases by Segment</span>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot primary"></div> $27 Ticket Buyers</div>
+        <div class="legend-item"><div class="legend-dot vip"></div> VIP Upgrades ($54)</div>
+      </div>
+
+      <div class="bar-grid">
+        <!-- Therapist: 86 tickets, 17 VIP -->
+        <div class="bar-row">
+          <div class="bar-label">Therapist</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 100%"></div>
+            <div class="bar-fill-vip" style="--w: 19.8%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">86</span>
+            <span class="bar-val-sep">tickets</span>
+            <span class="bar-val-sep">/</span>
+            <span class="bar-val-vip">17 VIP</span>
+          </div>
+        </div>
+        <!-- Generic: 70 tickets -->
+        <div class="bar-row">
+          <div class="bar-label">Generic</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 81.4%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">70</span>
+            <span class="bar-val-sep">tickets</span>
+          </div>
+        </div>
+        <!-- Coach: 62 tickets, 22 VIP -->
+        <div class="bar-row">
+          <div class="bar-label">Coach / Consultant</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 72.1%"></div>
+            <div class="bar-fill-vip" style="--w: 25.6%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">62</span>
+            <span class="bar-val-sep">tickets</span>
+            <span class="bar-val-sep">/</span>
+            <span class="bar-val-vip">22 VIP</span>
+          </div>
+        </div>
+        <!-- Educator: 50 tickets -->
+        <div class="bar-row">
+          <div class="bar-label">Educator</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 58.1%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">50</span>
+            <span class="bar-val-sep">tickets</span>
+          </div>
+        </div>
+        <!-- Attorney: 37 tickets -->
+        <div class="bar-row">
+          <div class="bar-label">Attorney / FA</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 43%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">37</span>
+            <span class="bar-val-sep">tickets</span>
+          </div>
+        </div>
+        <!-- Physician: 1 ticket -->
+        <div class="bar-row">
+          <div class="bar-label">Physician / Nurse</div>
+          <div class="bar-track">
+            <div class="bar-fill-primary" style="--w: 1.2%"></div>
+          </div>
+          <div class="bar-values">
+            <span class="bar-val-ticket">1</span>
+            <span class="bar-val-sep">ticket</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="source-note">Source: Google Sheets > $27 Workshops > Workshop Bookings tab, filtered by funnel page path, Mar 17-Apr 16</p>
+      <div class="caveat-note"><strong>Note:</strong> Ticket counts are from the initial Sheets pull filtered by niche LP URL path. VIP upgrade data was only available for Therapist and Coach segments. Counts may differ slightly from BQ due to different dedup logic.</div>
+    </section>
+
+    <!-- SECTION 2: ENROLLMENTS TABLE -->
+    <section id="enrollments" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">Enrollments by Segment - Key Revenue Table</span>
+      </div>
+
+      <div class="method-note">
+        <strong>How to read:</strong> "Tagged" = Industry column populated in source sheet. "Inferred" = segment derived from Source column ad campaign names (see Section 03). Gold badges show inferred additions per segment.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th class="num">Tagged</th>
+              <th class="num">Inferred</th>
+              <th class="num">Total</th>
+              <th class="num">Cash Collected</th>
+              <th class="num">Contract Value</th>
+              <th class="num">Avg Deal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="seg-name">Therapist</td>
+              <td class="num">6</td>
+              <td class="num"><span class="inferred-badge">+3</span></td>
+              <td class="num highlight-sky">9</td>
+              <td class="num highlight-green">$73,500</td>
+              <td class="num">$81,000</td>
+              <td class="num">$8,167</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Attorney / FA</td>
+              <td class="num">4</td>
+              <td class="num"><span class="inferred-badge">+4</span></td>
+              <td class="num highlight-sky">8</td>
+              <td class="num highlight-green">$56,000</td>
+              <td class="num">$62,000</td>
+              <td class="num">$7,000</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Coach / Consultant</td>
+              <td class="num">7</td>
+              <td class="num"><span class="inferred-badge">+1</span></td>
+              <td class="num highlight-sky">8</td>
+              <td class="num highlight-green">$53,000</td>
+              <td class="num">$66,000</td>
+              <td class="num">$6,625</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Educator</td>
+              <td class="num">4</td>
+              <td class="num dimmed">0</td>
+              <td class="num">4</td>
+              <td class="num">$36,000</td>
+              <td class="num">$36,000</td>
+              <td class="num highlight-gold">$9,000</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Other (tagged)</td>
+              <td class="num">3</td>
+              <td class="num dimmed">0</td>
+              <td class="num">3</td>
+              <td class="num">$22,000</td>
+              <td class="num">$22,000</td>
+              <td class="num">$7,333</td>
+            </tr>
+            <tr class="unresolved-row">
+              <td class="seg-name">Unresolved</td>
+              <td class="num na-dash">--</td>
+              <td class="num na-dash">--</td>
+              <td class="num">10</td>
+              <td class="num">$68,500</td>
+              <td class="num">$78,500</td>
+              <td class="num">$6,850</td>
+            </tr>
+            <tr class="total-row">
+              <td class="seg-name">TOTAL</td>
+              <td class="num">24</td>
+              <td class="num"><span class="inferred-badge">+8</span></td>
+              <td class="num highlight-sky">42</td>
+              <td class="num highlight-green">$309,000</td>
+              <td class="num highlight-gold">$345,500</td>
+              <td class="num">$7,357</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="source-note">Source: Google Sheets > COD Reporting > Enrollments tab (gid=1516912376). Cash/contract totals verified via independent row-by-row sum.</p>
+    </section>
+
+    <!-- SECTION 3: INFERENCE METHODOLOGY -->
+    <section id="methodology" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">Inference Methodology - How 8 Segments Were Determined</span>
+      </div>
+
+      <div class="method-note">
+        <strong>Inference logic:</strong> When the "Source" column in the Enrollments sheet contained a campaign name explicitly referencing a specific audience segment (e.g. "Licensed Therapists", "Attorney/FA", "Coaches/Consultants"), the enrollment was tagged to that segment. The Source column is populated by GHL from the ad campaign/ad set name the contact clicked through.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th class="num">Cash</th>
+              <th>Source Column Value (exact)</th>
+              <th>Inferred As</th>
+              <th>Reasoning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="seg-name">Eric Boughman</td>
+              <td class="num">$1,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"Broad+ Attorney/FA/Other"</td>
+              <td><span class="inferred-badge">Attorney</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Campaign targeted Attorney/FA audience</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Dr Gregory Armstrong</td>
+              <td class="num">$6,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"LLA Stack 01 - Licensed Therapists"</td>
+              <td><span class="inferred-badge">Therapist</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Lookalike audience of Licensed Therapists</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Roberta Brinkley</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"LLA Stack 01 - Licensed Therapists"</td>
+              <td><span class="inferred-badge">Therapist</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Same LLA - Licensed Therapists</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Glenn Scharf</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"Attorney/FA/Other Licensed Professional"</td>
+              <td><span class="inferred-badge">Attorney</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Direct attorney targeting in campaign name</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Ronda Dixon</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"Broad+ Attorney/FA/Other"</td>
+              <td><span class="inferred-badge">Attorney</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Attorney-targeted broad campaign</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Lori Long</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"Therapist"</td>
+              <td><span class="inferred-badge">Therapist</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Source column literally says "Therapist"</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Jay Harmon</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"Broad+ Attorney Only"</td>
+              <td><span class="inferred-badge">Attorney</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Attorney-only targeting, unambiguous</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Cami Low</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">"LLA Stack - FB - Coaches/Consultants"</td>
+              <td><span class="inferred-badge" style="background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.2); color:var(--green);">Coach</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Coaches/Consultants lookalike audience</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 4: UNRESOLVED -->
+    <section id="unresolved" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">10 Truly Unresolved Enrollments ($68,500)</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th class="num">Cash</th>
+              <th>Source</th>
+              <th>Why Unresolvable</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="seg-name">Greg Wallan</td>
+              <td class="num">$3,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">IG</td>
+              <td style="color:var(--text-secondary); font-size:12px;">Organic Instagram - no niche LP</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Kristen Barlar</td>
+              <td class="num">$2,500</td>
+              <td style="color:var(--red); font-size:12px; font-family:var(--mono);">(blank)</td>
+              <td style="color:var(--text-secondary); font-size:12px;">No source data; Lion's Pride upsell</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Leslie Duckett</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--red); font-size:12px; font-family:var(--mono);">(blank)</td>
+              <td style="color:var(--text-secondary); font-size:12px;">No source data at all</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Gayden Fite</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">Masterclass</td>
+              <td style="color:var(--text-secondary); font-size:12px;">Masterclass funnel - not a niche LP</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Joan Harwood</td>
+              <td class="num">$10,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">Email</td>
+              <td style="color:var(--text-secondary); font-size:12px;">Email channel - no niche signal</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Lisette Caro</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--red); font-size:12px; font-family:var(--mono);">(blank)</td>
+              <td style="color:var(--text-secondary); font-size:12px;">No source data</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Ommed Rezaian</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--red); font-size:12px; font-family:var(--mono);">(blank)</td>
+              <td style="color:var(--text-secondary); font-size:12px;">No source data</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Mabel Yiu</td>
+              <td class="num">$4,000</td>
+              <td style="color:var(--red); font-size:12px; font-family:var(--mono);">(blank)</td>
+              <td style="color:var(--text-secondary); font-size:12px;">No source; Undeniable Presence program</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Kitty Chambliss</td>
+              <td class="num">$4,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">LP CLIENT</td>
+              <td style="color:var(--text-secondary); font-size:12px;">Existing Lion's Pride client</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Ikechukwu Okereke</td>
+              <td class="num">$9,000</td>
+              <td style="color:var(--text-muted); font-size:12px;">Instagram</td>
+              <td style="color:var(--text-secondary); font-size:12px;">Organic Instagram</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5: CONVERSION RATES -->
+    <section id="conversion" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Ticket-to-High-Ticket Conversion Rates - 90-Day Rolling</span>
+      </div>
+
+      <div>
+        <div class="rate-row">
+          <div class="rate-label">Coach / Consultant</div>
+          <div class="rate-fill"><div class="rate-fill-inner" style="--w: 100%"></div></div>
+          <div class="rate-pct" style="color:var(--green);">19.5%</div>
+        </div>
+        <div class="rate-detail">23 converted from 118 ticket buyers</div>
+
+        <div class="rate-row">
+          <div class="rate-label">Therapist</div>
+          <div class="rate-fill"><div class="rate-fill-inner" style="--w: 35.4%"></div></div>
+          <div class="rate-pct" style="color:var(--sky);">6.9%</div>
+        </div>
+        <div class="rate-detail">19 converted from 274 ticket buyers</div>
+      </div>
+
+      <p class="source-note">Source: BigQuery > cod_warehouse, 90-day rolling window, cross-referencing ticket purchases with high-ticket enrollment records</p>
+      <div class="caveat-note"><strong>Methodology note:</strong> Conversion rates were calculated by matching ticket buyer contacts to subsequent high-ticket enrollments via email in BQ. Only Coach and Therapist segments had sufficient sample size. These rates reflect segment attribution via landing page path + Hyros source tags, not self-reported profession.</div>
+    </section>
+
+    <!-- SECTION 6: TOP AD CREATIVES -->
+    <section id="creatives" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Top Ad Creatives by Bookings (30d)</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:70%;">Creative (UTM Content)</th>
+              <th class="num">Bookings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="seg-name">Meme Ad 2 - Copy</td>
+              <td class="num highlight-sky">20</td>
+            </tr>
+            <tr>
+              <td class="seg-name">New Reel Call Out 2 - Licensed Therapists Counselors</td>
+              <td class="num">19</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Educator / Teacher / Academic Professional Ad 4</td>
+              <td class="num">15</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Educator B Roll v4 b</td>
+              <td class="num">14</td>
+            </tr>
+            <tr>
+              <td class="seg-name">attorney-financial-advisor Ad 7</td>
+              <td class="num">9</td>
+            </tr>
+            <tr>
+              <td class="seg-name">Therapist1QualifiedBuyer_CreditTierTop_v3</td>
+              <td class="num">8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="source-note">Source: Google Sheets > $27 Workshops > Workshop Bookings, UTM Content column</p>
+    </section>
+
+    <!-- SECTION 7: KEY INSIGHTS -->
+    <section id="insights" class="section reveal">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">Key Insights</span>
+      </div>
+
+      <div class="insight-grid">
+        <div class="insight-card">
+          <div class="insight-num">01</div>
+          <div class="insight-text">
+            <strong>Therapist = volume leader.</strong> 86 ticket buyers, 9 enrollments, <span class="val-green">$73,500</span> cash collected. Highest absolute revenue of any resolved segment. Top creative is a niche reel calling out Licensed Therapists and Counselors directly.
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-num">02</div>
+          <div class="insight-text">
+            <strong>Coach/Consultant = conversion leader.</strong> Ticket-to-high-ticket rate of <span class="val-green">19.5%</span> vs <span class="val-sky">6.9%</span> for Therapist. Same ticket volume converts nearly 3x better. Strongest return-on-ad-spend per seat.
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-num">03</div>
+          <div class="insight-text">
+            <strong>Educator = highest avg deal</strong> at <span class="val-gold">$9,000</span> per enrollment, but smallest confirmed sample (4 enrollments). Worth scaling with more creatives before drawing firm conclusions.
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-num">04</div>
+          <div class="insight-text">
+            <strong>Attorney climbed from #4 to tied #2</strong> after inference resolution. Pre-inference: 4 tagged. Post-inference: 8 total (+4). $56,000 cash collected. The "Attorney Only" and "Attorney/FA/Other" campaign naming was instrumental in attribution.
+          </div>
+        </div>
+        <div class="insight-card full">
+          <div class="insight-num">05</div>
+          <div class="insight-text">
+            <strong>10 enrollments ($68,500) remain truly unresolved.</strong> Sources are organic Instagram, email, Masterclass funnel, or blank. No niche LP path, no campaign name signal. Represents <span class="val-red">23.8%</span> of enrollments and <span class="val-red">22.2%</span> of cash. Fix: enforce source tracking on all organic and email conversions. Secondary: back-assign via sales call notes.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="report-footer reveal">
+      <div class="footer-brand">KAMG</div>
+      <div class="footer-meta">
+        Report generated Apr 16, 2026 by KAMG.<br>
+        Enrollment data validated against Google Sheets (COD Reporting > Enrollments, gid=1516912376) + BigQuery (cod_warehouse).<br>
+        All figures reflect Mar 17 - Apr 16, 2026 unless stated otherwise. Conversion rates reflect a 90-day rolling window.
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Scroll reveal
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // Bar animation
+    const barObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('animate'), 150);
+          barObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.bar-fill-primary, .bar-fill-vip, .rate-fill-inner').forEach(el => barObs.observe(el));
+
+    // Active nav
+    const secs = document.querySelectorAll('section[id]');
+    const links = document.querySelectorAll('.nav-link');
+    const secObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          links.forEach(l => {
+            const active = l.getAttribute('href') === '#' + id;
+            l.style.color = active ? 'var(--sky)' : '';
+            l.style.background = active ? 'var(--sky-dim)' : '';
+          });
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    secs.forEach(s => secObs.observe(s));
+  </script>
+
+</body>
+</html>

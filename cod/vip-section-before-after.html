@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Section: Before & After | COD</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #101014;
+  --bg-card: #141418;
+  --bg-card-alt: #1a1a20;
+  --text-primary: #f0ede8;
+  --text-secondary: #9a968e;
+  --text-muted: #5a574f;
+  --accent-gold: #c8a96e;
+  --accent-gold-dim: rgba(200, 169, 110, 0.08);
+  --accent-gold-border: rgba(200, 169, 110, 0.15);
+  --accent-gold-glow: rgba(200, 169, 110, 0.12);
+  --accent-red: #f87171;
+  --accent-green: #4ade80;
+  --font-body: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --radius-card: 14px;
+  --radius-pill: 100px;
+  --section-padding: 80px 0;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+/* ====== PAGE HEADER ====== */
+.page-hero {
+  padding: 80px 24px 60px;
+  text-align: center;
+  border-bottom: 1px solid var(--accent-gold-border);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #0f0f18 50%, var(--bg-primary) 100%);
+}
+.page-hero-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent-gold); margin-bottom: 16px;
+}
+.page-hero h1 {
+  font-family: var(--font-display); font-size: clamp(32px, 5vw, 52px); font-weight: 600;
+  line-height: 1.15; margin-bottom: 16px;
+}
+.page-hero h1 em { color: var(--accent-gold); font-style: italic; }
+.page-hero-sub { font-size: 17px; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+/* ====== COMPARE HEADER ====== */
+.compare-header {
+  display: flex; justify-content: center; gap: 40px;
+  padding: 32px 24px; border-bottom: 1px solid var(--accent-gold-border);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,12,0.95); backdrop-filter: blur(12px);
+}
+.compare-tab {
+  padding: 10px 28px; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.5px; cursor: pointer; transition: all 0.3s; border: 1px solid transparent;
+}
+.compare-tab.tab-before { color: var(--accent-red); border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.06); }
+.compare-tab.tab-after { color: var(--accent-green); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.06); }
+.compare-tab.active { transform: scale(1.05); }
+.compare-tab.tab-before.active { background: rgba(248,113,113,0.15); border-color: var(--accent-red); }
+.compare-tab.tab-after.active { background: rgba(74,222,128,0.15); border-color: var(--accent-green); }
+
+/* ====== COMPARE PANELS ====== */
+.compare-panel { display: none; }
+.compare-panel.active { display: block; }
+
+/* ====== VERSION BANNER ====== */
+.version-banner {
+  text-align: center; padding: 16px 24px; font-size: 13px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.version-banner.banner-before { background: rgba(248,113,113,0.06); color: var(--accent-red); border-bottom: 2px solid rgba(248,113,113,0.3); }
+.version-banner.banner-after { background: rgba(74,222,128,0.06); color: var(--accent-green); border-bottom: 2px solid rgba(74,222,128,0.3); }
+
+/* ====== SHARED VIP STYLES (from educator.css) ====== */
+.vip-pitch {
+  padding: var(--section-padding);
+  background: var(--bg-primary);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.vip-pitch::before {
+  content: '';
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center top, rgba(200,169,110,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+.section-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--accent-gold); margin-bottom: 8px;
+}
+.section-heading {
+  font-family: var(--font-display); font-size: clamp(28px, 4vw, 40px); font-weight: 600;
+  line-height: 1.2; margin-bottom: 12px;
+}
+.section-heading span { color: var(--accent-gold); }
+.vip-social-proof { font-size: 16px; color: var(--text-secondary); margin-bottom: 48px; }
+.vip-social-proof strong { color: var(--accent-gold); font-size: 18px; }
+.vip-cols { display: flex; gap: 28px; max-width: 920px; margin: 0 auto 48px; position: relative; }
+.vip-card { flex: 1; border-radius: var(--radius-card); padding: 36px 28px; text-align: left; position: relative; }
+.vip-card.standard { background: var(--bg-card); border: 1px solid var(--accent-gold-border); }
+.vip-card.vip-highlight {
+  background: linear-gradient(180deg, rgba(200,169,110,0.06) 0%, var(--bg-card) 100%);
+  border: 2px solid var(--accent-gold); box-shadow: 0 0 40px rgba(200,169,110,0.1);
+}
+.vip-badge {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #b8944a 100%);
+  color: #0a0a0c; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 6px 20px; border-radius: var(--radius-pill); white-space: nowrap;
+}
+.vip-card h3 { font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+.vip-card .vip-price { font-family: var(--font-body); font-size: 48px; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px; }
+.vip-card .vip-price-note { font-size: 16px; color: var(--text-muted); margin-bottom: 24px; }
+.vip-feature-list { list-style: none; margin-bottom: 28px; }
+.vip-feature-list li { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; font-size: 16px; color: var(--text-secondary); line-height: 1.5; }
+.vip-feature-list li .vf-icon { color: var(--accent-gold); flex-shrink: 0; margin-top: 3px; }
+.vip-feature-list li span.vip-text { display: flex; flex-direction: column; gap: 4px; }
+.vip-feature-list li strong { color: var(--text-primary); font-size: 16px; }
+.vip-feature-list li .vip-desc { color: var(--text-secondary); font-size: 16px; line-height: 1.5; }
+.vip-highlight-box { max-width: 700px; margin: 0 auto; padding: 20px 28px; background: var(--accent-gold-dim); border: 1px solid var(--accent-gold-border); border-radius: var(--radius-card); position: relative; }
+.vip-highlight-box p { font-size: 16px; color: var(--text-secondary); line-height: 1.6; }
+.vip-highlight-box strong { color: var(--accent-gold); }
+.gold-btn {
+  display: inline-block; background: linear-gradient(135deg, var(--accent-gold) 0%, #b8944a 100%);
+  color: #0a0a0c; font-weight: 700; font-size: 18px; padding: 16px 40px;
+  border-radius: 8px; text-decoration: none; letter-spacing: 0.5px;
+  transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 0 30px var(--accent-gold-glow);
+}
+.gold-btn:hover { transform: scale(1.04) translateY(-2px); box-shadow: 0 0 50px rgba(200,169,110,0.25); }
+.ghost-btn {
+  display: inline-block; border: 1px solid var(--accent-gold-border); color: var(--text-secondary);
+  font-weight: 600; font-size: 16px; padding: 14px 36px; border-radius: 8px;
+  text-decoration: none; transition: border-color 0.3s, color 0.3s;
+}
+.ghost-btn:hover { border-color: var(--accent-gold); color: var(--text-primary); }
+
+/* NEW: Seat counter + Toolkit group */
+.vip-seat-count { color: var(--accent-gold); font-weight: 700; font-size: 18px; }
+.vip-toolkit-group { background: var(--accent-gold-dim); border: 1px solid var(--accent-gold-border); border-radius: 8px; padding: 16px; margin-top: 4px; }
+.vip-toolkit-list { list-style: none; margin-top: 12px; padding: 0; }
+.vip-toolkit-list li { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; padding-left: 16px; position: relative; }
+.vip-toolkit-list li::before { content: '>'; position: absolute; left: 0; color: var(--accent-gold); font-weight: 600; }
+.vip-toolkit-list li strong { color: var(--text-primary); font-size: 14px; }
+.vf-icon-toolkit { color: var(--accent-gold); font-size: 18px; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .vip-cols { flex-direction: column; gap: 20px; }
+  .vip-card { padding: 28px 20px; }
+  .compare-header { gap: 12px; padding: 20px 16px; }
+  .compare-tab { padding: 8px 20px; font-size: 13px; }
+}
+
+/* Footer */
+.page-footer { padding: 40px 24px; text-align: center; border-top: 1px solid var(--accent-gold-border); }
+.page-footer p { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Page Hero -->
+<div class="page-hero">
+  <div class="page-hero-label">Proposed Changes</div>
+  <h1>VIP Section <em>Before & After</em></h1>
+  <p class="page-hero-sub">Side-by-side comparison of the current LP VIP section vs. the proposed repositioning. Toggle between views below.</p>
+</div>
+
+<!-- Sticky Toggle -->
+<div class="compare-header">
+  <div class="compare-tab tab-before active" onclick="switchView('before')">Current (Before)</div>
+  <div class="compare-tab tab-after" onclick="switchView('after')">Proposed (After)</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BEFORE: Current VIP Section (exact copy from educator LP) -->
+<!-- ============================================================ -->
+<div class="compare-panel active" id="panel-before">
+  <div class="version-banner banner-before">Current Version (Live on Educator LP)</div>
+
+  <section class="vip-pitch">
+    <div class="container">
+      <p class="section-label">Upgrade Your Experience</p>
+      <h2 class="section-heading">Most Attendees Upgrade to VIP. <span>Here's Why.</span></h2>
+      <p class="vip-social-proof">Most attendees say the Russ AI access alone is worth more than the <strong>$27 upgrade</strong>.</p>
+
+      <div class="vip-cols">
+        <div class="vip-card standard">
+          <h3>Standard Access</h3>
+          <div class="vip-price">$27</div>
+          <p class="vip-price-note">One-time payment</p>
+          <ul class="vip-feature-list">
+            <li><span class="vf-icon">&#10003;</span> Full 3-hour workshop access</li>
+            <li><span class="vf-icon">&#10003;</span> Offer architecture framework</li>
+            <li><span class="vf-icon">&#10003;</span> AI-powered program builder prompts</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No replay access. If you miss it, your $27 is gone</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No Q&A with Russ</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No AI Engine access</li>
+          </ul>
+          <a href="#" class="ghost-btn" style="width: 100%; text-align: center;">Get Standard Access</a>
+        </div>
+
+        <div class="vip-card vip-highlight">
+          <div class="vip-badge">Most Popular</div>
+          <h3>VIP Access</h3>
+          <div class="vip-price">$54</div>
+          <p class="vip-price-note">Just $27 more</p>
+          <ul class="vip-feature-list">
+            <li><span class="vf-icon">&#10003;</span> <strong>Everything in Standard</strong></li>
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Access to Russ AI</strong><span class="vip-desc">Stuck on your pricing? Unsure how to position your expertise? Ask Russ AI, trained on over $100M in generated revenue. It's like having a high-ticket consultant on call, included free with your VIP upgrade.</span></span></li>
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Live VIP Q&A With Russ</strong><span class="vip-desc">Get your specific questions answered in real-time. Russ dives deep into individual business models to ensure you have total clarity on your next steps.</span></span></li>
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Can't Make It? You're Covered</strong><span class="vip-desc">We record everything. If life gets in the way, you won't miss a single gold nugget. Access your dashboard anytime to catch up.</span></span></li>
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Additional Bonus: Lifetime Replay Access</strong><span class="vip-desc">Get unlimited access to our most popular workshop: "How to Create & Sell a $30K-$100K Offer to Clients," the exact system behind over $100M in sales. Rewatch anytime, as many times as you need.</span></span></li>
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Private 1-to-1 Offer Mapping Session</strong><span class="vip-desc">Sit down with a senior strategist to map out your specific offer architecture, pricing tiers, and enrollment process. This is the ultimate "get it done" session.</span></span></li>
+          </ul>
+          <a href="#" class="gold-btn" style="width: 100%; text-align: center;">Get VIP Access</a>
+        </div>
+      </div>
+
+      <div class="vip-highlight-box">
+        <p>For <strong>$27 more</strong>, your investment is protected. Get replay access so nothing is lost if life gets in the way, plus an AI trained on 13 years of high-ticket knowledge and a LIVE Q&A with Russ. That's less than a single tutoring session. <strong>That's less than a single billable hour.</strong></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============================================================ -->
+<!-- AFTER: Proposed VIP Section -->
+<!-- ============================================================ -->
+<div class="compare-panel" id="panel-after">
+  <div class="version-banner banner-after">Proposed Version (VIP Attendance Fix)</div>
+
+  <section class="vip-pitch">
+    <div class="container">
+      <p class="section-label">Limited VIP Experience</p>
+      <h2 class="section-heading">Your VIP Seat at the Table <span>With Russ</span></h2>
+      <p class="vip-social-proof">Only <strong><span class="vip-seat-count" id="vipSeatCount">12</span> VIP spots</strong> remaining for this Friday's live session.</p>
+
+      <div class="vip-cols">
+        <div class="vip-card standard">
+          <h3>Standard Access</h3>
+          <div class="vip-price">$27</div>
+          <p class="vip-price-note">One-time payment</p>
+          <ul class="vip-feature-list">
+            <li><span class="vf-icon">&#10003;</span> Full 3-hour workshop access</li>
+            <li><span class="vf-icon">&#10003;</span> Offer architecture framework</li>
+            <li><span class="vf-icon">&#10003;</span> AI-powered program builder prompts</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No live session with Russ</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No replay access</li>
+            <li style="color: var(--accent-red); font-size: 16px;"><span class="vf-icon" style="color: var(--accent-red);">&#10007;</span> No VIP Toolkit</li>
+          </ul>
+          <a href="#" class="ghost-btn" style="width: 100%; text-align: center;">Get Standard Access</a>
+        </div>
+
+        <div class="vip-card vip-highlight">
+          <div class="vip-badge">Most Popular</div>
+          <h3>VIP Access</h3>
+          <div class="vip-price">$54</div>
+          <p class="vip-price-note">Just $27 more</p>
+          <ul class="vip-feature-list">
+            <li><span class="vf-icon">&#10003;</span> <strong>Everything in Standard</strong></li>
+
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Live VIP Session With Russ</strong><span class="vip-desc">On Friday, Russ gets on a live call with VIP members and reviews your offer directly. This is a small group, real conversation, with Russ looking at your specific situation and telling you exactly what he sees. Not a webinar replay, not a pre-recorded module. You, your offer, and Russ on the same call.</span></span></li>
+
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Private 1-to-1 Offer Mapping Session</strong><span class="vip-desc">Before the weekend is over, a senior strategist maps out your full offer architecture: your positioning, pricing, and enrollment flow. This is the "get it done" session that turns the workshop into a concrete plan with your name on it.</span></span></li>
+
+            <li><span class="vf-icon">&#10003;</span> <span class="vip-text"><strong>Can't Make the Workshop? You're Covered</strong><span class="vip-desc">We record the main 3-hour workshop so you can watch at your own pace. Note: this is the workshop recording only. The live VIP session with Russ on Friday is not recorded and is not available on replay.</span></span></li>
+
+            <li><span class="vf-icon vf-icon-toolkit">&#9733;</span> <span class="vip-text vip-toolkit-group"><strong>Unlock Your VIP Toolkit</strong><span class="vip-desc">After your VIP session with Russ, your full VIP package opens up:</span>
+              <ul class="vip-toolkit-list">
+                <li><strong>Russ AI</strong> . Trained on $100M+ in revenue generated across hundreds of client engagements. Ask it anything about your offer, your positioning, or your next move. Like having Russ on call at 2am.</li>
+                <li><strong>Lifetime Replay Access</strong> . Rewatch the main workshop anytime. Use it as a reference as you build.</li>
+                <li><strong>Bonus Workshop Replay: The $30K to $100K Offer System</strong> . A standalone workshop on building offers that command premium pricing. Yours to keep.</li>
+              </ul>
+            </span></li>
+          </ul>
+          <a href="#" class="gold-btn" style="width: 100%; text-align: center;">Get VIP Access</a>
+        </div>
+      </div>
+
+      <div class="vip-highlight-box">
+        <p>Your <strong>VIP access</strong> puts you in the room with Russ on Friday for a live offer review. Small group, direct feedback. The session runs once, no recording. After the call, your full VIP Toolkit unlocks so you can hit the ground running over the weekend.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Footer -->
+<footer class="page-footer">
+  <p>Prepared by Kas Andz | KAMG | April 2026</p>
+  <p>Toggle between views to compare. Both render with identical CSS from educator.css.</p>
+</footer>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.compare-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.compare-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('panel-' + view).classList.add('active');
+  document.querySelector('.tab-' + view).classList.add('active');
+}
+
+// VIP seat counter for "after" view
+var vipSeatEl = document.getElementById('vipSeatCount');
+if (vipSeatEl) {
+  var vipCount = Math.floor(Math.random() * 8) + 5;
+  vipSeatEl.textContent = vipCount;
+  setInterval(function() {
+    if (vipCount > 2 && Math.random() < 0.3) {
+      vipCount--;
+      vipSeatEl.textContent = vipCount;
+    }
+  }, 45000);
+}
+</script>
+
+</body>
+</html>

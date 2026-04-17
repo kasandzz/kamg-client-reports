@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call Prep -- Leke Services | Apr 17 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #0f1623;
+    --bg-card2: #141c2e;
+    --border: #1e2d47;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --blue: #3b82f6;
+    --blue-dim: #1d4ed8;
+    --blue-glow: rgba(59,130,246,0.12);
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --font: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+  body { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  /* HEADER */
+  .header {
+    border-left: 3px solid var(--blue);
+    padding-left: 20px;
+    margin-bottom: 40px;
+  }
+  .header-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 32px; }
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .card + .card { margin-top: 12px; }
+
+  /* MEETING META GRID */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .meta-item {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+  }
+  .meta-label {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+  .meta-value {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .meta-value a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .meta-value a:hover { text-decoration: underline; }
+
+  /* STAT CARDS */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .stat-grid { grid-template-columns: 1fr; } }
+  .stat-card {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--blue);
+  }
+  .stat-card.amber::before { background: var(--amber); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-num {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card.amber .stat-num { color: var(--amber); }
+  .stat-card.green .stat-num { color: var(--green); }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .stat-note {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  /* AD GROUPS TABLE */
+  .ag-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .ag-table th {
+    text-align: left;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ag-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(30,45,71,0.5);
+    color: var(--text-dim);
+  }
+  .ag-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-blue  { background: rgba(59,130,246,0.15);  color: var(--blue);  border: 1px solid rgba(59,130,246,0.3); }
+
+  /* OPEN THREADS */
+  .thread-list { list-style: none; }
+  .thread-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .thread-item:last-child { border-bottom: none; }
+  .thread-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--blue-glow);
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .thread-text { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+  .thread-text strong { color: var(--text); }
+
+  /* TALKING POINTS */
+  .tp-list { list-style: none; }
+  .tp-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tp-item:last-child { border-bottom: none; }
+  .tp-num {
+    flex-shrink: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    padding-top: 2px;
+    min-width: 28px;
+  }
+  .tp-content { flex: 1; }
+  .tp-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 5px;
+  }
+  .tp-body {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+
+  /* HEALTH ROW */
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .health-grid { grid-template-columns: 1fr; } }
+  .health-item {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+  }
+  .health-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+  }
+  .health-dot.green { background: var(--green); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+  .health-dot.amber { background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+  .health-dot.low   { background: var(--green); box-shadow: 0 0 8px rgba(16,185,129,0.3); }
+  .health-status {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .health-status.green { color: var(--green); }
+  .health-status.amber { color: var(--amber); }
+  .health-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* CONTEXT BOX */
+  .context-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .context-grid { grid-template-columns: 1fr; } }
+  .context-block {
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px 16px;
+  }
+  .context-block h4 {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
+  .context-block ul {
+    list-style: none;
+    padding: 0;
+  }
+  .context-block ul li {
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 3px 0;
+  }
+  .context-block ul li::before {
+    content: '-- ';
+    color: var(--text-muted);
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 56px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+  .footer-brand { color: var(--blue); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-label">Call Prep Brief &nbsp;/&nbsp; Confidential</div>
+  <h1>Leke Services</h1>
+  <div class="header-sub">Kas Andz &nbsp;|&nbsp; Thursday April 17 2026 &nbsp;|&nbsp; 12:00 PM CST &nbsp;|&nbsp; Microsoft Teams</div>
+</div>
+
+<!-- MEETING DETAILS -->
+<div class="section">
+  <div class="section-title">Meeting Details</div>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="meta-label">Time</div>
+      <div class="meta-value">12:00 PM CST &mdash; Thu Apr 17</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Platform</div>
+      <div class="meta-value">Microsoft Teams</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Join Link</div>
+      <div class="meta-value"><a href="https://teams.microsoft.com/meet/236701986492169?p=Wrrvgruf0oeKNUExir" target="_blank">teams.microsoft.com/meet/&hellip;</a></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">Attendees</div>
+      <div class="meta-value">Laolu Adeola (Principal)</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">&nbsp;</div>
+      <div class="meta-value">Temitope Dada (EA)</div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-label">&nbsp;</div>
+      <div class="meta-value">Kas Andz (KAMG)</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY CONTEXT -->
+<div class="section">
+  <div class="section-title">Company Context</div>
+  <div class="context-grid">
+    <div class="context-block">
+      <h4>Leke Services</h4>
+      <ul>
+        <li>Fleet electrification company</li>
+        <li>Offer: Commercial EV transition with savings guarantee</li>
+        <li>Value prop: "Fleet Electrification Savings Guarantee"</li>
+        <li>Geo: CA, TX, FL, NC + CARB states</li>
+      </ul>
+    </div>
+    <div class="context-block">
+      <h4>Strategy Pivot (Apr 1)</h4>
+      <ul>
+        <li>Fleet managers OUT</li>
+        <li>Business owners IN</li>
+        <li>PE operating partners IN</li>
+        <li>Heads of finance/procurement IN</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CAMPAIGN STATUS -->
+<div class="section">
+  <div class="section-title">Campaign Status &mdash; as of Apr 14 (3 days live)</div>
+  <div class="stat-grid" style="margin-bottom:12px;">
+    <div class="stat-card amber">
+      <div class="stat-num">0</div>
+      <div class="stat-label">Impressions</div>
+      <div class="stat-note">3 days live</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num">$0</div>
+      <div class="stat-label">Spend</div>
+      <div class="stat-note">No delivery yet</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num">10</div>
+      <div class="stat-label">Ad Groups</div>
+      <div class="stat-note">All Eligible</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:11px;color:var(--amber);font-weight:600;margin-bottom:10px;letter-spacing:0.05em;">ROOT CAUSE: Near-zero search volume on niche keyword set. Technical delivery is healthy.</div>
+    <table class="ag-table">
+      <thead>
+        <tr>
+          <th>Ad Group</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Commercial Fleet Electrification Plan</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Commercial EV Charging Contractors</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Fleet Electrification Consultant</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Fleet Electrification Vendors</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Fleet Electrification Company</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>EV Fleet Procurement</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Commercial EV Fleet Management</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>EV Fleet Implementation Plan</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>Fleet Electrification Solution</td><td><span class="badge badge-green">Eligible</span></td></tr>
+        <tr><td>EV Fleet Transition Services</td><td><span class="badge badge-green">Eligible</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Tracking Setup</div>
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.6;">
+      Typeform in iframe -- API upload for conversions (UI may show "inactive" -- expected). Calendly wired via granted access.
+      <span style="color:var(--green);"> All tracking functional.</span>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN THREADS -->
+<div class="section">
+  <div class="section-title">Open Threads</div>
+  <div class="card">
+    <ul class="thread-list">
+      <li class="thread-item">
+        <div class="thread-num">1</div>
+        <div class="thread-text"><strong>Daniel's setup fee</strong> -- Floated Apr 1 for pivot work, "let's talk" -- not closed. Need to decide: absorb or invoice separately.</div>
+      </li>
+      <li class="thread-item">
+        <div class="thread-num">2</div>
+        <div class="thread-text"><strong>Full copy + extension audit</strong> -- Against new PE/owner audience. Pending from Daniel. Must be completed this week.</div>
+      </li>
+      <li class="thread-item">
+        <div class="thread-num">3</div>
+        <div class="thread-text"><strong>Keyword expansion strategy</strong> -- Broader match types, new themes, PMax layer needed to unlock volume. Core action item for this call.</div>
+      </li>
+      <li class="thread-item">
+        <div class="thread-num">4</div>
+        <div class="thread-text"><strong>Check-in cadence with Temitope</strong> -- No regular sync established yet. Propose structure on this call.</div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- TALKING POINTS -->
+<div class="section">
+  <div class="section-title">Talking Points &mdash; Priority Order</div>
+  <div class="card">
+    <ul class="tp-list">
+      <li class="tp-item">
+        <div class="tp-num">01</div>
+        <div class="tp-content">
+          <div class="tp-title">Volume Issue: Campaign is Live and Healthy</div>
+          <div class="tp-body">All 10 ad groups are Eligible and tracking is operational. Zero impressions is not a delivery failure -- it's a demand signal. Niche B2B keywords like "fleet electrification consultant" have near-zero search volume. This is expected and normal for this category.</div>
+        </div>
+      </li>
+      <li class="tp-item">
+        <div class="tp-num">02</div>
+        <div class="tp-content">
+          <div class="tp-title">Keyword Expansion Plan</div>
+          <div class="tp-body">Broaden match types (phrase &rarr; broad modifier), add adjacent themes: EV fleet ROI, fleet decarbonization, commercial EV transition cost, electric fleet incentives. Layer in Performance Max to capture adjacent and intent-based demand outside search.</div>
+        </div>
+      </li>
+      <li class="tp-item">
+        <div class="tp-num">03</div>
+        <div class="tp-content">
+          <div class="tp-title">3-Day Data Review: Technical Setup Confirmed Solid</div>
+          <div class="tp-body">Setup is not the blocker. Typeform conversions push via API, Calendly is wired, ad groups are all eligible. Daniel's build is clean. The constraint is upstream -- market demand for this keyword set is thin.</div>
+        </div>
+      </li>
+      <li class="tp-item">
+        <div class="tp-num">04</div>
+        <div class="tp-content">
+          <div class="tp-title">Check-In Cadence</div>
+          <div class="tp-body">Propose: weekly 15-min sync with Temitope (status, spend, leads), monthly deeper review with Laolu (strategy, pivots, ROI). Keeps Laolu out of the weeds while maintaining visibility.</div>
+        </div>
+      </li>
+      <li class="tp-item">
+        <div class="tp-num">05</div>
+        <div class="tp-content">
+          <div class="tp-title">Daniel's Setup Fee</div>
+          <div class="tp-body">Close the loop from Apr 1. Options: (a) absorb into monthly retainer, or (b) one-time invoice for pivot rebuild work. Need a decision today so it doesn't become a friction point later.</div>
+        </div>
+      </li>
+      <li class="tp-item">
+        <div class="tp-num">06</div>
+        <div class="tp-content">
+          <div class="tp-title">Next Steps</div>
+          <div class="tp-body">Daniel expands keywords + rewrites extensions for PE/owner audience this week &rarr; monitor 7 days &rarr; if volume still low, layer PMax campaign. Report back at next check-in with Temitope.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ACCOUNT HEALTH -->
+<div class="section">
+  <div class="section-title">Account Health</div>
+  <div class="health-grid">
+    <div class="health-item">
+      <div class="health-dot green"></div>
+      <div class="health-status green">GREEN</div>
+      <div class="health-label">Relationship</div>
+    </div>
+    <div class="health-item">
+      <div class="health-dot amber"></div>
+      <div class="health-status amber">AMBER</div>
+      <div class="health-label">Performance</div>
+    </div>
+    <div class="health-item">
+      <div class="health-dot low"></div>
+      <div class="health-status green">LOW</div>
+      <div class="health-label">Churn Risk</div>
+    </div>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:var(--text-muted);padding:10px 14px;background:var(--bg-card2);border:1px solid var(--border);border-radius:5px;">
+    New client, positive engagement. 0 volume is expected at this stage -- expectations were set at launch. Maintain proactive comms and move fast on keyword expansion to protect confidence.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div><span class="footer-brand">KAMG</span> &nbsp;/&nbsp; Prepared for Kas Andz</div>
+  <div>CONFIDENTIAL &nbsp;/&nbsp; Apr 17 2026</div>
+</div>
+
+</body>
+</html>

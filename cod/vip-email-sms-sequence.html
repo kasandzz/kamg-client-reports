@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD VIP Email + SMS Sequence</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --bg3: #18181f;
+  --card: #1a1a22;
+  --card-inner: #1f1f2a;
+  --border: rgba(200,169,110,0.12);
+  --border-h: rgba(200,169,110,0.25);
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.1);
+  --gold-bg: rgba(200,169,110,0.15);
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.12);
+  --font: 'Outfit', system-ui, sans-serif;
+  --display: 'Cormorant Garamond', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  padding: 100px 0 60px;
+  background: linear-gradient(135deg, var(--bg) 0%, #0f0f18 50%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.hero-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: var(--display); font-size: clamp(32px, 5vw, 56px); font-weight: 600;
+  line-height: 1.15; margin-bottom: 16px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; }
+.hero-sub { font-size: 17px; color: var(--text2); max-width: 680px; margin: 0 auto 12px; line-height: 1.7; }
+.hero-trigger { font-size: 14px; color: var(--text3); margin-top: 8px; }
+.hero-trigger strong { color: var(--gold); font-weight: 500; }
+
+/* Summary Card */
+.summary-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 36px 32px; margin: -40px auto 0; position: relative; z-index: 2; max-width: 960px;
+}
+.summary-card h3 {
+  font-family: var(--display); font-size: 24px; font-weight: 600; margin-bottom: 20px; color: var(--gold);
+}
+.phase-row { margin-bottom: 20px; }
+.phase-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text2); margin-bottom: 10px;
+}
+.flow {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.flow-item {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; color: var(--text); white-space: nowrap;
+}
+.flow-item.email { border-left: 3px solid var(--gold); }
+.flow-item.sms { border-left: 3px solid var(--teal); }
+.flow-arrow { color: var(--text3); font-size: 16px; }
+.flow-item small { display: block; font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* Timeline */
+.timeline-section { padding: 60px 0; }
+.timeline {
+  position: relative;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(200,169,110,0.2) 100%);
+}
+
+/* Touchpoint Card */
+.tp-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  margin-bottom: 32px;
+  transition: border-color 0.2s;
+}
+.tp-card:hover { border-color: var(--border-h); }
+.tp-card::before {
+  content: '';
+  position: absolute;
+  left: -33px;
+  top: 38px;
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  border: 3px solid var(--bg);
+  z-index: 1;
+}
+
+.tp-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.pill {
+  display: inline-block; padding: 4px 14px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.pill-timing { background: var(--gold-bg); color: var(--gold); }
+.pill-email { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(200,169,110,0.2); }
+.pill-sms { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(45,212,191,0.2); }
+.tp-number { font-family: var(--display); font-size: 20px; font-weight: 700; color: var(--text3); }
+
+.tp-title {
+  font-family: var(--display); font-size: 22px; font-weight: 600; margin-bottom: 16px;
+}
+
+/* Subject Lines */
+.subject-block { margin-bottom: 20px; }
+.subject-block h4 {
+  font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text2); margin-bottom: 8px;
+}
+.subject-list { list-style: none; }
+.subject-list li {
+  padding: 8px 14px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 6px; font-size: 14px; color: var(--text);
+}
+.subject-list li span.opt-num { color: var(--text3); margin-right: 8px; font-weight: 600; font-size: 12px; }
+
+/* Copy Body */
+.copy-body {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 24px 28px; font-size: 14.5px; line-height: 1.8; color: var(--text);
+  white-space: pre-wrap; word-wrap: break-word;
+}
+.copy-body p { margin-bottom: 14px; }
+.copy-body p:last-child { margin-bottom: 0; }
+.copy-body .signoff { color: var(--text2); margin-top: 8px; }
+.copy-body strong { color: var(--text); font-weight: 600; }
+
+/* Merge field highlight */
+.merge { color: var(--gold); font-weight: 600; background: var(--gold-dim); padding: 1px 5px; border-radius: 4px; }
+
+/* Notes */
+.tp-notes {
+  margin-top: 16px; padding: 14px 18px;
+  background: rgba(200,169,110,0.04); border-left: 3px solid var(--gold);
+  border-radius: 0 8px 8px 0; font-size: 13px; color: var(--text2);
+}
+.tp-notes strong { color: var(--gold); }
+
+/* Variant Tabs */
+.variant-tabs { display: flex; gap: 0; margin-bottom: 0; }
+.variant-tab {
+  padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  background: var(--bg3); color: var(--text3); border: 1px solid var(--border);
+  border-bottom: none; border-radius: 10px 10px 0 0; cursor: pointer; transition: all 0.2s;
+}
+.variant-tab.active { background: var(--bg2); color: var(--gold); border-color: var(--border-h); }
+.variant-panel { display: none; }
+.variant-panel.active { display: block; }
+.variant-container .copy-body { border-radius: 0 10px 10px 10px; }
+
+/* Checklist */
+.checklist-section {
+  padding: 60px 0 40px;
+}
+.checklist-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 32px;
+}
+.checklist-card h3 {
+  font-family: var(--display); font-size: 26px; font-weight: 600; margin-bottom: 24px; color: var(--gold);
+}
+.check-group-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text2); margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.checklist { list-style: none; }
+.checklist li {
+  padding: 10px 0 10px 28px; position: relative; font-size: 14px; color: var(--text);
+  border-bottom: 1px solid rgba(200,169,110,0.06); line-height: 1.6;
+}
+.checklist li::before {
+  content: '';
+  position: absolute; left: 0; top: 14px;
+  width: 16px; height: 16px; border: 2px solid var(--text3); border-radius: 4px;
+}
+
+/* Footer */
+.page-footer {
+  padding: 40px 0; text-align: center; border-top: 1px solid var(--border);
+}
+.page-footer p { font-size: 13px; color: var(--text3); margin-bottom: 6px; }
+.page-footer .merge-note { color: var(--gold); font-size: 14px; margin-bottom: 12px; }
+
+/* Phase Divider */
+.phase-divider {
+  text-align: center; margin: 48px 0 32px; position: relative;
+}
+.phase-divider::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--border);
+}
+.phase-divider span {
+  position: relative; background: var(--bg); padding: 0 24px;
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container { padding: 0 16px; }
+  .hero { padding: 60px 0 40px; }
+  .summary-card { padding: 24px 20px; margin-top: -20px; }
+  .flow { gap: 6px; }
+  .flow-arrow { display: none; }
+  .tp-card { padding: 20px; margin-left: -10px; }
+  .timeline { padding-left: 30px; }
+  .timeline::before { left: 8px; }
+  .tp-card::before { left: -27px; }
+  .copy-body { padding: 16px; font-size: 13.5px; }
+  .variant-tab { padding: 8px 12px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">GHL Workflow Reference</div>
+    <h1>COD VIP <em>Email + SMS</em> Sequence</h1>
+    <p class="hero-sub">11 Touchpoints: 9 Emails + 2 SMS | Pre-Call + Post-Call Nurture</p>
+    <p class="hero-trigger">Trigger: <strong>VIP Purchase ($54)</strong> | Goal: Drive Friday VIP call attendance + strategy call booking</p>
+  </div>
+</header>
+
+<!-- Summary Card -->
+<div class="container">
+  <div class="summary-card">
+    <h3>Sequence Timeline</h3>
+
+    <div class="phase-row">
+      <div class="phase-label">Pre-Call Phase</div>
+      <div class="flow">
+        <div class="flow-item email">Email 1<small>Immediate</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email">Email 2<small>Wed (48h)</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email">Email 3<small>Thu PM</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item sms">SMS 1<small>Thu PM</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email">Email 4<small>Fri AM</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item sms">SMS 2<small>Fri -30min</small></div>
+      </div>
+    </div>
+
+    <div class="phase-row">
+      <div class="phase-label">Delivery</div>
+      <div class="flow">
+        <div class="flow-item email">Email 5<small>Saturday AM</small></div>
+      </div>
+    </div>
+
+    <div class="phase-row" style="margin-bottom:0;">
+      <div class="phase-label">Post-Call Nurture</div>
+      <div class="flow">
+        <div class="flow-item email">Email 6<small>Sunday</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email">Email 7<small>Mon/Tue</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email">Email 8<small>Wednesday</small></div>
+        <span class="flow-arrow">&#8594;</span>
+        <div class="flow-item email" style="border-left-color: var(--text3); opacity: 0.7;">Email 9<small>Thu (optional)</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Timeline -->
+<section class="timeline-section">
+  <div class="container">
+
+    <!-- ===================== PRE-CALL PHASE ===================== -->
+    <div class="phase-divider"><span>Pre-Call Phase</span></div>
+
+    <div class="timeline">
+
+      <!-- TP1: Email 1 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#1</span>
+          <span class="pill pill-timing">Immediately After Purchase</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> You're in. Here's what happens next, <span class="merge">[FIRST_NAME]</span>.</li>
+            <li><span class="opt-num">B.</span> VIP confirmed, <span class="merge">[FIRST_NAME]</span>. Two sessions. Two dates. Here's your schedule.</li>
+            <li><span class="opt-num">C.</span> Your VIP spot is locked in, <span class="merge">[FIRST_NAME]</span>.</li>
+          </ul>
+        </div>
+        <div class="copy-body">
+<p>Hi <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>You're officially a VIP.</p>
+
+<p>Here's your full schedule:</p>
+
+<p><strong>Workshop:</strong> <span class="merge">[DATE]</span> at <span class="merge">[TIME]</span>
+<span class="merge">[WORKSHOP_LINK]</span></p>
+
+<p><strong>VIP Session with Russ:</strong> <span class="merge">[VIP_DATE]</span> at <span class="merge">[VIP_TIME]</span>
+<span class="merge">[ZOOM_LINK]</span></p>
+
+<p>These are two separate events. Both are live. Both require you to show up.</p>
+
+<p>The workshop on <span class="merge">[DATE]</span> is where you'll learn the framework. The Friday VIP session on <span class="merge">[VIP_DATE]</span> is where Russ reviews your specific situation live, sharpens your offer, and answers your questions directly. There is no recording of the VIP session. There is no way to reschedule. If you want Russ's eyes on your offer, Friday is your one shot.</p>
+
+<p>Add both to your calendar now so nothing slips.</p>
+
+<p>Add Workshop to Calendar: <span class="merge">[CALENDAR_LINK_WORKSHOP]</span>
+Add VIP Session to Calendar: <span class="merge">[CALENDAR_LINK_VIP]</span></p>
+
+<p>We'll send reminders as each session gets closer.</p>
+
+<p class="signoff">Talk soon,
+Russ Ruffino
+Clients on Demand</p>
+
+<p><strong>P.S.</strong> The VIP session is a one-time live event. We are unable to offer reschedules or recordings of this session. If you want Russ's eyes on your offer, Friday is it.</p>
+        </div>
+      </div>
+
+      <!-- TP2: Email 2 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#2</span>
+          <span class="pill pill-timing">Wednesday (48h Before VIP)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> Friday is 48 hours out. Here's how to make the most of it, <span class="merge">[FIRST_NAME]</span>.</li>
+            <li><span class="opt-num">B.</span> Come with your offer. Russ will sharpen it live.</li>
+            <li><span class="opt-num">C.</span> Three questions to answer before Friday's session.</li>
+          </ul>
+        </div>
+        <div class="copy-body">
+<p>Hi <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Friday is two days away.</p>
+
+<p>If you want to walk away from the VIP session with real clarity on your offer, the best thing you can do is show up prepared. You don't need a finished offer. You don't need a polished pitch. You just need to think through a few things before we get on the call.</p>
+
+<p>Here are three questions worth sitting with before Friday:</p>
+
+<p>1. Who do you help, and what specific problem do you solve for them?
+2. What result can someone expect from working with you, and roughly how long does it take?
+3. What's the one thing about your offer you're most unsure about right now?</p>
+
+<p>Bring your answers, even if they're rough. Russ will work with whatever you've got. That's the point of the session.</p>
+
+<p>Here's what one recent VIP attendee said:</p>
+
+<p>"<span class="merge">[VIP_TESTIMONIAL]</span>"</p>
+
+<p>Your session details:</p>
+
+<p><strong>VIP Session with Russ:</strong> <span class="merge">[VIP_DATE]</span> at <span class="merge">[VIP_TIME]</span>
+Zoom link: <span class="merge">[ZOOM_LINK]</span></p>
+
+<p>Add it to your calendar if you haven't yet: <span class="merge">[CALENDAR_LINK_VIP]</span></p>
+
+<p>This is a live session. If Friday doesn't work, there's no make-up. Come ready.</p>
+
+<p class="signoff">See you soon,
+Russ Ruffino
+Clients on Demand</p>
+        </div>
+      </div>
+
+      <!-- TP3: Email 3 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#3</span>
+          <span class="pill pill-timing">Thursday Evening (24h Before)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> Tomorrow, <span class="merge">[FIRST_NAME]</span>. One day out.</li>
+            <li><span class="opt-num">B.</span> Your VIP session is tomorrow. Don't miss it.</li>
+            <li><span class="opt-num">C.</span> 24 hours, <span class="merge">[FIRST_NAME]</span>.</li>
+          </ul>
+        </div>
+        <div class="copy-body">
+<p>Hi <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Your VIP session with Russ is tomorrow.</p>
+
+<p><span class="merge">[VIP_DATE]</span> at <span class="merge">[VIP_TIME]</span>.
+Zoom: <span class="merge">[ZOOM_LINK]</span></p>
+
+<p>This is the session people remember. Be there.</p>
+
+<p>Haven't added it to your calendar yet? Do it now: <span class="merge">[CALENDAR_LINK_VIP]</span></p>
+
+<p class="signoff">See you tomorrow,
+Russ Ruffino
+Clients on Demand</p>
+        </div>
+      </div>
+
+      <!-- TP4: SMS 1 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#4</span>
+          <span class="pill pill-timing">Thursday Evening</span>
+          <span class="pill pill-sms">SMS</span>
+        </div>
+        <div class="copy-body">
+<p><span class="merge">[FIRST_NAME]</span>, your VIP session w/ Russ is tomorrow at <span class="merge">[VIP_TIME]</span>. Bring your offer idea. Zoom: <span class="merge">[ZOOM_LINK]</span> -- No reschedules. See you there.</p>
+        </div>
+        <div class="tp-notes">
+          <strong>Note:</strong> Confirm <span class="merge">[ZOOM_LINK]</span> short URL format (e.g. zoom.us/j/xxxxxx) to stay under 160 chars with merge fields populated. If link is long, use a short redirect (e.g. cod.link/vip). Character count: 158.
+        </div>
+      </div>
+
+      <!-- TP5: Email 4 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#5</span>
+          <span class="pill pill-timing">Friday Morning (2-3h Before)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> Today's the day, <span class="merge">[FIRST_NAME]</span>.</li>
+            <li><span class="opt-num">B.</span> Russ is on in a few hours. See you there.</li>
+            <li><span class="opt-num">C.</span> We're live today. Here's your Zoom link.</li>
+          </ul>
+        </div>
+        <div class="copy-body">
+<p>Hi <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>It's happening today.</p>
+
+<p><span class="merge">[VIP_TIME]</span> on Zoom: <span class="merge">[ZOOM_LINK]</span></p>
+
+<p>See you in the room.</p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+        </div>
+      </div>
+
+      <!-- TP6: SMS 2 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#6</span>
+          <span class="pill pill-timing">Friday (30 Min Before)</span>
+          <span class="pill pill-sms">SMS</span>
+        </div>
+        <div class="copy-body">
+<p><span class="merge">[FIRST_NAME]</span>, Russ goes live in 30 min. Join now: <span class="merge">[ZOOM_LINK]</span> -- Don't miss your spot. No recording, no reschedule.</p>
+        </div>
+        <div class="tp-notes">
+          <strong>Note:</strong> Same short URL note as SMS 1. Test character count with longest expected merge field values before deploying. Character count: 149.
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- ===================== DELIVERY ===================== -->
+    <div class="phase-divider"><span>Delivery</span></div>
+
+    <div class="timeline">
+
+      <!-- TP7: Email 5 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#7</span>
+          <span class="pill pill-timing">Saturday Morning (Post-Call)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> <span class="merge">[FIRST_NAME]</span>, your VIP toolkit is ready.</li>
+            <li><span class="opt-num">B.</span> Here's everything from this week, <span class="merge">[FIRST_NAME]</span>.</li>
+            <li><span class="opt-num">C.</span> Your access is open. Here's what to do this weekend.</li>
+          </ul>
+        </div>
+        <div class="copy-body">
+<p>Hi <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Great session yesterday.</p>
+
+<p>Now it's time to put it to work. Here's everything in your VIP toolkit, ready for you this weekend.</p>
+
+<p><strong>Russ AI</strong>
+Your direct line to Russ's frameworks, thinking, and offer-building process. Ask it anything you'd ask Russ.</p>
+
+<p>Access Russ AI: <span class="merge">[RUSS_AI_LINK]</span></p>
+
+<p><strong>Workshop Replay</strong>
+Missed something in the workshop, or want to re-watch a specific section? The full replay is here.</p>
+
+<p>Watch the replay: <span class="merge">[REPLAY_LINK]</span></p>
+
+<p>The combination of the workshop, the VIP session, and these tools gives you everything you need to build and position your offer.</p>
+
+<p>If you want to take the next step and work with our team directly, we do offer a complimentary strategy call. It's not a fit for everyone, and there's no pressure. But if you're serious about getting your coaching program in front of the right clients, it's worth 30 minutes.</p>
+
+<p>Book your strategy call: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p>Either way, you've got the tools. Use them.</p>
+
+<p>Proud of the work you put in this week.</p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- ===================== POST-CALL NURTURE ===================== -->
+    <div class="phase-divider"><span>Post-Call Nurture</span></div>
+
+    <div class="timeline">
+
+      <!-- TP8: Email 6 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#8</span>
+          <span class="pill pill-timing">Sunday ~10am Local</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> Had a chance to dig into everything yet, <span class="merge">[FIRST_NAME]</span>?</li>
+            <li><span class="opt-num">B.</span> Your Russ AI is live. Have you tried it?</li>
+            <li><span class="opt-num">C.</span> Quick check-in after Friday, <span class="merge">[FIRST_NAME]</span></li>
+          </ul>
+        </div>
+
+        <div class="variant-container" data-group="tp8">
+          <div class="variant-tabs">
+            <div class="variant-tab active" onclick="switchTab(this, 'tp8', 0)">Primary (PAS)</div>
+            <div class="variant-tab" onclick="switchTab(this, 'tp8', 1)">A/B Variant (BAB)</div>
+          </div>
+          <div class="variant-panel active" data-panel="tp8-0">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Just checking in.</p>
+
+<p>You've got the toolkit in hand now: the VIP replay, access to Russ AI, the bonus materials from Friday's session. That's a lot to land in 48 hours.</p>
+
+<p>Here's what I've seen happen with a lot of VIP attendees at this point. They open the email, they click around, they think "okay, this is solid" and then they close the laptop and go into the weekend. The tools sit there. The notes from Friday sit there. And then Monday comes, and so does everything else.</p>
+
+<p>That's not a failure of motivation. That's just life moving fast.</p>
+
+<p>The problem is the gap between "I have the knowledge" and "I have a clear plan for what to do with it." That gap is exactly what the strategy call is built to close. It's not a sales pitch. It's a working session where we look at your specific situation and map out what the next 90 days actually look like for you.</p>
+
+<p>If Friday sparked something, don't let it cool down.</p>
+
+<p>Book your strategy call here: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Talk soon,
+Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+          <div class="variant-panel" data-panel="tp8-1">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Quick check-in after Friday.</p>
+
+<p>Before <span class="merge">[VIP_DATE]</span>, you had the workshop framework but no direct access to Russ, no replay to go back to, and no one-on-one space to pressure-test your specific offer. You were working with the map but hadn't sat down with the guide.</p>
+
+<p>Now you have all of it.</p>
+
+<p>The Russ AI is live. The VIP replay is yours. And the next logical step, the one that turns "I know what to build" into "I have clients booked," is the strategy call.</p>
+
+<p>It's the bridge. Not a pitch meeting. A working conversation.</p>
+
+<p>When you're ready: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TP9: Email 7 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#9</span>
+          <span class="pill pill-timing">Monday or Tuesday ~9am</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> The gap between knowing and doing (and how to close it)</li>
+            <li><span class="opt-num">B.</span> You've got the offer. Here's what's missing.</li>
+            <li><span class="opt-num">C.</span> <span class="merge">[FIRST_NAME]</span>, what happens after the workshop?</li>
+          </ul>
+        </div>
+
+        <div class="variant-container" data-group="tp9">
+          <div class="variant-tabs">
+            <div class="variant-tab active" onclick="switchTab(this, 'tp9', 0)">Primary (PAS)</div>
+            <div class="variant-tab" onclick="switchTab(this, 'tp9', 1)">A/B Variant (4P)</div>
+          </div>
+          <div class="variant-panel active" data-panel="tp9-0">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Here's a pattern I've seen play out hundreds of times.</p>
+
+<p>Someone attends the workshop. They build their offer live in the session. They upgrade to VIP, come to the Friday call, get direct feedback from me on their positioning. They leave energized. They have everything they need on paper.</p>
+
+<p>And then... nothing moves.</p>
+
+<p>Not because the offer is wrong. Not because they aren't capable. But because having the framework and knowing how to deploy it in your specific market, to your specific audience, at this specific moment in your business, are two completely different things.</p>
+
+<p>The strategy call is where that second part happens.</p>
+
+<p>It's the session where we look at where you actually are, who you're trying to reach, what's blocking you from getting there, and what the fastest path to your first (or next) high-ticket client looks like. Concrete. Specific to you.</p>
+
+<p><span class="merge">[VIP_TESTIMONIAL_ENROLLED]</span></p>
+
+<p>That outcome doesn't happen by accident. It happens because there was a conversation. A real one. About their real situation.</p>
+
+<p>If you're sitting on a strong offer and a clear idea of who you help, you're closer than you think. The call is the next move.</p>
+
+<p>Book here: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+          <div class="variant-panel" data-panel="tp9-1">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Here's what Friday gave you: a complete offer framework, direct feedback from me on your positioning, access to the Russ AI for ongoing questions, and the VIP replay to revisit anytime.</p>
+
+<p>That's the promise, and it's real. Picture yourself 90 days from now running a high-ticket coaching or consulting practice on a model that doesn't require your time to scale. The offer framework you built is the foundation for that.</p>
+
+<p>The proof? Every week, people who were exactly where you are now, offer in hand, energy high, but no clear path to clients, show up on a strategy call and leave with a 90-day plan. Many enroll the same day.</p>
+
+<p>The push: that call is available to you right now.</p>
+
+<p><span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TP10: Email 8 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#10</span>
+          <span class="pill pill-timing">Wednesday ~8:30am (5 Days Post-VIP)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> This is the last email I'll send about this, <span class="merge">[FIRST_NAME]</span></li>
+            <li><span class="opt-num">B.</span> Don't let the momentum die</li>
+            <li><span class="opt-num">C.</span> Still open for you, but not forever</li>
+          </ul>
+        </div>
+
+        <div class="variant-container" data-group="tp10">
+          <div class="variant-tabs">
+            <div class="variant-tab active" onclick="switchTab(this, 'tp10', 0)">Primary (PAS)</div>
+            <div class="variant-tab" onclick="switchTab(this, 'tp10', 1)">A/B Variant (BAB)</div>
+          </div>
+          <div class="variant-panel active" data-panel="tp10-0">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>I'm going to be straight with you.</p>
+
+<p>We don't chase. That's not how we operate. If the timing isn't right or this isn't the right fit for you, that's okay. There's no hard sell here.</p>
+
+<p>But there's a real problem with waiting, and it's not about us. It's about you.</p>
+
+<p>The energy and clarity you had coming out of Friday? That has a shelf life. The offer you built in the workshop, the insights from our Q&A session on <span class="merge">[VIP_DATE]</span>, the way you could picture exactly who you help and what result you deliver... that sharpness fades as the week fills back up. And every day that passes without a concrete next step is a day that momentum dissipates.</p>
+
+<p>The strategy call is exactly that next step. It's the thing that turns the Friday session from a powerful experience into an actual business decision. One conversation. A plan you can execute starting next week.</p>
+
+<p>After this, if we don't hear from you, we'll assume the timing isn't right. You'll move to our general updates list and hear from us occasionally. No pressure either way.</p>
+
+<p>But if you're serious about building this, now is the time to say so.</p>
+
+<p>Book your strategy call: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+          <div class="variant-panel" data-panel="tp10-1">
+            <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Before this week: you had questions about whether your offer was viable, whether you could command high-ticket prices, whether the model Russ teaches actually translates to your specific expertise.</p>
+
+<p>After Friday's session on <span class="merge">[VIP_DATE]</span>: those questions have answers. You have an offer framework. You have direct access to Russ AI for ongoing support. You have a replay you can return to.</p>
+
+<p>The bridge between where you are now and where you want to go is one conversation. The strategy call.</p>
+
+<p>This is the last email I'll send specifically about it. Not because the opportunity is gone, but because after this, you'll move to our general list and this specific window closes.</p>
+
+<p>If you're in, here's the link: <span class="merge">[STRATEGY_CALL_LINK]</span></p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TP11: Email 9 -->
+      <div class="tp-card">
+        <div class="tp-header">
+          <span class="tp-number">#11</span>
+          <span class="pill pill-timing">Thursday ~11am (Optional, Trigger-Based)</span>
+          <span class="pill pill-email">Email</span>
+        </div>
+        <div class="subject-block">
+          <h4>Subject Line Options</h4>
+          <ul class="subject-list">
+            <li><span class="opt-num">A.</span> Still thinking about it?</li>
+            <li><span class="opt-num">B.</span> <span class="merge">[FIRST_NAME]</span>, genuine question</li>
+            <li><span class="opt-num">C.</span> One line reply will do</li>
+          </ul>
+        </div>
+
+        <div class="tp-notes" style="margin-bottom: 16px;">
+          <strong>Trigger condition:</strong> Opened at least one prior email in sequence (Emails 6, 7, or 8) AND did not click <span class="merge">[STRATEGY_CALL_LINK]</span>. Single variant only, intentionally short.
+        </div>
+
+        <div class="copy-body">
+<p>Hey <span class="merge">[FIRST_NAME]</span>,</p>
+
+<p>Still on your radar?</p>
+
+<p>I know this week gets busy fast. If the strategy call makes sense but the scheduling page didn't quite fit, just reply to this email with a day that tends to work for you. We'll find a slot.</p>
+
+<p>No form. No funnel. Just a reply.</p>
+
+<p class="signoff">Russ Ruffino
+Clients on Demand</p>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+  </div>
+</section>
+
+<!-- Implementation Notes -->
+<section class="checklist-section" style="background: var(--bg2);">
+  <div class="container">
+    <div class="checklist-card">
+      <h3>Implementation Notes &amp; Production Checklist</h3>
+
+      <div class="check-group-label">Merge Fields &amp; Links</div>
+      <ul class="checklist">
+        <li>Replace all <span class="merge">[ZOOM_LINK]</span> with actual session Zoom URL</li>
+        <li>Replace all <span class="merge">[VIP_DATE]</span> and <span class="merge">[VIP_TIME]</span> with correct cohort date/time</li>
+        <li>Replace <span class="merge">[DATE]</span> and <span class="merge">[TIME]</span> with correct workshop date/time</li>
+        <li><span class="merge">[RUSS_AI_LINK]</span> and <span class="merge">[REPLAY_LINK]</span> are Saturday-gated. Confirm GHL automation holds Email 5 until Saturday regardless of when VIP session ends.</li>
+        <li><span class="merge">[STRATEGY_CALL_LINK]</span> must go to a live booking page, not a dead form</li>
+        <li>All calendar links (<span class="merge">[CALENDAR_LINK_WORKSHOP]</span>, <span class="merge">[CALENDAR_LINK_VIP]</span>) must generate actual .ics or Google Calendar events</li>
+      </ul>
+
+      <div class="check-group-label">Testimonials &amp; Social Proof</div>
+      <ul class="checklist">
+        <li>Confirm <span class="merge">[VIP_TESTIMONIAL]</span> (Email 2) is a real quote from a named past attendee. Do not ship placeholder.</li>
+        <li><span class="merge">[VIP_TESTIMONIAL_ENROLLED]</span> (Email 7) must be a real quote from a VIP attendee who enrolled. Pull from Fathom call recordings or direct testimonial capture. Do not fabricate.</li>
+        <li>Ensure <span class="merge">[VIP_TESTIMONIAL_ENROLLED]</span> includes standard results disclaimer per COD FTC protocol.</li>
+      </ul>
+
+      <div class="check-group-label">SMS Compliance</div>
+      <ul class="checklist">
+        <li>Test SMS character counts with longest expected first names (e.g. "Christopher" = 11 chars)</li>
+        <li>Confirm <span class="merge">[ZOOM_LINK]</span> short URL format for SMS. If raw Zoom link exceeds limit, use cod.link/vip redirect</li>
+      </ul>
+
+      <div class="check-group-label">Workflow Logic</div>
+      <ul class="checklist">
+        <li>Email 9 is trigger-based. Only fires if contact opened at least one of Emails 6-8 without clicking the strategy call link. Set this condition in GHL workflow.</li>
+        <li>After Email 8, if no booking: move contact to general updates list</li>
+      </ul>
+
+      <div class="check-group-label">Copy &amp; Compliance Rules</div>
+      <ul class="checklist">
+        <li>"Russ AI" is the correct product name throughout. Not "Delphi AI."</li>
+        <li>FTC: no income claims, no earnings representations, no guaranteed results language anywhere in this sequence</li>
+        <li>No income claims or earnings projections in any variant</li>
+        <li>All emails sign off as Russ Ruffino, Clients on Demand</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="page-footer">
+  <div class="container">
+    <p class="merge-note">All [VARIABLES] must be populated by GHL workflow before sending.</p>
+    <p>Prepared by Kas Andz | KAMG | April 2026</p>
+  </div>
+</footer>
+
+<script>
+function switchTab(clicked, group, index) {
+  const container = clicked.closest('.variant-container');
+  container.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+  container.querySelectorAll('.variant-panel').forEach(p => p.classList.remove('active'));
+  clicked.classList.add('active');
+  container.querySelector(`[data-panel="${group}-${index}"]`).classList.add('active');
+}
+</script>
+
+</body>
+</html>

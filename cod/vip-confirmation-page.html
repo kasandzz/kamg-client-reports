@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Confirmed | Clients on Demand</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --bg3: #18181f;
+  --card: #1a1a22;
+  --border: rgba(200,169,110,0.12);
+  --border-h: rgba(200,169,110,0.25);
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.1);
+  --gold-glow: rgba(200,169,110,0.15);
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --green: #4ade80;
+  --font: 'Outfit', system-ui, sans-serif;
+  --display: 'Cormorant Garamond', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  padding: 100px 0 72px;
+  background: linear-gradient(135deg, var(--bg) 0%, #0f0f18 50%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.hero-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px; display: block;
+}
+.hero h1 {
+  font-family: var(--display); font-size: clamp(40px, 6vw, 64px); font-weight: 600;
+  line-height: 1.1; margin-bottom: 16px; color: var(--text);
+}
+.hero-sub {
+  font-size: 18px; color: var(--text2); max-width: 500px; margin: 0 auto 12px; line-height: 1.7;
+}
+.hero-date {
+  font-size: 14px; color: var(--text3); margin-bottom: 36px;
+}
+.hero-date strong { color: var(--text2); font-weight: 500; }
+.hero-cta {
+  display: inline-block; background: var(--gold); color: #0a0a0f;
+  font-weight: 600; font-size: 16px; padding: 16px 40px; border-radius: 8px;
+  text-decoration: none; letter-spacing: 0.5px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  box-shadow: 0 0 30px var(--gold-glow);
+}
+.hero-cta:hover {
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 0 50px rgba(200,169,110,0.25);
+}
+.hero-micro {
+  font-size: 13px; color: var(--text3); margin-top: 14px;
+}
+
+/* Sections */
+section { padding: 72px 0; }
+section.alt { background: var(--bg2); }
+
+.section-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px; display: block;
+}
+.section-heading {
+  font-family: var(--display); font-size: clamp(28px, 4vw, 40px); font-weight: 600;
+  line-height: 1.2; margin-bottom: 12px;
+}
+.section-intro {
+  font-size: 15px; color: var(--text2); margin-bottom: 32px; max-width: 600px; line-height: 1.7;
+}
+
+/* Two Events */
+.events-header {
+  font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 24px; text-align: center;
+}
+.events-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px;
+}
+@media (max-width: 640px) {
+  .events-grid { grid-template-columns: 1fr; }
+}
+.event-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 28px 24px; display: flex; flex-direction: column;
+  transition: border-color 0.3s;
+}
+.event-card:hover { border-color: var(--border-h); }
+.event-card.premium {
+  border-color: rgba(200,169,110,0.35);
+  background: linear-gradient(135deg, var(--card) 0%, rgba(200,169,110,0.04) 100%);
+  box-shadow: 0 0 40px rgba(200,169,110,0.06);
+}
+.event-pill {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 100px;
+  margin-bottom: 16px; width: fit-content;
+}
+.pill-standard { background: rgba(255,255,255,0.06); color: var(--text2); }
+.pill-gold { background: var(--gold-dim); color: var(--gold); }
+.event-card h3 {
+  font-family: var(--display); font-size: 22px; font-weight: 600;
+  line-height: 1.3; margin-bottom: 8px;
+}
+.event-card.premium h3 { font-size: 24px; }
+.event-time {
+  font-size: 14px; color: var(--text2); margin-bottom: 20px;
+}
+.event-card .spacer { flex: 1; }
+.btn-green {
+  display: block; text-align: center; background: var(--green); color: #0a0a0f;
+  font-weight: 600; font-size: 14px; padding: 12px 20px; border-radius: 8px;
+  text-decoration: none; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+}
+.btn-green:hover { transform: scale(1.03) translateY(-1px); opacity: 0.92; }
+.btn-gold {
+  display: block; text-align: center; background: var(--gold); color: #0a0a0f;
+  font-weight: 600; font-size: 14px; padding: 14px 20px; border-radius: 8px;
+  text-decoration: none; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.btn-gold:hover {
+  transform: scale(1.03) translateY(-1px);
+  box-shadow: 0 0 35px rgba(200,169,110,0.25);
+}
+.event-micro {
+  font-size: 13px; color: var(--gold); margin-top: 14px; line-height: 1.5;
+  text-align: center;
+}
+.events-footer {
+  font-size: 14px; color: var(--text2); text-align: center; line-height: 1.7;
+  max-width: 600px; margin: 0 auto;
+}
+
+/* What Happens Friday */
+.friday-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
+}
+@media (max-width: 640px) {
+  .friday-grid { grid-template-columns: 1fr; }
+}
+.friday-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; font-size: 14px; color: var(--text2); line-height: 1.7;
+  transition: border-color 0.3s;
+}
+.friday-card:hover { border-color: var(--border-h); }
+.friday-closing {
+  font-size: 15px; color: var(--text); font-weight: 500; text-align: center;
+  max-width: 560px; margin: 0 auto;
+}
+
+/* Urgency */
+.urgency-card {
+  background: var(--card); border: 1px solid rgba(200,169,110,0.3); border-radius: 14px;
+  padding: 40px 36px; max-width: 680px; margin: 0 auto;
+}
+@media (max-width: 640px) {
+  .urgency-card { padding: 32px 24px; }
+}
+.urgency-card h2 {
+  font-family: var(--display); font-size: clamp(26px, 4vw, 36px); font-weight: 600;
+  margin-bottom: 20px; text-align: center;
+}
+.urgency-card p {
+  font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 16px;
+}
+.urgency-card p:last-of-type { margin-bottom: 0; }
+.urgency-closing {
+  font-size: 15px; color: var(--text); font-weight: 600; text-align: center;
+  margin-top: 24px; margin-bottom: 28px;
+}
+.urgency-card .btn-gold { max-width: 320px; margin: 0 auto; }
+
+/* Toolkit */
+.toolkit-items {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
+}
+@media (max-width: 640px) {
+  .toolkit-items { grid-template-columns: 1fr; }
+}
+.toolkit-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; opacity: 0.5; position: relative;
+  transition: opacity 0.3s;
+}
+.toolkit-card:hover { opacity: 0.6; }
+.toolkit-badge {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 100px;
+  background: var(--gold-dim); color: var(--gold); margin-bottom: 14px;
+}
+.toolkit-card h3 {
+  font-family: var(--display); font-size: 20px; font-weight: 600; margin-bottom: 8px;
+}
+.toolkit-card p {
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+}
+.toolkit-note {
+  font-size: 14px; color: var(--text2); text-align: center; line-height: 1.7;
+  margin-bottom: 12px;
+}
+.toolkit-explainer {
+  font-size: 13px; color: var(--text3); text-align: center; line-height: 1.7;
+  max-width: 560px; margin: 0 auto;
+}
+
+/* Footer */
+.site-footer {
+  padding: 48px 0 40px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer-text {
+  font-size: 13px; color: var(--text3); margin-bottom: 20px;
+}
+.footer-logo img {
+  height: 32px; width: auto; filter: invert(1) brightness(100); opacity: 0.5;
+  transition: opacity 0.3s;
+}
+.footer-logo img:hover { opacity: 0.7; }
+
+/* Fade in animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  opacity: 0; animation: fadeUp 0.6s ease forwards;
+}
+.fade-in:nth-child(1) { animation-delay: 0.05s; }
+.fade-in:nth-child(2) { animation-delay: 0.1s; }
+.fade-in:nth-child(3) { animation-delay: 0.15s; }
+.fade-in:nth-child(4) { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <span class="hero-label">VIP Confirmed.</span>
+    <h1>You're In. VIP Attendee.</h1>
+    <p class="hero-sub">Your seat is reserved. Now protect it.</p>
+    <p class="hero-date"><strong>Friday VIP Session:</strong> Friday @ 12PM PST. Live. One time only.</p>
+    <a href="#" class="hero-cta">Add Friday VIP to Calendar</a>
+    <p class="hero-micro">This is the most important click on this page.</p>
+  </div>
+</section>
+
+<!-- Two Events -->
+<section class="alt">
+  <div class="container">
+    <p class="events-header">You have <strong>TWO</strong> events this week. Add both now.</p>
+    <div class="events-grid">
+
+      <!-- Event 1: Workshop -->
+      <div class="event-card">
+        <span class="event-pill pill-standard">Workshop</span>
+        <h3>AI-Powered High-Ticket Offer Workshop</h3>
+        <p class="event-time">Wednesday @ 9AM PST</p>
+        <div class="spacer"></div>
+        <a href="#" class="btn-green">Add Workshop to Calendar</a>
+      </div>
+
+      <!-- Event 2: VIP Session -->
+      <div class="event-card premium">
+        <span class="event-pill pill-gold">VIP Session</span>
+        <h3>Live VIP Session With Russ</h3>
+        <p class="event-time">Friday @ 12PM PST</p>
+        <div class="spacer"></div>
+        <a href="#" class="btn-gold">Add VIP Session to Calendar</a>
+        <p class="event-micro">This is your VIP upgrade. Friday is why you paid extra. Do not miss it.</p>
+      </div>
+
+    </div>
+    <p class="events-footer">Two events. Two calendar invites. Both matter. The VIP session on Friday is the one most people wish they had attended live.</p>
+  </div>
+</section>
+
+<!-- What Happens Friday -->
+<section>
+  <div class="container">
+    <h2 class="section-heading" style="text-align:center;">What Actually Happens on Friday</h2>
+    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">This is not a replay of Wednesday. This is a separate, private session with Russ.</p>
+    <div class="friday-grid">
+      <div class="friday-card fade-in">Russ reviews your specific offer live on the call, not a generic example.</div>
+      <div class="friday-card fade-in">You get direct feedback on pricing, positioning, and enrollment, by name, in real time.</div>
+      <div class="friday-card fade-in">The floor is open. Ask anything. No scripts, no canned answers, no filler.</div>
+      <div class="friday-card fade-in">Small group. Real conversation. If you have been in a webinar recently, this is nothing like that.</div>
+    </div>
+    <p class="friday-closing">Most people leave Wednesday with momentum. VIP attendees leave Friday with a plan.</p>
+  </div>
+</section>
+
+<!-- Urgency -->
+<section class="alt">
+  <div class="container">
+    <div class="urgency-card">
+      <h2>One Session. One Chance.</h2>
+      <p>This VIP call happens once. It is not a recurring program. There is no second date, no reschedule, and no replay of the live session.</p>
+      <p>Russ shows up for the people who show up. That is the deal.</p>
+      <p>If something comes up Friday, let us know in advance, but there is no guarantee of a makeup option. The session runs as scheduled for the attendees who are there.</p>
+      <p class="urgency-closing">Mark your calendar. Be there Friday.</p>
+      <a href="#" class="btn-gold">Add Friday VIP to Calendar</a>
+    </div>
+  </div>
+</section>
+
+<!-- VIP Toolkit -->
+<section>
+  <div class="container">
+    <h2 class="section-heading" style="text-align:center;">Your Full VIP Package Unlocks Saturday Morning.</h2>
+    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">After Friday's session, everything below becomes available to you.</p>
+    <div class="toolkit-items">
+      <div class="toolkit-card">
+        <span class="toolkit-badge">Unlocks Saturday</span>
+        <h3>Russ AI</h3>
+        <p>Ask follow-up questions, run your offer through Russ's framework, and get feedback any time. Yours after the live session.</p>
+      </div>
+      <div class="toolkit-card">
+        <span class="toolkit-badge">Unlocks Saturday</span>
+        <h3>Bonus Workshop Replay</h3>
+        <p>A second deep-dive session to complement Wednesday's training. Full replay access.</p>
+      </div>
+    </div>
+    <p class="toolkit-note">We will email you Saturday morning with access to everything above.</p>
+    <p class="toolkit-explainer">The live session is the foundation. Everything in your toolkit builds on what happens Friday. That sequence is intentional.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-text">Questions? Reply to your confirmation email. We read every one.</p>
+    <div class="footer-logo">
+      <img src="https://images.leadconnectorhq.com/image/f_webp/q_80/r_1200/u_https://assets.cdn.filesafe.space/h83O4TKy09yLLdfnIw3K/media/69775085a87beb21e9fcfc1f.svg" alt="Clients on Demand" style="height: 32px; width: auto; filter: invert(1) brightness(100);">
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

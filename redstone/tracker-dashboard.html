@@ -446,6 +446,12 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
   .eric-strip{grid-template-columns:1fr;gap:12px;padding:16px 18px}
   .eric-strip-r{grid-template-columns:1fr}
 }
+.focus-card.collapsed .focus-row:nth-child(n+7){display:none}
+.focus-card.collapsed .owner-key{display:none}
+.see-more-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 0;margin-top:4px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:var(--radius-sm);color:var(--gray-600);font-family:var(--body);font-size:13px;font-weight:600;letter-spacing:0.02em;cursor:pointer;transition:all 0.2s}
+.see-more-btn:hover{background:var(--gray-150);color:var(--gray-800)}
+.see-more-btn svg{width:14px;height:14px;transition:transform 0.2s}
+.focus-card:not(.collapsed) .see-more-btn svg{transform:rotate(180deg)}
 </style>
 </head>
 <body>
@@ -565,7 +571,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
       <p class="section-desc">The only list that matters this sprint. Sorted by ETA. Updated every <b>Mon &amp; Thu</b> by Leo.</p>
     </div>
 
-    <div class="focus-card">
+    <div class="focus-card collapsed">
       <div class="focus-head">
         <div class="focus-head-l">
           <h3>Sprint Focus</h3>
@@ -689,6 +695,8 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="focus-eta"><b>DEP.</b><span>Jack / Eric</span></div>
         <span class="status s-progress">&middot; In Progress</span>
       </div>
+
+      <button class="see-more-btn" onclick="this.closest('.focus-card').classList.toggle('collapsed');this.querySelector('span').textContent=this.closest('.focus-card').classList.contains('collapsed')?'See 3 more items':'Show less'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg><span>See 3 more items</span></button>
 
       <div class="owner-key">
         <span><div class="own ka">KA</div>Kas</span>

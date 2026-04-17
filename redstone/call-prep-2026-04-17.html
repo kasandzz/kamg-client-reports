@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call Prep -- Eric Millinger // Marketing Review -- Apr 17 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FFFFFF;
+    color: #111111;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ---- HEADER ---- */
+  .header-band {
+    background: #000000;
+    padding: 0;
+  }
+  .header-accent {
+    height: 5px;
+    background: #B21E24;
+  }
+  .header-inner {
+    padding: 24px 32px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+  }
+  .header-subtitle {
+    font-size: 13px;
+    color: #888888;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  .header-badge {
+    background: #B21E24;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ---- LAYOUT ---- */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+  }
+
+  /* ---- SECTION ---- */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #B21E24;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #B21E24;
+  }
+
+  /* ---- MEETING DETAILS CARD ---- */
+  .meeting-card {
+    border: 1px solid #E0E0E0;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+  }
+  .meeting-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .meeting-field span {
+    font-size: 14px;
+    color: #111111;
+    font-weight: 500;
+  }
+
+  /* ---- TABLES ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr {
+    background: #000000;
+    color: #FFFFFF;
+  }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  thead th:first-child {
+    border-left: 3px solid #B21E24;
+  }
+  tbody tr {
+    border-bottom: 1px solid #E8E8E8;
+  }
+  tbody tr:nth-child(even) {
+    background: #F9F9F9;
+  }
+  tbody td {
+    padding: 9px 14px;
+    color: #222222;
+    vertical-align: top;
+  }
+  tbody td:first-child {
+    font-weight: 500;
+  }
+
+  /* ---- STATUS BADGES ---- */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .badge-done    { background: #D4EDDA; color: #155724; }
+  .badge-active  { background: #FFF3CD; color: #856404; }
+  .badge-pending { background: #E9ECEF; color: #495057; }
+  .badge-issue   { background: #F8D7DA; color: #721C24; }
+
+  /* ---- TALKING POINTS ---- */
+  .tp-list {
+    list-style: none;
+    counter-reset: tp-counter;
+  }
+  .tp-list li {
+    counter-increment: tp-counter;
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #E8E8E8;
+    align-items: flex-start;
+  }
+  .tp-list li:last-child { border-bottom: none; }
+  .tp-num {
+    background: #B21E24;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .tp-content strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 3px;
+  }
+  .tp-content p {
+    font-size: 13px;
+    color: #444444;
+    line-height: 1.55;
+  }
+
+  /* ---- WATCH-FORS ---- */
+  .watchfor-list {
+    list-style: none;
+  }
+  .watchfor-list li {
+    padding: 10px 14px 10px 18px;
+    border-left: 3px solid #B21E24;
+    margin-bottom: 8px;
+    background: #FFF9F9;
+    font-size: 13px;
+    color: #333333;
+    line-height: 1.5;
+  }
+  .watchfor-list li strong {
+    color: #B21E24;
+    font-weight: 700;
+  }
+
+  /* ---- INVOICE STRIP ---- */
+  .invoice-strip {
+    border: 1px solid #E0E0E0;
+    border-left: 4px solid #B21E24;
+    padding: 14px 18px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: #FAFAFA;
+  }
+  .invoice-item label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #888888;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .invoice-item span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111111;
+  }
+
+  /* ---- FOOTER ---- */
+  .footer {
+    background: #000000;
+    color: #888888;
+    font-size: 11px;
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 48px;
+    letter-spacing: 0.3px;
+  }
+  .footer span:first-child {
+    color: #FFFFFF;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header-band">
+  <div class="header-accent"></div>
+  <div class="header-inner">
+    <div>
+      <div class="header-title">Eric Millinger &amp; Kas Andz // Marketing Review</div>
+      <div class="header-subtitle">Call Prep Brief &mdash; Thursday, April 17, 2026 &nbsp;&bull;&nbsp; 12:30 PM CST</div>
+    </div>
+    <div class="header-badge">Internal Only</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- MEETING DETAILS -->
+  <div class="section">
+    <div class="section-label">Meeting Details</div>
+    <div class="meeting-card">
+      <div class="meeting-field">
+        <label>Date &amp; Time</label>
+        <span>Thursday, April 17, 2026 &mdash; 12:30 PM CST</span>
+      </div>
+      <div class="meeting-field">
+        <label>Format</label>
+        <span>Recurring Weekly &mdash; Calendar Event</span>
+      </div>
+      <div class="meeting-field">
+        <label>Attendees</label>
+        <span>Eric Millinger (President, Redstone Manufacturing) &nbsp;/ &nbsp;Kas Andz (KAMG)</span>
+      </div>
+      <div class="meeting-field">
+        <label>Agenda Owner</label>
+        <span>Kas Andz &mdash; Marketing Review</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOOGLE ADS PERFORMANCE -->
+  <div class="section">
+    <div class="section-label">Google Ads Performance &mdash; April Cycle (Daniel's Report)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Total Spend</td>
+          <td>$4,919.24</td>
+          <td>April cycle to date</td>
+        </tr>
+        <tr>
+          <td>Brochure Downloads</td>
+          <td>3</td>
+          <td>Conversion type: brochure</td>
+        </tr>
+        <tr>
+          <td>Quote Requests</td>
+          <td>3</td>
+          <td>Conversion type: quote form</td>
+        </tr>
+        <tr>
+          <td>Total Conversions</td>
+          <td>6</td>
+          <td>Combined</td>
+        </tr>
+        <tr>
+          <td>Cost Per Conversion</td>
+          <td>$819.87</td>
+          <td>Context: traffic quality issue identified &amp; being corrected</td>
+        </tr>
+        <tr>
+          <td>Active Keywords</td>
+          <td>79</td>
+          <td>5 categories (see below)</td>
+        </tr>
+        <tr>
+          <td>Negative Keywords &mdash; Before Fix</td>
+          <td>3,409</td>
+          <td>Main Search campaign</td>
+        </tr>
+        <tr>
+          <td>Negative Keywords &mdash; After Fix</td>
+          <td>7,309</td>
+          <td>+3,900 added to filter close variant traffic</td>
+        </tr>
+        <tr>
+          <td>Recent Lead Rate</td>
+          <td>~1/day</td>
+          <td>Last 3 days &mdash; trending up post-fix</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 16px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Keyword Category</th>
+            <th>Example Intent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CNC Machining</td>
+            <td>Custom &amp; precision CNC parts sourcing</td>
+          </tr>
+          <tr>
+            <td>Die Casting</td>
+            <td>Aluminum &amp; zinc die cast manufacturing</td>
+          </tr>
+          <tr>
+            <td>Metal Stamping</td>
+            <td>Sheet metal &amp; stamping services</td>
+          </tr>
+          <tr>
+            <td>Injection Molding</td>
+            <td>Plastic injection mold manufacturing</td>
+          </tr>
+          <tr>
+            <td>Mexico Manufacturing</td>
+            <td>Nearshore / Mexico sourcing queries</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 12px; padding: 10px 14px; border-left: 3px solid #000000; background: #F5F5F5; font-size: 13px; color: #333333;">
+      <strong style="display:block; margin-bottom:4px;">Daniel's Position (verbatim):</strong>
+      "Performance has nothing to do with the landing page. The quality of traffic is up massively."
+    </div>
+  </div>
+
+  <!-- LP STATUS -->
+  <div class="section">
+    <div class="section-label">Landing Page Status &mdash; Die Casting Services LP</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Pass</th>
+          <th>Discipline</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Pass 1</td>
+          <td>UI / UX</td>
+          <td><span class="badge badge-done">Complete</span></td>
+          <td>Layout, flow, information architecture</td>
+        </tr>
+        <tr>
+          <td>Pass 2</td>
+          <td>Visual Design</td>
+          <td><span class="badge badge-done">Complete</span></td>
+          <td>User feedback: more imagery / visual impact needed</td>
+        </tr>
+        <tr>
+          <td>Pass 3</td>
+          <td>Frontend Development</td>
+          <td><span class="badge badge-active">In Progress</span></td>
+          <td>Swipe collector patterns being integrated</td>
+        </tr>
+        <tr>
+          <td>Pass 4</td>
+          <td>CRO Optimization</td>
+          <td><span class="badge badge-pending">Pending</span></td>
+          <td>Awaiting Pass 3 completion</td>
+        </tr>
+        <tr>
+          <td>Pass 5</td>
+          <td>Taste Audit (Quality Gate)</td>
+          <td><span class="badge badge-pending">Pending</span></td>
+          <td>Final pass before delivery</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 10px; font-size: 12px; color: #666666; padding-left: 2px;">
+      File: <code>kamg-ops/output/redstone/lp-die-casting-services-mexico.html</code> &nbsp;&bull;&nbsp;
+      Estimated remaining: 2&ndash;3 sessions to complete all passes
+    </div>
+  </div>
+
+  <!-- INVOICE STATUS -->
+  <div class="section">
+    <div class="section-label">Invoice Status</div>
+    <div class="invoice-strip">
+      <div class="invoice-item">
+        <label>Invoice</label>
+        <span>002 &mdash; Sent Apr 15, 2026</span>
+      </div>
+      <div class="invoice-item">
+        <label>LP Balance</label>
+        <span>$750.00</span>
+      </div>
+      <div class="invoice-item">
+        <label>Ad Spend Fee (20%)</label>
+        <span>$983.85</span>
+      </div>
+      <div class="invoice-item">
+        <label>Invoice Total</label>
+        <span>~$1,733.85</span>
+      </div>
+      <div class="invoice-item">
+        <label>Eric Status</label>
+        <span>Acknowledged &mdash; requested LP deliverable + ad report</span>
+      </div>
+      <div class="invoice-item">
+        <label>Reminder Triggered</label>
+        <span>Today (Superhuman)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TALKING POINTS -->
+  <div class="section">
+    <div class="section-label">Talking Points &mdash; Priority Order</div>
+    <ol class="tp-list">
+      <li>
+        <div class="tp-num">1</div>
+        <div class="tp-content">
+          <strong>Traffic Quality Story (Lead With This)</strong>
+          <p>Daniel identified close variant traffic as the root cause of inflated CPL. He systematically added ~3,900 negative keywords (3,409 to 7,309 in main Search campaign). Quality is improving: 1 lead/day over the last 3 days. Frame: "We found the problem, it is being fixed systematically."</p>
+        </div>
+      </li>
+      <li>
+        <div class="tp-num">2</div>
+        <div class="tp-content">
+          <strong>LP Progress Update</strong>
+          <p>Show current die-casting LP state. Explain the 5-pass methodology (UI / Visual / Dev / CRO / Taste). Set concrete expectation: 2&ndash;3 more sessions for full delivery. The LP is designed to layer on top of now-cleaner traffic &mdash; the two workstreams converge.</p>
+        </div>
+      </li>
+      <li>
+        <div class="tp-num">3</div>
+        <div class="tp-content">
+          <strong>Ad Report Walkthrough</strong>
+          <p>$4,919.24 spend, 6 conversions, $820 CPL. Be transparent. Frame CPL in context of the traffic cleanup: pre-fix numbers include irrelevant close-variant clicks. The trend line (1 lead/day last 3 days) is the forward-looking number to watch.</p>
+        </div>
+      </li>
+      <li>
+        <div class="tp-num">4</div>
+        <div class="tp-content">
+          <strong>Integration Access (Gentle Nudge)</strong>
+          <p>Still outstanding: HubSpot API access, Google Search Console access, Google Analytics access. These unlock attribution, keyword opportunity data, and CRO insights. No pressure &mdash; just a reminder that they unlock the next layer of reporting.</p>
+        </div>
+      </li>
+      <li>
+        <div class="tp-num">5</div>
+        <div class="tp-content">
+          <strong>Next Steps &mdash; Agreed Before EOC</strong>
+          <p>Complete LP passes 3&ndash;5. A/B test new LP vs. current page once live. Expand keyword strategy once traffic quality stabilizes. Invoice 002 settlement.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- WATCH-FORS -->
+  <div class="section">
+    <div class="section-label">Watch-Fors</div>
+    <ul class="watchfor-list">
+      <li>
+        <strong>Eric is data-driven:</strong> "I'm an engineer, I just want all the data." Use tables and numbers. Do not summarize or abstract when raw figures are available. Bring the actual ad report to share screen if possible.
+      </li>
+      <li>
+        <strong>LP Timeline Pushback:</strong> Eric may push on the 2&ndash;3 session estimate. Be concrete: Pass 3 (swipe collector integration), Pass 4 (CRO layer), Pass 5 (taste audit). Each is a defined, bounded scope. Commit to a date range, not an open-ended "soon."
+      </li>
+      <li>
+        <strong>Vendor Tension:</strong> Do not position Daniel's fix as a failure or create friction between workstreams. The negative keyword expansion is a normal, proactive optimization step. Frame Daniel and the LP work as complementary, not competing.
+      </li>
+      <li>
+        <strong>Color Palette Note:</strong> Eric approved the Figma layout but preferred the original Redstone color palette. Any LP previews shown in this call must use original brand colors &mdash; not test variants.
+      </li>
+    </ul>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Prepared by KAMG &nbsp;&bull;&nbsp; Confidential</span>
+  <span>Eric Millinger // Marketing Review &nbsp;&bull;&nbsp; Apr 17, 2026 &nbsp;&bull;&nbsp; 12:30 PM CST</span>
+</div>
+
+</body>
+</html>

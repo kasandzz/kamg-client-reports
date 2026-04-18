@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UI/UX SWOT Audit - Redstone Die Casting LP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #0c0c0e;
+  --bg-card: #141416;
+  --bg-elevated: #1a1a1e;
+  --bg-hover: #1f1f24;
+  --red: #B21E24;
+  --red-soft: rgba(178, 30, 36, 0.12);
+  --red-glow: rgba(178, 30, 36, 0.25);
+  --green: #22c55e;
+  --green-soft: rgba(34, 197, 94, 0.12);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.12);
+  --blue: #3b82f6;
+  --blue-soft: rgba(59, 130, 246, 0.12);
+  --purple: #a855f7;
+  --purple-soft: rgba(168, 85, 247, 0.12);
+  --text-1: #f1f5f9;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --font-display: 'Outfit', -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font-display); background: var(--bg); color: var(--text-1); -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body { max-width: 1280px; margin: 0 auto; padding: 48px 32px 96px; }
+
+/* --- HEADER --- */
+.audit-header { margin-bottom: 64px; }
+.audit-meta {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  font: 400 12px/1 var(--font-mono);
+  color: var(--text-3);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.audit-meta .dot { width: 4px; height: 4px; background: var(--red); flex: none; }
+.audit-title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-1);
+  margin-bottom: 16px;
+}
+.audit-title .accent { color: var(--red); }
+.audit-subtitle {
+  font-size: 17px; font-weight: 300;
+  color: var(--text-2);
+  max-width: 72ch; line-height: 1.55;
+}
+.audit-subtitle a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+
+/* --- SCORECARD --- */
+.scorecard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 64px;
+}
+.score-cell {
+  background: var(--bg-card);
+  padding: 32px 28px;
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative;
+}
+.score-cell::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+}
+.score-cell.strength::before { background: var(--green); }
+.score-cell.weakness::before { background: var(--red); }
+.score-cell.opportunity::before { background: var(--amber); }
+.score-cell.threat::before { background: var(--purple); }
+.score-label {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.score-cell.strength .score-label { color: var(--green); }
+.score-cell.weakness .score-label { color: var(--red); }
+.score-cell.opportunity .score-label { color: var(--amber); }
+.score-cell.threat .score-label { color: var(--purple); }
+.score-value {
+  font-size: 48px; font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--text-1);
+  line-height: 1;
+}
+.score-value span { font-size: 20px; color: var(--text-3); font-weight: 400; }
+.score-desc { font-size: 13px; color: var(--text-3); line-height: 1.4; }
+
+.overall-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 28px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-top: 0;
+  margin-bottom: 64px;
+}
+.overall-label {
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-2);
+}
+.overall-score {
+  font-size: 28px; font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.03em;
+}
+.overall-score span { font-size: 16px; color: var(--text-3); font-weight: 400; }
+.overall-bar {
+  flex: 1; max-width: 400px; margin: 0 32px;
+  height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden;
+}
+.overall-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--red), var(--amber), var(--green)); }
+
+/* --- SECTIONS --- */
+.swot-section { margin-bottom: 72px; }
+.section-head {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 600;
+  border: 1px solid var(--border);
+}
+.section-icon.s { color: var(--green); border-color: rgba(34, 197, 94, 0.2); background: var(--green-soft); }
+.section-icon.w { color: var(--red); border-color: rgba(178, 30, 36, 0.2); background: var(--red-soft); }
+.section-icon.o { color: var(--amber); border-color: rgba(245, 158, 11, 0.2); background: var(--amber-soft); }
+.section-icon.t { color: var(--purple); border-color: rgba(168, 85, 247, 0.2); background: var(--purple-soft); }
+.section-name {
+  font-size: 28px; font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* --- FINDINGS --- */
+.finding {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease;
+}
+.finding:hover { border-color: var(--border-hover); }
+.finding-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  margin-bottom: 14px;
+}
+.finding-id {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-3);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  flex: none;
+}
+.finding-severity {
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 10px;
+  flex: none;
+}
+.sev-high { background: var(--red-soft); color: var(--red); border: 1px solid rgba(178,30,36,0.25); }
+.sev-med { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.sev-low { background: var(--green-soft); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.sev-info { background: var(--blue-soft); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+.finding-title {
+  font-size: 18px; font-weight: 500;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.finding-body {
+  font-size: 14px; line-height: 1.65;
+  color: var(--text-2);
+  margin-bottom: 16px;
+}
+.finding-body code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  color: var(--text-1);
+  border: 1px solid var(--border);
+}
+.finding-ref {
+  font: 400 11px/1.4 var(--font-mono);
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+.finding-ref strong { color: var(--text-2); font-weight: 500; }
+.fix-label {
+  display: inline-block;
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--green);
+  margin-top: 12px; margin-bottom: 6px;
+}
+.fix-body {
+  font-size: 13px; line-height: 1.55;
+  color: var(--text-2);
+  padding-left: 12px;
+  border-left: 2px solid rgba(34, 197, 94, 0.2);
+}
+
+/* --- SUMMARY --- */
+.summary-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 36px 32px;
+  margin-top: 48px;
+}
+.summary-title {
+  font-size: 22px; font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  color: var(--text-1);
+}
+.summary-text {
+  font-size: 15px; line-height: 1.65;
+  color: var(--text-2);
+  max-width: 80ch;
+}
+.summary-text strong { color: var(--text-1); font-weight: 500; }
+.priority-list {
+  margin-top: 20px;
+  list-style: none;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.priority-list li {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 14px; color: var(--text-2); line-height: 1.5;
+}
+.priority-list li::before {
+  content: '';
+  width: 8px; height: 8px;
+  background: var(--red);
+  flex: none;
+  margin-top: 6px;
+}
+
+.footer-audit {
+  margin-top: 96px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font: 400 12px/1.5 var(--font-mono);
+  color: var(--text-3);
+  display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  body { padding: 24px 16px 64px; }
+  .scorecard { grid-template-columns: repeat(2, 1fr); }
+  .overall-row { flex-direction: column; gap: 16px; text-align: center; }
+  .overall-bar { max-width: 100%; margin: 0; }
+  .finding { padding: 20px; }
+}
+@media (max-width: 480px) {
+  .scorecard { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="audit-header">
+  <div class="audit-meta">
+    <span>KAMG</span>
+    <span class="dot"></span>
+    <span>UI/UX SWOT Audit</span>
+    <span class="dot"></span>
+    <span>2026-04-17</span>
+  </div>
+  <h1 class="audit-title">Redstone Die Casting LP<br><span class="accent">SWOT Audit Report</span></h1>
+  <p class="audit-subtitle">Comprehensive UI/UX analysis of the B2B die casting services landing page targeting mid-market OEMs and engineering-led companies ($50K+ annual programs). Audited against the Redstone design system, CRO best practices, and WCAG accessibility standards. <a href="https://kasandzz.github.io/kamg-client-reports/redstone/lp-die-casting-services-mexico.html" target="_blank">View live page</a></p>
+</header>
+
+<!-- ============ SCORECARD ============ -->
+<div class="scorecard">
+  <div class="score-cell strength">
+    <div class="score-label">Strengths</div>
+    <div class="score-value">8<span>/10</span></div>
+    <div class="score-desc">Strong information architecture, trust hierarchy, and design system adherence</div>
+  </div>
+  <div class="score-cell weakness">
+    <div class="score-label">Weaknesses</div>
+    <div class="score-value">5<span>/10</span></div>
+    <div class="score-desc">Mobile UX gaps, accessibility issues, form friction, and performance concerns</div>
+  </div>
+  <div class="score-cell opportunity">
+    <div class="score-label">Opportunities</div>
+    <div class="score-value">7<span>/10</span></div>
+    <div class="score-desc">High-impact quick wins available in social proof, CTA placement, and urgency</div>
+  </div>
+  <div class="score-cell threat">
+    <div class="score-label">Threats</div>
+    <div class="score-value">4<span>/10</span></div>
+    <div class="score-desc">Some broken patterns and missing trust signals could undermine credibility</div>
+  </div>
+</div>
+<div class="overall-row">
+  <div class="overall-label">Composite Score</div>
+  <div class="overall-bar"><div class="overall-fill" style="width: 70%;"></div></div>
+  <div class="overall-score">7.0<span>/10</span></div>
+</div>
+
+<!-- ============ STRENGTHS ============ -->
+<section class="swot-section">
+  <div class="section-head">
+    <div class="section-icon s">S</div>
+    <h2 class="section-name">Strengths</h2>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-01</span>
+      <span class="finding-severity sev-info">Excellent</span>
+    </div>
+    <h3 class="finding-title">Hero Section Information Architecture</h3>
+    <div class="finding-body">The hero combines a strong value proposition with three quantified proof points (24-48hr quote, 8-12wk production, +/-0.015" tolerance) in a <code>.hero-meta-row</code> immediately below the CTAs. This is textbook B2B lead-gen architecture: headline > subhead > dual CTA > social proof stats. The left-aligned layout avoids the generic centered hero pattern.</div>
+    <div class="finding-ref"><strong>Lines 1612-1638</strong> - hero-inner grid, hero-meta-row with three data points. <strong>CSS L94-200</strong> - responsive scaling with clamp() for headline.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-02</span>
+      <span class="finding-severity sev-info">Excellent</span>
+    </div>
+    <h3 class="finding-title">Design System Fidelity</h3>
+    <div class="finding-body">The page uses Redstone's design tokens consistently throughout: <code>--rs-red</code> exclusively for CTAs (never for card/section fills), <code>--rs-ink</code> for dark sections, <code>--rs-line</code> for dividers, and the full type scale from the <code>colors_and_type.css</code> file. Square corners (border-radius: 0) are maintained globally, consistent with the Figma system. The 1px gray dividers create a clean engineering-document aesthetic.</div>
+    <div class="finding-ref"><strong>CSS L167-168</strong> - button border-radius: 0. All color values reference CSS custom properties, zero hardcoded hex values for brand colors.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-03</span>
+      <span class="finding-severity sev-info">Strong</span>
+    </div>
+    <h3 class="finding-title">Trust Signal Layering</h3>
+    <div class="finding-body">Trust is built progressively: header phone number > hero stats > trust strip (IATF 16949, ISO 9001, U.S. Managed, 8 Years) > client logos (MIT, Amazon, Honda, Halliburton) > qualification checklist > FAQ > final CTA trust rail. The form itself includes a "Engineers are online" live indicator with green pulse dot, certification badges, and a 24-48hr quote badge. This multi-layer approach is high-conversion for B2B manufacturing.</div>
+    <div class="finding-ref"><strong>Lines 1641-1664</strong> - trust strip. <strong>Lines 2113-2150</strong> - form header with trust signals. <strong>Lines 2275-2288</strong> - final CTA trust rail.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-04</span>
+      <span class="finding-severity sev-info">Strong</span>
+    </div>
+    <h3 class="finding-title">Multi-Step Form with Progress Indicator</h3>
+    <div class="finding-body">The 3-step form (Parts > Specs > Contact) reduces perceived complexity. The blueprint grid background treatment and corner-tick decorations differentiate it from generic forms. Step validation is implemented (L2427-2467) with field-level error states. The form glow animation on CTA click (L477-485) provides clear visual feedback that draws attention to the form.</div>
+    <div class="finding-ref"><strong>CSS L1061-1370</strong> - form blueprint treatment. <strong>JS L2410-2467</strong> - step navigation and validation logic.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-05</span>
+      <span class="finding-severity sev-info">Strong</span>
+    </div>
+    <h3 class="finding-title">Sticky Right-Rail Form Pattern</h3>
+    <div class="finding-body">The <code>.form-col</code> uses <code>position: sticky; top: 96px;</code> to keep the quote form visible as users scroll through content. This is the highest-converting layout for B2B lead gen pages, keeping the conversion action always within reach. At breakpoints below 1080px, it correctly unsticks and stacks below content.</div>
+    <div class="finding-ref"><strong>CSS L316-337</strong> - twocol grid with sticky form column. 440px fixed form width with responsive fallback.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-06</span>
+      <span class="finding-severity sev-info">Good</span>
+    </div>
+    <h3 class="finding-title">Scroll-Driven Micro-Interactions</h3>
+    <div class="finding-body">Process steps use staggered IntersectionObserver reveals (L2582-2594) with sequential transition-delays. Section titles get a highlight sweep animation (L736-746). CTA buttons have a subtle glow pulse (<code>cta-nudge</code> keyframes). The unit toggle (Imperial/Metric) for capability stats is a thoughtful B2B UX detail. The next-field nudge animation (L2530-2554) guides form completion. All animations respect <code>prefers-reduced-motion</code> (L1576-1579).</div>
+    <div class="finding-ref"><strong>CSS L450-476</strong> - CTA nudge + arrow bounce. <strong>CSS L1576-1579</strong> - reduced motion support.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-07</span>
+      <span class="finding-severity sev-info">Good</span>
+    </div>
+    <h3 class="finding-title">Semantic HTML and Accessibility Foundations</h3>
+    <div class="finding-body">Skip-to-content link present (L1584), semantic landmarks (<code>header</code>, <code>main</code>, <code>footer</code>, <code>section</code>, <code>nav</code> with aria-label), FAQ buttons with <code>aria-expanded</code>, unit toggle with <code>role="switch"</code> and <code>aria-checked</code>. Logo carousel correctly uses <code>aria-hidden="true"</code> on duplicate items. The <code>.visually-hidden</code> class is properly implemented.</div>
+    <div class="finding-ref"><strong>Line 1584</strong> - skip link. <strong>Line 1592</strong> - nav aria-label. <strong>Line 1711</strong> - unit switch aria attributes.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">S-08</span>
+      <span class="finding-severity sev-info">Good</span>
+    </div>
+    <h3 class="finding-title">Qualification Checklist as Interactive Pre-Qualifier</h3>
+    <div class="finding-body">The interactive checklist (L2029-2054) lets prospects self-qualify before submitting. Checking items triggers contextual messaging ("Strong fit" / "Likely fit"). This reduces unqualified leads and increases conversion quality, which is critical for a $50K+ minimum program. The checklist items match the ICP criteria exactly.</div>
+    <div class="finding-ref"><strong>Lines 2029-2062</strong> - qualification section with 4 checklist items. <strong>JS L2389-2408</strong> - dynamic result messaging.</div>
+  </div>
+</section>
+
+<!-- ============ WEAKNESSES ============ -->
+<section class="swot-section">
+  <div class="section-head">
+    <div class="section-icon w">W</div>
+    <h2 class="section-name">Weaknesses</h2>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-01</span>
+      <span class="finding-severity sev-high">High</span>
+    </div>
+    <h3 class="finding-title">Mobile Form UX: Sticky Form Breaks on Tablet/Mobile</h3>
+    <div class="finding-body">Below 1080px the form unsticks and sits below all content sections (L334-337). On mobile, users must scroll through the entire page to reach the form. The mobile bottom bar (L2326) partially addresses this, but it only shows after the form leaves the viewport. The form itself is 440px wide with dense fields, which on a 375px viewport creates either horizontal overflow or extremely compressed inputs.</div>
+    <div class="finding-ref"><strong>CSS L320</strong> - <code>grid-template-columns: minmax(0, 1fr) 440px</code>. <strong>CSS L334-337</strong> - mobile fallback to single column.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a prominent "Get a Quote" floating CTA on mobile that opens the form in a slide-up modal/drawer. Reduce form width to fluid on mobile. Consider showing Step 1 inline on mobile and Steps 2-3 in a modal.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-02</span>
+      <span class="finding-severity sev-high">High</span>
+    </div>
+    <h3 class="finding-title">No Step 2 Validation - Users Can Skip Required Fields</h3>
+    <div class="finding-body">Step 1 has <code>validateStep1()</code> and Step 3 has <code>validateStep3()</code>, but Step 2 has no validation at all (L2452-2457). The "Continue" button on Step 2 proceeds to Step 3 without checking required fields (<code>annual-spend</code>, <code>part-description</code>, <code>country-production</code> are all marked with <code>*</code> but never validated). This means submissions can arrive with empty critical fields.</div>
+    <div class="finding-ref"><strong>JS L2452-2457</strong> - data-next click handler, no validateStep2() function exists. <strong>Lines 2178-2206</strong> - Step 2 fields with <code>*</code> required markers.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a <code>validateStep2()</code> function that checks annual-spend (non-empty select), part-description (non-empty textarea), and country-production (non-empty input). Wire it into the data-next handler at line 2454.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-03</span>
+      <span class="finding-severity sev-high">High</span>
+    </div>
+    <h3 class="finding-title">Form Has No Backend Submission</h3>
+    <div class="finding-body">The form uses <code>onsubmit="return false;"</code> (L2111) and the submit button simply hides steps and shows a success message (L2462-2467). No data is sent anywhere. No fetch/XHR call, no form action, no hidden iframe. The success message tells users to "check your inbox for a confirmation" which will never arrive. This is a conversion-killing issue if the page goes live as-is.</div>
+    <div class="finding-ref"><strong>Line 2111</strong> - <code>onsubmit="return false;"</code>. <strong>JS L2462-2467</strong> - submit handler only shows success UI.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Integrate form submission via fetch() to the appropriate endpoint (Redstone's CRM, a Zapier webhook, or a serverless function). Add a loading state to the submit button. Handle error states with retry UI.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-04</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Exit Intent Modal Accessibility and Mobile Issues</h3>
+    <div class="finding-body">The exit modal (L2334-2351) uses inline styles exclusively, has no focus trap, no ESC key handler, and the close button is a bare <code>&times;</code> character with no aria-label. The modal only triggers on <code>mouseout</code> which means it never fires on mobile/touch devices. The modal's "Send Feasibility Check" button does nothing (inline onclick just hides the modal without submitting data).</div>
+    <div class="finding-ref"><strong>Lines 2334-2351</strong> - exit modal HTML with inline styles. <strong>JS L2517-2528</strong> - mouseout trigger only.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Extract inline styles to CSS classes. Add focus trap (trap focus inside modal when open). Add ESC key listener. Add aria-label to close button. Consider a scroll-depth exit intent for mobile (trigger at 80% scroll-up velocity). Wire the submit button to actual form submission.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-05</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Logo Carousel Animation Performance</h3>
+    <div class="finding-body">The logos use a CSS <code>@keyframes logo-scroll</code> with an 80s linear infinite animation (L290-293). The entire <code>.logos-grid</code> container with all images animates via transform. While transform is GPU-accelerated, the container holds 14 images (7 original + 7 duplicates). There is no <code>will-change: transform</code> hint, and images lack explicit width/height attributes, which can cause CLS (Cumulative Layout Shift) during load.</div>
+    <div class="finding-ref"><strong>CSS L278-293</strong> - logos-viewport mask + scroll animation. <strong>Lines 1674-1689</strong> - 14 img elements in carousel.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add <code>will-change: transform</code> to <code>.logos-grid</code>. Add explicit width/height attributes to all logo images to prevent CLS. Consider pausing the animation when the section is not in the viewport to save GPU cycles.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-06</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Font Loading Chain Creates Render Delay</h3>
+    <div class="finding-body">The page loads Host Grotesk from Google Fonts (L18) AND ZT Nature from local font files via <code>colors_and_type.css</code> (18 @font-face declarations for weights 100-900). The CSS uses <code>font-display: swap</code> which is good, but loading 18 font files is excessive. The page only uses weights 300, 400, 500, and 700 of ZT Nature. The remaining 14 font files (100, 200, 600, 800, 900 + all italics) are dead weight.</div>
+    <div class="finding-ref"><strong>CSS (colors_and_type.css) L8-43</strong> - 18 @font-face declarations. <strong>Line 18</strong> - Host Grotesk Google Fonts link.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Subset ZT Nature font files to only include weights actually used (300, 400, 500, 700 normal only - no italics used on this page). This reduces font file loads from 18 to 4. Remove the Host Grotesk Google Fonts link if ZT Nature is the primary typeface.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-07</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Em Dash Characters in Copy</h3>
+    <div class="finding-body">Multiple instances of <code>&amp;mdash;</code> appear in the page copy: "your engineers speak to the production floor through one program manager" (L1810), the exit modal "Before you go" (L2339), and the file upload note (L2199). While typographically valid, these create inconsistency as some other separators use <code>&amp;ndash;</code> or <code>&amp;middot;</code> instead.</div>
+    <div class="finding-ref"><strong>Lines 1810, 2199, 2339</strong> - em dash usage. <strong>Lines 1720, 1738, 2074</strong> - en dash usage for ranges.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Standardize punctuation: use en dashes for ranges (correct already), middle dots for separators, and regular dashes or commas where em dashes currently appear.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-08</span>
+      <span class="finding-severity sev-low">Low</span>
+    </div>
+    <h3 class="finding-title">Process Section Dark Background Inside Light Content Column</h3>
+    <div class="finding-body">The <code>#process</code> section (L692-800) uses <code>background: var(--rs-ink)</code> (dark) inside the left content column, which itself sits inside a light white page. This creates an awkward visual where a dark-background section has its right edge cut off by the sticky form column. On desktop at 1440px, the dark process block occupies only about 60% of viewport width.</div>
+    <div class="finding-ref"><strong>CSS L692-698</strong> - process section with dark bg and margins. <strong>CSS L316-324</strong> - twocol grid constraining the process section.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Either make the process section full-width (break out of the twocol grid) so the dark background spans edge-to-edge, or switch it to a light background with dark text to match the surrounding content column. The current hybrid breaks the visual flow.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">W-09</span>
+      <span class="finding-severity sev-low">Low</span>
+    </div>
+    <h3 class="finding-title">Qualification Section Missing Border Context</h3>
+    <div class="finding-body">The <code>#qualification</code> section (L972-976) has <code>padding: 96px 0</code> and <code>border-top: 1px solid var(--rs-line)</code>, but it is positioned inside the content column where the other sections use <code>.section</code> class for consistent spacing. The qualification section uses a different pattern (<code>.qual-inner</code> with its own background and border) creating visual inconsistency in the section rhythm.</div>
+    <div class="finding-ref"><strong>CSS L971-981</strong> - qualification section styling vs. <strong>CSS L342-373</strong> - standard section styling.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">This is intentional as a standalone callout. Minor issue. Ensure the 96px top padding matches the section rhythm. Consider adding the <code>.section</code> class for consistent spacing.</div>
+  </div>
+</section>
+
+<!-- ============ OPPORTUNITIES ============ -->
+<section class="swot-section">
+  <div class="section-head">
+    <div class="section-icon o">O</div>
+    <h2 class="section-name">Opportunities</h2>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-01</span>
+      <span class="finding-severity sev-high">High Impact</span>
+    </div>
+    <h3 class="finding-title">Add a Testimonial / Case Study Section</h3>
+    <div class="finding-body">The page has zero customer testimonials, case studies, or quantified results. For a B2B manufacturing page targeting $50K+ programs, social proof from named clients (especially those whose logos are shown: Honda, Halliburton, Amazon) is critical. The logo carousel proves they work with big names, but without a single quote or case study, the credibility stops at "we worked with them."</div>
+    <div class="finding-ref">No testimonial section exists in the HTML. Logos section (L1667-1692) shows 7 client logos without any supporting narrative.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add 2-3 customer testimonials between the Industries and Qualification sections. Format: named quote with company, title, and a specific metric ("Redstone reduced our per-unit cost by 32% while maintaining IATF tolerance specs"). Even one strong testimonial from a recognizable company would significantly boost conversion.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-02</span>
+      <span class="finding-severity sev-high">High Impact</span>
+    </div>
+    <h3 class="finding-title">Add Live Chat or WhatsApp Widget for International Buyers</h3>
+    <div class="finding-body">The page targets "Mexico operations" and lists facilities in Mexico, Brazil, China, India, and Taiwan on the map. International buyers may not want to fill out a multi-step form or call a U.S. phone number. There is no live chat, WhatsApp button, or other low-friction contact option for non-U.S. prospects.</div>
+    <div class="finding-ref"><strong>Lines 2267-2273</strong> - only contact option is U.S. phone and form. <strong>Lines 882-888</strong> - map showing global locations.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a floating chat widget (Intercom, Drift, or WhatsApp Business) positioned at bottom-right. On mobile, integrate into the mobile bottom bar as a third option alongside Call and Quote.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-03</span>
+      <span class="finding-severity sev-high">High Impact</span>
+    </div>
+    <h3 class="finding-title">Add Urgency/Scarcity to Quote CTA</h3>
+    <div class="finding-body">The page has 8 separate "Request a Quote" CTAs but none include any urgency mechanism. No capacity indicator, no limited availability messaging, no seasonal pricing context. B2B manufacturing buyers are used to long lead times, so any urgency signal (even mild) differentiates.</div>
+    <div class="finding-ref">All CTA elements: hero (L1619), capabilities footer (L1797), mid-CTAs (L1834, L1918), qualification (L2059), final CTA (L2260-2261).</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a subtle capacity indicator near the form: "Current capacity: accepting new programs for Q3 2026" or "3 tooling slots remaining this quarter." This creates legitimate urgency without being pushy. Update the form badge to include a time-sensitive element.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-04</span>
+      <span class="finding-severity sev-med">Medium Impact</span>
+    </div>
+    <h3 class="finding-title">Map Section Has No CTA</h3>
+    <div class="finding-body">The map section (L802-894) is a full-width dark section showing global supply chain locations, but it has no CTA. It is a dead-end visually. Users see the map, then scroll to the next section. This is wasted real estate - the map demonstrates global capability which should feed directly into conversion.</div>
+    <div class="finding-ref"><strong>Lines 802-894</strong> - map section with only a title and map graphic, no CTA or action item.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a CTA below the map: "Consolidate your global supply chain. Request a quote." with a button linking to #quote-form. The map proves geographic reach, which is a natural lead-in to a reshoring/nearshoring conversation.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-05</span>
+      <span class="finding-severity sev-med">Medium Impact</span>
+    </div>
+    <h3 class="finding-title">Add Part Gallery or Portfolio Section</h3>
+    <div class="finding-body">No photos of actual die-cast parts appear on the page. The hero uses a molten pour image (referenced as <code>assets/hero-pour.jpg</code>), but there is no gallery of finished parts. Engineering buyers want to see the quality of work, surface finish quality, and part complexity before reaching out. The process section uses placeholder SVG sketches instead of real photos.</div>
+    <div class="finding-ref"><strong>Lines 1935-2017</strong> - process steps with SVG placeholder sketches. <strong>Line 108</strong> - hero background image reference.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a "Recent Work" or "Part Gallery" section between Capabilities and Why Redstone. Show 6-8 photos of actual die-cast parts with material, finish, tolerance, and industry tags. This is extremely high-conversion for manufacturing pages.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-06</span>
+      <span class="finding-severity sev-med">Medium Impact</span>
+    </div>
+    <h3 class="finding-title">Form Step 1 Should Auto-Select "Die Casting"</h3>
+    <div class="finding-body">The "Type of Manufacturing Process" dropdown in Step 1 (L2143-2154) already has <code>selected</code> on "Die Casting" which is correct. However, "Current Stage of Production" (L2135) defaults to a blank placeholder. Since this is a die casting-specific landing page, the first question should default to the most common stage or be replaced with something more qualifying.</div>
+    <div class="finding-ref"><strong>Lines 2135-2140</strong> - current stage select with empty default. <strong>Lines 2143-2154</strong> - manufacturing process with die casting pre-selected.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Consider restructuring Step 1 to lead with the "Main Reason" checkboxes (which is the most qualifying question) and move the stage/process selects to Step 2. The first interaction should feel easy and relevant.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">O-07</span>
+      <span class="finding-severity sev-low">Low Impact</span>
+    </div>
+    <h3 class="finding-title">Add Schema.org Structured Data</h3>
+    <div class="finding-body">The page has good meta tags (OG, Twitter card) but no JSON-LD structured data. Adding Organization, Service, and FAQ schema would improve search visibility and enable rich results for the FAQ section.</div>
+    <div class="finding-ref"><strong>Lines 2-14</strong> - existing meta tags. No <code>&lt;script type="application/ld+json"&gt;</code> present.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add JSON-LD for: Organization (Redstone Manufacturing, Ohio), Service (Die Casting Services), and FAQPage (the 5 FAQ items). This is a 15-minute implementation with significant SEO upside.</div>
+  </div>
+</section>
+
+<!-- ============ THREATS ============ -->
+<section class="swot-section">
+  <div class="section-head">
+    <div class="section-icon t">T</div>
+    <h2 class="section-name">Threats</h2>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-01</span>
+      <span class="finding-severity sev-high">Critical</span>
+    </div>
+    <h3 class="finding-title">Exit Modal and Form Submit Are Non-Functional</h3>
+    <div class="finding-body">If this page goes live, two conversion endpoints are completely broken: (1) The main form shows "Thank you" but sends no data anywhere (L2462-2467). (2) The exit intent modal's "Send Feasibility Check" button just closes the modal (L2349) without capturing the email or part description. Both create a worst-case scenario: the user believes they have submitted, but Redstone never receives the lead. This would directly lose revenue.</div>
+    <div class="finding-ref"><strong>Line 2111</strong> - form onsubmit="return false;". <strong>Line 2349</strong> - exit modal onclick closes without submission.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">P0 - before going live: wire both endpoints to a backend (GHL webhook, Zapier, or direct API). Add loading state, error handling, and email confirmation trigger. This is the single highest-priority fix.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-02</span>
+      <span class="finding-severity sev-high">High</span>
+    </div>
+    <h3 class="finding-title">Asset Dependencies May Break on Production Domain</h3>
+    <div class="finding-body">The page references local assets with relative paths: <code>assets/hero-pour.jpg</code>, <code>assets/redstone-logo.svg</code>, <code>assets/client-logo-*.png</code>, and <code>colors_and_type.css?v=zt3</code>. The CSS references fonts at <code>fonts/ZTNature-*.woff2</code>. If the page is deployed to any path other than the root of the assets directory, all images and fonts will 404. The OG image also uses a relative path (L13).</div>
+    <div class="finding-ref"><strong>Line 13</strong> - relative OG image. <strong>Line 19</strong> - relative CSS link. <strong>Lines 1675-1688</strong> - relative logo image paths.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Convert all asset paths to absolute URLs or ensure the deployment structure matches. The OG image must be an absolute URL for social sharing to work. Test all font files load correctly from the production domain.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-03</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Mobile Navigation Hidden with No Hamburger Menu</h3>
+    <div class="finding-body">At breakpoints below 900px, <code>.header-nav { display: none; }</code> (L87) hides the navigation links entirely. There is no hamburger menu, no mobile menu drawer, no alternative navigation. Users on tablet/mobile lose access to in-page navigation (Capabilities, Why Redstone, Process, Facilities, FAQ). The only remaining header elements are the phone number and "Get a Quote" button.</div>
+    <div class="finding-ref"><strong>CSS L85-91</strong> - media query hiding nav. No hamburger button or mobile menu exists in the HTML.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add a hamburger menu button that opens a full-screen or slide-in navigation drawer on mobile. Include the same anchor links plus the phone number and CTA button. This is essential for usability on mobile.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-04</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">No Tracking or Analytics Integration</h3>
+    <div class="finding-body">The page has zero analytics: no Google Analytics/GA4, no Google Tag Manager, no Meta Pixel, no PostHog, no conversion tracking of any kind. Form submissions, CTA clicks, scroll depth, FAQ interactions, qualification checklist engagement, and exit intent triggers are all untracked. Without analytics, there is no way to measure conversion rate or optimize the page.</div>
+    <div class="finding-ref">No analytics script exists in the page. No data-layer events, no tracking pixels, no conversion tags.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Add GTM container with: GA4 pageview, form_submit event on each step completion, quote_submitted conversion event, scroll_depth tracking, and CTA click events. If running paid traffic, add Google Ads conversion tag and Meta Pixel if applicable.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-05</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">Color Contrast Issues in Secondary Text on Dark Backgrounds</h3>
+    <div class="finding-body">Several text elements on dark backgrounds fail WCAG AA contrast requirements: <code>rgba(255,255,255,0.5)</code> on <code>var(--rs-ink)</code> (#262626) in process numbers (L749) yields approximately 4.0:1, below the 4.5:1 threshold for normal text. The footer tagline at <code>rgba(255,255,255,0.5)</code> on dark bg is similarly low. The hero sub text at <code>rgba(255,255,255,0.78)</code> passes, but the hero meta labels at <code>rgba(255,255,255,0.65)</code> are borderline.</div>
+    <div class="finding-ref"><strong>CSS L749</strong> - process-num color: rgba(255,255,255,0.5). <strong>CSS L1549</strong> - footer-tagline rgba(255,255,255,0.5). <strong>CSS L192-193</strong> - hero-meta-l rgba(255,255,255,0.65).</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Increase minimum opacity for white text on dark backgrounds to 0.72 for body text and 0.55 for large text. This brings all text to WCAG AA compliance without significantly altering the visual hierarchy.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-06</span>
+      <span class="finding-severity sev-med">Medium</span>
+    </div>
+    <h3 class="finding-title">CTA Glow Animation May Appear Spammy</h3>
+    <div class="finding-body">The <code>cta-nudge</code> animation (L450-459) applies a pulsing red glow to ALL anchor links pointing to <code>#quote-form</code> with class <code>.btn-primary</code>, <code>.btn-onward</code>, or <code>.finalcta-cta</code>. This means 5+ buttons on the page are simultaneously pulsing with a red glow every 3 seconds. Combined with the arrow bounce animation on text-style CTAs (L468-475), the page can feel aggressive. This may undermine the premium, engineering-focused brand positioning.</div>
+    <div class="finding-ref"><strong>CSS L449-476</strong> - CTA nudge and arrow bounce keyframes. <strong>CSS L454-459</strong> - selector targeting all quote-form anchors.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Limit the glow animation to only the hero CTA and the final CTA. Remove it from mid-page CTAs. Alternatively, trigger the glow only once when the CTA scrolls into view (via IntersectionObserver) rather than running infinitely.</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <span class="finding-id">T-07</span>
+      <span class="finding-severity sev-low">Low</span>
+    </div>
+    <h3 class="finding-title">Map Section May Not Load Correctly</h3>
+    <div class="finding-body">The map section references an image via <code>.map-stage img</code> but no <code>&lt;img&gt;</code> tag was found in the map section HTML. The map might be implemented elsewhere or may be incomplete. The callout labels (.map-callout) are positioned with absolute percentages relative to a container that may have no visible content, resulting in floating labels over nothing.</div>
+    <div class="finding-ref"><strong>CSS L827-851</strong> - map-stage with aspect-ratio and img styling. <strong>Lines 802-894</strong> - section exists in CSS but map HTML was not found in the content column.</div>
+    <div class="fix-label">Recommended Fix</div>
+    <div class="fix-body">Verify the map section HTML is present and the map image asset exists. If the map section is not ready, remove the CSS to avoid dead code. The map section sits outside the twocol grid (it appears after #main-region in the CSS but its HTML placement needs verification).</div>
+  </div>
+</section>
+
+<!-- ============ SUMMARY ============ -->
+<div class="summary-block">
+  <h2 class="summary-title">Executive Summary</h2>
+  <div class="summary-text">
+    <p>This is a <strong>well-architected B2B landing page</strong> with strong design system adherence, excellent trust signal layering, and a smart sticky form pattern. The information architecture follows proven B2B lead-gen conventions, and the engineering-themed visual treatment (blueprint grid, corner ticks, monospaced labels) differentiates it from generic manufacturing pages.</p>
+    <br>
+    <p>However, <strong>three critical issues must be resolved before launch</strong>: the form submits no data, the exit modal captures nothing, and there is zero analytics tracking. These are not design issues, they are functional blockers that would result in lost leads and zero visibility into page performance.</p>
+    <br>
+    <p>The highest-ROI improvements beyond the critical fixes are:</p>
+    <ul class="priority-list">
+      <li><strong>P0 - Wire form and exit modal to backend</strong> (Redstone CRM, GHL, or webhook). Without this, no conversion can occur.</li>
+      <li><strong>P0 - Add analytics tracking</strong> (GTM + GA4 + conversion events). Cannot optimize what you cannot measure.</li>
+      <li><strong>P1 - Add 2-3 customer testimonials</strong> with named clients and specific metrics. This is the single highest-conversion content addition for B2B.</li>
+      <li><strong>P1 - Fix mobile navigation</strong> (add hamburger menu) and mobile form UX (slide-up modal or inline Step 1).</li>
+      <li><strong>P2 - Add part gallery section</strong> showing finished work. Engineers want visual proof before reaching out.</li>
+      <li><strong>P2 - Add Step 2 form validation</strong> and fix contrast ratios on dark background text.</li>
+      <li><strong>P3 - Reduce font file loads</strong> from 18 to 4, add structured data, limit CTA glow animations.</li>
+    </ul>
+  </div>
+</div>
+
+<footer class="footer-audit">
+  <span>Audit by KAMG - Project Ares</span>
+  <span>Redstone Manufacturing - Die Casting LP</span>
+  <span>2026-04-17</span>
+</footer>
+
+</body>
+</html>

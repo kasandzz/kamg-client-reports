@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone LP Copy Verification</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #FFF;
+    color: #000;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 3px solid #000;
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .header .date {
+    font-size: 14px;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  .header .subtitle {
+    font-size: 15px;
+    color: #333;
+    margin-top: 8px;
+  }
+
+  .header .meta {
+    font-size: 13px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-header {
+    background: #B21E24;
+    color: #FFF;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: #555;
+    padding: 12px 16px;
+    background: #F5F5F5;
+    border: 1px solid #DDD;
+    border-top: none;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    background: #F5F5F5;
+    border: 1px solid #DDD;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #333;
+  }
+
+  tbody td {
+    border: 1px solid #DDD;
+    padding: 12px;
+    vertical-align: top;
+  }
+
+  tbody tr:hover {
+    background: #FAFAFA;
+  }
+
+  /* Row number */
+  .row-num {
+    font-weight: 700;
+    color: #999;
+    text-align: center;
+    width: 36px;
+    font-size: 13px;
+  }
+
+  /* Claim text */
+  .claim-text {
+    font-weight: 600;
+    color: #111;
+  }
+
+  .claim-text code {
+    background: #F5F5F5;
+    padding: 1px 5px;
+    border: 1px solid #E0E0E0;
+    font-family: "SF Mono", "Consolas", "Liberation Mono", monospace;
+    font-size: 13px;
+  }
+
+  /* Pages column */
+  .pages {
+    white-space: nowrap;
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+  }
+
+  /* Source column */
+  .source {
+    font-size: 13px;
+    color: #777;
+  }
+
+  /* Action needed */
+  .action {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .action-confirm {
+    color: #B21E24;
+  }
+
+  /* Checkbox indicator */
+  .checkbox {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #B21E24;
+    vertical-align: middle;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Status badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .badge-needs-confirm {
+    background: #FFF3CD;
+    color: #856404;
+    border: 1px solid #FFEEBA;
+  }
+
+  .badge-will-remove {
+    background: #F8D7DA;
+    color: #721C24;
+    border: 1px solid #F5C6CB;
+  }
+
+  .badge-verified {
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+  }
+
+  /* Confirmed section */
+  .confirmed-check {
+    color: #155724;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 3px solid #000;
+    padding-top: 24px;
+    margin-top: 48px;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+  }
+
+  .footer .cta {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 16px;
+  }
+
+  .footer .sig {
+    font-size: 12px;
+    color: #999;
+  }
+
+  /* Print */
+  @media print {
+    .page { padding: 24px 16px; }
+    .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .page { padding: 24px 16px 48px; }
+    .header h1 { font-size: 22px; }
+    table { font-size: 13px; }
+    thead th, tbody td { padding: 8px; }
+    .header-top { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-top">
+      <div>
+        <h1>Redstone LP Copy Verification</h1>
+        <p class="subtitle">Claims requiring your confirmation before going/staying live</p>
+        <p class="meta">21 landing pages audited at theredstonemanufacturing.com</p>
+      </div>
+      <div class="date">April 18, 2026</div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: Stats & Claims -->
+  <section class="section">
+    <div class="section-header">Section 1 -- Stats &amp; Claims Needing Confirmation</div>
+    <div class="section-desc">These claims appear across your landing pages but could not be verified from redstonemanufacturing.com. Please confirm, correct, or flag for removal.</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Claim</th>
+          <th>Pages</th>
+          <th>Source</th>
+          <th>Action Needed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>2,000+ programs shipped since 2018</code></div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">20</td>
+          <td class="source">Not found on redstonemanufacturing.com</td>
+          <td class="action action-confirm">Confirm exact number or remove <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>since 2018</code> as founding / start date</div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">Not stated on your site</td>
+          <td class="action action-confirm">Confirm correct year <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>Third-party dimensional QC on every shipment</code></div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">Not found on your site</td>
+          <td class="action action-confirm">Confirm if accurate <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">4</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>IATF 16949</code> certification</div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">4</td>
+          <td class="source">Your site only shows ISO 9001</td>
+          <td class="action action-confirm">Confirm if facilities have IATF <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">5</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>Monterrey</code> as specific facility location</div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">18</td>
+          <td class="source">Your site says "Mexico" but not Monterrey</td>
+          <td class="action action-confirm">Confirm specific city <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">6</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text"><code>USMCA-compliant freight</code></div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">17</td>
+          <td class="source">Not found on your site</td>
+          <td class="action action-confirm">Confirm if accurate <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">7</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div>
+                <div class="claim-text">Tolerances <code>&plusmn;0.0005 inch</code></div>
+              </div>
+            </div>
+          </td>
+          <td class="pages">10</td>
+          <td class="source">Similar on your site but needs exact confirmation</td>
+          <td class="action action-confirm">Confirm tolerance spec <span class="badge badge-needs-confirm">Needs Confirm</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 2: Client Logos -->
+  <section class="section">
+    <div class="section-header">Section 2 -- Client Logos Needing Confirmation</div>
+    <div class="section-desc">These logos appear in the trust bar across your landing pages. Please confirm each company is a real client whose logo you have permission to display.</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Logo</th>
+          <th>Pages</th>
+          <th>On Your Site?</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div class="claim-text">Amazon</div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">No</td>
+          <td class="action"><span class="badge badge-needs-confirm">Needs Confirm</span><br>Is Amazon a real client?</td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div class="claim-text">MIT</div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">No</td>
+          <td class="action"><span class="badge badge-needs-confirm">Needs Confirm</span><br>Is MIT a real client?</td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div class="claim-text">Halliburton</div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">No</td>
+          <td class="action"><span class="badge badge-needs-confirm">Needs Confirm</span><br>Is Halliburton a real client?</td>
+        </tr>
+        <tr>
+          <td class="row-num">4</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div class="claim-text">GameStop</div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">No</td>
+          <td class="action"><span class="badge badge-needs-confirm">Needs Confirm</span><br>Is GameStop a real client?</td>
+        </tr>
+        <tr>
+          <td class="row-num">5</td>
+          <td>
+            <div class="checkbox-row">
+              <span class="checkbox"></span>
+              <div class="claim-text">Libman</div>
+            </div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">No</td>
+          <td class="action"><span class="badge badge-needs-confirm">Needs Confirm</span><br>Is Libman a real client?</td>
+        </tr>
+        <tr>
+          <td class="row-num">6</td>
+          <td>
+            <div class="claim-text" style="text-decoration: line-through; color: #999;">Honda</div>
+          </td>
+          <td class="pages">21</td>
+          <td class="source">N/A</td>
+          <td class="action"><span class="badge badge-will-remove">Will Remove</span><br>You asked us to remove this Apr 10</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- SECTION 3: Already Confirmed -->
+  <section class="section">
+    <div class="section-header" style="background: #155724;">Section 3 -- Already Verified (No Action Needed)</div>
+    <div class="section-desc">These claims and logos are confirmed from redstonemanufacturing.com. No action required.</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+          <th>Verification</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-num">1</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;"American-Owned"</td>
+          <td class="source">Confirmed on redstonemanufacturing.com</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">2</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;ISO 9001 (facility-level certification)</td>
+          <td class="source">Confirmed on your site</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">3</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;Mahindra logo</td>
+          <td class="source">Confirmed on your site</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">4</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;Morgan logo</td>
+          <td class="source">Confirmed on your site</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">5</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;5 global facilities (US, China, India, Brazil, Mexico, Taiwan)</td>
+          <td class="source">Confirmed on your site</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+        <tr>
+          <td class="row-num">6</td>
+          <td class="claim-text"><span class="confirmed-check">&#10003;</span> &nbsp;Die Casting, CNC, Sheet Metal capabilities</td>
+          <td class="source">Confirmed on your site</td>
+          <td><span class="badge badge-verified">Verified</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p class="cta">Please reply with confirmations or corrections for each item. We will update all 21 pages immediately based on your response.</p>
+    <p class="sig">Prepared by KAMG for Redstone Manufacturing</p>
+  </footer>
+
+</div>
+</body>
+</html>

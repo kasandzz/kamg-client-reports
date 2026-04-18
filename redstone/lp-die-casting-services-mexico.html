@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>High-Precision Die Casting in Mexico — Redstone Manufacturing</title>
 <meta name="description" content="Mid-market OEMs: high-pressure aluminum, zinc, and copper die casting in ISO 9001 / IATF 16949 certified Mexico facilities, managed from the United States." />
 
@@ -76,8 +76,11 @@ button { font: inherit; }
 .header-cta:hover { background: var(--rs-red-hover); }
 
 @media (max-width: 900px) {
-  .header-inner { padding: 14px 24px; }
-  .header-nav, .header-phone { display: none; }
+  .header-inner { padding: 14px 24px; gap: 12px; }
+  .header-nav { display: none; }
+  .header-actions { gap: 12px; }
+  .header-phone { font-size: 13px; gap: 5px; }
+  .header-cta { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
 }
 
 /* =================== HERO =================== */
@@ -95,7 +98,7 @@ button { font: inherit; }
   position: absolute; inset: 0;
   background-color: #000;
   background-image: url('assets/hero-pour.jpg');
-  background-size: contain;
+  background-size: cover;
   background-position: center right;
   background-repeat: no-repeat;
   z-index: -2;
@@ -289,16 +292,16 @@ button { font: inherit; }
   padding: 0 32px;
   display: flex; align-items: center; justify-content: center;
 }
-.logo-tile img { height: 32px; width: auto; object-fit: contain; filter: grayscale(1) opacity(0.45); transition: filter var(--rs-dur-base); }
+.logo-tile img { height: 48px; width: auto; object-fit: contain; filter: grayscale(1) opacity(0.7); transition: filter var(--rs-dur-base); }
 .logo-tile:hover img { filter: grayscale(0) opacity(1); }
 
 @media (max-width: 1000px) {
   .logo-tile { min-width: 140px; padding: 0 24px; }
-  .logo-tile img { height: 28px; }
+  .logo-tile img { height: 40px; }
 }
 @media (max-width: 560px) {
   .logo-tile { min-width: 120px; padding: 0 16px; }
-  .logo-tile img { height: 24px; }
+  .logo-tile img { height: 36px; }
 }
 
 /* =================== TWO-COL REGION =================== */
@@ -312,6 +315,12 @@ button { font: inherit; }
   align-items: start;
 }
 .content-col { min-width: 0; }
+@media (min-width: 1080px) {
+  .content-col {
+    border-left: 1px dashed var(--rs-line);
+    padding-left: 40px;
+  }
+}
 .form-col { position: sticky; top: 96px; }
 
 @media (max-width: 1080px) {
@@ -396,6 +405,75 @@ button { font: inherit; }
 
 @media (max-width: 640px) {
   .spec-row { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* =================== UNIT TOGGLE (iOS-style) =================== */
+.caps-stats-wrap { position: relative; }
+.unit-toggle {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: flex-end;
+  margin-bottom: 0;
+  font-family: var(--rs-font-mono); font-size: 12px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--rs-slate);
+  user-select: none;
+}
+.unit-toggle-label { transition: color 0.25s ease; }
+.unit-toggle-label--dim { opacity: 0.45; }
+.unit-toggle-track {
+  position: relative; width: 44px; height: 26px;
+  background: var(--rs-charcoal); border-radius: 13px;
+  border: none; cursor: pointer; padding: 0;
+  transition: background 0.25s ease;
+}
+.unit-toggle-track[aria-checked="true"] { background: var(--rs-red); }
+.unit-toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.unit-toggle-track[aria-checked="true"] .unit-toggle-thumb {
+  transform: translateX(18px);
+}
+.unit-imp, .unit-met { transition: opacity 0.2s ease; }
+[hidden] { display: none !important; }
+
+/* =================== CTA NUDGE + FORM GLOW =================== */
+@keyframes cta-nudge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(178, 30, 36, 0); }
+  50% { box-shadow: 0 0 18px 4px rgba(178, 30, 36, 0.35); }
+}
+/* Solid red buttons: subtle glow pulse */
+a[href="#quote-form"].btn-primary,
+a[href="#quote-form"].btn-onward,
+a[href="#quote-form"].finalcta-cta {
+  animation: cta-nudge 3s ease-in-out infinite;
+}
+a[href="#quote-form"].btn-primary:hover,
+a[href="#quote-form"].btn-onward:hover,
+a[href="#quote-form"].finalcta-cta:hover {
+  animation: none;
+  box-shadow: 0 0 24px 6px rgba(178, 30, 36, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+/* Text-style links: arrow bounce nudge instead of glow */
+@keyframes arrow-nudge {
+  0%, 60%, 100% { transform: translateX(0); }
+  30% { transform: translateX(5px); }
+  45% { transform: translateX(2px); }
+}
+a[href="#quote-form"].caps-foot-cta .btn-arrow {
+  animation: arrow-nudge 2.5s ease-in-out infinite;
+}
+
+@keyframes form-glow {
+  0%, 100% { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  25% { box-shadow: 0 0 28px 8px rgba(178, 30, 36, 0.3); }
+  50% { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  75% { box-shadow: 0 0 28px 8px rgba(178, 30, 36, 0.3); }
+}
+#quote-form.form-glow-active {
+  animation: form-glow 1.6s ease-in-out forwards;
 }
 
 /* =================== CAPABILITIES v2 =================== */
@@ -1012,7 +1090,7 @@ button { font: inherit; }
 
 /* Progress as step bar at bottom of title block */
 .form-progress {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
   margin: 14px 0 0;
   counter-reset: step;
 }
@@ -1595,22 +1673,40 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
         <h2 class="section-title">Die Casting Capabilities</h2>
         <p class="section-lead">Verified production data. No ranges inflated for marketing.</p>
 
-        <!-- Hero stats: 3 key numbers -->
-        <div class="caps-stats">
-          <div class="caps-stat">
-            <div class="caps-stat-k">Part Weight</div>
-            <div class="caps-stat-v">0.050&nbsp;<span class="u">kg</span> &ndash; 50&nbsp;<span class="u">kg</span></div>
-            <div class="caps-stat-note">Shot weight capacity across our machine portfolio</div>
+        <!-- Hero stats: 3 key numbers + unit toggle -->
+        <div class="caps-stats-wrap">
+          <div class="unit-toggle" role="radiogroup" aria-label="Unit system">
+            <span class="unit-toggle-label" id="unit-label-imp">Imperial</span>
+            <button class="unit-toggle-track" role="switch" aria-checked="false" aria-label="Switch to metric units" id="unitSwitch">
+              <span class="unit-toggle-thumb"></span>
+            </button>
+            <span class="unit-toggle-label unit-toggle-label--dim" id="unit-label-met">Metric</span>
           </div>
-          <div class="caps-stat">
-            <div class="caps-stat-k">Tolerance</div>
-            <div class="caps-stat-v">&plusmn; 0.015<span class="u">"</span></div>
-            <div class="caps-stat-note">0.381 mm &middot; tighter available on request</div>
-          </div>
-          <div class="caps-stat">
-            <div class="caps-stat-k">Lead Time</div>
-            <div class="caps-stat-v">8&ndash;12<span class="u"> wk</span></div>
-            <div class="caps-stat-note">From approved tooling &middot; rush programs available</div>
+          <div class="caps-stats">
+            <div class="caps-stat">
+              <div class="caps-stat-k">Part Weight</div>
+              <div class="caps-stat-v">
+                <span class="unit-imp">0.11&nbsp;<span class="u">lb</span> &ndash; 110&nbsp;<span class="u">lb</span></span>
+                <span class="unit-met" hidden>0.050&nbsp;<span class="u">kg</span> &ndash; 50&nbsp;<span class="u">kg</span></span>
+              </div>
+              <div class="caps-stat-note">Shot weight capacity across our machine portfolio</div>
+            </div>
+            <div class="caps-stat">
+              <div class="caps-stat-k">Tolerance</div>
+              <div class="caps-stat-v">
+                <span class="unit-imp">&plusmn; 0.015<span class="u">&quot;</span></span>
+                <span class="unit-met" hidden>&plusmn; 0.381<span class="u"> mm</span></span>
+              </div>
+              <div class="caps-stat-note">
+                <span class="unit-imp">0.381 mm &middot; tighter available on request</span>
+                <span class="unit-met" hidden>0.015&quot; &middot; tighter available on request</span>
+              </div>
+            </div>
+            <div class="caps-stat">
+              <div class="caps-stat-k">Lead Time</div>
+              <div class="caps-stat-v">8&ndash;12<span class="u"> wk</span></div>
+              <div class="caps-stat-note">From approved tooling &middot; rush programs available</div>
+            </div>
           </div>
         </div>
 
@@ -1667,7 +1763,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
 
         <div class="caps-foot">
           <div class="caps-foot-text">High-pressure die casting for complex metal components with consistent dimensional accuracy, repeatability, and scalable production capacity.</div>
-          <a href="#quote-form" class="caps-foot-cta">Get a fast quote <svg class="btn-arrow" viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg></a>
+          <a href="#quote-form" class="caps-foot-cta">Request a Quote <svg class="btn-arrow" viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg></a>
         </div>
       </section>
 
@@ -1788,92 +1884,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
             <div class="midcta-text">Serving your industry with certified production.</div>
             <div class="midcta-sub">Upload your CAD files and get a quote started.</div>
           </div>
-          <a href="#quote-form" class="btn-onward">Start Your Quote <svg class="btn-arrow" viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg></a>
-        </div>
-      </section>
-
-      <!-- QUALIFICATION -->
-      <section id="qualification" class="reveal">
-        <div class="qual-inner">
-          <div class="section-eyebrow">Qualification</div>
-          <h2 class="section-title" style="font-size:clamp(30px,3.4vw,42px);">Is this a fit?</h2>
-          <p class="qual-body">Redstone serves mid-market OEMs and engineering-led companies. Most of our clients run annual programs starting at $50K. Not sure if you qualify? Submit a quote request and our engineers will evaluate your parts at no cost.</p>
-
-          <div class="qual-checklist" id="qual-checklist">
-            <div class="qual-item" data-qual="volume">
-              <div class="qual-checkbox">
-                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
-              </div>
-              <span>Annual program value of $50,000 or more</span>
-            </div>
-            <div class="qual-item" data-qual="units">
-              <div class="qual-checkbox">
-                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
-              </div>
-              <span>Production runs of 500 to 100,000+ units</span>
-            </div>
-            <div class="qual-item" data-qual="stage">
-              <div class="qual-checkbox">
-                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
-              </div>
-              <span>Active program or planning production transition</span>
-            </div>
-            <div class="qual-item" data-qual="type">
-              <div class="qual-checkbox">
-                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
-              </div>
-              <span>OEM, hardware company, or engineering-led organization</span>
-            </div>
-          </div>
-
-          <div class="qual-result" id="qual-result"></div>
-
-          <div class="qual-cta-row">
-            <a href="#quote-form" class="btn-primary" style="padding:14px 28px;font-size:15px;">Get a Tariff-Inclusive Quote</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- FAQ -->
-      <section id="faq" class="reveal">
-        <div class="section-eyebrow">FAQ</div>
-        <h2 class="section-title">Frequently asked questions.</h2>
-        <div class="faq-list">
-          <div class="faq-item">
-            <button class="faq-q" aria-expanded="false">
-              What are your standard lead times?
-              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
-            </button>
-            <div class="faq-a"><div class="faq-a-inner">Standard lead time for die casting production is 8&ndash;12 weeks from approved tooling. Tooling itself takes approximately 4&ndash;6 weeks. Rush programs can be accommodated on a case-by-case basis.</div></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" aria-expanded="false">
-              What materials do you work with?
-              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
-            </button>
-            <div class="faq-a"><div class="faq-a-inner">We specialize in aluminum, zinc, and copper alloys for high-pressure die casting. Common alloys include A380, A360, ZA-8, ZA-12, and C85700. Our engineering team can recommend the best material for your application.</div></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" aria-expanded="false">
-              How do you ensure quality?
-              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
-            </button>
-            <div class="faq-a"><div class="faq-a-inner">All Redstone facilities are ISO 9001 and IATF 16949 certified. We conduct in-process quality checks at every production stage and supplement internal inspection with third-party dimensional verification. Every shipment includes a Certificate of Conformance and full inspection documentation.</div></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" aria-expanded="false">
-              What is your minimum order requirement?
-              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
-            </button>
-            <div class="faq-a"><div class="faq-a-inner">We require a minimum annual program value of $50,000. Volume minimums start at 500 units per production run. We are best suited for programs with consistent, recurring demand.</div></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q" aria-expanded="false">
-              How is my program managed?
-              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
-            </button>
-            <div class="faq-a"><div class="faq-a-inner">Every program is assigned a dedicated U.S.-based program manager who serves as your primary point of contact. They coordinate quoting, tooling, production scheduling, quality documentation, and logistics from our U.S. headquarters.</div></div>
-          </div>
+          <a href="#quote-form" class="btn-onward">Request a Quote <svg class="btn-arrow" viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg></a>
         </div>
       </section>
 
@@ -1977,6 +1988,91 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
         </div>
       </section>
 
+      <!-- QUALIFICATION -->
+      <section id="qualification" class="reveal">
+        <div class="qual-inner">
+          <div class="section-eyebrow">Qualification</div>
+          <h2 class="section-title" style="font-size:clamp(30px,3.4vw,42px);">Is this a fit?</h2>
+          <p class="qual-body">Redstone serves mid-market OEMs and engineering-led companies. Most of our clients run annual programs starting at $50K. Not sure if you qualify? Submit a quote request and our engineers will evaluate your parts at no cost.</p>
+
+          <div class="qual-checklist" id="qual-checklist">
+            <div class="qual-item" data-qual="volume">
+              <div class="qual-checkbox">
+                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
+              </div>
+              <span>Annual program value of $50,000 or more</span>
+            </div>
+            <div class="qual-item" data-qual="units">
+              <div class="qual-checkbox">
+                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
+              </div>
+              <span>Production runs of 500 to 100,000+ units</span>
+            </div>
+            <div class="qual-item" data-qual="stage">
+              <div class="qual-checkbox">
+                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
+              </div>
+              <span>Active program or planning production transition</span>
+            </div>
+            <div class="qual-item" data-qual="type">
+              <div class="qual-checkbox">
+                <svg viewBox="0 0 14 14"><polyline points="2,7 6,11 12,3"/></svg>
+              </div>
+              <span>OEM, hardware company, or engineering-led organization</span>
+            </div>
+          </div>
+
+          <div class="qual-result" id="qual-result"></div>
+
+          <div class="qual-cta-row">
+            <a href="#quote-form" class="btn-primary" style="padding:14px 28px;font-size:15px;">Request a Quote</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="reveal">
+        <div class="section-eyebrow">FAQ</div>
+        <h2 class="section-title">Frequently asked questions.</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What are your standard lead times?
+              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Standard lead time for die casting production is 8&ndash;12 weeks from approved tooling. Tooling itself takes approximately 4&ndash;6 weeks. Rush programs can be accommodated on a case-by-case basis.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What materials do you work with?
+              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">We specialize in aluminum, zinc, and copper alloys for high-pressure die casting. Common alloys include A380, A360, ZA-8, ZA-12, and C85700. Our engineering team can recommend the best material for your application.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How do you ensure quality?
+              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">All Redstone facilities are ISO 9001 and IATF 16949 certified. We conduct in-process quality checks at every production stage and supplement internal inspection with third-party dimensional verification. Every shipment includes a Certificate of Conformance and full inspection documentation.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              What is your minimum order requirement?
+              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">We require a minimum annual program value of $50,000. Volume minimums start at 500 units per production run. We are best suited for programs with consistent, recurring demand.</div></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" aria-expanded="false">
+              How is my program managed?
+              <span class="faq-arrow"><svg viewBox="0 0 14 14"><path d="M7 1 L7 13 M1 7 L13 7"/></svg></span>
+            </button>
+            <div class="faq-a"><div class="faq-a-inner">Every program is assigned a dedicated U.S.-based program manager who serves as your primary point of contact. They coordinate quoting, tooling, production scheduling, quality documentation, and logistics from our U.S. headquarters.</div></div>
+          </div>
+        </div>
+      </section>
+
     </div><!-- /.content-col -->
 
     <!-- RIGHT: sticky form -->
@@ -1996,7 +2092,6 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="form-progress" id="form-progress">
             <div class="form-progress-seg current">Parts</div>
             <div class="form-progress-seg">Specs</div>
-            <div class="form-progress-seg">Files</div>
             <div class="form-progress-seg">Contact</div>
           </div>
         </div>
@@ -2052,7 +2147,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
               <label class="form-label" for="annual-spend">Estimated Annual Spend <span class="req">*</span></label>
               <select class="form-control" id="annual-spend">
                 <option value="">Select Range...</option>
-                <option value="0-50k">$0 &ndash; $50K</option>
+                <option value="0-50k">Under $50K (prototyping only)</option>
                 <option value="50k-150k">$50K &ndash; $150K</option>
                 <option value="150k-300k">$150K &ndash; $300K</option>
                 <option value="300k-750k">$300K &ndash; $750K</option>
@@ -2087,35 +2182,6 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <!-- STEP 3 -->
           <div class="form-step" data-step="3">
             <div class="form-field">
-              <label class="form-label">Preferred Manufacturing Locations</label>
-              <span class="form-label-sub">Which countries are you interested in? <span class="req">*</span></span>
-              <div class="radio-group">
-                <label class="radio-option"><input type="radio" name="preferred_location" value="usa" /> USA</label>
-                <label class="radio-option"><input type="radio" name="preferred_location" value="mexico" /> Mexico</label>
-                <label class="radio-option"><input type="radio" name="preferred_location" value="india" /> India</label>
-                <label class="radio-option"><input type="radio" name="preferred_location" value="china" /> China</label>
-                <label class="radio-option"><input type="radio" name="preferred_location" value="taiwan" /> Taiwan</label>
-              </div>
-            </div>
-            <div class="form-field">
-              <label class="form-label" for="overseas-experience">Experience with Overseas Manufacturing</label>
-              <select class="form-control" id="overseas-experience">
-                <option value="">Select your experience level...</option>
-                <option value="first-time">First time</option>
-                <option value="some-experience">Some experience</option>
-                <option value="experienced">Experienced</option>
-                <option value="currently-overseas">Currently manufacturing overseas</option>
-              </select>
-            </div>
-            <div class="form-nav">
-              <button type="button" class="btn-form-back" data-back>&larr; Back</button>
-              <button type="button" class="btn-form" data-next>Continue <svg class="btn-arrow" viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg></button>
-            </div>
-          </div>
-
-          <!-- STEP 4 -->
-          <div class="form-step" data-step="4">
-            <div class="form-field">
               <label class="form-label" for="full-name">Full Name <span class="req">*</span></label>
               <input type="text" class="form-control" id="full-name" placeholder="Maria Torres" autocomplete="name" />
               <div class="form-error" id="name-error">Full name is required.</div>
@@ -2134,14 +2200,6 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
               <label class="form-label" for="phone">Phone <span class="req">*</span></label>
               <input type="tel" class="form-control" id="phone" placeholder="+1 555 000 0000" autocomplete="tel" />
               <div class="form-error" id="phone-error">Phone number is required.</div>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Preferred Contact Method</label>
-              <div class="radio-group-inline">
-                <label class="radio-option"><input type="radio" name="preferred_contact" value="phone-call" checked /> Phone Call</label>
-                <label class="radio-option"><input type="radio" name="preferred_contact" value="video-meeting" /> Video Meeting</label>
-                <label class="radio-option"><input type="radio" name="preferred_contact" value="email-first" /> Email First</label>
-              </div>
             </div>
             <div class="form-nav">
               <button type="button" class="btn-form-back" data-back>&larr; Back</button>
@@ -2219,7 +2277,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="facility-hours">Mon&ndash;Fri &middot; 9AM&ndash;5PM local</div>
         </div>
         <div class="facility-map">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d120839.57!2d-98.26!3d19.04!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85cfc0bd5e22e5c1%3A0x2290a517452b0f01!2sPuebla!5e0!3m2!1sen!2sus!4v1" loading="lazy" title="Puebla, Mexico"></iframe>
+<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;color:var(--rs-slate);letter-spacing:0.04em;">MAP</div>
         </div>
       </div>
       <div class="facility-card">
@@ -2229,7 +2287,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="facility-hours">Mon&ndash;Fri &middot; 9AM&ndash;5PM local</div>
         </div>
         <div class="facility-map">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d470029.38!2d70.58!3d22.25!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3959c98ac71cdf0f%3A0x76dd15cfbe93ad3a!2sGujarat!5e0!3m2!1sen!2sus!4v1" loading="lazy" title="Gujarat, India"></iframe>
+<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;color:var(--rs-slate);letter-spacing:0.04em;">MAP</div>
         </div>
       </div>
       <div class="facility-card">
@@ -2239,7 +2297,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="facility-hours">Mon&ndash;Fri &middot; 9AM&ndash;5PM local</div>
         </div>
         <div class="facility-map">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235013.38!2d114.05!3d22.54!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3403f5bc0e8e3651%3A0x36a08b75ca8b8c98!2sShenzhen!5e0!3m2!1sen!2sus!4v1" loading="lazy" title="Shenzhen, China"></iframe>
+<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;color:var(--rs-slate);letter-spacing:0.04em;">MAP</div>
         </div>
       </div>
       <div class="facility-card">
@@ -2249,7 +2307,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="facility-hours">Mon&ndash;Fri &middot; 9AM&ndash;5PM local</div>
         </div>
         <div class="facility-map">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d467189.50!2d-46.87!3d-23.55!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce448183a461d1%3A0x9ba94b08ff335bae!2sSao%20Paulo!5e0!3m2!1sen!2sus!4v1" loading="lazy" title="Sao Paulo, Brazil"></iframe>
+<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:13px;color:var(--rs-slate);letter-spacing:0.04em;">MAP</div>
         </div>
       </div>
     </div>
@@ -2263,7 +2321,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
   <div class="footer-inner">
     <div>
       <a href="#hero" class="footer-logo" aria-label="Redstone Manufacturing"><img src="assets/redstone-logo.svg" alt="Redstone Manufacturing" /></a>
-      <div class="footer-tagline">A U.S. manufacturer with overseas production facilities across Mexico, Brazil, China, India, Taiwan, and Vietnam. One point of contact from quote to shipment.</div>
+      <div class="footer-tagline">A U.S. manufacturer with overseas production facilities across Mexico, Brazil, China, India, and Taiwan. One point of contact from quote to shipment.</div>
     </div>
     <div>
       <div class="footer-contact-title">Contact</div>
@@ -2286,6 +2344,34 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
     </div>
   </div>
 </footer>
+
+<!-- MOBILE BOTTOM BAR -->
+<div id="mobile-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;background:#fff;border-top:1px solid var(--rs-line);padding:12px 24px;padding-bottom:max(12px,env(safe-area-inset-bottom));align-items:center;justify-content:space-between;gap:12px;">
+  <a href="tel:+13309752820" style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--rs-ink);text-decoration:none;">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--rs-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    (330) 975-2820
+  </a>
+  <a href="#quote-form" style="display:inline-flex;align-items:center;justify-content:center;background:var(--rs-red);color:#fff;padding:14px 28px;font-family:var(--rs-font-display);font-size:15px;font-weight:500;letter-spacing:-0.01em;border:0;text-decoration:none;">Request a Quote</a>
+</div>
+
+<!-- EXIT INTENT MODAL -->
+<div id="exit-overlay" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);"></div>
+<div id="exit-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:101;background:#fff;max-width:480px;width:calc(100% - 48px);border:1px solid var(--rs-line);">
+  <button onclick="document.getElementById('exit-overlay').style.display='none';document.getElementById('exit-modal').style.display='none';" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--rs-slate);line-height:1;">&times;</button>
+  <div style="padding:48px 36px 40px;">
+    <div style="font-family:var(--rs-font-display);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--rs-ink);margin-bottom:12px;">Before you go&mdash;</div>
+    <p style="font-size:15px;color:var(--rs-slate);margin-bottom:28px;line-height:1.5;">Get a quick feasibility check on your die casting part. No commitment.</p>
+    <div style="margin-bottom:14px;">
+      <label style="font:500 11px/1 monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--rs-ink);display:block;margin-bottom:8px;">Work Email</label>
+      <input type="email" id="exit-email" placeholder="you@company.com" style="width:100%;border:0;border-bottom:1px solid var(--rs-ink);padding:6px 0;font-size:15px;font-family:var(--rs-font-display);outline:0;background:transparent;color:var(--rs-ink);" />
+    </div>
+    <div style="margin-bottom:24px;">
+      <label style="font:500 11px/1 monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--rs-ink);display:block;margin-bottom:8px;">Describe Your Part</label>
+      <textarea id="exit-desc" rows="2" placeholder="Material, dimensions, annual volume..." style="width:100%;border:0;border-bottom:1px solid var(--rs-ink);padding:6px 0;font-size:15px;font-family:var(--rs-font-display);outline:0;resize:vertical;background:transparent;color:var(--rs-ink);"></textarea>
+    </div>
+    <button onclick="document.getElementById('exit-overlay').style.display='none';document.getElementById('exit-modal').style.display='none';" style="width:100%;background:var(--rs-red);color:#fff;border:0;padding:18px;font-family:var(--rs-font-display);font-size:16px;font-weight:500;cursor:pointer;">Send Feasibility Check</button>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -2347,7 +2433,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
   // Form step navigation
   var steps = document.querySelectorAll('.form-step');
   var progSegs = document.querySelectorAll('.form-progress-seg');
-  var current = 1; var total = 4;
+  var current = 1; var total = 3;
   function showStep(n){
     steps.forEach(function(s){ s.classList.remove('active'); });
     var target = document.querySelector('[data-step="'+n+'"]');
@@ -2362,11 +2448,15 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
     if (form) form.scrollIntoView ? form.scrollIntoView({block:'nearest'}) : null;
   }
   function validateStep1(){
+    var valid = true;
+    var stage = document.getElementById('current-stage');
+    if (!stage.value) { stage.classList.add('field-error'); valid = false; } else { stage.classList.remove('field-error'); }
     var checked = document.querySelectorAll('input[name="main_reason"]:checked').length > 0;
     document.getElementById('reason-error').classList.toggle('visible', !checked);
-    return checked;
+    if (!checked) valid = false;
+    return valid;
   }
-  function validateStep4(){
+  function validateStep3(){
     var valid = true;
     var check = function(id, errId, isEmail){
       var el = document.getElementById(id); var err = document.getElementById(errId);
@@ -2393,7 +2483,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
   });
   var submitBtn = document.getElementById('submit-btn');
   if (submitBtn) submitBtn.addEventListener('click', function(){
-    if (!validateStep4()) return;
+    if (!validateStep3()) return;
     steps.forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('form-progress').style.display = 'none';
     document.getElementById('form-success').classList.add('visible');
@@ -2432,6 +2522,79 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
     var y = t.getBoundingClientRect().top + window.scrollY - 72;
     window.scrollTo({ top: y, behavior: 'smooth' });
   });
+
+  // Mobile bottom bar
+  (function(){
+    var bar = document.getElementById('mobile-bar');
+    if (!bar || window.innerWidth >= 1080) return;
+    bar.style.display = 'flex';
+    var form = document.getElementById('quote-form');
+    if (form) {
+      var io = new IntersectionObserver(function(entries){
+        bar.style.display = entries[0].isIntersecting ? 'none' : 'flex';
+      }, {threshold: 0.1});
+      io.observe(form);
+    }
+  })();
+
+  // Exit intent
+  (function(){
+    var shown = false;
+    document.addEventListener('mouseout', function(e){
+      if (shown || e.clientY > 5) return;
+      shown = true;
+      document.getElementById('exit-overlay').style.display = 'block';
+      document.getElementById('exit-modal').style.display = 'block';
+    });
+    var ov = document.getElementById('exit-overlay');
+    if (ov) ov.addEventListener('click', function(){ ov.style.display='none'; document.getElementById('exit-modal').style.display='none'; });
+  })();
+
+  // Form glow on CTA click
+  (function(){
+    var form = document.getElementById('quote-form');
+    if (!form) return;
+    document.querySelectorAll('a[href="#quote-form"]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        form.scrollIntoView({behavior:'smooth', block:'center'});
+        form.classList.remove('form-glow-active');
+        void form.offsetWidth;
+        form.classList.add('form-glow-active');
+        form.addEventListener('animationend', function(){
+          form.classList.remove('form-glow-active');
+        }, {once:true});
+      });
+    });
+  })();
+
+  // Unit toggle (Imperial ↔ Metric)
+  (function(){
+    var sw = document.getElementById('unitSwitch');
+    if (!sw) return;
+    var impEls = document.querySelectorAll('.unit-imp');
+    var metEls = document.querySelectorAll('.unit-met');
+    var lblImp = document.getElementById('unit-label-imp');
+    var lblMet = document.getElementById('unit-label-met');
+    sw.addEventListener('click', function(){
+      var isMetric = sw.getAttribute('aria-checked') === 'true';
+      if (isMetric) {
+        sw.setAttribute('aria-checked','false');
+        sw.setAttribute('aria-label','Switch to metric units');
+        impEls.forEach(function(e){ e.hidden = false; });
+        metEls.forEach(function(e){ e.hidden = true; });
+        lblImp.classList.remove('unit-toggle-label--dim');
+        lblMet.classList.add('unit-toggle-label--dim');
+      } else {
+        sw.setAttribute('aria-checked','true');
+        sw.setAttribute('aria-label','Switch to imperial units');
+        impEls.forEach(function(e){ e.hidden = true; });
+        metEls.forEach(function(e){ e.hidden = false; });
+        lblMet.classList.remove('unit-toggle-label--dim');
+        lblImp.classList.add('unit-toggle-label--dim');
+      }
+    });
+  })();
 })();
 </script>
 </body>

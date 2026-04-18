@@ -258,23 +258,22 @@ button { font: inherit; }
 /* =================== CLIENT LOGOS =================== */
 #logos { padding: 56px 48px; border-bottom: 1px solid var(--rs-line); }
 .logos-inner { max-width: 1440px; margin: 0 auto; }
-.logos-header {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
 .logos-eyebrow {
-  font-size: 13px; font-weight: 500; color: var(--rs-red);
-  letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 11px; font-weight: 500; color: var(--rs-slate);
+  letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px;
 }
 .logos-title {
   font-family: var(--rs-font-display);
-  font-size: clamp(22px, 2.2vw, 28px);
-  font-weight: 400;
+  font-size: 28px; font-weight: 700;
   letter-spacing: var(--rs-tracking-tight);
-  color: var(--rs-ink);
-  max-width: 40ch;
+  color: var(--rs-ink); line-height: 1.2; margin-bottom: 12px;
 }
+.logos-subtitle {
+  font-size: 15px; color: var(--rs-slate);
+  letter-spacing: var(--rs-tracking-tight);
+  margin-bottom: 32px;
+}
+.logos-divider { height: 1px; background: var(--rs-line); margin-bottom: 40px; }
 .logos-grid {
   display: flex;
   gap: 32px;
@@ -299,7 +298,7 @@ button { font: inherit; }
   padding: 0 32px;
   display: flex; align-items: center; justify-content: center;
 }
-.logo-tile img { height: 48px; width: auto; object-fit: contain; filter: grayscale(1) opacity(0.7); transition: filter var(--rs-dur-base); }
+.logo-tile img { height: 48px; max-width: 140px; width: auto; object-fit: contain; filter: grayscale(1) opacity(0.7); transition: filter var(--rs-dur-base); }
 .logo-tile:hover img { filter: grayscale(0) opacity(1); }
 
 @media (max-width: 1000px) {
@@ -307,8 +306,10 @@ button { font: inherit; }
   .logo-tile img { height: 40px; }
 }
 @media (max-width: 560px) {
+  #logos { padding: 40px 24px; }
   .logo-tile { min-width: 120px; padding: 0 16px; }
   .logo-tile img { height: 36px; }
+  .logos-title { font-size: 22px; }
 }
 
 /* =================== TWO-COL REGION =================== */
@@ -1099,15 +1100,16 @@ a[href="#quote-form"].caps-foot-cta .btn-arrow {
   letter-spacing: 0.14em; text-transform: uppercase;
   margin-bottom: 10px;
 }
-.form-pulse {
-  width: 6px; height: 6px; border-radius: 0;
-  background: #3FB950;
-  box-shadow: 0 0 0 3px rgba(63,185,80,0.2);
+.online-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34,197,94,0.5);
   animation: pulse-green 2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 @keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(63,185,80,0.2); }
-  50% { box-shadow: 0 0 0 5px rgba(63,185,80,0.05); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); }
 }
 .form-title {
   font-family: var(--rs-font-display);
@@ -1664,10 +1666,10 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
 <!-- ========== CLIENT LOGOS ========== -->
 <section id="logos" aria-label="Clients">
   <div class="logos-inner">
-    <div class="logos-header">
-      <div class="logos-eyebrow">Trusted By</div>
-      <div class="logos-title">Manufacturing programs for Tier&nbsp;1 suppliers, Fortune 500 OEMs, and hardware-first startups.</div>
-    </div>
+    <div class="logos-eyebrow">Trusted By</div>
+    <h2 class="logos-title">Engineering programs trusted by industry leaders</h2>
+    <p class="logos-subtitle">Manufacturing programs for Tier&nbsp;1 suppliers, Fortune 500 OEMs, and hardware-first startups.</p>
+    <div class="logos-divider"></div>
     <div class="logos-viewport">
       <div class="logos-grid">
         <div class="logo-tile"><img src="assets/client-logo-mit.jpg" alt="MIT" loading="lazy" /></div>
@@ -1677,7 +1679,6 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
         <div class="logo-tile"><img src="assets/client-logo-mahindra.png" alt="Mahindra" loading="lazy" /></div>
         <div class="logo-tile"><img src="assets/client-logo-gamestop.png" alt="GameStop" loading="lazy" /></div>
         <div class="logo-tile sm"><img src="assets/client-logo-libman.png" alt="Libman" loading="lazy" /></div>
-        <!-- duplicate for seamless loop -->
         <div class="logo-tile" aria-hidden="true"><img src="assets/client-logo-mit.jpg" alt="" loading="lazy" /></div>
         <div class="logo-tile" aria-hidden="true"><img src="assets/client-logo-amazon.png" alt="" /></div>
         <div class="logo-tile" aria-hidden="true"><img src="assets/client-logo-halliburton.png" alt="" /></div>
@@ -2111,8 +2112,8 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
         <div class="form-strip"></div>
         <div class="form-header" data-date="2026">
           <div class="form-eyebrow-row">
-            <span class="form-pulse"></span>
-            Engineers online
+            <span class="online-dot"></span>
+            Engineers are online
           </div>
           <div class="form-title">Get a die casting quote</div>
           <span class="form-badge">
@@ -2158,7 +2159,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
                 <label class="radio-option"><input type="checkbox" name="main_reason" value="reduce-quality" /> Reduce Quality Issues</label>
                 <label class="radio-option"><input type="checkbox" name="main_reason" value="faster-lead" /> Faster Lead Times</label>
                 <label class="radio-option"><input type="checkbox" name="main_reason" value="new-part" /> New Part, No Supplier Currently</label>
-                <label class="radio-option"><input type="checkbox" name="main_reason" value="china-exit" /> Cannot Be Produced in China</label>
+                <label class="radio-option"><input type="checkbox" name="main_reason" value="china-exit" /> Reshoring / Supplier Change</label>
               </div>
               <div class="form-error" id="reason-error">Please select at least one reason.</div>
             </div>
@@ -2241,7 +2242,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
           <div class="form-success" id="form-success">
             <div class="form-success-icon">&#10003;</div>
             <div class="form-success-title">Thank you.</div>
-            <div class="form-success-body">Our engineering team will review your submission and respond within 24 hours. Check your inbox for a confirmation.</div>
+            <div class="form-success-body">Our engineering team will review your submission and respond within 24–48 hours. Check your inbox for a confirmation.</div>
           </div>
         </div>
       </form>
@@ -2260,7 +2261,7 @@ textarea.form-control { resize: vertical; font-family: var(--rs-font-body); min-
         Request a Quote
         <svg viewBox="0 0 14 14"><path d="M3 11 L11 3 M5 3 L11 3 L11 9"/></svg>
       </a>
-      <div class="finalcta-subline">Detailed quote in 24&ndash;48 hours &middot; Tariffs, freight, and tooling included</div>
+      <div class="finalcta-subline">Detailed quote in 24&ndash;48 hours &middot; Freight and tooling included</div>
     </div>
     <div class="finalcta-right">
       <div>

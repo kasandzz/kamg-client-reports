@@ -263,6 +263,49 @@ li { margin: 4px 0; font-size: 0.9em; }
   </div>
 </div>
 
+<!-- DEPLOYMENT GAP -->
+<h2>Critical: 20 Orphaned Pages Not In Source Repo</h2>
+<div class="note crit-note">
+  <strong>Infrastructure gap:</strong> Only the master die-casting LP exists in the <code>redstone-lps</code> Vercel repo. The other 20 pages are NOT in source control and are NOT using the Vercel design system (<code>colors_and_type.css</code>). They were deployed directly without being committed.
+</div>
+
+<table>
+  <tr>
+    <th>Property</th>
+    <th>Vercel Repo (Master LP)</th>
+    <th>20 Orphaned Pages (Live)</th>
+  </tr>
+  <tr>
+    <td>Font</td>
+    <td><strong>ZT Nature</strong> (licensed brand font from Figma) with Host Grotesk fallback</td>
+    <td><strong>Host Grotesk</strong> from Google Fonts (no ZT Nature). 3 pages use Inter.</td>
+  </tr>
+  <tr>
+    <td>Design tokens</td>
+    <td>Full token system: <code>--rs-radius-none: 0px</code>, semantic colors, spacing scale</td>
+    <td>Inline CSS with hardcoded values, inconsistent token usage</td>
+  </tr>
+  <tr>
+    <td>Form pipeline</td>
+    <td>Dual-writes to Vercel Blob + BigQuery (<code>kamg_redstone.lp_leads</code>)</td>
+    <td>Unknown -- likely HubSpot direct or no pipeline</td>
+  </tr>
+  <tr>
+    <td>Source control</td>
+    <td><code>kasandzz/redstone-lps</code> on GitHub, auto-deploy on push</td>
+    <td>Not in any repo. No version history. No rollback capability.</td>
+  </tr>
+  <tr>
+    <td>Canonical URLs</td>
+    <td>Correct (theredstonemanufacturing.com)</td>
+    <td>Broken -- pointing to GitHub Pages or wrong domain</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>Recommendation:</strong> All 20 pages should be migrated into the <code>redstone-lps</code> Vercel repo so they inherit the shared design system (ZT Nature font, square corners, proper tokens), the form-to-BigQuery pipeline, and version control. This is the single highest-leverage fix -- it resolves the font issue, design token inconsistency, and form pipeline in one move.
+</div>
+
 <!-- EXECUTIVE SUMMARY -->
 <h2>Executive Summary</h2>
 <div class="note crit-note">
@@ -792,19 +835,18 @@ li { margin: 4px 0; font-size: 0.9em; }
 </table>
 
 <!-- P1: FONT -->
-<h2>P1: Font -- Host Grotesk to Inter</h2>
+<h2>P1: Font -- Align All Pages to ZT Nature (Vercel Design System)</h2>
 
-<div class="fix-row">
-  <div class="fix-before"><span class="fix-label">Before (Google Fonts link)</span>&lt;link href="...family=Host+Grotesk:ital,wght@0,300..800;1,300..800..."&gt;</div>
-  <div class="fix-after"><span class="fix-label">After</span>&lt;link href="...family=Inter:wght@300;400;500;600;700;800..."&gt;</div>
+<div class="note crit-note">
+  <strong>Correction from Vercel comparison:</strong> The Vercel repo's <code>colors_and_type.css</code> uses <strong>ZT Nature</strong> (licensed Zetafonts brand font from Figma) as the primary display font, with Host Grotesk as fallback. Our memory said "Inter" but the actual source of truth is ZT Nature. The 20 orphaned pages load Host Grotesk from Google Fonts and never reference ZT Nature.
 </div>
 
 <div class="fix-row">
-  <div class="fix-before"><span class="fix-label">Before (CSS variable)</span>--rs-font-display: 'Host Grotesk', sans-serif;</div>
-  <div class="fix-after"><span class="fix-label">After</span>--rs-font-display: 'Inter', sans-serif;</div>
+  <div class="fix-before"><span class="fix-label">Before (20 orphaned pages)</span>&lt;link href="...family=Host+Grotesk..."&gt; with --rs-font-display: 'Host Grotesk'</div>
+  <div class="fix-after"><span class="fix-label">After (match Vercel repo)</span>Load /fonts/ZTNature-*.woff2 locally. --rs-font-display: 'ZT Nature', 'Host Grotesk', sans-serif</div>
 </div>
 
-<div class="note">3 pages (precision-machining-services, sheet-metal-fabrication-company, sheet-metal-fabrication-services) already use Inter correctly. The other 18 need updating. Fix in the shared <code>colors_and_type.css</code> file to cascade to all pages.</div>
+<div class="note">Best fix: migrate all 20 pages into the <code>redstone-lps</code> Vercel repo. They'll automatically inherit <code>colors_and_type.css</code> with ZT Nature, the full design token system, and the BQ form pipeline.</div>
 
 <!-- P1: RED DECORATIVE -->
 <h2>P1: Red (#B21E24) Used Decoratively -- Before & After</h2>

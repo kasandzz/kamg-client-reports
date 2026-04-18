@@ -146,6 +146,12 @@ html,body{background:var(--gray-75);color:var(--gray-700);font-family:var(--body
 .s-cadence{background:var(--gray-100);color:var(--gray-700);border-color:var(--gray-250)}
 .s-done{background:var(--green-soft);color:var(--green);border-color:rgba(31,157,85,0.2)}
 .bar-done{background:linear-gradient(90deg,var(--green) 0%,#177540 100%)}
+.toggle-wrap{position:relative;display:inline-block;width:38px;height:22px;vertical-align:middle}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--gray-300);border-radius:22px;transition:background .25s;cursor:pointer}
+.toggle-track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+.toggle-wrap input:checked+.toggle-track{background:var(--green)}
+.toggle-wrap input:checked+.toggle-track::after{transform:translateX(16px)}
 
 /* TIMELINE (weeks) */
 .timeline-toolbar{padding:20px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
@@ -291,17 +297,17 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
     <div class="kpi-strip">
       <div class="kpi">
         <div class="kpi-label">Critical Items</div>
-        <div class="kpi-val red">6</div>
+        <div class="kpi-val red">8</div>
         <div class="kpi-sub">Ticket sales &amp; show rate</div>
       </div>
       <div class="kpi">
         <div class="kpi-label">High Priority</div>
-        <div class="kpi-val amber">8</div>
+        <div class="kpi-val amber">7</div>
         <div class="kpi-sub">Data, MA, booking, reporting</div>
       </div>
       <div class="kpi">
         <div class="kpi-label">Medium</div>
-        <div class="kpi-val blue">6</div>
+        <div class="kpi-val blue">5</div>
         <div class="kpi-sub">LTV, niche pages, personalisation</div>
       </div>
       <div class="kpi">
@@ -433,7 +439,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
 
       <div class="gantt-body">
       <div class="gantt-now-overlay"></div>
-      <div class="gantt-group critical"><span class="marker"></span>Critical <span class="count">6 items</span></div>
+      <div class="gantt-group critical"><span class="marker"></span>Critical <span class="count" style="display:flex;align-items:center;gap:10px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--gray-500)">Show done<span class="toggle-wrap"><input type="checkbox" id="toggleDone" checked onchange="document.querySelectorAll('.gantt-row-done').forEach(r=>r.style.display=this.checked?'grid':'none')"><span class="toggle-track"></span></span></label></span></div>
 
       <!-- Critical rows -->
       <div class="gantt-row">
@@ -445,7 +451,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-bar" style="left:0%;width:25%;background:linear-gradient(90deg,var(--purple) 0%,#502987 100%)">Approval</div>
         </div>
       </div>
-      <div class="gantt-row" style="opacity:0.65">
+      <div class="gantt-row gantt-row-done" style="opacity:0.65">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ticket">Ticket Sales</span></div>
         <div class="gantt-label"><span class="pri p0"></span><span class="t" style="text-decoration:line-through;color:var(--gray-500)">Educator niche LP</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
         <div class="gantt-track">
@@ -454,7 +460,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-bar bar-done" style="left:0%;width:12.5%">Done</div>
         </div>
       </div>
-      <div class="gantt-row" style="opacity:0.65">
+      <div class="gantt-row gantt-row-done" style="opacity:0.65">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ticket">Ticket Sales</span></div>
         <div class="gantt-label"><span class="pri p0"></span><span class="t" style="text-decoration:line-through;color:var(--gray-500)">Therapist niche LP</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
         <div class="gantt-track">
@@ -463,7 +469,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-bar bar-done" style="left:0%;width:12.5%">Done</div>
         </div>
       </div>
-      <div class="gantt-row" style="opacity:0.65">
+      <div class="gantt-row gantt-row-done" style="opacity:0.65">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ticket">Ticket Sales</span></div>
         <div class="gantt-label"><span class="pri p0"></span><span class="t" style="text-decoration:line-through;color:var(--gray-500)">Coach niche LP</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
         <div class="gantt-track">
@@ -472,13 +478,31 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-bar bar-done" style="left:0%;width:12.5%">Done</div>
         </div>
       </div>
-      <div class="gantt-row" style="opacity:0.65">
+      <div class="gantt-row gantt-row-done" style="opacity:0.65">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ticket">Ticket Sales</span></div>
         <div class="gantt-label"><span class="pri p0"></span><span class="t" style="text-decoration:line-through;color:var(--gray-500)">Attorney niche LP</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
         <div class="gantt-track">
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-bar bar-done" style="left:0%;width:12.5%">Done</div>
+        </div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-book">Booking %</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">LP with application form + calendar</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="right:12px;left:auto;width:auto;background:var(--gray-300);color:var(--gray-700);font-size:9px;padding:0 10px">Future</div>
+        </div>
+      </div>
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-show">Show Rate %</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Email rewrite (show rate %)</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:12.5%;width:37.5%">Rewrite &rarr; ship</div>
         </div>
       </div>
       <div class="gantt-row">
@@ -491,7 +515,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         </div>
       </div>
 
-      <div class="gantt-group high"><span class="marker"></span>High <span class="count">8 items</span></div>
+      <div class="gantt-group high"><span class="marker"></span>High <span class="count">7 items</span></div>
 
       <div class="gantt-row">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ma">MA Success</span></div>
@@ -499,7 +523,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         <div class="gantt-track">
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
-          <div class="gantt-bar bar-p1" style="left:12.5%;width:37.5%">Test cycles</div>
+          <div class="gantt-bar bar-p1" style="left:25%;width:37.5%">Test cycles</div>
         </div>
       </div>
       <div class="gantt-row">
@@ -527,15 +551,6 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-bar bar-p1" style="left:25%;width:37.5%">Test</div>
-        </div>
-      </div>
-      <div class="gantt-row">
-        <div class="gantt-kpi"><span class="kpi-pill kpi-show">Show Rate %</span></div>
-        <div class="gantt-label"><span class="pri p1"></span><span class="t">Email rewrite (show rate %)</span><div class="own ka">KA</div></div>
-        <div class="gantt-track">
-          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
-          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
-          <div class="gantt-bar bar-p1" style="left:12.5%;width:37.5%">Rewrite &rarr; ship</div>
         </div>
       </div>
       <div class="gantt-row">
@@ -567,7 +582,7 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
         </div>
       </div>
 
-      <div class="gantt-group medium"><span class="marker"></span>Medium <span class="count">6 items</span></div>
+      <div class="gantt-group medium"><span class="marker"></span>Medium <span class="count">5 items</span></div>
 
       <div class="gantt-row">
         <div class="gantt-kpi"><span class="kpi-pill kpi-ticket">Ticket Sales</span></div>
@@ -596,15 +611,6 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
           <div class="gantt-bar bar-p2" style="left:37.5%;width:50%">Research &rarr; tracker</div>
-        </div>
-      </div>
-      <div class="gantt-row">
-        <div class="gantt-kpi"><span class="kpi-pill kpi-book">Booking %</span></div>
-        <div class="gantt-label"><span class="pri p2"></span><span class="t">LP with application form + calendar</span><div class="own ka">KA</div><div class="own rh">RH</div></div>
-        <div class="gantt-track">
-          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
-          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
-          <div class="gantt-bar bar-p2" style="right:12px;left:auto;width:auto;background:var(--gray-300);color:var(--gray-700);font-size:9px;padding:0 10px">Future</div>
         </div>
       </div>
       <div class="gantt-row">
@@ -657,5 +663,25 @@ footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gr
   </div>
 </footer>
 
+<script>
+(function sortGantt(){
+  document.querySelectorAll('.gantt-group').forEach(g=>{
+    const rows=[];
+    let sib=g.nextElementSibling;
+    while(sib&&!sib.classList.contains('gantt-group')&&!sib.classList.contains('gantt-legend')){
+      if(sib.classList.contains('gantt-row')){rows.push(sib)}
+      sib=sib.nextElementSibling;
+    }
+    rows.sort((a,b)=>{
+      const getLeft=r=>{const bar=r.querySelector('.gantt-bar');if(!bar)return 999;const s=bar.style.left;if(s==='auto'||!s)return 999;return parseFloat(s)};
+      const isDone=r=>r.classList.contains('gantt-row-done');
+      if(isDone(a)&&!isDone(b))return 1;
+      if(!isDone(a)&&isDone(b))return -1;
+      return getLeft(a)-getLeft(b);
+    });
+    rows.forEach(r=>r.parentNode.insertBefore(r,sib));
+  });
+})();
+</script>
 </body>
 </html>

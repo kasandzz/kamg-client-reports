@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone LP Audit -- Eric's Rules + Google Ads | 2026-04-18</title>
+<style>
+:root {
+  --bg: #FFFFFF;
+  --surface: #F5F5F5;
+  --surface-alt: #EFEFEF;
+  --fg: #000000;
+  --fg-secondary: #666666;
+  --fg-muted: #999999;
+  --red: #B21E24;
+  --green: #16a34a;
+  --blue: #2563eb;
+  --orange: #ea580c;
+  --yellow: #ca8a04;
+  --line: #E0E0E0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.5;
+  padding: 0;
+}
+.page-header {
+  background: #000;
+  color: #fff;
+  padding: 60px 40px;
+  border-bottom: 3px solid var(--red);
+}
+.page-header h1 {
+  font-size: 2.2em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.page-header .subtitle {
+  font-size: 1em;
+  color: #999;
+  font-weight: 400;
+}
+.page-header .date {
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 12px;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+
+/* Score strip */
+.score-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin-bottom: 40px;
+}
+.score-card {
+  background: var(--bg);
+  padding: 24px;
+  text-align: center;
+}
+.score-card .num {
+  font-size: 2.4em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.score-card .num.red { color: var(--red); }
+.score-card .num.orange { color: var(--orange); }
+.score-card .num.green { color: var(--green); }
+.score-card .num.blue { color: var(--blue); }
+.score-card .label {
+  font-size: 0.75em;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* Sections */
+h2 {
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 48px 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+h3 {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin: 32px 0 12px 0;
+}
+h4 {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 20px 0 8px 0;
+  color: var(--fg-secondary);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 24px 0;
+  font-size: 0.88em;
+}
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid var(--line);
+  vertical-align: top;
+}
+th {
+  background: #000;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+tr:nth-child(even) { background: var(--surface); }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tag-fail { background: #fde8e8; color: var(--red); border: 1px solid var(--red); }
+.tag-pass { background: #e8fde8; color: var(--green); border: 1px solid var(--green); }
+.tag-warn { background: #fef3cd; color: var(--orange); border: 1px solid var(--orange); }
+.tag-p0 { background: var(--red); color: #fff; }
+.tag-p1 { background: var(--orange); color: #fff; }
+.tag-p2 { background: var(--blue); color: #fff; }
+
+/* Fix rows */
+.fix-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin: 8px 0;
+}
+.fix-before, .fix-after {
+  padding: 12px 16px;
+  font-size: 0.85em;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  word-break: break-word;
+}
+.fix-before {
+  background: #fef2f2;
+  color: var(--red);
+}
+.fix-after {
+  background: #f0fdf4;
+  color: var(--green);
+}
+.fix-label {
+  font-family: Inter, sans-serif;
+  font-size: 0.7em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Collapsible page sections */
+details {
+  border: 1px solid var(--line);
+  margin: 8px 0;
+}
+details summary {
+  padding: 14px 16px;
+  font-weight: 600;
+  font-size: 0.92em;
+  cursor: pointer;
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+details summary:hover { background: var(--surface-alt); }
+details[open] summary { border-bottom: 1px solid var(--line); }
+details .detail-body { padding: 16px; }
+
+.issue-count {
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 2px 10px;
+}
+
+/* Matrix */
+.matrix-wrap { overflow-x: auto; }
+.matrix { font-size: 0.78em; }
+.matrix th { padding: 8px 6px; white-space: nowrap; }
+.matrix td { padding: 6px; text-align: center; }
+.matrix td.page-name { text-align: left; font-weight: 500; white-space: nowrap; }
+
+.note {
+  background: var(--surface);
+  border-left: 3px solid var(--fg-muted);
+  padding: 12px 16px;
+  font-size: 0.88em;
+  color: var(--fg-secondary);
+  margin: 12px 0;
+}
+.crit-note {
+  background: #fef2f2;
+  border-left: 3px solid var(--red);
+}
+
+ul { margin: 8px 0 8px 20px; }
+li { margin: 4px 0; font-size: 0.9em; }
+
+.footer {
+  margin-top: 60px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.78em;
+  color: var(--fg-muted);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Redstone LP Audit: Eric's Rules + Google Ads</h1>
+  <div class="subtitle">21 landing pages audited against Eric's permanent rules, design system, and Google Ads conversion best practices</div>
+  <div class="date">2026-04-18 | KAMG for Redstone Manufacturing</div>
+</div>
+
+<div class="container">
+
+<!-- Score Strip -->
+<div class="score-strip">
+  <div class="score-card">
+    <div class="num red">21</div>
+    <div class="label">Pages Audited</div>
+  </div>
+  <div class="score-card">
+    <div class="num red">7</div>
+    <div class="label">Systemic Issues</div>
+  </div>
+  <div class="score-card">
+    <div class="num orange">~40</div>
+    <div class="label">"marketplace" instances</div>
+  </div>
+  <div class="score-card">
+    <div class="num orange">~10</div>
+    <div class="label">[TBD] Placeholders Live</div>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<h2>Executive Summary</h2>
+<div class="note crit-note">
+  <strong>Retention-critical:</strong> Eric explicitly said his #1 frustration is repeated feedback being ignored. Seven of these issues were flagged in the Apr 17 call. They must be fixed before any update goes to Eric.
+</div>
+
+<table>
+  <tr>
+    <th>Priority</th>
+    <th>Issue</th>
+    <th>Pages Affected</th>
+    <th>Impact</th>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p0">P0</span></td>
+    <td><strong>"marketplace" / "network" banned word</strong> -- ~40 instances across 13 CNC-related pages</td>
+    <td>13 of 21</td>
+    <td>Eric repeated this 3+ times. Instant prospect disqualification risk.</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p0">P0</span></td>
+    <td><strong>[TBD] placeholders live on production</strong> -- "[TBD: confirm with Eric]" visible to real prospects</td>
+    <td>8+ pages</td>
+    <td>Destroys credibility. Prospects see draft copy.</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p0">P0</span></td>
+    <td><strong>Canonical URLs wrong</strong> -- pointing to GitHub Pages or wrong domain (redstonemanufacturing.com vs theredstonemanufacturing.com)</td>
+    <td>Most pages</td>
+    <td>Google indexes wrong URL. Ad spend wasted on split authority.</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p1">P1</span></td>
+    <td><strong>Font is Host Grotesk, not Inter</strong> -- Eric approved Inter</td>
+    <td>18 of 21</td>
+    <td>Design system violation. Visual inconsistency.</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p1">P1</span></td>
+    <td><strong>Red (#B21E24) used decoratively</strong> -- 15+ non-CTA uses per page (eyebrows, accent lines, section labels, toggle, corner brackets, map dots)</td>
+    <td>All 21</td>
+    <td>Dilutes CTA hierarchy. Eric's rule: red = CTAs only.</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p1">P1</span></td>
+    <td><strong>Missing "American-Owned direct manufacturer"</strong> -- all pages say "U.S. Managed" instead</td>
+    <td>All 21</td>
+    <td>Positioning mismatch. Eric wants "American-Owned" + "direct manufacturer".</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-p2">P2</span></td>
+    <td><strong>Form too long (12+ fields)</strong> -- 3-step wizard with 12-13 fields total</td>
+    <td>All 21</td>
+    <td>Google Ads conversion killer. Industry benchmark: 5 fields max for B2B.</td>
+  </tr>
+</table>
+
+<!-- RULE-BY-RULE MATRIX -->
+<h2>Compliance Matrix: All 21 Pages</h2>
+
+<div class="matrix-wrap">
+<table class="matrix">
+  <tr>
+    <th>Page</th>
+    <th>No "project"</th>
+    <th>No "marketplace"</th>
+    <th>No Surcore</th>
+    <th>CNC Video</th>
+    <th>Red CTA Only</th>
+    <th>No Radius/Shadow</th>
+    <th>American-Owned</th>
+    <th>Inter Font</th>
+    <th>[TBD] Clean</th>
+    <th>Canonical OK</th>
+  </tr>
+  <tr>
+    <td class="page-name">Master (die-casting LP)</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/aluminum-die-casting/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/aluminum-sheet-metal-fabrication/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/cnc-machining-company/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/cnc-manufacturing/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">7x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/custom-cnc-machining/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/custom-machining-services/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/custom-sheet-metal-fabrication/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/industrial-sheet-metal-fabrication/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/precision-machining-services/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/sheet-metal-fabrication-company/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/sheet-metal-fabrication-services/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <!-- GEO PAGES -->
+  <tr>
+    <td class="page-name">/aluminum-die-casting-companies-in-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/aluminum-sheet-metal-fabrication-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-warn">Check</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/cnc-machining-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/cnc-manufacturing-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">5x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/cnc-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/die-casting-companies-in-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/precision-machining-india/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">2x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/precision-machining-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">3x</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+  <tr>
+    <td class="page-name">/sheet-metal-fabrication-companies-in-mexico/</td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-pass">Pass</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+    <td><span class="tag tag-fail">Fail</span></td>
+  </tr>
+</table>
+</div>
+
+<!-- P0: MARKETPLACE FIXES -->
+<h2>P0: "Marketplace" / "Network" -- Before & After</h2>
+<p style="font-size:0.9em; color:var(--fg-secondary); margin-bottom:16px;">Eric repeated this rule 3+ times on the Apr 17 call. These words cause instant prospect disqualification. Every instance must be replaced.</p>
+
+<h4>Trust Strip (appears on all CNC pages)</h4>
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"Twice as tight as the marketplace headline. CMM verified."</div>
+  <div class="fix-after"><span class="fix-label">After</span>"Twice as tight as the industry-standard tolerance. CMM verified."</div>
+</div>
+
+<h4>Why Redstone -- Tolerance Section</h4>
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"most online CNC marketplaces lead with"</div>
+  <div class="fix-after"><span class="fix-label">After</span>"most online CNC platforms lead with"</div>
+</div>
+
+<h4>Why Redstone -- Handoff Section</h4>
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"No marketplace handoff. No offshore quote desk."</div>
+  <div class="fix-after"><span class="fix-label">After</span>"No third-party handoff. No offshore quote desk."</div>
+</div>
+
+<h4>/cnc-manufacturing/ -- Section Title (worst offender: 7 instances)</h4>
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"Production CNC manufacturing. Named Monterrey facility. Not a marketplace."</div>
+  <div class="fix-after"><span class="fix-label">After</span>"Production CNC manufacturing. Named Monterrey facility. Direct manufacturer."</div>
+</div>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"Online CNC marketplaces select a supplier for each job from a vetted pool..."</div>
+  <div class="fix-after"><span class="fix-label">After</span>"Online CNC platforms select a supplier for each job from a vetted pool..."</div>
+</div>
+
+<h4>Pages affected:</h4>
+<ul>
+  <li>/cnc-machining-company/ (3 instances)</li>
+  <li>/cnc-manufacturing/ (7 instances -- worst)</li>
+  <li>/custom-cnc-machining/ (3 instances)</li>
+  <li>/custom-machining-services/ (3 instances)</li>
+  <li>/precision-machining-services/ (3 instances)</li>
+  <li>/cnc-machining-mexico/ (3 instances)</li>
+  <li>/cnc-manufacturing-mexico/ (5 instances)</li>
+  <li>/cnc-mexico/ (3 instances)</li>
+  <li>/precision-machining-india/ (2 instances)</li>
+  <li>/precision-machining-mexico/ (3 instances)</li>
+</ul>
+
+<!-- P0: TBD PLACEHOLDERS -->
+<h2>P0: [TBD] Placeholders Live on Production</h2>
+<p style="font-size:0.9em; color:var(--fg-secondary); margin-bottom:16px;">These are visible to prospects right now. Every single one must be removed or replaced with confirmed data.</p>
+
+<table>
+  <tr>
+    <th>Page</th>
+    <th>Placeholder Text</th>
+    <th>Location</th>
+  </tr>
+  <tr>
+    <td>/aluminum-sheet-metal-fabrication/</td>
+    <td>"D1.1 / D1.2 procedures (TBD: confirm with client)"</td>
+    <td>Trust strip subtitle</td>
+  </tr>
+  <tr>
+    <td>/aluminum-sheet-metal-fabrication/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/custom-cnc-machining/</td>
+    <td>"[TBD: confirm spindle count with Eric]"</td>
+    <td>Capabilities section</td>
+  </tr>
+  <tr>
+    <td>/custom-cnc-machining/</td>
+    <td>"[TBD: confirm Redstone CNC lead time actuals with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/custom-machining-services/</td>
+    <td>"[TBD: confirm spindle count with Eric]"</td>
+    <td>Capabilities section</td>
+  </tr>
+  <tr>
+    <td>/custom-machining-services/</td>
+    <td>"[TBD: confirm Redstone CNC lead time actuals with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/custom-sheet-metal-fabrication/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/industrial-sheet-metal-fabrication/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-company/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-services/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-companies-in-mexico/</td>
+    <td>"D1.1 / D1.2 procedures (TBD: confirm with client)"</td>
+    <td>Trust strip subtitle</td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-companies-in-mexico/</td>
+    <td>"[TBD: confirm AWS cert levels with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/precision-machining-india/</td>
+    <td>"[TBD: confirm spindle count with Eric]"</td>
+    <td>Capabilities section</td>
+  </tr>
+  <tr>
+    <td>/precision-machining-india/</td>
+    <td>"[TBD: confirm Redstone India precision-machining lead time actuals with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/precision-machining-india/</td>
+    <td>"[TBD: confirm specific HS code tariff posture for current environment with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+  <tr>
+    <td>/precision-machining-mexico/</td>
+    <td>"[TBD: confirm spindle count with Eric]"</td>
+    <td>Capabilities section</td>
+  </tr>
+  <tr>
+    <td>/precision-machining-mexico/</td>
+    <td>"[TBD: confirm Redstone CNC lead time actuals with Eric]"</td>
+    <td>FAQ answer</td>
+  </tr>
+</table>
+
+<!-- P0: CANONICAL URLS -->
+<h2>P0: Canonical URL Mismatches</h2>
+<p style="font-size:0.9em; color:var(--fg-secondary); margin-bottom:16px;">Google uses the canonical tag to decide which URL to index. These are pointing to the wrong place -- splitting ad spend authority and risking deindexing.</p>
+
+<table>
+  <tr>
+    <th>Page</th>
+    <th>Current Canonical</th>
+    <th>Should Be</th>
+  </tr>
+  <tr>
+    <td>Multiple pages</td>
+    <td><code>kasandzz.github.io/kamg-client-reports/...</code></td>
+    <td><code>theredstonemanufacturing.com/{slug}/</code></td>
+  </tr>
+  <tr>
+    <td>/aluminum-sheet-metal-fabrication/</td>
+    <td><code>redstonemanufacturing.com/...</code> (no "the")</td>
+    <td><code>theredstonemanufacturing.com/...</code></td>
+  </tr>
+  <tr>
+    <td>/cnc-machining-company/</td>
+    <td><code>redstonemanufacturing.com/...</code> (no "the")</td>
+    <td><code>theredstonemanufacturing.com/...</code></td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-companies-in-mexico/</td>
+    <td>Points to <code>/sheet-metal-fabrication-services/</code> (wrong path entirely)</td>
+    <td><code>theredstonemanufacturing.com/sheet-metal-fabrication-companies-in-mexico/</code></td>
+  </tr>
+</table>
+
+<!-- P1: FONT -->
+<h2>P1: Font -- Host Grotesk to Inter</h2>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before (Google Fonts link)</span>&lt;link href="...family=Host+Grotesk:ital,wght@0,300..800;1,300..800..."&gt;</div>
+  <div class="fix-after"><span class="fix-label">After</span>&lt;link href="...family=Inter:wght@300;400;500;600;700;800..."&gt;</div>
+</div>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before (CSS variable)</span>--rs-font-display: 'Host Grotesk', sans-serif;</div>
+  <div class="fix-after"><span class="fix-label">After</span>--rs-font-display: 'Inter', sans-serif;</div>
+</div>
+
+<div class="note">3 pages (precision-machining-services, sheet-metal-fabrication-company, sheet-metal-fabrication-services) already use Inter correctly. The other 18 need updating. Fix in the shared <code>colors_and_type.css</code> file to cascade to all pages.</div>
+
+<!-- P1: RED DECORATIVE -->
+<h2>P1: Red (#B21E24) Used Decoratively -- Before & After</h2>
+<p style="font-size:0.9em; color:var(--fg-secondary); margin-bottom:16px;">Eric's rule: red is ONLY for CTAs. Currently 15+ CSS rules apply red to non-clickable elements. Fix in shared CSS to cascade everywhere.</p>
+
+<table>
+  <tr>
+    <th>Element</th>
+    <th>Current (Before)</th>
+    <th>Fix (After)</th>
+  </tr>
+  <tr>
+    <td>.hero-eyebrow text</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: var(--rs-fg)</code> or <code>#999</code></td>
+  </tr>
+  <tr>
+    <td>.hero-eyebrow::before accent line</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: var(--rs-fg)</code></td>
+  </tr>
+  <tr>
+    <td>.hero-h1 em italic emphasis</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: inherit</code></td>
+  </tr>
+  <tr>
+    <td>.section-eyebrow labels</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: #999</code></td>
+  </tr>
+  <tr>
+    <td>.section-eyebrow::before line</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: #999</code></td>
+  </tr>
+  <tr>
+    <td>.logos-eyebrow "Trusted By"</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: #999</code></td>
+  </tr>
+  <tr>
+    <td>.spec-label</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: var(--rs-fg)</code></td>
+  </tr>
+  <tr>
+    <td>.faq-toggle</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: var(--rs-fg)</code></td>
+  </tr>
+  <tr>
+    <td>.unit-toggle-track (active)</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: #333</code></td>
+  </tr>
+  <tr>
+    <td>.why-num step numbers</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: #999</code></td>
+  </tr>
+  <tr>
+    <td>.process-num::before dot</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: #333</code></td>
+  </tr>
+  <tr>
+    <td>#process corner brackets</td>
+    <td><code>border: 2px solid var(--rs-red)</code></td>
+    <td><code>border: 2px solid var(--rs-line)</code></td>
+  </tr>
+  <tr>
+    <td>.map-callout::before pin dot</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: #333</code></td>
+  </tr>
+  <tr>
+    <td>.industry-card::before top line</td>
+    <td><code>background: var(--rs-red)</code></td>
+    <td><code>background: var(--rs-line)</code></td>
+  </tr>
+  <tr>
+    <td>.industry-chip.cert background</td>
+    <td><code>background: rgba(178,30,36,0.08)</code></td>
+    <td><code>background: var(--rs-surface)</code></td>
+  </tr>
+  <tr>
+    <td>#quote-form shadow</td>
+    <td><code>box-shadow: 14px 14px 0 -12px var(--rs-red)</code></td>
+    <td><code>box-shadow: none</code></td>
+  </tr>
+  <tr>
+    <td>#quote-form corner brackets</td>
+    <td><code>border: red</code></td>
+    <td><code>border: var(--rs-line)</code></td>
+  </tr>
+  <tr>
+    <td>Nav link hover</td>
+    <td><code>color: var(--rs-red)</code></td>
+    <td><code>color: var(--rs-fg)</code></td>
+  </tr>
+</table>
+
+<div class="note"><strong>Keep red on:</strong> .btn-primary, .header-cta, .btn-onward, .finalcta-cta, .caps-foot-cta -- these are actual CTAs and should remain #B21E24.</div>
+
+<!-- P1: AMERICAN-OWNED -->
+<h2>P1: Missing "American-Owned Direct Manufacturer"</h2>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before (trust strip badge)</span>U.S. Managed</div>
+  <div class="fix-after"><span class="fix-label">After</span>American-Owned</div>
+</div>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before (hero subhead, typical)</span>"ISO-certified facilities in Mexico. U.S.-managed engineering."</div>
+  <div class="fix-after"><span class="fix-label">After</span>"American-owned direct manufacturer. ISO-certified facilities in Mexico."</div>
+</div>
+
+<!-- P1: DESIGN VIOLATIONS -->
+<h2>P1: Design System Violations (All Pages)</h2>
+
+<table>
+  <tr>
+    <th>Violation</th>
+    <th>Element</th>
+    <th>Current</th>
+    <th>Fix</th>
+  </tr>
+  <tr>
+    <td>Rounded corners</td>
+    <td>.unit-toggle-track</td>
+    <td>border-radius: 13px</td>
+    <td>border-radius: 0 (square toggle)</td>
+  </tr>
+  <tr>
+    <td>Rounded corners</td>
+    <td>.unit-toggle-thumb</td>
+    <td>border-radius: 50%</td>
+    <td>border-radius: 0 (square knob)</td>
+  </tr>
+  <tr>
+    <td>Rounded corners</td>
+    <td>.online-dot, progress checkmark</td>
+    <td>border-radius: 50%</td>
+    <td>border-radius: 0</td>
+  </tr>
+  <tr>
+    <td>Box shadow</td>
+    <td>#site-header.scrolled</td>
+    <td>box-shadow: 0 8px 24px rgba(0,0,0,0.04)</td>
+    <td>border-bottom: 1px solid var(--rs-line)</td>
+  </tr>
+  <tr>
+    <td>Box shadow</td>
+    <td>.unit-toggle-thumb</td>
+    <td>box-shadow: 0 1px 3px rgba(0,0,0,0.25)</td>
+    <td>Remove</td>
+  </tr>
+  <tr>
+    <td>Box shadow</td>
+    <td>#quote-form</td>
+    <td>box-shadow: 14px 14px 0 -12px var(--rs-red)</td>
+    <td>Remove</td>
+  </tr>
+  <tr>
+    <td>Gradient (decorative)</td>
+    <td>Section title sweep</td>
+    <td>linear-gradient with rgba(178,30,36,0.15)</td>
+    <td>Remove entirely</td>
+  </tr>
+  <tr>
+    <td>Gradient (decorative)</td>
+    <td>Map section glow</td>
+    <td>radial-gradient(ellipse...)</td>
+    <td>Remove</td>
+  </tr>
+  <tr>
+    <td>Gradient (decorative)</td>
+    <td>Form blueprint grid</td>
+    <td>repeating-linear-gradient</td>
+    <td>Solid background: var(--rs-surface)</td>
+  </tr>
+  <tr>
+    <td>Gradient (functional)</td>
+    <td>Hero overlay</td>
+    <td>linear-gradient for text readability</td>
+    <td>Keep but simplify to solid rgba(10,10,10,0.85)</td>
+  </tr>
+</table>
+
+<!-- P2: FORM -->
+<h2>P2: Form Too Long for Google Ads</h2>
+
+<div class="note">Current form: 3-step wizard with 12-13 fields total (current stage, manufacturing process, reason checkboxes, target date, annual spend, part description, file upload, country, name, company, email, phone). Industry data shows each additional field beyond 5 drops conversion rate by ~10%.</div>
+
+<h4>Current (12+ fields, 3 steps)</h4>
+<table>
+  <tr><th>Step 1</th><th>Step 2</th><th>Step 3</th></tr>
+  <tr>
+    <td>Current Stage (select)<br>Manufacturing Process (select)<br>Main Reason (5 checkboxes)<br>Target Shipment (date)</td>
+    <td>Annual Spend (select)<br>Part Description (textarea)<br>File Upload<br>Country of Production (text)</td>
+    <td>Full Name<br>Company<br>Work Email<br>Phone</td>
+  </tr>
+</table>
+
+<h4>Recommended (5 fields, single step)</h4>
+<table>
+  <tr><th>Visible Form</th><th>Post-Submission (Thank You Page)</th></tr>
+  <tr>
+    <td>Full Name<br>Work Email<br>Phone<br>Company<br>Brief Part Description</td>
+    <td>Manufacturing Process (select)<br>Annual Spend (select)<br>File Upload<br>Anything else moved here or to first call</td>
+  </tr>
+</table>
+
+<!-- GOOGLE ADS OPTIMIZATION -->
+<h2>Google Ads Optimization: Per-Page Notes</h2>
+
+<table>
+  <tr>
+    <th>Page</th>
+    <th>H1 Keyword Match</th>
+    <th>CTA Above Fold</th>
+    <th>Phone</th>
+    <th>Trust Signals</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>/aluminum-die-casting/</td>
+    <td><span class="tag tag-warn">Partial</span> -- H1 leads with "IATF 16949" not keyword</td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Strong</span></td>
+    <td>Lead H1 with "Aluminum Die Casting" not certification</td>
+  </tr>
+  <tr>
+    <td>/cnc-machining-company/</td>
+    <td><span class="tag tag-warn">Partial</span> -- H1 says "CNC Machining in Mexico" not "CNC Machining Company"</td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Strong</span></td>
+    <td>Add "Company" to H1 to match search keyword</td>
+  </tr>
+  <tr>
+    <td>/sheet-metal-fabrication-companies-in-mexico/</td>
+    <td><span class="tag tag-fail">Weak</span> -- H1 missing "Mexico"</td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Strong</span></td>
+    <td>H1 must include "Mexico" to match geo keyword</td>
+  </tr>
+  <tr>
+    <td>/custom-machining-services/</td>
+    <td><span class="tag tag-warn">Dupe risk</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Strong</span></td>
+    <td>Near-identical to /custom-cnc-machining/ -- differentiate or consolidate</td>
+  </tr>
+  <tr>
+    <td>All other pages</td>
+    <td><span class="tag tag-pass">Good</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Yes</span></td>
+    <td><span class="tag tag-pass">Strong</span></td>
+    <td>H1 matches slug keyword. Structure is solid.</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>What's working well across all pages:</strong>
+  <ul>
+    <li>Phone number (+1 330-975-2820) visible in header, footer, and final CTA on every page</li>
+    <li>"Request a Quote" CTA above the fold on every page</li>
+    <li>Strong trust signals: ISO 9001, IATF 16949, client logos (MIT, Amazon, Honda, Halliburton)</li>
+    <li>Clean page structure: hero -> trust strip -> capabilities -> why -> process -> FAQ -> CTA</li>
+    <li>Mobile bottom bar with phone + CTA on all pages</li>
+    <li>No "project" word violations (Rule 1 -- clean across all 21 pages)</li>
+    <li>No Surcore logo (Rule 3 -- clean)</li>
+    <li>No CNC video on non-CNC pages (Rule 4 -- clean)</li>
+  </ul>
+</div>
+
+<!-- "SOURCING" LANGUAGE -->
+<h2>Additional: "Sourcing" Language</h2>
+<p style="font-size:0.9em; color:var(--fg-secondary); margin-bottom:16px;">Eric's Rule 7 says never position as a "sourcing company." While "sourcing" isn't explicitly banned like "marketplace," it risks the same perception. Found on 4 pages.</p>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"DFARS-compliant steel grade sourcing is available on request"</div>
+  <div class="fix-after"><span class="fix-label">After</span>"DFARS-compliant steel grade supply is available on request"</div>
+</div>
+
+<div class="fix-row">
+  <div class="fix-before"><span class="fix-label">Before</span>"For OEM sourcing teams comparing China CNC against Mexico CNC"</div>
+  <div class="fix-after"><span class="fix-label">After</span>"For OEM procurement teams comparing China CNC against Mexico CNC"</div>
+</div>
+
+<p style="font-size:0.85em; color:var(--fg-muted); margin-top:8px;">Pages: /custom-cnc-machining/, /custom-machining-services/, /custom-sheet-metal-fabrication/, /industrial-sheet-metal-fabrication/</p>
+
+<!-- ACTION PLAN -->
+<h2>Recommended Fix Order</h2>
+
+<table>
+  <tr>
+    <th>#</th>
+    <th>Action</th>
+    <th>Scope</th>
+    <th>Effort</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td><span class="tag tag-p0">P0</span> Remove all [TBD] placeholders -- either fill with confirmed data or remove the sentence</td>
+    <td>8+ pages</td>
+    <td>30 min</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><span class="tag tag-p0">P0</span> Find-and-replace all "marketplace" / "marketplaces" instances</td>
+    <td>10 pages</td>
+    <td>30 min</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><span class="tag tag-p0">P0</span> Fix all canonical URLs to point to theredstonemanufacturing.com/{slug}/</td>
+    <td>All pages</td>
+    <td>20 min</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><span class="tag tag-p1">P1</span> Swap Google Font from Host Grotesk to Inter in shared CSS + HTML link tags</td>
+    <td>18 pages</td>
+    <td>15 min</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><span class="tag tag-p1">P1</span> Update shared CSS: change all non-CTA red to neutrals (use table above as checklist)</td>
+    <td>All pages (shared CSS)</td>
+    <td>45 min</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td><span class="tag tag-p1">P1</span> Add "American-Owned" to trust strip + hero subhead across all pages</td>
+    <td>All pages</td>
+    <td>30 min</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td><span class="tag tag-p1">P1</span> Remove border-radius, box-shadow, decorative gradients from shared CSS</td>
+    <td>All pages (shared CSS)</td>
+    <td>30 min</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td><span class="tag tag-p2">P2</span> Simplify quote form to 5 fields, single step</td>
+    <td>All pages (shared form)</td>
+    <td>2 hours</td>
+  </tr>
+  <tr>
+    <td>9</td>
+    <td><span class="tag tag-p2">P2</span> Fix H1 keyword mismatches (3 pages)</td>
+    <td>3 pages</td>
+    <td>15 min</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td><span class="tag tag-p2">P2</span> Replace "sourcing" with "supply" / "procurement"</td>
+    <td>4 pages</td>
+    <td>10 min</td>
+  </tr>
+</table>
+
+<div class="note" style="margin-top:24px;">
+  <strong>Total estimated effort:</strong> ~5 hours. Most fixes cascade through shared CSS (<code>colors_and_type.css</code>) affecting all 21 pages at once. Copy fixes (marketplace, TBD, sourcing) are per-page but are simple find-and-replace operations.
+</div>
+
+<div class="footer">
+  KAMG | Redstone Manufacturing LP Audit | 2026-04-18 | Confidential
+</div>
+
+</div>
+</body>
+</html>

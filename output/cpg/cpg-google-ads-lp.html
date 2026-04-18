@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en" data-aesthetic="editorial">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPG Affiliate Partners | Performance-Based Affiliate Marketing</title>
+  <meta name="description" content="Performance-based affiliate marketing for DTC brands. 70%+ net new customers guaranteed in your contract.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    @property --glow-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+    @keyframes glow-rotate { to { --glow-angle: 360deg; } }
+    @keyframes formFadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:translateY(0);} }
+    @keyframes sectionRise { from { opacity: 0; transform: translateY(12px);} to { opacity:1; transform:translateY(0);} }
+
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+    body {
+      font-family: var(--s-font-body);
+      background: var(--s-bg);
+      color: var(--s-text);
+      line-height: var(--s-body-lead);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      text-rendering: optimizeLegibility;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 200; pointer-events: none;
+      opacity: var(--c-grain-opacity);
+      mix-blend-mode: var(--c-grain-blend);
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.7 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    /* ===== Layout primitives ===== */
+    .container { max-width: var(--p-container-max); margin: 0 auto; padding: 0 var(--s-container-pad); }
+    .two-col {
+      max-width: var(--p-container-max); margin: 0 auto; padding: 0 var(--s-container-pad);
+      display: grid; grid-template-columns: minmax(0,1fr) var(--p-form-rail-w);
+      gap: var(--p-col-gap); align-items: start;
+    }
+    .content-col { border-left: 1px dashed var(--s-line-dashed); padding-left: var(--s-content-indent); position: relative; }
+    .scroll-marker {
+      position: sticky;
+      top: 140px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--s-accent);
+      box-shadow: 0 0 8px var(--s-accent), 0 0 20px rgba(245,166,35,0.3);
+      margin-left: calc(-1 * var(--s-content-indent) - 6px);
+      margin-bottom: -11px;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .form-rail { position: sticky; top: 88px; align-self: start; margin-top: 40px; }
+    .section-divider { padding: var(--s-section-pad-y) 0; border-bottom: 1px solid var(--s-line); }
+    .section-divider:last-child { border-bottom: none; }
+    .section-divider:not([data-section="guarantee"]) { opacity: 0; transform: translateY(12px); transition: opacity 0.6s var(--p-ease-out), transform 0.6s var(--p-ease-out); }
+    .section-divider:not([data-section="guarantee"]).revealed { opacity: 1; transform: translateY(0); }
+    .section-divider[data-section="guarantee"] { opacity: 0; transition: opacity 0.6s var(--p-ease-out); }
+    .section-divider[data-section="guarantee"].revealed { opacity: 1; }
+
+    /* ===== Typography ===== */
+    .eyebrow {
+      font-family: var(--s-font-mono);
+      font-size: var(--s-eyebrow-size);
+      font-weight: var(--s-eyebrow-weight);
+      letter-spacing: var(--s-eyebrow-track);
+      text-transform: uppercase;
+      color: var(--s-accent);
+      margin-bottom: var(--p-space-4);
+    }
+    .display-heading {
+      font-size: var(--c-hero-display-size);
+      font-weight: var(--c-hero-display-weight);
+      letter-spacing: var(--c-hero-display-track);
+      line-height: var(--s-display-lead);
+      color: var(--s-text);
+      text-wrap: balance;
+    }
+    .section-heading {
+      font-size: var(--s-h2-size);
+      font-weight: var(--s-h2-weight);
+      letter-spacing: var(--s-h2-track);
+      line-height: var(--s-h2-lead);
+      color: var(--s-text);
+      margin-bottom: var(--p-space-5);
+      text-wrap: balance;
+    }
+    .body-text { font-size: var(--s-body-size); line-height: var(--s-body-lead); color: var(--s-text-secondary); max-width: 65ch; }
+    .body-text strong { color: var(--s-text); font-weight: 600; }
+
+    /* ===== CTA button ===== */
+    .cta-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: var(--c-cta-pad);
+      min-height: var(--c-cta-min-h);
+      background: var(--c-cta-bg);
+      color: var(--c-cta-color);
+      font-size: 15px; font-weight: var(--c-cta-weight);
+      border-radius: var(--c-cta-radius);
+      cursor: pointer;
+      transition: background var(--s-motion-hover), transform var(--s-motion-press), box-shadow var(--s-motion-hover);
+      letter-spacing: 0.01em;
+      box-shadow: var(--c-cta-shadow);
+      position: relative; isolation: isolate;
+    }
+    .cta-btn::after {
+      content: '→';
+      display: inline-block;
+      opacity: calc(var(--c-cta-arrow) * 0.7);
+      transition: transform var(--s-motion-hover), opacity var(--s-motion-hover);
+      font-weight: 500;
+    }
+    .cta-btn:hover { background: var(--c-cta-bg-hover); transform: translateY(-1px); box-shadow: var(--c-cta-shadow-hover); }
+    .cta-btn:hover::after { transform: translateX(3px); opacity: 1; }
+    .cta-btn:active { transform: translateY(1px) scale(0.98); }
+    .cta-btn:focus-visible { outline: 2px solid var(--s-accent); outline-offset: 3px; }
+    .cta-btn--sm { padding: 12px 22px; font-size: 13px; min-height: 42px; }
+    .cta-btn--ghost {
+      background: transparent; border: 1px solid var(--s-accent); color: var(--s-accent);
+      box-shadow: none;
+    }
+    .cta-btn--ghost::after { color: var(--s-accent); }
+    .cta-btn--ghost:hover { background: var(--s-accent-tint); box-shadow: none; }
+    .mid-cta { padding-top: var(--p-space-8); }
+
+    /* ===== Header ===== */
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--c-header-bg);
+      backdrop-filter: blur(var(--c-header-blur)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--c-header-blur)) saturate(180%);
+      border-bottom: 1px solid var(--c-header-border);
+      height: var(--c-header-height);
+      transition: border-color var(--s-motion-hover);
+    }
+    .site-header .container { display: flex; align-items: center; gap: 40px; height: 100%; }
+    .site-logo {
+      display: inline-flex; align-items: center;
+      text-decoration: none;
+    }
+    .site-logo img {
+      height: 36px;
+      width: auto;
+    }
+    .header-cta {
+      margin-left: auto;
+      transition: opacity 0.35s var(--p-ease-out), transform 0.35s var(--p-ease-out), visibility 0s linear 0.35s;
+    }
+    .site-header[data-cta-hidden="1"] .header-cta {
+      opacity: 0; visibility: hidden; transform: translateY(-4px) scale(0.96); pointer-events: none;
+      transition: opacity 0.3s var(--p-ease-out), transform 0.3s var(--p-ease-out), visibility 0s linear 0.3s;
+    }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a {
+      color: var(--s-text-secondary); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      font-family: var(--s-font-mono);
+      transition: color var(--s-motion-hover);
+    }
+    .nav-links a:hover { color: var(--s-accent); }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding: var(--c-hero-pad-top) 0 24px;
+      position: relative; overflow: hidden;
+      isolation: isolate;
+    }
+    /* Paper texture — sits behind glow + dark tint, very subtle */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url('paper-texture.jpg');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.08;
+      mix-blend-mode: overlay;
+      filter: contrast(1.1) brightness(0.5);
+      pointer-events: none;
+      z-index: -2;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 1200px; height: 1200px;
+      background: radial-gradient(
+        circle,
+        hsla(var(--c-hero-glow-hue), 90%, 55%, var(--c-hero-glow-strength)) 0%,
+        hsla(var(--c-hero-glow-hue), 90%, 55%, calc(var(--c-hero-glow-strength) / 3)) 35%,
+        transparent 65%
+      );
+      pointer-events: none;
+      z-index: -1;
+    }
+    .hero-inner { max-width: 920px; position: relative; z-index: 1; }
+    .hero .display-heading { margin-bottom: var(--p-space-6); }
+    .hero-sub {
+      font-size: var(--c-hero-sub-size);
+      color: var(--c-hero-sub-color);
+      line-height: var(--s-body-lead);
+      max-width: 62ch;
+      margin-bottom: var(--p-space-8);
+      text-wrap: pretty;
+    }
+    .hero-sub strong { color: var(--s-text); font-weight: 600; }
+    .hero-trust {
+      margin-top: var(--p-space-10);
+      padding-top: var(--p-space-6);
+      border-top: 1px solid var(--s-line);
+      font-size: var(--c-hero-trust-size);
+      color: var(--s-text-muted);
+      font-family: var(--s-font-mono);
+      letter-spacing: 0.04em;
+    }
+    .hero-trust strong { color: var(--s-text-secondary); font-weight: 500; }
+    .trust-logos {
+      margin-top: 22px;
+      display: flex; align-items: center;
+      gap: 44px;
+      opacity: 0.9;
+      filter: saturate(0);
+    }
+    .trust-logo {
+      display: inline-flex; align-items: center;
+      height: 22px;
+      color: #9098a2;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .trust-logo--coinbase {
+      font-family: 'Outfit', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .trust-logo--coinbase::before {
+      content: '';
+      display: inline-block;
+      width: 18px; height: 18px;
+      margin-right: 8px;
+      border-radius: 50%;
+      border: 2.5px solid currentColor;
+      position: relative;
+    }
+    .trust-logo--lowes {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 3px 9px;
+      border: 1.5px solid currentColor;
+      border-radius: 2px;
+      height: auto;
+    }
+    .trust-logo--dose {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 18px;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: 0;
+    }
+    .trust-logo--dose::after {
+      content: '';
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    @media (max-width: 560px) {
+      .trust-logos { gap: 28px; flex-wrap: wrap; }
+    }
+
+    /* ===== Stats strip ===== */
+    .stats-strip {
+      border-top: 1px solid var(--c-stats-divider);
+      border-bottom: 1px solid var(--c-stats-divider);
+      margin: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(245,166,35,0.03) 0%, transparent 70%);
+    }
+    .stats-strip .container { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .stat-cell {
+      padding: var(--c-stats-pad-y) 24px;
+      position: relative;
+      border-right: 1px solid var(--c-stats-divider);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-cell::before {
+      content: ''; position: absolute;
+      top: 0; left: 24px;
+      width: var(--c-stats-tick-w); height: var(--c-stats-tick-h);
+      background: var(--s-accent);
+    }
+    .stat-value {
+      font-size: var(--c-stats-value-size);
+      font-weight: var(--c-stats-value-weight);
+      color: var(--s-text);
+      line-height: 1;
+      margin: 14px 0 8px;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label {
+      font-family: var(--s-font-mono);
+      font-size: var(--c-stats-label-size);
+      font-weight: 500;
+      color: var(--s-text-muted);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* ===== Capacity strip ===== */
+    .capacity-strip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--s-text-secondary, #a1a1aa);
+      border-top: 1px solid var(--s-line, #27272a);
+      border-bottom: 1px solid var(--s-line, #27272a);
+      letter-spacing: 0.01em;
+    }
+    .capacity-strip strong {
+      color: var(--s-accent, #f5a623);
+      font-weight: 600;
+    }
+    .capacity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34c84f;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ===== Problem cards ===== */
+    .problem-intro {
+      font-size: var(--s-body-size);
+      color: var(--s-text-secondary);
+      line-height: var(--s-body-lead);
+      margin-bottom: var(--p-space-7);
+      max-width: 60ch;
+    }
+    .problem-item {
+      padding: var(--c-problem-pad);
+      border-left: var(--c-problem-border-w) solid var(--c-problem-border-color);
+      margin-bottom: var(--p-space-4);
+      transition: border-color var(--s-motion-hover), background var(--s-motion-hover);
+    }
+    .problem-item:hover { border-left-color: var(--s-danger-hover); background: rgba(239,68,68,0.02); }
+    .problem-item-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      margin-bottom: 6px;
+    }
+    .problem-item-title { font-size: var(--c-problem-title-size); font-weight: 600; color: var(--s-text); letter-spacing: -0.01em; }
+    .problem-item-stat {
+      flex-shrink: 0;
+      font-family: var(--s-font-mono);
+      font-size: 11px; font-weight: 500;
+      color: var(--s-danger);
+      background: var(--c-problem-stat-bg);
+      padding: 4px 10px;
+      border: 1px solid rgba(239,68,68,0.12);
+      border-radius: var(--s-radius-chip);
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+    .problem-item-desc { font-size: 15px; color: var(--s-text-secondary); line-height: var(--s-body-lead); max-width: 56ch; }
+    .problem-quote {
+      margin-top: var(--p-space-7);
+      padding: 22px 26px;
+      border-left: 2px solid var(--s-accent);
+      background: var(--s-accent-tint);
+      border-radius: 0 var(--s-radius-card) var(--s-radius-card) 0;
+    }
+    .problem-quote p { font-size: 15px; color: var(--s-text-secondary); font-style: italic; line-height: 1.65; text-wrap: pretty; }
+
+    /* ===== Guarantee cards — sticky stack + glass ===== */
+    .guarantee-section-heading { margin-bottom: calc(var(--p-space-7) + 8px); }
+    .guarantee-heading-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding-top: 68px;
+      padding-bottom: 180px;
+      margin-bottom: -148px;
+      background: var(--s-bg);
+    }
+    .guarantee-heading-sticky .section-heading { margin-bottom: 0; }
+    .guarantee-stack {
+      position: relative;
+      /* Each card sticks for ~70vh of scroll before the next overlaps it */
+      --g-card-h: 260px;
+      --g-stick-top: 120px;
+    }
+    .guarantee-card {
+      position: sticky;
+      top: var(--g-stick-top);
+      margin-bottom: 28vh; /* 70% scroll speed effect */
+      padding: 36px 40px 40px;
+      min-height: var(--g-card-h);
+      border-radius: var(--s-radius-card);
+      background:
+        linear-gradient(180deg, oklch(22% 0.04 var(--g-hue, 260) / 0.55) 0%, #0B0C10 85%),
+        linear-gradient(180deg, #15171C 0%, #0B0C10 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 0 0 1px rgba(255,255,255,0.015),
+        0 24px 60px -24px rgba(0,0,0,0.7),
+        0 2px 6px rgba(0,0,0,0.4);
+      overflow: hidden;
+      isolation: isolate;
+      transform-origin: center top;
+      /* Driven by scroll-linked progress via CSS custom props */
+      transition: transform 0.15s linear;
+    }
+    .guarantee-card:nth-child(2) { top: 230px; z-index: 11; }
+    .guarantee-card:nth-child(3) { top: 240px; z-index: 12; }
+    .guarantee-card:nth-child(4) { top: 250px; z-index: 13; margin-bottom: 4vh; }
+    /* Per-card hue — all use amber/yellow family to stay on brand */
+    .guarantee-card[data-hue="violet"] { --g-hue: 75; --g-hue-2: 60; }
+    .guarantee-card[data-hue="teal"]   { --g-hue: 55; --g-hue-2: 45; }
+    .guarantee-card[data-hue="rose"]   { --g-hue: 40; --g-hue-2: 30; }
+
+    /* Ambient glow — soft colored corona behind the content */
+    .guarantee-card::before {
+      content: '';
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 18% 0%, oklch(62% 0.18 var(--g-hue) / 0.28), transparent 48%),
+        radial-gradient(circle at 88% 110%, oklch(58% 0.16 var(--g-hue-2) / 0.18), transparent 55%);
+      filter: blur(28px);
+      opacity: 0.9;
+      z-index: 0;
+      pointer-events: none;
+    }
+    /* Glossy top highlight sweep */
+    .guarantee-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.06) 45%, transparent 60%);
+      transform: translateX(-60%);
+      transition: transform 1.1s cubic-bezier(.2,.7,.2,1);
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: overlay;
+    }
+    .guarantee-card:hover::after { transform: translateX(60%); }
+
+    /* Content above the glow */
+    .guarantee-card > * { position: relative; z-index: 2; }
+
+    /* Hide the legacy badge/variants — we're using unified layout */
+    .guarantee-num-badge { display: none !important; }
+    [data-section="guarantee"] .guarantee-num-inline { display: flex !important; align-items: baseline; gap: 10px; margin-bottom: 18px; }
+    .guarantee-num-inline .num {
+      font-family: var(--s-font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: rgba(255,255,255,0.55);
+    }
+    .guarantee-num-inline .label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--s-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-left: 0;
+      padding: 5px 10px 5px 20px;
+      border-radius: 999px;
+      background: oklch(30% 0.08 var(--g-hue) / 0.4);
+      border: 1px solid oklch(55% 0.14 var(--g-hue) / 0.35);
+      position: relative;
+    }
+    .guarantee-num-inline .label::before {
+      content: '';
+      position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      width: 6px; height: 6px; border-radius: 50%;
+      background: oklch(70% 0.2 var(--g-hue));
+      box-shadow: 0 0 10px oklch(70% 0.2 var(--g-hue) / 0.8);
+    }
+    .guarantee-title {
+      font-size: clamp(24px, 2.2vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--s-text);
+      margin-bottom: 14px;
+      text-wrap: balance;
+      max-width: 22ch;
+    }
+    .guarantee-desc {
+      font-size: 15px;
+      color: var(--s-text-secondary);
+      line-height: var(--s-body-lead);
+      max-width: 50ch;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .guarantee-card { position: static; margin-bottom: 16px; }
+    }
+    @media (max-width: 860px) {
+      .guarantee-card { padding: 26px 24px 28px; --g-card-h: 220px; margin-bottom: 10vh; }
+      .guarantee-title { font-size: 22px; }
+      .case-study-card.active { grid-template-columns: 1fr; }
+      .case-study-chart { border-left: none; border-top: 1px solid var(--s-line); }
+    }
+    .solution-closing { margin-top: var(--p-space-6); font-size: 16px; font-weight: 500; color: var(--s-text-secondary); }
+
+    /* ===== Case study carousel ===== */
+    .case-study-carousel {
+      position: relative;
+      border: 1px solid var(--s-line);
+      border-radius: var(--c-case-radius);
+      overflow: hidden;
+      background: var(--c-case-bg);
+      margin-top: var(--p-space-7);
+    }
+    .case-study-card { display: none; grid-template-columns: 1fr 1.2fr; min-height: 300px; }
+    .case-study-card.active { display: grid; animation: formFadeIn var(--p-dur-3) var(--p-ease-out); }
+    .case-study-content { padding: var(--c-case-pad); display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+    .case-study-tag {
+      display: inline-block; width: fit-content;
+      padding: 4px 12px;
+      border: 1px solid var(--s-line); border-radius: var(--s-radius-chip);
+      font-size: 11px; font-family: var(--s-font-mono);
+      color: var(--s-text-secondary);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .case-study-metric {
+      font-size: var(--c-case-metric-size);
+      font-weight: var(--c-case-metric-weight);
+      line-height: 1.15;
+      color: var(--s-text);
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    .case-study-client { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+    .case-study-client-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--s-radius-input);
+      background: var(--s-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      color: var(--s-text-on-accent);
+      font-family: var(--s-font-mono);
+      letter-spacing: 0.04em;
+    }
+    .case-study-client-name { font-weight: 600; font-size: 15px; }
+    .case-study-client-type { font-size: 12px; color: var(--s-text-muted); font-family: var(--s-font-mono); letter-spacing: 0.04em; }
+
+    /* Wordmark-style client logos — replace boxy ED/MM/CB initials */
+    .case-study-client .case-study-client-logo + div .case-study-client-name { display: none; }
+    .case-study-client-logo {
+      display: inline-flex; align-items: center;
+      height: 30px;
+      padding: 0 2px;
+      color: var(--s-text-secondary);
+      filter: saturate(0);
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+    .logo-everyday-dose {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 20px; font-weight: 700; font-style: italic;
+      letter-spacing: -0.005em;
+    }
+    .logo-everyday-dose span::after {
+      content: ''; display: inline-block;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: currentColor; margin-left: 4px;
+      vertical-align: middle;
+    }
+    .logo-magic-mind {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 800;
+      letter-spacing: 0.18em;
+    }
+    .logo-coinbase {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px; font-weight: 700;
+      letter-spacing: -0.02em;
+      gap: 7px;
+    }
+    .logo-coinbase__dot {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2.5px solid currentColor;
+    }
+    .logo-grounding {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 17px; font-weight: 600;
+      letter-spacing: 0;
+    }
+    .case-study-link {
+      color: var(--s-accent);
+      font-size: 13px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--s-font-mono); letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .case-study-link:hover { color: var(--s-accent-hover); }
+    .case-study-chart {
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px; border-left: 1px solid var(--s-line);
+      background: linear-gradient(135deg, transparent 0%, rgba(245,166,35,0.02) 100%);
+    }
+    .case-study-chart { position: relative; cursor: crosshair; }
+    .case-study-chart svg { width: 100%; height: 180px; overflow: visible; }
+    .case-study-chart polyline {
+      fill: none; stroke: var(--c-case-chart-stroke);
+      stroke-width: var(--c-case-chart-w);
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .case-study-chart polyline.accent { stroke: var(--c-case-chart-accent); }
+    .chart-dot {
+      r: 5; fill: var(--s-accent, #f5a623); stroke: var(--s-bg, #09090b); stroke-width: 2;
+      opacity: 0; transition: opacity 0.15s ease;
+      filter: drop-shadow(0 0 6px rgba(245,166,35,0.5));
+    }
+    .chart-vline {
+      stroke: var(--s-accent, #f5a623); stroke-width: 1; stroke-dasharray: 3 3;
+      opacity: 0; transition: opacity 0.15s ease;
+    }
+    .chart-tooltip {
+      pointer-events: none; opacity: 0; transition: opacity 0.15s ease;
+    }
+    .chart-tooltip rect {
+      fill: var(--s-surface, #111114); stroke: var(--s-accent, #f5a623); stroke-width: 1;
+      rx: 6;
+    }
+    .chart-tooltip text {
+      fill: var(--s-text, #fafafa); font-family: var(--p-font-mono, monospace);
+      font-size: 11px; font-weight: 600;
+    }
+    .case-study-chart:hover .chart-dot,
+    .case-study-chart:hover .chart-vline,
+    .case-study-chart:hover .chart-tooltip { opacity: 1; }
+    .case-study-nav { position: absolute; top: 20px; right: 20px; display: flex; gap: 6px; z-index: 2; }
+    .case-study-nav button {
+      width: 36px; height: 36px;
+      border: 1px solid var(--s-line); border-radius: var(--s-radius-input);
+      background: var(--s-surface); color: var(--s-text-secondary);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--s-motion-hover); font-size: 15px;
+    }
+    .case-study-nav button:hover { border-color: var(--s-accent); color: var(--s-accent); }
+    .case-study-nav button:focus-visible { outline: 2px solid var(--s-accent); outline-offset: 2px; }
+    .case-study-dots { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 6px; z-index: 2; }
+    .case-study-dots span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--s-line-strong);
+      transition: all var(--s-motion-hover);
+    }
+    .case-study-dots span.active { background: var(--s-accent); width: 20px; border-radius: 3px; }
+    /* Variant B: stacked */
+    [data-section="case"][data-variant="b"] .case-study-card.active { grid-template-columns: 1fr; }
+    [data-section="case"][data-variant="b"] .case-study-chart { border-left: none; border-top: 1px solid var(--s-line); }
+
+    /* ===== Comparison table ===== */
+    .comparison-wrapper {
+      margin-top: var(--p-space-7);
+      border: 1px solid var(--s-line);
+      border-radius: var(--c-compare-radius);
+      overflow: hidden;
+    }
+    .comparison-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .comparison-table th, .comparison-table td {
+      padding: var(--c-compare-row-pad);
+      text-align: left;
+      border-bottom: 1px solid var(--s-line);
+      vertical-align: top;
+    }
+    .comparison-table thead th {
+      font-family: var(--s-font-mono);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--s-text-muted);
+      background: var(--c-compare-header-bg);
+      padding: 14px 22px;
+    }
+    .comparison-table thead th:nth-child(2) {
+      color: var(--s-accent);
+      box-shadow: inset 0 3px 0 var(--s-accent);
+    }
+    .comparison-table .feature-cell {
+      font-family: var(--c-compare-feature-font);
+      letter-spacing: var(--c-compare-feature-track);
+      font-size: 12px; text-transform: uppercase;
+      font-weight: 500;
+      color: var(--s-text-muted);
+      width: 24%;
+    }
+    .comparison-table .cpg-col {
+      background: var(--c-compare-cpg-bg);
+      color: var(--s-text);
+      font-weight: 500; width: 28%;
+      position: relative;
+    }
+    .comparison-table tbody tr:hover .cpg-col { background: var(--c-compare-cpg-bg-hover); }
+    .comparison-table .other-col { color: var(--s-text-muted); width: 23%; }
+    .comparison-table tbody tr:last-child td { border-bottom: none; }
+    .table-check { color: var(--s-accent); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .table-check::before { content: '✓'; font-size: 13px; font-weight: 700; }
+    .table-x { color: var(--s-danger); display: inline-flex; align-items: center; gap: 6px; opacity: 0.8; }
+    .table-x::before { content: '—'; font-size: 13px; font-weight: 600; }
+
+    /* Pulsing indicator in CPG header */
+    .cpg-indicator {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--s-accent); margin-right: 8px; vertical-align: middle;
+      box-shadow: 0 0 0 0 var(--s-accent);
+      animation: pulse 2.2s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(245,166,35,0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(245,166,35,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+    }
+
+    /* ===== How it works ===== */
+    .steps-list { margin-top: var(--p-space-7); }
+    .step-item {
+      display: flex; gap: var(--c-step-gap);
+      padding: var(--c-step-pad-y) 0;
+      border-bottom: 1px solid var(--s-line);
+      align-items: flex-start;
+      transition: padding-left var(--s-motion-hover), background var(--s-motion-hover);
+      position: relative;
+    }
+    .step-item::before {
+      content: ''; position: absolute; left: 0; top: 50%;
+      width: 0; height: 1px; background: var(--s-accent);
+      transition: width var(--s-motion-hover);
+    }
+    .step-item:hover { padding-left: var(--c-step-hover-indent); }
+    .step-item:hover::before { width: calc(var(--c-step-hover-indent) - 6px); }
+    .step-item:first-child { border-top: 1px solid var(--s-line); }
+    .step-num {
+      flex-shrink: 0;
+      font-family: var(--s-font-mono);
+      font-size: var(--c-step-num-size);
+      font-weight: 600;
+      color: var(--s-accent);
+      letter-spacing: var(--c-step-num-track);
+      padding-top: 4px;
+      min-width: 36px;
+    }
+    .step-content h4 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 6px; color: var(--s-text); }
+    .step-content p { font-size: 15px; color: var(--s-text-secondary); line-height: var(--s-body-lead); max-width: 58ch; }
+
+    /* ===== Pricing ===== */
+    .pricing-body { margin-top: var(--p-space-6); }
+    .pricing-body p { font-size: 16px; color: var(--s-text-secondary); line-height: var(--s-body-lead); margin-bottom: 14px; max-width: 56ch; }
+    .pricing-body p strong { color: var(--s-text); font-weight: 600; }
+    .pricing-tag {
+      display: inline-block;
+      padding: 12px 22px;
+      border: 1px solid var(--c-pricing-tag-border);
+      background: var(--c-pricing-tag-bg);
+      border-radius: var(--s-radius-btn);
+      font-family: var(--s-font-mono);
+      font-size: 12px; font-weight: 500;
+      color: var(--s-accent);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-top: 8px;
+      transition: background var(--s-motion-hover);
+    }
+    .pricing-tag:hover { background: var(--s-accent-tint-strong); }
+
+    /* ===== Publisher scroller ===== */
+    .publisher-scroller {
+      margin-top: var(--p-space-8);
+      position: relative;
+      margin-left: calc(var(--s-content-indent) * -1 - 1px);
+      padding-left: var(--s-content-indent);
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+    }
+    .publisher-track {
+      display: flex;
+      gap: 14px;
+      width: max-content;
+      animation: pub-marquee 52s linear infinite;
+      will-change: transform;
+    }
+    .publisher-scroller:hover .publisher-track,
+    .publisher-scroller:focus-within .publisher-track { animation-play-state: paused; }
+    @keyframes pub-marquee {
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(-50%,0,0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .publisher-track { animation: none; }
+    }
+    .publisher-card {
+      flex: 0 0 auto;
+      width: 196px; height: 132px;
+      border-radius: var(--c-pub-radius);
+      border: 1px solid var(--s-line);
+      background: var(--s-surface);
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--s-motion-hover), border-color var(--s-motion-hover), box-shadow var(--s-motion-hover);
+    }
+    .publisher-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--pub-ink, var(--s-line-strong));
+      box-shadow: 0 6px 20px -12px rgba(0,0,0,0.25);
+    }
+    .publisher-card__tint {
+      position: absolute; inset: 0;
+      background: var(--pub-tint, transparent);
+      opacity: 0.10;
+      pointer-events: none;
+      transition: opacity var(--s-motion-hover);
+    }
+    .publisher-card:hover .publisher-card__tint { opacity: 0.18; }
+    .publisher-card__mark {
+      position: relative; z-index: 1;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      font-size: 23px;
+      color: var(--pub-ink, var(--s-text));
+      font-family: var(--pub-font, var(--s-font-display));
+    }
+    .publisher-card__meta {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--s-font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--s-text-muted);
+    }
+    .publisher-card__cat::before { content: '// '; opacity: 0.55; }
+    .publisher-card__reach { color: var(--s-text-secondary); font-variant-numeric: tabular-nums; }
+
+    /* Per-brand treatments (abstract wordmark styling, not logos) */
+    .pc-disney     { --pub-tint: #1B4FA6; --pub-ink: #1B4FA6; --pub-font: Georgia, 'Times New Roman', serif; }
+    .pc-disney .publisher-card__mark { font-style: italic; font-weight: 700; letter-spacing: 0.005em; }
+    .pc-forbes     { --pub-tint: #111; --pub-ink: #111; --pub-font: Georgia, 'Times New Roman', serif; }
+    .pc-forbes .publisher-card__mark { font-weight: 900; letter-spacing: -0.035em; }
+    .pc-capone     { --pub-tint: #D03027; --pub-ink: #D03027; }
+    .pc-capone .publisher-card__mark { font-weight: 700; letter-spacing: -0.01em; }
+    .pc-cnn        { --pub-tint: #CC0000; --pub-ink: #CC0000; }
+    .pc-cnn .publisher-card__mark { font-weight: 900; letter-spacing: -0.05em; font-size: 28px; }
+    .pc-nbc        { --pub-tint: #6B3EAA; --pub-ink: #2A2A2A; }
+    .pc-nbc .publisher-card__mark { font-weight: 800; letter-spacing: -0.025em; }
+    .pc-buzzfeed   { --pub-tint: #EE3322; --pub-ink: #EE3322; }
+    .pc-buzzfeed .publisher-card__mark { font-weight: 800; letter-spacing: -0.03em; }
+    .pc-bi         { --pub-tint: #185ADB; --pub-ink: #185ADB; }
+    .pc-bi .publisher-card__mark { font-weight: 700; letter-spacing: -0.015em; font-size: 19px; line-height: 1.1; }
+    .pc-usat       { --pub-tint: #009BDE; --pub-ink: #009BDE; }
+    .pc-usat .publisher-card__mark { font-weight: 700; letter-spacing: -0.015em; font-size: 20px; }
+    .pc-nypost     { --pub-tint: #C8102E; --pub-ink: #111; --pub-font: Georgia, 'Times New Roman', serif; }
+    .pc-nypost .publisher-card__mark { font-weight: 900; letter-spacing: -0.02em; }
+    .pc-healthline { --pub-tint: #24A148; --pub-ink: #24A148; }
+    .pc-healthline .publisher-card__mark { font-weight: 700; letter-spacing: -0.015em; font-size: 20px; }
+
+    /* Channel rail — clean ledger row below the scroller */
+    .channel-rail {
+      margin-top: var(--p-space-7);
+      padding-top: var(--p-space-5);
+      border-top: 1px dashed var(--s-line-dashed);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 22px;
+      align-items: baseline;
+    }
+    .channel-rail__label {
+      font-family: var(--s-font-mono);
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--s-text-muted);
+      white-space: nowrap;
+      padding-top: 4px;
+    }
+    .channel-rail__items { display: flex; flex-wrap: wrap; gap: 6px; }
+    .channel-chip {
+      font-family: var(--s-font-mono);
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--s-text-secondary);
+      background: var(--s-surface-elevated);
+      border: 1px solid var(--s-line);
+      border-radius: var(--s-radius-chip);
+      padding: 7px 12px;
+      transition: border-color var(--s-motion-hover), color var(--s-motion-hover);
+    }
+    .channel-chip:hover { border-color: var(--s-accent); color: var(--s-accent); }
+    .publisher-note { margin-top: var(--p-space-6); font-size: 13px; color: var(--s-text-muted); font-family: var(--s-font-mono); letter-spacing: 0.04em; }
+
+    /* ===== Testimonials ===== */
+    .testimonial-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: var(--p-space-4);
+      margin-top: var(--p-space-7);
+    }
+    .testimonial-card {
+      background: var(--c-testi-bg);
+      border: 1px solid var(--s-line);
+      border-left: var(--c-testi-border-accent-w) solid var(--c-testi-border-accent);
+      border-radius: 0 var(--s-radius-card) var(--s-radius-card) 0;
+      padding: var(--c-testi-pad);
+      position: relative;
+      transition: transform var(--s-motion-hover), box-shadow var(--s-motion-hover), border-color var(--s-motion-hover);
+    }
+    .testimonial-card:hover { transform: translateY(-2px); box-shadow: var(--s-elevation-card); border-left-color: var(--s-accent-hover); }
+    .testimonial-card::before {
+      content: '"'; position: absolute;
+      top: 14px; left: 28px;
+      font-size: 52px; font-weight: 800;
+      color: var(--s-accent);
+      opacity: 0.3; line-height: 1;
+      pointer-events: none;
+      font-family: Georgia, serif;
+    }
+    .testimonial-quote {
+      font-size: var(--c-testi-quote-size);
+      color: var(--s-text-secondary);
+      line-height: 1.55;
+      font-style: var(--c-testi-quote-style);
+      margin-bottom: var(--p-space-4);
+      padding-top: 24px;
+      text-wrap: pretty;
+    }
+    .testimonial-author { font-size: 14px; font-weight: 700; color: var(--s-text); letter-spacing: 0.01em; }
+    .testimonial-role { font-family: var(--s-font-mono); font-size: 10px; color: var(--s-text-muted); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 3px; }
+
+    /* ===== Founder ===== */
+    .founder-card {
+      background: var(--c-founder-bg);
+      border: 1px solid var(--s-line);
+      border-radius: var(--c-founder-radius);
+      padding: var(--c-founder-pad);
+      margin-top: var(--p-space-6);
+    }
+    .founder-header { display: flex; align-items: center; gap: 14px; margin-bottom: var(--p-space-6); flex-wrap: wrap; }
+    .founder-name {
+      font-size: var(--c-founder-name-size);
+      font-weight: 700;
+      letter-spacing: var(--c-founder-name-track);
+      font-family: var(--s-font-mono);
+    }
+    .founder-badge {
+      font-family: var(--s-font-mono);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--s-text-on-accent);
+      background: var(--c-founder-badge-bg);
+      padding: 6px 14px;
+      border-radius: var(--p-radius-full);
+    }
+    .founder-bio { font-size: 15px; color: var(--s-text-secondary); line-height: var(--s-body-lead); margin-bottom: var(--p-space-6); max-width: 58ch; text-wrap: pretty; }
+    .founder-pullquote {
+      padding: 18px 22px;
+      border-left: 3px solid var(--s-accent);
+      background: var(--s-accent-tint);
+      border-radius: 0 var(--s-radius-card) var(--s-radius-card) 0;
+      font-size: 16px; color: var(--s-text-secondary);
+      font-style: italic; line-height: 1.55;
+      text-wrap: pretty;
+    }
+
+    /* ===== FAQ ===== */
+    .faq-list { margin-top: var(--p-space-7); }
+    .faq-item {
+      border-bottom: 1px solid var(--s-line);
+      transition: border-left-color var(--s-motion-hover), padding-left var(--s-motion-hover), margin-left var(--s-motion-hover);
+    }
+    .faq-item:first-child { border-top: 1px solid var(--s-line); }
+    .faq-item.open {
+      border-left: var(--c-faq-open-border-w) solid var(--c-faq-open-border);
+      padding-left: 16px; margin-left: -16px;
+    }
+    .faq-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%;
+      padding: var(--c-faq-trigger-pad-y) 0;
+      font-family: var(--s-font-body);
+      font-size: 17px;
+      font-weight: var(--c-faq-trigger-weight);
+      color: var(--s-text);
+      text-align: left;
+      letter-spacing: -0.01em;
+      transition: color var(--s-motion-hover);
+    }
+    .faq-trigger:hover { color: var(--s-accent); }
+    .faq-icon {
+      flex-shrink: 0; margin-left: 20px;
+      font-size: 20px; font-weight: 300;
+      color: var(--s-text-muted);
+      transition: transform 0.35s var(--p-ease-out), color var(--s-motion-hover);
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--s-accent); }
+    .faq-body { max-height: 0; overflow: hidden; transition: max-height 0.35s var(--p-ease-out); }
+    .faq-body-inner { padding: 0 0 22px; font-size: 15px; color: var(--s-text-secondary); line-height: 1.65; max-width: 58ch; }
+
+    /* ===== Form (qualification) ===== */
+    .form-card {
+      background: var(--c-form-bg);
+      border-radius: var(--c-form-radius);
+      position: relative; overflow: hidden; isolation: isolate;
+    }
+    .form-card[data-glow="1"]::before {
+      content: '';
+      position: absolute; inset: calc(var(--c-form-glow-width) * -1);
+      z-index: -1; border-radius: inherit;
+      background: conic-gradient(
+        from var(--glow-angle, 0deg),
+        transparent 0%, transparent 22%,
+        var(--s-accent) 32%, var(--s-accent-hover) 50%, var(--s-accent) 68%,
+        transparent 78%, transparent 100%
+      );
+      animation: glow-rotate var(--c-form-glow-speed) linear infinite;
+    }
+    .form-card[data-glow="1"]::after {
+      content: ''; position: absolute;
+      inset: var(--c-form-glow-width);
+      border-radius: inherit; background: var(--c-form-bg); z-index: -1;
+    }
+    .form-card[data-glow="0"] { border: 1px solid var(--s-line-strong); }
+    .form-ticks[data-on="1"]::before, .form-ticks[data-on="1"]::after {
+      content: ''; position: absolute;
+      width: 20px; height: 20px; z-index: 2; pointer-events: none;
+    }
+    .form-ticks[data-on="1"]::before { top: -1px; right: -1px; border-top: 2px solid var(--s-accent); border-right: 2px solid var(--s-accent); border-radius: 0 var(--c-form-radius) 0 0; }
+    .form-ticks[data-on="1"]::after { bottom: -1px; left: -1px; border-bottom: 2px solid var(--s-accent); border-left: 2px solid var(--s-accent); border-radius: 0 0 0 var(--c-form-radius); }
+
+    .form-context-strip {
+      background: var(--s-accent-tint);
+      border-bottom: 1px solid var(--s-line);
+      padding: 12px 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: var(--s-font-mono);
+      font-size: 11px; font-weight: 500;
+      color: var(--s-accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      position: relative; z-index: 1;
+    }
+    .form-inner { padding: var(--c-form-pad); position: relative; z-index: 1; }
+    .form-title {
+      font-size: var(--c-form-title-size);
+      font-weight: var(--c-form-title-weight);
+      letter-spacing: -0.015em;
+      text-align: center;
+      margin-bottom: var(--p-space-6);
+      text-wrap: balance;
+    }
+    .form-progress {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: var(--c-form-progress-gap);
+      margin-bottom: var(--p-space-6);
+    }
+    .form-progress-seg {
+      height: var(--c-form-progress-h);
+      background: var(--s-line);
+      border-radius: 2px;
+      transition: background var(--s-motion-hover);
+    }
+    .form-progress-seg.active { background: var(--s-accent); box-shadow: 0 0 8px rgba(245,166,35,0.35); }
+
+    .form-step { display: none; }
+    .form-step.active { display: block; animation: formFadeIn var(--p-dur-3) var(--p-ease-out); }
+    .form-step-label {
+      font-family: var(--s-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--s-text-muted);
+      margin-bottom: 10px;
+    }
+    .form-step-question { font-size: 16px; font-weight: 600; color: var(--s-text); margin-bottom: var(--p-space-5); letter-spacing: -0.01em; }
+
+    .radio-group { display: flex; flex-direction: column; gap: 8px; }
+    .radio-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: var(--c-form-radio-pad);
+      border: 1px solid var(--s-line);
+      border-radius: var(--c-form-radio-radius);
+      cursor: pointer;
+      transition: border-color var(--s-motion-hover), background var(--s-motion-hover);
+      font-size: 14px; color: var(--s-text-secondary);
+    }
+    .radio-option:hover { border-color: var(--s-line-strong); background: rgba(245,166,35,0.03); }
+    .radio-option.selected { border-color: var(--s-accent); background: var(--s-accent-tint); color: var(--s-text); }
+    .radio-option input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .radio-option:has(input:focus-visible) { outline: 2px solid var(--s-accent); outline-offset: 2px; }
+    .radio-dot {
+      width: 16px; height: 16px;
+      border: 2px solid var(--s-line-strong);
+      border-radius: 50%; position: relative; flex-shrink: 0;
+      transition: border-color var(--s-motion-hover);
+    }
+    .radio-option.selected .radio-dot { border-color: var(--s-accent); }
+    .radio-option.selected .radio-dot::after {
+      content: ''; position: absolute; inset: 2px;
+      background: var(--s-accent); border-radius: 50%;
+    }
+
+    .form-field { margin-bottom: var(--p-space-5); }
+    .form-field label {
+      display: block;
+      font-family: var(--s-font-mono);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--s-text-muted);
+      margin-bottom: 8px;
+    }
+    .form-field input {
+      width: 100%;
+      padding: 10px 0;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--s-line-strong);
+      color: var(--s-text);
+      font-family: var(--s-font-body);
+      font-size: 15px;
+      transition: border-color var(--s-motion-hover);
+      outline: none;
+    }
+    .form-field input:focus { border-bottom-color: var(--s-accent); }
+    .form-field input::placeholder { color: var(--s-text-muted); }
+
+    .form-nav { display: flex; gap: 10px; margin-top: var(--p-space-6); }
+    .form-nav .cta-btn { flex: 1; }
+    .form-btn-back {
+      padding: 12px 18px; font-size: 13px; font-weight: 500;
+      color: var(--s-text-muted);
+      border: 1px solid var(--s-line);
+      background: transparent;
+      border-radius: var(--s-radius-btn);
+      font-family: var(--s-font-body);
+      transition: border-color var(--s-motion-hover), color var(--s-motion-hover);
+    }
+    .form-btn-back:hover { border-color: var(--s-line-strong); color: var(--s-text-secondary); }
+
+    .form-footer { padding: 18px 28px; border-top: 1px solid var(--s-line); position: relative; z-index: 1; }
+    .form-footer-text {
+      font-family: var(--s-font-mono);
+      font-size: 10px; color: var(--s-text-muted);
+      text-align: center; letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .form-footer-quote {
+      font-size: 13px; color: var(--s-text-secondary);
+      font-style: italic; padding-left: 12px;
+      border-left: 2px solid var(--s-accent);
+      line-height: 1.5;
+    }
+    .form-footer-quote cite {
+      display: block; font-style: normal;
+      font-family: var(--s-font-mono); font-size: 10px;
+      color: var(--s-text-muted); margin-top: 4px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    .form-confirmation { display: none; text-align: center; padding: 48px 28px; }
+    .form-confirmation.active { display: block; animation: formFadeIn var(--p-dur-4) var(--p-ease-out); }
+    .form-confirmation-icon {
+      width: 52px; height: 52px;
+      margin: 0 auto 16px;
+      border: 2px solid var(--s-accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .form-confirmation-icon svg { width: 24px; height: 24px; stroke: var(--s-accent); fill: none; stroke-width: 2.5; }
+    .form-confirmation h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.01em; }
+    .form-confirmation p { font-size: 14px; color: var(--s-text-secondary); line-height: 1.55; }
+
+    /* ===== Final CTA ===== */
+    .section-final-cta {
+      padding: var(--c-final-pad-y) 0;
+      background: var(--c-final-bg);
+      border-top: 1px solid var(--s-line);
+      border-bottom: 1px solid var(--s-line);
+      text-align: center;
+      position: relative;
+    }
+    .section-final-cta::before {
+      content: '';
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 640px; height: 400px;
+      background: radial-gradient(ellipse at 50% 0%, var(--s-accent-tint) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .final-cta-inner { position: relative; z-index: 1; }
+    .final-cta-headline {
+      font-size: var(--s-h2-size);
+      font-weight: var(--s-h2-weight);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      text-wrap: balance;
+    }
+    .final-cta-sub { font-size: 16px; color: var(--s-text-secondary); margin-bottom: var(--p-space-8); }
+
+    /* ===== Footer ===== */
+    .site-footer { padding: var(--c-footer-pad-y) 0; text-align: center; font-size: var(--c-footer-text-size); color: var(--s-text-muted); font-family: var(--s-font-mono); letter-spacing: 0.04em; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 10px; }
+    .footer-links a { color: var(--s-text-muted); font-size: 12px; transition: color var(--s-motion-hover); }
+    .footer-links a:hover { color: var(--s-accent); }
+
+    /* ===== Mobile sticky bar ===== */
+    .mobile-sticky-bar { display: none; }
+    .mobile-form-section { display: none; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1080px) {
+      .nav-links { display: none; }
+      .container { padding: 0 20px; }
+      .two-col { display: block; padding: 0 20px; }
+      .content-col { border-left: none; padding-left: 0; }
+      .scroll-marker { display: none; }
+      .form-rail { display: none; }
+      .mobile-form-section { display: block; padding: 56px 0; }
+      .mobile-form-section .form-card { max-width: 480px; margin: 0 auto; }
+      .mobile-sticky-bar {
+        display: block; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+        background: rgba(9,9,11,0.95); backdrop-filter: blur(16px);
+        border-top: 1px solid var(--s-line); padding: 12px 20px;
+      }
+      .mobile-sticky-bar .cta-btn { width: 100%; }
+      .stats-strip .container { grid-template-columns: repeat(2, 1fr); }
+      .stat-cell:nth-child(2) { border-right: none; }
+      .stat-cell:nth-child(1), .stat-cell:nth-child(2) { border-bottom: 1px solid var(--s-line); }
+      .channel-rail { grid-template-columns: 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr; }
+      .comparison-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .comparison-table { min-width: 620px; }
+      .hero { padding-top: 120px; }
+      .site-footer { padding-bottom: 80px; }
+      .problem-item-header { flex-direction: column; gap: 8px; }
+    }
+    @media (max-width: 600px) {
+      .stats-strip .container { grid-template-columns: 1fr; }
+      .stat-cell { border-right: none !important; border-bottom: 1px solid var(--s-line); }
+      .stat-cell:last-child { border-bottom: none; }
+      .publisher-card { width: 168px; height: 118px; padding: 14px 16px; }
+      .publisher-card__mark { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#problem" class="skip-link" style="position:absolute;top:-40px;left:0;background:var(--s-accent);color:var(--s-text-on-accent);padding:8px 16px;z-index:1000;font-size:14px;transition:top 0.2s" onfocus="this.style.top='0'" onblur="this.style.top='-40px'">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <a href="#" class="site-logo" aria-label="CPG Affiliate Partners">
+        <img src="logo.svg" alt="CPG Affiliate Partners" />
+      </a>
+      <nav class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#solution">Guarantee</a>
+        <a href="#results">Results</a>
+        <a href="#compare">Compare</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a href="#qualify-form" class="cta-btn cta-btn--sm header-cta">See If You Qualify</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" data-section="hero" data-variant="a">
+    <div class="container">
+      <div class="hero-inner">
+        <p class="eyebrow">Performance-Based Affiliate Marketing</p>
+        <h1 class="display-heading">Your Affiliate Program Is Paying for Customers You Already Have</h1>
+        <p class="hero-sub">We guarantee <strong>70%+ net new customers</strong>, ROAS beating your paid channels, and CAC at or below Meta. Written in your contract.</p>
+        <a href="#qualify-form" class="cta-btn">See If You Qualify</a>
+        <p class="hero-trust">Trusted by <strong>Coinbase, Lowe's, Everyday Dose,</strong> and 40+ DTC brands</p>
+        <div class="trust-logos" aria-hidden="true">
+          <span class="trust-logo trust-logo--coinbase">coinbase</span>
+          <span class="trust-logo trust-logo--lowes">LOWE'S</span>
+          <span class="trust-logo trust-logo--dose">Everyday Dose</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats strip -->
+  <div class="stats-strip" data-section="stats" data-variant="a">
+    <div class="container">
+      <div class="stat-cell"><div class="stat-value">$500M+</div><div class="stat-label">Revenue Driven</div></div>
+      <div class="stat-cell"><div class="stat-value">40</div><div class="stat-label">DTC Brands</div></div>
+      <div class="stat-cell"><div class="stat-value">30-50%</div><div class="stat-label">CPA Reduction</div></div>
+      <div class="stat-cell"><div class="stat-value">200+</div><div class="stat-label">Publisher Partners</div></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <main class="content-col">
+      <div class="scroll-marker"></div>
+
+      <!-- Problem -->
+      <section class="section-divider" id="problem">
+        <p class="eyebrow">The Problem</p>
+        <h2 class="section-heading">Why Most Affiliate Programs Fail</h2>
+        <p class="problem-intro">Three problems destroy affiliate programs from the inside.</p>
+
+        <div class="problem-item">
+          <div class="problem-item-header">
+            <h3 class="problem-item-title">Coupon Traffic Fraud</h3>
+            <span class="problem-item-stat">88% repeat customers</span>
+          </div>
+          <p class="problem-item-desc">Coupon affiliates wait for checkout, inject a code, and take credit. You pay commission for a sale that was already yours.</p>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-header">
+            <h3 class="problem-item-title">False ROAS Reporting</h3>
+            <span class="problem-item-stat">Reported 4.2x / True 0.3x</span>
+          </div>
+          <p class="problem-item-desc">Agencies hit impressive ROAS by counting repeat customers. The numbers look amazing. The growth is zero.</p>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-header">
+            <h3 class="problem-item-title">Misaligned Incentives</h3>
+            <span class="problem-item-stat">$8K/mo retainer / $0 guarantee</span>
+          </div>
+          <p class="problem-item-desc">Retainer agencies charge regardless of results. Zero performance guarantee. Zero accountability.</p>
+        </div>
+
+        <div class="problem-quote">
+          <p>"A previous agency told one of our clients to drop their CPA from $50 to $25. Every single sale was coupon traffic they would have gotten anyway."</p>
+        </div>
+      </section>
+
+      <!-- Solution / Guarantees -->
+      <section class="section-divider" id="solution" data-section="guarantee" data-variant="a">
+        <div class="guarantee-stack">
+          <div class="guarantee-heading-sticky">
+            <p class="eyebrow">The Solution</p>
+            <h2 class="section-heading">Three Conditions. Guaranteed in Your Contract.</h2>
+          </div>
+          <div class="guarantee-card" data-hue="violet">
+            <div class="guarantee-num-inline"><span class="num">01</span><span class="label">CAC</span></div>
+            <h3 class="guarantee-title">At or below your current Meta CAC.</h3>
+            <p class="guarantee-desc">Written in the contract before we start. If we miss, you don't pay. And you keep every customer we delivered.</p>
+          </div>
+          <div class="guarantee-card" data-hue="teal">
+            <div class="guarantee-num-inline"><span class="num">02</span><span class="label">ROAS</span></div>
+            <h3 class="guarantee-title">Beating your current Meta ROAS.</h3>
+            <p class="guarantee-desc">If we don't outperform your best-performing channel, we don't deserve your budget. Plain and simple.</p>
+          </div>
+          <div class="guarantee-card" data-hue="rose">
+            <div class="guarantee-num-inline"><span class="num">03</span><span class="label">New Customers</span></div>
+            <h3 class="guarantee-title">70%+ net new.<br><span class="glow-word" data-glow-color="#f5a623" style="color:#f5a623;opacity:0.3;transition:opacity 0.4s,text-shadow 0.4s">Not repeat.</span> <span class="glow-word" data-glow-color="#ef4444" style="color:#ef4444;opacity:0.3;transition:opacity 0.4s,text-shadow 0.4s">Not coupon.</span> <span class="glow-word" data-glow-color="#22c55e" style="color:#22c55e;opacity:0.3;transition:opacity 0.4s,text-shadow 0.4s">Verified.</span></h3>
+            <p class="guarantee-desc">Tracked and verified through first-party data. Written into the contract. Not a directional target.</p>
+          </div>
+        </div>
+
+        <p class="solution-closing">Every condition in your contract. If we don't deliver, you walk.</p>
+        <div class="mid-cta"><a href="#qualify-form" class="cta-btn">See If You Qualify</a></div>
+      </section>
+
+      <!-- Case studies -->
+      <section class="section-divider" id="results" data-section="case" data-variant="a">
+        <p class="eyebrow">Trusted By</p>
+        <h2 class="section-heading">Brands We've Scaled</h2>
+
+        <div class="case-study-carousel">
+          <div class="case-study-nav">
+            <button onclick="prevCase()" aria-label="Previous">←</button>
+            <button onclick="nextCase()" aria-label="Next">→</button>
+          </div>
+          <div class="case-study-dots" id="caseDots">
+            <span class="active"></span><span></span><span></span><span></span>
+          </div>
+
+          <div class="case-study-card active">
+            <div class="case-study-content">
+              <span class="case-study-tag">DTC Health &amp; Wellness</span>
+              <div class="case-study-metric">$100M+ affiliate revenue driven. CPA reduced 40% vs. Meta in 90 days.</div>
+              <div class="case-study-client">
+                <div class="case-study-client-logo logo-everyday-dose"><span>Everyday Dose</span></div>
+                <div>
+                  <div class="case-study-client-name">Everyday Dose</div>
+                  <div class="case-study-client-type">Functional Mushroom Coffee</div>
+                </div>
+              </div>
+            </div>
+            <div class="case-study-chart" data-revenues="2.1,3.8,6.2,11.4,18.7,29.3,42.1,58.6,78.2,96.4,100">
+              <svg viewBox="0 0 400 180">
+                <line x1="0" y1="150" x2="400" y2="150" stroke="var(--s-line)" stroke-width="0.5"/>
+                <line x1="0" y1="100" x2="400" y2="100" stroke="var(--s-line)" stroke-width="0.5" stroke-dasharray="2 4"/>
+                <line x1="0" y1="50" x2="400" y2="50" stroke="var(--s-line)" stroke-width="0.5" stroke-dasharray="2 4"/>
+                <polyline points="0,140 40,135 80,120 120,110 160,90 200,70 240,50 280,35 320,22 360,12 400,8"/>
+                <line class="chart-vline" x1="0" y1="0" x2="0" y2="180"/>
+                <circle class="chart-dot" cx="0" cy="0"/>
+                <g class="chart-tooltip"><rect x="0" y="0" width="72" height="26"/><text x="0" y="0">$0M</text></g>
+              </svg>
+            </div>
+          </div>
+          <div class="case-study-card">
+            <div class="case-study-content">
+              <span class="case-study-tag">DTC Supplements</span>
+              <div class="case-study-metric">$60M+ scaled via curated publishers. 78% net new customers verified.</div>
+              <div class="case-study-client">
+                <div class="case-study-client-logo logo-magic-mind"><span>MAGIC MIND</span></div>
+                <div>
+                  <div class="case-study-client-name">Magic Mind</div>
+                  <div class="case-study-client-type">Productivity Shots</div>
+                </div>
+              </div>
+            </div>
+            <div class="case-study-chart" data-revenues="1.2,2.4,5.1,9.8,16.3,24.7,34.2,45.8,53.1,58.7,60">
+              <svg viewBox="0 0 400 180">
+                <line x1="0" y1="150" x2="400" y2="150" stroke="var(--s-line)" stroke-width="0.5"/>
+                <polyline points="0,150 40,145 80,128 120,105 160,82 200,62 240,42 280,26 320,16 360,8 400,4"/>
+                <line class="chart-vline" x1="0" y1="0" x2="0" y2="180"/>
+                <circle class="chart-dot" cx="0" cy="0"/>
+                <g class="chart-tooltip"><rect x="0" y="0" width="72" height="26"/><text x="0" y="0">$0M</text></g>
+              </svg>
+            </div>
+          </div>
+          <div class="case-study-card">
+            <div class="case-study-content">
+              <span class="case-study-tag">Fintech</span>
+              <div class="case-study-metric">Enterprise affiliate program. 200+ premium publisher placements curated.</div>
+              <div class="case-study-client">
+                <div class="case-study-client-logo logo-coinbase"><span class="logo-coinbase__dot"></span><span>coinbase</span></div>
+                <div>
+                  <div class="case-study-client-name">Coinbase</div>
+                  <div class="case-study-client-type">Cryptocurrency Exchange</div>
+                </div>
+              </div>
+            </div>
+            <div class="case-study-chart" data-revenues="8.4,9.1,11.2,14.6,19.3,24.8,32.1,41.7,52.3,64.8,78">
+              <svg viewBox="0 0 400 180">
+                <line x1="0" y1="150" x2="400" y2="150" stroke="var(--s-line)" stroke-width="0.5"/>
+                <polyline points="0,110 40,108 80,100 120,92 160,80 200,70 240,58 280,46 320,36 360,26 400,20"/>
+                <line class="chart-vline" x1="0" y1="0" x2="0" y2="180"/>
+                <circle class="chart-dot" cx="0" cy="0"/>
+                <g class="chart-tooltip"><rect x="0" y="0" width="72" height="26"/><text x="0" y="0">$0M</text></g>
+              </svg>
+            </div>
+          </div>
+          <div class="case-study-card">
+            <div class="case-study-content">
+              <span class="case-study-tag">DTC Wellness</span>
+              <div class="case-study-metric">3x new customer acquisition. Launched in 14 days from onboarding.</div>
+              <div class="case-study-client">
+                <div class="case-study-client-logo logo-grounding"><span>The Grounding Co.</span></div>
+                <div>
+                  <div class="case-study-client-name">The Grounding Co.</div>
+                  <div class="case-study-client-type">Sleep &amp; Wellness</div>
+                </div>
+              </div>
+            </div>
+            <div class="case-study-chart" data-revenues="0.4,0.5,0.6,0.8,1.1,1.8,3.2,5.4,8.1,10.6,12">
+              <svg viewBox="0 0 400 180">
+                <line x1="0" y1="150" x2="400" y2="150" stroke="var(--s-line)" stroke-width="0.5"/>
+                <polyline points="0,150 40,148 80,145 120,140 160,130 200,110 240,78 280,48 320,20 360,8 400,4"/>
+                <line class="chart-vline" x1="0" y1="0" x2="0" y2="180"/>
+                <circle class="chart-dot" cx="0" cy="0"/>
+                <g class="chart-tooltip"><rect x="0" y="0" width="72" height="26"/><text x="0" y="0">$0M</text></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compare -->
+      <section class="section-divider" id="compare">
+        <p class="eyebrow">Compare</p>
+        <h2 class="section-heading">How We Compare</h2>
+
+        <div class="comparison-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th class="feature-cell">Feature</th>
+                <th><span class="cpg-indicator"></span>CPG</th>
+                <th>Retainer Agencies</th>
+                <th>DIY Networks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="feature-cell">Pricing</td><td class="cpg-col">Performance-only (one-time setup)</td><td class="other-col">$5K-25K/mo retainer</td><td class="other-col">Platform fees + commissions</td></tr>
+              <tr><td class="feature-cell">Contract</td><td class="cpg-col">Day-to-day, cancel anytime</td><td class="other-col">6-12 month lock-in</td><td class="other-col">Annual contract</td></tr>
+              <tr><td class="feature-cell">New Customer Guarantee</td><td class="cpg-col"><span class="table-check">70%+ in contract</span></td><td class="other-col"><span class="table-x">None</span></td><td class="other-col"><span class="table-x">None</span></td></tr>
+              <tr><td class="feature-cell">CAC/ROAS Guarantee</td><td class="cpg-col"><span class="table-check">In contract</span></td><td class="other-col"><span class="table-x">None</span></td><td class="other-col"><span class="table-x">None</span></td></tr>
+              <tr><td class="feature-cell">Coupon Sites</td><td class="cpg-col"><span class="table-check">Banned</span></td><td class="other-col">Used by default</td><td class="other-col">Open marketplace</td></tr>
+              <tr><td class="feature-cell">Publisher Quality</td><td class="cpg-col"><span class="table-check">Hand-curated</span></td><td class="other-col">Same network pool</td><td class="other-col">Anyone joins</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mid-cta"><a href="#qualify-form" class="cta-btn">See If You Qualify</a></div>
+      </section>
+
+      <!-- How it works -->
+      <section class="section-divider">
+        <p class="eyebrow">Process</p>
+        <h2 class="section-heading">How It Works</h2>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">01</div><div class="step-content"><h4>Apply &amp; Qualify</h4><p>4 questions, 2 minutes. We work with select DTC brands that meet our performance threshold.</p></div></div>
+          <div class="step-item"><div class="step-num">02</div><div class="step-content"><h4>Launch in 14 Days</h4><p>We handle publisher recruitment, program setup, and creative. You provide suppression files and product info.</p></div></div>
+          <div class="step-item"><div class="step-num">03</div><div class="step-content"><h4>Scale on Performance</h4><p>Pay only for completed sales. We optimize, expand channels, and scale what works. Cancel anytime.</p></div></div>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section class="section-divider">
+        <p class="eyebrow">Pricing</p>
+        <h2 class="section-heading">You Only Pay for Completed Sales.</h2>
+        <div class="pricing-body">
+          <p><strong>100% performance-based.</strong> No retainers. No monthly minimums. You only pay when we deliver sales.</p>
+          <p>One-time setup to onboard your brand and recruit publishers. Then every dollar you spend is tied directly to results. Cancel anytime.</p>
+          <div class="pricing-tag">Day-to-day contract · Cancel anytime</div>
+        </div>
+      </section>
+
+      <!-- Publisher network -->
+      <section class="section-divider">
+        <p class="eyebrow">Publisher Network</p>
+        <h2 class="section-heading">Your Brand, Placed with the World's Largest Publishers</h2>
+        <div class="publisher-scroller" aria-label="Publisher network">
+          <div class="publisher-track">
+            <!-- Set A -->
+            <article class="publisher-card pc-disney"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Disney</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Lifestyle</span><span class="publisher-card__reach">O&amp;O</span></div>
+            </article>
+            <article class="publisher-card pc-forbes"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Forbes</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Finance</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-capone"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Capital One</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Rewards</span><span class="publisher-card__reach">106M&nbsp;users</span></div>
+            </article>
+            <article class="publisher-card pc-cnn"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">CNN</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-nbc"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">NBC</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Broadcast</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-buzzfeed"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">BuzzFeed</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Lifestyle</span><span class="publisher-card__reach">150M&nbsp;MAU</span></div>
+            </article>
+            <article class="publisher-card pc-bi"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Business<br/>Insider</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Finance</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-usat"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">USA Today</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-nypost"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">NY Post</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-healthline"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Healthline</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Health</span><span class="publisher-card__reach">110M&nbsp;MAU</span></div>
+            </article>
+            <!-- Set B (duplicate, aria-hidden so screenreaders don't read twice) -->
+            <article class="publisher-card pc-disney" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Disney</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Lifestyle</span><span class="publisher-card__reach">O&amp;O</span></div>
+            </article>
+            <article class="publisher-card pc-forbes" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Forbes</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Finance</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-capone" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Capital One</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Rewards</span><span class="publisher-card__reach">106M&nbsp;users</span></div>
+            </article>
+            <article class="publisher-card pc-cnn" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">CNN</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-nbc" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">NBC</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Broadcast</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-buzzfeed" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">BuzzFeed</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Lifestyle</span><span class="publisher-card__reach">150M&nbsp;MAU</span></div>
+            </article>
+            <article class="publisher-card pc-bi" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Business<br/>Insider</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Finance</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-usat" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">USA Today</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-nypost" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">NY Post</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">News</span><span class="publisher-card__reach">Tier 1</span></div>
+            </article>
+            <article class="publisher-card pc-healthline" aria-hidden="true"><span class="publisher-card__tint"></span>
+              <div class="publisher-card__mark">Healthline</div>
+              <div class="publisher-card__meta"><span class="publisher-card__cat">Health</span><span class="publisher-card__reach">110M&nbsp;MAU</span></div>
+            </article>
+          </div>
+        </div>
+        <div class="channel-rail">
+          <div class="channel-rail__label">Channels</div>
+          <div class="channel-rail__items">
+            <span class="channel-chip">Employee Benefits</span>
+            <span class="channel-chip">College Discounts</span>
+            <span class="channel-chip">Newsletters</span>
+            <span class="channel-chip">Content Creators</span>
+            <span class="channel-chip">DSP / Programmatic</span>
+            <span class="channel-chip">CTV / Streaming</span>
+          </div>
+        </div>
+        <p class="publisher-note">// We curate every publisher. Your brand stays protected.</p>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="section-divider" id="testimonials">
+        <p class="eyebrow">Results</p>
+        <h2 class="section-heading">Don't Take Our Word For It</h2>
+        <div class="testimonial-grid">
+          <div class="testimonial-card"><p class="testimonial-quote">Immediately impressed... immediate results on our offer.</p><div class="testimonial-author">Dan Webster</div><div class="testimonial-role">CEO, Everyday Dose</div></div>
+          <div class="testimonial-card"><p class="testimonial-quote">Bring our CAC down while adapting to unit economics.</p><div class="testimonial-author">Jack Klauber</div><div class="testimonial-role">CEO, Magic Mind</div></div>
+          <div class="testimonial-card"><p class="testimonial-quote">Lowered our CPAs by 50%... under-promised, over-delivered.</p><div class="testimonial-author">Russell Saks</div><div class="testimonial-role">CEO, MTN OPS</div></div>
+          <div class="testimonial-card"><p class="testimonial-quote">Best-in-class... prove it each month through performance.</p><div class="testimonial-author">Jack McNamara</div><div class="testimonial-role">CEO, SuperMush</div></div>
+          <div class="testimonial-card"><p class="testimonial-quote">Built our free trial to 5 figures of revenue quickly.</p><div class="testimonial-author">John Hagan</div><div class="testimonial-role">Dir. Marketing, Harlo</div></div>
+          <div class="testimonial-card"><p class="testimonial-quote">Run a tight ship... hands off... getting results.</p><div class="testimonial-author">Ashvin Melwani</div><div class="testimonial-role">CEO, Obvi</div></div>
+        </div>
+        <div class="mid-cta"><a href="#qualify-form" class="cta-btn">See If You Qualify</a></div>
+      </section>
+
+      <!-- Founder -->
+      <section class="section-divider">
+        <p class="eyebrow">Founder</p>
+        <h2 class="section-heading">Meet the Founder</h2>
+        <div class="founder-card">
+          <div class="founder-header">
+            <div class="founder-name">KRIK ANGACIAN</div>
+            <span class="founder-badge">8-Figure Founder</span>
+          </div>
+          <p class="founder-bio">I started on Wall Street in investment banking. Then I invented the protein chip category and built a brand to eight figures. Meta and iOS destroyed my candy company overnight. I watched agencies charge retainers they didn't earn. So I built CPG Affiliate Partners to fix everything I hated about affiliate marketing. Performance-based. Transparent. Accountable. If we don't deliver, you don't pay.</p>
+          <blockquote class="founder-pullquote">"I built this agency because every other one would have destroyed my brand."</blockquote>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="section-divider" id="faq">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="section-heading">Everything You're Wondering</h2>
+        <div class="faq-list">
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">What does the setup fee cover?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">The setup fee covers publisher escrow, which guarantees payouts to your affiliate partners. This trust is what gets you access to premium publishers and faster ramp-up. Escrow equals guaranteed sales. Publishers prioritize programs they trust.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">This sounds too good to be true.<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">We hear that often. Retainer agencies get paid whether you grow or not. We only get paid when you make sales. That forces us to perform. Two-year average client retention with a day-to-day contract. That's the proof.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">How long until I see results?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">Most brands see first sales within 30-60 days of launch. Full-scale performance typically arrives at 90-120 days. Optimized publisher mix, expanded channels, peak ROAS.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">What if it doesn't work?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">Cancel anytime. It's a day-to-day contract with no monthly minimums. If we're not outperforming your current channels, you walk. No lock-ins, no penalties.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">How many brands do you work with at once?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">We cap our direct roster at around 30 active brands. Every publisher relationship is hand-curated, so we can't just bolt on unlimited clients without diluting quality. When we're full, we run a waitlist. If you qualify, we'll tell you honestly where you stand.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">Won't this cannibalize our email and retargeting?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">No. We run IP-match suppression against your existing customer file before any publisher touches a campaign. Repeat buyers are filtered out at the source. That's why we guarantee 70%+ net new customers in the contract — and we back it with a dynamic payout lever. If net-new drops, publisher payouts drop automatically.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">Why can't I see the publisher list upfront?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">Publisher relationships take years to build and protect. If we shared the full list on day one, there's nothing stopping a brand from going direct and cutting us out — which is exactly what some have tried. We use progressive disclosure: you get full transparency into publisher performance at months 3-4, once the relationship is proven. Anti-circumvention clauses are industry standard for this reason.</div></div></div>
+          <div class="faq-item"><button class="faq-trigger" type="button" aria-expanded="false">How do you actually verify 70% net new?<span class="faq-icon">+</span></button><div class="faq-body"><div class="faq-body-inner">First-party data match. We cross-reference every affiliate-attributed sale against your existing customer database using email and IP matching. The 70%+ threshold is written into your contract with a dynamic payout lever — if the net-new rate dips, publisher commissions automatically adjust downward. You're never paying for customers you already had.</div></div></div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Form rail -->
+    <aside class="form-rail" id="qualify-form" data-section="form" data-variant="a">
+      <div class="form-card" data-glow="1">
+        <div class="form-ticks" data-on="1" style="position:absolute;inset:0;pointer-events:none;"></div>
+        <div class="form-context-strip"><span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e,0 0 16px rgba(34,197,94,0.4);margin-right:8px;vertical-align:middle"></span>Only space for 3 new partners this month</div>
+        <div class="form-inner">
+          <h3 class="form-title">See If You Qualify for Guaranteed Results</h3>
+          <div class="form-progress">
+            <div class="form-progress-seg active" data-step="1"></div>
+            <div class="form-progress-seg" data-step="2"></div>
+            <div class="form-progress-seg" data-step="3"></div>
+            <div class="form-progress-seg" data-step="4"></div>
+          </div>
+          <form id="qualifyForm" novalidate>
+            <div class="form-step active" data-step="1">
+              <div class="form-step-label">Step 1 of 4</div>
+              <div class="form-step-question">What is your monthly revenue?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="revenue" value="Under $2M"><span class="radio-dot"></span>Under $2M</label>
+                <label class="radio-option"><input type="radio" name="revenue" value="$2M-$5M"><span class="radio-dot"></span>$2M – $5M</label>
+                <label class="radio-option"><input type="radio" name="revenue" value="$5M-$10M"><span class="radio-dot"></span>$5M – $10M</label>
+                <label class="radio-option"><input type="radio" name="revenue" value="$10M-$20M"><span class="radio-dot"></span>$10M – $20M</label>
+                <label class="radio-option"><input type="radio" name="revenue" value="$20M+"><span class="radio-dot"></span>$20M+</label>
+              </div>
+            </div>
+            <div class="form-step" data-step="2">
+              <div class="form-step-label">Step 2 of 4</div>
+              <div class="form-step-question">What is your brand category?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="category" value="Health"><span class="radio-dot"></span>Health &amp; Wellness</label>
+                <label class="radio-option"><input type="radio" name="category" value="Beauty"><span class="radio-dot"></span>Beauty &amp; Skincare</label>
+                <label class="radio-option"><input type="radio" name="category" value="Food"><span class="radio-dot"></span>Food &amp; Beverage</label>
+                <label class="radio-option"><input type="radio" name="category" value="Supplements"><span class="radio-dot"></span>Supplements &amp; Nutrition</label>
+                <label class="radio-option"><input type="radio" name="category" value="Other"><span class="radio-dot"></span>Other DTC</label>
+              </div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(2)">Back</button></div>
+            </div>
+            <div class="form-step" data-step="3">
+              <div class="form-step-label">Step 3 of 4</div>
+              <div class="form-step-question">What is your monthly ad spend?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="adspend" value="u20"><span class="radio-dot"></span>Under $20K</label>
+                <label class="radio-option"><input type="radio" name="adspend" value="20-50"><span class="radio-dot"></span>$20K – $50K</label>
+                <label class="radio-option"><input type="radio" name="adspend" value="50-100"><span class="radio-dot"></span>$50K – $100K</label>
+                <label class="radio-option"><input type="radio" name="adspend" value="100+"><span class="radio-dot"></span>$100K+</label>
+              </div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(3)">Back</button></div>
+            </div>
+            <div class="form-step" data-step="4">
+              <div class="form-step-label">Step 4 of 4</div>
+              <div class="form-step-question">Your contact information</div>
+              <div class="form-field"><label for="formName">Name</label><input type="text" id="formName" placeholder="Full name" required></div>
+              <div class="form-field"><label for="formEmail">Email</label><input type="email" id="formEmail" placeholder="work@company.com" required></div>
+              <div class="form-field"><label for="formWebsite">Website</label><input type="url" id="formWebsite" placeholder="https://yourbrand.com" required></div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(4)">Back</button><button type="submit" class="cta-btn cta-btn--sm">Book My Strategy Call</button></div>
+            </div>
+          </form>
+          <div class="form-confirmation" id="formConfirmation">
+            <div class="form-confirmation-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <h3>You're In. Check Your Email.</h3>
+            <p>We'll review and reach out within 24 hours.</p>
+          </div>
+        </div>
+        <div class="form-footer">
+          <p class="form-footer-text">Day-to-day contract · Cancel anytime</p>
+          <div class="form-footer-quote">"Lowered our CPAs by 50%."<cite>— Russell Saks, CEO</cite></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Form -->
+  <section class="mobile-form-section" id="mobile-form">
+    <div class="container">
+      <div class="form-card" data-glow="1">
+        <div class="form-inner">
+          <h3 class="form-title">See If You Qualify for Guaranteed Results</h3>
+          <div class="form-progress">
+            <div class="form-progress-seg active" data-step="1"></div>
+            <div class="form-progress-seg" data-step="2"></div>
+            <div class="form-progress-seg" data-step="3"></div>
+            <div class="form-progress-seg" data-step="4"></div>
+          </div>
+          <form id="qualifyFormMobile" novalidate>
+            <div class="form-step active" data-step="1">
+              <div class="form-step-label">Step 1 of 4</div>
+              <div class="form-step-question">What is your monthly revenue?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="m_revenue" value="Under $2M"><span class="radio-dot"></span>Under $2M</label>
+                <label class="radio-option"><input type="radio" name="m_revenue" value="$2M-$5M"><span class="radio-dot"></span>$2M – $5M</label>
+                <label class="radio-option"><input type="radio" name="m_revenue" value="$5M-$10M"><span class="radio-dot"></span>$5M – $10M</label>
+                <label class="radio-option"><input type="radio" name="m_revenue" value="$10M-$20M"><span class="radio-dot"></span>$10M – $20M</label>
+                <label class="radio-option"><input type="radio" name="m_revenue" value="$20M+"><span class="radio-dot"></span>$20M+</label>
+              </div>
+            </div>
+            <div class="form-step" data-step="2">
+              <div class="form-step-label">Step 2 of 4</div>
+              <div class="form-step-question">What is your brand category?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="m_category" value="Health"><span class="radio-dot"></span>Health &amp; Wellness</label>
+                <label class="radio-option"><input type="radio" name="m_category" value="Beauty"><span class="radio-dot"></span>Beauty &amp; Skincare</label>
+                <label class="radio-option"><input type="radio" name="m_category" value="Food"><span class="radio-dot"></span>Food &amp; Beverage</label>
+                <label class="radio-option"><input type="radio" name="m_category" value="Supplements"><span class="radio-dot"></span>Supplements &amp; Nutrition</label>
+                <label class="radio-option"><input type="radio" name="m_category" value="Other"><span class="radio-dot"></span>Other DTC</label>
+              </div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(2)">Back</button></div>
+            </div>
+            <div class="form-step" data-step="3">
+              <div class="form-step-label">Step 3 of 4</div>
+              <div class="form-step-question">What is your monthly ad spend?</div>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="m_adspend" value="u20"><span class="radio-dot"></span>Under $20K</label>
+                <label class="radio-option"><input type="radio" name="m_adspend" value="20-50"><span class="radio-dot"></span>$20K – $50K</label>
+                <label class="radio-option"><input type="radio" name="m_adspend" value="50-100"><span class="radio-dot"></span>$50K – $100K</label>
+                <label class="radio-option"><input type="radio" name="m_adspend" value="100+"><span class="radio-dot"></span>$100K+</label>
+              </div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(3)">Back</button></div>
+            </div>
+            <div class="form-step" data-step="4">
+              <div class="form-step-label">Step 4 of 4</div>
+              <div class="form-step-question">Your contact information</div>
+              <div class="form-field"><label for="mFormName">Name</label><input type="text" id="mFormName" placeholder="Full name" required></div>
+              <div class="form-field"><label for="mFormEmail">Email</label><input type="email" id="mFormEmail" placeholder="work@company.com" required></div>
+              <div class="form-field"><label for="mFormWebsite">Website</label><input type="url" id="mFormWebsite" placeholder="https://yourbrand.com" required></div>
+              <div class="form-nav"><button type="button" class="form-btn-back" onclick="prevStep(4)">Back</button><button type="submit" class="cta-btn cta-btn--sm">Book My Strategy Call</button></div>
+            </div>
+          </form>
+          <div class="form-confirmation" id="mFormConfirmation">
+            <div class="form-confirmation-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <h3>You're In. Check Your Email.</h3>
+            <p>We'll review and reach out within 24 hours.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="section-final-cta">
+    <div class="container">
+      <div class="final-cta-inner">
+        <h2 class="final-cta-headline">Ready to Scale with Affiliates That Actually Perform?</h2>
+        <p class="final-cta-sub">15-minute strategy call. No pitch deck. Just your numbers and ours.</p>
+        <a href="#qualify-form" class="cta-btn">See If You Qualify</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© 2026 CPG·AP · All rights reserved</p>
+      <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="Design System.html">Design System</a></div>
+    </div>
+  </footer>
+
+  <div class="mobile-sticky-bar"><a href="#mobile-form" class="cta-btn cta-btn--sm">See If You Qualify</a></div>
+
+  <script>
+    /* ============ Design defaults ============ */
+    const TWEAK_DEFAULTS = {
+      "aesthetic": "editorial",
+      "heroGlow": 0.105,
+      "heroHue": 48,
+      "rhythm": 72,
+      "radius": 12,
+      "grain": 0.035,
+      "formGlow": 1,
+      "formTicks": 1
+    };
+    let state = { ...TWEAK_DEFAULTS };
+
+    function applyState() {
+      const root = document.documentElement;
+      root.setAttribute('data-aesthetic', state.aesthetic);
+      root.style.setProperty('--c-hero-glow-strength', state.heroGlow);
+      root.style.setProperty('--c-hero-glow-hue', state.heroHue);
+      root.style.setProperty('--s-section-pad-y', state.rhythm + 'px');
+      root.style.setProperty('--s-radius-card', state.radius + 'px');
+      root.style.setProperty('--s-radius-btn', Math.max(0, state.radius - 2) + 'px');
+      root.style.setProperty('--c-grain-opacity', state.grain);
+      document.querySelectorAll('.form-card').forEach(c => c.setAttribute('data-glow', state.formGlow));
+      document.querySelectorAll('.form-ticks').forEach(t => t.setAttribute('data-on', state.formTicks));
+    }
+
+    /* ============ Form engine ============ */
+    function initForm(formId, confirmId) {
+      var form = document.getElementById(formId);
+      if (!form) return;
+      var card = form.closest('.form-card');
+      var steps = form.querySelectorAll('.form-step');
+      var progressSegs = card.querySelectorAll('.form-progress-seg');
+      var confirmation = document.getElementById(confirmId);
+
+      function goToStep(step) {
+        steps.forEach(function(s) { s.classList.remove('active'); });
+        var target = form.querySelector('.form-step[data-step="' + step + '"]');
+        if (target) { target.classList.add('active'); target.focus(); }
+        progressSegs.forEach(function(p) {
+          p.classList.toggle('active', parseInt(p.getAttribute('data-step')) <= step);
+        });
+      }
+
+      form.addEventListener('click', function(e) {
+        var opt = e.target.closest('.radio-option'); if (!opt) return;
+        opt.closest('.radio-group').querySelectorAll('.radio-option').forEach(function(o) { o.classList.remove('selected'); });
+        opt.classList.add('selected');
+        opt.querySelector('input').checked = true;
+        var step = parseInt(opt.closest('.form-step').getAttribute('data-step'));
+        if (step <= 3) setTimeout(function() { goToStep(step + 1); }, 150);
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var inputs = form.querySelectorAll('.form-step[data-step="4"] input');
+        var valid = true;
+        inputs.forEach(function(inp) { if (!inp.value.trim()) valid = false; });
+        var emailEl = form.querySelector('input[type="email"]');
+        if (emailEl && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) valid = false;
+        if (!valid) return;
+        form.style.display = 'none';
+        card.querySelector('.form-progress').style.display = 'none';
+        card.querySelector('.form-title').style.display = 'none';
+        confirmation.classList.add('active');
+      });
+
+      return goToStep;
+    }
+
+    var goToStepDesktop = initForm('qualifyForm', 'formConfirmation');
+    var goToStepMobile = initForm('qualifyFormMobile', 'mFormConfirmation');
+
+    window.prevStep = function(step) {
+      var activeForm = document.querySelector('.form-step.active');
+      if (!activeForm) return;
+      var form = activeForm.closest('form');
+      var goTo = form.id === 'qualifyFormMobile' ? goToStepMobile : goToStepDesktop;
+      if (goTo) goTo(step - 1);
+    };
+
+    /* ============ FAQ ============ */
+    document.querySelectorAll('.faq-trigger').forEach(trigger => {
+      trigger.addEventListener('click', function() {
+        const item = this.closest('.faq-item');
+        const body = item.querySelector('.faq-body');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(o => {
+          if (o !== item) {
+            o.classList.remove('open');
+            o.querySelector('.faq-trigger').setAttribute('aria-expanded','false');
+            o.querySelector('.faq-body').style.maxHeight = '0';
+          }
+        });
+        if (isOpen) {
+          item.classList.remove('open');
+          this.setAttribute('aria-expanded','false');
+          body.style.maxHeight = '0';
+        } else {
+          item.classList.add('open');
+          this.setAttribute('aria-expanded','true');
+          body.style.maxHeight = body.scrollHeight + 'px';
+        }
+      });
+    });
+
+    /* ============ Carousel ============ */
+    (function(){
+      const cards = document.querySelectorAll('.case-study-card');
+      const dots = document.querySelectorAll('#caseDots span');
+      if (!cards.length) return;
+      let current = 0;
+      const render = () => {
+        cards.forEach((c, i) => c.classList.toggle('active', i === current));
+        dots.forEach((d, i) => d.classList.toggle('active', i === current));
+      };
+      window.nextCase = () => { current = (current + 1) % cards.length; render(); };
+      window.prevCase = () => { current = (current - 1 + cards.length) % cards.length; render(); };
+    })();
+
+    /* ============ Smooth scroll ============ */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          const top = target.getBoundingClientRect().top + window.pageYOffset - 72;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    /* ============ Header scroll state ============ */
+    (function(){
+      const header = document.querySelector('.site-header');
+      window.addEventListener('scroll', () => {
+        header.style.borderBottomColor = window.scrollY > 40 ? 'var(--s-line-strong)' : 'var(--s-line)';
+      }, { passive: true });
+    })();
+
+    /* ============ Interactive Charts ============ */
+    document.querySelectorAll('.case-study-chart').forEach(function(chart) {
+      var svg = chart.querySelector('svg');
+      var poly = chart.querySelector('polyline:not(.accent)');
+      var dot = chart.querySelector('.chart-dot');
+      var vline = chart.querySelector('.chart-vline');
+      var tooltip = chart.querySelector('.chart-tooltip');
+      if (!svg || !poly || !dot || !vline || !tooltip) return;
+
+      var revenues = (chart.dataset.revenues || '').split(',').map(Number);
+      var pts = poly.getAttribute('points').trim().split(/\s+/).map(function(p) {
+        var xy = p.split(','); return { x: +xy[0], y: +xy[1] };
+      });
+
+      function getYAtX(x) {
+        for (var i = 0; i < pts.length - 1; i++) {
+          if (x >= pts[i].x && x <= pts[i + 1].x) {
+            var t = (x - pts[i].x) / (pts[i + 1].x - pts[i].x);
+            return pts[i].y + t * (pts[i + 1].y - pts[i].y);
+          }
+        }
+        return pts[pts.length - 1].y;
+      }
+
+      function getRevenueAtX(x) {
+        var frac = x / 400;
+        var idx = frac * (revenues.length - 1);
+        var lo = Math.floor(idx);
+        var hi = Math.min(lo + 1, revenues.length - 1);
+        var t = idx - lo;
+        return revenues[lo] + t * (revenues[hi] - revenues[lo]);
+      }
+
+      chart.addEventListener('mousemove', function(e) {
+        var rect = svg.getBoundingClientRect();
+        var relX = (e.clientX - rect.left) / rect.width;
+        var svgX = Math.max(0, Math.min(400, relX * 400));
+        var svgY = getYAtX(svgX);
+        var rev = getRevenueAtX(svgX);
+
+        dot.setAttribute('cx', svgX);
+        dot.setAttribute('cy', svgY);
+        vline.setAttribute('x1', svgX);
+        vline.setAttribute('x2', svgX);
+
+        var ttText = tooltip.querySelector('text');
+        var ttRect = tooltip.querySelector('rect');
+        var label = '$' + rev.toFixed(1) + 'M';
+        ttText.textContent = label;
+        var ttW = label.length * 8 + 16;
+        ttRect.setAttribute('width', ttW);
+        var ttX = Math.min(svgX - ttW / 2, 400 - ttW);
+        ttX = Math.max(0, ttX);
+        var ttY = svgY - 34;
+        if (ttY < 4) ttY = svgY + 12;
+        ttRect.setAttribute('x', ttX);
+        ttRect.setAttribute('y', ttY);
+        ttText.setAttribute('x', ttX + ttW / 2);
+        ttText.setAttribute('y', ttY + 17);
+        ttText.setAttribute('text-anchor', 'middle');
+      });
+    });
+
+    /* ============ Scroll reveal ============ */
+    (function() {
+      var sections = document.querySelectorAll('.section-divider');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      sections.forEach(function(s) { observer.observe(s); });
+    })();
+
+    /* ============ Hide heading when card 03 overlaps ============ */
+    (function() {
+      var heading = document.querySelector('.guarantee-heading-sticky');
+      var card3 = document.querySelector('.guarantee-card[data-hue="rose"]');
+      if (!heading || !card3) return;
+      window.addEventListener('scroll', function() {
+        var hRect = heading.getBoundingClientRect();
+        var cRect = card3.getBoundingClientRect();
+        heading.style.opacity = cRect.top <= hRect.bottom ? '0' : '1';
+      });
+    })();
+
+    /* ============ Guarantee card 03 auto glow sequence ============ */
+    (function() {
+      var card3 = document.querySelector('.guarantee-card[data-hue="rose"]');
+      if (!card3) return;
+      var words = card3.querySelectorAll('.glow-word');
+      if (words.length < 3) return;
+      var fired = false;
+
+      var observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting && !fired) {
+          fired = true;
+          words.forEach(function(w, i) {
+            var color = w.getAttribute('data-glow-color');
+            setTimeout(function() {
+              w.style.opacity = '1';
+              w.style.textShadow = '0 0 24px ' + color + ', 0 0 48px ' + color;
+              setTimeout(function() {
+                w.style.textShadow = '0 0 8px ' + color;
+              }, 600);
+            }, i * 500);
+          });
+        }
+      }, { threshold: 0.5 });
+      observer.observe(card3);
+    })();
+
+    /* ============ Form glow blink on CTA click ============ */
+    document.querySelectorAll('a[href="#qualify-form"]').forEach(function(a) {
+      a.addEventListener('click', function() {
+        var card = document.querySelector('.form-card[data-glow="1"]');
+        if (!card) return;
+        var blink = '0 0 30px rgba(200,120,0,0.8), 0 0 60px rgba(200,120,0,0.4), inset 0 0 20px rgba(200,120,0,0.15)';
+        card.style.transition = 'box-shadow 0.4s ease';
+        card.style.boxShadow = blink;
+        setTimeout(function() { card.style.boxShadow = 'none'; }, 500);
+        setTimeout(function() { card.style.boxShadow = blink; }, 900);
+        setTimeout(function() { card.style.boxShadow = 'none'; card.style.transition = ''; }, 1400);
+      });
+    });
+
+    /* ============ Header CTA hide when form visible ============ */
+    (function() {
+      var formRail = document.querySelector('.form-rail');
+      var header = document.querySelector('.site-header');
+      if (formRail && header) {
+        var observer = new IntersectionObserver(function(entries) {
+          header.setAttribute('data-cta-hidden', entries[0].isIntersecting ? '1' : '0');
+        }, { threshold: 0.1 });
+        observer.observe(formRail);
+      }
+    })();
+
+    /* ============ Init ============ */
+    applyState();
+  </script>
+
+</body>
+</html>

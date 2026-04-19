@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Redstone &mdash; Focus Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css?v=zt3">
+<style>
+:root{
+  --red:#B21E24; --red-dark:#8B1519; --red-light:#D4393F; --red-soft:#FCE9EA;
+  --ink:#0F0F11; --ink-2:#1F1F22;
+  --gray-900:#1A1A1A; --gray-800:#2C2C2E; --gray-700:#3F3F3F; --gray-600:#616060;
+  --gray-500:#8C8C8C; --gray-400:#B1B1B1; --gray-300:#D4D4D4; --gray-250:#E0E0E0;
+  --gray-200:#EAEAEA; --gray-150:#EFEFEF; --gray-100:#F4F4F5; --gray-75:#F7F7F8;
+  --gray-50:#FAFAFA; --white:#FFFFFF;
+  --green:#1F9D55; --green-soft:#E5F5EC;
+  --amber:#C77700; --amber-soft:#FBF1E2;
+  --blue:#1F5FCC; --blue-soft:#E5EEFB;
+  --purple:#6E3AB5; --purple-soft:#EFE6F8;
+
+  --display:var(--rs-font-display, 'Host Grotesk', sans-serif);
+  --body:var(--rs-font-body, 'Host Grotesk', sans-serif);
+  --mono:var(--rs-font-mono, 'JetBrains Mono', monospace);
+
+  --container:1320px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--rs-bg, var(--gray-75));color:var(--gray-700);font-family:var(--body);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.mono{font-family:var(--mono);font-feature-settings:"tnum" 1,"lnum" 1}
+.wrap{max-width:var(--container);margin:0 auto;padding:0 36px}
+
+/* TOP BAR */
+.topbar{background:var(--rs-ink, #262626);border-bottom:1px solid rgba(255,255,255,0.1);padding:16px 0;position:sticky;top:0;z-index:50;backdrop-filter:saturate(150%) blur(8px);background:rgba(38,38,38,0.96)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:42px;height:42px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;letter-spacing:-0.05em}
+.brand-name{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-0.01em;color:#fff}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.14em;font-weight:600;margin-top:1px}
+.topbar-meta{display:flex;align-items:center;gap:22px;font-size:12px;color:rgba(255,255,255,0.5);font-weight:500}
+.topbar-meta .item{display:flex;align-items:center;gap:8px}
+.topbar-meta .item b{color:#fff;font-weight:700}
+.live-pill{display:inline-flex;align-items:center;gap:8px;background:var(--green-soft);color:var(--green);padding:6px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.live-pill::before{content:"";width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+
+/* HERO */
+.hero{padding:56px 0 40px;background:var(--white);position:relative;overflow:hidden;border-bottom:1px solid var(--gray-200)}
+.hero::before{content:"";position:absolute;top:0;right:0;width:520px;height:100%;background:linear-gradient(135deg,transparent 40%,var(--red-soft) 100%);clip-path:polygon(40% 0,100% 0,100% 100%,15% 100%);pointer-events:none;opacity:0.7}
+.hero::after{content:"R";position:absolute;top:40px;right:60px;font-family:var(--display);font-size:220px;font-weight:800;color:var(--red);opacity:0.05;line-height:0.85;letter-spacing:-0.05em;pointer-events:none}
+.hero-inner{position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:18px}
+.hero-eyebrow .bar{width:28px;height:2px;background:var(--red)}
+.hero h1{font-family:var(--display);font-size:clamp(2.4em,5vw,3.6em);font-weight:400;letter-spacing:-0.025em;line-height:1.02;color:var(--gray-900);margin-bottom:18px;max-width:820px}
+.hero h1 em{font-style:normal;color:var(--red);font-weight:500}
+.hero p{color:var(--gray-600);font-size:16px;max-width:680px;line-height:1.6}
+.hero p b{color:var(--gray-900);font-weight:600}
+
+/* KPI STRIP */
+.kpi-strip{margin-top:42px;background:var(--white);border:1px solid var(--gray-200);display:grid;grid-template-columns:repeat(5,1fr);overflow:hidden;position:relative}
+.kpi{padding:24px 26px;border-right:1px solid var(--gray-200);position:relative}
+.kpi:last-child{border-right:none}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-500);font-weight:600;margin-bottom:10px}
+.kpi-val{font-family:var(--display);font-size:2.1em;font-weight:700;letter-spacing:-0.025em;line-height:1;color:var(--gray-900)}
+.kpi-val.red{color:var(--red)}
+.kpi-val.green{color:var(--green)}
+.kpi-val.amber{color:var(--amber)}
+.kpi-val.blue{color:var(--blue)}
+.kpi-sub{font-size:12px;color:var(--gray-500);margin-top:8px;font-weight:500}
+
+/* SECTION */
+.section{padding:64px 0;position:relative}
+.section.alt{background:var(--white);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;gap:24px;flex-wrap:wrap}
+.section-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.16em;color:var(--gray-500);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.section-eyebrow .bar{width:24px;height:2px;background:var(--red)}
+.section-h{font-family:var(--display);font-size:2em;font-weight:400;letter-spacing:-0.022em;line-height:1.05;color:var(--gray-900);max-width:620px}
+.section-h em{font-style:normal;color:var(--red);font-weight:500}
+.section-desc{font-size:14px;color:var(--gray-600);max-width:460px;text-align:right;line-height:1.55}
+.section-desc b{color:var(--gray-900);font-weight:600}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--gray-200);overflow:hidden}
+
+/* ACCORDION */
+.accordions{display:flex;flex-direction:column;gap:16px}
+details.acc{background:var(--white);border:1px solid var(--gray-200);overflow:hidden;transition:border-color .2s}
+details.acc:hover{border-color:var(--gray-250)}
+details.acc summary{list-style:none;cursor:pointer;padding:22px 28px;display:flex;align-items:center;gap:18px;user-select:none;transition:background .15s}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary:hover{background:var(--gray-50)}
+.acc-arrow{width:11px;height:11px;border-right:2px solid var(--gray-500);border-bottom:2px solid var(--gray-500);transform:rotate(-45deg);transition:transform .2s;flex-shrink:0;margin-right:4px}
+details.acc[open] .acc-arrow{transform:rotate(45deg)}
+.acc-marker{width:4px;height:24px;flex-shrink:0}
+details.acc.ongoing .acc-marker{background:var(--green)}
+details.acc.backlog .acc-marker{background:var(--gray-400)}
+.acc-title{font-family:var(--display);font-size:16px;font-weight:500;color:var(--gray-900);flex:1;letter-spacing:-0.005em}
+.acc-meta{display:flex;align-items:center;gap:18px;font-size:11px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-family:var(--mono)}
+.acc-meta .chip{padding:4px 10px;background:var(--gray-100);color:var(--gray-700)}
+.acc-body{padding:8px 18px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;border-top:1px solid var(--gray-150);background:var(--gray-50)}
+.task{background:var(--white);border:1px solid var(--gray-200);padding:18px 20px;transition:all .2s}
+.task:hover{border-color:var(--gray-300);transform:translateY(-2px)}
+.task-pri{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.task-pri .pdot{width:7px;height:7px;border-radius:50%;background:var(--gray-400)}
+.task-pri .pdot.active{background:var(--green);animation:pulse-green 2s infinite}
+@keyframes pulse-green{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(31,157,85,0.5)}50%{opacity:0.85;box-shadow:0 0 0 6px rgba(31,157,85,0)}}
+.task-pri .plbl{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono)}
+.task-t{font-size:14px;font-weight:500;color:var(--gray-900);line-height:1.4;margin-bottom:4px;letter-spacing:-0.005em}
+.task-d{font-size:12px;color:var(--gray-500);line-height:1.5}
+
+/* GANTT */
+.timeline-toolbar{padding:20px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.timeline-toolbar-l{font-family:var(--mono);font-size:11px;color:var(--gray-600);font-weight:500;text-transform:uppercase;letter-spacing:0.08em}
+.timeline-toolbar-l b{color:var(--gray-900);font-weight:700}
+
+.gantt-head-bar{display:grid;grid-template-columns:170px 260px 1fr;background:var(--white);border-bottom:1px solid var(--gray-200)}
+.gantt-head-l{padding:14px 28px;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700;border-right:1px solid var(--gray-200)}
+.gantt-head-kpi{padding:14px 16px;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gray-500);font-weight:700}
+.gantt-head-r{display:grid;grid-template-columns:repeat(8,1fr)}
+.week{padding:12px 4px;text-align:center;font-size:9px;color:var(--gray-500);font-weight:600;border-right:1px solid var(--gray-150);font-family:var(--mono)}
+.week:last-child{border-right:none}
+.week b{display:block;color:var(--gray-700);font-weight:700;font-size:10px;margin-top:1px}
+.week.current{background:var(--red-soft)}
+.week.current,.week.current b{color:var(--red)}
+
+.gantt-group{padding:12px 28px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:var(--gray-700);font-weight:800;display:flex;align-items:center;gap:12px}
+.gantt-group .marker{width:3px;height:14px}
+.gantt-group .count{margin-left:auto;color:var(--gray-500);font-weight:600;font-family:var(--mono)}
+.gantt-group.critical .marker{background:var(--red)}
+.gantt-group.high .marker{background:var(--amber)}
+.gantt-group.medium .marker{background:var(--blue)}
+
+.gantt-row{display:grid;grid-template-columns:170px 260px 1fr;border-bottom:1px solid var(--gray-150);min-height:56px;align-items:center;transition:background .15s}
+.gantt-row:hover{background:var(--gray-50)}
+.gantt-label{padding:12px 28px;font-size:13px;color:var(--gray-700);border-right:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;height:100%}
+.gantt-label .pri{width:3px;height:28px;flex-shrink:0}
+.gantt-label .pri.p0{background:var(--red)}
+.gantt-label .pri.p1{background:var(--amber)}
+.gantt-label .pri.p2{background:var(--blue)}
+.gantt-label .t{color:var(--gray-900);font-weight:500;font-size:13px;flex:1;line-height:1.3;letter-spacing:-0.005em}
+.gantt-label .own{width:24px;height:24px;font-size:9px;border-width:1.5px;margin:0;flex-shrink:0}
+.gantt-kpi{padding:10px 14px;display:flex;align-items:center;height:100%;background:transparent}
+
+/* KPI pills */
+.kpi-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;font-size:11px;font-weight:700;letter-spacing:-0.005em;font-family:var(--body);line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;border:none;position:relative}
+.kpi-pill::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;flex-shrink:0;background:currentColor}
+.kpi-pill.kpi-leads{background:#FCE9EA;color:#8B1519}
+.kpi-pill.kpi-rev{background:#FBF1DC;color:#7A5310}
+.kpi-pill.kpi-seo{background:#DCEFEA;color:#0A5A4D}
+.kpi-pill.kpi-cro{background:#E0EAFA;color:#15489E}
+.kpi-pill.kpi-infra{background:#EDE5F8;color:#4E2785}
+.kpi-pill.kpi-email{background:#E8E2F2;color:#3A236B}
+.kpi-pill.kpi-ads{background:#F6E4BF;color:#5A3800}
+.kpi-pill.kpi-web{background:#E2E8F2;color:#14233F}
+
+/* Owners */
+.owners{display:flex;align-items:center}
+.own{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;font-family:var(--body);border:1.5px solid var(--white);margin-left:-6px;letter-spacing:0.02em}
+.own:first-child{margin-left:0}
+.own.ka{background:var(--red)}
+.own.rh{background:#6E3AB5}
+.own.dh{background:#1F5FCC}
+.own.jk{background:var(--green)}
+.own.rg{background:#C08A2E}
+.own.ms{background:var(--gray-700)}
+.own.er{background:var(--gray-500)}
+.own.le{background:#0891b2}
+.owner-key{padding:18px 28px;background:var(--gray-50);border-top:1px solid var(--gray-200);display:flex;flex-wrap:wrap;gap:18px;font-size:11px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.owner-key span{display:flex;align-items:center;gap:8px}
+.owner-key .own{width:22px;height:22px;font-size:9px;border-width:1.5px;margin:0}
+
+/* Gantt bars */
+.gantt-track{position:relative;display:grid;grid-template-columns:repeat(8,1fr);height:100%}
+.gantt-cell{border-right:1px dashed var(--gray-150);height:100%}
+.gantt-cell:last-child{border-right:none}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);height:26px;display:flex;align-items:center;padding:0 12px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;overflow:hidden}
+.bar-p0{background:linear-gradient(90deg,var(--red) 0%,var(--red-dark) 100%)}
+.bar-p1{background:linear-gradient(90deg,#E08A1E 0%,#8E6319 100%)}
+.bar-p2{background:linear-gradient(90deg,#3A7AE0 0%,#15489E 100%)}
+.bar-done{background:linear-gradient(90deg,var(--green) 0%,#177540 100%)}
+.bar-blocked{background:repeating-linear-gradient(45deg,var(--red),var(--red) 4px,var(--red-dark) 4px,var(--red-dark) 8px)}
+.gantt-body{position:relative}
+.gantt-now-overlay{position:absolute;top:0;bottom:0;width:2px;background:var(--red);box-shadow:0 0 12px rgba(178,30,36,0.4);z-index:5;pointer-events:none;left:calc(430px + (100% - 430px) * 0.0625)}
+.gantt-now-overlay::before{content:"NOW";position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--red);font-weight:800;letter-spacing:0.12em;background:var(--white);padding:2px 6px;border:1px solid var(--red);white-space:nowrap}
+
+/* Toggle */
+.toggle-wrap{position:relative;display:inline-block;width:38px;height:22px;vertical-align:middle}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--gray-300);transition:background .25s;cursor:pointer}
+.toggle-track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;transition:transform .25s}
+.toggle-wrap input:checked+.toggle-track{background:var(--green)}
+.toggle-wrap input:checked+.toggle-track::after{transform:translateX(16px)}
+
+.gantt-legend{display:flex;gap:22px;padding:18px 28px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:11px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:8px;color:var(--gray-600);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.lg .sw{width:14px;height:14px}
+.lg .sw.p0{background:var(--red)}
+.lg .sw.p1{background:var(--amber)}
+.lg .sw.p2{background:var(--blue)}
+
+/* FOOTER */
+footer{padding:48px 0 64px;background:var(--white);border-top:1px solid var(--gray-200)}
+.foot-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;flex-wrap:wrap}
+.foot-l{max-width:500px}
+.foot-l .brand{margin-bottom:14px}
+.foot-l p{font-size:12px;color:var(--gray-500);line-height:1.7}
+.foot-r{font-size:11px;color:var(--gray-500);text-align:right;font-family:var(--mono);font-weight:500;line-height:1.8;text-transform:uppercase;letter-spacing:0.05em}
+.foot-r b{color:var(--gray-900);font-weight:700}
+
+@media(max-width:1024px){
+  .kpi-strip{grid-template-columns:repeat(2,1fr)}
+  .kpi{border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+  .gantt-head-bar,.gantt-row{grid-template-columns:130px 180px 1fr}
+  .gantt-now-overlay{left:calc(310px + (100% - 310px) * 0.0625)}
+}
+@media(max-width:640px){
+  .wrap{padding:0 20px}
+  .hero{padding:36px 0 28px}
+  .section{padding:40px 0}
+  .topbar-meta{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-name">Redstone Manufacturing</div>
+        <div class="brand-sub">Focus Tracker</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="item"><span>Week</span><b class="mono">W16 &middot; Apr 13&ndash;19</b></div>
+      <div class="item"><span>Owner</span><b>Kas Andz</b></div>
+      <span class="live-pill">Live</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-eyebrow"><span class="bar"></span>Redstone &middot; Growth Program &middot; 2026 Q2</div>
+    <h1>Where the <em>team's attention</em> is going over the next <em>eight weeks</em>.</h1>
+    <p>This is the live view of Redstone focus areas. Windows are expressed as <b>focus weeks</b>, not deadlines, because the real question isn't when something ends, it's <b>which week the team is inside it</b>.</p>
+
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-label">Critical Items</div>
+        <div class="kpi-val red">7</div>
+        <div class="kpi-sub">Homepage, ads, quote form, cold email</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">High Priority</div>
+        <div class="kpi-val amber">4</div>
+        <div class="kpi-sub">LPs, PostHog, website build, data</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Medium</div>
+        <div class="kpi-val blue">2</div>
+        <div class="kpi-sub">US hub pages, LP A/B program</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Ongoing</div>
+        <div class="kpi-val">3</div>
+        <div class="kpi-sub">SEO, ads management, reviews</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Completed</div>
+        <div class="kpi-val green">13</div>
+        <div class="kpi-sub">Shipped since engagement start</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ONGOING / COMPLETED -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Ongoing &amp; Completed</div>
+        <h2 class="section-h">Programs that run <em>every week</em>, and what's already been <em>shipped</em>.</h2>
+      </div>
+      <p class="section-desc">Ongoing items don't get focus weeks. Completed items are the <b>delivered foundation</b> everything else builds on.</p>
+    </div>
+
+    <div class="accordions">
+      <details class="acc ongoing" open>
+        <summary>
+          <div class="acc-arrow"></div>
+          <div class="acc-marker"></div>
+          <div class="acc-title">Ongoing Programs</div>
+          <div class="acc-meta">
+            <span class="chip">3 items</span>
+            <span class="chip">Active</span>
+          </div>
+        </summary>
+        <div class="acc-body">
+          <div class="task">
+            <div class="task-pri"><span class="pdot active"></span><span class="plbl" style="color:var(--green)">Active</span></div>
+            <div class="task-t">Google Ads management</div>
+            <div class="task-d">Daniel lead &middot; weekly bid/kw/copy optimization, LP routing by country</div>
+          </div>
+          <div class="task">
+            <div class="task-pri"><span class="pdot active"></span><span class="plbl" style="color:var(--green)">Active</span></div>
+            <div class="task-t">SEO recovery &mdash; Sprint 2+</div>
+            <div class="task-d">Jack lead &middot; technical fixes + content cluster #1 (Die Casting Mexico)</div>
+          </div>
+        </div>
+      </details>
+
+      <details class="acc backlog">
+        <summary>
+          <div class="acc-arrow"></div>
+          <div class="acc-marker"></div>
+          <div class="acc-title">Completed &middot; 13 Shipped</div>
+          <div class="acc-meta">
+            <span class="chip">13 items</span>
+            <span class="chip">Done</span>
+          </div>
+        </summary>
+        <div class="acc-body">
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">SEO Forensic Report</div><div class="task-d">Delivered Mar 29 &middot; Jack</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">SEO Investigation Report v2</div><div class="task-d">Delivered Apr 6 &middot; Jack</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Google Ads initial launch</div><div class="task-d">79 keywords / 5 categories &middot; Delivered Mar 10 &middot; Daniel</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Google Ads competitive intel + briefs</div><div class="task-d">Eric + Daniel briefs &middot; Delivered Apr 9</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">GTM tracking fix + 6-month strategy</div><div class="task-d">Delivered Mar 18 &middot; Kas</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Homepage Stack 3 staging</div><div class="task-d">/updated-home/ &middot; Delivered Apr 10 &middot; Rehan</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">WordPress maintenance + Link Whisper</div><div class="task-d">31 plugins &middot; Delivered Apr 9 &middot; Rehan</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Quote form redesign (16/19)</div><div class="task-d">Montserrat, file types, ISO label &middot; Delivered Apr 10 &middot; Rehan</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Haab in-person deep-dive</div><div class="task-d">Eric + Rachel &middot; Delivered Mar 31</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Cold email domains + Workspace</div><div class="task-d">5 domains &middot; Delivered Apr 1 &middot; Rehan</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">Lemlist provision (15 inboxes)</div><div class="task-d">5 seats warming since Apr 2 &middot; Kas</div></div>
+          <div class="task"><div class="task-pri"><span class="pdot"></span><span class="plbl">Done</span></div><div class="task-t">PostHog account + GTM kickoff</div><div class="task-d">Delivered Apr 9 &middot; Rehan</div></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section alt">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow"><span class="bar"></span>Weekly Timeline</div>
+        <h2 class="section-h">Eight weeks of focus, mapped across <em>critical</em>, high, and medium priority.</h2>
+      </div>
+      <p class="section-desc">Bars are focus windows, not deadlines. They reflect <b>when attention is scheduled</b>.</p>
+    </div>
+
+    <div class="card">
+      <div class="timeline-toolbar">
+        <div class="timeline-toolbar-l">Timeline &middot; <b>W16 &rarr; W23</b> &middot; Apr 13 &rarr; Jun 7</div>
+        <div class="timeline-toolbar-l">Showing <b>13 items</b> &middot; critical, high, medium</div>
+      </div>
+
+      <div class="gantt-head-bar">
+        <div class="gantt-head-kpi">KPI</div>
+        <div class="gantt-head-l">Workstream</div>
+        <div class="gantt-head-r">
+          <div class="week current">Apr 13<b>W16</b></div>
+          <div class="week">Apr 20<b>W17</b></div>
+          <div class="week">Apr 27<b>W18</b></div>
+          <div class="week">May 4<b>W19</b></div>
+          <div class="week">May 11<b>W20</b></div>
+          <div class="week">May 18<b>W21</b></div>
+          <div class="week">May 25<b>W22</b></div>
+          <div class="week">Jun 1<b>W23</b></div>
+        </div>
+      </div>
+
+      <div class="gantt-body">
+      <div class="gantt-now-overlay"></div>
+
+      <div class="gantt-group critical"><span class="marker"></span>Critical <span class="count">7 items</span></div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-web">Website</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Homepage Stack 3 &mdash; production launch</span><div class="own rh">RH</div><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:25%">Review &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-cro">CRO</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Quote form &mdash; final 3 items</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:12.5%">Ship</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-seo">SEO</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Service + Geo LPs (9 pages)</span><div class="own dh">DH</div><div class="own jk">JK</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:75%">Build &rarr; launch all 9</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-email">Cold Email</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Cold email &mdash; ICP list + first send</span><div class="own rg">RG</div><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:37.5%">List build &rarr; send</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-ads">Paid Ads</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Google Ads &mdash; ongoing optimisation</span><div class="own dh">DH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:100%">Ongoing</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-seo">SEO</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">SEO recovery &mdash; sprint 2+</span><div class="own jk">JK</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:0%;width:75%">Sprint 2 &rarr; 3</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-seo">SEO</span></div>
+        <div class="gantt-label"><span class="pri p0"></span><span class="t">Bing SEO (parallel rollout)</span><div class="own jk">JK</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p0" style="left:25%;width:50%">Rollout</div>
+        </div>
+      </div>
+
+      <div class="gantt-group high"><span class="marker"></span>High <span class="count">4 items</span></div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-infra">Tracking</span></div>
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">PostHog / Hotjar &mdash; full event setup</span><div class="own rh">RH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:0%;width:25%">GTM &rarr; events</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-web">Website</span></div>
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Website kickoff &mdash; new build</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:12.5%;width:87.5%">Kickoff &rarr; build</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-infra">Data</span></div>
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Data warehouse &mdash; Phase 1</span><div class="own ka">KA</div><div class="own er">ER</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-blocked" style="left:12.5%;width:37.5%">Blocked / Eric</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-seo">SEO</span></div>
+        <div class="gantt-label"><span class="pri p1"></span><span class="t">Die Casting Mexico LP</span><div class="own dh">DH</div><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p1" style="left:0%;width:25%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-group medium"><span class="marker"></span>Medium <span class="count">2 items</span></div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-web">Website</span></div>
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">US Hub Landing Pages</span><div class="own dh">DH</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:37.5%;width:37.5%">Build &rarr; launch</div>
+        </div>
+      </div>
+
+      <div class="gantt-row">
+        <div class="gantt-kpi"><span class="kpi-pill kpi-cro">CRO</span></div>
+        <div class="gantt-label"><span class="pri p2"></span><span class="t">Landing Page A/B Programme</span><div class="own ka">KA</div></div>
+        <div class="gantt-track">
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div><div class="gantt-cell"></div>
+          <div class="gantt-bar bar-p2" style="left:37.5%;width:50%">Design &rarr; test</div>
+        </div>
+      </div>
+
+      </div><!-- /gantt-body -->
+
+      <div class="gantt-legend">
+        <div class="lg"><span class="sw p0"></span>Critical</div>
+        <div class="lg"><span class="sw p1"></span>High</div>
+        <div class="lg"><span class="sw p2"></span>Medium</div>
+      </div>
+
+      <div class="owner-key">
+        <span><div class="own ka">KA</div>Kas</span>
+        <span><div class="own le">LE</div>Leo</span>
+        <span><div class="own rh">RH</div>Rehan</span>
+        <span><div class="own dh">DH</div>Daniel</span>
+        <span><div class="own jk">JK</div>Jack</span>
+        <span><div class="own rg">RG</div>Rachel</span>
+        <span><div class="own er">ER</div>Eric (input)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-l">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <div>
+          <div class="brand-sub" style="color:var(--gray-500)">Focus Tracker</div>
+        </div>
+      </div>
+      <p>Live view of Redstone workstreams. Windows are expressed as focus weeks rather than deadlines. The goal is to make visible <b>which week the team is inside each initiative</b>, not to commit to dates that will be re-read as misses. Refresh as priorities shift.</p>
+    </div>
+    <div class="foot-r">
+      <div>Version <b>1.0</b></div>
+      <div>Updated <b>Apr 19 2026</b></div>
+      <div>Owner <b>Kas Andz</b></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

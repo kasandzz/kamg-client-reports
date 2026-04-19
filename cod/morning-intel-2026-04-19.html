@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-19</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-ok { display:inline-block; padding:4px 12px; border-radius:6px; font-size:10px; font-weight:600; background:rgba(16,185,129,.15); color:#10b981; margin-top:8px; }
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:80px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-personal { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-past { background:rgba(100,116,139,.15); color:#64748b; }
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-fyi { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+  .amber-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; color:#f59e0b; font-size:12px; }
+  .source-badge { display:inline-block; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:600; }
+  .badge-local { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .badge-cloud { background:rgba(16,185,129,.15); color:#10b981; }
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Sunday, April 19 2026 -- No client meetings today</div>
+    <div class="meta">Generated 2026-04-19 10:00 CST | Data as of 10:00 AM local (local-fallback)</div>
+    <div class="health-ok">Skill Health: OK</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- MY DAY -->
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Today's Schedule</div>
+      <div class="card-subtitle">Sunday -- light day, no client calls</div>
+
+      <div class="schedule-item" style="opacity:.5">
+        <div class="schedule-time">07:15</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Exercise</div>
+          <div class="schedule-prep"><span class="schedule-tag tag-past">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item" style="opacity:.5">
+        <div class="schedule-time">07:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Shower</div>
+          <div class="schedule-prep"><span class="schedule-tag tag-past">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">11:15</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Ash Answer > Ticklist > What does done look like</div>
+          <div class="schedule-prep"><span class="schedule-tag tag-internal">INTERNAL</span> Deep work block -- 4h15m</div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">20:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Relax</div>
+          <div class="schedule-prep"><span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Go To Bed</div>
+          <div class="schedule-prep"><span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-Forward from Yesterday</div>
+      <div class="card-subtitle">2026-04-18 work log highlights</div>
+
+      <div class="win-item">
+        <div class="item-title">Redstone LP Deployed to Vercel</div>
+        <div class="item-detail">New repo kasandzz/redstone-lps live. Form pipeline dual-writes to Vercel Blob + BQ kamg_redstone.lp_leads. Domain theredstonemanufacturing.com migrated. End-to-end tested.</div>
+      </div>
+
+      <div class="win-item">
+        <div class="item-title">LP Audit Rebuilder v5.2.0 -- Claude Design Handoff</div>
+        <div class="item-detail">Phase 10.5 added for Claude Design export/import workflow. Export package auto-built at runs/&lt;id&gt;/export/.</div>
+      </div>
+
+      <div class="insight-item">
+        <div class="item-title">COD BQ Data Quality Phase 11.5</div>
+        <div class="item-detail">Major data audit: enrollment lookup, workshop attendance chain, bookings enrichment, closer KPIs, materialized views. Multiple SQL corrections deployed.</div>
+      </div>
+
+      <div class="insight-item">
+        <div class="item-title">Knowledge Compiler Ran This Morning</div>
+        <div class="item-detail">Run #45: 10 atoms extracted, 3 notes enriched, 1 decision captured (ADR-016: DQ audit tooling), 8 new connections. Total: 154 connections lifetime.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COD INTEL -->
+  <div class="section" id="cod">
+    <div class="amber-banner">
+      BQ unavailable -- cloud collector did not run today (Sunday). No cod_kpis data. Check the 5am scheduler on Monday.
+    </div>
+    <div class="card">
+      <div class="card-title">COD Status</div>
+      <div class="card-subtitle">No fresh KPIs today -- last BQ data from Friday's cloud run</div>
+      <div class="insight-item">
+        <div class="item-title">Yesterday's BQ Work</div>
+        <div class="item-detail">Phase 11.5 data quality cleanup: fixed enrollment join logic, workshop attendance chain, call-show-rate views, closer KPI population. v_enrolled_contacts now uses multi-source email lookup. Materialized views deployed.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Russ Email: Auction WDYT?</div>
+        <div class="item-detail">Russ emailed asking about running another auction this week. Wants to know what Kas would bid on. Needs reply.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERNIGHT -->
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Overnight Activity</div>
+      <div class="card-subtitle">Email since yesterday evening (Slack COD channel unavailable this run)</div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">REPLY</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from russ@email.russruffino.com -- 2:37 PM</div>
+          <div class="overnight-text"><strong>WDYT?</strong> -- "Some of you have been asking if I'll be doing an auction again. So I think I'll do one again this coming week. So I'd love to know, what would you bid on?"</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">ACTION</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from support@sanebox.com -- 12:25 PM</div>
+          <div class="overnight-text"><strong>SaneBox needs to be reauthorized</strong> -- Google expired or revoked access. Email filtering is down until reauthorized.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">ACTION</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from notifications@vercel.com -- 6:38 PM yesterday</div>
+          <div class="overnight-text"><strong>Failed deployment from leo26850</strong> -- Leo attempted to deploy to k-6598's projects but isn't a team member. Add Leo as collaborator on Vercel.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">ACTION</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from notifications@vercel.com -- 6:56 PM yesterday</div>
+          <div class="overnight-text"><strong>Failed deployment from bot@kasandz.com</strong> -- Bot attempted to deploy to Ares on Vercel through GitHub but isn't a team member.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">REVIEW</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from Stripe -- 11:42 AM</div>
+          <div class="overnight-text"><strong>Sembly AI renewal Apr 22</strong> -- Basic Free Trial auto-renews in 3 days. Cancel if not actively using.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-fyi">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from noreply@skool.com -- 11:00 AM</div>
+          <div class="overnight-text"><strong>Ash Smith: "Opportunity to lead an OUTLIERS Session"</strong> -- Nick's been running sessions, Ash opening it up. Related to your 11:15 calendar block.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-fyi">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from contentplaybook@mail.beehiiv.com -- 2:28 PM</div>
+          <div class="overnight-text"><strong>5-3-1: PASTOR, 6 hook formulas, Lara Acosta</strong> -- Copy frameworks newsletter. Swipe file material.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-fyi">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from no-reply@email.surfe.com -- 7:01 AM</div>
+          <div class="overnight-text"><strong>Re-enable Surfe Chrome extension</strong> -- Extension updated, may need re-enable in Chrome.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Action Items</div>
+      <div class="card-subtitle">Priority-ordered -- time-sensitive first</div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Reauthorize SaneBox</div>
+          <div class="action-context">HIGH -- Email filtering is offline until fixed</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Reply to Russ re: auction WDYT</div>
+          <div class="action-context">MEDIUM -- He's planning this week's auction, wants input</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Add Leo as Vercel collaborator</div>
+          <div class="action-context">MEDIUM -- His deploys are failing. Also fix bot@kasandz.com permissions for Ares</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Cancel Sembly AI before Apr 22</div>
+          <div class="action-context">MEDIUM -- Free trial auto-renews in 3 days</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Ash OUTLIERS session -- review Skool post</div>
+          <div class="action-context">LOW -- Opportunity to lead a session. Connected to today's 11:15 block</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">Redstone LP: resume at Pass 3 (Frontend Dev)</div>
+          <div class="action-context">CARRY-FORWARD -- LP die casting rebuild in progress</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data Sources</div>
+      <div class="card-subtitle">Freshness and reliability</div>
+
+      <div style="margin-bottom:16px;">
+        <span class="source-badge badge-local">local-fallback</span>
+        <span style="font-size:11px; color:#94a3b8; margin-left:8px;">GCS cloud JSON not available (Sunday -- CF runs on weekdays at 5am CDMX)</span>
+      </div>
+
+      <table style="width:100%; font-size:11px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Calendar</td>
+          <td style="padding:8px;"><span class="hl-green">LIVE</span> -- Google Calendar MCP, 7 events</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Email</td>
+          <td style="padding:8px;"><span class="hl-green">LIVE</span> -- Gmail MCP, 15 threads (last 24h)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Slack (COD)</td>
+          <td style="padding:8px;"><span class="hl-amber">UNAVAILABLE</span> -- Bot channel ID mismatch, needs registry update</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Slack (Personal)</td>
+          <td style="padding:8px;"><span class="hl-green">LIVE</span> -- MCP connected to kasandz.slack.com</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">COD KPIs (BQ)</td>
+          <td style="padding:8px;"><span class="hl-amber">STALE</span> -- No cloud run today (Sunday)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Heartbeat</td>
+          <td style="padding:8px;"><span class="hl-green">OK</span> -- 0 critical, 0 warning, 0 triggers pending</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Knowledge Compiler</td>
+          <td style="padding:8px;"><span class="hl-green">JUST RAN</span> -- Run #45, 10 atoms, 8 connections</td>
+        </tr>
+        <tr style="border-bottom:1px solid #1e293b;">
+          <td style="padding:8px; color:#94a3b8;">Backup</td>
+          <td style="padding:8px;"><span class="hl-green">HEALTHY</span> -- 2026-04-18, 5,091.8 MB</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; color:#94a3b8;">Cache</td>
+          <td style="padding:8px;"><span class="hl-green">100/100</span> -- 97.3% hit rate, $3,399 saved, patch applied</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Integration Health</div>
+      <div class="card-subtitle">7/7 passed at startup</div>
+      <div style="font-size:11px; color:#94a3b8; line-height:2;">
+        Slack Bot (COD): PASS -- claude_sync @ clientsondemand.slack.com<br>
+        Slack MCP (Personal): PASS -- kasandz.slack.com<br>
+        Gmail: PASS -- k@kasandz.com<br>
+        Google Calendar: PASS -- 4 calendars<br>
+        Fathom: FAIL -- MCP tools not loading<br>
+        Google Sheets: PASS -- service account found<br>
+        Figma: PASS -- team@kasandz.com (B2BLabs Pro)
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === "showTab('" + id + "')") t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

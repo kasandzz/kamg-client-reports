@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-20</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+.container { max-width:1400px; margin:0 auto; padding:24px; }
+.header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+.header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+.header .subtitle { color:#94a3b8; font-size:13px; }
+.header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+.health-ok { display:inline-block; padding:4px 12px; border-radius:6px; font-size:10px; font-weight:600; background:rgba(16,185,129,.15); color:#10b981; margin-top:8px; }
+.tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+.tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+.tab:hover { background:#1e293b; color:#e2e8f0; }
+.tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+.section { display:none; }
+.section.active { display:block; }
+.card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+.card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+.card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+.stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.stat-card.green::before { background:#10b981; }
+.stat-card.red::before { background:#ef4444; }
+.stat-card.amber::before { background:#f59e0b; }
+.stat-value { font-size:24px; font-weight:700; }
+.stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+.win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+.win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+.concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+.insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+.item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+.item-detail { font-size:11px; color:#94a3b8; }
+.schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+.schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:80px; }
+.schedule-body { flex:1; }
+.schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+.schedule-prep { font-size:11px; color:#94a3b8; }
+.schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+.tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+.tag-personal { background:rgba(139,92,246,.15); color:#8b5cf6; }
+.tag-past { background:rgba(100,116,139,.15); color:#64748b; }
+.tag-cod { background:rgba(245,158,11,.15); color:#f59e0b; }
+.tag-client { background:rgba(16,185,129,.15); color:#10b981; }
+.overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+.overnight-body { flex:1; }
+.overnight-source { font-size:10px; color:#64748b; }
+.overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+.priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+.priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+.priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+.priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+.priority-fyi { background:rgba(59,130,246,.15); color:#3b82f6; }
+.action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+.action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+.action-text { font-size:12px; flex:1; }
+.action-context { font-size:10px; color:#64748b; }
+.amber-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; color:#f59e0b; font-size:12px; }
+.source-badge { display:inline-block; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:600; }
+.badge-local { background:rgba(245,158,11,.15); color:#f59e0b; }
+.badge-cloud { background:rgba(16,185,129,.15); color:#10b981; }
+.hl { color:#38bdf8; font-weight:600; }
+.hl-green { color:#10b981; font-weight:600; }
+.hl-amber { color:#f59e0b; font-weight:600; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+.source-table { width:100%; border-collapse:collapse; margin-top:12px; }
+.source-table th { text-align:left; font-size:10px; color:#64748b; padding:8px 12px; border-bottom:1px solid #1e293b; }
+.source-table td { font-size:11px; padding:8px 12px; border-bottom:1px solid #1e293b; }
+.status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+.dot-green { background:#10b981; }
+.dot-red { background:#ef4444; }
+.dot-amber { background:#f59e0b; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+<h1>KasOS Morning Intelligence</h1>
+<div class="subtitle">Sunday, April 20 2026 -- Late catch-up (4 PM) | 1 client meeting (COD Monday Huddle, already happened)</div>
+<div class="meta">Generated 2026-04-20 16:00 CST | Data as of 4:00 PM local (local-fallback)</div>
+<div class="health-ok">Skill Health: OK</div>
+</div>
+
+<div class="tabs">
+<button class="tab active" onclick="showTab('myday')">My Day</button>
+<button class="tab" onclick="showTab('cod')">COD Intel</button>
+<button class="tab" onclick="showTab('redstone')">Redstone</button>
+<button class="tab" onclick="showTab('overnight')">Overnight</button>
+<button class="tab" onclick="showTab('actions')">Actions</button>
+<button class="tab" onclick="showTab('sources')">Sources</button>
+</div>
+
+<!-- MY DAY -->
+<div id="myday" class="section active">
+<div class="card">
+<div class="card-title">Today's Schedule</div>
+<div class="card-subtitle">Sunday, April 20 -- items marked DONE already passed</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">06:45</div>
+<div class="schedule-body">
+<div class="schedule-title">Exercise</div>
+<span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">07:15</div>
+<div class="schedule-body">
+<div class="schedule-title">Shower</div>
+<span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">07:45</div>
+<div class="schedule-body">
+<div class="schedule-title">Morning Focus Block</div>
+<span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">08:30</div>
+<div class="schedule-body">
+<div class="schedule-title">Russ Call Block (1.5h)</div>
+<span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">09:00</div>
+<div class="schedule-body">
+<div class="schedule-title">Monday Morning Team Huddle</div>
+<div class="schedule-prep">via Zoom with Ryan Green, Jayne, Sheena, Matt F, Steffani, Akari, Russ, Elli, Jodi, Nathan, David, Justin + more</div>
+<span class="schedule-tag tag-cod">COD</span><span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">10:00</div>
+<div class="schedule-body">
+<div class="schedule-title">Nurture Zach Vieth (Legacy Builder)</div>
+<span class="schedule-tag tag-internal">NURTURE</span><span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">10:15</div>
+<div class="schedule-body">
+<div class="schedule-title">COD genius idea: remarketing for cold email URL sharing</div>
+<span class="schedule-tag tag-cod">COD</span><span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">11:30</div>
+<div class="schedule-body">
+<div class="schedule-title">Consider Flying and chase residency</div>
+<span class="schedule-tag tag-personal">PERSONAL</span><span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item" style="opacity:.5">
+<div class="schedule-time">12:00</div>
+<div class="schedule-body">
+<div class="schedule-title">Redstone report</div>
+<span class="schedule-tag tag-client">CLIENT</span><span class="schedule-tag tag-past">DONE</span>
+</div>
+</div>
+
+<div class="schedule-item">
+<div class="schedule-time">20:00</div>
+<div class="schedule-body">
+<div class="schedule-title">Relax</div>
+<span class="schedule-tag tag-personal">PERSONAL</span>
+</div>
+</div>
+
+<div class="schedule-item">
+<div class="schedule-time">22:00</div>
+<div class="schedule-body">
+<div class="schedule-title">Go To Bed</div>
+<span class="schedule-tag tag-personal">PERSONAL</span>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">Carry-Forward from Yesterday</div>
+<div class="card-subtitle">Wins and open concerns from April 19</div>
+
+<div class="win-item">
+<div class="item-title">Redstone LP Deployed to Vercel</div>
+<div class="item-detail">New repo live. Form pipeline writes to Vercel Blob + BQ kamg_redstone.lp_leads. Domain migrated.</div>
+</div>
+
+<div class="win-item">
+<div class="item-title">COD Data Warehouse Infrastructure Report</div>
+<div class="item-detail">237 tables, 58 views, 4.5M rows. Full 26-page HTML report built for Russ. Published to GitHub Pages.</div>
+</div>
+
+<div class="concern-item">
+<div class="item-title">Redstone LP Pass 3 Not Started</div>
+<div class="item-detail">Die casting LP rebuild stalled at Pass 3 (Frontend Dev). Eric is retention-risk -- needs visible progress.</div>
+</div>
+
+<div class="concern-item">
+<div class="item-title">Eric Reply Still Pending</div>
+<div class="item-detail">Invoice thread (6 items) + LP changes (19 across 21 pages) not yet sent.</div>
+</div>
+</div>
+</div>
+
+<!-- COD INTEL -->
+<div id="cod" class="section">
+<div class="amber-banner">BQ unavailable -- cloud collector JSON is 5 days stale (Apr 15). No fresh cod_kpis data. Next: check the 5am scheduler Monday.</div>
+
+<div class="card">
+<div class="card-title">COD Status</div>
+<div class="card-subtitle">No fresh KPIs -- last BQ data from April 15</div>
+
+<div class="insight-item">
+<div class="item-title">Monday Huddle Happened</div>
+<div class="item-detail">Team meeting at 9:00 AM with Ryan, Jayne, Sheena, Matt F, Steffani, Akari, Russ, Elli, Jodi, Nathan, David, Justin, Colby, Angele.</div>
+</div>
+
+<div class="insight-item">
+<div class="item-title">Russ Self-to-Self Reminders Surfaced</div>
+<div class="item-detail">Superhuman resurfaced several old self-notes: launch strategy, Russ Lansing page data, resale funnel idea, Lead Magnets shared folder from Angele Black.</div>
+</div>
+
+<div class="insight-item">
+<div class="item-title">GHL Workflow Error</div>
+<div class="item-detail">Workflow error detected in COD sub-account. Low priority -- recurring noise (filtered per standing rule).</div>
+</div>
+</div>
+</div>
+
+<!-- REDSTONE -->
+<div id="redstone" class="section">
+<div class="card">
+<div class="card-title">Redstone Status</div>
+<div class="card-subtitle">HIGH RISK retention client -- Eric needs visible progress</div>
+
+<div class="concern-item">
+<div class="item-title">LP Die Casting Rebuild</div>
+<div class="item-detail">Stalled at Pass 3 (Frontend Dev). 19 changes needed across 21 pages. Eric's patience thinning -- "one more week" signal.</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text">12:00 today was blocked for Redstone report -- already past. Resume LP work ASAP.</div>
+</div>
+
+<div class="insight-item">
+<div class="item-title">Ads Targeting Fix Needed</div>
+<div class="item-detail">US+CA only targeting. Link every ad to correct country-specific LP.</div>
+</div>
+</div>
+</div>
+
+<!-- OVERNIGHT -->
+<div id="overnight" class="section">
+<div class="card">
+<div class="card-title">Overnight Activity</div>
+<div class="card-subtitle">Email since yesterday (no Slack data this run)</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-high">ACTION</span>
+<div class="overnight-body">
+<div class="overnight-source">billing@zapier.com</div>
+<div class="overnight-text">Zapier payment failed -- unable to process payment. Update payment method to avoid service interruption.</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Wise</div>
+<div class="overnight-text">Received 3,600 GBP from LIGHTHOUSE (LTHS) STUDIO LLP. Payment received, already in account.</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Wise</div>
+<div class="overnight-text">Sent 2,000 MXN to Aranza Sanchez. Transfer completed, saved 25.83 GBP.</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Launch hammer them Strat on one funnel with ads as priority for Russ</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Do profit share with Leo, on his clients - costs are separate to finance sheet</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Eric code some additions pages</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-med">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Pull Russ Lansing page data</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Claude managed agents asap check</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Devise a funnel building workflow</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Find a resale funnel for customers</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">Code rabbit and codex, reads AJ stuff</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">TASK</span>
+<div class="overnight-body">
+<div class="overnight-source">Self-reminder (Superhuman)</div>
+<div class="overnight-text">L-tyrosine order</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-low">REVIEW</span>
+<div class="overnight-body">
+<div class="overnight-source">Angele Black (Google Drive)</div>
+<div class="overnight-text">Shared "Lead Magnets" folder -- COD related</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-fyi">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Nusii</div>
+<div class="overnight-text">Weekly report: $0 earned (no proposals)</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-fyi">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">SmartSites</div>
+<div class="overnight-text">April newsletter</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-fyi">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Content Playbook</div>
+<div class="overnight-text">"Your bonuses expire in 12 hours"</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-fyi">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Marriott Bonvoy</div>
+<div class="overnight-text">Golf in Caribbean/Mexico promo</div>
+</div>
+</div>
+
+<div class="overnight-item">
+<span class="priority-badge priority-fyi">FYI</span>
+<div class="overnight-body">
+<div class="overnight-source">Top Secret Comedy Club</div>
+<div class="overnight-text">Tonight event</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ACTIONS -->
+<div id="actions" class="section">
+<div class="card">
+<div class="card-title">Action Items</div>
+<div class="card-subtitle">Priority-ordered -- time-sensitive first</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-high">HIGH</span> Fix Zapier payment</div>
+<div class="action-context">Payment failed, service at risk</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-high">HIGH</span> Resume Redstone LP Pass 3</div>
+<div class="action-context">Retention-critical, Eric waiting</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-high">HIGH</span> Send Eric replies (invoice + LP changes)</div>
+<div class="action-context">Two threads pending from yesterday</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-med">MEDIUM</span> Fix Redstone ads targeting (US+CA only)</div>
+<div class="action-context">Ads linking to wrong LPs</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-med">MEDIUM</span> Leo profit share model</div>
+<div class="action-context">Superhuman reminder resurfaced</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-med">MEDIUM</span> Nurture Zach Vieth (Week 4 rotation)</div>
+<div class="action-context">Weekly cadence, soft referral + social proof</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-low">LOW</span> Review Angele Black Lead Magnets folder</div>
+<div class="action-context">COD shared drive, check contents</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-low">LOW</span> L-tyrosine order</div>
+<div class="action-context">Personal health supplement reminder</div>
+</div>
+
+<div class="action-item">
+<div class="action-check"></div>
+<div class="action-text"><span class="priority-badge priority-low">CARRY</span> Cancel Sembly AI (from yesterday)</div>
+<div class="action-context">Auto-renews Apr 22</div>
+</div>
+</div>
+</div>
+
+<!-- SOURCES -->
+<div id="sources" class="section">
+<div class="card">
+<div class="card-title">Data Sources</div>
+<div class="card-subtitle">Freshness and reliability</div>
+
+<div style="margin-bottom:16px;">
+<span class="source-badge badge-local">local-fallback</span>
+<span style="font-size:11px; color:#94a3b8; margin-left:8px;">GCS cloud JSON stale (5 days old, Apr 15, errors: Calendar + Gmail invalid_client)</span>
+</div>
+
+<table class="source-table">
+<thead>
+<tr><th>Source</th><th>Status</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Calendar</td>
+<td><span class="status-dot dot-green"></span><span class="hl-green">LIVE</span></td>
+<td>Google Calendar MCP, 11 events</td>
+</tr>
+<tr>
+<td>Email</td>
+<td><span class="status-dot dot-green"></span><span class="hl-green">LIVE</span></td>
+<td>Gmail MCP, 20 threads (last 24h)</td>
+</tr>
+<tr>
+<td>Slack COD</td>
+<td><span class="status-dot dot-red"></span><span style="color:#ef4444; font-weight:600;">UNAVAILABLE</span></td>
+<td>No local sync data, bot API healthy but sync not run</td>
+</tr>
+<tr>
+<td>BQ / KPIs</td>
+<td><span class="status-dot dot-red"></span><span style="color:#ef4444; font-weight:600;">UNAVAILABLE</span></td>
+<td>Cloud JSON stale, no local BQ path</td>
+</tr>
+<tr>
+<td>Fathom</td>
+<td><span class="status-dot dot-red"></span><span style="color:#ef4444; font-weight:600;">UNAVAILABLE</span></td>
+<td>MCP tools not loading</td>
+</tr>
+<tr>
+<td>Compiler</td>
+<td><span class="status-dot dot-green"></span><span class="hl-green">HEALTHY</span></td>
+<td>Run #49, success (no-op)</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td><span class="status-dot dot-green"></span><span class="hl-green">HEALTHY</span></td>
+<td>85/100, 96.7% hit rate, patch applied</td>
+</tr>
+<tr>
+<td>Backup</td>
+<td><span class="status-dot dot-green"></span><span class="hl-green">HEALTHY</span></td>
+<td>Today 5.1 GB, no errors</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

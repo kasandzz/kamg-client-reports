@@ -269,59 +269,82 @@ section.alt { background: var(--bg2); }
 }
 .urgency-card .btn-gold { max-width: 320px; margin: 0 auto; }
 
-/* Survey Form */
-.survey-form {
-  max-width: 560px; margin: 0 auto;
-}
-.form-group { margin-bottom: 24px; }
-.form-label {
-  display: block; font-size: 14px; font-weight: 500;
-  color: var(--text); margin-bottom: 8px;
-}
-.form-select, .form-input, .form-textarea {
-  width: 100%; padding: 14px 16px;
+/* Survey Wizard */
+.survey-wizard {
+  max-width: 480px; margin: 0 auto;
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 10px; color: var(--text);
-  font-family: var(--font); font-size: 14px;
-  transition: border-color 0.3s;
-  -webkit-appearance: none; appearance: none;
+  border-radius: 16px; overflow: hidden;
 }
-.form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a968e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
+.sw-progress {
+  display: flex; gap: 6px; padding: 20px 24px 0;
 }
-.form-select:focus, .form-input:focus, .form-textarea:focus {
-  outline: none; border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-dim);
+.sw-dot {
+  height: 3px; flex: 1; border-radius: 3px;
+  background: rgba(255,255,255,0.08); transition: background 0.3s;
 }
-.form-textarea { resize: vertical; min-height: 80px; }
-.radio-group { display: flex; gap: 12px; }
-.radio-option {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 12px 20px; cursor: pointer;
-  font-size: 14px; color: var(--text2);
-  transition: border-color 0.3s, color 0.3s;
-  flex: 1; justify-content: center;
+.sw-dot.active { background: var(--gold); }
+.sw-dot.done { background: var(--green); }
+.sw-track-wrap { overflow: hidden; }
+.sw-track {
+  display: flex; width: 400%;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
 }
-.radio-option:has(input:checked) {
+.sw-step {
+  width: 25%; flex-shrink: 0; padding: 24px;
+}
+.sw-question {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  margin: 0 0 16px; line-height: 1.4;
+}
+.sw-sub {
+  font-size: 13px; color: var(--text2); margin: -8px 0 16px; line-height: 1.5;
+}
+.sw-options { display: flex; flex-direction: column; gap: 8px; }
+.sw-options-row { flex-direction: row; }
+.sw-opt {
+  width: 100%; text-align: left; padding: 12px 16px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2);
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.sw-opt:hover { border-color: var(--border-h); color: var(--text); }
+.sw-opt.selected {
   border-color: var(--gold); color: var(--text);
   background: var(--gold-dim);
 }
-.radio-option input { display: none; }
+.sw-opt-half { flex: 1; text-align: center; }
+.sw-back {
+  background: none; border: none; color: var(--text3);
+  font-family: var(--font); font-size: 12px; cursor: pointer;
+  padding: 0; margin-bottom: 16px; transition: color 0.2s;
+}
+.sw-back:hover { color: var(--gold); }
+.form-input, .form-textarea {
+  width: 100%; padding: 12px 14px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text);
+  font-family: var(--font); font-size: 13px;
+  transition: border-color 0.3s;
+}
+.form-input:focus, .form-textarea:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+.form-textarea { resize: vertical; min-height: 60px; }
 .form-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.form-group { margin-bottom: 0; }
+.survey-submit {
+  max-width: 100%; width: 100%; cursor: pointer;
+  border: none; font-family: var(--font); font-size: 14px;
+  padding: 13px 20px;
 }
 @media (max-width: 480px) {
   .form-row { grid-template-columns: 1fr; }
-}
-.survey-submit {
-  max-width: 320px; margin: 0 auto; cursor: pointer;
-  border: none; font-family: var(--font);
-}
-@media (max-width: 480px) {
-  .radio-group { flex-direction: column; gap: 10px; }
-  .survey-submit { max-width: 100%; }
+  .survey-wizard { border-radius: 12px; }
+  .sw-step { padding: 20px 18px; }
 }
 
 /* Toolkit */
@@ -417,8 +440,6 @@ section.alt { background: var(--bg2); }
   <div class="container">
     <p class="events-header">You have <strong>TWO</strong> events this week. Add both now.</p>
     <div class="events-grid">
-
-      <!-- Event 1: Workshop -->
       <div class="event-card">
         <span class="event-pill pill-standard">Workshop</span>
         <h3>AI-Powered High-Ticket Offer Workshop</h3>
@@ -427,8 +448,6 @@ section.alt { background: var(--bg2); }
         <div class="spacer"></div>
         <a href="#" class="btn-green">Add Workshop to Calendar</a>
       </div>
-
-      <!-- Event 2: VIP Session -->
       <div class="event-card premium">
         <span class="event-pill pill-gold">VIP Session</span>
         <h3>Live VIP Session With Russ</h3>
@@ -437,7 +456,6 @@ section.alt { background: var(--bg2); }
         <a href="#" class="btn-gold">Add VIP Session to Calendar</a>
         <p class="event-micro">A separate, live session where Russ reviews your offer directly.</p>
       </div>
-
     </div>
     <p class="events-footer">Two events. Two calendar invites. Both matter. The workshop builds your offer. The VIP session sharpens it with Russ.</p>
   </div>
@@ -446,8 +464,8 @@ section.alt { background: var(--bg2); }
 <!-- Next Steps -->
 <section>
   <div class="container">
-    <span class="section-label">Next Steps</span>
-    <h2 class="section-heading">Here's What Happens Now</h2>
+    <span class="section-label" style="text-align:center;">Next Steps</span>
+    <h2 class="section-heading" style="text-align:center;">Here's What Happens Now</h2>
     <div class="steps-list">
       <div class="step-item">
         <span class="step-num">1</span>
@@ -488,6 +506,81 @@ section.alt { background: var(--bg2); }
       </div>
     </div>
     <p class="section-intro" style="text-align:center; margin: 32px auto 0; max-width:560px;">This is the foundation. Everything in your VIP session builds on what you learn here.</p>
+
+    <div style="margin-top:48px;">
+      <span class="section-label" style="text-align:center;">Quick Survey</span>
+      <h2 class="section-heading" style="text-align:center; margin-bottom:4px;">Help Us Make This a Win for You</h2>
+      <p class="section-intro" style="text-align:center; margin: 0 auto 20px;">4 quick taps. Helps Russ tailor Friday's session to you.</p>
+
+      <div class="survey-wizard" id="surveyWizard">
+        <div class="sw-progress">
+          <div class="sw-dot active" data-step="0"></div>
+          <div class="sw-dot" data-step="1"></div>
+          <div class="sw-dot" data-step="2"></div>
+          <div class="sw-dot" data-step="3"></div>
+        </div>
+        <div class="sw-track-wrap">
+          <div class="sw-track" id="swTrack">
+            <div class="sw-step">
+              <p class="sw-question">What's your current revenue level?</p>
+              <div class="sw-options">
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">Pre-revenue / just starting</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">Under $50K/year</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">$50K–$100K/year</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">$100K–$250K/year</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">$250K–$500K/year</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,0,'revenue_level')">$500K+/year</button>
+              </div>
+            </div>
+            <div class="sw-step">
+              <button type="button" class="sw-back" onclick="swGo(0)">&larr; Back</button>
+              <p class="sw-question">Do you have a high-ticket offer ($3K+)?</p>
+              <div class="sw-options sw-options-row">
+                <button type="button" class="sw-opt sw-opt-half" onclick="swPick(this,'has_offer')">Yes</button>
+                <button type="button" class="sw-opt sw-opt-half" onclick="swPick(this,'has_offer')">No</button>
+              </div>
+              <p class="sw-question" style="margin-top:20px;">Have you had success with online advertising?</p>
+              <div class="sw-options sw-options-row">
+                <button type="button" class="sw-opt sw-opt-half" onclick="swPick(this,'ad_success'); setTimeout(function(){swGo(2)},300)">Yes</button>
+                <button type="button" class="sw-opt sw-opt-half" onclick="swPick(this,'ad_success'); setTimeout(function(){swGo(2)},300)">No</button>
+              </div>
+            </div>
+            <div class="sw-step">
+              <button type="button" class="sw-back" onclick="swGo(1)">&larr; Back</button>
+              <p class="sw-question">What's your #1 challenge right now?</p>
+              <div class="sw-options">
+                <button type="button" class="sw-opt" onclick="swSelect(this,2,'challenge')">Getting consistent clients</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,2,'challenge')">Pricing and packaging my offer</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,2,'challenge')">Scaling beyond where I am</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,2,'challenge')">Building systems and funnels</button>
+                <button type="button" class="sw-opt" onclick="swSelect(this,2,'challenge')">Not enough time</button>
+              </div>
+            </div>
+            <div class="sw-step">
+              <button type="button" class="sw-back" onclick="swGo(2)">&larr; Back</button>
+              <p class="sw-question">Last step</p>
+              <p class="sw-sub">Tell us what would make this a win, and where to reach you.</p>
+              <form id="vipSurvey" onsubmit="swSubmit(event)">
+                <textarea name="win_definition" class="form-textarea" rows="2" placeholder="What would make this workshop a total win for you?" style="margin-bottom:14px;"></textarea>
+                <div class="form-row" style="margin-bottom:14px;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <input type="text" name="full_name" class="form-input" required placeholder="Full name">
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <input type="email" name="email" class="form-input" required placeholder="Email">
+                  </div>
+                </div>
+                <button type="submit" class="btn-gold survey-submit">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div id="swSuccess" style="display:none; text-align:center; padding:40px 0;">
+          <p style="font-size:20px; font-family:var(--display); color:var(--text); margin-bottom:8px;">Thank you!</p>
+          <p style="font-size:14px; color:var(--text2);">Your responses help Russ prepare for your VIP session.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -496,7 +589,7 @@ section.alt { background: var(--bg2); }
   <div class="container">
     <span class="section-label">Your VIP Session</span>
     <h2 class="section-heading" style="text-align:center;">What Actually Happens on Friday</h2>
-    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">This is a <strong style="color:var(--gold);">separate, private session</strong> — not part of the workshop. Russ works with you directly on your offer.</p>
+    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">This is a <strong style="color:var(--gold);">separate, private session</strong>, not part of the workshop. Russ works with you directly on your offer.</p>
     <div class="friday-grid">
       <div class="friday-card fade-in">Russ reviews your specific offer live on the call, not a generic example.</div>
       <div class="friday-card fade-in">You get direct feedback on pricing, positioning, and enrollment, by name, in real time.</div>
@@ -504,89 +597,6 @@ section.alt { background: var(--bg2); }
       <div class="friday-card fade-in">Small group. Real conversation. If you have been in a webinar recently, this is nothing like that.</div>
     </div>
     <p class="friday-closing">The workshop gives you the framework. Friday's session makes sure you're using it right.</p>
-  </div>
-</section>
-
-<!-- Urgency -->
-<section class="alt">
-  <div class="container">
-    <div class="urgency-card">
-      <h2>One Session. One Chance.</h2>
-      <p>This VIP call happens once. It is not a recurring program. There is no second date, no reschedule, and no replay of the live session.</p>
-      <p>Russ shows up for the people who show up. That is the deal.</p>
-      <p>If something comes up Friday, let us know in advance, but there is no guarantee of a makeup option. The session runs as scheduled for the attendees who are there.</p>
-      <p class="urgency-closing">Mark your calendar. Be there Friday.</p>
-      <a href="#" class="btn-gold">Add Friday VIP to Calendar</a>
-    </div>
-  </div>
-</section>
-
-<!-- Survey -->
-<section>
-  <div class="container">
-    <span class="section-label">Quick Survey</span>
-    <h2 class="section-heading" style="text-align:center;">Help Us Make This Workshop a Win for You</h2>
-    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">Takes 60 seconds. Helps Russ tailor the session to what matters most to you.</p>
-    <form class="survey-form" id="vipSurvey" action="https://PLACEHOLDER-GHL-WEBHOOK-URL.com" method="POST">
-      <div class="form-group">
-        <label class="form-label">What is your current revenue level?</label>
-        <select name="revenue_level" class="form-select" required>
-          <option value="" disabled selected>Select one...</option>
-          <option value="pre-revenue">Pre-revenue / just starting</option>
-          <option value="under-50k">Under $50K/year</option>
-          <option value="50k-100k">$50K–$100K/year</option>
-          <option value="100k-250k">$100K–$250K/year</option>
-          <option value="250k-500k">$250K–$500K/year</option>
-          <option value="500k-plus">$500K+/year</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Do you currently have a high-ticket offer ($3K+)?</label>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="has_offer" value="yes" required><span>Yes</span></label>
-          <label class="radio-option"><input type="radio" name="has_offer" value="no"><span>No</span></label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Have you had success with online advertising?</label>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="ad_success" value="yes" required><span>Yes</span></label>
-          <label class="radio-option"><input type="radio" name="ad_success" value="no"><span>No</span></label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">What's your #1 business challenge right now?</label>
-        <select name="challenge" class="form-select" required>
-          <option value="" disabled selected>Select one...</option>
-          <option value="getting-clients">Getting consistent clients</option>
-          <option value="pricing">Pricing and packaging my offer</option>
-          <option value="scaling">Scaling beyond where I am now</option>
-          <option value="systems">Building systems and funnels</option>
-          <option value="confidence">Confidence in my offer</option>
-          <option value="time">Not enough time</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-group" id="otherField" style="display:none;">
-        <label class="form-label">Tell us more:</label>
-        <input type="text" name="challenge_other" class="form-input" placeholder="Your answer...">
-      </div>
-      <div class="form-group">
-        <label class="form-label">What would make this workshop a total win for you?</label>
-        <textarea name="win_definition" class="form-textarea" rows="3" placeholder="In your own words..."></textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" name="full_name" class="form-input" required placeholder="Your name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" name="email" class="form-input" required placeholder="you@email.com">
-        </div>
-      </div>
-      <button type="submit" class="btn-gold survey-submit">Submit Survey</button>
-    </form>
   </div>
 </section>
 
@@ -612,16 +622,6 @@ section.alt { background: var(--bg2); }
   </div>
 </section>
 
-<!-- Russ Signature -->
-<section>
-  <div class="container" style="text-align:center; padding: 48px 0;">
-    <p style="font-size: 15px; color: var(--text2); margin-bottom: 4px;">To your success,</p>
-    <img src="https://assets.cdn.filesafe.space/h83O4TKy09yLLdfnIw3K/media/685458e7ad3247410403f46c.png" alt="Russ Ruffino signature" style="height: 60px; width: auto; margin: 8px 0; filter: invert(1) brightness(100); opacity: 0.85;">
-    <p style="font-family: var(--display); font-size: 20px; color: var(--text); font-weight: 600;">Russ Ruffino</p>
-    <p style="font-size: 13px; color: var(--text3);">Founder, Clients on Demand</p>
-  </div>
-</section>
-
 <!-- Footer -->
 <footer class="site-footer">
   <div class="container">
@@ -633,21 +633,50 @@ section.alt { background: var(--bg2); }
 </footer>
 
 <script>
-document.querySelector('[name="challenge"]').addEventListener('change', function() {
-  document.getElementById('otherField').style.display = this.value === 'other' ? 'block' : 'none';
-});
-document.getElementById('vipSurvey').addEventListener('submit', function(e) {
+var swData = {};
+var swStep = 0;
+
+function swGo(step) {
+  swStep = step;
+  document.getElementById('swTrack').style.transform = 'translateX(-' + (step * 25) + '%)';
+  var dots = document.querySelectorAll('.sw-dot');
+  dots.forEach(function(d, i) {
+    d.className = 'sw-dot' + (i < step ? ' done' : '') + (i === step ? ' active' : '');
+  });
+}
+
+function swSelect(btn, step, key) {
+  var sibs = btn.parentElement.querySelectorAll('.sw-opt');
+  sibs.forEach(function(s) { s.classList.remove('selected'); });
+  btn.classList.add('selected');
+  swData[key] = btn.textContent;
+  setTimeout(function() { swGo(step + 1); }, 250);
+}
+
+function swPick(btn, key) {
+  var sibs = btn.parentElement.querySelectorAll('.sw-opt');
+  sibs.forEach(function(s) { s.classList.remove('selected'); });
+  btn.classList.add('selected');
+  swData[key] = btn.textContent;
+}
+
+function swSubmit(e) {
   e.preventDefault();
-  var form = this;
-  var data = new FormData(form);
-  fetch(form.action, { method: 'POST', body: data })
-    .then(function() {
-      form.innerHTML = '<div style="text-align:center;padding:40px 0;"><p style="font-size:20px;font-family:var(--display);color:var(--text);margin-bottom:8px;">Thank you!</p><p style="font-size:14px;color:var(--text2);">Your responses help Russ prepare for your VIP session.</p></div>';
-    })
-    .catch(function() {
-      form.innerHTML = '<div style="text-align:center;padding:40px 0;"><p style="font-size:20px;font-family:var(--display);color:var(--text);margin-bottom:8px;">Thank you!</p><p style="font-size:14px;color:var(--text2);">Your responses help Russ prepare for your VIP session.</p></div>';
-    });
-});
+  var form = e.target;
+  swData.win_definition = form.win_definition.value;
+  swData.full_name = form.full_name.value;
+  swData.email = form.email.value;
+
+  fetch('https://PLACEHOLDER-GHL-WEBHOOK-URL.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(swData)
+  }).catch(function() {});
+
+  document.querySelector('.sw-track-wrap').style.display = 'none';
+  document.querySelector('.sw-progress').style.display = 'none';
+  document.getElementById('swSuccess').style.display = 'block';
+}
 </script>
 
 <script src="https://utteranc.es/client.js"

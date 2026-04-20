@@ -32,10 +32,19 @@ a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
 .header .date{font-size:13px;color:var(--text3);font-family:var(--mono)}
 
 /* Nav */
-.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:64px;z-index:99}
-.nav-links{display:flex;gap:8px;flex-wrap:wrap;list-style:none}
-.nav-links a{font-size:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:6px 12px;border-radius:4px;transition:all .2s}
-.nav-links a:hover,.nav-links a:focus{color:var(--accent);background:var(--accent-bg);text-decoration:none}
+.nav{background:linear-gradient(180deg,#1a1a1f 0%,#141418 100%);border-top:1px solid var(--border2);border-bottom:2px solid var(--accent);padding:16px 0;position:sticky;top:64px;z-index:99;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+.nav-links{display:flex;gap:6px;flex-wrap:wrap;list-style:none;justify-content:center}
+.nav-links a{font-size:14px;font-weight:600;font-family:var(--font);letter-spacing:.2px;color:#ffffff;padding:10px 18px;border-radius:6px;transition:all .2s;border:1px solid rgba(255,255,255,.08)}
+.nav-links a:hover,.nav-links a:focus{color:var(--accent);background:var(--accent-bg);border-color:rgba(245,166,35,.35);text-decoration:none}
+
+/* Accordions */
+details.accordion{border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden;background:var(--bg3)}
+details.accordion>summary{padding:16px 20px;cursor:pointer;font-size:15px;font-weight:600;color:var(--text);list-style:none;display:flex;align-items:center;gap:8px;transition:background .2s}
+details.accordion>summary::-webkit-details-marker{display:none}
+details.accordion>summary::before{content:'\25B6';font-size:10px;color:var(--accent);transition:transform .2s;flex-shrink:0}
+details.accordion[open]>summary::before{transform:rotate(90deg)}
+details.accordion>summary:hover{background:var(--bg4)}
+details.accordion>:not(summary){padding:0 20px 16px}
 
 /* Sections */
 section{padding:48px 0;border-bottom:1px solid var(--border)}
@@ -72,7 +81,7 @@ p{margin-bottom:12px;color:var(--text2)}
 
 /* Tables */
 table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
-thead{position:sticky;top:128px}
+thead{}
 th{background:var(--bg4);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;text-align:left;border-bottom:2px solid var(--accent)}
 td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
 tr:hover td{background:var(--bg2)}
@@ -173,15 +182,17 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
 <nav class="nav">
   <div class="container">
     <ul class="nav-links">
-      <li><a href="#onboarding" style="color:var(--accent)">Daniel Brief</a></li>
+      <li><a href="#onboarding">Daniel Brief</a></li>
       <li><a href="#profile">Profile</a></li>
+      <li><a href="#lp">Landing Page</a></li>
+      <li><a href="#keywords">Keywords</a></li>
+      <li><a href="#campaigns">Campaigns</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#quickwins">Quick Wins</a></li>
+      <li><a href="#gaps">Gaps</a></li>
       <li><a href="#landscape">Landscape</a></li>
       <li><a href="#competitors">Competitors</a></li>
       <li><a href="#swot">SWOT</a></li>
-      <li><a href="#keywords">Keywords</a></li>
-      <li><a href="#campaigns">Campaigns</a></li>
-      <li><a href="#lp">Landing Page</a></li>
-      <li><a href="#roadmap">Roadmap</a></li>
     </ul>
   </div>
 </nav>
@@ -224,8 +235,8 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
     <p class="subtitle">Everything Daniel needs to set up and launch the Google Ads account. Read this section first.</p>
 
     <!-- Client Overview -->
-    <div class="card accent" style="margin-bottom:16px">
-      <h4>Client Overview</h4>
+    <details class="accordion" open>
+      <summary>Client Overview</summary>
       <div class="grid-2">
         <div>
           <ul class="bullet">
@@ -243,17 +254,16 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
             <li><strong>CEO:</strong> Krik D. Angacian</li>
             <li><strong>Target CPL:</strong> $100&ndash;$200 (conservative), $50&ndash;$100 (optimized)</li>
             <li><strong>Client Value:</strong> $3K setup fee + ongoing CPA revenue = $6K+ first year per client</li>
-            <li><strong>Close Rate:</strong> 12.8% from pipeline data (Krik closes at 25.9%)</li>
-            <li><strong>Landing Pages:</strong> 6 dedicated LPs per keyword cluster (built by Kas + Leo)</li>
+            <li><strong>Landing Pages:</strong> 6 dedicated LPs per keyword cluster</li>
             <li><strong>Form Backend:</strong> Vercel API dual-writing to Blob + BQ with UTM + gclid capture</li>
           </ul>
         </div>
       </div>
-    </div>
+    </details>
 
     <!-- Krik's Qualifications -->
-    <div class="card" style="margin-bottom:16px">
-      <h4>Krik D. Angacian &mdash; Founder Credentials (use in ad copy &amp; extensions)</h4>
+    <details class="accordion">
+      <summary>Krik D. Angacian &mdash; Founder Credentials (use in ad copy &amp; extensions)</summary>
       <ul class="bullet">
         <li><strong>15+ years</strong> in consumer goods and digital marketing</li>
         <li><strong>Two-time CPG brand founder</strong> &mdash; built and exited two consumer packaged goods brands to 8 figures</li>
@@ -270,213 +280,128 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
         <li><strong>10-14 day launch timeline</strong></li>
         <li><strong>100% performance-based pricing</strong> &mdash; no retainers, no monthly minimums, day-to-day contract</li>
       </ul>
-    </div>
+    </details>
 
     <!-- Targeting -->
-    <div class="grid-2" style="margin-bottom:16px">
-      <div class="card">
-        <h4>Geographic Targeting</h4>
-        <ul class="bullet">
-          <li><strong>Primary: United States only</strong></li>
-          <li>All 50 states, no exclusions</li>
-          <li>Location option: <strong>"Presence"</strong> (NOT "Presence or interest")</li>
-          <li>Language: English</li>
-          <li><strong>Phase 2 expansion (month 3+):</strong> Canada, UK, Australia</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h4>Ad Scheduling &amp; Device</h4>
-        <ul class="bullet">
-          <li><strong>Highest bid:</strong> Mon&ndash;Fri, 8am&ndash;6pm ET (business hours)</li>
-          <li><strong>Standard bid:</strong> Mon&ndash;Fri, 6pm&ndash;10pm ET (research hours)</li>
-          <li><strong>Reduced (-20%):</strong> Weekends</li>
-          <li><strong>Devices:</strong> All devices, no bid adjustments initially</li>
-          <li>Adjust after 30 days based on conversion data by hour/day</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Exact Keywords to Target -->
-    <div class="card" style="margin-bottom:16px">
-      <h4>Exact Keywords to Target (BOFU only)</h4>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:12px">All keywords below are BOFU (bottom-of-funnel) with purchase/hire intent. Organized by campaign &rarr; ad group &rarr; LP destination.</p>
-
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
-        <strong style="color:var(--accent);font-size:13px">CAMPAIGN 1: Core BOFU ($2,750/mo, 55%)</strong>
-
-        <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
-          <strong style="color:var(--text);font-size:12px">AG1: Hire Agency</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /affiliate-marketing-agency</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] affiliate marketing agency<br>
-            [exact] hire affiliate marketing company<br>
-            [exact] affiliate marketing agency for ecommerce<br>
-            [exact] affiliate marketing firm<br>
-            [exact] best affiliate marketing agency<br>
-            [exact] affiliate marketing agency near me<br>
-            [phrase] affiliate marketing agency<br>
-            [phrase] hire affiliate agency<br>
-            [phrase] affiliate agency for brands
-          </p>
-        </div>
-
-        <div style="padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
-          <strong style="color:var(--text);font-size:12px">AG2: Performance/CPA</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /performance-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] performance based affiliate agency<br>
-            [exact] CPA affiliate marketing<br>
-            [exact] no retainer affiliate agency<br>
-            [exact] pay per sale affiliate management<br>
-            [exact] performance affiliate marketing company<br>
-            [exact] results based affiliate agency<br>
-            [phrase] performance affiliate<br>
-            [phrase] no retainer affiliate<br>
-            [phrase] pay per sale affiliate
-          </p>
-        </div>
-
-        <div style="padding:12px;background:var(--bg2);border-radius:4px">
-          <strong style="color:var(--text);font-size:12px">AG3: Pricing/Cost</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /performance-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] affiliate marketing agency pricing<br>
-            [exact] affiliate program management cost<br>
-            [exact] how much does affiliate management cost<br>
-            [exact] affiliate agency fees<br>
-            [phrase] affiliate marketing cost<br>
-            [phrase] affiliate agency pricing
-          </p>
-        </div>
-      </div>
-
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
-        <strong style="color:var(--green);font-size:13px">CAMPAIGN 2: DTC/Platform ($1,750/mo, 35%)</strong>
-
-        <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
-          <strong style="color:var(--text);font-size:12px">AG1: DTC/Ecommerce</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /ecommerce-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] ecommerce affiliate marketing agency<br>
-            [exact] DTC affiliate program<br>
-            [exact] shopify affiliate program agency<br>
-            [exact] affiliate marketing for online stores<br>
-            [exact] ecommerce affiliate management<br>
-            [exact] DTC affiliate marketing agency<br>
-            [phrase] ecommerce affiliate agency<br>
-            [phrase] shopify affiliate marketing<br>
-            [phrase] DTC affiliate program
-          </p>
-        </div>
-
-        <div style="padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
-          <strong style="color:var(--text);font-size:12px">AG2: Outsource/Managed</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /outsource-affiliate-program</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] outsource affiliate program<br>
-            [exact] managed affiliate program<br>
-            [exact] affiliate program management service<br>
-            [exact] outsourced affiliate management<br>
-            [exact] white label affiliate management<br>
-            [phrase] outsource affiliate<br>
-            [phrase] managed affiliate program<br>
-            [phrase] affiliate management service
-          </p>
-        </div>
-
-        <div style="padding:12px;background:var(--bg2);border-radius:4px">
-          <strong style="color:var(--text);font-size:12px">AG3: Launch/Setup</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /ecommerce-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] start affiliate program ecommerce<br>
-            [exact] launch affiliate program<br>
-            [exact] setup affiliate program shopify<br>
-            [exact] build affiliate channel<br>
-            [exact] create affiliate program for my store<br>
-            [phrase] start affiliate program<br>
-            [phrase] launch affiliate program<br>
-            [phrase] setup affiliate program
-          </p>
-        </div>
-      </div>
-
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-        <strong style="color:var(--purple);font-size:13px">CAMPAIGN 3: Verticals ($500/mo, 10%)</strong>
-
-        <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
-          <strong style="color:var(--text);font-size:12px">AG1: Supplements/Health</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /supplement-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] supplement brand affiliate marketing<br>
-            [exact] health brand affiliate agency<br>
-            [exact] wellness affiliate program<br>
-            [exact] supplement affiliate management<br>
-            [phrase] supplement affiliate marketing<br>
-            [phrase] health brand affiliate
-          </p>
-        </div>
-
-        <div style="padding:12px;background:var(--bg2);border-radius:4px">
-          <strong style="color:var(--text);font-size:12px">AG2: Beauty/Skincare</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /beauty-affiliate</span>
-          <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">
-            [exact] beauty brand affiliate agency<br>
-            [exact] skincare affiliate marketing<br>
-            [exact] cosmetics affiliate program<br>
-            [exact] beauty ecommerce affiliate<br>
-            [phrase] beauty affiliate marketing<br>
-            [phrase] skincare affiliate agency
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Negative Keywords -->
-    <div class="card red" style="margin-bottom:16px">
-      <h4>Negative Keywords (Account-Level, Apply to ALL Campaigns)</h4>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Add these on Day 1 before any spend. Prevents wasting budget on job seekers, software shoppers, DIY learners, and publisher-side queries.</p>
-
+    <details class="accordion">
+      <summary>Targeting &amp; Scheduling</summary>
       <div class="grid-2">
         <div>
-          <strong style="color:var(--text);font-size:12px">Job Seekers (Block)</strong>
-          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">
-            jobs, job, career, salary, hiring, intern, internship, work from home, remote work, freelance, resume, interview, recruiter, employment, certification, course, training, learn, tutorial, class, degree, certificate
-          </p>
-
-          <strong style="color:var(--text);font-size:12px">Software/Platform Seekers (Block)</strong>
-          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">
-            software, tool, platform, plugin, app, SaaS, wordpress, wix, template, dashboard, tracking tool, CRM, automation tool, free tool
-          </p>
+          <h4>Geographic Targeting</h4>
+          <ul class="bullet">
+            <li><strong>Primary: United States only</strong></li>
+            <li>All 50 states, no exclusions</li>
+            <li>Location option: <strong>"Presence"</strong> (NOT "Presence or interest")</li>
+            <li>Language: English</li>
+            <li><strong>Phase 2 expansion (month 3+):</strong> Canada, UK, Australia</li>
+          </ul>
         </div>
         <div>
-          <strong style="color:var(--text);font-size:12px">DIY / Beginner (Block)</strong>
-          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">
-            how to become, make money, passive income, side hustle, beginner, for dummies, free, cheap, DIY, do it yourself, step by step guide, what is affiliate marketing
-          </p>
-
-          <strong style="color:var(--text);font-size:12px">Publisher-Side / Unrelated (Block)</strong>
-          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">
-            join affiliate program, become an affiliate, affiliate commission, affiliate payout, amazon associates, clickbank, CJ affiliate, rakuten affiliate, sign up as affiliate, influencer, B2C, MLM, network marketing, dropshipping, print on demand
-          </p>
+          <h4>Ad Scheduling &amp; Device</h4>
+          <ul class="bullet">
+            <li><strong>Highest bid:</strong> Mon&ndash;Fri, 8am&ndash;6pm ET (business hours)</li>
+            <li><strong>Standard bid:</strong> Mon&ndash;Fri, 6pm&ndash;10pm ET (research hours)</li>
+            <li><strong>Reduced (-20%):</strong> Weekends</li>
+            <li><strong>Devices:</strong> All devices, no bid adjustments initially</li>
+            <li>Adjust after 30 days based on conversion data by hour/day</li>
+          </ul>
         </div>
       </div>
-    </div>
+    </details>
+
+    <!-- Exact Keywords to Target (collapsible) -->
+    <details class="accordion" style="margin-bottom:12px">
+      <summary>Exact Keywords to Target (BOFU only) <span style="color:var(--text3);font-size:12px;font-weight:400;margin-left:8px">3 campaigns, 8 ad groups</span></summary>
+      <div style="margin-top:16px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+          <strong style="color:var(--accent);font-size:13px">CAMPAIGN 1: Core BOFU ($2,750/mo, 55%)</strong>
+          <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
+            <strong style="color:var(--text);font-size:12px">AG1: Hire Agency</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /affiliate-marketing-agency</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] affiliate marketing agency, hire affiliate marketing company, affiliate marketing agency for ecommerce, affiliate marketing firm, best affiliate marketing agency, affiliate marketing agency near me<br>[phrase] affiliate marketing agency, hire affiliate agency, affiliate agency for brands</p>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
+            <strong style="color:var(--text);font-size:12px">AG2: Performance/CPA</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /performance-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] performance based affiliate agency, CPA affiliate marketing, no retainer affiliate agency, pay per sale affiliate management, performance affiliate marketing company, results based affiliate agency<br>[phrase] performance affiliate, no retainer affiliate, pay per sale affiliate</p>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:4px">
+            <strong style="color:var(--text);font-size:12px">AG3: Pricing/Cost</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /performance-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] affiliate marketing agency pricing, affiliate program management cost, how much does affiliate management cost, affiliate agency fees<br>[phrase] affiliate marketing cost, affiliate agency pricing</p>
+          </div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px">
+          <strong style="color:var(--green);font-size:13px">CAMPAIGN 2: DTC/Platform ($1,750/mo, 35%)</strong>
+          <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
+            <strong style="color:var(--text);font-size:12px">AG1: DTC/Ecommerce</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /ecommerce-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] ecommerce affiliate marketing agency, DTC affiliate program, shopify affiliate program agency, affiliate marketing for online stores, ecommerce affiliate management, DTC affiliate marketing agency<br>[phrase] ecommerce affiliate agency, shopify affiliate marketing, DTC affiliate program</p>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
+            <strong style="color:var(--text);font-size:12px">AG2: Outsource/Managed</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /outsource-affiliate-program</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] outsource affiliate program, managed affiliate program, affiliate program management service, outsourced affiliate management, white label affiliate management<br>[phrase] outsource affiliate, managed affiliate program, affiliate management service</p>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:4px">
+            <strong style="color:var(--text);font-size:12px">AG3: Launch/Setup</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /ecommerce-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] start affiliate program ecommerce, launch affiliate program, setup affiliate program shopify, build affiliate channel, create affiliate program for my store<br>[phrase] start affiliate program, launch affiliate program, setup affiliate program</p>
+          </div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
+          <strong style="color:var(--purple);font-size:13px">CAMPAIGN 3: Verticals ($500/mo, 10%)</strong>
+          <div style="margin-top:12px;padding:12px;background:var(--bg2);border-radius:4px;margin-bottom:8px">
+            <strong style="color:var(--text);font-size:12px">AG1: Supplements/Health</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /supplement-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] supplement brand affiliate marketing, health brand affiliate agency, wellness affiliate program, supplement affiliate management<br>[phrase] supplement affiliate marketing, health brand affiliate</p>
+          </div>
+          <div style="padding:12px;background:var(--bg2);border-radius:4px">
+            <strong style="color:var(--text);font-size:12px">AG2: Beauty/Skincare</strong> <span style="color:var(--text3);font-size:11px;font-family:var(--mono)">LP: /beauty-affiliate</span>
+            <p style="font-family:var(--mono);font-size:12px;color:var(--green);margin:8px 0 0">[exact] beauty brand affiliate agency, skincare affiliate marketing, cosmetics affiliate program, beauty ecommerce affiliate<br>[phrase] beauty affiliate marketing, skincare affiliate agency</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Negative Keywords (collapsible) -->
+    <details class="accordion" style="margin-bottom:12px;border-color:rgba(239,68,68,.3)">
+      <summary>Negative Keywords (62 terms, Account-Level) <span style="color:var(--red);font-size:12px;font-weight:400;margin-left:8px">Add Day 1</span></summary>
+      <div class="grid-2" style="margin-top:16px">
+        <div>
+          <strong style="color:var(--text);font-size:12px">Job Seekers</strong>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">jobs, job, career, salary, hiring, intern, internship, work from home, remote work, freelance, resume, interview, recruiter, employment, certification, course, training, learn, tutorial, class, degree, certificate</p>
+          <strong style="color:var(--text);font-size:12px">Software/Platform Seekers</strong>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">software, tool, platform, plugin, app, SaaS, wordpress, wix, template, dashboard, tracking tool, CRM, automation tool, free tool</p>
+        </div>
+        <div>
+          <strong style="color:var(--text);font-size:12px">DIY / Beginner</strong>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">how to become, make money, passive income, side hustle, beginner, for dummies, free, cheap, DIY, do it yourself, step by step guide, what is affiliate marketing</p>
+          <strong style="color:var(--text);font-size:12px">Publisher-Side / Unrelated</strong>
+          <p style="font-family:var(--mono);font-size:11px;color:var(--red);margin:8px 0 12px">join affiliate program, become an affiliate, affiliate commission, affiliate payout, amazon associates, clickbank, CJ affiliate, rakuten affiliate, sign up as affiliate, influencer, B2C, MLM, network marketing, dropshipping, print on demand</p>
+        </div>
+      </div>
+    </details>
 
     <!-- Bid Strategy + Extensions -->
-    <div class="grid-2">
-      <div class="card">
-        <h4>Bid Strategy</h4>
-        <ul class="bullet">
-          <li><strong>Launch:</strong> Maximize Conversions (no tCPA) &mdash; let Google learn</li>
-          <li><strong>After 30 conversions:</strong> Switch to Target CPA ($150)</li>
-          <li><strong>After 80 conversions:</strong> Add Performance Max campaign</li>
-          <li>Match types: Phrase + Exact only at launch. Broad only after 30+ conversions with Smart Bidding.</li>
-          <li>3x Kill Rule: pause any keyword with CPA &gt;3x target</li>
-        </ul>
+    <details class="accordion">
+      <summary>Bid Strategy &amp; Ad Extensions</summary>
+      <div class="grid-2">
+        <div>
+          <h4>Bid Strategy</h4>
+          <ul class="bullet">
+            <li><strong>Launch:</strong> Maximize Conversions (no tCPA) &mdash; let Google learn</li>
+            <li><strong>After 30 conversions:</strong> Switch to Target CPA ($150)</li>
+            <li><strong>After 80 conversions:</strong> Add Performance Max campaign</li>
+            <li>Match types: Phrase + Exact only at launch. Broad only after 30+ conversions with Smart Bidding.</li>
+            <li>3x Kill Rule: pause any keyword with CPA &gt;3x target</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Ad Extensions (Day 1)</h4>
+          <ul class="bullet">
+            <li><strong>Sitelinks:</strong> Case Studies, Pricing (Performance-Only), How It Works, Publisher Network</li>
+            <li><strong>Callouts:</strong> No Retainer, Cancel Anytime, 14-Day Launch, 70% Net New Guaranteed</li>
+            <li><strong>Structured Snippets:</strong> Brands: Coinbase, Everyday Dose, Magic Mind, Lowe's</li>
+            <li><strong>Call Extension:</strong> If Krik/Julieta phone available</li>
+            <li><strong>Image Extensions:</strong> Publisher logos, dashboard screenshot</li>
+          </ul>
+        </div>
       </div>
-      <div class="card">
-        <h4>Ad Extensions (Day 1)</h4>
-        <ul class="bullet">
-          <li><strong>Sitelinks:</strong> Case Studies, Pricing (Performance-Only), How It Works, Publisher Network</li>
-          <li><strong>Callouts:</strong> No Retainer, Cancel Anytime, 14-Day Launch, 70% Net New Guaranteed</li>
-          <li><strong>Structured Snippets:</strong> Brands: Coinbase, Everyday Dose, Magic Mind, Lowe's</li>
-          <li><strong>Call Extension:</strong> If Krik/Julieta phone available</li>
-          <li><strong>Image Extensions:</strong> Publisher logos, dashboard screenshot</li>
-        </ul>
-      </div>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -485,60 +410,36 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
   <div class="container">
     <h2><span class="num">01</span> Business Profile & Offer</h2>
 
-    <div class="grid-2">
-      <div class="card accent">
-        <h4>What CPG Does</h4>
-        <p>Performance-based affiliate marketing agency for DTC e-commerce brands. Sits between brands and publishers (traffic sources), recruiting publishers to drive sales on a CPA (cost-per-acquisition) model.</p>
-        <ul class="bullet">
-          <li><strong>Model:</strong> 100% CPA-based. Brands pay only on completed sales.</li>
-          <li><strong>Setup:</strong> One-time $3K fee + $5K CPA budget in escrow</li>
-          <li><strong>Contract:</strong> Day-to-day agreements, no locked-in periods, 10-day exit</li>
-          <li><strong>Launch:</strong> 2-week setup including Shopify integration, fraud prevention, publisher onboarding</li>
-          <li><strong>Guarantee:</strong> CAC &le; Meta, ROAS > Meta, 70%+ net new customers (contractual)</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h4>Ideal Client Profile</h4>
-        <ul class="bullet">
-          <li>DTC e-commerce, primarily Shopify</li>
-          <li>$2M&ndash;$20M annual revenue</li>
-          <li>20K+ monthly website visitors</li>
-          <li>Already spending $20K+/mo on Meta ads</li>
-          <li>No existing affiliate program (or broken one)</li>
-          <li>Health, wellness, beauty, supplements, F&B verticals</li>
-          <li>Subscription/consumable products outperform one-time</li>
-        </ul>
-        <div class="callout warn" style="margin-top:12px">
-          <p><strong>Pipeline data:</strong> Health & Supplements close at 20.9%, Beauty at 20%. Apparel closes at 0%. Marketing contacts close 2x vs founders.</p>
-        </div>
-      </div>
-    </div>
+    <details class="accordion" open>
+      <summary>What CPG Does</summary>
+      <p>Performance-based affiliate marketing agency for DTC e-commerce brands. Sits between brands and publishers (traffic sources), recruiting publishers to drive sales on a CPA (cost-per-acquisition) model.</p>
+      <ul class="bullet">
+        <li><strong>Model:</strong> 100% CPA-based. Brands pay only on completed sales.</li>
+        <li><strong>Setup:</strong> One-time $3K fee + $5K CPA budget in escrow</li>
+        <li><strong>Contract:</strong> Day-to-day agreements, no locked-in periods, 10-day exit</li>
+        <li><strong>Launch:</strong> 2-week setup including Shopify integration, fraud prevention, publisher onboarding</li>
+        <li><strong>Guarantee:</strong> CAC &le; Meta, ROAS > Meta, 70%+ net new customers (contractual)</li>
+      </ul>
+    </details>
 
-    <div class="card" style="margin-top:16px">
-      <h4>Revenue Context</h4>
-      <div class="grid-4">
-        <div style="text-align:center">
-          <div style="font-size:24px;font-weight:700;color:var(--red)">$150K/mo</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">CURRENT PROFIT</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:24px;font-weight:700;color:var(--text3)">$350K/mo</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">PEAK PROFIT</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:24px;font-weight:700;color:var(--red)">-57%</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">DECLINE</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-size:24px;font-weight:700;color:var(--accent)">25</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:4px">ACTIVE CLIENTS</div>
-        </div>
+    <details class="accordion">
+      <summary>Ideal Client Profile</summary>
+      <ul class="bullet">
+        <li>DTC e-commerce, primarily Shopify</li>
+        <li>$2M&ndash;$20M annual revenue</li>
+        <li>20K+ monthly website visitors</li>
+        <li>Already spending $20K+/mo on Meta ads</li>
+        <li>No existing affiliate program (or broken one)</li>
+        <li>Health, wellness, beauty, supplements, F&B verticals</li>
+        <li>Subscription/consumable products outperform one-time</li>
+      </ul>
+      <div class="callout warn" style="margin-top:12px">
+        <p><strong>Best verticals:</strong> Health & Supplements and Beauty convert best. Apparel has historically been weak. Target marketing contacts over founders when possible.</p>
       </div>
-      <p style="margin-top:16px;font-size:13px">Revenue decline driven entirely by cold email collapse (17K sends/mo, needs 30-50K). Google Ads is being launched as the <strong>first paid inbound channel</strong> to diversify acquisition away from cold email dependency.</p>
-    </div>
+    </details>
 
-    <div class="card" style="margin-top:16px">
-      <h4>Key Differentiators (for ad messaging)</h4>
+    <details class="accordion">
+      <summary>Key Differentiators (for ad messaging)</summary>
       <div class="grid-3">
         <div>
           <strong style="color:var(--accent)">1. Pure CPA Model</strong>
@@ -553,312 +454,128 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
           <p style="font-size:13px">Triple guarantee written into contract: CAC &le; Meta, ROAS > Meta, 70%+ net new customers. No other agency does this.</p>
         </div>
       </div>
-    </div>
+    </details>
   </div>
 </section>
 
-<!-- 02: COMPETITIVE LANDSCAPE -->
-<section id="landscape">
+<!-- 02: LANDING PAGE VS. COMPETITORS -->
+<section id="lp" style="background:var(--bg2)">
   <div class="container">
-    <h2><span class="num">02</span> Competitive Landscape</h2>
-    <p class="subtitle">$42.6B global affiliate marketing market (2026). Affiliate drives 16% of US online orders. CPG competes against 3 tiers of competitors plus self-service platforms.</p>
+    <h2><span class="num">02</span> Landing Page vs. Competitors</h2>
+    <p class="subtitle">How the new CPG Google Ads landing page stacks up against competitor approaches. <a href="https://kasandzz.github.io/kamg-client-reports/output/cpg/cpg-google-ads-lp.html" target="_blank">View landing page &rarr;</a></p>
 
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Agency</th>
-            <th>Model</th>
-            <th>Monthly Cost</th>
-            <th>Setup</th>
-            <th>Contract</th>
-            <th>Clients</th>
-            <th>Threat Level</th>
+            <th>Dimension</th>
+            <th>CPG LP (New)</th>
+            <th>Acceleration Partners</th>
+            <th>Advertise Purple</th>
+            <th>Squaredance</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>CPG Affiliate</strong></td>
-            <td>CPA only</td>
-            <td>$0 (pay per sale)</td>
-            <td>$3K</td>
-            <td>Day-to-day</td>
-            <td>40+</td>
-            <td>&mdash;</td>
+            <td><strong>Hero Headline</strong></td>
+            <td style="color:var(--green)">"Your Affiliate Program Is Paying for Customers You Already Have"</td>
+            <td>"Cut through complexity with clarity"</td>
+            <td>"The Leading Affiliate Marketing Agency for Scalable Growth"</td>
+            <td>"Find the Best Partners"</td>
           </tr>
           <tr>
-            <td>Acceleration Partners</td>
-            <td>Retainer + perf</td>
-            <td>$3K&ndash;$10K+</td>
-            <td>Custom</td>
-            <td>6-12 mo</td>
-            <td>Enterprise (Allbirds, Reebok, Target)</td>
-            <td><span class="tag med">Medium</span></td>
+            <td><strong>Value Prop Clarity</strong></td>
+            <td><span class="tag low">Excellent</span> &mdash; specific problem + 3 guarantees</td>
+            <td><span class="tag med">Generic</span> &mdash; authority, not urgency</td>
+            <td><span class="tag med">Scale-focused</span> &mdash; stats-heavy</td>
+            <td><span class="tag med">Platform pitch</span></td>
           </tr>
           <tr>
-            <td>Advertise Purple</td>
-            <td>Performance-based</td>
-            <td>~$2K+</td>
-            <td>Custom</td>
-            <td>Custom</td>
-            <td>5,000+ (Whirlpool, Oracle)</td>
-            <td><span class="tag high">High</span></td>
+            <td><strong>Risk Reversal</strong></td>
+            <td><span class="tag low">Triple guarantee</span> in contract</td>
+            <td><span class="tag high">None</span></td>
+            <td><span class="tag high">None visible</span></td>
+            <td><span class="tag med">$0 entry</span></td>
           </tr>
           <tr>
-            <td>Gen3 Marketing</td>
-            <td>Custom</td>
-            <td>$5K+</td>
-            <td>Custom</td>
-            <td>Custom</td>
-            <td>Largest independent</td>
-            <td><span class="tag med">Medium</span></td>
+            <td><strong>Form Type</strong></td>
+            <td><span class="tag low">4-step qualification wizard</span> (sticky)</td>
+            <td>Standard contact form</td>
+            <td>Inline hero form</td>
+            <td>Demo request + interactive tour</td>
           </tr>
           <tr>
-            <td>Perform[cb]</td>
-            <td>Performance-based</td>
-            <td>Undisclosed</td>
-            <td>Undisclosed</td>
-            <td>Custom</td>
-            <td>Hungryroot, Babbel, Mizuno</td>
-            <td><span class="tag med">Medium</span></td>
+            <td><strong>Social Proof</strong></td>
+            <td>6 named CEO testimonials + 4 case studies with charts + publisher logos (Disney, Forbes, CNN)</td>
+            <td>Fortune 500 logos + awards + case study %s</td>
+            <td>5,000 clients + Inc. badges + exec testimonials</td>
+            <td>Revenue numbers per client ($15M Onnit)</td>
           </tr>
           <tr>
-            <td>Hamster Garage</td>
-            <td>Custom</td>
-            <td>$5K+</td>
-            <td>Custom</td>
-            <td>Custom</td>
-            <td>Uber, Canva, Airbnb</td>
-            <td><span class="tag low">Low</span></td>
+            <td><strong>Design Quality</strong></td>
+            <td><span class="tag low">Premium dark editorial</span> &mdash; fintech aesthetic, glass morphism, micro-animations</td>
+            <td><span class="tag med">Corporate clean</span></td>
+            <td><span class="tag med">Professional standard</span></td>
+            <td><span class="tag low">Modern SaaS</span></td>
           </tr>
           <tr>
-            <td>iAffiliate Mgmt</td>
-            <td>Performance implied</td>
-            <td>Undisclosed</td>
-            <td>Undisclosed</td>
-            <td>Custom</td>
-            <td>Groupon, OXO, Tommy John</td>
-            <td><span class="tag low">Low</span></td>
+            <td><strong>Mobile CTA</strong></td>
+            <td><span class="tag low">Fixed sticky bar</span></td>
+            <td>Standard scroll</td>
+            <td>Standard scroll</td>
+            <td>Standard scroll</td>
           </tr>
           <tr>
-            <td>PartnerCentric</td>
-            <td>Custom</td>
-            <td>$5K+</td>
-            <td>Undisclosed</td>
-            <td>Custom</td>
-            <td>Hims/Hers, Cox</td>
-            <td><span class="tag low">Low</span></td>
+            <td><strong>Problem Section</strong></td>
+            <td><span class="tag low">3 specific problems</span> with stats (88% repeat, 4.2x/0.3x ROAS, $8K/$0)</td>
+            <td><span class="tag high">None</span></td>
+            <td><span class="tag high">None</span></td>
+            <td><span class="tag high">None</span></td>
           </tr>
           <tr>
-            <td>Squaredance</td>
-            <td>Pay per sale (platform)</td>
-            <td>$0</td>
-            <td>$0</td>
-            <td>None</td>
-            <td>Onnit, Noom, Goli</td>
-            <td><span class="tag high">High</span></td>
-          </tr>
-          <tr>
-            <td>Praize</td>
-            <td>Custom</td>
-            <td>Undisclosed</td>
-            <td>Undisclosed</td>
-            <td>Custom</td>
-            <td>Jones Road, Four Sigmatic</td>
-            <td><span class="tag low">Low</span></td>
-          </tr>
-          <tr>
-            <td>NYMO & Co.</td>
-            <td>Hourly + project</td>
-            <td>~$2K-$2.5K</td>
-            <td>Undisclosed</td>
-            <td>Project</td>
-            <td>Unnamed SMB</td>
-            <td><span class="tag low">Low</span></td>
+            <td><strong>Pricing Transparency</strong></td>
+            <td><span class="tag low">Performance-only, day-to-day</span></td>
+            <td><span class="tag high">"Let's Talk"</span></td>
+            <td><span class="tag high">"Let's Talk"</span></td>
+            <td><span class="tag low">$0 upfront</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="callout info" style="margin-top:16px">
-      <p><strong>Key Insight:</strong> CPG occupies a unique position as "managed agency service at platform-level pricing." Only Squaredance is cheaper ($0/$0), but Squaredance is self-service with no human strategy layer. CPG is the only agency offering fully managed service with zero retainer + contractual performance guarantees.</p>
-    </div>
-
-    <h3 style="margin-top:32px">Google Ads Landscape</h3>
+    <h3 style="margin-top:32px">CPG LP Competitive Advantages</h3>
     <div class="grid-2">
-      <div class="card">
-        <h4>Who's Bidding</h4>
+      <div class="card green">
+        <h4>What Crushes the Competition</h4>
         <ul class="bullet">
-          <li><strong>Platforms dominate paid ads</strong> more than agencies: Tapfiliate, Impact.com, GoAffPro, Social Snowball, ClickBank</li>
-          <li><strong>Advertise Purple</strong> is the most visible agency advertiser</li>
-          <li><strong>Squaredance</strong> likely bids on DTC-specific terms</li>
-          <li><strong>CPG Affiliate is invisible</strong> &mdash; zero organic or paid presence</li>
-          <li>Listicle sites (Clutch, DesignRush, G2) dominate organic results</li>
+          <li><strong>Problem section is unique.</strong> No competitor addresses coupon fraud, false ROAS, or retainer misalignment on their LP. CPG names the enemy.</li>
+          <li><strong>Triple guarantee is category-first.</strong> Writing performance metrics into the contract is unprecedented in this space.</li>
+          <li><strong>Sticky qualification form</strong> is always visible. Competitors bury forms or use standard contact pages.</li>
+          <li><strong>Design quality</strong> is a tier above every competitor. The dark editorial aesthetic signals "serious money" to DTC founders spending $20K+/mo on Meta.</li>
+          <li><strong>Publisher name-drop</strong> (Disney, Forbes, CNN) immediately legitimizes in a way competitor logos don't.</li>
+          <li><strong>Mobile sticky CTA</strong> catches the 60%+ of traffic that's mobile-first.</li>
         </ul>
       </div>
-      <div class="card">
-        <h4>Opportunity</h4>
+      <div class="card red">
+        <h4>Pre-Launch Fixes Required</h4>
         <ul class="bullet">
-          <li>Space is <strong>not saturated</strong> with agency advertisers</li>
-          <li>Long-tail terms ("no retainer affiliate agency," "CPA affiliate management") are cheap and uncontested</li>
-          <li>Estimated CPC: $4&ndash;$12 for B2B service terms</li>
-          <li>Most competitors rely on organic/content &mdash; paid is a whitespace</li>
-          <li>CPG's "no retainer" message is inherently click-worthy in a retainer-dominated market</li>
+          <li><strong>Form submission dead.</strong> No backend, no webhook, no CRM endpoint. Must wire up before going live.</li>
+          <li><strong>Zero tracking.</strong> No gtag.js, no GA4, no conversion pixel. Google Ads can't optimize without conversion data.</li>
+          <li><strong>Privacy/Terms links dead.</strong> <code>href="#"</code> will fail Google Ads policy review.</li>
+          <li><strong>No founder photo.</strong> Krik bio section needs a headshot for personal trust.</li>
+          <li><strong>Publisher logos are CSS wordmarks,</strong> not real brand marks. Sophisticated prospects may notice.</li>
+          <li><strong>Scarcity claim hardcoded.</strong> "Only 3 spots" is static HTML. Either make dynamic or remove.</li>
+          <li><strong>No video.</strong> A 60-second Krik explainer would dramatically lift engagement for high-ticket B2B.</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 03: COMPETITOR DEEP DIVES -->
-<section id="competitors">
-  <div class="container">
-    <h2><span class="num">03</span> Top Competitor Profiles</h2>
-    <p class="subtitle">The 4 competitors most likely to appear alongside CPG in Google Ads results, with positioning analysis.</p>
-
-    <div class="comp-card">
-      <div class="comp-header">
-        <span class="comp-name">Advertise Purple</span>
-        <span class="tag high">Primary Threat</span>
-      </div>
-      <div class="comp-body">
-        <p>5,000+ clients served, $4.6B+ sales generated. Inc. fastest-growing 7 consecutive years. 120+ team. Claims 131% average affiliate sales growth in first 6 months. Proprietary "Bloom" platform + "Purply" tech. Self-service "Pilot" for smaller brands.</p>
-        <p><strong>Why they're dangerous:</strong> Scale + "performance-based billing since 2014" messaging directly competes with CPG's positioning. Their volume of social proof (5,000 clients) dwarfs CPG's 40.</p>
-        <p><strong>CPG's counter:</strong> AP serves 23 verticals (diluted). CPG is DTC-specialist with contractual guarantees (AP has none). AP has no founder-operator story. Frame as "the agency that treats you like a number" vs. CPG's personal touch.</p>
-      </div>
-      <div class="comp-tags">
-        <span class="tag info">5K+ clients</span>
-        <span class="tag info">$4.6B revenue</span>
-        <span class="tag med">Performance-based</span>
-        <span class="tag purple">23 verticals</span>
-      </div>
-    </div>
-
-    <div class="comp-card">
-      <div class="comp-header">
-        <span class="comp-name">Squaredance</span>
-        <span class="tag high">Primary Threat</span>
-      </div>
-      <div class="comp-body">
-        <p>VC-backed marketplace/platform (not agency). Connects DTC brands with media buyers, publishers, influencers. "No setup fees. No monthly SaaS fees. Performance-based only." Launch campaigns in 20 minutes. Case studies: Onnit ($15M+ revenue, 470% CVR increase), Goli ($6M+ revenue).</p>
-        <p><strong>Why they're dangerous:</strong> Same "pay per sale" positioning but at $0 entry cost vs. CPG's $3K setup. YC-backed, aggressive growth marketing.</p>
-        <p><strong>CPG's counter:</strong> Squaredance is self-service &mdash; brands must manage everything. No human strategy, no publisher curation, no fraud prevention, no contractual guarantees. Frame as "platform vs. partner" &mdash; "Who's managing your brand safety on a self-serve marketplace?"</p>
-      </div>
-      <div class="comp-tags">
-        <span class="tag info">VC-backed</span>
-        <span class="tag info">$0 entry</span>
-        <span class="tag med">Self-service platform</span>
-        <span class="tag purple">DTC-focused</span>
-      </div>
-    </div>
-
-    <div class="comp-card">
-      <div class="comp-header">
-        <span class="comp-name">Acceleration Partners</span>
-        <span class="tag med">Secondary Threat</span>
-      </div>
-      <div class="comp-body">
-        <p>The 800lb gorilla. 6-time GPMA "Best Agency" winner. $8.6B client revenue in 2025. 40+ countries. APVision proprietary tech. 15+ years. Clients: Allbirds (+371% revenue), Reebok, Target, Crocs, TikTok for Business.</p>
-        <p><strong>Why they're secondary:</strong> Enterprise positioning ($3K-$10K+/mo retainers) means they don't compete for CPG's $2M-$10M DTC target. They rank #1 organic but probably won't bid on the same long-tail terms.</p>
-        <p><strong>CPG's counter:</strong> "We work with brands AP won't touch." Price transparency, no minimums, founder-to-founder relationship vs. account manager rotation.</p>
-      </div>
-      <div class="comp-tags">
-        <span class="tag info">Enterprise</span>
-        <span class="tag info">$8.6B revenue</span>
-        <span class="tag high">$3K-$10K/mo retainer</span>
-        <span class="tag purple">40+ countries</span>
-      </div>
-    </div>
-
-    <div class="comp-card">
-      <div class="comp-header">
-        <span class="comp-name">Perform[cb]</span>
-        <span class="tag med">Secondary Threat</span>
-      </div>
-      <div class="comp-body">
-        <p>"Entirely performance-based fee model." 95% client retention. Impact.com Diamond Partner. Patented marketplace. 286% first-month revenue increases. Founded 2002.</p>
-        <p><strong>Why they're secondary:</strong> Performance-based positioning overlaps, but they target broader verticals (finance, apps, subscriptions) and don't have DTC-specific messaging.</p>
-        <p><strong>CPG's counter:</strong> DTC-specialist vs. generalist. Krik's brand-owner credibility. Contractual guarantees (Perform[cb] has none published). "Built by a brand owner who lived it" vs. "built by marketers who study it."</p>
-      </div>
-      <div class="comp-tags">
-        <span class="tag info">95% retention</span>
-        <span class="tag med">Performance-based</span>
-        <span class="tag purple">Multi-vertical</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 04: SWOT -->
-<section id="swot">
-  <div class="container">
-    <h2><span class="num">04</span> SWOT Analysis</h2>
-
-    <div class="swot">
-      <div class="swot-box s">
-        <h3>Strengths</h3>
-        <ul>
-          <li><strong>Pure CPA, no retainer</strong> &mdash; only 2-3 competitors offer this</li>
-          <li><strong>$3K setup fee</strong> &mdash; dramatically lower than $5K-$10K+ industry minimums</li>
-          <li><strong>Founder-operator story</strong> &mdash; Krik's 2x CPG brand exits are authentic trust signals</li>
-          <li><strong>Triple contractual guarantee</strong> &mdash; no other agency puts metrics in the contract</li>
-          <li><strong>Day-to-day contracts</strong> &mdash; vs. 6-12 month lockups industry-wide</li>
-          <li><strong>DTC/CPG niche focus</strong> &mdash; specialist credibility in health, beauty, supplements</li>
-          <li><strong>11 CEO-level testimonials</strong> citing specific results (50% CPA reduction, rapid scaling)</li>
-          <li><strong>Publisher network</strong> &mdash; Disney, Forbes, CNN, NBC, Capital One included</li>
-        </ul>
-      </div>
-      <div class="swot-box w">
-        <h3>Weaknesses</h3>
-        <ul>
-          <li><strong>Zero search visibility</strong> &mdash; no organic rankings, no Google Ads presence today</li>
-          <li><strong>No proprietary technology</strong> &mdash; competitors have APVision, Bloom, FUSE, Swipehouse</li>
-          <li><strong>Small team (10)</strong> without named senior strategists beyond Krik</li>
-          <li><strong>No CRM</strong> &mdash; leads "go missing," no pipeline tracking</li>
-          <li><strong>No platform certifications</strong> (Impact, Awin, Rakuten badges)</li>
-          <li><strong>No published case studies</strong> with full metrics (just quotes)</li>
-          <li><strong>No industry awards</strong> (GPMA, Inc. 5000, Partnership Awards)</li>
-          <li><strong>7-page brochure website</strong> vs. content-rich competitor sites</li>
-          <li><strong>Not listed on Clutch, G2, DesignRush</strong></li>
-          <li><strong>No Amazon/TikTok Shop offering</strong> (emerging channels)</li>
-        </ul>
-      </div>
-      <div class="swot-box o">
-        <h3>Opportunities</h3>
-        <ul>
-          <li><strong>"No retainer" positioning in ads</strong> &mdash; rare, powerful, inherently click-worthy</li>
-          <li><strong>Long-tail Google Ads are cheap</strong> and uncontested by agencies</li>
-          <li><strong>Clutch/G2 profiles</strong> &mdash; free, immediate visibility to high-intent buyers</li>
-          <li><strong>Content gap</strong> &mdash; "DTC Affiliate Playbook" would build SEO authority</li>
-          <li><strong>SMB DTC ($1M-$10M) underserved</strong> &mdash; most top agencies target $20M+</li>
-          <li><strong>Shopify App Store</strong> partner listing for high-intent DTC merchants</li>
-          <li><strong>AI citation optimization</strong> &mdash; only Hamster Garage offers this</li>
-          <li><strong>Competitor conquest</strong> &mdash; bid on "acceleration partners alternative" etc.</li>
-          <li><strong>Setup fee reframe</strong> &mdash; "escrow" model resolves #1 sales objection</li>
-          <li><strong>Vertical-specific campaigns</strong> &mdash; supplements, beauty, wellness each get their own ad groups</li>
-        </ul>
-      </div>
-      <div class="swot-box t">
-        <h3>Threats</h3>
-        <ul>
-          <li><strong>Entrenched incumbents</strong> &mdash; AP, Advertise Purple, Gen3 have $15B+ combined client revenue</li>
-          <li><strong>Self-service platforms growing</strong> &mdash; Squaredance, Social Snowball, Tapfiliate compete on price</li>
-          <li><strong>In-house affiliate teams</strong> &mdash; brands hiring internally ($60-$100K/yr) as they scale</li>
-          <li><strong>AI automation</strong> &mdash; Impact.com, Awin building AI partner matching</li>
-          <li><strong>Industry consolidation</strong> &mdash; Grovia acquired by AP, rollups squeezing boutiques</li>
-          <li><strong>Cold email channel degradation</strong> &mdash; CPG's primary acquisition channel is declining</li>
-          <li><strong>Commission compression</strong> &mdash; brands demanding lower CPAs, squeezing agency margins</li>
-          <li><strong>Fraud sophistication</strong> &mdash; 2026 fraud is subtle, agencies without proprietary detection are vulnerable</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 05: KEYWORD RESEARCH -->
+<!-- 03: KEYWORD RESEARCH -->
 <section id="keywords">
   <div class="container">
-    <h2><span class="num">05</span> Keyword Research (147 Keywords)</h2>
+    <h2><span class="num">03</span> Keyword Research (147 Keywords)</h2>
     <p class="subtitle">Full keyword universe organized by intent, competition, and funnel stage. <a href="cpg-google-ads-keyword-research.html" target="_blank">View detailed keyword report &rarr;</a></p>
 
     <div class="grid-3" style="margin-bottom:24px">
@@ -980,11 +697,11 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
   </div>
 </section>
 
-<!-- 06: CAMPAIGN ARCHITECTURE -->
+<!-- 04: CAMPAIGN ARCHITECTURE -->
 <section id="campaigns">
   <div class="container">
-    <h2><span class="num">06</span> Campaign Architecture: BOFU-First, LP-Per-Cluster</h2>
-    <p class="subtitle">$5K/month budget. BOFU keywords only at launch &mdash; leads are the priority. Each keyword cluster gets a dedicated landing page built by Kas + Leo, matching the Redstone LP-per-cluster model. Every ad group points to a hyper-relevant LP that speaks directly to that searcher's intent.</p>
+    <h2><span class="num">04</span> Campaign Architecture: BOFU-First, LP-Per-Cluster</h2>
+    <p class="subtitle">$5K/month budget. BOFU keywords only at launch &mdash; leads are the priority. Each keyword cluster gets a dedicated landing page. Every ad group points to a hyper-relevant LP that speaks directly to that searcher's intent.</p>
 
     <div class="callout warn" style="margin-bottom:24px">
       <p><strong>Strategic rationale:</strong> With $5K/mo and a lead-gen goal, we skip informational/TOFU entirely. Every dollar goes to searchers actively looking to hire, outsource, or buy affiliate management services. LP-per-cluster means message match is 1:1 &mdash; the headline on the LP mirrors the search query. This compounds Quality Score, lowers CPC, and lifts conversion rate simultaneously.</p>
@@ -1060,7 +777,7 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
     </div>
 
     <div class="callout info" style="margin-bottom:24px">
-      <p><strong>LP build model (Redstone pattern):</strong> Each LP lives in a dedicated repo (like <code>kasandzz/redstone-lps</code>), auto-deploys to CPG's domain via Vercel, includes form submission pipeline dual-writing to Blob + BQ, and captures UTM + gclid for attribution. Kas + Leo build each LP using the existing CPG design system (dark editorial, Outfit font, sticky qualification form).</p>
+      <p><strong>LP build model:</strong> Each LP lives in a dedicated repo, auto-deploys to CPG's domain via Vercel, includes form submission pipeline writing to BigQuery, and captures UTM + gclid for full attribution. Each LP uses the CPG design system (dark editorial, Outfit font, sticky qualification wizard).</p>
     </div>
 
     <!-- Campaign 1 -->
@@ -1186,39 +903,6 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
       </div>
     </div>
 
-    <!-- Budget Math -->
-    <h3 style="margin-top:32px">Budget & Lead Projections ($5K/mo)</h3>
-    <div class="grid-2">
-      <div class="card">
-        <h4>Conservative Scenario (Month 1)</h4>
-        <div class="table-wrap" style="border:none">
-          <table>
-            <tr><td>Monthly budget</td><td style="text-align:right;font-family:var(--mono)">$5,000</td></tr>
-            <tr><td>Average CPC (BOFU only)</td><td style="text-align:right;font-family:var(--mono)">$8.00</td></tr>
-            <tr><td>Monthly clicks</td><td style="text-align:right;font-family:var(--mono)">625</td></tr>
-            <tr><td>LP conversion rate</td><td style="text-align:right;font-family:var(--mono)">5%</td></tr>
-            <tr><td style="font-weight:600;color:var(--text)">Monthly leads</td><td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--accent)">31</td></tr>
-            <tr><td>Cost per lead</td><td style="text-align:right;font-family:var(--mono)">$161</td></tr>
-          </table>
-        </div>
-      </div>
-      <div class="card accent">
-        <h4>Optimized Scenario (Month 3+)</h4>
-        <div class="table-wrap" style="border:none">
-          <table>
-            <tr><td>Monthly budget</td><td style="text-align:right;font-family:var(--mono)">$5,000</td></tr>
-            <tr><td>Average CPC (LP-matched)</td><td style="text-align:right;font-family:var(--mono)">$5.50</td></tr>
-            <tr><td>Monthly clicks</td><td style="text-align:right;font-family:var(--mono)">909</td></tr>
-            <tr><td>LP conversion rate (cluster-matched)</td><td style="text-align:right;font-family:var(--mono)">8%</td></tr>
-            <tr><td style="font-weight:600;color:var(--text)">Monthly leads</td><td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--accent)">73</td></tr>
-            <tr><td>Cost per lead</td><td style="text-align:right;font-family:var(--mono)">$68</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div class="callout info" style="margin-top:16px">
-      <p><strong>Revenue math:</strong> At 12.8% close rate (from pipeline data) and $3K setup + ongoing CPA revenue: <strong>Conservative:</strong> 31 leads/mo = ~4 new clients/mo = $24K+ revenue on $5K spend = <strong>4.8x ROAS</strong>. <strong>Optimized:</strong> 73 leads/mo = ~9 clients/mo = $54K+ revenue on $5K spend = <strong>10.8x ROAS</strong>. LP-per-cluster drives higher conversion rates through message match, compounding Quality Score savings over time.</p>
-    </div>
 
     <!-- LP-per-cluster rationale -->
     <h3 style="margin-top:32px">Why LP-Per-Cluster Wins</h3>
@@ -1239,124 +923,10 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
   </div>
 </section>
 
-<!-- 07: LANDING PAGE COMPETITIVE COMPARISON -->
-<section id="lp">
-  <div class="container">
-    <h2><span class="num">07</span> Landing Page vs. Competitors</h2>
-    <p class="subtitle">How the new CPG Google Ads landing page stacks up against competitor approaches. <a href="cpg-google-ads-lp.html" target="_blank">View landing page &rarr;</a></p>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Dimension</th>
-            <th>CPG LP (New)</th>
-            <th>Acceleration Partners</th>
-            <th>Advertise Purple</th>
-            <th>Squaredance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Hero Headline</strong></td>
-            <td style="color:var(--green)">"Your Affiliate Program Is Paying for Customers You Already Have"</td>
-            <td>"Cut through complexity with clarity"</td>
-            <td>"The Leading Affiliate Marketing Agency for Scalable Growth"</td>
-            <td>"Find the Best Partners"</td>
-          </tr>
-          <tr>
-            <td><strong>Value Prop Clarity</strong></td>
-            <td><span class="tag low">Excellent</span> &mdash; specific problem + 3 guarantees</td>
-            <td><span class="tag med">Generic</span> &mdash; authority, not urgency</td>
-            <td><span class="tag med">Scale-focused</span> &mdash; stats-heavy</td>
-            <td><span class="tag med">Platform pitch</span></td>
-          </tr>
-          <tr>
-            <td><strong>Risk Reversal</strong></td>
-            <td><span class="tag low">Triple guarantee</span> in contract</td>
-            <td><span class="tag high">None</span></td>
-            <td><span class="tag high">None visible</span></td>
-            <td><span class="tag med">$0 entry</span></td>
-          </tr>
-          <tr>
-            <td><strong>Form Type</strong></td>
-            <td><span class="tag low">4-step qualification wizard</span> (sticky)</td>
-            <td>Standard contact form</td>
-            <td>Inline hero form</td>
-            <td>Demo request + interactive tour</td>
-          </tr>
-          <tr>
-            <td><strong>Social Proof</strong></td>
-            <td>6 named CEO testimonials + 4 case studies with charts + publisher logos (Disney, Forbes, CNN)</td>
-            <td>Fortune 500 logos + awards + case study %s</td>
-            <td>5,000 clients + Inc. badges + exec testimonials</td>
-            <td>Revenue numbers per client ($15M Onnit)</td>
-          </tr>
-          <tr>
-            <td><strong>Design Quality</strong></td>
-            <td><span class="tag low">Premium dark editorial</span> &mdash; fintech aesthetic, glass morphism, micro-animations</td>
-            <td><span class="tag med">Corporate clean</span></td>
-            <td><span class="tag med">Professional standard</span></td>
-            <td><span class="tag low">Modern SaaS</span></td>
-          </tr>
-          <tr>
-            <td><strong>Mobile CTA</strong></td>
-            <td><span class="tag low">Fixed sticky bar</span></td>
-            <td>Standard scroll</td>
-            <td>Standard scroll</td>
-            <td>Standard scroll</td>
-          </tr>
-          <tr>
-            <td><strong>Problem Section</strong></td>
-            <td><span class="tag low">3 specific problems</span> with stats (88% repeat, 4.2x/0.3x ROAS, $8K/$0)</td>
-            <td><span class="tag high">None</span></td>
-            <td><span class="tag high">None</span></td>
-            <td><span class="tag high">None</span></td>
-          </tr>
-          <tr>
-            <td><strong>Pricing Transparency</strong></td>
-            <td><span class="tag low">Performance-only, day-to-day</span></td>
-            <td><span class="tag high">"Let's Talk"</span></td>
-            <td><span class="tag high">"Let's Talk"</span></td>
-            <td><span class="tag low">$0 upfront</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3 style="margin-top:32px">CPG LP Competitive Advantages</h3>
-    <div class="grid-2">
-      <div class="card green">
-        <h4>What Crushes the Competition</h4>
-        <ul class="bullet">
-          <li><strong>Problem section is unique.</strong> No competitor addresses coupon fraud, false ROAS, or retainer misalignment on their LP. CPG names the enemy.</li>
-          <li><strong>Triple guarantee is category-first.</strong> Writing performance metrics into the contract is unprecedented in this space.</li>
-          <li><strong>Sticky qualification form</strong> is always visible. Competitors bury forms or use standard contact pages.</li>
-          <li><strong>Design quality</strong> is a tier above every competitor. The dark editorial aesthetic signals "serious money" to DTC founders spending $20K+/mo on Meta.</li>
-          <li><strong>Publisher name-drop</strong> (Disney, Forbes, CNN) immediately legitimizes in a way competitor logos don't.</li>
-          <li><strong>Mobile sticky CTA</strong> catches the 60%+ of traffic that's mobile-first.</li>
-        </ul>
-      </div>
-      <div class="card red">
-        <h4>Pre-Launch Fixes Required</h4>
-        <ul class="bullet">
-          <li><strong>Form submission dead.</strong> No backend, no webhook, no CRM endpoint. Must wire up before going live.</li>
-          <li><strong>Zero tracking.</strong> No gtag.js, no GA4, no conversion pixel. Google Ads can't optimize without conversion data.</li>
-          <li><strong>Privacy/Terms links dead.</strong> <code>href="#"</code> will fail Google Ads policy review.</li>
-          <li><strong>No founder photo.</strong> Krik bio section needs a headshot for personal trust.</li>
-          <li><strong>Publisher logos are CSS wordmarks,</strong> not real brand marks. Sophisticated prospects may notice.</li>
-          <li><strong>Scarcity claim hardcoded.</strong> "Only 3 spots" is static HTML. Either make dynamic or remove.</li>
-          <li><strong>No video.</strong> A 60-second Krik explainer would dramatically lift engagement for high-ticket B2B.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 08: STRATEGIC ROADMAP -->
+<!-- 05: STRATEGIC ROADMAP -->
 <section id="roadmap">
   <div class="container">
-    <h2><span class="num">08</span> Launch Roadmap</h2>
+    <h2><span class="num">05</span> Launch Roadmap</h2>
     <p class="subtitle">LP-build-driven rollout. Kas + Leo build landing pages in priority order; campaigns go live as each LP ships. $5K/mo budget, BOFU-only.</p>
 
     <!-- Phase 0 -->
@@ -1365,9 +935,9 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
       <p style="font-size:13px;color:var(--text3);margin-bottom:12px">Must complete before spending $1 on ads.</p>
       <div class="grid-2">
         <div>
-          <strong style="color:var(--text);font-size:14px">LP Infrastructure (Redstone Model)</strong>
+          <strong style="color:var(--text);font-size:14px">LP Infrastructure</strong>
           <ul class="bullet">
-            <li>Create <code>cpg-lps</code> repo on Vercel (like redstone-lps)</li>
+            <li>Create <code>cpg-lps</code> repo on Vercel</li>
             <li>Set up form submission API: dual-write to Blob + BQ (capture UTM + gclid)</li>
             <li>Wire domain: cpgaffiliate.com subpages or dedicated subdomain</li>
             <li>Install gtag.js + conversion linker on all LP templates</li>
@@ -1552,10 +1122,10 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
   </div>
 </section>
 
-<!-- 09: QUICK WINS -->
+<!-- 06: QUICK WINS -->
 <section id="quickwins" style="background:var(--bg2)">
   <div class="container">
-    <h2><span class="num">09</span> Parallel Quick Wins (Non-Ads)</h2>
+    <h2><span class="num">06</span> Parallel Quick Wins (Non-Ads)</h2>
     <p class="subtitle">High-impact, low-effort actions that amplify Google Ads performance.</p>
 
     <div class="grid-2">
@@ -1579,10 +1149,10 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
   </div>
 </section>
 
-<!-- 10: KEY GAPS -->
+<!-- 07: KEY GAPS -->
 <section id="gaps">
   <div class="container">
-    <h2><span class="num">10</span> Competitive Gaps We Can Fill</h2>
+    <h2><span class="num">07</span> Competitive Gaps We Can Fill</h2>
 
     <div class="table-wrap">
       <table>
@@ -1651,6 +1221,270 @@ ul.bullet li::before{content:'';position:absolute;left:0;top:14px;width:6px;heig
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</section>
+
+<!-- 08: COMPETITIVE LANDSCAPE -->
+<section id="landscape">
+  <div class="container">
+    <h2><span class="num">08</span> Competitive Landscape</h2>
+    <p class="subtitle">$42.6B global affiliate marketing market (2026). Affiliate drives 16% of US online orders. CPG competes against 3 tiers of competitors plus self-service platforms.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Agency</th>
+            <th>Model</th>
+            <th>Monthly Cost</th>
+            <th>Setup</th>
+            <th>Contract</th>
+            <th>Clients</th>
+            <th>Threat Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>CPG Affiliate</strong></td>
+            <td>CPA only</td>
+            <td>$0 (pay per sale)</td>
+            <td>$3K</td>
+            <td>Day-to-day</td>
+            <td>40+</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Acceleration Partners</td>
+            <td>Retainer + perf</td>
+            <td>$3K&ndash;$10K+</td>
+            <td>Custom</td>
+            <td>6-12 mo</td>
+            <td>Enterprise (Allbirds, Reebok, Target)</td>
+            <td><span class="tag med">Medium</span></td>
+          </tr>
+          <tr>
+            <td>Advertise Purple</td>
+            <td>Performance-based</td>
+            <td>~$2K+</td>
+            <td>Custom</td>
+            <td>Custom</td>
+            <td>5,000+ (Whirlpool, Oracle)</td>
+            <td><span class="tag high">High</span></td>
+          </tr>
+          <tr>
+            <td>Gen3 Marketing</td>
+            <td>Custom</td>
+            <td>$5K+</td>
+            <td>Custom</td>
+            <td>Custom</td>
+            <td>Largest independent</td>
+            <td><span class="tag med">Medium</span></td>
+          </tr>
+          <tr>
+            <td>Perform[cb]</td>
+            <td>Performance-based</td>
+            <td>Undisclosed</td>
+            <td>Undisclosed</td>
+            <td>Custom</td>
+            <td>Hungryroot, Babbel, Mizuno</td>
+            <td><span class="tag med">Medium</span></td>
+          </tr>
+          <tr>
+            <td>Hamster Garage</td>
+            <td>Custom</td>
+            <td>$5K+</td>
+            <td>Custom</td>
+            <td>Custom</td>
+            <td>Uber, Canva, Airbnb</td>
+            <td><span class="tag low">Low</span></td>
+          </tr>
+          <tr>
+            <td>iAffiliate Mgmt</td>
+            <td>Performance implied</td>
+            <td>Undisclosed</td>
+            <td>Undisclosed</td>
+            <td>Custom</td>
+            <td>Groupon, OXO, Tommy John</td>
+            <td><span class="tag low">Low</span></td>
+          </tr>
+          <tr>
+            <td>PartnerCentric</td>
+            <td>Custom</td>
+            <td>$5K+</td>
+            <td>Undisclosed</td>
+            <td>Custom</td>
+            <td>Hims/Hers, Cox</td>
+            <td><span class="tag low">Low</span></td>
+          </tr>
+          <tr>
+            <td>Squaredance</td>
+            <td>Pay per sale (platform)</td>
+            <td>$0</td>
+            <td>$0</td>
+            <td>None</td>
+            <td>Onnit, Noom, Goli</td>
+            <td><span class="tag high">High</span></td>
+          </tr>
+          <tr>
+            <td>Praize</td>
+            <td>Custom</td>
+            <td>Undisclosed</td>
+            <td>Undisclosed</td>
+            <td>Custom</td>
+            <td>Jones Road, Four Sigmatic</td>
+            <td><span class="tag low">Low</span></td>
+          </tr>
+          <tr>
+            <td>NYMO & Co.</td>
+            <td>Hourly + project</td>
+            <td>~$2K-$2.5K</td>
+            <td>Undisclosed</td>
+            <td>Project</td>
+            <td>Unnamed SMB</td>
+            <td><span class="tag low">Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info" style="margin-top:16px">
+      <p><strong>Key Insight:</strong> CPG occupies a unique position as "managed agency service at platform-level pricing." Only Squaredance is cheaper ($0/$0), but Squaredance is self-service with no human strategy layer. CPG is the only agency offering fully managed service with zero retainer + contractual performance guarantees.</p>
+    </div>
+
+    <details class="accordion">
+      <summary>Google Ads Landscape</summary>
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <h4>Who's Bidding</h4>
+          <ul class="bullet">
+            <li><strong>Platforms dominate paid ads</strong> more than agencies: Tapfiliate, Impact.com, GoAffPro, Social Snowball, ClickBank</li>
+            <li><strong>Advertise Purple</strong> is the most visible agency advertiser</li>
+            <li><strong>Squaredance</strong> likely bids on DTC-specific terms</li>
+            <li><strong>CPG Affiliate is invisible</strong> &mdash; zero organic or paid presence</li>
+            <li>Listicle sites (Clutch, DesignRush, G2) dominate organic results</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Opportunity</h4>
+          <ul class="bullet">
+            <li>Space is <strong>not saturated</strong> with agency advertisers</li>
+            <li>Long-tail terms ("no retainer affiliate agency," "CPA affiliate management") are cheap and uncontested</li>
+            <li>Estimated CPC: $4&ndash;$12 for B2B service terms</li>
+            <li>Most competitors rely on organic/content &mdash; paid is a whitespace</li>
+            <li>CPG's "no retainer" message is inherently click-worthy in a retainer-dominated market</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- 09: COMPETITOR PROFILES -->
+<section id="competitors">
+  <div class="container">
+    <h2><span class="num">09</span> Top Competitor Profiles</h2>
+    <p class="subtitle">The 4 competitors most likely to appear alongside CPG in Google Ads results, with positioning analysis.</p>
+
+    <details class="accordion" open>
+      <summary>Advertise Purple <span class="tag high" style="margin-left:8px">Primary Threat</span></summary>
+      <div class="comp-body" style="padding:16px 0">
+        <p>5,000+ clients served, $4.6B+ sales generated. Inc. fastest-growing 7 consecutive years. 120+ team. Claims 131% average affiliate sales growth in first 6 months. Proprietary "Bloom" platform + "Purply" tech. Self-service "Pilot" for smaller brands.</p>
+        <p><strong>Why they're dangerous:</strong> Scale + "performance-based billing since 2014" messaging directly competes with CPG's positioning. Their volume of social proof (5,000 clients) dwarfs CPG's 40.</p>
+        <p><strong>CPG's counter:</strong> AP serves 23 verticals (diluted). CPG is DTC-specialist with contractual guarantees (AP has none). AP has no founder-operator story. Frame as "the agency that treats you like a number" vs. CPG's personal touch.</p>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>Squaredance <span class="tag high" style="margin-left:8px">Primary Threat</span></summary>
+      <div class="comp-body" style="padding:16px 0">
+        <p>VC-backed marketplace/platform (not agency). Connects DTC brands with media buyers, publishers, influencers. "No setup fees. No monthly SaaS fees. Performance-based only." Launch campaigns in 20 minutes. Case studies: Onnit ($15M+ revenue, 470% CVR increase), Goli ($6M+ revenue).</p>
+        <p><strong>Why they're dangerous:</strong> Same "pay per sale" positioning but at $0 entry cost vs. CPG's $3K setup. YC-backed, aggressive growth marketing.</p>
+        <p><strong>CPG's counter:</strong> Squaredance is self-service &mdash; brands must manage everything. No human strategy, no publisher curation, no fraud prevention, no contractual guarantees. Frame as "platform vs. partner" &mdash; "Who's managing your brand safety on a self-serve marketplace?"</p>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>Acceleration Partners <span class="tag med" style="margin-left:8px">Secondary Threat</span></summary>
+      <div class="comp-body" style="padding:16px 0">
+        <p>The 800lb gorilla. 6-time GPMA "Best Agency" winner. $8.6B client revenue in 2025. 40+ countries. APVision proprietary tech. 15+ years. Clients: Allbirds (+371% revenue), Reebok, Target, Crocs, TikTok for Business.</p>
+        <p><strong>Why they're secondary:</strong> Enterprise positioning ($3K-$10K+/mo retainers) means they don't compete for CPG's $2M-$10M DTC target. They rank #1 organic but probably won't bid on the same long-tail terms.</p>
+        <p><strong>CPG's counter:</strong> "We work with brands AP won't touch." Price transparency, no minimums, founder-to-founder relationship vs. account manager rotation.</p>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>Perform[cb] <span class="tag med" style="margin-left:8px">Secondary Threat</span></summary>
+      <div class="comp-body" style="padding:16px 0">
+        <p>"Entirely performance-based fee model." 95% client retention. Impact.com Diamond Partner. Patented marketplace. 286% first-month revenue increases. Founded 2002.</p>
+        <p><strong>Why they're secondary:</strong> Performance-based positioning overlaps, but they target broader verticals (finance, apps, subscriptions) and don't have DTC-specific messaging.</p>
+        <p><strong>CPG's counter:</strong> DTC-specialist vs. generalist. Krik's brand-owner credibility. Contractual guarantees (Perform[cb] has none published). "Built by a brand owner who lived it" vs. "built by marketers who study it."</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- 10: SWOT -->
+<section id="swot">
+  <div class="container">
+    <h2><span class="num">10</span> SWOT Analysis</h2>
+
+    <div class="swot">
+      <div class="swot-box s">
+        <h3>Strengths</h3>
+        <ul>
+          <li><strong>Pure CPA, no retainer</strong> &mdash; only 2-3 competitors offer this</li>
+          <li><strong>$3K setup fee</strong> &mdash; dramatically lower than $5K-$10K+ industry minimums</li>
+          <li><strong>Founder-operator story</strong> &mdash; Krik's 2x CPG brand exits are authentic trust signals</li>
+          <li><strong>Triple contractual guarantee</strong> &mdash; no other agency puts metrics in the contract</li>
+          <li><strong>Day-to-day contracts</strong> &mdash; vs. 6-12 month lockups industry-wide</li>
+          <li><strong>DTC/CPG niche focus</strong> &mdash; specialist credibility in health, beauty, supplements</li>
+          <li><strong>11 CEO-level testimonials</strong> citing specific results (50% CPA reduction, rapid scaling)</li>
+          <li><strong>Publisher network</strong> &mdash; Disney, Forbes, CNN, NBC, Capital One included</li>
+        </ul>
+      </div>
+      <div class="swot-box w">
+        <h3>Weaknesses</h3>
+        <ul>
+          <li><strong>Zero search visibility</strong> &mdash; no organic rankings, no Google Ads presence today</li>
+          <li><strong>No proprietary technology</strong> &mdash; competitors have APVision, Bloom, FUSE, Swipehouse</li>
+          <li><strong>Boutique team</strong> &mdash; lean operation, less perceived scale vs. 120+ person agencies</li>
+          <li><strong>No platform certifications</strong> (Impact, Awin, Rakuten badges)</li>
+          <li><strong>No published case studies</strong> with full metrics (just quotes)</li>
+          <li><strong>No industry awards</strong> (GPMA, Inc. 5000, Partnership Awards)</li>
+          <li><strong>7-page brochure website</strong> vs. content-rich competitor sites</li>
+          <li><strong>Not listed on Clutch, G2, DesignRush</strong></li>
+          <li><strong>No Amazon/TikTok Shop offering</strong> (emerging channels)</li>
+        </ul>
+      </div>
+      <div class="swot-box o">
+        <h3>Opportunities</h3>
+        <ul>
+          <li><strong>"No retainer" positioning in ads</strong> &mdash; rare, powerful, inherently click-worthy</li>
+          <li><strong>Long-tail Google Ads are cheap</strong> and uncontested by agencies</li>
+          <li><strong>Clutch/G2 profiles</strong> &mdash; free, immediate visibility to high-intent buyers</li>
+          <li><strong>Content gap</strong> &mdash; "DTC Affiliate Playbook" would build SEO authority</li>
+          <li><strong>SMB DTC ($1M-$10M) underserved</strong> &mdash; most top agencies target $20M+</li>
+          <li><strong>Shopify App Store</strong> partner listing for high-intent DTC merchants</li>
+          <li><strong>AI citation optimization</strong> &mdash; only Hamster Garage offers this</li>
+          <li><strong>Competitor conquest</strong> &mdash; bid on "acceleration partners alternative" etc.</li>
+          <li><strong>Setup fee reframe</strong> &mdash; "escrow" model resolves #1 sales objection</li>
+          <li><strong>Vertical-specific campaigns</strong> &mdash; supplements, beauty, wellness each get their own ad groups</li>
+        </ul>
+      </div>
+      <div class="swot-box t">
+        <h3>Threats</h3>
+        <ul>
+          <li><strong>Entrenched incumbents</strong> &mdash; AP, Advertise Purple, Gen3 have $15B+ combined client revenue</li>
+          <li><strong>Self-service platforms growing</strong> &mdash; Squaredance, Social Snowball, Tapfiliate compete on price</li>
+          <li><strong>In-house affiliate teams</strong> &mdash; brands hiring internally ($60-$100K/yr) as they scale</li>
+          <li><strong>AI automation</strong> &mdash; Impact.com, Awin building AI partner matching</li>
+          <li><strong>Industry consolidation</strong> &mdash; Grovia acquired by AP, rollups squeezing boutiques</li>
+          <li><strong>Outbound channel saturation</strong> &mdash; rising inbox filtering and lower reply rates across the industry</li>
+          <li><strong>Commission compression</strong> &mdash; brands demanding lower CPAs, squeezing agency margins</li>
+          <li><strong>Fraud sophistication</strong> &mdash; 2026 fraud is subtle, agencies without proprietary detection are vulnerable</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>

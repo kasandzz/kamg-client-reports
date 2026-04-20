@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone LP Audit Results - Leo's Work Review</title>
+<style>
+  :root {
+    --bg: #0D0D0D; --surface: #161616; --card: #1C1C1C; --border: #2A2A2A;
+    --text: #E8E8E8; --muted: #888; --accent: #B21E24; --green: #22C55E;
+    --amber: #F59E0B; --red: #EF4444; --blue: #3B82F6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+  .scorecard { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .score-card .num { font-size: 2rem; font-weight: 800; }
+  .score-card .label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .num-red { color: var(--red); }
+  .num-amber { color: var(--amber); }
+  .num-green { color: var(--green); }
+  .num-blue { color: var(--blue); }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+  .section-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .section-header h2 { font-size: 1.05rem; font-weight: 600; flex: 1; }
+  .badge { font-size: 0.72rem; padding: 2px 10px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+  .section-body { padding: 16px 20px; display: none; }
+  .section-body.open { display: block; }
+  .toggle-arrow { transition: transform 0.2s; font-size: 0.8rem; color: var(--muted); }
+  .toggle-arrow.open { transform: rotate(90deg); }
+
+  blockquote { border-left: 3px solid var(--accent); padding: 8px 14px; margin: 12px 0; background: rgba(178,30,36,0.08); font-size: 0.85rem; color: #ccc; font-style: italic; }
+  blockquote .attr { color: var(--muted); font-size: 0.75rem; font-style: normal; display: block; margin-top: 4px; }
+
+  .violation { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; padding: 10px 14px; margin: 8px 0; }
+  .violation .what { font-weight: 600; color: var(--red); font-size: 0.88rem; }
+  .violation .found { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
+  .violation .fix { color: var(--green); font-size: 0.82rem; margin-top: 2px; }
+  .clean { color: var(--green); font-size: 0.88rem; padding: 6px 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 12px 0; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  td.fail { color: var(--red); }
+  td.pass { color: var(--green); }
+  td.warn { color: var(--amber); }
+
+  .eric-quote { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 14px 18px; margin: 16px 0; }
+  .eric-quote .from { color: var(--accent); font-weight: 600; font-size: 0.82rem; }
+  .eric-quote p { margin-top: 6px; font-size: 0.88rem; }
+
+  .cross-cut { background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.15); border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+  .cross-cut h3 { color: var(--red); font-size: 0.95rem; margin-bottom: 10px; }
+  .cross-cut li { margin: 6px 0; font-size: 0.88rem; }
+
+  .page-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 768px) { .page-grid { grid-template-columns: 1fr 1fr; } }
+  .page-pill { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin: 2px; }
+  .pill-fail { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill-pass { background: rgba(34,197,94,0.15); color: var(--green); }
+
+  .escalation { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 14px 18px; margin: 0 0 24px 0; }
+  .escalation h3 { color: var(--red); font-size: 0.95rem; margin-bottom: 8px; }
+  @media (max-width: 768px) { .container { padding: 16px 10px; } .scorecard { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Redstone LP Audit Results</h1>
+<p class="subtitle">22 pages audited against Eric's directives &middot; April 20, 2026 &middot; Reviewing Leo's implementation</p>
+
+<!-- ESCALATION CONTEXT -->
+<div class="escalation">
+  <h3>Context: Eric's April 19 Warning</h3>
+  <blockquote>"I feel the AI tools you are using are not implementing my feedback exactly as I relay it the first time. Furthermore, it feels like you are not manually checking to ensure things are implemented correctly, and I am being used to do the first review."
+    <span class="attr">Eric Redstone, April 19 2026 (invoice escalation email)</span>
+  </blockquote>
+</div>
+
+<!-- SCORECARD -->
+<div class="scorecard">
+  <div class="score-card"><div class="num num-red">22</div><div class="label">Pages Audited</div></div>
+  <div class="score-card"><div class="num num-red">0</div><div class="label">Clean Pages</div></div>
+  <div class="score-card"><div class="num num-red">6</div><div class="label">Sitewide Issues</div></div>
+  <div class="score-card"><div class="num num-amber">~68</div><div class="label">Total Violations</div></div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SITEWIDE FAILURES -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow open">&#9654;</span>
+    <h2>Sitewide Failures (every page)</h2>
+    <span class="badge badge-red">6 ISSUES &times; 22 PAGES</span>
+  </div>
+  <div class="section-body open">
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">These issues appear on ALL or nearly all pages. Fixing these 6 items resolves the majority of total violations.</p>
+
+    <!-- 1. Qualifications -->
+    <div class="cross-cut">
+      <h3>1. "Qualifications" / "Is this a fit?" section still present (22/22 pages)</h3>
+      <div class="eric-quote">
+        <span class="from">Eric (WhatsApp, Apr 18 19:32)</span>
+        <p>"I don't love the qualifications section, it feels too detailed and for a landing page. And we don't really want to screen people out after they already clicked on our ad. At that point we want them to fill the form."</p>
+      </div>
+      <p><strong>Status:</strong> NOT removed on any page. Every page still has the H2 "Qualification" or "Is this a fit?" section with $50K AOV / 500-unit minimums.</p>
+    </div>
+
+    <!-- 2. CTA text -->
+    <div class="cross-cut">
+      <h3>2. CTA text is generic "Request a Quote" (22/22 pages)</h3>
+      <div class="eric-quote">
+        <span class="from">Eric (WhatsApp, Apr 18 19:37)</span>
+        <p>"'Ready to move your die casting into production?' - ideally we want customer looking to nearshore, not necessarily starting new parts"</p>
+      </div>
+      <div class="eric-quote">
+        <span class="from">Eric (email, Apr 19 item #15)</span>
+        <p>"CTA should target nearshoring, not 'starting new parts'"</p>
+      </div>
+      <p><strong>Status:</strong> Every page uses "Request a Quote" or "Get a Quote". None use a nearshoring-focused CTA or any nearshoring-focused CTA.</p>
+    </div>
+
+    <!-- 4. Partner language -->
+    <div class="cross-cut">
+      <h3>3. Banned word "partner" still present (~14/22 pages)</h3>
+      <div class="eric-quote">
+        <span class="from">Eric (Apr 17 permanent rules)</span>
+        <p>Banned: "partner", "broker". Replace with "direct manufacturer".</p>
+      </div>
+      <p><strong>Found on:</strong> CNC Mexico pages ("Redstone partners with OEM parts manufacturers..."), sheet metal pages ("direct partner, not a broker relay"), precision India page. Multiple instances per page.</p>
+    </div>
+
+    <!-- 5. Welders -->
+    <div class="cross-cut">
+      <h3>4. "AWS certified welders" / welding references (7/7 sheet metal pages)</h3>
+      <div class="eric-quote">
+        <span class="from">Eric (email, Apr 19 item #4)</span>
+        <p>"Please remove AWS certified welders on all pages. We don't actually offer that."</p>
+      </div>
+      <p><strong>Status:</strong> Every sheet metal page has "certified welders on every weldment" in the hero, stats strip ("Certified Welders"), Why Redstone section, and FAQ headers. Not removed from any page.</p>
+    </div>
+
+    <!-- 6. Font -->
+    <div class="cross-cut">
+      <h3>5. Wrong font: Host Grotesk instead of Inter (die casting pages confirmed, likely others)</h3>
+      <p><strong>Status:</strong> All 4 die casting pages load Host Grotesk from Google Fonts. Eric's design system specifies Inter. Needs visual QA across all pages.</p>
+    </div>
+
+    <!-- 7. Generic CTAs not nearshoring -->
+    <div class="cross-cut">
+      <h3>6. No page uses a nearshoring-focused CTA CTA (0/22 pages)</h3>
+      <p>The approved CTA from Eric's rules is entirely absent from all pages. Every page defaults to generic "Request a Quote".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ERIC'S 19-ITEM EMAIL MAPPED TO FINDINGS -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Eric's 19-Item Email: Status Per Item</h2>
+    <span class="badge badge-red">LEO'S PRIMARY TASK</span>
+  </div>
+  <div class="section-body">
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">Each item below is Eric's exact feedback with the audit finding.</p>
+
+    <table>
+      <thead><tr><th>#</th><th>Eric's Directive</th><th>Status</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Reword "Feasibility Check" popup</td><td class="warn">UNVERIFIED</td><td>WebFetch can't trigger popups. Needs manual browser check on exit-intent.</td></tr>
+        <tr><td>2</td><td>Remove IATF16949 from H1 titles</td><td class="pass">PASS (mostly)</td><td>Most H1s now say "ISO 9001 Certified". Some pages still have IATF in footer badges ("ISO 9001 / IATF 16949 Certified Foundries") which is body-level and acceptable, but plural "Foundries" is a separate violation.</td></tr>
+        <tr><td>3</td><td>Standardize browser tab titles</td><td class="warn">INCONSISTENT</td><td>Tab titles vary in format across pages. Not standardized for Adwords relevancy.</td></tr>
+        <tr><td>4</td><td>Remove "AWS certified welders"</td><td class="fail">FAIL</td><td>Present on all 7 sheet metal pages in hero, stats, Why section, and FAQs.</td></tr>
+        <tr><td>5</td><td>Mention Monterrey on all Mexico pages</td><td class="warn">PARTIAL</td><td>Present on some Mexico pages (precision-machining-mexico, die-casting-companies-in-mexico). Missing on aluminum-die-casting/ and others.</td></tr>
+        <tr><td>6</td><td>Remove "Independent QC" / "3rd party" QC</td><td class="pass">PASS</td><td>Not found on any audited page. Appears to have been removed.</td></tr>
+        <tr><td>7</td><td>Mexico pages: USMCA tariff-free + 6-8 wk faster</td><td class="warn">PARTIAL</td><td>Present on some Mexico pages. Missing entirely on /aluminum-die-casting/ (Mexico-positioned but no USMCA/tariff/lead-time content).</td></tr>
+        <tr><td>8</td><td>Single facility feel (no plural "facilities")</td><td class="fail">FAIL</td><td>"Certified Foundries" (plural) in footer on all die casting pages. "ISO 9001 certified manufacturers in Mexico" (plural) on sheet-metal-companies-in-mexico. "manufacturers in Mexico, Brazil, and Asia" on custom-machining-services.</td></tr>
+        <tr><td>9</td><td>ISO = "ISO9001 certified" everywhere</td><td class="warn">PARTIAL</td><td>Most pages say "ISO 9001 certified" (with space). Two pages (custom-cnc-machining, custom-machining-services) H1s just say "ISO Certified" without "9001". Confirm if space in "ISO 9001" vs "ISO9001" matters to Eric.</td></tr>
+        <tr><td>10</td><td>Remove qualifications section</td><td class="fail">FAIL</td><td>Present on ALL 22 pages. Not removed anywhere.</td></tr>
+        <tr><td>11</td><td>"Parts" not "Project"/"Program"</td><td class="pass">PASS</td><td>No instances of "project" or "program" in customer context found on audited pages. This one appears fixed.</td></tr>
+        <tr><td>12</td><td>Remove "48-hour quotes"</td><td class="pass">PASS</td><td>Not found on any page. Appears removed.</td></tr>
+        <tr><td>13</td><td>No Ohio, no Seattle</td><td class="pass">PASS</td><td>Not found. Pages use "US-based engineering headquarters" as directed.</td></tr>
+        <tr><td>14</td><td>"program manager" &rarr; "account manager"</td><td class="pass">PASS</td><td>No instances of "program manager" found.</td></tr>
+        <tr><td>15</td><td>CTA targets nearshoring</td><td class="fail">FAIL</td><td>All CTAs are generic "Request a Quote". None reference nearshoring.</td></tr>
+        <tr><td>16</td><td>Lead with Mexico first, then US account mgr</td><td class="fail">FAIL</td><td>lp-die-casting-services-mexico.html H2 says "A U.S. manufacturer with production in Mexico" (US-first, not Mexico-first). Subsection: "U.S. Managed, Mexico Production" (banned "US-managed").</td></tr>
+        <tr><td>17</td><td>Tolerance +/- 0.001" (not 0.0005")</td><td class="pass">PASS</td><td>Machining pages show correct 0.001" tolerance.</td></tr>
+        <tr><td>18</td><td>Remove 5-axis machining specificity</td><td class="pass">PASS</td><td>No 5-axis mentions found on Mexico machining pages.</td></tr>
+        <tr><td>19</td><td>Fix text behind lead form (visual bug)</td><td class="warn">UNVERIFIED</td><td>WebFetch can't render CSS layout. Needs manual browser check.</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:16px; padding:12px; background:var(--card); border-radius:6px;">
+      <strong style="color:var(--green);">Passed:</strong> 8 items (#6, #11, #12, #13, #14, #17, #18, #2 mostly)<br>
+      <strong style="color:var(--red);">Failed:</strong> 5 items (#4, #8, #10, #15, #16)<br>
+      <strong style="color:var(--amber);">Partial/Unverified:</strong> 6 items (#1, #3, #5, #7, #9, #19)
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ERIC'S WHATSAPP 9-ITEM: STATUS -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Eric's WhatsApp (Die Casting) 9 Items: Status</h2>
+    <span class="badge badge-amber">OVERLAPS EMAIL</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>#</th><th>Eric's WhatsApp Directive</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>WA1</td><td>"I want users to think we are a factory in Mexico" (single facility)</td><td class="fail">FAIL - plural "foundries" on all die casting pages</td></tr>
+        <tr><td>WA2</td><td>ISO9001 certified (not just ISO-certified)</td><td class="warn">PARTIAL - most correct, 2 pages drop "9001"</td></tr>
+        <tr><td>WA3</td><td>Remove qualifications section</td><td class="fail">FAIL - still on all pages</td></tr>
+        <tr><td>WA4</td><td>"Parts" not "program" (told before, frustrated)</td><td class="pass">PASS - fixed</td></tr>
+        <tr><td>WA5</td><td>Remove 48-hour quotes</td><td class="pass">PASS - removed</td></tr>
+        <tr><td>WA6</td><td>No Ohio/Seattle</td><td class="pass">PASS - removed</td></tr>
+        <tr><td>WA7</td><td>"account manager" not "program manager"</td><td class="pass">PASS - fixed</td></tr>
+        <tr><td>WA8</td><td>CTA targets nearshoring</td><td class="fail">FAIL - generic CTAs</td></tr>
+        <tr><td>WA9</td><td>"ISO-certified facilities in Mexico. One point of contact from quote to shipment."</td><td class="fail">FAIL - this ideal phrasing not used; LP says "US-managed" instead</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PER-CATEGORY BREAKDOWN -->
+<!-- ============================================================ -->
+
+<!-- CNC -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>CNC Pages (8) - Violations</h2>
+    <span class="badge badge-red">28 VIOLATIONS</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Page</th><th>#</th><th>Key Issues</th></tr></thead>
+      <tbody>
+        <tr><td>/cnc-machining-company/</td><td>2</td><td>Qualifications section</td></tr>
+        <tr><td>/cnc-machining-mexico/</td><td>3</td><td>Qualifications; "partner" language</td></tr>
+        <tr><td>/cnc-manufacturing/</td><td>2</td><td>Qualifications</td></tr>
+        <tr><td>/cnc-manufacturing-mexico/</td><td>4</td><td>Qualifications; "partner"; no tariff CTA</td></tr>
+        <tr><td>/cnc-mexico/</td><td>4</td><td>Qualifications; "partner"; no tariff CTA</td></tr>
+        <tr><td>/custom-cnc-machining/</td><td>4</td><td><strong>"ISO Certified" missing 9001 in H1</strong>; "partner"; qualifications</td></tr>
+        <tr><td>/custom-machining-services/</td><td>6</td><td><strong>"ISO Certified" missing 9001</strong>; <strong>"manufacturers in Mexico, Brazil, and Asia" (multi-factory/broker framing)</strong>; "partner"; qualifications</td></tr>
+        <tr><td>/precision-machining-services/</td><td>3</td><td>Qualifications; "partner"</td></tr>
+      </tbody>
+    </table>
+    <div class="violation">
+      <div class="what">WORST: /custom-machining-services/ (6 violations)</div>
+      <div class="found">Found: "2,000+ orders shipped from ISO 9001 certified manufacturers in Mexico, Brazil, and Asia"</div>
+      <div class="fix">This directly implies a broker/marketplace with multiple overseas factories. Most severe single copy violation across all pages.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRECISION GEO -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Precision Machining Geo (2) - Violations</h2>
+    <span class="badge badge-amber">10 VIOLATIONS</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Page</th><th>#</th><th>Key Issues</th></tr></thead>
+      <tbody>
+        <tr><td>/precision-machining-mexico/</td><td>4</td><td>Qualifications; generic CTA; no "direct manufacturer" phrase</td></tr>
+        <tr><td>/precision-machining-india/</td><td>6</td><td>Qualifications; "partner"; generic CTA; <strong>"Mumbai, Monterrey, or S&atilde;o Paulo" on India page (multi-facility exposure)</strong>; no "direct manufacturer"</td></tr>
+      </tbody>
+    </table>
+    <div class="violation">
+      <div class="what">India page exposes multi-facility network</div>
+      <div class="found">Found: "Order is placed directly with the ISO 9001 certified manufacturer in Mumbai, Monterrey, or S&atilde;o Paulo"</div>
+      <div class="fix">India page should only mention Mumbai. Listing other cities creates the "network/broker" impression Eric explicitly banned.</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIE CASTING -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Die Casting (4) - Violations</h2>
+    <span class="badge badge-red">24 VIOLATIONS</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Page</th><th>#</th><th>Key Issues</th></tr></thead>
+      <tbody>
+        <tr><td>/aluminum-die-casting/</td><td>11</td><td><strong>Worst page:</strong> Plural "foundries" (5 instances); no USMCA/tariff-free/lead-times at all; no Monterrey; Host Grotesk font; generic CTA; qualifications; meta desc says "managed from the United States"</td></tr>
+        <tr><td>/aluminum-die-casting-companies-in-mexico/</td><td>5</td><td>Plural "foundries" in footer; Host Grotesk; generic CTA; qualifications</td></tr>
+        <tr><td>/die-casting-companies-in-mexico/</td><td>5</td><td>Same pattern as above</td></tr>
+        <tr><td>/lp-die-casting-services-mexico.html</td><td>8</td><td><strong>"A U.S. manufacturer with production in Mexico" (US-first, not Mexico-first)</strong>; <strong>"U.S. Managed, Mexico Production" (banned "US-managed")</strong>; plural foundries; Host Grotesk; generic CTA; qualifications</td></tr>
+      </tbody>
+    </table>
+
+    <div class="eric-quote">
+      <span class="from">Eric (WhatsApp, Apr 18 19:37)</span>
+      <p>"U.S.-managed die casting. ISO-certified facilities in Mexico. One point of contact from quote to shipment. - I don't really like 'US managed' it should lead with Mexico first and then say US based account manager"</p>
+    </div>
+
+    <div class="violation">
+      <div class="what">/lp-die-casting-services-mexico.html still says "U.S. Managed, Mexico Production"</div>
+      <div class="found">H2: "A U.S. manufacturer with production in Mexico" + subsection "02 U.S. Managed, Mexico Production"</div>
+      <div class="fix">Should be: "ISO 9001 certified die casting in Monterrey, Mexico. US-based account manager."</div>
+    </div>
+
+    <div class="violation">
+      <div class="what">/aluminum-die-casting/ missing ALL Mexico-required elements</div>
+      <div class="found">No USMCA mention, no tariff-free, no "6-8 weeks faster than China", no Monterrey</div>
+      <div class="fix">This is a Mexico-positioned die casting page. All four Mexico elements must be added.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET METAL -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Sheet Metal (7) - Violations</h2>
+    <span class="badge badge-red">~35 VIOLATIONS</span>
+  </div>
+  <div class="section-body">
+    <table>
+      <thead><tr><th>Page</th><th>#</th><th>Key Issues</th></tr></thead>
+      <tbody>
+        <tr><td>/sheet-metal-fabrication-company/</td><td>5</td><td><strong>"certified welders on every weldment" in hero</strong>; "direct partner" (2x); qualifications</td></tr>
+        <tr><td>/sheet-metal-fabrication-services/</td><td>5</td><td>Welders (hero+stats+FAQ); "Redstone partners with OEM..." (2x); qualifications</td></tr>
+        <tr><td>/sheet-metal-fabrication-companies-in-mexico/</td><td>5</td><td>Welders (hero+stats); "partners"; plural "manufacturers in Mexico"; qualifications</td></tr>
+        <tr><td>/custom-sheet-metal-fabrication/</td><td>4</td><td>Welders (hero+stats+FAQ); qualifications</td></tr>
+        <tr><td>/industrial-sheet-metal-fabrication/</td><td>5</td><td>Welders (stats+process); "We partner best with..."; qualifications</td></tr>
+        <tr><td>/aluminum-sheet-metal-fabrication/</td><td>6</td><td>Welders (hero+body+Why); <strong>"global facility" (banned)</strong>; <strong>CTA buttons possibly BLUE not RED</strong>; qualifications</td></tr>
+        <tr><td>/aluminum-sheet-metal-fabrication-mexico/</td><td>4</td><td>Welders (multiple); "Certified Aluminum Welders" in H2; qualifications</td></tr>
+      </tbody>
+    </table>
+
+    <div class="eric-quote">
+      <span class="from">Eric (email, Apr 19 item #4)</span>
+      <p>"Please remove AWS certified welders on all pages. We don't actually offer that."</p>
+    </div>
+
+    <div class="violation">
+      <div class="what">Welders/welding references appear on ALL 7 sheet metal pages</div>
+      <div class="found">Hero text: "certified welders on every weldment". Stats strip: "Certified Welders". Why section: "Certified welders qualified on aluminum procedures". FAQ: "What welder certifications do Redstone's welders hold?"</div>
+      <div class="fix">Remove ALL welding/welder references from every sheet metal page. Eric confirmed Redstone does not offer welding.</div>
+    </div>
+
+    <div class="violation">
+      <div class="what">/aluminum-sheet-metal-fabrication/ uses "global facility"</div>
+      <div class="found">"Order is placed directly with the ISO 9001 certified manufacturer at one of our global facility."</div>
+      <div class="fix">"Global" is banned (implies network). Should be specific: "our factory in Monterrey" or "our ISO 9001 certified manufacturer".</div>
+    </div>
+  </div>
+</div>
+
+<!-- REDIRECT -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Redirect Check</h2>
+    <span class="badge badge-green">OK</span>
+  </div>
+  <div class="section-body">
+    <p><strong>/aluminum-die-casting-mexico/</strong> resolves to the die casting companies page. No broken redirect detected. Verify the slug mapping is intentional.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MANUAL CHECKS NEEDED -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow">&#9654;</span>
+    <h2>Manual Browser Checks Needed</h2>
+    <span class="badge badge-amber">4 ITEMS</span>
+  </div>
+  <div class="section-body">
+    <ol style="padding-left:20px;font-size:0.9rem;">
+      <li style="margin:8px 0;"><strong>"Feasibility Check" exit popup wording</strong> - Eric: "Maybe we should reword this pop-up so it's clear we are going to tell them if we can produce their parts based on the info provided." WebFetch can't trigger exit-intent popups.</li>
+      <li style="margin:8px 0;"><strong>Text behind lead form visual bug</strong> (email #19) - CSS layout issue, can't verify via text extraction.</li>
+      <li style="margin:8px 0;"><strong>CTA button colors</strong> - /aluminum-sheet-metal-fabrication/ may have blue CTAs instead of red (#B21E24). Needs visual confirmation across all pages.</li>
+      <li style="margin:8px 0;"><strong>Font rendering</strong> - Die casting pages confirmed loading Host Grotesk. Check all other pages for correct Inter font.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PRIORITY FIX ORDER -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <span class="toggle-arrow open">&#9654;</span>
+    <h2>Recommended Fix Priority</h2>
+    <span class="badge badge-blue">ACTION PLAN</span>
+  </div>
+  <div class="section-body open">
+    <table>
+      <thead><tr><th>Priority</th><th>Fix</th><th>Pages Affected</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--red);font-weight:700;">P0</td><td>Remove "qualifications" / "Is this a fit?" section</td><td>All 22</td><td>Find-replace / delete section</td></tr>
+        <tr><td style="color:var(--red);font-weight:700;">P0</td><td>Remove ALL welders/welding references</td><td>7 sheet metal</td><td>Hero, stats, Why, FAQ sections</td></tr>
+        <tr><td style="color:var(--red);font-weight:700;">P0</td><td>Replace "partner" with "direct manufacturer"</td><td>~14 pages</td><td>Find-replace</td></tr>
+        <tr><td style="color:var(--red);font-weight:700;">P0</td><td>Fix plural "foundries" / "manufacturers" &rarr; singular</td><td>~10 pages</td><td>Find-replace</td></tr>
+        <tr><td style="color:var(--amber);font-weight:700;">P1</td><td>Fix font to Inter (currently Host Grotesk)</td><td>Die casting (4+)</td><td>CSS / Google Fonts swap</td></tr>
+        <tr><td style="color:var(--amber);font-weight:700;">P1</td><td>Fix "ISO Certified" &rarr; "ISO 9001 Certified" in H1s</td><td>custom-cnc-machining, custom-machining-services</td><td>2 H1 edits</td></tr>
+        <tr><td style="color:var(--amber);font-weight:700;">P1</td><td>Fix lp-die-casting "US-managed" &rarr; Mexico-first positioning</td><td>1 page</td><td>H2 + subsection rewrite</td></tr>
+        <tr><td style="color:var(--amber);font-weight:700;">P1</td><td>Add USMCA + tariff-free + lead times to /aluminum-die-casting/</td><td>1 page</td><td>Copy addition</td></tr>
+        <tr><td style="color:var(--amber);font-weight:700;">P1</td><td>Remove multi-facility mentions (Brazil, S&atilde;o Paulo on India page; Mexico/Brazil/Asia on custom-machining)</td><td>2 pages</td><td>Copy edits</td></tr>
+        <tr><td style="color:var(--blue);font-weight:700;">P2</td><td>Standardize browser tab titles</td><td>All 22</td><td>Meta title audit</td></tr>
+        <tr><td style="color:var(--blue);font-weight:700;">P2</td><td>Add Monterrey to remaining Mexico pages missing it</td><td>~3 pages</td><td>Copy addition</td></tr>
+        <tr><td style="color:var(--blue);font-weight:700;">P2</td><td>Remove "global facility" from aluminum-sheet-metal</td><td>1 page</td><td>1 line edit</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function toggle(header) {
+  const content = header.nextElementSibling;
+  const arrow = header.querySelector('.toggle-arrow');
+  content.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+document.querySelectorAll('.section-body.open').forEach(el => {
+  el.previousElementSibling.querySelector('.toggle-arrow').classList.add('open');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone LP Re-Audit | 2026-04-20</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#fff;color:#000;line-height:1.5}
+.container{max-width:1200px;margin:0 auto;padding:40px 20px}
+h1{font-size:2.4em;font-weight:800;letter-spacing:-0.02em;border-bottom:3px solid #000;padding-bottom:16px;margin-bottom:8px}
+.subtitle{font-size:1em;color:#666;margin-bottom:40px}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid #e0e0e0;margin-bottom:48px}
+.summary-card{padding:24px;border-right:1px solid #e0e0e0;text-align:center}
+.summary-card:last-child{border-right:none}
+.summary-num{font-size:2.8em;font-weight:800;letter-spacing:-0.03em}
+.summary-num.red{color:#B21E24}
+.summary-num.green{color:#16a34a}
+.summary-num.orange{color:#ea580c}
+.summary-num.blue{color:#2563eb}
+.summary-label{font-size:0.75em;text-transform:uppercase;letter-spacing:0.1em;color:#999;margin-top:4px}
+h2{font-size:1.6em;font-weight:700;margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid #000}
+h3{font-size:1.1em;font-weight:700;margin:24px 0 12px}
+.severity-tag{display:inline-block;padding:2px 10px;font-size:0.7em;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-right:8px;vertical-align:middle}
+.p0{background:#B21E24;color:#fff}
+.p1{background:#ea580c;color:#fff}
+.p2{background:#ca8a04;color:#fff}
+.bug{background:#7c3aed;color:#fff}
+table{width:100%;border-collapse:collapse;margin:16px 0 32px;font-size:0.88em}
+th{background:#000;color:#fff;text-align:left;padding:10px 14px;font-weight:600;font-size:0.78em;text-transform:uppercase;letter-spacing:0.05em}
+td{padding:10px 14px;border-bottom:1px solid #e0e0e0;vertical-align:top}
+tr:hover td{background:#f5f5f5}
+.violation-text{font-family:'Courier New',monospace;font-size:0.85em;background:#fef2f2;padding:2px 6px;border:1px solid #fecaca;color:#B21E24}
+.clean-badge{display:inline-block;background:#dcfce7;color:#166534;padding:2px 8px;font-size:0.75em;font-weight:600;border:1px solid #bbf7d0}
+.fail-badge{display:inline-block;background:#fef2f2;color:#B21E24;padding:2px 8px;font-size:0.75em;font-weight:600;border:1px solid #fecaca}
+.section-band{background:#000;color:#fff;padding:32px 40px;margin:48px -20px 32px}
+.section-band h2{color:#fff;border-bottom-color:#333;margin:0 0 8px;padding-bottom:8px}
+.section-band p{color:#999;font-size:0.9em}
+.systemic{background:#fef2f2;border:1px solid #fecaca;padding:20px 24px;margin:16px 0}
+.systemic h4{color:#B21E24;margin-bottom:8px;font-size:0.95em}
+.systemic p{font-size:0.88em;color:#333}
+.page-group{margin-bottom:48px}
+.page-url{font-family:'Courier New',monospace;font-size:0.82em;color:#666;margin-bottom:12px}
+.verdict{display:inline-block;padding:4px 12px;font-weight:700;font-size:0.8em;margin-left:8px}
+.verdict-pass{background:#dcfce7;color:#166534}
+.verdict-fail{background:#fef2f2;color:#B21E24}
+.verdict-warn{background:#fef9c3;color:#854d0e}
+ul{margin:8px 0 8px 20px}
+li{margin-bottom:6px;font-size:0.9em}
+.footer{margin-top:64px;padding-top:24px;border-top:1px solid #e0e0e0;font-size:0.78em;color:#999;text-align:center}
+@media(max-width:768px){
+.summary-grid{grid-template-columns:repeat(2,1fr)}
+.summary-card{border-bottom:1px solid #e0e0e0}
+.section-band{margin:48px -20px 32px;padding:24px 20px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Redstone LP Re-Audit</h1>
+<p class="subtitle">22 landing pages + 1 redirect &mdash; audited against Eric's full rule set (Apr 17 call + Apr 19 email) &mdash; April 20, 2026</p>
+
+<div class="summary-grid">
+<div class="summary-card">
+<div class="summary-num red">7</div>
+<div class="summary-label">Systemic Issues</div>
+</div>
+<div class="summary-card">
+<div class="summary-num orange">5</div>
+<div class="summary-label">Page-Specific Violations</div>
+</div>
+<div class="summary-card">
+<div class="summary-num green">3</div>
+<div class="summary-label">Fully Clean Pages</div>
+</div>
+<div class="summary-card">
+<div class="summary-num blue">22</div>
+<div class="summary-label">Pages Audited</div>
+</div>
+</div>
+
+<!-- WHAT GOT FIXED -->
+<h2>What Leo Fixed (Confirmed Clean)</h2>
+<table>
+<tr><th>Rule</th><th>Status</th><th>Notes</th></tr>
+<tr><td>"project" / "program" replaced with "parts"</td><td><span class="clean-badge">FIXED</span></td><td>Not found on any of 22 pages</td></tr>
+<tr><td>48-hour quote promise removed</td><td><span class="clean-badge">FIXED</span></td><td>Not found anywhere</td></tr>
+<tr><td>Ohio / Seattle removed</td><td><span class="clean-badge">FIXED</span></td><td>Not found in any copy</td></tr>
+<tr><td>"program manager" &rarr; "account manager"</td><td><span class="clean-badge">FIXED</span></td><td>All pages use "account manager" or "account contact"</td></tr>
+<tr><td>Tolerance corrected to 0.001"</td><td><span class="clean-badge">FIXED</span></td><td>All machining pages show &plusmn;0.001"</td></tr>
+<tr><td>5-axis removed from Mexico pages</td><td><span class="clean-badge">FIXED</span></td><td>Only 3-axis and 4-axis referenced</td></tr>
+<tr><td>IATF16949 out of H1s</td><td><span class="clean-badge">FIXED</span></td><td>Only appears in body text / badges</td></tr>
+<tr><td>"marketplace" / "network" removed</td><td><span class="clean-badge">FIXED</span></td><td>Not found anywhere</td></tr>
+<tr><td>"partner" / "broker" removed</td><td><span class="clean-badge">FIXED</span></td><td>Not found on any page</td></tr>
+<tr><td>Qualifications section removed</td><td><span class="clean-badge">FIXED</span></td><td>"Is this a fit?" section gone from all pages</td></tr>
+<tr><td>"US-managed" banned language</td><td><span class="clean-badge">FIXED</span></td><td>Uses "US-based account manager" (approved phrasing)</td></tr>
+<tr><td>Surcore logo / reference</td><td><span class="clean-badge">FIXED</span></td><td>Not found</td></tr>
+<tr><td>WhatsApp references</td><td><span class="clean-badge">FIXED</span></td><td>Not found</td></tr>
+</table>
+
+<!-- SYSTEMIC ISSUES -->
+<div class="section-band">
+<h2>Systemic Issues (Template-Level)</h2>
+<p>These affect multiple pages from shared templates. One fix per issue propagates across all affected pages.</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag p0">P0</span> #1 &mdash; Plural "manufacturers" / "foundries" in FAQ &amp; headings</h4>
+<p><strong>Violation:</strong> <span class="violation-text">"Redstone's certified manufacturers support aluminum..."</span> and <span class="violation-text">"Automotive-Grade Certified Foundries"</span></p>
+<p><strong>Rule:</strong> Eric said "I want users to think we are a factory in Mexico" &mdash; must feel like ONE facility.</p>
+<p><strong>Affected:</strong> ~18 pages (CNC FAQ template + die casting "Why Redstone" heading)</p>
+<p><strong>Fix:</strong> "Redstone's certified manufacturers" &rarr; "Redstone's Monterrey facility" or "our ISO 9001 certified factory". "Foundries" &rarr; "Foundry".</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag p0">P0</span> #2 &mdash; Welding references on ALL 7 sheet metal pages</h4>
+<p><strong>Violations found in 4 locations per page:</strong></p>
+<ul>
+<li>Stats bar: <span class="violation-text">D1.1 / D1.2 procedures</span> (these ARE AWS welding codes)</li>
+<li>Capabilities: <span class="violation-text">MIG/TIG/spot joining</span> (MIG &amp; TIG are welding processes)</li>
+<li>Process Step 04: <span class="violation-text">Weld inspection against acceptance criteria</span></li>
+<li>FAQ certs: <span class="violation-text">D1.1, D1.2, or D17.1</span> on 2 Mexico pages</li>
+</ul>
+<p><strong>Rule:</strong> Eric said: "Please remove AWS certified welders on all pages. We don't actually offer that."</p>
+<p><strong>Fix:</strong> Remove all D1.1/D1.2/D17.1 references, replace "weld inspection" with "joint inspection" or "assembly inspection", replace "MIG/TIG" with "precision joining" or remove.</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag bug">BUG</span> #3 &mdash; Live editorial notes visible to visitors</h4>
+<p><strong>Violation:</strong> <span class="violation-text">(TBD: confirm with client)</span> appears in the stats bar on 5+ sheet metal pages.</p>
+<p><strong>Impact:</strong> Visitors can see unresolved draft notes. Destroys credibility.</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag bug">BUG</span> #4 &mdash; Broken/mangled FAQ text on all 7 sheet metal pages</h4>
+<p><strong>Examples:</strong></p>
+<ul>
+<li><span class="violation-text">"Redstone's s hold current quality qualifications"</span> (missing word)</li>
+<li><span class="violation-text">"Redstone's [facilities] hold current quality qualifications"</span> (unfilled placeholder)</li>
+<li><span class="violation-text">"Redstone's run through holding current"</span> (completely garbled)</li>
+</ul>
+<p><strong>Impact:</strong> Broken placeholder text live on production pages. Also contains banned word "qualifications".</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag p0">P0</span> #5 &mdash; "qualifications" in sheet metal FAQ answers</h4>
+<p><strong>Violation:</strong> <span class="violation-text">"hold current quality qualifications"</span> in the certifications FAQ on all 7 sheet metal pages.</p>
+<p><strong>Rule:</strong> Eric said the qualifications section "screens people out after they already clicked on our ad."</p>
+<p><strong>Fix:</strong> Rewrite FAQ cert answer to remove "qualifications" entirely. Likely gets fixed when the broken FAQ text (issue #4) is rewritten.</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag p0">P0</span> #6 &mdash; "can stand behind a weld" copy</h4>
+<p><strong>Page:</strong> /sheet-metal-fabrication-company/ &mdash; Why Redstone #01</p>
+<p><strong>Violation:</strong> <span class="violation-text">"can stand behind a weld during a customer audit"</span></p>
+<p><strong>Fix:</strong> Remove or rewrite without "weld".</p>
+</div>
+
+<div class="systemic">
+<h4><span class="severity-tag p0">P0</span> #7 &mdash; "Independent Inspection" on lp-die-casting</h4>
+<p><strong>Page:</strong> /lp-die-casting-services-mexico.html &mdash; Why Redstone #03 heading</p>
+<p><strong>Violation:</strong> <span class="violation-text">"Certified Production, Independent Inspection"</span></p>
+<p><strong>Rule:</strong> Eric said no "3rd party" or "independent" QC &mdash; they do QC themselves.</p>
+<p><strong>Fix:</strong> "Independent Inspection" &rarr; "In-House Quality Control" or "Factory QC".</p>
+</div>
+
+<!-- PAGE-SPECIFIC ISSUES -->
+<div class="section-band">
+<h2>Page-Specific Violations</h2>
+<p>Issues unique to individual pages (not template-level).</p>
+</div>
+
+<table>
+<tr><th>Page</th><th>Priority</th><th>Issue</th><th>Exact Text</th></tr>
+<tr>
+<td>/cnc-manufacturing-mexico/</td>
+<td><span class="severity-tag p0">P0</span></td>
+<td>QC report language implies 3rd-party signoff</td>
+<td><span class="violation-text">"The QC report is signed at origin, not by the producing manufacturer"</span></td>
+</tr>
+<tr>
+<td>/aluminum-die-casting/</td>
+<td><span class="severity-tag p1">P1</span></td>
+<td>Missing USMCA + tariff-free + lead times (required on Mexico die casting)</td>
+<td>No USMCA language anywhere on page despite being Mexico-focused</td>
+</tr>
+<tr>
+<td>/cnc-manufacturing/<br>/cnc-manufacturing-mexico/</td>
+<td><span class="severity-tag p2">P2</span></td>
+<td>"OEM sourcing teams" language (borderline "sourcing company")</td>
+<td><span class="violation-text">"For OEM sourcing teams comparing China CNC..."</span> &mdash; suggest "OEM procurement teams"</td>
+</tr>
+</table>
+
+<!-- PER-PAGE SCORECARD -->
+<div class="section-band">
+<h2>Per-Page Scorecard</h2>
+<p>Pass = zero violations. Warn = systemic-only (template fix cleans it). Fail = page-specific + systemic.</p>
+</div>
+
+<h3>CNC Machining (8 pages)</h3>
+<table>
+<tr><th>Page</th><th>Verdict</th><th>Issues</th></tr>
+<tr><td>/cnc-machining-company/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+<tr><td>/cnc-machining-mexico/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+<tr><td>/cnc-manufacturing/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ + borderline "sourcing teams"</td></tr>
+<tr><td>/cnc-manufacturing-mexico/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Plural "manufacturers" + QC report 3rd-party language</td></tr>
+<tr><td>/cnc-mexico/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+<tr><td>/custom-cnc-machining/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+<tr><td>/custom-machining-services/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+<tr><td>/precision-machining-services/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+</table>
+
+<h3>Precision Machining &mdash; Geo (2 pages)</h3>
+<table>
+<tr><th>Page</th><th>Verdict</th><th>Issues</th></tr>
+<tr><td>/precision-machining-mexico/</td><td><span class="verdict verdict-pass">PASS</span></td><td>Zero violations</td></tr>
+<tr><td>/precision-machining-india/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "manufacturers" in FAQ</td></tr>
+</table>
+
+<h3>Die Casting (4 pages)</h3>
+<table>
+<tr><th>Page</th><th>Verdict</th><th>Issues</th></tr>
+<tr><td>/aluminum-die-casting/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Plural "foundries" + missing USMCA/tariff-free</td></tr>
+<tr><td>/aluminum-die-casting-companies-in-mexico/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "foundries" in heading</td></tr>
+<tr><td>/die-casting-companies-in-mexico/</td><td><span class="verdict verdict-warn">SYSTEMIC ONLY</span></td><td>Plural "foundries" in heading</td></tr>
+<tr><td>/lp-die-casting-services-mexico.html</td><td><span class="verdict verdict-fail">FAIL</span></td><td>"Independent Inspection" (banned 3rd-party QC language)</td></tr>
+</table>
+
+<h3>Sheet Metal (7 pages)</h3>
+<table>
+<tr><th>Page</th><th>Verdict</th><th>Issues</th></tr>
+<tr><td>/sheet-metal-fabrication-company/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs (4 locations) + broken FAQ + "qualifications" + "stand behind a weld"</td></tr>
+<tr><td>/sheet-metal-fabrication-services/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + "(TBD: confirm with client)" live + broken FAQ + "qualifications"</td></tr>
+<tr><td>/sheet-metal-fabrication-companies-in-mexico/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + D17.1 AWS codes + broken FAQ + "qualifications"</td></tr>
+<tr><td>/custom-sheet-metal-fabrication/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + "(TBD)" live + broken FAQ + "qualifications"</td></tr>
+<tr><td>/industrial-sheet-metal-fabrication/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + "(TBD)" live + broken FAQ + "qualifications"</td></tr>
+<tr><td>/aluminum-sheet-metal-fabrication/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + broken FAQ placeholder + "qualifications"</td></tr>
+<tr><td>/aluminum-sheet-metal-fabrication-mexico/</td><td><span class="verdict verdict-fail">FAIL</span></td><td>Welding refs + D17.1 codes + broken FAQ + "qualifications"</td></tr>
+</table>
+
+<h3>Redirect</h3>
+<table>
+<tr><th>Page</th><th>Verdict</th><th>Issues</th></tr>
+<tr><td>/aluminum-die-casting-mexico/</td><td><span class="verdict verdict-pass">PASS</span></td><td>Loads normally, zero violations</td></tr>
+</table>
+
+<!-- ACTION ITEMS -->
+<div class="section-band">
+<h2>Action Items for Leo</h2>
+<p>Prioritized fix list. Template fixes first (highest leverage), then page-specific.</p>
+</div>
+
+<h3><span class="severity-tag p0">P0</span> Template Fixes (fix once, clean many)</h3>
+<table>
+<tr><th>#</th><th>Fix</th><th>Pages Fixed</th></tr>
+<tr><td>1</td><td>Sheet metal: Remove ALL weld references &mdash; D1.1/D1.2/D17.1, "weld inspection", MIG/TIG from stats/capabilities/process/FAQ</td><td>7 pages</td></tr>
+<tr><td>2</td><td>Sheet metal: Rewrite broken FAQ certifications answer (fix garbled text, remove "qualifications")</td><td>7 pages</td></tr>
+<tr><td>3</td><td>Sheet metal: Remove "(TBD: confirm with client)" from stats bar</td><td>5+ pages</td></tr>
+<tr><td>4</td><td>CNC/Precision FAQ: "certified manufacturers" &rarr; "Monterrey facility" or "our factory" (singular)</td><td>~10 pages</td></tr>
+<tr><td>5</td><td>Die casting: "Automotive-Grade Certified Foundries" &rarr; "Automotive-Grade Certified Foundry" (singular)</td><td>3 pages</td></tr>
+</table>
+
+<h3><span class="severity-tag p0">P0</span> Page-Specific Fixes</h3>
+<table>
+<tr><th>#</th><th>Page</th><th>Fix</th></tr>
+<tr><td>6</td><td>/lp-die-casting-services-mexico.html</td><td>"Independent Inspection" &rarr; "In-House Quality Control"</td></tr>
+<tr><td>7</td><td>/cnc-manufacturing-mexico/</td><td>Rewrite QC report line: "signed at origin, not by the producing manufacturer" implies 3rd party</td></tr>
+<tr><td>8</td><td>/sheet-metal-fabrication-company/</td><td>Remove "can stand behind a weld during a customer audit"</td></tr>
+</table>
+
+<h3><span class="severity-tag p1">P1</span> Fixes</h3>
+<table>
+<tr><th>#</th><th>Page</th><th>Fix</th></tr>
+<tr><td>9</td><td>/aluminum-die-casting/</td><td>Add USMCA + tariff-free + lead time vs China language (required on all Mexico pages)</td></tr>
+<tr><td>10</td><td>All pages</td><td>Verify font is Inter (not Host Grotesk) &mdash; requires browser DevTools check</td></tr>
+</table>
+
+<h3><span class="severity-tag p2">P2</span> Fixes</h3>
+<table>
+<tr><th>#</th><th>Page</th><th>Fix</th></tr>
+<tr><td>11</td><td>/cnc-manufacturing/ + /cnc-manufacturing-mexico/</td><td>"OEM sourcing teams" &rarr; "OEM procurement teams" (distance from sourcing-company framing)</td></tr>
+</table>
+
+<h3>Manual Browser Checks (Leo or Kas)</h3>
+<table>
+<tr><th>#</th><th>Check</th></tr>
+<tr><td>12</td><td>Font rendering: confirm Inter is loading on all pages (not Host Grotesk on die casting)</td></tr>
+<tr><td>13</td><td>CTA button colors: all should be red #B21E24 (check for any blue buttons)</td></tr>
+<tr><td>14</td><td>"Feasibility Check" exit popup wording across pages</td></tr>
+<tr><td>15</td><td>Text behind lead form visual bug (Eric's email #19)</td></tr>
+</table>
+
+<div class="footer">
+Re-audit of 22 Redstone LPs &mdash; Generated April 20, 2026 &mdash; KAMG
+</div>
+
+</div>
+</body>
+</html>

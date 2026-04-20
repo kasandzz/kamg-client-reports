@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Affiliate Partners -- Google Ads Keyword Research</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --cyan: #39d353;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+  h1 { color: #fff; font-size: 1.8rem; margin-bottom: 0.25rem; }
+  h2 { color: var(--accent); font-size: 1.3rem; margin: 2rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+  h3 { color: var(--purple); font-size: 1.05rem; margin: 1.5rem 0 0.5rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .summary-card .number { font-size: 2rem; font-weight: 700; color: var(--accent); }
+  .summary-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--surface);
+    color: var(--accent);
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) { background: rgba(22, 27, 34, 0.5); }
+  .intent-transactional { color: var(--green); font-weight: 600; }
+  .intent-commercial { color: var(--orange); font-weight: 600; }
+  .intent-informational { color: var(--accent); font-weight: 600; }
+  .intent-navigational { color: var(--purple); font-weight: 600; }
+  .comp-high { color: var(--red); }
+  .comp-medium { color: var(--orange); }
+  .comp-low { color: var(--green); }
+  .match-exact { background: rgba(63,185,80,0.15); color: var(--green); padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; }
+  .match-phrase { background: rgba(210,153,34,0.15); color: var(--orange); padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; }
+  .match-broad { background: rgba(88,166,255,0.15); color: var(--accent); padding: 2px 6px; border-radius: 3px; font-size: 0.8rem; }
+  .priority-p0 { background: var(--red); color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: 700; }
+  .priority-p1 { background: var(--orange); color: #000; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: 700; }
+  .priority-p2 { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: 700; }
+  .funnel-bot { color: var(--green); }
+  .funnel-mid { color: var(--orange); }
+  .funnel-top { color: var(--accent); }
+  .section-note {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    border-radius: 0 6px 6px 0;
+  }
+  .neg-list {
+    columns: 2;
+    list-style: none;
+    padding: 0;
+  }
+  .neg-list li {
+    padding: 0.3rem 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .neg-list li::before { content: "- "; color: var(--red); font-weight: 700; }
+  .campaign-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+  .campaign-box h4 { color: var(--green); margin-bottom: 0.5rem; }
+  .budget-bar {
+    height: 24px;
+    border-radius: 4px;
+    margin: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    margin: 2px;
+  }
+  .tag-brand { background: rgba(188,140,255,0.2); color: var(--purple); }
+  .tag-high-intent { background: rgba(63,185,80,0.2); color: var(--green); }
+  .tag-problem { background: rgba(210,153,34,0.2); color: var(--orange); }
+  .tag-competitor { background: rgba(248,81,73,0.2); color: var(--red); }
+  .tag-longtail { background: rgba(88,166,255,0.2); color: var(--accent); }
+  .tag-adjacent { background: rgba(57,211,83,0.2); color: var(--cyan); }
+  .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>CPG Affiliate Partners -- Google Ads Keyword Research</h1>
+<p class="subtitle">Prepared for Krik Angacian | CPG Affiliate Partners | April 2026 | $2K/mo Starting Budget</p>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="number">147</div>
+    <div class="label">Total Keywords</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">6</div>
+    <div class="label">Keyword Categories</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">$4-12</div>
+    <div class="label">Est. CPC Range</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">$2,000</div>
+    <div class="label">Monthly Budget</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">~200-500</div>
+    <div class="label">Est. Monthly Clicks</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">5-8%</div>
+    <div class="label">Target CVR</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2>1. Brand / Navigational Keywords</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+CPG Affiliate Partners has minimal brand search volume today. These keywords are defensive -- bid on them to own the SERP if/when brand awareness grows. Low cost, high conversion rate. Include from Day 1 but expect near-zero spend initially.
+</div>
+
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>cpg affiliate</td><td class="intent-navigational">Navigational</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$1-2</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>2</td><td>cpg affiliate partners</td><td class="intent-navigational">Navigational</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$1-2</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>3</td><td>cpgaffiliate.com</td><td class="intent-navigational">Navigational</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$0.50-1</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>4</td><td>cpg affiliate partners reviews</td><td class="intent-navigational">Navigational</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$1-2</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>5</td><td>krik angacian affiliate</td><td class="intent-navigational">Navigational</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$0.50-1</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>2. High-Intent Commercial Keywords (Primary Campaign)</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+These are the money keywords -- searchers actively looking to hire an affiliate marketing agency or outsource affiliate program management. Highest CPCs but also highest conversion rates. This is where the bulk of the $2K budget should go.
+</div>
+
+<h3>2A. "Hire / Agency" Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>6</td><td>affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-15</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>7</td><td>hire affiliate marketing agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$10-16</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>8</td><td>affiliate program management agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-14</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>9</td><td>affiliate marketing agency for ecommerce</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-14</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>10</td><td>best affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$10-18</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>11</td><td>top affiliate marketing agencies</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-15</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>12</td><td>affiliate marketing company</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$7-12</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>13</td><td>ecommerce affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-14</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>14</td><td>performance affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$8-14</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>15</td><td>affiliate agency near me</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>16</td><td>affiliate marketing services</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$7-12</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>17</td><td>affiliate management company</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-high">High</td><td>$7-12</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>18</td><td>affiliate marketing firm</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>19</td><td>full service affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$8-14</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+</tbody>
+</table>
+
+<h3>2B. "Outsource / Managed Services" Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>20</td><td>outsource affiliate marketing</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>21</td><td>outsourced affiliate program management</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-11</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>22</td><td>affiliate program management services</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>23</td><td>managed affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>24</td><td>affiliate program consulting</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>25</td><td>outsource ecommerce affiliate program</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>26</td><td>white label affiliate management</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>27</td><td>affiliate marketing outsourcing services</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+</tbody>
+</table>
+
+<h3>2C. "Launch / Setup" Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>28</td><td>launch affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>29</td><td>start affiliate program ecommerce</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$4-8</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>30</td><td>affiliate program setup service</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>31</td><td>build affiliate program for my brand</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>32</td><td>create affiliate program shopify</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>33</td><td>set up affiliate program for online store</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>34</td><td>affiliate program launch agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>35</td><td>help me start an affiliate program</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<h3>2D. "Performance / CPA" Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>36</td><td>performance based affiliate agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-11</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>37</td><td>pay for performance affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>38</td><td>CPA affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-11</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>39</td><td>performance marketing affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>40</td><td>no retainer affiliate agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>41</td><td>results based affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>42</td><td>affiliate agency no monthly fee</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>3. Problem-Aware Keywords (MOFU)</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+Searchers who know they have a problem but haven't decided on the solution yet. Lower CPCs, higher volume, but need more nurturing. Good for content + landing page combos. Secondary priority at $2K/mo but valuable for scaling later.
+</div>
+
+<h3>3A. "How To" / Education Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>43</td><td>how to start affiliate program ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-medium">Medium</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>44</td><td>how to set up an affiliate program</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-medium">Medium</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>45</td><td>how to build an affiliate program for my store</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>46</td><td>ecommerce affiliate marketing guide</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-medium">Medium</td><td>$2-5</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>47</td><td>affiliate program best practices ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-low">Low</td><td>$2-4</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>48</td><td>how to recruit affiliates for my brand</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>49</td><td>how to find affiliate partners</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$2-5</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>50</td><td>how much does an affiliate program cost</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>51</td><td>affiliate marketing for beginners ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-medium">Medium</td><td>$2-4</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>52</td><td>is affiliate marketing worth it for brands</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<h3>3B. "Problem / Pain" Cluster</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>53</td><td>ecommerce affiliate marketing help</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>54</td><td>affiliate program not working</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>55</td><td>struggling to find affiliates</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-4</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>56</td><td>affiliate program low sales</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-4</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>57</td><td>why is my affiliate program failing</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-4</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>58</td><td>reduce customer acquisition cost ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$4-8</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>59</td><td>alternative to facebook ads ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$4-8</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>60</td><td>diversify marketing channels ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>61</td><td>high CAC ecommerce solutions</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>62</td><td>scale ecommerce beyond paid ads</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>63</td><td>affiliate fraud prevention ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-5</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>4. Competitor Keywords</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+Bidding on competitor brand names is legal but aggressive. CPCs are typically higher due to low Quality Score (you're not the brand), and CTR is lower. Best used surgically -- focus on competitors whose clients match CPG's ICP (DTC, Shopify, $2-20M). Use "alternative to" framing in ad copy for better positioning.
+</div>
+
+<h3>4A. Direct Competitor Names</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>64</td><td>acceleration partners alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-12</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>65</td><td>advertise purple reviews</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>66</td><td>advertise purple alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>67</td><td>gen3 marketing alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>68</td><td>performcb reviews</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>69</td><td>performcb alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>70</td><td>acceleration partners pricing</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-12</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>71</td><td>jeb commerce alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>72</td><td>iaffiliate management reviews</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>73</td><td>performance partners agency reviews</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>74</td><td>versa marketing alternative</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>75</td><td>revwise reviews</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<h3>4B. Competitor vs. Comparisons</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>76</td><td>acceleration partners vs advertise purple</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>77</td><td>best affiliate agency for small brands</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>78</td><td>affiliate agency for DTC brands</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>79</td><td>boutique affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>5. Long-Tail / Niche Keywords</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+These are the hidden gems for a $2K budget. Lower search volume individually, but highly specific to CPG's exact ICP. Lower CPCs, higher conversion rates. Many of these will convert at 8-12% because the searcher is describing CPG's exact service.
+</div>
+
+<h3>5A. Shopify-Specific</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>80</td><td>shopify affiliate program agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>81</td><td>shopify affiliate program setup service</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>82</td><td>shopify store affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>83</td><td>shopify affiliate program management</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>84</td><td>best affiliate app shopify with agency support</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>85</td><td>shopify plus affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<h3>5B. DTC / Brand-Specific</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>86</td><td>DTC brand affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>87</td><td>DTC affiliate program agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>88</td><td>direct to consumer affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>89</td><td>ecommerce brand affiliate strategy</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>90</td><td>affiliate marketing for product brands</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>91</td><td>CPG brand affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>92</td><td>supplement brand affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>93</td><td>beauty brand affiliate program agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>94</td><td>food brand affiliate marketing</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>95</td><td>wellness brand affiliate program</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<h3>5C. Revenue / Scale Qualifiers</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>96</td><td>affiliate marketing for 7 figure brands</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>97</td><td>affiliate marketing for growing ecommerce brands</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>98</td><td>scale ecommerce with affiliates</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-5</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>99</td><td>grow revenue with affiliate marketing</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>100</td><td>affiliate channel for ecommerce growth</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<h3>5D. Specific Service Long-Tails</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>101</td><td>affiliate publisher recruitment service</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>102</td><td>affiliate program audit service</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>103</td><td>affiliate program optimization agency</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>104</td><td>affiliate network vs agency</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>105</td><td>in house vs outsourced affiliate program</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>106</td><td>hire someone to manage affiliate program</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>107</td><td>done for you affiliate program</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>108</td><td>turnkey affiliate program ecommerce</td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>6. Adjacent / Tangential Keywords</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+These catch prospects who are searching for related services but haven't considered affiliate specifically. Higher risk of irrelevance but can capture net-new demand. Use tight negatives and monitor search terms weekly. Deploy only after core campaigns are optimized.
+</div>
+
+<h3>6A. Performance Marketing Adjacent</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>109</td><td>performance marketing agency ecommerce</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-high">High</td><td>$8-15</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>110</td><td>ecommerce growth agency</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-high">High</td><td>$8-14</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>111</td><td>partner marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>112</td><td>influencer affiliate marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>113</td><td>creator affiliate program management</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>114</td><td>partnership marketing for ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>115</td><td>referral marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<h3>6B. Channel Diversification</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>116</td><td>lower CAC ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>117</td><td>ecommerce marketing beyond facebook ads</td><td class="intent-informational">Informational</td><td class="funnel-top">TOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>118</td><td>new customer acquisition channels ecommerce</td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>119</td><td>pay for results marketing agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>120</td><td>performance based marketing ecommerce</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p1">P1</span></td></tr>
+</tbody>
+</table>
+
+<h3>6C. Network / Platform Adjacent</h3>
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>121</td><td>impact.com agency partner</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>122</td><td>shareasale program management</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>123</td><td>CJ affiliate program management agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>124</td><td>rakuten affiliate program agency</td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>125</td><td>awin agency partner</td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>7. Additional High-Value Keywords (#126-147)</h2>
+<!-- ============================================================ -->
+
+<table>
+<thead>
+<tr><th>#</th><th>Keyword</th><th>Category</th><th>Intent</th><th>Funnel</th><th>Competition</th><th>Est. CPC</th><th>Match Type</th><th>Priority</th></tr>
+</thead>
+<tbody>
+<tr><td>126</td><td>ecommerce affiliate program cost</td><td><span class="tag tag-problem">Problem</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>127</td><td>affiliate program ROI ecommerce</td><td><span class="tag tag-problem">Problem</span></td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-5</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>128</td><td>hire affiliate manager</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>129</td><td>outsourced program manager affiliate</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>130</td><td>OPM affiliate agency</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>131</td><td>affiliate OPM services</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-7</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>132</td><td>ecommerce affiliate recruitment</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>133</td><td>affiliate marketing for online stores</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>134</td><td>affiliate marketing consultant ecommerce</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>135</td><td>grow ecommerce sales with affiliates</td><td><span class="tag tag-problem">Problem</span></td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-5</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>136</td><td>affiliate marketing for skincare brands</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>137</td><td>affiliate marketing for pet brands</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>138</td><td>affiliate marketing for fitness brands</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>139</td><td>affiliate marketing for home goods brands</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$2-5</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>140</td><td>ecommerce affiliate program strategy</td><td><span class="tag tag-problem">Problem</span></td><td class="intent-informational">Informational</td><td class="funnel-mid">MOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>141</td><td>need help with affiliate marketing</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-transactional">Transactional</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-broad">Broad</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>142</td><td>CPA only marketing agency</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$5-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>143</td><td>performance based customer acquisition</td><td><span class="tag tag-adjacent">Adjacent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-mid">MOFU</td><td class="comp-medium">Medium</td><td>$5-9</td><td><span class="match-phrase">Phrase</span></td><td><span class="priority-p2">P2</span></td></tr>
+<tr><td>144</td><td>affiliate marketing agency pricing</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>145</td><td>affiliate marketing agency cost</td><td><span class="tag tag-high-intent">High Intent</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-medium">Medium</td><td>$6-10</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+<tr><td>146</td><td>co-managed affiliate program</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$3-6</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p1">P1</span></td></tr>
+<tr><td>147</td><td>affiliate marketing agency for small brands</td><td><span class="tag tag-longtail">Long-tail</span></td><td class="intent-commercial">Commercial</td><td class="funnel-bot">BOFU</td><td class="comp-low">Low</td><td>$4-8</td><td><span class="match-exact">Exact</span></td><td><span class="priority-p0">P0</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>8. Negative Keyword List</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+Apply at the account level from Day 1. Review search terms report weekly for the first month and add new negatives aggressively. This list alone will save 20-30% of wasted spend.
+</div>
+
+<h3>8A. Job Seekers (Exact + Phrase)</h3>
+<ul class="neg-list">
+<li>affiliate marketing jobs</li>
+<li>affiliate marketing salary</li>
+<li>affiliate manager job</li>
+<li>affiliate marketing career</li>
+<li>hiring affiliate manager</li>
+<li>affiliate marketing internship</li>
+<li>affiliate marketing remote jobs</li>
+<li>affiliate marketing job description</li>
+<li>work from home affiliate</li>
+<li>become an affiliate marketer</li>
+<li>affiliate marketing training</li>
+<li>affiliate marketing course</li>
+<li>learn affiliate marketing</li>
+<li>affiliate marketing for beginners</li>
+<li>how to make money affiliate marketing</li>
+<li>affiliate marketing income</li>
+</ul>
+
+<h3>8B. Software / Platform Seekers</h3>
+<ul class="neg-list">
+<li>affiliate software</li>
+<li>affiliate tracking software</li>
+<li>affiliate tracking platform</li>
+<li>affiliate management software</li>
+<li>affiliate marketing tool</li>
+<li>affiliate program software</li>
+<li>affiliate plugin</li>
+<li>affiliate app shopify free</li>
+<li>best affiliate tracking</li>
+<li>refersion vs</li>
+<li>uppromote vs</li>
+<li>tapfiliate vs</li>
+<li>impact.com pricing</li>
+<li>shareasale login</li>
+<li>CJ affiliate login</li>
+<li>rakuten login</li>
+</ul>
+
+<h3>8C. Unrelated Verticals / Wrong Intent</h3>
+<ul class="neg-list">
+<li>amazon affiliate</li>
+<li>amazon associates</li>
+<li>clickbank</li>
+<li>gambling affiliate</li>
+<li>casino affiliate</li>
+<li>crypto affiliate</li>
+<li>forex affiliate</li>
+<li>dating affiliate</li>
+<li>insurance affiliate</li>
+<li>real estate affiliate</li>
+<li>SaaS affiliate</li>
+<li>B2B affiliate</li>
+<li>fintech affiliate</li>
+<li>travel affiliate</li>
+<li>web hosting affiliate</li>
+<li>VPN affiliate</li>
+</ul>
+
+<h3>8D. DIY / Free Seekers</h3>
+<ul class="neg-list">
+<li>free affiliate program</li>
+<li>free affiliate marketing</li>
+<li>affiliate marketing free course</li>
+<li>affiliate marketing tutorial</li>
+<li>affiliate marketing PDF</li>
+<li>affiliate marketing ebook</li>
+<li>affiliate marketing template free</li>
+<li>DIY affiliate program</li>
+<li>how to do affiliate marketing yourself</li>
+<li>affiliate marketing without website</li>
+</ul>
+
+<h3>8E. Publisher/Affiliate Side (Wrong Side of Market)</h3>
+<ul class="neg-list">
+<li>join affiliate program</li>
+<li>sign up affiliate program</li>
+<li>become an affiliate</li>
+<li>affiliate programs that pay</li>
+<li>best affiliate programs to join</li>
+<li>affiliate programs for bloggers</li>
+<li>high paying affiliate programs</li>
+<li>affiliate commission rates</li>
+<li>affiliate marketing for influencers</li>
+<li>affiliate link</li>
+<li>affiliate disclosure</li>
+<li>affiliate marketing blog</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>9. Campaign Structure Recommendation ($2K/mo)</h2>
+<!-- ============================================================ -->
+
+<div class="section-note">
+At $2K/month (~$65/day), concentration is critical. Do NOT spread budget across 6+ campaigns. Start with 2 campaigns, expand to 3 when you have 30+ conversions/month for smart bidding to work. The structure below is designed for maximum signal density in the learning phase.
+</div>
+
+<h3>Phase 1: Launch (Months 1-2) -- 2 Campaigns</h3>
+
+<div class="campaign-box">
+<h4>Campaign 1: High-Intent Core (60% of budget = $1,200/mo)</h4>
+<div class="budget-bar" style="background: linear-gradient(90deg, var(--green) 60%, transparent 60%); width: 100%;">$1,200/mo | $40/day</div>
+<p style="margin-top: 0.75rem;"><strong>Bid Strategy:</strong> Start with Manual CPC (Enhanced) for 2-3 weeks to gather data, then switch to Maximize Conversions with a target CPA once you hit 15+ conversions.</p>
+<p style="margin-top: 0.5rem;"><strong>Ad Groups:</strong></p>
+<table>
+<tr><th>Ad Group</th><th>Keywords (Exact + Phrase)</th><th># KWs</th><th>Est. Daily Budget Share</th></tr>
+<tr>
+<td><strong>AG1: Agency/Hire</strong></td>
+<td>affiliate marketing agency, hire affiliate marketing agency, best affiliate marketing agency, ecommerce affiliate marketing agency, affiliate management company, full service affiliate marketing agency, affiliate marketing services</td>
+<td>7</td>
+<td>$15/day</td>
+</tr>
+<tr>
+<td><strong>AG2: Outsource/Managed</strong></td>
+<td>outsource affiliate marketing, outsourced affiliate program management, affiliate program management services, managed affiliate program, hire affiliate manager, OPM affiliate agency</td>
+<td>6</td>
+<td>$10/day</td>
+</tr>
+<tr>
+<td><strong>AG3: Launch/Setup</strong></td>
+<td>launch affiliate program, affiliate program setup service, affiliate program launch agency, done for you affiliate program, create affiliate program shopify</td>
+<td>5</td>
+<td>$8/day</td>
+</tr>
+<tr>
+<td><strong>AG4: Performance/CPA</strong></td>
+<td>performance based affiliate agency, CPA affiliate marketing agency, no retainer affiliate agency, pay for performance affiliate marketing, affiliate agency no monthly fee</td>
+<td>5</td>
+<td>$7/day</td>
+</tr>
+</table>
+</div>
+
+<div class="campaign-box">
+<h4>Campaign 2: Long-Tail / Niche (40% of budget = $800/mo)</h4>
+<div class="budget-bar" style="background: linear-gradient(90deg, var(--accent) 40%, transparent 40%); width: 100%;">$800/mo | $27/day</div>
+<p style="margin-top: 0.75rem;"><strong>Bid Strategy:</strong> Manual CPC (Enhanced) -- these keywords need data before automation can work.</p>
+<p style="margin-top: 0.5rem;"><strong>Ad Groups:</strong></p>
+<table>
+<tr><th>Ad Group</th><th>Keywords (Exact + Phrase + Broad)</th><th># KWs</th><th>Est. Daily Budget Share</th></tr>
+<tr>
+<td><strong>AG5: Shopify Specific</strong></td>
+<td>shopify affiliate program agency, shopify affiliate program setup service, shopify affiliate program management</td>
+<td>3</td>
+<td>$7/day</td>
+</tr>
+<tr>
+<td><strong>AG6: DTC Brand</strong></td>
+<td>DTC brand affiliate marketing, DTC affiliate program agency, direct to consumer affiliate marketing, affiliate agency for DTC brands</td>
+<td>4</td>
+<td>$7/day</td>
+</tr>
+<tr>
+<td><strong>AG7: Pricing/Cost Intent</strong></td>
+<td>affiliate marketing agency pricing, affiliate marketing agency cost, how much does an affiliate program cost, ecommerce affiliate program cost</td>
+<td>4</td>
+<td>$6/day</td>
+</tr>
+<tr>
+<td><strong>AG8: Vertical Specific</strong></td>
+<td>beauty brand affiliate program agency, supplement brand affiliate marketing, wellness brand affiliate program, affiliate marketing for skincare brands</td>
+<td>4</td>
+<td>$7/day</td>
+</tr>
+</table>
+</div>
+
+<h3>Phase 2: Scale (Months 3-4) -- Add Campaign 3</h3>
+
+<div class="campaign-box">
+<h4>Campaign 3: Competitor Conquest (10-15% of budget, pulled from Campaign 2)</h4>
+<p style="margin-top: 0.5rem;">Only activate once Campaigns 1 and 2 are converting. Target the top 3-4 competitors whose clients match CPG's ICP. Run comparison-style ad copy ("No Retainers. No Contracts. Just Results." vs. the retainer-heavy incumbents).</p>
+<p style="margin-top: 0.5rem;"><strong>Priority Competitors:</strong> Acceleration Partners, Advertise Purple, iAffiliate Management, Performance Partners</p>
+</div>
+
+<h3>Budget Math at $2K/mo</h3>
+<table>
+<tr><th>Metric</th><th>Conservative</th><th>Target</th><th>Optimistic</th></tr>
+<tr><td>Average CPC</td><td>$10</td><td>$7</td><td>$5</td></tr>
+<tr><td>Monthly Clicks</td><td>200</td><td>285</td><td>400</td></tr>
+<tr><td>Landing Page CVR</td><td>5%</td><td>7%</td><td>10%</td></tr>
+<tr><td>Monthly Leads</td><td>10</td><td>20</td><td>40</td></tr>
+<tr><td>Cost Per Lead</td><td>$200</td><td>$100</td><td>$50</td></tr>
+<tr><td>Lead-to-Call Rate</td><td>30%</td><td>40%</td><td>50%</td></tr>
+<tr><td>Monthly Discovery Calls</td><td>3</td><td>8</td><td>20</td></tr>
+<tr><td>Call-to-Close Rate</td><td>15%</td><td>20%</td><td>25%</td></tr>
+<tr><td>Monthly New Clients</td><td>0.5</td><td>1.6</td><td>5</td></tr>
+</table>
+
+<h3>Key Recommendations</h3>
+
+<div class="campaign-box">
+<h4>1. Bidding Strategy Transition Plan</h4>
+<p>Weeks 1-3: Manual CPC (Enhanced) across all campaigns. Collect conversion data.</p>
+<p>Week 4+: Once you hit 15+ conversions in Campaign 1, switch to Maximize Conversions (no target CPA yet).</p>
+<p>Month 2+: Once you hit 30+ conversions, set a target CPA of 1.5x your current average CPA. Tighten 10% per month.</p>
+</div>
+
+<div class="campaign-box">
+<h4>2. Match Type Strategy</h4>
+<p><strong>Week 1-4:</strong> Exact + Phrase only. No broad match until you have 50+ search terms to review.</p>
+<p><strong>Month 2+:</strong> Add Broad match on top-performing keywords only, paired with smart bidding. Broad match without smart bidding = wasted spend.</p>
+<p><strong>Always:</strong> Review search terms every 3 days in Month 1, weekly after that. Add negatives aggressively.</p>
+</div>
+
+<div class="campaign-box">
+<h4>3. Ad Schedule & Geo Targeting</h4>
+<p><strong>Schedule:</strong> Mon-Fri, 7am-9pm EST (B2B decision makers). Pause weekends initially to conserve budget.</p>
+<p><strong>Geo:</strong> United States only. Consider adding Canada and UK in Phase 2 if budget allows.</p>
+<p><strong>Device:</strong> Desktop 70%, Mobile 30% bid adjustment. B2B SaaS/agency searches skew desktop during work hours.</p>
+</div>
+
+<div class="campaign-box">
+<h4>4. Landing Page Requirements</h4>
+<p>Each campaign needs a dedicated landing page -- do NOT send traffic to the homepage.</p>
+<ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+<li><strong>Campaign 1 LP:</strong> "Performance Affiliate Marketing for Ecommerce Brands" -- hero with no-retainer value prop, social proof, 3-step process, book-a-call CTA</li>
+<li><strong>Campaign 2 LP:</strong> Platform/vertical-specific variants (Shopify-focused, DTC-focused) with the same core template</li>
+<li><strong>Must-haves:</strong> Case study numbers, "No Retainer" messaging above fold, Calendly/call booking widget, mobile-optimized</li>
+</ul>
+</div>
+
+<div class="campaign-box">
+<h4>5. Conversion Tracking Setup</h4>
+<p><strong>Primary Conversion:</strong> Discovery call booked (Calendly thank-you page or form submission confirmation)</p>
+<p><strong>Secondary Conversions:</strong> Phone calls (30+ seconds), contact form submissions, chat initiations</p>
+<p><strong>Enhanced Conversions:</strong> Enable from Day 1. Upload offline conversion data (call outcomes) monthly for smart bidding optimization.</p>
+</div>
+
+<div class="campaign-box">
+<h4>6. Competitive Landscape Summary</h4>
+<p>Key competitors actively bidding on Google Ads in this space:</p>
+<table>
+<tr><th>Competitor</th><th>Positioning</th><th>CPG Advantage Against Them</th></tr>
+<tr><td>Acceleration Partners</td><td>Enterprise, global, premium pricing</td><td>No retainers, DTC-focused, brand-owner empathy</td></tr>
+<tr><td>Advertise Purple</td><td>High volume SMB, 131% avg growth claim</td><td>Performance-only model, deeper CPG/DTC niche</td></tr>
+<tr><td>Gen3 Marketing</td><td>Largest independent, broad verticals</td><td>Boutique attention, Shopify specialization</td></tr>
+<tr><td>Perform[cb]</td><td>Multi-channel, compliance-focused</td><td>Simpler pricing, brand-owner credibility</td></tr>
+<tr><td>iAffiliate Management</td><td>Boutique DTC focus</td><td>No retainer model, CPA-only alignment</td></tr>
+<tr><td>Performance Partners</td><td>2 managers per client, affiliate media buyers</td><td>Price advantage, no monthly retainer barrier</td></tr>
+</table>
+</div>
+
+<div class="footer">
+<p>Generated by KAMG PPC Strategy Agent | April 2026 | Data validated via live SERP research</p>
+<p>CPC estimates based on Google Ads 2026 benchmarks (Business Services avg CPC $5.58, cross-industry avg $2.96). Actual CPCs will vary based on Quality Score, ad relevance, and landing page experience.</p>
+<p>Sources: WordStream 2025 Benchmarks, WebFX 2026 Google Ads Cost Report, Clutch.co Agency Rankings, Influencer Marketing Hub, Business of Apps</p>
+</div>
+
+</div>
+</body>
+</html>

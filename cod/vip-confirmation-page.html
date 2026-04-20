@@ -72,10 +72,36 @@ body {
 .hero-micro {
   font-size: 13px; color: var(--text3); margin-top: 14px;
 }
+.hero-ctas {
+  display: flex; gap: 12px; justify-content: center;
+  margin: 24px auto 0; max-width: 500px; flex-wrap: wrap;
+}
+.hero-btn {
+  flex: 1; min-width: 200px; padding: 14px 20px; font-size: 15px;
+}
+@media (max-width: 480px) {
+  .hero-ctas { flex-direction: column; gap: 10px; }
+  .hero-btn { min-width: unset; }
+}
+.video-wrap {
+  max-width: 680px;
+  margin: 28px auto 32px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 60px rgba(200,169,110,0.08);
+}
 
 /* Sections */
 section { padding: 72px 0; }
 section.alt { background: var(--bg2); }
+@media (max-width: 640px) {
+  .hero { padding: 64px 0 48px; }
+  section { padding: 48px 0; }
+  .hero-sub { font-size: 16px; }
+  .hero-cta { padding: 14px 32px; font-size: 15px; }
+  .hero-date { font-size: 13px; line-height: 1.8; }
+}
 
 .section-label {
   font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
@@ -151,6 +177,54 @@ section.alt { background: var(--bg2); }
   max-width: 600px; margin: 0 auto;
 }
 
+/* Next Steps */
+.steps-list {
+  display: flex; flex-direction: column; gap: 16px;
+  max-width: 600px; margin: 0 auto;
+}
+.step-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 24px;
+  transition: border-color 0.3s;
+}
+.step-item:hover { border-color: var(--border-h); }
+.step-num {
+  flex-shrink: 0; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--gold-dim); color: var(--gold);
+  font-weight: 600; font-size: 14px; border-radius: 8px;
+}
+.step-item p {
+  font-size: 14px; color: var(--text2); line-height: 1.7; margin: 0;
+}
+
+/* Workshop Benefits */
+.benefits-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  margin-bottom: 8px;
+}
+@media (max-width: 768px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+}
+.benefit-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px 24px;
+  transition: border-color 0.3s;
+}
+.benefit-card:hover { border-color: var(--border-h); }
+.benefit-icon {
+  font-family: var(--display); font-size: 28px; font-weight: 700;
+  color: var(--gold); margin-bottom: 14px;
+}
+.benefit-card h3 {
+  font-family: var(--display); font-size: 20px; font-weight: 600;
+  margin-bottom: 10px; line-height: 1.3;
+}
+.benefit-card p {
+  font-size: 13px; color: var(--text2); line-height: 1.7;
+}
+
 /* What Happens Friday */
 .friday-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
@@ -190,6 +264,61 @@ section.alt { background: var(--bg2); }
   margin-top: 24px; margin-bottom: 28px;
 }
 .urgency-card .btn-gold { max-width: 320px; margin: 0 auto; }
+
+/* Survey Form */
+.survey-form {
+  max-width: 560px; margin: 0 auto;
+}
+.form-group { margin-bottom: 24px; }
+.form-label {
+  display: block; font-size: 14px; font-weight: 500;
+  color: var(--text); margin-bottom: 8px;
+}
+.form-select, .form-input, .form-textarea {
+  width: 100%; padding: 14px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text);
+  font-family: var(--font); font-size: 14px;
+  transition: border-color 0.3s;
+  -webkit-appearance: none; appearance: none;
+}
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a968e' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px;
+}
+.form-select:focus, .form-input:focus, .form-textarea:focus {
+  outline: none; border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.radio-group { display: flex; gap: 12px; }
+.radio-option {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 20px; cursor: pointer;
+  font-size: 14px; color: var(--text2);
+  transition: border-color 0.3s, color 0.3s;
+  flex: 1; justify-content: center;
+}
+.radio-option:has(input:checked) {
+  border-color: var(--gold); color: var(--text);
+  background: var(--gold-dim);
+}
+.radio-option input { display: none; }
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+@media (max-width: 480px) {
+  .form-row { grid-template-columns: 1fr; }
+}
+.survey-submit {
+  max-width: 320px; margin: 0 auto; cursor: pointer;
+  border: none; font-family: var(--font);
+}
+@media (max-width: 480px) {
+  .radio-group { flex-direction: column; gap: 10px; }
+  .survey-submit { max-width: 100%; }
+}
 
 /* Toolkit */
 .toolkit-items {
@@ -258,12 +387,24 @@ section.alt { background: var(--bg2); }
 <!-- Hero -->
 <section class="hero">
   <div class="container">
-    <span class="hero-label">VIP Confirmed.</span>
-    <h1>You're In. VIP Attendee.</h1>
-    <p class="hero-sub">Your seat is reserved. Now protect it.</p>
-    <p class="hero-date"><strong>VIP Session with Russ:</strong> [FRIDAY DATE] @ 12PM PST</p>
-    <a href="#" class="hero-cta">Add Friday VIP to Calendar</a>
-    <p class="hero-micro">This is the most important click on this page.</p>
+    <span class="hero-label">VIP Confirmed</span>
+    <h1>You're In.</h1>
+    <p class="hero-sub">Your seat for the workshop <strong>and</strong> your VIP session with Russ are both locked in.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-gold hero-btn">Add VIP Session to Calendar</a>
+      <a href="#" class="btn-green hero-btn">Add Workshop to Calendar</a>
+    </div>
+    <div class="video-wrap">
+      <script src="https://fast.wistia.com/embed/i6drn1220x.js" async type="module"></script>
+      <style>
+        wistia-player[media-id='i6drn1220x']:not(:defined) {
+          background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/i6drn1220x/swatch');
+          display: block; filter: blur(5px); padding-top: 56.25%;
+        }
+      </style>
+      <wistia-player media-id="i6drn1220x" seo="false" aspect="1.7777777777777777"></wistia-player>
+    </div>
+    <p class="hero-date"><strong>VIP Session:</strong> [FRIDAY DATE] @ 12PM PST &nbsp;|&nbsp; <strong>Workshop:</strong> [WORKSHOP DATE] @ 9AM PST</p>
   </div>
 </section>
 
@@ -277,7 +418,7 @@ section.alt { background: var(--bg2); }
       <div class="event-card">
         <span class="event-pill pill-standard">Workshop</span>
         <h3>AI-Powered High-Ticket Offer Workshop</h3>
-        <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 4px 0 8px;">Our 3-hour workshop where you will create your entire $5k – $15k coaching program using AI</p>
+        <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 4px 0 8px;">Watch our 3-hour workshop and create your entire $5k–$15k coaching program using AI</p>
         <p class="event-time">[WORKSHOP DATE] @ 9AM PST</p>
         <div class="spacer"></div>
         <a href="#" class="btn-green">Add Workshop to Calendar</a>
@@ -295,6 +436,54 @@ section.alt { background: var(--bg2); }
 
     </div>
     <p class="events-footer">Two events. Two calendar invites. Both matter. The workshop builds your offer. The VIP session sharpens it with Russ.</p>
+  </div>
+</section>
+
+<!-- Next Steps -->
+<section>
+  <div class="container">
+    <span class="section-label">Next Steps</span>
+    <h2 class="section-heading">Here's What Happens Now</h2>
+    <div class="steps-list">
+      <div class="step-item">
+        <span class="step-num">1</span>
+        <p>Check your inbox for your confirmation email. It includes your access details for the workshop session.</p>
+      </div>
+      <div class="step-item">
+        <span class="step-num">2</span>
+        <p>Add both events to your calendar using the buttons above. The workshop and the VIP session are on different days.</p>
+      </div>
+      <div class="step-item">
+        <span class="step-num">3</span>
+        <p>Keep an eye out for a follow-up email with everything you need to get the most out of the experience.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Workshop Benefits -->
+<section class="alt">
+  <div class="container">
+    <span class="section-label">The Workshop</span>
+    <h2 class="section-heading" style="text-align:center;">On This Workshop, You Will...</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">01</div>
+        <h3>Get the Exact AI Prompts &amp; Templates</h3>
+        <p>The same tools we use to create $5,000–$15,000 coaching programs in just minutes. No guesswork, no starting from scratch.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">02</div>
+        <h3>Map Out Your Own High-Ticket Offer</h3>
+        <p>Step-by-step, you'll build your own coaching or service offer. By the end, you'll have a complete, ready-to-sell program.</p>
+      </div>
+      <div class="benefit-card fade-in">
+        <div class="benefit-icon">03</div>
+        <h3>Learn the Client Acquisition System</h3>
+        <p>The funnel strategy and enrollment process that consistently brings in high-ticket clients without cold outreach or paid ads expertise.</p>
+      </div>
+    </div>
+    <p class="section-intro" style="text-align:center; margin: 32px auto 0; max-width:560px;">This is the foundation. Everything in your VIP session builds on what you learn here.</p>
   </div>
 </section>
 
@@ -327,8 +516,77 @@ section.alt { background: var(--bg2); }
   </div>
 </section>
 
-<!-- VIP Toolkit -->
+<!-- Survey -->
 <section>
+  <div class="container">
+    <span class="section-label">Quick Survey</span>
+    <h2 class="section-heading" style="text-align:center;">Help Us Make This Workshop a Win for You</h2>
+    <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">Takes 60 seconds. Helps Russ tailor the session to what matters most to you.</p>
+    <form class="survey-form" id="vipSurvey" action="https://PLACEHOLDER-GHL-WEBHOOK-URL.com" method="POST">
+      <div class="form-group">
+        <label class="form-label">What is your current revenue level?</label>
+        <select name="revenue_level" class="form-select" required>
+          <option value="" disabled selected>Select one...</option>
+          <option value="pre-revenue">Pre-revenue / just starting</option>
+          <option value="under-50k">Under $50K/year</option>
+          <option value="50k-100k">$50K–$100K/year</option>
+          <option value="100k-250k">$100K–$250K/year</option>
+          <option value="250k-500k">$250K–$500K/year</option>
+          <option value="500k-plus">$500K+/year</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Do you currently have a high-ticket offer ($3K+)?</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="has_offer" value="yes" required><span>Yes</span></label>
+          <label class="radio-option"><input type="radio" name="has_offer" value="no"><span>No</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Have you had success with online advertising?</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="ad_success" value="yes" required><span>Yes</span></label>
+          <label class="radio-option"><input type="radio" name="ad_success" value="no"><span>No</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What's your #1 business challenge right now?</label>
+        <select name="challenge" class="form-select" required>
+          <option value="" disabled selected>Select one...</option>
+          <option value="getting-clients">Getting consistent clients</option>
+          <option value="pricing">Pricing and packaging my offer</option>
+          <option value="scaling">Scaling beyond where I am now</option>
+          <option value="systems">Building systems and funnels</option>
+          <option value="confidence">Confidence in my offer</option>
+          <option value="time">Not enough time</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group" id="otherField" style="display:none;">
+        <label class="form-label">Tell us more:</label>
+        <input type="text" name="challenge_other" class="form-input" placeholder="Your answer...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">What would make this workshop a total win for you?</label>
+        <textarea name="win_definition" class="form-textarea" rows="3" placeholder="In your own words..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-input" required placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-input" required placeholder="you@email.com">
+        </div>
+      </div>
+      <button type="submit" class="btn-gold survey-submit">Submit Survey</button>
+    </form>
+  </div>
+</section>
+
+<!-- VIP Toolkit -->
+<section class="alt">
   <div class="container">
     <h2 class="section-heading" style="text-align:center;">Your Full VIP Package Unlocks Saturday Morning.</h2>
     <p class="section-intro" style="text-align:center; margin: 0 auto 32px;">After Friday's session, everything below becomes available to you.</p>
@@ -349,6 +607,16 @@ section.alt { background: var(--bg2); }
   </div>
 </section>
 
+<!-- Russ Signature -->
+<section>
+  <div class="container" style="text-align:center; padding: 48px 0;">
+    <p style="font-size: 15px; color: var(--text2); margin-bottom: 4px;">To your success,</p>
+    <img src="https://assets.cdn.filesafe.space/h83O4TKy09yLLdfnIw3K/media/685458e7ad3247410403f46c.png" alt="Russ Ruffino signature" style="height: 60px; width: auto; margin: 8px 0; filter: invert(1) brightness(100); opacity: 0.85;">
+    <p style="font-family: var(--display); font-size: 20px; color: var(--text); font-weight: 600;">Russ Ruffino</p>
+    <p style="font-size: 13px; color: var(--text3);">Founder, Clients on Demand</p>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer class="site-footer">
   <div class="container">
@@ -358,6 +626,24 @@ section.alt { background: var(--bg2); }
     </div>
   </div>
 </footer>
+
+<script>
+document.querySelector('[name="challenge"]').addEventListener('change', function() {
+  document.getElementById('otherField').style.display = this.value === 'other' ? 'block' : 'none';
+});
+document.getElementById('vipSurvey').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var form = this;
+  var data = new FormData(form);
+  fetch(form.action, { method: 'POST', body: data })
+    .then(function() {
+      form.innerHTML = '<div style="text-align:center;padding:40px 0;"><p style="font-size:20px;font-family:var(--display);color:var(--text);margin-bottom:8px;">Thank you!</p><p style="font-size:14px;color:var(--text2);">Your responses help Russ prepare for your VIP session.</p></div>';
+    })
+    .catch(function() {
+      form.innerHTML = '<div style="text-align:center;padding:40px 0;"><p style="font-size:20px;font-family:var(--display);color:var(--text);margin-bottom:8px;">Thank you!</p><p style="font-size:14px;color:var(--text2);">Your responses help Russ prepare for your VIP session.</p></div>';
+    });
+});
+</script>
 
 <script src="https://utteranc.es/client.js"
   repo="kasandzz/kamg-client-reports"

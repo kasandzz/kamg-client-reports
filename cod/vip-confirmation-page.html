@@ -318,6 +318,56 @@ section.alt { background: var(--bg2); }
 }
 .footer-logo img:hover { opacity: 0.7; }
 
+/* Mobile Optimizations */
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .hero h1 { font-size: 36px; }
+  .hero-sub { font-size: 15px; margin-bottom: 8px; }
+  .hero-date { font-size: 12px; }
+  .events-header { font-size: 14px; }
+  .event-card { padding: 22px 18px; }
+  .event-card h3 { font-size: 19px; }
+  .step-item { padding: 16px 18px; gap: 12px; }
+  .benefit-card { padding: 22px 18px; }
+  .benefit-icon { font-size: 24px; margin-bottom: 10px; }
+  .benefit-card h3 { font-size: 18px; }
+  .friday-card { padding: 18px; font-size: 13px; }
+  .toolkit-card { padding: 20px 18px; }
+  .toolkit-card h3 { font-size: 18px; }
+  .section-heading { margin-bottom: 8px; }
+  .section-intro { font-size: 14px; margin-bottom: 24px; }
+  .friday-closing { font-size: 14px; }
+  .events-footer { font-size: 13px; }
+  .urgency-card { padding: 28px 20px; }
+  body { padding-bottom: 80px; }
+}
+
+/* Sticky Calendar Bar (mobile only) */
+.sticky-cal {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(10,10,15,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-h);
+  padding: 10px 16px;
+  z-index: 100;
+  gap: 8px;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.sticky-cal.visible { transform: translateY(0); }
+.sticky-cal a {
+  flex: 1; padding: 12px 8px; font-size: 12px; border-radius: 8px;
+  text-decoration: none; text-align: center; font-weight: 600; font-family: var(--font);
+  white-space: nowrap;
+}
+.sticky-cal .s-vip { background: var(--gold); color: #0a0a0f; }
+.sticky-cal .s-ws { background: var(--green); color: #0a0a0f; }
+@media (max-width: 640px) {
+  .sticky-cal { display: flex; }
+}
+
 /* Fade in animation */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
@@ -471,6 +521,12 @@ section.alt { background: var(--bg2); }
   </div>
 </section>
 
+<!-- Sticky Calendar Bar (mobile) -->
+<div class="sticky-cal" id="stickyCal">
+  <a href="#" class="s-vip">Add VIP to Calendar</a>
+  <a href="#" class="s-ws">Add Workshop</a>
+</div>
+
 <!-- Footer -->
 <footer class="site-footer">
   <div class="container">
@@ -482,6 +538,17 @@ section.alt { background: var(--bg2); }
 </footer>
 
 <script>
+(function() {
+  var bar = document.getElementById('stickyCal');
+  var sentinel = document.querySelector('.steps-list');
+  if (!bar || !sentinel || window.innerWidth > 640) return;
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      bar.classList.toggle('visible', !e.isIntersecting && e.boundingClientRect.top < 0);
+    });
+  }, { threshold: 0 });
+  io.observe(sentinel);
+})();
 </script>
 
 <script src="https://utteranc.es/client.js"

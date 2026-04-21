@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Email Journey Strategy | COD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111116;
+    --bg3: #18181f;
+    --card: #1a1a22;
+    --card-inner: #1f1f2a;
+    --border: rgba(200,169,110,0.12);
+    --border-h: rgba(200,169,110,0.25);
+    --gold: #c8a96e;
+    --gold-dim: rgba(200,169,110,0.1);
+    --gold-bg: rgba(200,169,110,0.15);
+    --text: #f0ede8;
+    --text2: #9a968e;
+    --text3: #5a574f;
+    --green: #4ade80;
+    --red: #f87171;
+    --amber: #fbbf24;
+    --teal: #2dd4bf;
+    --font: 'Outfit', system-ui, sans-serif;
+    --display: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-of-type {
+    border-bottom: none;
+  }
+
+  .label {
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: 48px;
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  h2 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--text2);
+    max-width: 640px;
+    line-height: 1.65;
+    margin-bottom: 32px;
+  }
+
+  /* Stats Strip */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .stat-card .stat-number {
+    font-family: var(--display);
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  /* Problem Cards */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .problem-grid .problem-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .problem-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 10px;
+    padding: 24px;
+  }
+
+  .problem-card .problem-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .problem-card .problem-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+
+  /* Paragraph */
+  .body-text {
+    font-size: 15px;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 40px;
+    margin-top: 32px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold), var(--gold-dim));
+    border-radius: 2px;
+  }
+
+  .timeline-phase {
+    margin-bottom: 12px;
+  }
+
+  .timeline-phase-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 8px 0;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .timeline-phase-label::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px var(--gold-dim);
+  }
+
+  .timeline-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    position: relative;
+    transition: border-color 0.2s ease;
+  }
+
+  .timeline-card:hover {
+    border-color: var(--border-h);
+  }
+
+  .timeline-card::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 24px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+  }
+
+  .timeline-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  .badge-email {
+    background: var(--gold-bg);
+    color: var(--gold);
+  }
+
+  .badge-sms {
+    background: rgba(45, 212, 191, 0.15);
+    color: var(--teal);
+  }
+
+  .badge-problem {
+    background: rgba(248, 113, 113, 0.12);
+    color: var(--red);
+    font-size: 10px;
+  }
+
+  .badge-new {
+    background: rgba(74, 222, 128, 0.12);
+    color: var(--green);
+    font-size: 10px;
+  }
+
+  .badge-keep {
+    background: rgba(200,169,110,0.1);
+    color: var(--text3);
+    font-size: 10px;
+  }
+
+  .timing-pill {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text3);
+  }
+
+  .workflow-name {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .timeline-card-body {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+
+  .timeline-card-subject {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .empty-card {
+    background: transparent;
+    border: 2px dashed var(--border-h);
+    border-radius: 10px;
+    padding: 32px 24px;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  .empty-card p {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--red);
+    line-height: 1.55;
+  }
+
+  /* Proposed timeline green line */
+  .timeline-proposed::before {
+    background: linear-gradient(to bottom, var(--green), rgba(74,222,128,0.15));
+  }
+
+  .timeline-proposed .timeline-phase-label {
+    color: var(--green);
+  }
+
+  .timeline-proposed .timeline-phase-label::before {
+    background: var(--green);
+    box-shadow: 0 0 0 3px rgba(74,222,128,0.15);
+  }
+
+  .timeline-proposed .timeline-card::before {
+    background: var(--green);
+  }
+
+  .timeline-proposed .timeline-card {
+    border-left: 2px solid rgba(74,222,128,0.2);
+  }
+
+  /* Comparison Table */
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 32px;
+    font-size: 14px;
+  }
+
+  .comparison-table th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border-h);
+    background: var(--bg2);
+  }
+
+  .comparison-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  .comparison-table td:first-child {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .comparison-table td.before {
+    color: var(--red);
+  }
+
+  .comparison-table td.after {
+    color: var(--green);
+  }
+
+  .comparison-table tr:hover td {
+    background: var(--card);
+  }
+
+  /* Workflow Architecture */
+  .workflow-arch {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .workflow-arch::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold), var(--gold-dim));
+  }
+
+  .workflow-arch-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    position: relative;
+  }
+
+  .workflow-arch-card::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 28px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 2px solid var(--bg);
+  }
+
+  .workflow-arch-card .wf-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .workflow-arch-card .wf-action-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  .wf-modify { background: rgba(251,191,36,0.12); color: var(--amber); }
+  .wf-branch { background: rgba(45,212,191,0.12); color: var(--teal); }
+  .wf-rewrite { background: rgba(74,222,128,0.12); color: var(--green); }
+
+  .wf-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .wf-items li {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.55;
+    padding: 6px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .wf-items li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 6px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  /* Priority Cards */
+  .priority-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 32px;
+  }
+
+  .priority-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .priority-card .priority-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .p0-label {
+    background: rgba(248,113,113,0.12);
+    color: var(--red);
+  }
+
+  .p1-label {
+    background: rgba(251,191,36,0.12);
+    color: var(--amber);
+  }
+
+  .p2-label {
+    background: rgba(45,212,191,0.12);
+    color: var(--teal);
+  }
+
+  .priority-card .priority-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .priority-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .priority-card ul li {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.55;
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .priority-card ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+  }
+
+  /* Footer */
+  .footer {
+    padding: 48px 0;
+    text-align: center;
+  }
+
+  .footer p {
+    font-size: 13px;
+    color: var(--text3);
+    line-height: 1.7;
+  }
+
+  .footer p + p {
+    margin-top: 8px;
+  }
+
+  .footer .footer-brand {
+    font-weight: 500;
+    color: var(--text2);
+  }
+
+  .footer .footer-docs {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    section {
+      padding: 48px 0;
+    }
+
+    h1 {
+      font-size: 32px;
+    }
+
+    h2 {
+      font-size: 26px;
+    }
+
+    .stats-strip {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card .stat-number {
+      font-size: 32px;
+    }
+
+    .problem-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .timeline {
+      padding-left: 28px;
+    }
+
+    .timeline::before {
+      left: 4px;
+    }
+
+    .timeline-phase-label::before {
+      left: -28px;
+    }
+
+    .timeline-card::before {
+      left: -24px;
+    }
+
+    .timeline-card-header {
+      gap: 6px;
+    }
+
+    .comparison-table {
+      font-size: 12px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 10px 8px;
+    }
+
+    .workflow-arch {
+      padding-left: 16px;
+    }
+
+    .workflow-arch-card::before {
+      left: -14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .container {
+      padding: 0 16px;
+    }
+
+    .comparison-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Section 1: Hero -->
+<section>
+  <div class="container">
+    <span class="label">VIP Email Journey Strategy</span>
+    <h1>The Complete VIP <em>Lifecycle</em> Redesign</h1>
+    <p class="subtitle">Current journey mapped, problems identified, proposed journey with full copy. For team review.</p>
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-number">21</div>
+        <div class="stat-label">Current touchpoints (chaotic)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">15</div>
+        <div class="stat-label">Proposed touchpoints (intentional)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Bonus dumps before Friday (current)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Bonus dumps before Friday (proposed)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 2: Before vs After (moved to top) -->
+<section>
+  <div class="container">
+    <span class="label">What Changed</span>
+    <h2>Before vs <em>After</em></h2>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Before</th>
+          <th>After</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bonus delivery</td>
+          <td class="before">4 dumps before Friday</td>
+          <td class="after">Saturday only (earned)</td>
+        </tr>
+        <tr>
+          <td>VIP upsells to VIP buyers</td>
+          <td class="before">Up to 3 (needs GHL verification)</td>
+          <td class="after">0</td>
+        </tr>
+        <tr>
+          <td>Mid-week prep emails</td>
+          <td class="before">0</td>
+          <td class="after">2 (Wed + Thu)</td>
+        </tr>
+        <tr>
+          <td>Post-call nurture</td>
+          <td class="before">0 emails</td>
+          <td class="after">4-5 emails</td>
+        </tr>
+        <tr>
+          <td>Day-of Friday touches</td>
+          <td class="before">6 (pure logistics)</td>
+          <td class="after">2 (value-framed)</td>
+        </tr>
+        <tr>
+          <td>"Q&amp;A" framing</td>
+          <td class="before">Everywhere</td>
+          <td class="after">Replaced with "live session with Russ"</td>
+        </tr>
+        <tr>
+          <td>Prompt library</td>
+          <td class="before">VIP-exclusive (broken)</td>
+          <td class="after">Workshop deliverable for all</td>
+        </tr>
+        <tr>
+          <td>VIP Toolkit</td>
+          <td class="before">Undefined</td>
+          <td class="after">Russ AI + Replay + Masterclass</td>
+        </tr>
+        <tr>
+          <td>Total emails + SMS</td>
+          <td class="before">12 + 5 = 17</td>
+          <td class="after">10 + 5 = 15</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Section 3: The Problem -->
+<section>
+  <div class="container">
+    <span class="label">Why This Matters</span>
+    <h2>VIP Attendance is <em>Broken</em></h2>
+    <p class="body-text">VIP call attendance dropped to roughly 4 people. The $27 VIP upgrade is supposed to be a 3.25x revenue multiplier because Russ converts on the live call. But the current email journey kills attendance by giving away everything before Friday. VIP buyers get upsold VIP they already bought 3+ times, and receive the same aggressive strategy call push as $27 standard buyers.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-title">4 Bonus Dumps</div>
+        <div class="problem-desc">Replay links, Russ AI, masterclass, and prompt library all sent before Friday. Zero reason to show up.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-title">Possible VIP Upsells to VIP Buyers</div>
+        <div class="problem-desc">Post-workshop emails contain "upgrade to VIP" pitches. Needs verification: these may or may not be hidden for existing VIP buyers via GHL conditional content blocks.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-title">Zero Mid-Week Prep</div>
+        <div class="problem-desc">Nothing between purchase and day-of. No anticipation, no prep framing.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-title">No Post-Call Sequence</div>
+        <div class="problem-desc">The highest-value conversion moment has zero follow-up. Journey ends at the Zoom link.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-title">Q&amp;A Framing</div>
+        <div class="problem-desc">Every reminder calls it a "Q&amp;A Call" making it sound optional and skippable.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Current Journey Timeline -->
+<section>
+  <div class="container">
+    <span class="label">Current State</span>
+    <h2>What a VIP Buyer <em>Receives</em> Today</h2>
+    <p class="subtitle">21 touchpoints across 4 overlapping workflows. Chronological order.</p>
+
+    <div class="timeline">
+
+      <!-- Purchase Window -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Purchase Window (within 10 minutes)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+3 min</span>
+            <span class="workflow-name">Workshop Purchase Success</span>
+          </div>
+          <div class="timeline-card-body">
+            "Congrats! Your seat is locked in." Workshop date + access link. VIP upsell at bottom with old framing.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-problem">Contains VIP upsell (may show to VIP buyers)</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">+3 min</span>
+            <span class="workflow-name">Workshop Purchase Success</span>
+          </div>
+          <div class="timeline-card-body">
+            "You're all set! Reply YES"
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-problem">No VIP acknowledgment</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+5 min</span>
+            <span class="workflow-name">VIP Workshop Purchase</span>
+          </div>
+          <div class="timeline-card-body">
+            "You're officially VIP. Here's everything you've unlocked." Dumps ALL bonus links: replay + password, Russ AI, masterclass, AI templates, 1-to-1 booking.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-problem">BONUS DUMP #1. Kills Friday attendance</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">+5 min</span>
+            <span class="workflow-name">VIP Workshop Purchase</span>
+          </div>
+          <div class="timeline-card-body">
+            "You're in as a VIP! Watch your email"
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-problem">No Friday session mention</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+10 min</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Your VIP Call is on [date]" Zoom link + password RUSSVIP
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-problem">3rd email in 10 min</span></div>
+        </div>
+      </div>
+
+      <!-- Workshop Day -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Workshop Day</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">"We start in 1 hour!" Access link.</div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">"Starts in 1 hour"</div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">"Starting at the top of the hour!"</div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">Same</div>
+        </div>
+      </div>
+
+      <!-- Post-Workshop -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Post-Workshop (Thu Evening, Fri)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+4 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Here's everything you got." AI Prompt Library link + password, Course Creator Bot. P.P.S: VIP upsell with old "replay + bonus Q&amp;A" language.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">BONUS DUMP #2 + contains VIP upsell (verify if hidden)</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+17 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Building the offer was the easy part." Aggressive strategy call push. P.S. VIP upsell.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Contains VIP upsell (verify) + generic sales push</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+27 hr</span>
+            <span class="workflow-name">VIP Workshop Purchase</span>
+          </div>
+          <div class="timeline-card-body">
+            "Here's your exclusive VIP replay access." Replay link + password, prompt library link + password.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">BONUS DUMP #3</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+26 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "The graveyard of good intentions." Aggressive strategy call push.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Same email as $27 buyer</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+29 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "What would you do differently if you KNEW." Strategy call push.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Same email as $27 buyer</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">+22 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "You have a choice to make." Hardest strategy call push.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Same email as $27 buyer</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIP Friday Call Day -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">VIP Friday Call Day</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-5 hr</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "VIP Q&amp;A Call is coming up" link + RUSSVIP
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">"Q&amp;A" framing</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-5 hr</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            Same as SMS, longer format.
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Duplicate of SMS</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Starts in 1 HOUR"
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Pure logistics</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "1 hour away from going LIVE" (DUPLICATED in workflow)
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Duplicate email</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "LIVE in 15 minutes"
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Pure logistics</span>
+          </div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Starts at the top of the hour"
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge-problem">Pure logistics</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post-VIP Call -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Post-VIP Call</div>
+
+        <div class="empty-card">
+          <p>NOTHING. The journey ends here. No toolkit delivery. No nurture. No strategy call sequence.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 4: Proposed Journey Timeline -->
+<section>
+  <div class="container">
+    <span class="label">Proposed State</span>
+    <h2>The New VIP <em>Lifecycle</em></h2>
+    <p class="subtitle">15 intentional touchpoints. Zero bonus dumps before Friday. Full post-call conversion sequence.</p>
+
+    <div class="timeline timeline-proposed">
+
+      <!-- Purchase -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Purchase (2 touches)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Immediately</span>
+            <span class="workflow-name">VIP Workshop Purchase</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "You're in. Here's what happens next, [NAME]"</div>
+          <div class="timeline-card-body">
+            Two dates (workshop + VIP Friday). Calendar add CTAs. "No recording of VIP session. No way to reschedule. Friday is your one shot." NO BONUS LINKS.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">Immediately</span>
+            <span class="workflow-name">VIP Workshop Purchase</span>
+          </div>
+          <div class="timeline-card-body">
+            "You're confirmed for the workshop + live VIP session with Russ on [date]. No recording, no reschedule. Check email for full details."
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+      </div>
+
+      <!-- Workshop Day -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Workshop Day (4 touches, keep existing)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">Workshop 1hr reminder (unchanged)</div>
+          <div style="margin-top: 8px;"><span class="badge badge-keep">Keep</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-1 hr</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">Workshop 1hr SMS (unchanged)</div>
+          <div style="margin-top: 8px;"><span class="badge badge-keep">Keep</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">Workshop 15min reminder (unchanged)</div>
+          <div style="margin-top: 8px;"><span class="badge badge-keep">Keep</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">-15 min</span>
+            <span class="workflow-name">Pre &amp; Post Reminders</span>
+          </div>
+          <div class="timeline-card-body">Workshop 15min SMS (unchanged)</div>
+          <div style="margin-top: 8px;"><span class="badge badge-keep">Keep</span></div>
+        </div>
+      </div>
+
+      <!-- Post-Workshop / VIP Prep -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Post-Workshop / VIP Prep (3 touches, net new)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Wednesday PM</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "Friday is 48 hours out. Here's how to make the most of it"</div>
+          <div class="timeline-card-body">
+            3 prep questions to think through. "Bring your answers, even if they're rough. Russ will work with whatever you've got."
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Thursday PM</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "Tomorrow: Russ reviews your offer live"</div>
+          <div class="timeline-card-body">
+            Short, high energy. "This is the session people remember. Be there."
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">Thursday PM</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Your VIP session w/ Russ is tomorrow. Bring your offer idea. Zoom: [link]"
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+      </div>
+
+      <!-- VIP Friday -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">VIP Friday (2 touches, replaces 6 logistics blasts)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Friday AM</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "Today's the day"</div>
+          <div class="timeline-card-body">
+            "It's happening today. See you in the room." Short and punchy.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-sms">SMS</span>
+            <span class="timing-pill">Friday -30 min</span>
+            <span class="workflow-name">VIP Pre-Event Reminders</span>
+          </div>
+          <div class="timeline-card-body">
+            "Russ goes live in 30 min. Join now: [link]"
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+      </div>
+
+      <!-- Post-Call -->
+      <div class="timeline-phase">
+        <div class="timeline-phase-label">Post-Call (4-5 touches, net new)</div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Saturday AM</span>
+            <span class="workflow-name">VIP Post-Call Sequence</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "Your VIP toolkit is ready"</div>
+          <div class="timeline-card-body">
+            FIRST TIME bonuses are delivered. Russ AI + Workshop Replay + $30K-$100K Masterclass. Soft strategy call CTA.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Sunday</span>
+            <span class="workflow-name">VIP Post-Call Sequence</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "Had a chance to dig into everything yet?"</div>
+          <div class="timeline-card-body">
+            Light check-in. "The gap between having knowledge and having a plan. The strategy call closes that gap."
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Tuesday</span>
+            <span class="workflow-name">VIP Post-Call Sequence</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "The gap between knowing and doing"</div>
+          <div class="timeline-card-body">
+            Execution gap. Testimonial. "The strategy call is where that second part happens."
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <span class="badge badge-email">Email</span>
+            <span class="timing-pill">Wednesday</span>
+            <span class="workflow-name">VIP Post-Call Sequence</span>
+          </div>
+          <div class="timeline-card-subject">Subject: "This is the last email I'll send about this"</div>
+          <div class="timeline-card-body">
+            Final push. "The energy from Friday has a shelf life." Genuine urgency.
+          </div>
+          <div style="margin-top: 8px;"><span class="badge badge-new">Net new</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 6: Workflow Architecture -->
+<section>
+  <div class="container">
+    <span class="label">GHL Implementation</span>
+    <h2>Workflow <em>Architecture</em></h2>
+
+    <div class="workflow-arch">
+
+      <div class="workflow-arch-card">
+        <span class="wf-action-badge wf-modify">Modify</span>
+        <div class="wf-title">Workshop Purchase Success</div>
+        <ul class="wf-items">
+          <li>Add VIP branch: suppress VIP upsell for VIP buyers</li>
+          <li>Update VIP upsell language for standard buyers</li>
+        </ul>
+      </div>
+
+      <div class="workflow-arch-card">
+        <span class="wf-action-badge wf-modify">Modify</span>
+        <div class="wf-title">VIP Workshop Purchase</div>
+        <ul class="wf-items">
+          <li>Rewrite Email 1: no bonus links, two dates, calendar CTAs</li>
+          <li>DELETE: 27hr replay dump email</li>
+        </ul>
+      </div>
+
+      <div class="workflow-arch-card">
+        <span class="wf-action-badge wf-branch">Branch</span>
+        <div class="wf-title">Pre &amp; Post Event Reminders</div>
+        <ul class="wf-items">
+          <li>Keep: workshop 1hr + 15min reminders for ALL</li>
+          <li>Add: VIP exit condition after workshop reminders</li>
+          <li>VIP buyers skip generic strategy call push</li>
+        </ul>
+      </div>
+
+      <div class="workflow-arch-card">
+        <span class="wf-action-badge wf-rewrite">Rewrite + New</span>
+        <div class="wf-title">VIP Pre-Event Reminders + Post-Call</div>
+        <ul class="wf-items">
+          <li>Replace: 5hr/1hr/15min logistics with Wed/Thu/Fri prep</li>
+          <li>Add: Saturday toolkit delivery + Sun-Wed nurture</li>
+          <li>Gate: skip nurture if strategy call booked</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 7: Implementation Priority -->
+<section>
+  <div class="container">
+    <span class="label">Rollout</span>
+    <h2>Implementation <em>Priority</em></h2>
+
+    <div class="priority-stack">
+
+      <div class="priority-card">
+        <span class="priority-label p0-label">P0: Do First</span>
+        <ul>
+          <li>Stop the bonus dump: rewrite VIP purchase email, delete 27hr replay email</li>
+          <li>Add VIP exit from generic post-workshop flow</li>
+        </ul>
+      </div>
+
+      <div class="priority-card">
+        <span class="priority-label p1-label">P1: Next</span>
+        <ul>
+          <li>Replace VIP pre-event reminders with Wed/Thu/Fri prep sequence</li>
+          <li>Build VIP post-call sequence (Saturday toolkit + nurture)</li>
+        </ul>
+      </div>
+
+      <div class="priority-card">
+        <span class="priority-label p2-label">P2: Polish</span>
+        <ul>
+          <li>Workshop Purchase Success VIP branch (suppress upsell)</li>
+          <li>Update VIP upsell language in post-workshop emails for standard buyers</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Section 8: Footer -->
+<div class="footer">
+  <div class="container">
+    <p class="footer-brand">Prepared by Kas Andz | KAMG | April 2026</p>
+    <p>Full email copy available in companion documents. All copy FTC-compliant per COD permanent rules.</p>
+    <p class="footer-docs">Companion docs: vip-email-workflow-strategy.md, vip-email-sms-copy.md, vip-post-call-nurture-copy.md</p>
+  </div>
+</div>
+
+</body>
+</html>

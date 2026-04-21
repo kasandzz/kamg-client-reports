@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Workshop Viewership Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#111118;--card:#12121a;--card-border:#1e1e2e;
+  --teal:#00d4aa;--red:#ff4757;--amber:#ffa502;--blue:#3b82f6;
+  --text-primary:#e8e8ed;--text-secondary:#8b8b9e;--text-muted:#5a5a6e;
+  --font-sans:'Geist',system-ui,-apple-system,sans-serif;
+  --font-mono:'Geist Mono','SF Mono','Fira Code',monospace;
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--font-sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1320px;margin:0 auto;padding:0 24px}
+h1,h2,h3,h4{font-weight:600;letter-spacing:-0.02em;line-height:1.2}
+h2{font-size:1.4rem;margin-bottom:1rem;color:var(--text-primary)}
+h3{font-size:1.1rem;color:var(--text-secondary);font-weight:500}
+
+/* Header */
+.header{padding:48px 0 32px;border-bottom:1px solid var(--card-border)}
+.header h1{font-size:2.2rem;font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--teal),#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .subtitle{color:var(--text-secondary);font-size:0.93rem;margin-top:6px;font-family:var(--font-mono)}
+.header .meta{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+.header .meta span{font-size:0.8rem;color:var(--text-muted);font-family:var(--font-mono);padding:4px 10px;background:var(--card);border:1px solid var(--card-border);border-radius:6px}
+
+/* KPI Cards */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:32px 0}
+@media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr}}
+.kpi{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi:nth-child(1)::before{background:var(--teal)}
+.kpi:nth-child(2)::before{background:var(--blue)}
+.kpi:nth-child(3)::before{background:var(--red)}
+.kpi:nth-child(4)::before{background:var(--amber)}
+.kpi .label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px}
+.kpi .value{font-size:2rem;font-weight:700;font-family:var(--font-mono);letter-spacing:-0.02em}
+.kpi .sub{font-size:0.8rem;color:var(--text-secondary);margin-top:4px;font-family:var(--font-mono)}
+.kpi:nth-child(1) .value{color:var(--teal)}
+.kpi:nth-child(2) .value{color:var(--blue)}
+.kpi:nth-child(3) .value{color:var(--red)}
+.kpi:nth-child(4) .value{color:var(--amber)}
+
+/* Sections */
+.section{margin:40px 0;padding:32px 0;border-top:1px solid var(--card-border)}
+.section-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px;margin-top:16px}
+
+/* Funnel */
+.funnel{display:flex;flex-direction:column;gap:2px;margin-top:16px}
+.funnel-step{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var(--surface);border-left:3px solid var(--teal);transition:background 0.2s}
+.funnel-step:hover{background:var(--card)}
+.funnel-step .step-label{flex:1;font-size:0.9rem}
+.funnel-step .step-count{font-family:var(--font-mono);font-weight:600;font-size:1.1rem;min-width:60px;text-align:right}
+.funnel-step .step-pct{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);min-width:60px;text-align:right}
+.funnel-step .step-bar{flex:2;height:8px;background:var(--card-border);border-radius:4px;overflow:hidden}
+.funnel-step .step-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+.funnel-step:nth-child(1) .step-bar-fill{background:var(--teal)}
+.funnel-step:nth-child(2) .step-bar-fill{background:#00b894}
+.funnel-step:nth-child(3) .step-bar-fill{background:var(--amber)}
+.funnel-step:nth-child(4) .step-bar-fill{background:#e17055}
+.funnel-step:nth-child(5) .step-bar-fill{background:var(--red)}
+@media(max-width:640px){.funnel-step{flex-wrap:wrap}.funnel-step .step-bar{flex-basis:100%;order:5}}
+
+/* Charts */
+.chart-wrap{position:relative;width:100%;margin-top:16px}
+.chart-wrap canvas{width:100%!important}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
+
+/* Tables */
+.table-wrap{overflow-x:auto;margin-top:16px;border-radius:8px;border:1px solid var(--card-border)}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+thead{background:var(--surface)}
+th{padding:10px 14px;text-align:left;font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);border-bottom:1px solid var(--card-border);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid rgba(30,30,46,0.5);color:var(--text-secondary)}
+tr:hover td{background:rgba(0,212,170,0.03)}
+.mono{font-family:var(--font-mono);font-size:0.82rem}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;font-family:var(--font-mono)}
+.tag-vip{background:rgba(0,212,170,0.12);color:var(--teal)}
+.tag-normal{background:rgba(139,139,158,0.12);color:var(--text-secondary)}
+.tag-enrolled{background:rgba(0,212,170,0.15);color:var(--teal)}
+.tag-booked{background:rgba(59,130,246,0.15);color:var(--blue)}
+.tag-noshow{background:rgba(255,71,87,0.12);color:var(--red)}
+
+/* Scrollable table container */
+.scroll-table{max-height:420px;overflow-y:auto}
+.scroll-table::-webkit-scrollbar{width:6px}
+.scroll-table::-webkit-scrollbar-track{background:var(--surface)}
+.scroll-table::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:3px}
+
+/* Comparison cards */
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+@media(max-width:768px){.compare-grid{grid-template-columns:1fr}}
+.compare-card{background:var(--surface);border:1px solid var(--card-border);border-radius:10px;padding:20px;text-align:center}
+.compare-card .cc-label{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:8px}
+.compare-card .cc-row{display:flex;justify-content:center;gap:24px;margin-top:8px}
+.compare-card .cc-item{text-align:center}
+.compare-card .cc-val{font-size:1.5rem;font-weight:700;font-family:var(--font-mono)}
+.compare-card .cc-sub{font-size:0.72rem;color:var(--text-muted);margin-top:2px}
+
+/* Conversion cards */
+.conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:640px){.conv-grid{grid-template-columns:1fr}}
+.conv-card{background:var(--surface);border:1px solid var(--card-border);border-radius:10px;padding:20px}
+.conv-card h3{margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.conv-card .conv-list{list-style:none;padding:0}
+.conv-card .conv-list li{padding:8px 0;border-bottom:1px solid rgba(30,30,46,0.4);display:flex;justify-content:space-between;font-size:0.85rem}
+.conv-card .conv-list li:last-child{border-bottom:none}
+.conv-card .conv-list .conv-time{font-family:var(--font-mono);color:var(--text-muted);font-size:0.8rem}
+
+/* Footer */
+.footer{padding:32px 0;border-top:1px solid var(--card-border);margin-top:40px;text-align:center;color:var(--text-muted);font-size:0.75rem;font-family:var(--font-mono)}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+
+<!-- Header -->
+<div class="header">
+  <h1>COD Workshop Viewership Intelligence</h1>
+  <div class="subtitle">AEvent Data | March 18 - April 14, 2026</div>
+  <div class="meta">
+    <span>Source: AEvent Export</span>
+    <span>Date Range: 28 days</span>
+    <span>Generated: 2026-04-21</span>
+  </div>
+</div>
+
+<!-- Data Source -->
+<div class="section" style="padding:24px 0 0;border-top:none">
+  <div class="section-card" style="background:linear-gradient(135deg,rgba(0,212,170,0.04),rgba(59,130,246,0.04));border:1px solid rgba(0,212,170,0.15)">
+    <h3 style="color:var(--teal);margin-bottom:12px;font-weight:600">Data Source</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">Platform</div>
+        <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary)">AEvent (Webinar Platform)</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">Synced From</div>
+        <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary)">Google Sheets (COD Reporting)</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">Sheet ID</div>
+        <div style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-secondary)">1ESM5bOMsPGiazPM-IAGM-t2-7A2pPuH6emj9AW-WvmY</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:4px">Last Sync</div>
+        <div style="font-family:var(--font-mono);font-size:0.9rem;color:var(--text-primary)">April 14, 2026 16:16</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--card-border)">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:8px">Tabs Used</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-vip">AEvent - Attendees (190 rows)</span>
+        <span class="tag tag-noshow">AEvent - Non Attendees (139 rows)</span>
+        <span class="tag" style="background:rgba(255,165,2,0.12);color:var(--amber)">AEvent - Registrants (~351 rows)</span>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:0.78rem;color:var(--text-muted)">
+      Test accounts excluded from all calculations: Kas Andz, Bob Test, matt.f@russruffino.com, Ryan Green, Akari Smithmyer
+    </div>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row" id="kpi-row"></div>
+
+<!-- Funnel -->
+<div class="section">
+  <h2>Engagement Funnel</h2>
+  <h3>Registration through conversion -- drop-off at each stage</h3>
+  <div class="section-card">
+    <div class="funnel" id="funnel"></div>
+  </div>
+</div>
+
+<!-- Drop-off Segments -->
+<div class="section">
+  <h2>30-Minute Drop-Off Segments</h2>
+  <h3>Where viewers stop watching -- distribution across time buckets</h3>
+  <div class="chart-grid">
+    <div class="section-card">
+      <div class="chart-wrap"><canvas id="dropoffChart"></canvas></div>
+    </div>
+    <div class="section-card">
+      <div class="chart-wrap"><canvas id="retentionChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- Drop-off Analysis Table -->
+<div class="section">
+  <h2>Drop-Off Analysis</h2>
+  <h3>Per-segment breakdown with notable drop-offs</h3>
+  <div class="section-card">
+    <div class="table-wrap" id="dropoff-table"></div>
+  </div>
+</div>
+
+<!-- No-Show Detail -->
+<div class="section">
+  <h2>No-Show Analysis</h2>
+  <h3>139 registrants who never attended</h3>
+  <div class="compare-grid" id="noshow-summary"></div>
+  <div class="section-card" style="margin-top:16px">
+    <h3 style="margin-bottom:12px">Full No-Show List</h3>
+    <div class="scroll-table">
+      <div class="table-wrap" id="noshow-table"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIP vs Normal -->
+<div class="section">
+  <h2>VIP vs Normal Ticket Analysis</h2>
+  <h3>Performance comparison across ticket types</h3>
+  <div class="compare-grid" id="vip-compare"></div>
+  <div class="section-card" style="margin-top:16px">
+    <div class="chart-wrap"><canvas id="vipChart"></canvas></div>
+  </div>
+</div>
+
+<!-- Conversion by Watch Time -->
+<div class="section">
+  <h2>Conversion by Watch Time</h2>
+  <h3>Which watch-time segments produced enrollments and bookings</h3>
+  <div class="conv-grid" id="conv-cards"></div>
+  <div class="section-card" style="margin-top:16px">
+    <div class="chart-wrap"><canvas id="convChart"></canvas></div>
+  </div>
+</div>
+
+<!-- Daily Session Breakdown -->
+<div class="section">
+  <h2>Daily Session Breakdown</h2>
+  <h3>Registrations, attendance, and no-shows per day</h3>
+  <div class="section-card">
+    <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+  </div>
+</div>
+
+<div class="footer">
+  COD Workshop Viewership Intelligence -- Generated 2026-04-21 -- Clients On Demand -- Confidential
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const TEST_EMAILS = ['k@kasandz.com','matt.f@','ryan@russruffino.com','testingakari@gmail.com'];
+function isTest(email){return TEST_EMAILS.some(t=>email.toLowerCase().includes(t.toLowerCase()))||email.toLowerCase().includes('bob test')}
+const MAX_SECONDS = 9103;
+function capSeconds(s){return Math.min(s,MAX_SECONDS)}
+
+const rawAttendees = [
+["Mara Harris","healthnecessities@gmail.com","2026-03-18","4:00 PM",3562,"Normal",""],
+["Janae Harman","janaeharman@connectionremedy.com","2026-03-19","4:00 PM",8,"VIP",""],
+["Lynda Begy","lyndab00744@gmail.com","2026-03-19","4:00 PM",4086,"Normal",""],
+["Geraldine Ade","adeg924@gmail.com","2026-03-19","4:00 PM",9030,"Normal",""],
+["Erika Baum","baumclinicalcounseling@gmail.com","2026-03-20","9:00 AM",5311,"Normal",""],
+["Andrea Pratt-Smith","andreapmp@creativemindsprojects.com","2026-03-20","9:00 AM",8591,"Normal",""],
+["Ashley Mcmahan","ashleywhittingtonmcmahan@gmail.com","2026-03-20","9:00 AM",3827,"Normal",""],
+["William G","sales@scalepartnersai.com","2026-03-20","4:00 PM",1663,"Normal",""],
+["Christopher Clinton","abhaya.counseling@gmail.com","2026-03-20","4:00 PM",8990,"VIP",""],
+["Randolph Beasley","randy@in-psyght.com","2026-03-20","4:00 PM",5296,"Normal",""],
+["Pamela Anderson","pandersontherapy@gmail.com","2026-03-21","9:00 AM",3701,"Normal",""],
+["Dionne Crump","dionne2020@yahoo.com","2026-03-21","9:00 AM",9089,"VIP",""],
+["Scott George","sgeorgetherapy@outlook.net","2026-03-21","9:00 AM",7594,"VIP",""],
+["Rosalind Jacobs","rosjacobs75@gmail.com","2026-03-22","9:00 AM",4483,"Normal",""],
+["Meredith Sjoberg","drmbsjoberg@gmail.com","2026-03-22","4:00 PM",8229,"Normal",""],
+["Lori Long","lblong0224@gmail.com","2026-03-22","4:00 PM",8463,"VIP",""],
+["Cecilie Croissant","ceciliecroissant@gmail.com","2026-03-22","4:00 PM",9058,"Normal",""],
+["Jj Rodriguez","jjrodz30@yahoo.com","2026-03-23","9:00 AM",57,"VIP",""],
+["Susan Shirley","shirley.susana2022@gmail.com","2026-03-23","4:00 PM",5447,"Normal",""],
+["Deborah Saland","debisaland@gmail.com","2026-03-23","4:00 PM",3478,"VIP",""],
+["Sarah Seeling","saseeling@gmail.com","2026-03-23","4:00 PM",4776,"Normal",""],
+["Abu Nasim","drabunyc@gmail.com","2026-03-24","9:00 AM",9101,"VIP","Enrolled"],
+["Kristin Cuthriell","k.cuthriell@yahoo.com","2026-03-24","4:00 PM",347,"Normal",""],
+["Leslie Hamilton","banks.leslie@gmail.com","2026-03-24","4:00 PM",7652,"VIP",""],
+["Elena Levin","lenalevinsf@gmail.com","2026-03-25","4:00 PM",8864,"VIP",""],
+["Bonnie S. Lubet","bonnielubet@gmail.com","2026-03-25","4:00 PM",3518,"VIP",""],
+["Tom Stacy","tom@tomstacy.com","2026-03-25","4:00 PM",3286,"Normal",""],
+["Marisa Stalvey","embraceyourcalm@outlook.com","2026-03-26","9:00 AM",5290,"VIP",""],
+["Candace Bendele","drcandacebendele@gmail.com","2026-03-26","9:00 AM",2941,"VIP",""],
+["Stephanie Elliott","elliots@grace.edu","2026-03-26","9:00 AM",4314,"VIP",""],
+["Cami Low","cami.low@resultsbycami.com","2026-03-26","9:00 AM",6553,"VIP","Enrolled"],
+["Danny Daniel","behavioralhealth@hotmail.com","2026-03-26","9:00 AM",9077,"VIP",""],
+["Madlie C","myandrew04@gmail.com","2026-03-26","9:00 AM",6064,"VIP",""],
+["Cm Morse","christinamorsemft@gmail.com","2026-03-26","4:00 PM",9059,"VIP",""],
+["Jordan Goldberg","jgold074@gmail.com","2026-03-26","4:00 PM",9103,"Normal",""],
+["Jamie Krzykowski","drkswellness@gmail.com","2026-03-26","4:00 PM",8856,"VIP",""],
+["Karr Vinnett","darrenvinnett@gmail.com","2026-03-27","9:00 AM",9041,"VIP",""],
+["Ashlee Holsey","ah@movingforwardcc.org","2026-03-27","9:00 AM",4549,"VIP",""],
+["Stephanie Plahn","stephanie.plahn@gmail.com","2026-03-27","9:00 AM",5812,"VIP",""],
+["Nancy Thompson","nancy@nancythompsoncoaching.com","2026-03-27","9:00 AM",9098,"Normal",""],
+["Saleema Hirani","carehealthhc@yahoo.com","2026-03-27","9:00 AM",9067,"VIP",""],
+["Lize Herrera","lize210@gmail.com","2026-03-27","9:00 AM",567,"VIP",""],
+["Travell Nickey","tnickey115@gmail.com","2026-03-27","4:00 PM",8984,"VIP",""],
+["Frank Manziano","frankiemanz@gmail.com","2026-03-27","4:00 PM",4963,"VIP","Enrolled"],
+["Jeehee Moon","therapist.jeehee@gmail.com","2026-03-27","4:00 PM",3223,"VIP",""],
+["Cal Spinks","drcal@youbelonghere.live","2026-03-27","4:00 PM",9061,"VIP",""],
+["Susanne Mealer","susanne@susannemealer.com","2026-03-27","4:00 PM",8643,"Normal",""],
+["Benito Garcia","benitogarcia234@yahoo.com","2026-03-28","9:00 AM",2327,"VIP",""],
+["Martin Rasmussen","martyrasmussen@actioncoach.com","2026-03-28","9:00 AM",8937,"VIP",""],
+["John Wiley","john@executivegolfacademy.com","2026-03-28","9:00 AM",8888,"VIP","Enrolled"],
+["Aaron Parks","aparks@parkspacificbookkeeping.com","2026-03-28","9:00 AM",9102,"Normal",""],
+["Robert Busch","rjeffbusch@gmail.com","2026-03-28","9:00 AM",8691,"VIP",""],
+["Alex Robson","alexrobsonmail@gmail.com","2026-03-28","9:00 AM",9087,"VIP",""],
+["Scott Barry","scooterbfullstaq@outlook.com","2026-03-28","9:00 AM",9090,"VIP","Booked"],
+["Donna Mcmenamin","donnaskaya@yahoo.com","2026-03-28","9:00 AM",7444,"Normal",""],
+["Daniel Miller","daniel.e.miller@live.com","2026-03-28","4:00 PM",5782,"VIP",""],
+["Diane Ravenscroft","fit2lead@comcast.net","2026-03-28","4:00 PM",7147,"Normal",""],
+["Aimee Spiers","embodyyourfutureself@gmail.com","2026-03-28","4:00 PM",8941,"VIP",""],
+["Tavari Brown","tavari.brown@ttbhealth.net","2026-03-29","9:00 AM",9102,"Normal",""],
+["Debra Stangl","debra@sedonasouladventures.com","2026-03-29","9:00 AM",9012,"VIP","Enrolled"],
+["James Ivey","jivey1215@yahoo.com","2026-03-29","9:00 AM",9017,"VIP",""],
+["Jayme Mahoney","jaymemahoneymft@gmail.com","2026-03-29","9:00 AM",772,"Normal",""],
+["Jo Shekeruk","jobruce@comcast.net","2026-03-29","4:00 PM",3844,"VIP","Booked"],
+["Shevelle Mcpherson","shevellemc@gmail.com","2026-03-29","4:00 PM",2889,"Normal",""],
+["Nyika Leggett","nyikaleggett1@gmail.com","2026-03-29","4:00 PM",8821,"VIP",""],
+["Olga Alexeeva","ogallery@comcast.net","2026-03-29","4:00 PM",9033,"VIP",""],
+["Jesse Adams","jesseadams5@gmail.com","2026-03-29","4:00 PM",8807,"Normal",""],
+["Nancy Adams","nancyadams0006@gmail.com","2026-03-29","4:00 PM",6439,"Normal",""],
+["Janet Donahue","director@tadascounseling.com","2026-03-29","4:00 PM",5312,"Normal",""],
+["Christine J","sagezbox@yahoo.com","2026-03-29","4:00 PM",6226,"VIP",""],
+["Jj Rodriguez","jjrodz30@yahoo.com","2026-03-30","9:00 AM",6912,"VIP",""],
+["Tarsha Harper","tarshun@gmail.com","2026-03-30","9:00 AM",5626,"VIP",""],
+["Pat Calcagno","pasquale@firstgotham.com","2026-03-30","9:00 AM",8252,"VIP",""],
+["Cameron Powell","cameronpowell@gmail.com","2026-03-30","9:00 AM",6484,"VIP",""],
+["Dr Kristen Szabla","kristenlszabla@gmail.com","2026-03-30","9:00 AM",4511,"VIP",""],
+["Yolanda Mccallum","ymccallum67@gmail.com","2026-03-30","9:00 AM",971,"Normal",""],
+["David Sherer","david@leadershipdisciple.com","2026-03-30","9:00 AM",2145,"VIP","Enrolled"],
+["Vaughn Sanders","vrsandersjr@gmail.com","2026-03-30","4:00 PM",8858,"VIP",""],
+["Roger Wallach","rogerwwallach@gmail.com","2026-03-30","4:00 PM",1323,"VIP",""],
+["Rachel Carr","carrrachel2000@yahoo.com","2026-03-30","4:00 PM",9103,"VIP",""],
+["Vanessa Heckman","vanessaheckman1@gmail.com","2026-03-30","4:00 PM",6769,"VIP",""],
+["Karen Christen","kchristen.co@icloud.com","2026-03-31","9:00 AM",8991,"Normal",""],
+["Mechelle Degree","mechelle@thirddegreesolutions.com","2026-03-31","9:00 AM",6385,"VIP",""],
+["Kim Sharell","kim.sharell@gmail.com","2026-03-31","9:00 AM",7699,"Normal",""],
+["Winnifred Cazeau","perfectimperfection.llc@gmail.com","2026-03-31","9:00 AM",8996,"Normal",""],
+["Barry Schrock","barry@findersquad.com","2026-03-31","9:00 AM",8904,"VIP","Enrolled"],
+["Natacha Pierre","natpierre03@gmail.com","2026-03-31","9:00 AM",2196,"Normal",""],
+["Merilee Lovejoy","doctorlovejoy@yahoo.com","2026-03-31","4:00 PM",9100,"Normal",""],
+["Crystal Rodriguez Dabney","rodriguezesq13@gmail.com","2026-03-31","4:00 PM",1816,"VIP",""],
+["Msbev Paris","contactmsbev@yahoo.com","2026-03-31","4:00 PM",4321,"VIP",""],
+["Kelly Tripp","kelly@fertigandgordon.com","2026-03-31","4:00 PM",6542,"VIP",""],
+["Kenneth J Grande","kenit03@msn.com","2026-04-01","9:00 AM",6196,"VIP",""],
+["Winston Harrington","wrharringtoncorp@gmail.com","2026-04-01","4:00 PM",8622,"Normal",""],
+["John Kirkman","johnk.jenk@gmail.com","2026-04-01","4:00 PM",9092,"VIP",""],
+["Xyrone Ocampo","xyrone@ranierconsulting.com","2026-04-01","4:00 PM",8890,"Normal",""],
+["Sarah Allison","smduran2011@gmail.com","2026-04-02","9:00 AM",7264,"Normal",""],
+["Derk Mattocks","derk@turningpointcoaching.net","2026-04-02","9:00 AM",7226,"Normal",""],
+["Jermaine","fitghurl@yahoo.com","2026-04-02","4:00 PM",6487,"Normal",""],
+["Cynthia Corbin","cjcorbin19@gmail.com","2026-04-02","4:00 PM",9098,"Normal","Booked"],
+["Lorna Benton","lornabentonlcsw@gmail.com","2026-04-02","4:00 PM",9038,"VIP","Enrolled"],
+["Elizabeth Friedman","lfriedman5892@gmail.com","2026-04-02","4:00 PM",4563,"Normal",""],
+["Terri Tyson","terri.tyson@territyson.com","2026-04-03","9:00 AM",9054,"VIP","Enrolled"],
+["Benjamin Rucker","benjaminrucker1977@gmail.com","2026-04-03","9:00 AM",5352,"Normal",""],
+["Justin Baksh","jkbaksh@gmail.com","2026-04-03","9:00 AM",6938,"VIP",""],
+["Bari Klein","bari@upwell-me.com","2026-04-03","9:00 AM",1,"Normal",""],
+["Stephanie Alley","summitccs@gmail.com","2026-04-03","9:00 AM",6520,"VIP","Enrolled"],
+["Keeshan Sayroo","info@kiloism.com","2026-04-03","9:00 AM",7287,"VIP",""],
+["Fundi Legohn","fundi.legohn@gmail.com","2026-04-03","4:00 PM",7877,"Normal",""],
+["Tabitha Evans","therapeuticadvances@gmail.com","2026-04-03","4:00 PM",9091,"Normal",""],
+["Deborah Mata","debmatatherapy@gmail.com","2026-04-03","4:00 PM",9023,"VIP","Booked"],
+["Ike Okereke","ikeokereke38@gmail.com","2026-04-03","4:00 PM",8374,"Normal",""],
+["Stacia Parker","stparker@philasd.org","2026-04-03","4:00 PM",2894,"Normal",""],
+["Mohamed Amer","mooamer99@gmail.com","2026-04-03","4:00 PM",1191,"Normal",""],
+["Billie Bruchhaus","thegritxperience@gmail.com","2026-04-04","9:00 AM",5076,"Normal","Enrolled"],
+["Harry Saint-Preux","hsaintpreux@gmail.com","2026-04-04","9:00 AM",4774,"VIP",""],
+["Jeejee Saafir","theprivysage@gmail.com","2026-04-04","4:00 PM",7795,"Normal",""],
+["Kas Andz","k@kasandz.com","2026-04-04","4:00 PM",1901,"Normal",""],
+["Morgan Pasco","morgan@morgan-re.com","2026-04-05","9:00 AM",536,"VIP",""],
+["Qaadira Warith-Muhammad","qaadira21@gmail.com","2026-04-05","9:00 AM",272,"Normal",""],
+["Frank Manziano","frankiemanz@gmail.com","2026-04-05","9:00 AM",9015,"VIP",""],
+["Jane Oelke","joelke33@gmail.com","2026-04-05","4:00 PM",5173,"Normal",""],
+["Lola Mack","daedelenmail@gmail.com","2026-04-05","4:00 PM",2687,"VIP",""],
+["Catricia Roberson","robersonc@livelitellc.com","2026-04-05","4:00 PM",2974,"VIP","Booked"],
+["Mandy Fernandez","afernandez725@gmail.com","2026-04-05","4:00 PM",8588,"VIP",""],
+["Jamie Heavey","theheaveyinstitute@yahoo.com","2026-04-06","9:00 AM",9093,"VIP",""],
+["Vicky Locklear","vllocklear@outlook.co","2026-04-06","4:00 PM",7428,"VIP",""],
+["Karen C. Smith","karen@divorce-custody.com","2026-04-06","4:00 PM",9103,"VIP","Enrolled"],
+["Brenda Lee","blfromphilly@gmail.com","2026-04-06","4:00 PM",7810,"VIP",""],
+["Michelle Costanzo","michelle@pageandpenacademy.com","2026-04-06","4:00 PM",5883,"Normal","Booked"],
+["Oliver Brian","investsmartplease@gmail.com","2026-04-06","4:00 PM",8796,"VIP",""],
+["Deb Mcdevitt","telecommutehub@gmail.com","2026-04-06","4:00 PM",7884,"VIP",""],
+["Rodney Presley","rod.presley@gmail.com","2026-04-06","4:00 PM",9102,"Normal","Booked"],
+["Kay Brown","kayshomotion@gmail.com","2026-04-07","6:00 AM",4380,"VIP",""],
+["Steven M Kelsey","freshstartedu.couns@gmail.com","2026-04-07","9:00 AM",2562,"Normal",""],
+["Clint Dunaway","clint@dunawaylg.com","2026-04-07","9:00 AM",8845,"VIP","Booked"],
+["Tiffany Song","tsong@virtualanxietytherapy.net","2026-04-07","9:00 AM",4039,"VIP",""],
+["Marie Chaney","mchaneylmft@gmail.com","2026-04-07","4:00 PM",5751,"Normal",""],
+["Mahasin Abdulsalaam","center4learningbynature@gmail.com","2026-04-07","4:00 PM",8368,"VIP",""],
+["Rachael Smith","rachael@rescounselingservices.com","2026-04-07","4:00 PM",9063,"VIP",""],
+["Igor Poteriaiko","ipoteriaiko@simplytek.io","2026-04-07","4:00 PM",980,"Normal",""],
+["Volel Derisse","online_therapy@yahoo.com","2026-04-07","4:00 PM",3153,"VIP","Booked"],
+["Dominique Roy","dominique.ann@icloud.com","2026-04-08","6:00 AM",9044,"VIP","Booked"],
+["Kim Fisher","kbrfisher@gmail.com","2026-04-08","6:00 AM",9096,"VIP",""],
+["Heidi E. Eversole","heversole@pathtomending.org","2026-04-08","6:00 AM",3918,"Normal",""],
+["Labre Roy","labre@ourspacetherapypllc.com","2026-04-08","6:00 AM",9080,"VIP",""],
+["Christine Welch","rtlfoodconsulting@gmail.com","2026-04-08","9:00 AM",8636,"Normal","Booked"],
+["Greg Fulcher","greg@wealthpromise.org","2026-04-08","9:00 AM",9021,"VIP",""],
+["Patrick Rowe","rowelawonline@gmail.com","2026-04-08","9:00 AM",8986,"VIP",""],
+["Dana Kraml","danakraml@gmail.com","2026-04-08","4:00 PM",4822,"VIP",""],
+["Rebecca G","rgrady@elevate-sp.com","2026-04-08","4:00 PM",9103,"VIP","Booked"],
+["Karen Rhodes","karenfallenrhodes@gmail.com","2026-04-08","4:00 PM",515,"Normal",""],
+["Bharti Mishra","bhartimishra2000@gmail.com","2026-04-08","4:00 PM",3767,"VIP",""],
+["Sarah Vanderpool","savanderpool@gmail.com","2026-04-08","4:00 PM",1151,"Normal",""],
+["Konrad Gorak","k.gorak@yahoo.co.uk","2026-04-09","6:00 AM",9042,"VIP",""],
+["Ray Blanchard","youcountnow@gmail.com","2026-04-09","6:00 AM",7888,"Normal",""],
+["Lilia Ackerman","love13now@gmail.com","2026-04-09","9:00 AM",8885,"VIP",""],
+["Erin Easley","easleye2010@gmail.com","2026-04-09","9:00 AM",5455,"VIP",""],
+["Aramide Adedeji","aramide@iamthemessage.co","2026-04-09","9:00 AM",9014,"Normal","Booked"],
+["Carla Parvin","carla.parvin@gmail.com","2026-04-10","6:00 AM",2152,"VIP",""],
+["Esther Chaimov","estherc558@gmail.com","2026-04-10","6:00 AM",9103,"VIP",""],
+["Clifford B Starks","cliffordstarks1@gmail.com","2026-04-10","6:00 AM",8308,"VIP",""],
+["Cal Spinks","drcal@youbelonghere.live","2026-04-10","6:00 AM",721,"Normal",""],
+["Joshua Alston Lmft","alstonmft@gmail.com","2026-04-10","9:00 AM",9086,"Normal",""],
+["Jeremy Mitchell","bigjokc@gmail.com","2026-04-10","4:00 PM",83904,"Normal",""],
+["Jacinda Laundree Lcsw","jaceymsw@hotmail.com","2026-04-10","4:00 PM",9099,"VIP",""],
+["Tracy Young","tracy@svllc.us","2026-04-10","4:00 PM",7484,"VIP",""],
+["Cindy Wade","peacefulempowermentcounseling@gmail.com","2026-04-11","9:00 AM",3071,"VIP",""],
+["Stephanie Harris","sharris@manzanodayschool.com","2026-04-11","9:00 AM",6603,"VIP",""],
+["Courtnay Richard","insideoutwithcourtnaye@gmail.com","2026-04-11","4:00 PM",8876,"Normal",""],
+["Catherine Burns","southworthcl@yahoo.com","2026-04-11","4:00 PM",2472,"Normal",""],
+["Christianne Meneses","nicagalspanish@gmail.com","2026-04-11","4:00 PM",9095,"Normal",""],
+["David Jaskolski","zenski1@gmail.com","2026-04-11","4:00 PM",8928,"Normal",""],
+["Clare D","claredag63@gmail.com","2026-04-11","4:00 PM",9087,"Normal",""],
+["Dacia Woessner","npwoessner@gmail.com","2026-04-12","6:00 AM",8975,"Normal",""],
+["Kim Fisher","kbrfisher@gmail.com","2026-04-12","9:00 AM",1707,"Normal",""],
+["Jessica Matchett","jdmatchett@gmail.com","2026-04-12","9:00 AM",8603,"Normal",""],
+["Erica N Espinosa Quiroz","ericaneq@gmail.com","2026-04-12","9:00 AM",2850,"Normal",""],
+["Beth Mejia","allegra07b@aol.com","2026-04-12","9:00 AM",3267,"Normal",""],
+["Sarah Jewell","srjewell01@gmail.com","2026-04-12","9:00 AM",9079,"Normal",""],
+["Danielle Kowalkowski","kowalkowski7@me.com","2026-04-13","6:00 AM",8471,"Normal",""],
+["John Oh","john@known.care","2026-04-13","6:00 AM",164,"Normal",""],
+["Martha Evans","mjevans0301@gmail.com","2026-04-13","9:00 AM",8995,"Normal",""],
+["Merlyn Townley","merlyntownley@gmail.com","2026-04-13","4:00 PM",484,"Normal",""],
+["Tom Rook","rooktom@gmail.com","2026-04-13","4:00 PM",1768,"Normal",""],
+["Kayla Pham","kapham@healingrootcause.com","2026-04-13","4:00 PM",9089,"Normal",""],
+["Eric Enriquez","triplee@americanrooferscouncil.com","2026-04-13","4:00 PM",5779,"Normal",""],
+["Angie Turner","avardturner@aol.com","2026-04-13","4:00 PM",3513,"Normal",""],
+["Chardriana Jean","chardriana@cvjsolution.com","2026-04-13","4:00 PM",3492,"Normal",""],
+["Dennis Crosby","dennis.crosby7@gmail.com","2026-04-14","6:00 AM",1,"Normal",""],
+["Mobolanle Badejo","mobolaluko2@gmail.com","2026-04-14","6:00 AM",8903,"Normal",""]
+];
+
+const rawNoShows = [
+["Amy Farrow","amy@preservereal.com","2026-03-18","4:00 PM","VIP"],
+["Jess Hendrick","jesshendrick111@gmail.com","2026-03-18","4:00 PM","Normal"],
+["Thomas Boyd","boyd.ta01@gmail.com","2026-03-19","9:00 AM","Normal"],
+["James Ziegler","jziegler10@gmail.com","2026-03-17","4:00 PM","VIP"],
+["Lynda Beckley","jesshendrick111@gmail.com","2026-03-19","4:00 PM","Normal"],
+["Rachel Bush","drrachelwbush@gmail.com","2026-03-19","4:00 PM","Normal"],
+["Russell Thomman","russell.thomman@secondspatial.com","2026-03-19","4:00 PM","Normal"],
+["Argie Poulias","argiepouliaslcsw@gmail.com","2026-03-19","9:00 AM","Normal"],
+["Cindy Suarez","cindycamaraza@gmail.com","2026-03-20","9:00 AM","VIP"],
+["Alisha Olson","olson.alisha@gmail.com","2026-03-20","9:00 AM","Normal"],
+["Ashley","ashleyluongolmhc@gmail.com","2026-03-20","9:00 AM","VIP"],
+["Chris Martinez","chris@chrismartinezsolutions.com","2026-03-20","4:00 PM","Normal"],
+["Michelle Funaioli","michellefunaioli@gmail.com","2026-03-19","9:00 AM","VIP"],
+["Mercedes Clement","ozelotamatl1968@gmail.com","2026-03-20","4:00 PM","Normal"],
+["Jess Creeden","jmulberry@4bhs.org","2026-03-20","4:00 PM","VIP"],
+["Rachel Herrera","rachel.z.herrera@gmail.com","2026-03-22","4:00 PM","VIP"],
+["Tye Sheller","tyesheller@gmail.com","2026-03-22","9:00 AM","Normal"],
+["Rachel Bush","helpmedrb@gmail.com","2026-03-22","9:00 AM","Normal"],
+["Charles Fisher","charlieafisher@gmail.com","2026-03-23","4:00 PM","Normal"],
+["Uyanga Bold","uyangamusic@gmail.com","2026-03-23","4:00 PM","Normal"],
+["Leslie Kerby","lesliekerby2@gmail.com","2026-03-23","4:00 PM","Normal"],
+["Mike Rad","mkdietetyka@gmail.com","2026-03-24","4:00 PM","VIP"],
+["Stella Badalyan","stellabadalyan@gmail.com","2026-03-25","9:00 AM","Normal"],
+["Thea Griffith","thea_rg@msn.com","2026-03-25","9:00 AM","Normal"],
+["Raymond Bulaon","ray@financialrecovery.law","2026-03-26","4:00 PM","VIP"],
+["Catherine Adams","therapybycatherine@gmail.com","2026-03-25","9:00 AM","VIP"],
+["Sally Higbee","higbeeassoc@sbcglobal.net","2026-03-26","9:00 AM","Normal"],
+["Jlenora Bresler","jlenorabresler@yahoo.com","2026-03-26","9:00 AM","VIP"],
+["Janey Prevost","janebraincore@gmail.com","2026-03-27","9:00 AM","Normal"],
+["Paul Padgett","paulpadgett@ymail.com","2026-03-27","4:00 PM","VIP"],
+["Carol Smith","grigsbysmith@msn.com","2026-03-27","4:00 PM","Normal"],
+["Cathy Chavez","cathychavez089@gmail.com","2026-03-26","9:00 AM","VIP"],
+["Alex Robson","alexrobsonmaisl@gmail.com","2026-03-27","9:00 AM","VIP"],
+["William Conley","bconley@md2ws.com","2026-03-27","9:00 AM","VIP"],
+["Jamie Via","jamieviaconsulting@gmail.com","2026-03-28","9:00 AM","VIP"],
+["Olan Latin","olanlatin@yahoo.com","2026-03-28","9:00 AM","VIP"],
+["Matthew Murillo","matt@griffinapc.com","2026-03-27","4:00 PM","VIP"],
+["Kristen Jones","kjonesjuiceplus@gmail.com","2026-03-28","9:00 AM","VIP"],
+["Mary Meikle","mary.f.meikle@gmail.com","2026-03-28","9:00 AM","Normal"],
+["Mary Smith","mescounselingservices@gmail.com","2026-03-27","9:00 AM","VIP"],
+["Louis Robert","lourob82@gmail.com","2026-03-28","9:00 AM","VIP"],
+["Catherine Wicklund","catherine@savantleadership.com","2026-03-28","4:00 PM","VIP"],
+["John Thurman","john@covertmercy.com","2026-03-29","4:00 PM","Normal"],
+["Kimberly Hayes","kimberlyhhayes@gmail.com","2026-03-29","4:00 PM","VIP"],
+["Andrea Shaffer","andreaksshaffer@gmail.com","2026-03-29","4:00 PM","VIP"],
+["Debbie Williams","dwilli7131@gmail.com","2026-03-29","4:00 PM","Normal"],
+["Allen Grundy","grundyallen63@gmail.com","2026-03-29","4:00 PM","Normal"],
+["Heather Hotlosz","hhotlosz@gmail.com","2026-03-29","4:00 PM","Normal"],
+["Treva Bendy","tbendy@thetraininglounge.com","2026-03-29","4:00 PM","VIP"],
+["Robert J Thompson","rjthomp311@yahoo.com","2026-03-30","9:00 AM","Normal"],
+["Ron Judge","ronjudge0@gmail.com","2026-03-30","9:00 AM","Normal"],
+["Kelli Kludt","ktk821@comcast.net","2026-03-29","9:00 AM","VIP"],
+["Carlos Villatoro","cvillatoro6776@gmail.com","2026-03-29","9:00 AM","VIP"],
+["Scott Wells","scott@scottrwells.com","2026-03-30","4:00 PM","VIP"],
+["Gavin Andrade","gandrade@udel.edu","2026-03-30","4:00 PM","Normal"],
+["Christie Engler","christieengler@gmail.com","2026-03-30","4:00 PM","Normal"],
+["Carol Rickard","clrickard@gmail.com","2026-03-30","4:00 PM","VIP"],
+["Sonja Tarbox","starbox008@yahoo.com","2026-03-30","4:00 PM","VIP"],
+["Debiruth Stanford","nsdebiruth@gmail.com","2026-03-30","4:00 PM","VIP"],
+["Stephanie Cleare","stephanie.cleare@outlook.com","2026-03-30","4:00 PM","Normal"],
+["Kayla Karesh","kkaresh@createwellbeingtherapy.com","2026-03-30","9:00 AM","Normal"],
+["Gaetan Klein","contact@gaetanklein.com","2026-03-30","9:00 AM","VIP"],
+["Teresa Schroeder","teresa@southcitycounselingstl.com","2026-03-31","4:00 PM","VIP"],
+["Kristin Molinaro","resilientsoulcounseling@gmail.com","2026-03-30","4:00 PM","Normal"],
+["David Frees","dmfiii@aol.com","2026-03-31","4:00 PM","VIP"],
+["Jeremy Sprott","jeremy@transformedtherapy.org","2026-03-31","4:00 PM","VIP"],
+["Uhia Willis","info@ukwconsultinginc.com","2026-03-31","9:00 AM","VIP"],
+["Robert Thomson","rbructhomson@me.com","2026-03-31","9:00 AM","VIP"],
+["Lolita King","king0062@icloud.com","2026-03-31","9:00 AM","VIP"],
+["Regina Knox","regina@newbirthfamilycounseling.com","2026-03-31","9:00 AM","VIP"],
+["Monika Sharma","monika@sharmapsych.com","2026-04-01","4:00 PM","VIP"],
+["Moira Kaufhold","moik71@gmail.com","2026-03-31","4:00 PM","VIP"],
+["Chris Berry","chrisjberry44@gmail.com","2026-04-01","4:00 PM","VIP"],
+["Michael Ellis","ellis@ellispenn.com","2026-04-01","9:00 AM","Normal"],
+["Charlaine Thet","charlainethet@gmail.com","2026-04-02","9:00 AM","Normal"],
+["Ashley","ashleyluongolmhc@gmail.com","2026-04-02","9:00 AM","VIP"],
+["Sandra Greene","sandralgreene998@cs.com","2026-04-02","9:00 AM","VIP"],
+["Kelly Ann Soucie","whitlockis@gmail.com","2026-04-02","9:00 AM","VIP"],
+["Max Lerois","connect@maximuslerois.com","2026-04-02","9:00 AM","VIP"],
+["Maria Skoraro","mgudani@live.com","2026-04-02","9:00 AM","VIP"],
+["Steve Lorber","shlorber@gmail.com","2026-04-02","4:00 PM","VIP"],
+["Heather Karns","hdkarns45@gmail.com","2026-04-03","4:00 PM","Normal"],
+["Ike Okereke","ikeokereke38@gmaip.com","2026-04-03","4:00 PM","Normal"],
+["Denise Fuentes","dfuentes642@gmail.com","2026-04-03","4:00 PM","VIP"],
+["Melissa Allen","allen-melissa@hotmail.com","2026-04-03","4:00 PM","VIP"],
+["Johnne Jackson","johnaction8@yahoo.com","2026-04-03","9:00 AM","Normal"],
+["Rochelle Moss","safelearningsolutions@gmail.com","2026-04-04","9:00 AM","VIP"],
+["Audra Holbeck","aholbeck@holbecklaw.com","2026-04-03","9:00 AM","VIP"],
+["Iman Khan","iman@bloomingminds.org","2026-04-03","9:00 AM","Normal"],
+["Christine Haas","haasc333@gmail.com","2026-04-04","9:00 AM","Normal"],
+["Gale Pogue","nu2am@aol.com","2026-04-04","9:00 AM","Normal"],
+["Ed Petrie","epetrie911@gmail.com","2026-04-04","9:00 AM","Normal"],
+["Sherri Swain","sherri@masterpiecemediation.com","2026-04-06","4:00 PM","VIP"],
+["Audrey Bernal","abernal74bills@gmail.com","2026-04-06","4:00 PM","Normal"],
+["Tonya Jones","tmjones605@gmail.com","2026-04-06","6:00 AM","VIP"],
+["Crystal Kelley","crystalek@live.com","2026-04-07","4:00 PM","VIP"],
+["Lilia Ackerman","love13mow@gmail.com","2026-04-07","4:00 PM","VIP"],
+["Lynda Beckley","lyndab00744@gmail.com","2026-04-07","4:00 PM","Normal"],
+["Coach Zeke","a2kfitness@gmail.com","2026-04-07","4:00 PM","VIP"],
+["Erin Henry","erinhenrymsw@gmail.com","2026-04-07","4:00 PM","VIP"],
+["Jonathan Pawson","jpawson01@gmail.com","2026-04-07","6:00 AM","VIP"],
+["Karen Milone","karenmilone31@gmail.com","2026-04-07","6:00 AM","VIP"],
+["Derrick Martins","derrickmartinsa@hotmail.com","2026-04-07","9:00 AM","VIP"],
+["William Gagnon","wg@williamgagnon.com","2026-04-08","9:00 AM","Normal"],
+["Tiffany Brown-Bush","tbrown8@bellsouth.net","2026-04-08","4:00 PM","VIP"],
+["Destiny L.","destinymarielt@gmail.com","2026-04-07","4:00 PM","Normal"],
+["Claudette De Carbonel","cdecarbonel.phd@gmail.com","2026-04-08","4:00 PM","Normal"],
+["Katherine Allen","kzallen2021@gmail.com","2026-04-08","6:00 AM","VIP"],
+["Elisha Jones","empoweredlearnersexpress@gmail.com","2026-04-09","6:00 AM","VIP"],
+["Liliia Nilova","lily.nilova@gmail.com","2026-04-08","6:00 AM","VIP"],
+["Nicole Bankhead","nicole@serenitywellnesscc.com","2026-04-08","6:00 AM","VIP"],
+["Amanda Wilbur","gomentor@gmail.com","2026-04-08","6:00 AM","VIP"],
+["Doug Bench","doug@brainapples.com","2026-04-08","9:00 AM","Normal"],
+["Julia Baird","julia@jaybirdwellness.com","2026-04-08","9:00 AM","VIP"],
+["Alison Hicks","alison@ahalawfirm.com","2026-04-09","6:00 AM","Normal"],
+["Zach Shoher","jzs101@gmail.com","2026-04-10","4:00 PM","VIP"],
+["Indhushree Rajan","drrajan@theconscious-life.com","2026-04-10","4:00 PM","VIP"],
+["Courtnay Richard","insideoutwithcourtnaye@gmail.com","2026-04-11","9:00 AM","VIP"],
+["Regan Vansteenis","regan@reganvansteenis.com","2026-04-10","9:00 AM","VIP"],
+["Curtis Luke","prop7770@gmapil.com","2026-04-10","4:00 PM",""],
+["Darryl Thomas","darryl@darrylwthomas.com","2026-04-11","4:00 PM",""],
+["Jose M Baltazar","josembaltazar@yahoo.com","2026-04-11","4:00 PM","VIP"],
+["Makenzie Welch","mwelch3035@gmail.com","2026-04-10","4:00 PM",""],
+["Amy Olivia","amyoliviaburklew@gmail.com","2026-04-09","4:00 PM",""],
+["Ashley D. Baugus","abaugus82@gmail.com","2026-04-10","4:00 PM",""],
+["Lula Heatley","lcswc@guidinghandllc.com","2026-04-12","9:00 AM",""],
+["Alice Bass","alicebasslcsw@gmail.com","2026-04-12","4:00 PM",""],
+["Gailyc Sonia","gcs930@gmail.com","2026-04-11","4:00 PM",""],
+["Nancy Beth Peter","bethpeter676@gmail.com","2026-04-12","6:00 AM",""],
+["Kristie M Stoehr","stoehrkristie@gmail.com","2026-04-12","9:00 AM",""],
+["Mark Ishman","mishman@ishmanlaw.com","2026-04-13","4:00 PM",""],
+["Merlyn Townley","merlyntownle@gmail.com","2026-04-13","4:00 PM",""],
+["Terence Ngwa Ambe","terenceambe@yahoo.com","2026-04-13","4:00 PM",""],
+["Gerald Ugrina","gugrina@nuforceit.com","2026-04-13","4:00 PM",""],
+["Nancy Beth Peter","bethpeter676@gmail.com","2026-04-13","4:00 PM",""],
+["Dr Anngi Mccoy","anngimccoy7@sbcglobal.net","2026-04-13","6:00 AM",""],
+["Laurie","cookiethrower@gmail.com","2026-04-13","6:00 AM",""],
+["Kas Andz","k@kasandz.com","2026-04-13","6:00 AM",""]
+];
+
+// ============================================================
+// FILTER TEST ACCOUNTS
+// ============================================================
+const attendees = rawAttendees.filter(a => !isTest(a[1])).map(a => ({
+  name: a[0], email: a[1], date: a[2], time: a[3],
+  seconds: capSeconds(a[4]), type: (a[5]||'Normal').trim(),
+  outcome: (a[6]||'').trim()
+}));
+
+const noShows = rawNoShows.filter(a => !isTest(a[1])).map(a => ({
+  name: a[0], email: a[1], date: a[2], time: a[3],
+  type: (a[4]||'Normal').trim()
+}));
+
+// Normalize types
+attendees.forEach(a => {
+  if(!['VIP','Normal'].includes(a.type)) a.type = 'VIP';
+});
+noShows.forEach(a => {
+  if(!['VIP','Normal'].includes(a.type)) a.type = 'Normal';
+});
+
+const totalRegistrants = attendees.length + noShows.length;
+const totalAttended = attendees.length;
+const totalNoShows = noShows.length;
+const showRate = ((totalAttended / totalRegistrants) * 100);
+const avgSeconds = attendees.reduce((s,a) => s + a.seconds, 0) / attendees.length;
+
+function fmtTime(sec) {
+  const m = Math.floor(sec / 60);
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  if (h > 0) return h + 'h ' + rm + 'm';
+  return m + 'm';
+}
+
+// ============================================================
+// KPI CARDS
+// ============================================================
+const kpiRow = document.getElementById('kpi-row');
+const kpis = [
+  { label: 'Total Registrants', value: totalRegistrants, sub: 'Unique registrations (excl. test)' },
+  { label: 'Attended', value: totalAttended, sub: showRate.toFixed(1) + '% show rate' },
+  { label: 'No-Shows', value: totalNoShows, sub: (100 - showRate).toFixed(1) + '% no-show rate' },
+  { label: 'Avg Watch Time', value: fmtTime(avgSeconds), sub: Math.round(avgSeconds) + 's average' }
+];
+kpis.forEach(k => {
+  const d = document.createElement('div');
+  d.className = 'kpi';
+  d.innerHTML = '<div class="label">' + k.label + '</div><div class="value">' + k.value + '</div><div class="sub">' + k.sub + '</div>';
+  kpiRow.appendChild(d);
+});
+
+// ============================================================
+// SEGMENTS
+// ============================================================
+const buckets = [
+  { label: '0-30 min', min: 0, max: 1800 },
+  { label: '30-60 min', min: 1800, max: 3600 },
+  { label: '60-90 min', min: 3600, max: 5400 },
+  { label: '90-120 min', min: 5400, max: 7200 },
+  { label: '120-150 min', min: 7200, max: 9000 },
+  { label: '150+ min', min: 9000, max: Infinity }
+];
+
+const segmented = buckets.map(b => {
+  const people = attendees.filter(a => a.seconds >= b.min && a.seconds < b.max);
+  return { ...b, people, count: people.length, pct: (people.length / totalAttended * 100) };
+});
+
+// Retention curve: cumulative viewers still watching at each mark
+const retentionMarks = [0, 1800, 3600, 5400, 7200, 9000];
+const retentionData = retentionMarks.map(mark => attendees.filter(a => a.seconds >= mark).length);
+
+// ============================================================
+// FUNNEL
+// ============================================================
+const watched60 = attendees.filter(a => a.seconds >= 3600).length;
+const watched120 = attendees.filter(a => a.seconds >= 7200).length;
+const converted = attendees.filter(a => a.outcome === 'Enrolled' || a.outcome === 'Booked').length;
+
+const funnelSteps = [
+  { label: 'Registered', count: totalRegistrants, pct: 100 },
+  { label: 'Attended', count: totalAttended, pct: (totalAttended/totalRegistrants*100) },
+  { label: 'Watched 60+ min', count: watched60, pct: (watched60/totalRegistrants*100) },
+  { label: 'Watched 120+ min', count: watched120, pct: (watched120/totalRegistrants*100) },
+  { label: 'Enrolled / Booked', count: converted, pct: (converted/totalRegistrants*100) }
+];
+
+const funnelEl = document.getElementById('funnel');
+funnelSteps.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'funnel-step';
+  d.innerHTML = '<span class="step-label">' + s.label + '</span>' +
+    '<span class="step-count">' + s.count + '</span>' +
+    '<div class="step-bar"><div class="step-bar-fill" style="width:' + s.pct + '%"></div></div>' +
+    '<span class="step-pct">' + s.pct.toFixed(1) + '%</span>';
+  funnelEl.appendChild(d);
+});
+
+// ============================================================
+// CHARTS
+// ============================================================
+Chart.defaults.color = '#8b8b9e';
+Chart.defaults.borderColor = 'rgba(30,30,46,0.6)';
+Chart.defaults.font.family = "'Geist','Geist Mono',system-ui,sans-serif";
+Chart.defaults.font.size = 12;
+
+// Drop-off bar chart
+const barColors = ['#00d4aa','#00b894','#ffa502','#e17055','#ff4757','#d63031','#636e72'];
+new Chart(document.getElementById('dropoffChart'), {
+  type: 'bar',
+  data: {
+    labels: [...segmented.map(s => s.label), 'NO-SHOW'],
+    datasets: [{
+      label: 'Count',
+      data: [...segmented.map(s => s.count), totalNoShows],
+      backgroundColor: barColors,
+      borderColor: barColors.map(c => c + '80'),
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: 'Viewer Distribution by Watch Time', color: '#e8e8ed', font: { size: 14, weight: 600 } },
+      tooltip: {
+        callbacks: {
+          afterLabel: function(ctx) {
+            const total = totalRegistrants;
+            return ((ctx.raw / total) * 100).toFixed(1) + '% of all registrants';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(30,30,46,0.4)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Retention curve
+new Chart(document.getElementById('retentionChart'), {
+  type: 'line',
+  data: {
+    labels: ['0 min', '30 min', '60 min', '90 min', '120 min', '150 min'],
+    datasets: [{
+      label: 'Viewers Still Watching',
+      data: retentionData,
+      borderColor: '#00d4aa',
+      backgroundColor: 'rgba(0,212,170,0.08)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 5,
+      pointBackgroundColor: '#00d4aa',
+      pointBorderColor: '#0a0a0f',
+      pointBorderWidth: 2
+    },{
+      label: 'Total Registrants',
+      data: retentionMarks.map(() => totalRegistrants),
+      borderColor: 'rgba(139,139,158,0.3)',
+      borderDash: [6, 4],
+      pointRadius: 0,
+      fill: false
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: { display: true, text: 'Retention Curve (Cumulative)', color: '#e8e8ed', font: { size: 14, weight: 600 } },
+      tooltip: {
+        callbacks: {
+          afterLabel: function(ctx) {
+            if (ctx.datasetIndex === 0) {
+              return ((ctx.raw / totalAttended) * 100).toFixed(1) + '% of attendees retained';
+            }
+            return '';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(30,30,46,0.4)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ============================================================
+// DROP-OFF ANALYSIS TABLE
+// ============================================================
+let cumRetained = totalAttended;
+let tableHTML = '<table><thead><tr><th>Segment</th><th>Dropped</th><th>% of Attendees</th><th>Retention %</th><th>Notable Names</th></tr></thead><tbody>';
+segmented.forEach((s, i) => {
+  const dropped = s.count;
+  const retPct = ((cumRetained / totalAttended) * 100).toFixed(1);
+  const names = s.people.slice(0, 5).map(p => p.name).join(', ');
+  const isHighDrop = s.pct > 20;
+  tableHTML += '<tr><td><strong>' + s.label + '</strong></td>' +
+    '<td class="mono">' + dropped + '</td>' +
+    '<td class="mono" style="color:' + (isHighDrop ? 'var(--red)' : 'var(--text-secondary)') + '">' + s.pct.toFixed(1) + '%</td>' +
+    '<td class="mono">' + retPct + '%</td>' +
+    '<td style="font-size:0.8rem;color:var(--text-muted);max-width:280px">' + names + '</td></tr>';
+  cumRetained -= dropped;
+});
+tableHTML += '</tbody></table>';
+document.getElementById('dropoff-table').innerHTML = tableHTML;
+
+// ============================================================
+// NO-SHOW ANALYSIS
+// ============================================================
+const nsVIP = noShows.filter(n => n.type === 'VIP').length;
+const nsNormal = noShows.filter(n => n.type === 'Normal').length;
+const nsAM = noShows.filter(n => n.time === '9:00 AM').length;
+const nsPM = noShows.filter(n => n.time === '4:00 PM').length;
+const ns6AM = noShows.filter(n => n.time === '6:00 AM').length;
+
+const nsSummary = document.getElementById('noshow-summary');
+nsSummary.innerHTML =
+  '<div class="compare-card"><div class="cc-label">By Ticket Type</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--teal)">' + nsVIP + '</div><div class="cc-sub">VIP</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--text-secondary)">' + nsNormal + '</div><div class="cc-sub">Normal</div></div>' +
+  '</div></div>' +
+  '<div class="compare-card"><div class="cc-label">By Time Slot</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--amber)">' + nsAM + '</div><div class="cc-sub">9:00 AM</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--blue)">' + nsPM + '</div><div class="cc-sub">4:00 PM</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--text-muted)">' + ns6AM + '</div><div class="cc-sub">6:00 AM</div></div>' +
+  '</div></div>' +
+  '<div class="compare-card"><div class="cc-label">No-Show Rate</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--red)">' + (100 - showRate).toFixed(1) + '%</div><div class="cc-sub">Overall</div></div>' +
+  '</div></div>';
+
+// No-show table
+let nsTableHTML = '<table><thead><tr><th>Name</th><th>Scheduled Date</th><th>Time</th><th>Type</th></tr></thead><tbody>';
+noShows.forEach(n => {
+  const tagClass = n.type === 'VIP' ? 'tag-vip' : 'tag-normal';
+  nsTableHTML += '<tr><td>' + n.name + '</td><td class="mono">' + n.date + '</td><td class="mono">' + n.time + '</td><td><span class="tag ' + tagClass + '">' + n.type + '</span></td></tr>';
+});
+nsTableHTML += '</tbody></table>';
+document.getElementById('noshow-table').innerHTML = nsTableHTML;
+
+// ============================================================
+// VIP VS NORMAL ANALYSIS
+// ============================================================
+const vipAttendees = attendees.filter(a => a.type === 'VIP');
+const normalAttendees = attendees.filter(a => a.type === 'Normal');
+const vipAvg = vipAttendees.length ? vipAttendees.reduce((s,a) => s + a.seconds, 0) / vipAttendees.length : 0;
+const normalAvg = normalAttendees.length ? normalAttendees.reduce((s,a) => s + a.seconds, 0) / normalAttendees.length : 0;
+
+// Registration counts for show rate
+const totalVIPReg = vipAttendees.length + nsVIP;
+const totalNormalReg = normalAttendees.length + nsNormal;
+const vipShowRate = totalVIPReg ? (vipAttendees.length / totalVIPReg * 100) : 0;
+const normalShowRate = totalNormalReg ? (normalAttendees.length / totalNormalReg * 100) : 0;
+
+const vipConverted = vipAttendees.filter(a => a.outcome).length;
+const normalConverted = normalAttendees.filter(a => a.outcome).length;
+const vipConvRate = vipAttendees.length ? (vipConverted / vipAttendees.length * 100) : 0;
+const normalConvRate = normalAttendees.length ? (normalConverted / normalAttendees.length * 100) : 0;
+
+const vipCompare = document.getElementById('vip-compare');
+vipCompare.innerHTML =
+  '<div class="compare-card"><div class="cc-label">Avg Watch Time</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--teal)">' + fmtTime(vipAvg) + '</div><div class="cc-sub">VIP (' + vipAttendees.length + ')</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--text-secondary)">' + fmtTime(normalAvg) + '</div><div class="cc-sub">Normal (' + normalAttendees.length + ')</div></div>' +
+  '</div></div>' +
+  '<div class="compare-card"><div class="cc-label">Show Rate</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--teal)">' + vipShowRate.toFixed(1) + '%</div><div class="cc-sub">VIP</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--text-secondary)">' + normalShowRate.toFixed(1) + '%</div><div class="cc-sub">Normal</div></div>' +
+  '</div></div>' +
+  '<div class="compare-card"><div class="cc-label">Conversion Rate</div><div class="cc-row">' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--teal)">' + vipConvRate.toFixed(1) + '%</div><div class="cc-sub">VIP (' + vipConverted + ')</div></div>' +
+    '<div class="cc-item"><div class="cc-val" style="color:var(--text-secondary)">' + normalConvRate.toFixed(1) + '%</div><div class="cc-sub">Normal (' + normalConverted + ')</div></div>' +
+  '</div></div>';
+
+// VIP chart
+new Chart(document.getElementById('vipChart'), {
+  type: 'bar',
+  data: {
+    labels: buckets.map(b => b.label),
+    datasets: [{
+      label: 'VIP',
+      data: buckets.map(b => vipAttendees.filter(a => a.seconds >= b.min && a.seconds < b.max).length),
+      backgroundColor: 'rgba(0,212,170,0.6)',
+      borderColor: '#00d4aa',
+      borderWidth: 1,
+      borderRadius: 3
+    },{
+      label: 'Normal',
+      data: buckets.map(b => normalAttendees.filter(a => a.seconds >= b.min && a.seconds < b.max).length),
+      backgroundColor: 'rgba(139,139,158,0.4)',
+      borderColor: '#8b8b9e',
+      borderWidth: 1,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: { display: true, text: 'Watch Time Distribution: VIP vs Normal', color: '#e8e8ed', font: { size: 14, weight: 600 } }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(30,30,46,0.4)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ============================================================
+// CONVERSION BY WATCH TIME
+// ============================================================
+const enrolled = attendees.filter(a => a.outcome === 'Enrolled');
+const booked = attendees.filter(a => a.outcome === 'Booked');
+
+const convCards = document.getElementById('conv-cards');
+function convCardHTML(title, list, tagClass) {
+  let html = '<div class="conv-card"><h3><span class="tag ' + tagClass + '">' + title + '</span> ' + list.length + ' total</h3><ul class="conv-list">';
+  list.sort((a,b) => b.seconds - a.seconds).forEach(p => {
+    html += '<li><span>' + p.name + '</span><span class="conv-time">' + fmtTime(p.seconds) + ' (' + Math.round(p.seconds) + 's)</span></li>';
+  });
+  html += '</ul></div>';
+  return html;
+}
+convCards.innerHTML = convCardHTML('Enrolled', enrolled, 'tag-enrolled') + convCardHTML('Booked', booked, 'tag-booked');
+
+// Conversion scatter chart
+const convBucketData = buckets.map(b => {
+  const inBucket = attendees.filter(a => a.seconds >= b.min && a.seconds < b.max);
+  return {
+    enrolled: inBucket.filter(a => a.outcome === 'Enrolled').length,
+    booked: inBucket.filter(a => a.outcome === 'Booked').length,
+    total: inBucket.length
+  };
+});
+
+new Chart(document.getElementById('convChart'), {
+  type: 'bar',
+  data: {
+    labels: buckets.map(b => b.label),
+    datasets: [{
+      label: 'Enrolled',
+      data: convBucketData.map(d => d.enrolled),
+      backgroundColor: 'rgba(0,212,170,0.7)',
+      borderColor: '#00d4aa',
+      borderWidth: 1,
+      borderRadius: 3
+    },{
+      label: 'Booked',
+      data: convBucketData.map(d => d.booked),
+      backgroundColor: 'rgba(59,130,246,0.7)',
+      borderColor: '#3b82f6',
+      borderWidth: 1,
+      borderRadius: 3
+    },{
+      label: 'No Outcome',
+      data: convBucketData.map(d => d.total - d.enrolled - d.booked),
+      backgroundColor: 'rgba(90,90,110,0.3)',
+      borderColor: 'rgba(90,90,110,0.5)',
+      borderWidth: 1,
+      borderRadius: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: { display: true, text: 'Conversions by Watch Time Segment', color: '#e8e8ed', font: { size: 14, weight: 600 } }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(30,30,46,0.4)' } }
+    }
+  }
+});
+
+// ============================================================
+// DAILY SESSION BREAKDOWN
+// ============================================================
+const allDates = new Set();
+attendees.forEach(a => allDates.add(a.date));
+noShows.forEach(n => allDates.add(n.date));
+const sortedDates = [...allDates].sort();
+
+const dailyAttended = sortedDates.map(d => attendees.filter(a => a.date === d).length);
+const dailyNoShows = sortedDates.map(d => noShows.filter(n => n.date === d).length);
+const dailyLabels = sortedDates.map(d => {
+  const parts = d.split('-');
+  return parts[1] + '/' + parts[2];
+});
+
+new Chart(document.getElementById('dailyChart'), {
+  type: 'bar',
+  data: {
+    labels: dailyLabels,
+    datasets: [{
+      label: 'Attended',
+      data: dailyAttended,
+      backgroundColor: 'rgba(0,212,170,0.6)',
+      borderColor: '#00d4aa',
+      borderWidth: 1,
+      borderRadius: 2
+    },{
+      label: 'No-Show',
+      data: dailyNoShows,
+      backgroundColor: 'rgba(255,71,87,0.5)',
+      borderColor: '#ff4757',
+      borderWidth: 1,
+      borderRadius: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: { display: true, text: 'Daily Attendance vs No-Shows', color: '#e8e8ed', font: { size: 14, weight: 600 } },
+      tooltip: {
+        callbacks: {
+          afterBody: function(items) {
+            const idx = items[0].dataIndex;
+            const total = dailyAttended[idx] + dailyNoShows[idx];
+            return 'Total registrants: ' + total;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 65, font: { size: 10 } } },
+      y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(30,30,46,0.4)' } }
+    }
+  }
+});
+</script>
+</body>
+</html>

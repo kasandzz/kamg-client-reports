@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Intel — Apr 21, 2026</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e4e4e7;
+    --text2: #71717a;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --radius: 8px;
+    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .header .subtitle { color: var(--text2); font-size: 12px; margin-top: 2px; }
+  .header .logo { font-size: 11px; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 0; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .card h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); margin-bottom: 12px; }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .stat-card .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; font-family: var(--mono); letter-spacing: -0.5px; }
+  .stat-card .sub { font-size: 11px; color: var(--text2); margin-top: 2px; font-family: var(--mono); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,0.12); color: var(--red); }
+  .badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .badge-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .badge-done { background: rgba(34,197,94,0.1); color: var(--green); }
+  .badge-muted { background: rgba(113,113,122,0.12); color: var(--text2); }
+
+  /* Amber card (carry-forward) */
+  .amber-card {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-left: 3px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .amber-card .urgent { color: var(--red); font-weight: 600; font-size: 11px; }
+
+  /* Green card (win) */
+  .green-card {
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.18);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  /* Alert banner */
+  .alert-banner {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--amber);
+  }
+
+  /* Email items */
+  .email-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .email-item:last-child { border-bottom: none; }
+  .email-item .from { font-weight: 600; font-size: 13px; }
+  .email-item .subject { color: var(--text); font-size: 13px; margin-top: 2px; }
+  .email-item .excerpt { color: var(--text2); font-size: 12px; margin-top: 4px; font-style: italic; }
+  .email-item .meta { color: var(--text2); font-size: 11px; margin-top: 4px; }
+
+  /* Action items */
+  .action-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .action-item:last-child { border-bottom: none; }
+  .action-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .action-num.urgent { background: rgba(239,68,68,0.15); color: var(--red); }
+  .action-num.high { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .action-num.medium { background: rgba(59,130,246,0.12); color: var(--blue); }
+
+  /* Funnel bar */
+  .funnel-stage {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .funnel-label {
+    font-size: 12px; width: 80px; text-align: right; color: var(--text2); flex-shrink: 0;
+  }
+  .funnel-bar-bg {
+    flex: 1; height: 24px; background: rgba(255,255,255,0.03);
+    border-radius: 4px; overflow: hidden; position: relative;
+  }
+  .funnel-bar {
+    height: 100%; border-radius: 4px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 11px; font-family: var(--mono); font-weight: 600;
+    min-width: fit-content;
+  }
+  .funnel-pct { font-size: 11px; color: var(--text2); margin-left: 8px; flex-shrink: 0; font-family: var(--mono); }
+
+  /* Sources list */
+  .source-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .source-row:last-child { border-bottom: none; }
+
+  /* Section header */
+  .section-title {
+    font-size: 15px; font-weight: 700; margin-bottom: 12px; margin-top: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Sparkline wrapper */
+  .sparkline-wrap {
+    padding: 12px 0;
+  }
+  .sparkline-wrap .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-card .value { font-size: 18px; }
+    .header h1 { font-size: 17px; }
+    .tab { padding: 8px 12px; font-size: 12px; }
+    .container { padding: 10px; }
+    table { font-size: 12px; }
+    th, td { padding: 6px 6px; }
+  }
+  @media (max-width: 440px) {
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .funnel-label { width: 60px; font-size: 11px; }
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #111; }
+    .card, .stat-card { background: #fff; border-color: #ddd; box-shadow: none; }
+    .tabs { display: none; }
+    .tab-content { display: block !important; page-break-inside: avoid; margin-bottom: 24px; }
+    .tab-content::before { content: attr(data-title); display: block; font-size: 16px; font-weight: 700; margin-bottom: 12px; border-bottom: 2px solid #111; padding-bottom: 4px; }
+    .amber-card { border-color: #ccc; background: #fffbeb; }
+    .green-card { border-color: #ccc; background: #f0fdf4; }
+    .alert-banner { background: #fffbeb; border-color: #ccc; color: #92400e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Morning Intelligence</h1>
+      <div class="subtitle">April 21, 2026 &mdash; Project Ares</div>
+    </div>
+    <div class="logo">KAMG OPS</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <div class="tab active" data-tab="myday" role="tab">My Day</div>
+    <div class="tab" data-tab="cod" role="tab">COD Intel</div>
+    <div class="tab" data-tab="overnight" role="tab">Overnight</div>
+    <div class="tab" data-tab="actions" role="tab">Actions</div>
+    <div class="tab" data-tab="cpg" role="tab">CPG</div>
+    <div class="tab" data-tab="austin" role="tab">Austin</div>
+    <div class="tab" data-tab="sources" role="tab">Sources</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 1: MY DAY -->
+  <!-- ============================================ -->
+  <div class="tab-content active" id="tab-myday" data-title="My Day">
+
+    <div class="card" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Monday, April 21, 2026</div>
+        <div style="color:var(--text2); font-size:13px; margin-top:4px;">Late catch-up &mdash; sync-only mode (4:07 PM CST)</div>
+      </div>
+      <span class="badge badge-green">Skill Health: OK</span>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+      <h3>Schedule</h3>
+      <table>
+        <thead><tr><th>Time</th><th>Event</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">06:45</td><td>Exercise</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">07:15</td><td>Shower</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">07:45</td><td>Morning Focus Block</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">08:30 &ndash; 10:00</td><td>Russ Call Block</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">10:30 &ndash; 11:00</td><td>Prep lists + LP review</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">11:00 &ndash; 11:30</td><td>Email catch up call (CPG &mdash; Krik + Stef, Zoom)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">11:30 &ndash; 12:00</td><td>Consider flying + chase residency</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">12:00 &ndash; 12:30</td><td>Redstone report</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">12:30 &ndash; 1:30</td><td>Kas / Austin &mdash; Recruiting Platform (Google Meet)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">2:30 &ndash; 3:00</td><td>Separate out hi ux max skill</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">8:00 PM</td><td>Relax</td><td style="text-align:right"><span class="badge badge-muted">&mdash;</span></td></tr>
+          <tr><td class="mono">10:00 PM</td><td>Go To Bed</td><td style="text-align:right"><span class="badge badge-muted">&mdash;</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Carry-forwards -->
+    <div class="section-title" style="color:var(--amber);">Carry-Forwards from Yesterday</div>
+    <div class="amber-card">Redstone LP die casting: resume at Pass 3 (Frontend Dev)</div>
+    <div class="amber-card">Redstone ads: fix targeting US+CA, link to correct LPs</div>
+    <div class="amber-card">Cancel Sembly AI before Apr 22 <span class="urgent">&mdash; URGENT (TOMORROW!)</span></div>
+    <div class="amber-card">Leo profit share model (Superhuman reminder)</div>
+
+    <!-- Wins -->
+    <div class="section-title" style="color:var(--green); margin-top:16px;">Yesterday's Wins</div>
+    <div class="green-card">COD VIP overhaul: 4 pages edited, 2 permanent rules saved</div>
+    <div class="green-card">CPG LP sent to Krik &mdash; positive feedback received</div>
+    <div class="green-card">Russ copy tweaks applied and published</div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 2: COD INTEL -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-cod" data-title="COD Intel">
+
+    <div class="alert-banner">&#9888; BQ data from Apr 15 (6 days stale) &mdash; cloud collector calendar/email broken (invalid_client)</div>
+
+    <!-- Stat row 1 -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Gross Revenue</div>
+        <div class="value" style="color:var(--green);">$18,606</div>
+        <div class="sub">Apr 1&ndash;15</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">ROAS</div>
+        <div class="value" style="color:var(--red);">0.24x</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Enrollments</div>
+        <div class="value">3</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Avg Deal</div>
+        <div class="value">$3,333</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- Stat row 2 -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Total Spend</div>
+        <div class="value">$77,989</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Leads</div>
+        <div class="value">218</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Applied</div>
+        <div class="value">76</div>
+        <div class="sub">34.9%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Booked</div>
+        <div class="value" style="color:var(--red);">0</div>
+        <div class="sub">&nbsp;</div>
+      </div>
+    </div>
+
+    <!-- 7-Day Cash Sparkline -->
+    <div class="card">
+      <div class="sparkline-wrap">
+        <div class="label">7-Day Cash Flow (daily)</div>
+        <svg viewBox="0 0 70 28" width="100%" height="60" preserveAspectRatio="none" style="display:block;">
+          <!-- Grid lines -->
+          <line x1="5" y1="4" x2="65" y2="4" stroke="#1e1e2e" stroke-width="0.3"/>
+          <line x1="5" y1="14" x2="65" y2="14" stroke="#1e1e2e" stroke-width="0.3"/>
+          <line x1="5" y1="24" x2="65" y2="24" stroke="#1e1e2e" stroke-width="0.3"/>
+          <!-- Sparkline: values 1210, 947, 540, 513, 540, 432, 486 -->
+          <!-- y = 24 - ((val-432)/(1210-432))*20 -->
+          <!-- 1210: 24-20=4, 947: 24-13.22=10.78, 540: 24-2.77=21.23, 513: 24-2.08=21.92, 540: 21.23, 432: 24, 486: 24-1.39=22.61 -->
+          <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M5,4 L15,10.78 L25,21.23 L35,21.92 L45,21.23 L55,24 L65,22.61 L65,24 L5,24 Z" fill="url(#sparkGrad)"/>
+          <polyline points="5,4 15,10.78 25,21.23 35,21.92 45,21.23 55,24 65,22.61" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="5" cy="4" r="1.5" fill="#3b82f6"/>
+          <circle cx="15" cy="10.78" r="1.5" fill="#3b82f6"/>
+          <circle cx="25" cy="21.23" r="1.5" fill="#3b82f6"/>
+          <circle cx="35" cy="21.92" r="1.5" fill="#3b82f6"/>
+          <circle cx="45" cy="21.23" r="1.5" fill="#3b82f6"/>
+          <circle cx="55" cy="24" r="1.5" fill="#3b82f6"/>
+          <circle cx="65" cy="22.61" r="1.5" fill="#3b82f6"/>
+          <!-- Value labels -->
+          <text x="5" y="2.5" fill="#71717a" font-size="2.5" text-anchor="middle" font-family="monospace">$1,210</text>
+          <text x="15" y="9.3" fill="#71717a" font-size="2.5" text-anchor="middle" font-family="monospace">$947</text>
+          <text x="55" y="22.5" fill="#71717a" font-size="2.5" text-anchor="middle" font-family="monospace">$432</text>
+          <text x="65" y="21.1" fill="#71717a" font-size="2.5" text-anchor="middle" font-family="monospace">$486</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Ad Spend Breakdown -->
+    <div class="card">
+      <h3>Ad Spend Breakdown</h3>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>Campaign</th><th style="text-align:right">Spend</th><th style="text-align:right">Impressions</th><th style="text-align:right">Clicks</th><th style="text-align:right">CPM</th><th style="text-align:right">CTR</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Paid Workshop ABO (Cold) &mdash; Industry Winning</td>
+              <td class="mono" style="text-align:right">$54,671</td>
+              <td class="mono" style="text-align:right">474,622</td>
+              <td class="mono" style="text-align:right">26,838</td>
+              <td class="mono" style="text-align:right">$115.19</td>
+              <td class="mono" style="text-align:right">5.65%</td>
+            </tr>
+            <tr>
+              <td>Paid Workshop CBO &mdash; Therapists/Counselors</td>
+              <td class="mono" style="text-align:right">$17,511</td>
+              <td class="mono" style="text-align:right">193,847</td>
+              <td class="mono" style="text-align:right">13,347</td>
+              <td class="mono" style="text-align:right">$90.33</td>
+              <td class="mono" style="text-align:right">6.89%</td>
+            </tr>
+            <tr>
+              <td>Retargeting &mdash; VSL Book Call (COD#5)</td>
+              <td class="mono" style="text-align:right">$4,401</td>
+              <td class="mono" style="text-align:right">19,867</td>
+              <td class="mono" style="text-align:right">498</td>
+              <td class="mono" style="text-align:right">$221.50</td>
+              <td class="mono" style="text-align:right">2.51%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div class="card">
+      <h3>Funnel Visualization</h3>
+      <div style="padding: 4px 0;">
+        <div class="funnel-stage">
+          <div class="funnel-label">Leads</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar" style="width:100%; background: linear-gradient(90deg, #3b82f6, #2563eb);">218</div>
+          </div>
+          <div class="funnel-pct"></div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label">Applied</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar" style="width:34.9%; background: linear-gradient(90deg, #6366f1, #4f46e5);">76</div>
+          </div>
+          <div class="funnel-pct">34.9%</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label">Booked</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar" style="width:2%; background: rgba(239,68,68,0.4); min-width:24px;">0</div>
+          </div>
+          <div class="funnel-pct" style="color:var(--red);">0%</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label">Showed</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar" style="width:2%; background: rgba(239,68,68,0.4); min-width:24px;">0</div>
+          </div>
+          <div class="funnel-pct" style="color:var(--red);">0%</div>
+        </div>
+        <div class="funnel-stage">
+          <div class="funnel-label">Enrolled</div>
+          <div class="funnel-bar-bg">
+            <div class="funnel-bar" style="width:4%; background: linear-gradient(90deg, #22c55e, #16a34a); min-width:24px;">3</div>
+          </div>
+          <div class="funnel-pct">1.4%</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 3: OVERNIGHT -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-overnight" data-title="Overnight">
+
+    <div class="card">
+      <h3>Emails &mdash; High Priority <span class="badge badge-red" style="margin-left:6px;">Needs Reply</span></h3>
+
+      <div class="email-item">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-red">HIGH</span>
+          <span class="from">Krik (CPG)</span>
+        </div>
+        <div class="subject">Re: Landing Page Approval</div>
+        <div class="excerpt">"It's pretty good. A bunch of copy we need to change. Stef taking first crack, comments Wednesday."</div>
+        <div class="meta">Source: Gmail</div>
+      </div>
+
+      <div class="email-item">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-red">HIGH</span>
+          <span class="from">Daniel</span>
+        </div>
+        <div class="subject">Re: Potential new client</div>
+        <div class="excerpt">Asking Krik's timezone (EDT?). NEEDS REPLY.</div>
+        <div class="meta">Source: Gmail</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Emails &mdash; Medium</h3>
+      <div class="email-item">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-amber">MED</span>
+          <span class="from">Leo</span>
+        </div>
+        <div class="subject">Linear invite to Project Ares</div>
+        <div class="excerpt">FYI &mdash; Leo sent a Linear workspace invite.</div>
+        <div class="meta">Source: Gmail</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Emails &mdash; Low / FYI</h3>
+      <div class="email-item">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-muted">LOW</span>
+          <span class="from">Spotify</span>
+        </div>
+        <div class="subject">Login code</div>
+        <div class="excerpt">Ignore.</div>
+        <div class="meta">Source: Gmail</div>
+      </div>
+    </div>
+
+    <div style="color:var(--text2); font-size:12px; padding:12px 0; font-style:italic;">No Slack sync data available (sync skipped)</div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 4: ACTIONS -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-actions" data-title="Actions">
+
+    <div class="card">
+      <h3>Urgent <span class="badge badge-red" style="margin-left:6px;">Do Today</span></h3>
+      <div class="action-item">
+        <div class="action-num urgent">1</div>
+        <div>
+          <div style="font-weight:600;">Cancel Sembly AI</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Expires tomorrow Apr 22. Cancel immediately.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num urgent">2</div>
+        <div>
+          <div style="font-weight:600;">Reply to Daniel</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Confirm Krik's timezone for Google Ads intro call.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>High Priority</h3>
+      <div class="action-item">
+        <div class="action-num high">3</div>
+        <div>
+          <div style="font-weight:600;">CPG LP copy changes</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Stef sending notes, Krik compiling, Wednesday deadline.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num high">4</div>
+        <div>
+          <div style="font-weight:600;">Redstone LP Pass 3</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Resume frontend dev pass on die casting LP.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num high">5</div>
+        <div>
+          <div style="font-weight:600;">Redstone ads targeting fix</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">US+CA targeting, correct LP links.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Medium Priority</h3>
+      <div class="action-item">
+        <div class="action-num medium">6</div>
+        <div>
+          <div style="font-weight:600;">Leo profit share model</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Superhuman reminder &mdash; define terms.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num medium">7</div>
+        <div>
+          <div style="font-weight:600;">Reply to Leo re: Linear invite</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Project Ares workspace invite.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num medium">8</div>
+        <div>
+          <div style="font-weight:600;">Eric Redstone</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Pending invoice + LP change replies.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 5: CPG -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-cpg" data-title="CPG">
+
+    <div class="card" style="border-left: 3px solid var(--blue);">
+      <div style="font-size:16px; font-weight:700; margin-bottom:4px;">CPG Affiliate &mdash; Krik Angacian</div>
+      <div style="color:var(--text2); font-size:12px;">Client tab</div>
+    </div>
+
+    <div class="card">
+      <h3>Today's Meeting</h3>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="mono">11:00 AM</span>
+        <span>Email catch up call (Zoom)</span>
+        <span class="badge badge-done">DONE</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>LP Status</h3>
+      <p style="margin-bottom:10px;">First draft sent. Krik says <span style="color:var(--green); font-weight:600;">"pretty good"</span> &mdash; copy changes incoming.</p>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:4px 0; border-bottom:1px solid var(--border);"><span style="color:var(--blue);">&#9654;</span> Stef taking first pass on copy edits</li>
+        <li style="padding:4px 0; border-bottom:1px solid var(--border);"><span style="color:var(--blue);">&#9654;</span> Krik reviewing + compiling notes</li>
+        <li style="padding:4px 0; border-bottom:1px solid var(--border);"><span style="color:var(--amber);">&#9654;</span> <strong>Wednesday:</strong> comments sent to Kas</li>
+        <li style="padding:4px 0;"><span style="color:var(--text2);">&#9654;</span> System learning: each copy change becomes permanent rule</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Daniel / Google Ads</h3>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:4px 0; border-bottom:1px solid var(--border);">Intro email sent. Daniel interested if spend &gt;$5K/mo</li>
+        <li style="padding:4px 0;"><span class="badge badge-red" style="margin-right:6px;">PENDING</span> Confirm Krik's timezone (EDT?) with Daniel</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 6: AUSTIN -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-austin" data-title="Austin">
+
+    <div class="card" style="border-left: 3px solid var(--blue);">
+      <div style="font-size:16px; font-weight:700; margin-bottom:4px;">Austin &mdash; Catalyst Crew (Recruiting Platform)</div>
+      <div style="color:var(--text2); font-size:12px;">Client tab</div>
+    </div>
+
+    <div class="card">
+      <h3>Today's Meeting</h3>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="mono">12:30 PM</span>
+        <span>Kas / Austin &mdash; Recruiting Platform (Google Meet)</span>
+        <span class="badge badge-done">DONE</span>
+      </div>
+      <div style="color:var(--text2); font-size:12px; margin-top:8px;">Recurring weekly check-in</div>
+    </div>
+
+    <div style="color:var(--text2); font-size:13px; padding:16px 0; text-align:center; font-style:italic;">No recent email threads found.</div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 7: SOURCES -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-sources" data-title="Sources">
+
+    <div class="card">
+      <h3>Data Freshness</h3>
+
+      <div class="source-row">
+        <span>Data Source</span>
+        <span class="badge badge-amber">local-fallback</span>
+      </div>
+      <div class="source-row">
+        <span>Cloud JSON</span>
+        <span style="color:var(--amber); font-size:12px; font-family:var(--mono);">Apr 15 (6 days stale, calendar/email errors)</span>
+      </div>
+      <div class="source-row">
+        <span>Calendar</span>
+        <span class="badge badge-green">Live MCP (fresh)</span>
+      </div>
+      <div class="source-row">
+        <span>Email</span>
+        <span class="badge badge-green">Live MCP (fresh)</span>
+      </div>
+      <div class="source-row">
+        <span>Slack</span>
+        <span class="badge badge-muted">No sync data</span>
+      </div>
+      <div class="source-row">
+        <span>COD KPIs</span>
+        <span style="color:var(--amber); font-size:12px; font-family:var(--mono);">From cloud cache Apr 15 (stale)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Infrastructure</h3>
+
+      <div class="source-row">
+        <span>Integrations</span>
+        <span><span class="badge badge-green">6/7 healthy</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">Fathom MCP not loading</span></span>
+      </div>
+      <div class="source-row">
+        <span>Brain</span>
+        <span class="badge badge-muted">Offline</span>
+      </div>
+      <div class="source-row">
+        <span>Backup</span>
+        <span><span class="badge badge-green">Healthy</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">Apr 20, 5.1 GB</span></span>
+      </div>
+      <div class="source-row">
+        <span>Knowledge Compiler</span>
+        <span><span class="badge badge-green">Healthy</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">last run ~16h ago</span></span>
+      </div>
+      <div class="source-row">
+        <span>Skills</span>
+        <span style="font-size:12px; font-family:var(--mono);">53 global, 1 synced <span class="badge badge-blue" style="margin-left:4px;">unicorn-page-review-panel NEW</span></span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Tab switching -->
+<script>
+(function() {
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      const target = this.getAttribute('data-tab');
+
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      contents.forEach(function(c) { c.classList.remove('active'); });
+
+      this.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

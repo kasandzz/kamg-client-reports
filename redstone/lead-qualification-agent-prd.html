@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone Lead Qualification Agent &mdash; PRD</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1a1a1a;
+    --border: #222;
+    --text: #e0e0e0;
+    --muted: #888;
+    --red: #e74c3c;
+    --orange: #f39c12;
+    --green: #2ecc71;
+    --blue: #3498db;
+    --purple: #9b59b6;
+    --yellow: #f1c40f;
+    --cyan: #1abc9c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a0a0a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 40px;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .header-meta span {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+  }
+
+  .header-meta .tag {
+    background: rgba(231,76,60,0.15);
+    color: var(--red);
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 680px;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  section {
+    margin-bottom: 48px;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: -0.3px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin: 24px 0 12px;
+  }
+
+  p, li {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+
+  li { margin-bottom: 6px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--surface2);
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat .val {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .stat .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .phase-card::before {
+    content: attr(data-phase);
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 48px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+  }
+
+  .phase-num {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 8px;
+  }
+
+  .p1 { background: var(--red); color: #fff; }
+  .p2 { background: var(--orange); color: #000; }
+  .p3 { background: var(--blue); color: #fff; }
+  .p4 { background: var(--purple); color: #fff; }
+  .p5 { background: var(--cyan); color: #000; }
+
+  .tag-inline {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .tag-mvp { background: rgba(231,76,60,0.15); color: var(--red); }
+  .tag-v2 { background: rgba(52,152,219,0.15); color: var(--blue); }
+  .tag-v3 { background: rgba(155,89,182,0.15); color: var(--purple); }
+
+  .quote {
+    border-left: 3px solid var(--red);
+    padding: 12px 20px;
+    margin: 16px 0;
+    background: rgba(231,76,60,0.05);
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .quote strong { color: #fff; font-style: normal; }
+
+  .dep-arrow {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .risk-high { color: var(--red); font-weight: 600; }
+  .risk-med { color: var(--orange); font-weight: 600; }
+  .risk-low { color: var(--green); font-weight: 600; }
+
+  code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: var(--cyan);
+  }
+
+  .checklist {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .checklist li::before {
+    content: '\2610';
+    margin-right: 8px;
+    color: var(--muted);
+  }
+
+  .handover-box {
+    background: rgba(46,204,113,0.08);
+    border: 1px solid rgba(46,204,113,0.25);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 16px 0;
+  }
+
+  .flow-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 16px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--muted);
+    overflow-x: auto;
+  }
+
+  .flow-diagram .highlight { color: var(--cyan); font-weight: 600; }
+  .flow-diagram .action { color: var(--orange); }
+  .flow-diagram .decision { color: var(--yellow); }
+  .flow-diagram .outcome { color: var(--green); }
+
+  @media (max-width: 640px) {
+    .header { padding: 32px 20px; }
+    h1 { font-size: 24px; }
+    .container { padding: 24px 16px 60px; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-meta">
+    <span>Redstone Manufacturing</span>
+    <span class="tag">Roadmap #8</span>
+    <span>PRD v1.0</span>
+    <span>2026-04-21</span>
+  </div>
+  <h1>Lead Qualification Agent</h1>
+  <p class="subtitle">Replace Manuel's manual lead triage with an AI agent running inside HubSpot. Qualify inbound leads in minutes, route to the right human, and give Eric a system he can own.</p>
+</div>
+
+<div class="container">
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>1. Problem Statement</h2>
+
+    <div class="quote">
+      "Replace Manuel with that [AI], so we can reply right away and qualify it."
+      <br><strong>&mdash; Eric Millinger, Mar 2026</strong>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="val" style="color:var(--red);">5+ hrs</div>
+        <div class="label">Current Response Time</div>
+      </div>
+      <div class="stat">
+        <div class="val" style="color:var(--orange);">~70%</div>
+        <div class="label">Leads Unqualified</div>
+      </div>
+      <div class="stat">
+        <div class="val" style="color:var(--yellow);">1 hr/day</div>
+        <div class="label">Manuel's Availability</div>
+      </div>
+      <div class="stat">
+        <div class="val" style="color:var(--muted);">0</div>
+        <div class="label">SLA Measured</div>
+      </div>
+    </div>
+
+    <p>Manuel handles inbound form submissions from redstone-mfg.com. He works approximately 1 hour per day around 5pm. Leads submitted in the morning sit untouched for 5+ hours. Industry data shows manufacturing leads contacted within 5 minutes qualify at ~40%; after 5 hours that drops to ~10%.</p>
+
+    <p>Simultaneously, ~70% of inbound leads are unqualified: hobbyists, prototypers, wrong geography, wrong manufacturing process. No one filters these before they reach a human. Eric, Rachel, and Alec all lose time on dead leads.</p>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>2. Objective</h2>
+
+    <p>Build an AI agent that lives inside HubSpot (where leads already land via WPForms) that:</p>
+    <ol>
+      <li><strong>Scores and qualifies</strong> every inbound lead against Redstone's ICP within minutes of submission</li>
+      <li><strong>Routes qualified leads</strong> to the right person with full context</li>
+      <li><strong>Filters junk</strong> so humans only touch leads worth their time</li>
+      <li><strong>Logs everything</strong> so Eric has a table of every lead, score, and outcome</li>
+      <li><strong>(Future)</strong> Sends an instant acknowledgment to the prospect</li>
+    </ol>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>3. Ideal Customer Profile (Qualification Criteria)</h2>
+
+    <p>The agent scores leads against these dimensions, derived from Eric's historical deal patterns:</p>
+
+    <table>
+      <tr>
+        <th>Dimension</th>
+        <th>Qualified (Score +)</th>
+        <th>Disqualified (Score &minus;)</th>
+        <th>Weight</th>
+      </tr>
+      <tr>
+        <td><strong>Manufacturing Process</strong></td>
+        <td>Die casting, CNC machining, injection molding, stamping, forging</td>
+        <td>3D printing, jewelry, crafts, "how to" queries</td>
+        <td>High</td>
+      </tr>
+      <tr>
+        <td><strong>Volume / Scale</strong></td>
+        <td>Production runs, OEM, ongoing supply</td>
+        <td>Single prototype, hobby project, 1-off personal item</td>
+        <td>High</td>
+      </tr>
+      <tr>
+        <td><strong>Geography</strong></td>
+        <td>North America, Europe (companies sourcing from MX/CN)</td>
+        <td>Regions Redstone doesn't serve; local consumer requests</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><strong>Company Signal</strong></td>
+        <td>Has company name, company email, identifiable business</td>
+        <td>Gmail/Yahoo personal email, no company info, student</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><strong>Deal Size Indicator</strong></td>
+        <td>Mentions quantities, RFQ, annual volume, existing supplier</td>
+        <td>Asks about single unit pricing, "just curious"</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td><strong>Urgency</strong></td>
+        <td>Timeline mentioned, active project, switching suppliers</td>
+        <td>Research phase, no timeline, academic inquiry</td>
+        <td>Low</td>
+      </tr>
+    </table>
+
+    <p>These weights and criteria are configurable. Phase 2 tunes them using historical HubSpot deal data (won vs. lost).</p>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>4. System Architecture</h2>
+
+    <h3>Design Principles</h3>
+    <ul>
+      <li><strong>HubSpot-native:</strong> Leads already flow to HubSpot via WPForms. The agent triggers from HubSpot, writes back to HubSpot. No new systems for Eric to learn.</li>
+      <li><strong>Cloud-hosted:</strong> Runs on a lightweight cloud function (GCP Cloud Run or AWS Lambda) so it's always on, not dependent on anyone's laptop.</li>
+      <li><strong>Handover-ready:</strong> Eric's team can own this. Config lives in a simple JSON/spreadsheet. No black box.</li>
+      <li><strong>POC first:</strong> Eric's rule: "Confirm it works manually, then automate." Phase 1 runs in shadow mode alongside Manuel.</li>
+    </ul>
+
+    <h3>Data Flow</h3>
+
+    <div class="flow-diagram">
+<span class="highlight">WPForms</span> (redstone-mfg.com)
+    &darr; auto-sync
+<span class="highlight">HubSpot Contact</span> created (existing flow, no change)
+    &darr; webhook fires on new contact
+<span class="action">Cloud Function</span> receives payload
+    &darr;
+<span class="decision">LLM Qualification Engine</span>
+    &bull; Reads: form fields, company name, email domain, message text
+    &bull; Enriches: company lookup (Clearbit/Apollo, optional)
+    &bull; Scores: ICP match (0-100), qualification tier, reasoning
+    &darr;
+<span class="action">Writes back to HubSpot</span>
+    &bull; Custom properties: lead_score, qualification_tier, agent_reasoning
+    &bull; Assigns contact owner based on routing rules
+    &bull; Moves to appropriate pipeline stage
+    &darr;
+<span class="outcome">Notification</span> to assigned human (HubSpot native or Slack)
+    &darr; (Phase 5, future)
+<span class="outcome">Instant email</span> to prospect acknowledging receipt
+    </div>
+
+    <h3>Tech Stack</h3>
+    <table>
+      <tr><th>Component</th><th>Technology</th><th>Why</th></tr>
+      <tr><td>Trigger</td><td>HubSpot Workflow + Webhook</td><td>Native to Eric's existing CRM, zero new tools</td></tr>
+      <tr><td>Compute</td><td>GCP Cloud Run (or AWS Lambda)</td><td>Serverless, scales to zero, pennies/month at Redstone volume</td></tr>
+      <tr><td>LLM</td><td>Claude API (Haiku for scoring, Sonnet for enrichment)</td><td>Fast, cheap, structured output. Haiku handles 95% of leads at ~$0.001/lead</td></tr>
+      <tr><td>Enrichment</td><td>Clearbit / Apollo (optional Phase 2)</td><td>Company data lookup by email domain</td></tr>
+      <tr><td>Storage</td><td>HubSpot custom properties + BQ (Phase 3)</td><td>HubSpot is source of truth; BQ for analytics</td></tr>
+      <tr><td>Config</td><td>JSON file in repo (or Google Sheet for Eric)</td><td>Editable qualification rules without code deploys</td></tr>
+      <tr><td>Notifications</td><td>HubSpot native (email/task) or Slack webhook</td><td>Eric already in HubSpot daily</td></tr>
+    </table>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>5. Phased Roadmap</h2>
+
+    <div class="phase-card" data-phase="01">
+      <h3><span class="phase-num p1">1</span> Shadow Mode <span class="tag-inline tag-mvp">MVP</span></h3>
+      <p><strong>Goal:</strong> Prove the agent qualifies leads as well as (or better than) a human, without touching the live workflow.</p>
+
+      <table>
+        <tr><th>Task</th><th>Detail</th></tr>
+        <tr><td>HubSpot custom properties</td><td>Create: <code>lead_score</code> (number 0-100), <code>qualification_tier</code> (Hot / Warm / Cold / Junk), <code>agent_reasoning</code> (text), <code>agent_processed_at</code> (datetime)</td></tr>
+        <tr><td>Webhook setup</td><td>HubSpot workflow: on new contact creation &rarr; POST to Cloud Run endpoint</td></tr>
+        <tr><td>Cloud function</td><td>Receives contact payload, calls Claude Haiku with ICP prompt + form data, writes score back to HubSpot via API</td></tr>
+        <tr><td>ICP prompt engineering</td><td>System prompt encoding the qualification table from Section 3. Structured JSON output: score, tier, reasoning, suggested_owner</td></tr>
+        <tr><td>Shadow logging</td><td>Agent writes scores but does NOT change contact owner or pipeline stage. Manuel continues as-is.</td></tr>
+        <tr><td>Validation dashboard</td><td>Simple HubSpot report: agent score vs. Manuel's actual disposition. Weekly review table for Eric.</td></tr>
+      </table>
+
+      <p><strong>Success criteria:</strong> Agent agrees with Manuel's qualification on &ge;80% of leads over 2-week shadow period. Eric reviews the comparison table and approves go-live.</p>
+      <p><strong>Estimated effort:</strong> 1-2 weeks</p>
+      <p><strong>Cost:</strong> ~$0 incremental (HubSpot free tier supports webhooks; Cloud Run free tier; Haiku costs ~$0.001/lead at 50 leads/mo)</p>
+    </div>
+
+    <div class="phase-card" data-phase="02">
+      <h3><span class="phase-num p2">2</span> Live Qualification + Routing</h3>
+      <p><strong>Goal:</strong> Agent takes over qualification. Qualified leads auto-route to the right human. Manuel stops triaging.</p>
+
+      <table>
+        <tr><th>Task</th><th>Detail</th></tr>
+        <tr><td>Auto-assign contact owner</td><td>Routing rules: Hot &rarr; Eric/Rachel, Warm &rarr; Alec, Cold &rarr; nurture queue, Junk &rarr; archived</td></tr>
+        <tr><td>HubSpot task creation</td><td>Hot leads create a HubSpot task for the assigned owner with agent reasoning + next-step suggestion</td></tr>
+        <tr><td>Notification</td><td>Slack webhook or HubSpot email notification on Hot leads (configurable)</td></tr>
+        <tr><td>Routing config</td><td>Google Sheet or JSON: who gets which tier, business hours, fallback owner</td></tr>
+        <tr><td>Override mechanism</td><td>Any human can re-score a lead in HubSpot; agent logs the override for model tuning</td></tr>
+      </table>
+
+      <p><strong>Success criteria:</strong> Response time to Hot leads drops below 30 minutes. Eric confirms junk leads no longer reach humans.</p>
+      <p><strong>Estimated effort:</strong> 1 week (incremental on Phase 1)</p>
+    </div>
+
+    <div class="phase-card" data-phase="03">
+      <h3><span class="phase-num p3">3</span> Historical Tuning + Analytics</h3>
+      <p><strong>Goal:</strong> Use historical HubSpot deal data to tune scoring weights. Pipe lead data to BigQuery for Eric's warehouse.</p>
+
+      <table>
+        <tr><th>Task</th><th>Detail</th></tr>
+        <tr><td>Historical backfill</td><td>Pull all HubSpot contacts from past 12 months. Run through agent. Compare agent score vs. actual deal outcome (won/lost/no deal).</td></tr>
+        <tr><td>Weight tuning</td><td>Adjust ICP weights based on which dimensions actually predict won deals at Redstone</td></tr>
+        <tr><td>BQ pipeline</td><td>Nightly sync: HubSpot contacts + agent scores + deal outcomes &rarr; <code>kamg_redstone.lead_qualification</code></td></tr>
+        <tr><td>Lead Decay Clock</td><td>Measure form_submitted_at vs. first_hubspot_activity vs. deal_outcome. Produce the dollar-value table Eric asked for.</td></tr>
+        <tr><td>Reporting table</td><td>Weekly table (Eric's format): leads received, qualified, junk, response time, by channel</td></tr>
+      </table>
+
+      <p><strong>Success criteria:</strong> Agent accuracy &ge;90% vs. historical outcomes. Lead Decay Clock data delivered to Eric.</p>
+      <p><strong>Estimated effort:</strong> 1-2 weeks</p>
+    </div>
+
+    <div class="phase-card" data-phase="04">
+      <h3><span class="phase-num p4">4</span> Enrichment + Smart Scoring</h3>
+      <p><strong>Goal:</strong> Go beyond form data. Enrich leads with company intel for better scoring.</p>
+
+      <table>
+        <tr><th>Task</th><th>Detail</th></tr>
+        <tr><td>Email domain enrichment</td><td>Clearbit or Apollo lookup: company size, industry, revenue, location</td></tr>
+        <tr><td>Website scrape</td><td>If company URL provided, extract: what they make, manufacturing mentions, scale indicators</td></tr>
+        <tr><td>Enhanced prompt</td><td>Feed enrichment data into scoring prompt for higher-confidence qualification</td></tr>
+        <tr><td>Duplicate detection</td><td>Flag leads from same company or repeat submissions</td></tr>
+      </table>
+
+      <p><strong>Success criteria:</strong> Scoring confidence increases; fewer "Warm" (uncertain) leads, more definitive Hot/Junk splits.</p>
+      <p><strong>Estimated effort:</strong> 1 week</p>
+    </div>
+
+    <div class="phase-card" data-phase="05">
+      <h3><span class="phase-num p5">5</span> Instant Response <span class="tag-inline tag-v3">Future</span></h3>
+      <p><strong>Goal:</strong> Sub-5-minute personalized acknowledgment to the prospect. Requires historical data from Phases 1-3 to do well.</p>
+
+      <table>
+        <tr><th>Task</th><th>Detail</th></tr>
+        <tr><td>Response template engine</td><td>Personalized email based on qualification tier + what the prospect asked about</td></tr>
+        <tr><td>Tone calibration</td><td>Trained on Eric/Rachel's actual email voice from won deals</td></tr>
+        <tr><td>Hot lead fast-track</td><td>Hot leads get a personalized reply + calendar link for discovery call</td></tr>
+        <tr><td>Cold lead deflection</td><td>Polite "not a fit" or redirect to self-serve resources</td></tr>
+        <tr><td>Human review gate</td><td>Option: agent drafts reply, human approves before send (Eric's "manual then automate" rule)</td></tr>
+      </table>
+
+      <p><strong>Success criteria:</strong> Prospect receives acknowledgment within 5 minutes. Discovery call booking rate increases.</p>
+      <p><strong>Estimated effort:</strong> 2 weeks</p>
+      <p><strong>Dependency:</strong> Phases 1-3 complete. Historical email corpus from Eric/Rachel. Eric approves auto-send policy.</p>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>6. Eric Handover Plan</h2>
+
+    <div class="handover-box">
+      <h3 style="color:var(--green); margin-top:0;">Designed for Transfer</h3>
+      <p>Eric said: <em>"I especially shine when a founder says hey, this is the KPI and then releases me towards it."</em> This system is built so Eric's team can own it without us.</p>
+
+      <table>
+        <tr><th>Component</th><th>How Eric Owns It</th></tr>
+        <tr><td>Qualification rules</td><td>Google Sheet with ICP dimensions, weights, and examples. Edit the sheet, agent updates on next run. No code.</td></tr>
+        <tr><td>Routing rules</td><td>Same sheet: who gets Hot, who gets Warm, fallback owner, business hours.</td></tr>
+        <tr><td>Score overrides</td><td>Change <code>qualification_tier</code> in HubSpot on any contact. Agent logs it, learns from it.</td></tr>
+        <tr><td>Monitoring</td><td>HubSpot native report: leads processed today, scores, response times. No external dashboard.</td></tr>
+        <tr><td>Cloud function</td><td>Runs on Eric's own GCP project (or ours initially). Single function, documented, transferable.</td></tr>
+        <tr><td>Cost</td><td>&lt;$5/month at current lead volume. Eric can see the bill in GCP console.</td></tr>
+        <tr><td>Kill switch</td><td>Disable the HubSpot workflow &rarr; agent stops. Manuel resumes. 1-click revert.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>7. Risks &amp; Mitigations</h2>
+
+    <table>
+      <tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>
+      <tr>
+        <td>Agent misqualifies a high-value lead as junk</td>
+        <td class="risk-high">High</td>
+        <td>Phase 1 shadow mode catches this before go-live. Conservative threshold: anything uncertain goes to Warm (human review), not Junk. Weekly audit table for Eric.</td>
+      </tr>
+      <tr>
+        <td>HubSpot API limits</td>
+        <td class="risk-low">Low</td>
+        <td>Redstone volume is ~50 leads/month. HubSpot free tier allows 100 API calls/10 sec. Not a concern.</td>
+      </tr>
+      <tr>
+        <td>Eric doesn't trust AI scoring</td>
+        <td class="risk-med">Medium</td>
+        <td>Shadow mode comparison table is the trust-builder. Show him the data (table, not chart). His quote suggests he's already bought in conceptually.</td>
+      </tr>
+      <tr>
+        <td>Manuel's role during transition</td>
+        <td class="risk-med">Medium</td>
+        <td>Phase 1 = shadow (Manuel keeps working). Phase 2 = agent takes over qualification; Manuel can shift to follow-up/relationship tasks. Eric decides Manuel's role.</td>
+      </tr>
+      <tr>
+        <td>LLM cost creep</td>
+        <td class="risk-low">Low</td>
+        <td>Haiku at ~$0.001/lead. 50 leads/month = $0.05/month. Even 10x growth is negligible.</td></tr>
+      <tr>
+        <td>Form data insufficient for qualification</td>
+        <td class="risk-med">Medium</td>
+        <td>Phase 1 validates this. If form fields are too sparse, recommend adding 1-2 qualifying questions to the form (Eric's existing "form trim" initiative).</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>8. HubSpot Schema</h2>
+
+    <h3>Custom Properties (Contact Object)</h3>
+    <table>
+      <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>lqa_score</code></td><td>Number (0-100)</td><td>Lead qualification score from agent</td></tr>
+      <tr><td><code>lqa_tier</code></td><td>Dropdown: Hot / Warm / Cold / Junk</td><td>Qualification tier</td></tr>
+      <tr><td><code>lqa_reasoning</code></td><td>Multi-line text</td><td>Agent's reasoning for the score (2-3 sentences)</td></tr>
+      <tr><td><code>lqa_suggested_owner</code></td><td>Text</td><td>Who the agent recommends this goes to</td></tr>
+      <tr><td><code>lqa_processed_at</code></td><td>Datetime</td><td>When the agent processed this lead</td></tr>
+      <tr><td><code>lqa_response_time_min</code></td><td>Number</td><td>Minutes between form submit and agent processing</td></tr>
+      <tr><td><code>lqa_human_override</code></td><td>Dropdown: Upgraded / Downgraded / Confirmed / None</td><td>If a human changed the agent's score</td></tr>
+      <tr><td><code>lqa_enrichment</code></td><td>Multi-line text (JSON)</td><td>Phase 4: company enrichment data</td></tr>
+    </table>
+
+    <p>All properties prefixed <code>lqa_</code> (Lead Qualification Agent) to keep them grouped and identifiable.</p>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>9. Success Metrics</h2>
+
+    <table>
+      <tr><th>Metric</th><th>Current</th><th>Phase 1 Target</th><th>Phase 2+ Target</th></tr>
+      <tr><td>Lead response time (qualified)</td><td>5+ hours</td><td>Measured (shadow)</td><td>&lt; 30 minutes</td></tr>
+      <tr><td>Qualification accuracy</td><td>Unmeasured</td><td>&ge; 80% vs. Manuel</td><td>&ge; 90% vs. deal outcomes</td></tr>
+      <tr><td>Junk leads reaching humans</td><td>~70%</td><td>Measured (shadow)</td><td>&lt; 10%</td></tr>
+      <tr><td>Human time on triage/month</td><td>~20 hrs (est.)</td><td>No change (shadow)</td><td>&lt; 2 hrs (overrides only)</td></tr>
+      <tr><td>Lead-to-discovery-call rate</td><td>Unmeasured</td><td>Baseline established</td><td>+25% (faster response)</td></tr>
+      <tr><td>Cost per lead qualified</td><td>Manuel's time</td><td>~$0.001/lead</td><td>~$0.01/lead (with enrichment)</td></tr>
+    </table>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section>
+    <h2>10. Assignment</h2>
+
+    <table>
+      <tr><th>Role</th><th>Person</th><th>Responsibility</th></tr>
+      <tr><td>Build lead</td><td><strong>Leo</strong></td><td>Cloud function, HubSpot integration, prompt engineering, deployment</td></tr>
+      <tr><td>Account lead</td><td><strong>Kas</strong></td><td>Eric comms, ICP refinement, approval gates, success criteria sign-off</td></tr>
+      <tr><td>HubSpot access</td><td><strong>Eric / Rachel</strong></td><td>Approve custom properties, workflow creation, API key</td></tr>
+      <tr><td>BQ integration (Phase 3)</td><td><strong>Leo / Rehan</strong></td><td>Nightly sync to <code>kamg_redstone.lead_qualification</code></td></tr>
+    </table>
+  </section>
+
+  <!-- ──────────────────────────────────────── -->
+  <section style="margin-bottom:0;">
+    <h2>Appendix: Eric's Relevant Quotes</h2>
+    <table>
+      <tr><th>Date</th><th>Quote / Action</th><th>Implication</th></tr>
+      <tr><td>2026-03-17</td><td>"Replace Manuel / automate discovery" (priority list)</td><td>This is a named initiative, not a passing comment</td></tr>
+      <tr><td>2026-03-24</td><td>"We're probably closing less than one a month right now"</td><td>Every qualified lead matters enormously at this volume</td></tr>
+      <tr><td>Mar 2026</td><td>"Replace Manuel with that [AI], so we can reply right away and qualify it"</td><td>Explicit buy-in for AI qualification</td></tr>
+      <tr><td>2026-03-31</td><td>"Confirm it works manually, then automate"</td><td>Shadow mode (Phase 1) is non-negotiable</td></tr>
+      <tr><td>2026-03-31</td><td>Suggests Manuel@/Jose@ for cold email Mexico angle</td><td>Manuel has brand value as a name; replacement is about the process, not the person</td></tr>
+      <tr><td>Ongoing</td><td>"I just want all the data" / "I'm an engineer"</td><td>Reporting must be tables. Score + reasoning visible on every contact.</td></tr>
+    </table>
+  </section>
+
+</div>
+
+</body>
+</html>

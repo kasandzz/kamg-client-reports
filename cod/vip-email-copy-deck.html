@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD VIP Copy Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0a0f;--bg2:#111116;--bg3:#18181f;--card:#1a1a22;--card-inner:#1f1f2a;
+--border:rgba(200,169,110,0.12);--border-h:rgba(200,169,110,0.25);
+--gold:#c8a96e;--gold-dim:rgba(200,169,110,0.1);--gold-bg:rgba(200,169,110,0.15);
+--text:#f0ede8;--text2:#9a968e;--text3:#5a574f;
+--green:#4ade80;--red:#f87171;--amber:#fbbf24;--teal:#2dd4bf;
+--font:'Outfit',system-ui,sans-serif;--display:'Cormorant Garamond',Georgia,serif;
+}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-weight:400;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Container */
+.container{max-width:1000px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{padding:80px 0 48px;text-align:left}
+.hero-label{font-size:11px;font-weight:600;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.hero-title{font-family:var(--display);font-size:clamp(2.4rem,5vw,3.6rem);font-weight:500;color:var(--text);line-height:1.1;margin-bottom:16px}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-subtitle{font-size:15px;color:var(--text2);max-width:640px;line-height:1.7;margin-bottom:36px}
+
+/* Stats row */
+.stats-row{display:flex;flex-wrap:wrap;gap:12px}
+.stat-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--text2)}
+.stat-pill .num{color:var(--text);font-weight:600;font-size:15px}
+.stat-pill.green .num{color:var(--green)}
+.stat-pill.teal .num{color:var(--teal)}
+.stat-pill.gray .num{color:var(--text3)}
+.stat-pill.amber .num{color:var(--amber)}
+
+/* Sticky Nav */
+.sticky-nav{position:sticky;top:0;z-index:50;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0}
+.sticky-nav .container{display:flex;align-items:center;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sticky-nav .container::-webkit-scrollbar{display:none}
+.nav-link{display:inline-block;padding:14px 18px;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);white-space:nowrap;transition:color 0.2s}
+.nav-link:hover{color:var(--gold);text-decoration:none}
+
+/* Phase headers */
+.phase-section{padding-top:56px;margin-bottom:24px}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.phase-num{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;padding:4px 10px;background:var(--gold-dim);border-radius:4px}
+.phase-title{font-family:var(--display);font-size:clamp(1.5rem,3vw,2rem);font-weight:500;color:var(--text)}
+
+/* Cards */
+.copy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:28px;overflow:hidden;transition:border-color 0.25s}
+.copy-card:hover{border-color:var(--border-h)}
+
+/* Card header */
+.card-header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:16px 20px;border-left:3px solid var(--gold);background:var(--bg2)}
+.card-header.sms{border-left-color:var(--teal)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+.badge-email{background:var(--gold-dim);color:var(--gold)}
+.badge-sms{background:rgba(45,212,191,0.12);color:var(--teal)}
+.badge-new{background:rgba(74,222,128,0.12);color:var(--green)}
+.badge-keep{background:rgba(90,87,79,0.15);color:var(--text3)}
+.badge-modified{background:rgba(251,191,36,0.12);color:var(--amber)}
+.card-meta{font-size:12px;color:var(--text3);margin-left:auto;text-align:right;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.card-meta span{white-space:nowrap}
+
+/* Gate note */
+.gate-note{padding:10px 20px;background:rgba(45,212,191,0.05);border-bottom:1px solid var(--border);font-size:12px;color:var(--teal);font-weight:500}
+
+/* Subject lines */
+.subject-section{padding:20px 20px 0}
+.subject-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.subject-list{list-style:none;padding:0;margin:0 0 0 0}
+.subject-list li{padding:8px 12px;margin-bottom:6px;background:var(--card-inner);border:1px solid var(--border);border-radius:6px;font-size:14px;color:var(--text);line-height:1.5;display:flex;gap:10px}
+.subject-list li .snum{color:var(--text3);font-weight:600;font-size:12px;min-width:16px;flex-shrink:0;padding-top:1px}
+
+/* Body section */
+.body-section{padding:20px}
+.body-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.email-body{background:var(--card-inner);border:1px solid var(--border);border-radius:8px;padding:24px;font-size:14px;line-height:1.8;color:var(--text);white-space:pre-wrap;word-wrap:break-word}
+.email-body .merge{display:inline;padding:2px 7px;background:var(--gold-bg);border:1px solid rgba(200,169,110,0.2);border-radius:4px;font-family:'Outfit',monospace;font-size:12px;color:var(--gold);white-space:nowrap}
+.email-body .link{color:var(--teal)}
+.email-body .bold{font-weight:600;color:var(--text)}
+.email-body .ps{opacity:0.7}
+.email-body .section-header{font-weight:700;color:var(--text);font-size:15px;display:block;margin:4px 0 2px}
+
+/* Production note */
+.prod-note{margin:0 20px 20px;padding:12px 16px;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.18);border-radius:8px;font-size:12px;color:var(--amber);line-height:1.6}
+.prod-note-label{font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:10px;margin-bottom:4px;display:block}
+
+/* Footer */
+.footer{padding:48px 0 64px;border-top:1px solid var(--border);margin-top:48px}
+.footer p{font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:4px}
+
+/* Responsive */
+@media(max-width:640px){
+  .hero{padding:48px 0 32px}
+  .stats-row{flex-direction:column}
+  .stat-pill{width:100%;justify-content:center}
+  .card-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .card-meta{margin-left:0;text-align:left}
+  .nav-link{padding:12px 14px;font-size:11px}
+  .email-body{padding:16px;font-size:13px}
+  .subject-section,.body-section{padding:16px}
+  .prod-note{margin:0 16px 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+<div class="container">
+  <div class="hero-label">VIP Copy Deck</div>
+  <h1 class="hero-title">Complete Email + SMS <em>Copy</em></h1>
+  <p class="hero-subtitle">Every touchpoint in the proposed VIP journey. Full body copy with GHL merge fields. Ready for team review and GHL implementation.</p>
+  <div class="stats-row">
+    <div class="stat-pill green"><span class="num">11</span> new emails</div>
+    <div class="stat-pill teal"><span class="num">3</span> new SMS</div>
+    <div class="stat-pill gray"><span class="num">4</span> existing (unchanged)</div>
+    <div class="stat-pill amber"><span class="num">1</span> modified</div>
+  </div>
+</div>
+</section>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav">
+<div class="container">
+  <a href="#purchase" class="nav-link">Purchase</a>
+  <a href="#workshop" class="nav-link">Workshop</a>
+  <a href="#vip-prep" class="nav-link">VIP Prep</a>
+  <a href="#vip-friday" class="nav-link">VIP Friday</a>
+  <a href="#toolkit" class="nav-link">Toolkit</a>
+  <a href="#nurture" class="nav-link">Nurture</a>
+</div>
+</nav>
+
+<main class="container">
+
+<!-- ============================================ -->
+<!-- PHASE 1: PURCHASE -->
+<!-- ============================================ -->
+<section class="phase-section" id="purchase">
+<div class="phase-header">
+  <span class="phase-num">Phase 1</span>
+  <h2 class="phase-title">Purchase</h2>
+</div>
+
+<!-- Card 1: Email 1 - VIP Confirmation -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Immediately after purchase</span>
+      <span>Workflow: VIP Workshop Purchase</span>
+    </div>
+  </div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> You're in. Here's what happens next, <span class="merge">{{contact.first_name}}</span>.</li>
+      <li><span class="snum">2.</span> VIP confirmed, <span class="merge">{{contact.first_name}}</span>. Two sessions. Two dates.</li>
+      <li><span class="snum">3.</span> Your VIP spot is locked in, <span class="merge">{{contact.first_name}}</span>.</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+You're officially a VIP.
+
+Here's your full schedule:
+
+<span class="bold">Workshop:</span> <span class="merge">{{ contact.booked_workshop_pretty_date }}</span> Pacific
+<span class="bold">Access Link:</span> <span class="link merge">{{contact.joinurl}}</span>
+
+<span class="bold">VIP Session with Russ:</span> <span class="merge">{{custom_values.cod_auto_workshop_vip_date_pretty}}</span> at <span class="merge">{{custom_values.cod_auto_workshop_vip_time_pretty}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span>
+<span class="bold">Zoom Link:</span> <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span>
+<span class="bold">Password:</span> RUSSVIP
+
+These are two separate events. The workshop is available to watch on <span class="merge">{{ contact.booked_workshop_pretty_date }}</span>. The VIP session on <span class="merge">{{custom_values.cod_auto_workshop_vip_date_pretty}}</span> is live and requires you to show up.
+
+The workshop is where you'll learn the framework and build your offer using AI. The Friday VIP session is where Russ reviews your specific situation live, sharpens your offer, and answers your questions directly. There is no recording of the VIP session. There is no way to reschedule. If you want Russ's eyes on your offer, Friday is your one shot.
+
+Add both to your calendar now so nothing slips.
+
+We'll send reminders as each session gets closer.
+
+Talk soon,
+Russ Ruffino
+Clients on Demand
+
+<span class="ps">P.S. The VIP session is a one-time live event. We are unable to offer reschedules or recordings of this session. If you want Russ's eyes on your offer, Friday is it.</span></div>
+  </div>
+</div>
+
+<!-- Card 2: SMS 1 - VIP Confirmation -->
+<div class="copy-card">
+  <div class="card-header sms">
+    <span class="badge badge-sms">SMS</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Immediately after Email 1</span>
+      <span>Workflow: VIP Workshop Purchase</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">SMS Body</div>
+    <div class="email-body">Hey <span class="merge">{{contact.first_name}}</span>, you're confirmed for the workshop + your live VIP session with Russ on <span class="merge">{{custom_values.cod_auto_workshop_vip_date_pretty}}</span> at <span class="merge">{{custom_values.cod_auto_workshop_vip_time_pretty}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span>. No recording, no reschedule. Check email for full details.</div>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- PHASE 2: WORKSHOP DAY -->
+<!-- ============================================ -->
+<section class="phase-section" id="workshop">
+<div class="phase-header">
+  <span class="phase-num">Phase 2</span>
+  <h2 class="phase-title">Workshop Day</h2>
+</div>
+
+<!-- Card 3: Email 2 - Workshop 1hr Reminder -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-keep">KEEP</span>
+    <div class="card-meta">
+      <span>1 hour before workshop</span>
+      <span>Workflow: Pre &amp; Post Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+We start in 1 hour!
+
+Here's your access info:
+
+<span class="bold">Access Link:</span> <span class="link merge">{{contact.joinurl}}</span>
+
+<span class="bold">Date/Time:</span> TODAY - <span class="merge">{{ contact.booked_workshop_pretty_date }}</span> Pacific
+
+Close everything else. This is the most important time you'll spend on your business this month.
+
+See you in 1 hour,
+
+Let's do this!
+
+- Russ</div>
+  </div>
+</div>
+
+<!-- Card 4: SMS 2 - Workshop 1hr Reminder -->
+<div class="copy-card">
+  <div class="card-header sms">
+    <span class="badge badge-sms">SMS</span>
+    <span class="badge badge-keep">KEEP</span>
+    <div class="card-meta">
+      <span>1 hour before workshop</span>
+      <span>Workflow: Pre &amp; Post Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">SMS Body</div>
+    <div class="email-body">Your Workshop with Russ Ruffino starts in 1 hour
+
+Access Link: <span class="link merge">{{contact.joinurl}}</span>
+
+- Russ</div>
+  </div>
+</div>
+
+<!-- Card 5: Email 3 - Workshop 15min Reminder -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-keep">KEEP</span>
+    <div class="card-meta">
+      <span>15 minutes before workshop</span>
+      <span>Workflow: Pre &amp; Post Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hey it's Russ Ruffino. Quick heads-up: we're starting at the top of the hour!
+Don't miss this, you need to be there if you want my AI prompts that will create your Entire High Ticket Coaching Program, Start to Finish.
+
+<span class="bold">Access Link:</span> <span class="link merge">{{contact.joinurl}}</span></div>
+  </div>
+</div>
+
+<!-- Card 6: SMS 3 - Workshop 15min Reminder -->
+<div class="copy-card">
+  <div class="card-header sms">
+    <span class="badge badge-sms">SMS</span>
+    <span class="badge badge-keep">KEEP</span>
+    <div class="card-meta">
+      <span>15 minutes before workshop</span>
+      <span>Workflow: Pre &amp; Post Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">SMS Body</div>
+    <div class="email-body">Hey it's Russ Ruffino. Quick heads-up: we're starting at the top of the hour!
+Don't miss this, you need to be there if you want my AI prompts that will create your Entire High Ticket Coaching Program, Start to Finish.
+
+<span class="bold">Access Link:</span> <span class="link merge">{{contact.joinurl}}</span></div>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- PHASE 3: VIP PREP -->
+<!-- ============================================ -->
+<section class="phase-section" id="vip-prep">
+<div class="phase-header">
+  <span class="phase-num">Phase 3</span>
+  <h2 class="phase-title">VIP Prep</h2>
+</div>
+
+<!-- Card 7: Email 4 - Wednesday Prep -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Wednesday PM (48h before VIP)</span>
+      <span>Workflow: VIP Workshop Pre-Event Reminders</span>
+    </div>
+  </div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> Friday is 48 hours out. Here's how to make the most of it, <span class="merge">{{contact.first_name}}</span>.</li>
+      <li><span class="snum">2.</span> Come with your offer. Russ will sharpen it live.</li>
+      <li><span class="snum">3.</span> Three questions to answer before Friday's session.</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+Friday is two days away.
+
+If you want to walk away from the VIP session with real clarity on your offer, the best thing you can do is show up prepared. You don't need a finished offer. You don't need a polished pitch. You just need to think through a few things before we get on the call.
+
+Here are three questions worth sitting with before Friday:
+
+1. Who do you help, and what specific problem do you solve for them?
+2. What result can someone expect from working with you, and roughly how long does it take?
+3. What's the one thing about your offer you're most unsure about right now?
+
+Bring your answers, even if they're rough. Russ will work with whatever you've got. That's the point of the session.
+
+Here's what one recent VIP attendee said:
+
+"[VIP_TESTIMONIAL]"
+
+Your session details:
+
+<span class="bold">VIP Session with Russ:</span> <span class="merge">{{custom_code.2.output.result.vipDate}}</span> at <span class="merge">{{custom_code.2.output.result.vipTime}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span>
+<span class="bold">Zoom link:</span> <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span>
+<span class="bold">Password:</span> RUSSVIP
+
+This is a live session. There's no make-up. Come ready.
+
+See you soon,
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+  <div class="prod-note">
+    <span class="prod-note-label">Production Note</span>
+    [VIP_TESTIMONIAL] must be a real quote from a past VIP attendee. Include FTC results disclaimer. Do not ship with placeholder.
+  </div>
+</div>
+
+<!-- Card 8: Email 5 - Thursday Reminder -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Thursday PM (24h before VIP)</span>
+      <span>Workflow: VIP Workshop Pre-Event Reminders</span>
+    </div>
+  </div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> Tomorrow, <span class="merge">{{contact.first_name}}</span>. One day out.</li>
+      <li><span class="snum">2.</span> Your VIP session is tomorrow. Don't miss it.</li>
+      <li><span class="snum">3.</span> 24 hours, <span class="merge">{{contact.first_name}}</span>.</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+Your VIP session with Russ is tomorrow.
+
+<span class="merge">{{custom_code.2.output.result.vipDate}}</span> at <span class="merge">{{custom_code.2.output.result.vipTime}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span>.
+<span class="bold">Zoom:</span> <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span>
+<span class="bold">Password:</span> RUSSVIP
+
+This is the session people remember. Be there.
+
+See you tomorrow,
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+</div>
+
+<!-- Card 9: SMS 4 - Thursday Prep -->
+<div class="copy-card">
+  <div class="card-header sms">
+    <span class="badge badge-sms">SMS</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Thursday PM</span>
+      <span>Workflow: VIP Workshop Pre-Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">SMS Body</div>
+    <div class="email-body"><span class="merge">{{contact.first_name}}</span>, your VIP session w/ Russ is tomorrow at <span class="merge">{{custom_code.2.output.result.vipTime}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span>. Bring your offer idea. Zoom: <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span> Password: RUSSVIP</div>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- PHASE 4: VIP FRIDAY -->
+<!-- ============================================ -->
+<section class="phase-section" id="vip-friday">
+<div class="phase-header">
+  <span class="phase-num">Phase 4</span>
+  <h2 class="phase-title">VIP Friday</h2>
+</div>
+
+<!-- Card 10: Email 6 - Friday Morning -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Friday AM (2-3hr before VIP)</span>
+      <span>Workflow: VIP Workshop Pre-Event Reminders</span>
+    </div>
+  </div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> Today's the day, <span class="merge">{{contact.first_name}}</span>.</li>
+      <li><span class="snum">2.</span> Russ is on in a few hours. See you there.</li>
+      <li><span class="snum">3.</span> We're live today. Here's your Zoom link.</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+It's happening today.
+
+<span class="merge">{{custom_code.2.output.result.vipTime}}</span> <span class="merge">{{custom_values.cod_auto_workshop_timezone}}</span> on Zoom: <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span>
+<span class="bold">Password:</span> RUSSVIP
+
+See you in the room.
+
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+</div>
+
+<!-- Card 11: SMS 5 - Friday Final Push -->
+<div class="copy-card">
+  <div class="card-header sms">
+    <span class="badge badge-sms">SMS</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Friday, 30 min before VIP</span>
+      <span>Workflow: VIP Workshop Pre-Event Reminders</span>
+    </div>
+  </div>
+  <div class="body-section">
+    <div class="body-label">SMS Body</div>
+    <div class="email-body"><span class="merge">{{contact.first_name}}</span>, Russ goes live in 30 min. Join now: <span class="link merge">{{custom_values.cod_auto_workshop_vip_link}}</span> Password: RUSSVIP</div>
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- PHASE 5: TOOLKIT DELIVERY -->
+<!-- ============================================ -->
+<section class="phase-section" id="toolkit">
+<div class="phase-header">
+  <span class="phase-num">Phase 5</span>
+  <h2 class="phase-title">Toolkit Delivery</h2>
+</div>
+
+<!-- Card 12: Email 7 - Saturday Toolkit -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Saturday 9am PT</span>
+      <span>Workflow: VIP Post-Call Sequence (NEW)</span>
+    </div>
+  </div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> <span class="merge">{{contact.first_name}}</span>, your VIP toolkit is ready.</li>
+      <li><span class="snum">2.</span> Here's everything from this week, <span class="merge">{{contact.first_name}}</span>.</li>
+      <li><span class="snum">3.</span> Your access is open. Here's what to do this weekend.</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hi <span class="merge">{{contact.first_name}}</span>,
+
+Great session yesterday.
+
+Now it's time to put it to work. Here's your VIP toolkit, ready for you this weekend.
+
+
+<span class="section-header">Russ AI</span>
+Your direct line to Russ's frameworks, thinking, and offer-building process. Ask it anything you'd ask Russ. Stuck on pricing, positioning, or packaging your offer at 2am? This is your answer.
+
+Access Russ AI: <span class="link">[RUSS_AI_LINK]</span>
+
+
+<span class="section-header">Workshop Replay</span>
+Want to re-watch a specific section from the workshop? The full replay is here. Pause, rewind, take notes at your own pace.
+
+Watch the replay: <span class="link">https://www.clientsondemand.com/hto.replay</span>
+Password: 7%@l^Nxb
+
+
+<span class="section-header">$30K-$100K Offer Masterclass</span>
+The exact system behind $100M+ in results. Watch it this weekend while everything is fresh.
+
+Watch the masterclass: <span class="link">[MASTERCLASS_LINK]</span>
+
+
+Between the workshop, Friday's session with Russ, and these tools, you have everything you need to build and position your offer.
+
+If you want to take the next step and work with our team directly, we do offer a complimentary strategy call. It's not a fit for everyone, and there's no pressure. But if you're serious about getting your coaching program in front of the right clients, it's worth 30 minutes.
+
+Book your strategy call: <span class="link">www.clientsondemand.com/apply</span>
+
+Either way, you've got the tools. Use them.
+
+Proud of the work you put in this week.
+
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+  <div class="prod-note">
+    <span class="prod-note-label">Production Note</span>
+    [RUSS_AI_LINK] and [MASTERCLASS_LINK] must be replaced with actual URLs. This is the FIRST time VIP buyers receive these links.
+  </div>
+</div>
+
+</section>
+
+<!-- ============================================ -->
+<!-- PHASE 6: NURTURE -->
+<!-- ============================================ -->
+<section class="phase-section" id="nurture">
+<div class="phase-header">
+  <span class="phase-num">Phase 6</span>
+  <h2 class="phase-title">Nurture</h2>
+</div>
+
+<!-- Card 13: Email 8 - Sunday Check-In -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Sunday 10am PT</span>
+      <span>Workflow: VIP Post-Call Sequence</span>
+    </div>
+  </div>
+  <div class="gate-note">Gate: Skips if contact has call-discovery-booked tag</div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> Had a chance to dig into everything yet, <span class="merge">{{contact.first_name}}</span>?</li>
+      <li><span class="snum">2.</span> Your Russ AI is live. Have you tried it?</li>
+      <li><span class="snum">3.</span> Quick check-in after Friday, <span class="merge">{{contact.first_name}}</span></li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hey <span class="merge">{{contact.first_name}}</span>,
+
+Just checking in.
+
+You've got the toolkit in hand now: the workshop replay, access to Russ AI, the masterclass. That's a lot to land in 48 hours.
+
+Here's what I've seen happen with a lot of VIP attendees at this point. They open the email, they click around, they think "okay, this is solid" and then they close the laptop and go into the weekend. The tools sit there. The notes from Friday sit there. And then Monday comes, and so does everything else.
+
+That's not a failure of motivation. That's just life moving fast.
+
+The problem is the gap between "I have the knowledge" and "I have a clear plan for what to do with it." That gap is exactly what the strategy call is built to close. It's not a sales pitch. It's a working session where we look at your specific situation and map out what the next 90 days actually look like for you.
+
+If Friday sparked something, don't let it cool down.
+
+Book your strategy call here: <span class="link">www.clientsondemand.com/apply</span>
+
+Talk soon,
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+</div>
+
+<!-- Card 14: Email 9 - Tuesday Execution Gap -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Tuesday 9am PT</span>
+      <span>Workflow: VIP Post-Call Sequence</span>
+    </div>
+  </div>
+  <div class="gate-note">Gate: Skips if contact has call-discovery-booked tag</div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> The gap between knowing and doing (and how to close it)</li>
+      <li><span class="snum">2.</span> You've got the offer. Here's what's missing.</li>
+      <li><span class="snum">3.</span> <span class="merge">{{contact.first_name}}</span>, what happens after the workshop?</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hey <span class="merge">{{contact.first_name}}</span>,
+
+Here's a pattern I've seen play out hundreds of times.
+
+Someone attends the workshop. They build their offer live in the session. They upgrade to VIP, come to the Friday call, get direct feedback from me on their positioning. They leave energized. They have everything they need on paper.
+
+And then... nothing moves.
+
+Not because the offer is wrong. Not because they aren't capable. But because having the framework and knowing how to deploy it in your specific market, to your specific audience, at this specific moment in your business, are two completely different things.
+
+The strategy call is where that second part happens.
+
+It's the session where we look at where you actually are, who you're trying to reach, what's blocking you from getting there, and what the fastest path to your first (or next) high-ticket client looks like. Concrete. Specific to you.
+
+[VIP_TESTIMONIAL_ENROLLED]
+
+That outcome doesn't happen by accident. It happens because there was a conversation. A real one. About their real situation.
+
+If you're sitting on a strong offer and a clear idea of who you help, you're closer than you think. The call is the next move.
+
+Book here: <span class="link">www.clientsondemand.com/apply</span>
+
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+  <div class="prod-note">
+    <span class="prod-note-label">Production Note</span>
+    [VIP_TESTIMONIAL_ENROLLED] must be a real quote from a VIP attendee who enrolled. Include FTC results disclaimer.
+  </div>
+</div>
+
+<!-- Card 15: Email 10 - Wednesday Final Push -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Wednesday 8:30am PT</span>
+      <span>Workflow: VIP Post-Call Sequence</span>
+    </div>
+  </div>
+  <div class="gate-note">Gate: Skips if contact has call-discovery-booked tag</div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> This is the last email I'll send about this, <span class="merge">{{contact.first_name}}</span></li>
+      <li><span class="snum">2.</span> Don't let the momentum die</li>
+      <li><span class="snum">3.</span> Still open for you, but not forever</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hey <span class="merge">{{contact.first_name}}</span>,
+
+I'm going to be straight with you.
+
+We don't chase. That's not how we operate. If the timing isn't right or this isn't the right fit for you, that's okay. There's no hard sell here.
+
+But there's a real problem with waiting, and it's not about us. It's about you.
+
+The energy and clarity you had coming out of Friday? That has a shelf life. The offer you built in the workshop, the insights from your VIP session on <span class="merge">{{custom_code.2.output.result.vipDate}}</span>, the way you could picture exactly who you help and what result you deliver... that sharpness fades as the week fills back up. And every day that passes without a concrete next step is a day that momentum dissipates.
+
+The strategy call is exactly that next step. It's the thing that turns the Friday session from a powerful experience into an actual business decision. One conversation. A plan you can execute starting next week.
+
+After this, if we don't hear from you, we'll assume the timing isn't right. You'll move to our general updates list and hear from us occasionally. No pressure either way.
+
+But if you're serious about building this, now is the time to say so.
+
+Book your strategy call: <span class="link">www.clientsondemand.com/apply</span>
+
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+</div>
+
+<!-- Card 16: Email 11 - Thursday Fence-Sitter -->
+<div class="copy-card">
+  <div class="card-header">
+    <span class="badge badge-email">EMAIL</span>
+    <span class="badge badge-new">NET NEW</span>
+    <div class="card-meta">
+      <span>Thursday 11am PT</span>
+      <span>Workflow: VIP Post-Call Sequence</span>
+    </div>
+  </div>
+  <div class="gate-note">CONDITIONAL: Only sends if contact opened Emails 8-10 but did NOT click strategy call link</div>
+  <div class="subject-section">
+    <div class="subject-label">Subject Line Options</div>
+    <ul class="subject-list">
+      <li><span class="snum">1.</span> Still thinking about it?</li>
+      <li><span class="snum">2.</span> <span class="merge">{{contact.first_name}}</span>, genuine question</li>
+      <li><span class="snum">3.</span> One line reply will do</li>
+    </ul>
+  </div>
+  <div class="body-section">
+    <div class="body-label">Email Body</div>
+    <div class="email-body">Hey <span class="merge">{{contact.first_name}}</span>,
+
+Still on your radar?
+
+I know this week gets busy fast. If the strategy call makes sense but the scheduling page didn't quite fit, just reply to this email with a day that tends to work for you. We'll find a slot.
+
+No form. No funnel. Just a reply.
+
+Russ Ruffino
+Clients on Demand</div>
+  </div>
+</div>
+
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+<div class="container">
+  <p style="color:var(--text2);font-weight:500;margin-bottom:12px">Prepared by Kas Andz | KAMG | April 2026</p>
+  <p>All copy FTC-compliant per COD permanent rules. No income claims. No fake scarcity. No fake testimonials.</p>
+  <p style="margin-top:8px">Companion docs: <a href="vip-email-workflow-strategy.md">vip-email-workflow-strategy.md</a> | <a href="vip-email-journey-strategy.html">vip-email-journey-strategy.html</a></p>
+</div>
+</footer>
+
+</body>
+</html>

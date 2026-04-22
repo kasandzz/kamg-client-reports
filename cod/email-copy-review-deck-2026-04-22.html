@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COD Email Copy Review Deck -- Apr 22, 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --card-hover: #16161f;
+      --border: #1e1e2e;
+      --text: #e4e4e7;
+      --muted: #71717a;
+      --green: #22c55e;
+      --gold: #c8a96e;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+      --cyan: #22d3ee;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+    .header {
+      background: linear-gradient(135deg, #12121a 0%, #1a1a2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: clamp(24px, 4vw, 32px); font-weight: 700; }
+    .header .sub { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .header .version {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(200,169,110,0.1);
+      color: var(--gold);
+      border: 1px solid rgba(200,169,110,0.2);
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0;
+      margin-top: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-tab {
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .rules-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    .rules-box h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 16px; }
+    .rules-box ul { list-style: none; }
+    .rules-box li {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .rules-box li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    .phase-header {
+      margin-top: 40px;
+      padding: 16px 20px;
+      background: linear-gradient(90deg, rgba(200,169,110,0.08) 0%, transparent 100%);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+    }
+    .phase-header h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .phase-header .phase-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .email-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-top: 20px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .email-card:hover { border-color: rgba(200,169,110,0.3); }
+    .email-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .email-card-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .email-badge {
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .badge-email { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .badge-sms { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge-new { background: rgba(200,169,110,0.15); color: var(--gold); }
+    .badge-existing { background: rgba(113,113,122,0.15); color: var(--muted); }
+    .badge-updated { background: rgba(167,139,250,0.15); color: var(--purple); }
+
+    .email-meta {
+      padding: 12px 20px;
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .email-meta strong { color: var(--text); font-weight: 500; }
+
+    .email-subject {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .email-subject .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .email-subject .subject-line {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .email-body {
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #d4d4d8;
+      white-space: pre-wrap;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .email-body .merge-field {
+      color: var(--cyan);
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      background: rgba(34,211,238,0.08);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .email-body .placeholder {
+      color: var(--red);
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      background: rgba(239,68,68,0.08);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .sms-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-top: 16px;
+      padding: 16px 20px;
+    }
+    .sms-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .sms-card-header h3 { font-size: 14px; font-weight: 600; }
+    .sms-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #d4d4d8;
+      background: rgba(0,0,0,0.2);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    .note-box {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.15);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    .review-box {
+      background: var(--card);
+      border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 40px;
+    }
+    .review-box h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--purple); margin-bottom: 16px; }
+    .review-box ol { padding-left: 20px; }
+    .review-box li {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 40px 0;
+    }
+
+    @media (max-width: 600px) {
+      .header { padding: 24px 16px; }
+      .email-meta { flex-direction: column; gap: 4px; }
+      .nav-tab { padding: 10px 14px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="eyebrow">Clients on Demand</div>
+    <h1>Email Copy Review Deck</h1>
+    <div class="sub">Workshop + VIP Buyer Journeys &middot; For Review by Akari & Russ</div>
+    <div class="version">April 22, 2026 &middot; v3</div>
+  </div>
+
+  <div class="container">
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('workshop')">Standard Workshop</button>
+      <button class="nav-tab" onclick="switchTab('vip')">VIP Journey</button>
+      <button class="nav-tab" onclick="switchTab('review')">Review Notes</button>
+    </div>
+
+    <!-- ==================== STANDARD WORKSHOP TAB ==================== -->
+    <div id="tab-workshop" class="tab-content active">
+
+      <div class="rules-box">
+        <h2>Copy Rules (All Emails)</h2>
+        <ul>
+          <li>No income claims or earnings representations</li>
+          <li>No fake scarcity ("Only X spots" banned; "Limited space available" OK)</li>
+          <li>Workshop is NOT live. Only the Friday VIP Q&A is live.</li>
+          <li>Never denigrate the $27 workshop to sell VIP</li>
+          <li>VIP Q&A = "Friday VIP Q&A with Russ" (never "VIP Session" / "Private Session")</li>
+          <li>No "private", "directly", "1-on-1", "personal review", or "by name" for VIP</li>
+          <li>"Russ AI" not "Delphi AI" &middot; "Coaching programs" not "consulting offers"</li>
+          <li>AI Prompt Library = workshop deliverable for ALL buyers (not VIP-exclusive)</li>
+        </ul>
+      </div>
+
+      <!-- PHASE 1 -->
+      <div class="phase-header">
+        <h2>Phase 1: Purchase Confirmation</h2>
+        <div class="phase-sub">Immediately after $27 purchase</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 1: Purchase Confirmation</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Immediately after purchase</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">You're in, <span class="merge-field">{{first_name}}</span>. Here's what happens next.</div>
+        </div>
+        <div class="email-body">Congrats <span class="merge-field">{{first_name}}</span>,
+
+You're registered for the workshop.
+
+Here's your access info:
+
+Workshop: <span class="merge-field">{{workshop_date}}</span> Pacific
+Access Link: <span class="merge-field">{{access_link}}</span>
+
+During the workshop, you'll learn the exact framework to build a high-ticket coaching program using AI. This is the system behind $100M+ in results, and you'll build your offer live during the session using AI prompts we give you.
+
+Save this email. You'll need the access link on workshop day.
+
+We'll send you a reminder 1 hour before and again at 15 minutes. Show up, do the work, and you'll walk away with something real.
+
+Talk soon,
+Russ Ruffino
+Clients on Demand
+
+P.S. Want to take it further? VIP includes the Friday VIP Q&A with Russ on <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>. It's a separate live session where Russ takes questions and reviews real offers from attendees. Small group, real conversation, no scripts. Plus you'll get Russ AI, the workshop replay, and the $30K-$100K Masterclass delivered after the Q&A.
+
+Upgrade to VIP: <span class="placeholder">[VIP_UPGRADE_LINK]</span></div>
+      </div>
+
+      <div class="sms-card">
+        <div class="sms-card-header">
+          <h3>SMS 1: Confirmation</h3>
+          <div><span class="email-badge badge-sms">SMS</span> <span class="email-badge badge-new">New</span></div>
+        </div>
+        <div class="sms-body">Hey <span class="merge-field">{{first_name}}</span>, you're confirmed for the workshop on <span class="merge-field">{{workshop_date}}</span> Pacific. Access link is in your email. See you there!</div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="phase-header">
+        <h2>Phase 2: Workshop Day Reminders</h2>
+        <div class="phase-sub">Shared with ALL buyers (standard + VIP). No changes.</div>
+      </div>
+
+      <div class="email-card" style="opacity: 0.6;">
+        <div class="email-card-header">
+          <h3>Email 2: 1hr Before Workshop</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-existing">No Change</span></div>
+        </div>
+        <div class="email-meta"><div><strong>When:</strong> 1 hour before workshop</div></div>
+        <div class="email-body" style="font-size: 13px; color: var(--muted);">Existing copy. No changes proposed.</div>
+      </div>
+
+      <div class="email-card" style="opacity: 0.6;">
+        <div class="email-card-header">
+          <h3>Email 3: 15min Before Workshop</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-existing">No Change</span></div>
+        </div>
+        <div class="email-meta"><div><strong>When:</strong> 15 minutes before workshop</div></div>
+        <div class="email-body" style="font-size: 13px; color: var(--muted);">Existing copy. No changes proposed.</div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="phase-header">
+        <h2>Phase 3: Post-Workshop (Standard Buyers Only)</h2>
+        <div class="phase-sub">VIP buyers exit after workshop reminders. These go to standard buyers only.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 4: Post-Workshop Prompt Delivery</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> 4 hours after workshop</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Your AI prompts are ready, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Great workshop today.
+
+As promised, here's your AI Prompt Library. These are the exact prompts you used during the session to build your offer. Keep them. Use them again. Share them with nobody.
+
+AI Prompt Library: <span class="placeholder">[PROMPT_LIBRARY_LINK]</span>
+Password: <span class="placeholder">[PASSWORD]</span>
+
+Course Creator Bot: <span class="placeholder">[COURSE_CREATOR_BOT_LINK]</span>
+
+Between the framework, the prompts, and what you built today, you have a real starting point. Most people who attend this workshop walk away with more clarity on their offer than they've had in months.
+
+The question now is: what do you do with it?
+
+If you want help turning what you built into a live, paying coaching program, we offer a complimentary strategy call. It's a working session where we look at your specific situation and map out what the next 90 days look like for you.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+No pressure. Just the next step if you're ready.
+
+Russ Ruffino
+Clients on Demand
+
+P.S. Still thinking about VIP? The Friday VIP Q&A with Russ is on <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>. Small group, real conversation, plus Russ AI and the workshop replay. Upgrade here: <span class="placeholder">[VIP_UPGRADE_LINK]</span></div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 5: Next Morning Follow-Up</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Next morning (~9am PT)</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Building the offer was the easy part, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Yesterday you built an offer.
+
+That's not a small thing. Most coaches, consultants, and service providers spend months circling around their positioning, their pricing, their packaging. You did it in one session using a proven framework and AI.
+
+But building the offer is the easy part.
+
+The hard part is deploying it. Knowing which platform to use. How to price it. How to position it so the right clients say "yes" without a hard sell. How to structure enrollment so it feels natural, not salesy.
+
+That's the gap the strategy call is designed to close. It's not a pitch. It's a conversation about your specific business, your specific audience, and what the fastest path to your first (or next) high-ticket client actually looks like.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+You have the offer. Now let's build the business around it.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 6: Testimonial + Social Proof</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Next evening (~6pm PT)</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">They built the same offer you built yesterday, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Real quick.
+
+You attended the same workshop that <span class="placeholder">[TESTIMONIAL_NAME]</span> attended.
+
+<span class="placeholder">[REAL TESTIMONIAL QUOTE + FTC DISCLAIMER]</span>
+
+They didn't have a special advantage. They didn't have a massive audience or a decade of experience in marketing. They had an offer they believed in and a system to deploy it.
+
+You built that same offer yesterday.
+
+The difference between people who turn the workshop into results and people who let it sit in their notes is usually one thing: a conversation with someone who's done this before. Someone who can look at your specific situation and say "here's what to do next."
+
+That's the strategy call.
+
+Book here: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 7: Momentum / Final Push</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Day 3 (~2pm PT)</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">This is the last email I'll send about this, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Straight talk.
+
+The workshop was two days ago. The clarity you had during the session, the offer you built, the way everything clicked for a few hours... that sharpness fades. Not because you did anything wrong. Because life fills the space.
+
+Every day that passes without a concrete next step is a day that clarity dissolves.
+
+The strategy call takes 30 minutes. You'll walk away with a plan. Not a pitch, not a presentation. A plan specific to your business that you can start executing next week.
+
+After this, if we don't hear from you, we'll assume the timing isn't right. You'll stay on our list and hear from us occasionally with valuable content. No pressure.
+
+But if you're ready, the window is now.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>Email 8: Fence-Sitter</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Day 4 (~11am PT)</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+          <div><strong>Condition:</strong> Only sent to people who opened previous emails but didn't click</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Quick question, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Noticed you've been reading these emails.
+
+If the strategy call makes sense but the scheduling page didn't quite work, just reply with a day and time that works for you. We'll make it happen.
+
+No form. No funnel. Just a reply.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+    </div>
+
+    <!-- ==================== VIP TAB ==================== -->
+    <div id="tab-vip" class="tab-content">
+
+      <div class="rules-box">
+        <h2>VIP Copy Rules (In Addition to Standard Rules)</h2>
+        <ul>
+          <li>Friday VIP Q&A = separate, additional, dated event</li>
+          <li>Name it "Friday VIP Q&A with Russ" (never "VIP Session", "VIP Call", "Private Session")</li>
+          <li>It's a group Q&A. Russ takes questions from attendees, not individual reviews.</li>
+          <li>OK to use: "Small group", "Real conversation", "The floor is open", "Ask anything", "No scripts"</li>
+          <li>VIP is additive, not comparative. Standard buyers got full value. VIP is more, not better.</li>
+          <li>VIP access = Russ AI + Workshop Replay + $30K-$100K Masterclass (VIP-exclusive items only)</li>
+          <li>AI Prompt Library is for ALL buyers, not VIP-exclusive</li>
+        </ul>
+      </div>
+
+      <div class="note-box">VIP buyers also receive the standard workshop day reminders (1hr + 15min before workshop). Those are shared with all buyers and shown in the Standard Workshop tab.</div>
+
+      <!-- VIP PHASE 1 -->
+      <div class="phase-header">
+        <h2>Phase 1: VIP Purchase Confirmation</h2>
+        <div class="phase-sub">Immediately after VIP purchase</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 1: Purchase Confirmation</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Immediately after VIP purchase</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">You're in. Here's what happens next, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hi <span class="merge-field">{{first_name}}</span>,
+
+You're officially a VIP. You now have two sessions on your calendar. Here's everything you need.
+
+YOUR WORKSHOP
+
+Date: <span class="merge-field">{{workshop_date}}</span> Pacific
+Access Link: <span class="merge-field">{{access_link}}</span>
+
+This is where you'll learn the exact framework to build a high-ticket coaching program using AI. You'll walk through the entire system and build your offer live during the session using AI prompts we give you. Come ready to work. By the end, you'll have something real on paper.
+
+Save the access link above. We'll send you a reminder 1 hour before and again at 15 minutes.
+
+
+YOUR FRIDAY VIP Q&A WITH RUSS
+
+Date: <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>
+Zoom Link: <span class="merge-field">{{vip_zoom_link}}</span>
+Password: RUSSVIP
+
+This is a separate live session on a different day. Russ takes questions from attendees and reviews real offers from the group. Small group, real conversation, no scripts. This is a one-time event. If you want to get your questions answered and your offer sharpened, Friday is your one shot.
+
+Someone from our team will also personally reach out to make sure you're set up and ready for both sessions.
+
+Add both dates to your calendar now so nothing slips.
+
+Talk soon,
+Russ Ruffino
+Clients on Demand
+
+P.S. The Friday VIP Q&A is a one-time live event. If you want your offer reviewed and your questions answered, Friday is it.</div>
+      </div>
+
+      <div class="sms-card">
+        <div class="sms-card-header">
+          <h3>VIP SMS 1: Confirmation</h3>
+          <div><span class="email-badge badge-sms">SMS</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="sms-body">Hey <span class="merge-field">{{first_name}}</span>, you're confirmed for the workshop + Friday VIP Q&A with Russ on <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>. Small group, real conversation. Check email for full details.</div>
+      </div>
+
+      <!-- VIP PHASE 2 -->
+      <div class="phase-header">
+        <h2>Phase 2: Post-Workshop Prompt Delivery</h2>
+        <div class="phase-sub">VIP version. Prompts only, no strategy call push.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 2: Prompt Delivery</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> After workshop (~27 hours after purchase)</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Your AI prompts are ready, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Great workshop today.
+
+As promised, here's your AI Prompt Library. These are the exact prompts you used during the session to build your offer. Keep them. Use them again. Share them with nobody.
+
+AI Prompt Library: <span class="placeholder">[PROMPT_LIBRARY_LINK]</span>
+Password: <span class="placeholder">[PASSWORD]</span>
+
+Course Creator Bot: <span class="placeholder">[COURSE_CREATOR_BOT_LINK]</span>
+
+Between the framework, the prompts, and what you built today, you have a real starting point.
+
+Next up: your Friday VIP Q&A with Russ on <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>. We'll send prep details on Wednesday.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <!-- VIP PHASE 3 -->
+      <div class="phase-header">
+        <h2>Phase 3: Friday Q&A Prep (Wed-Thu)</h2>
+        <div class="phase-sub">Build anticipation. Give prep questions. Set format expectations.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 3: Wednesday Prep (48hr before)</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Wednesday PM (48 hours before Friday Q&A)</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Friday is 48 hours out. Here's how to make the most of it, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hi <span class="merge-field">{{first_name}}</span>,
+
+Friday is two days away.
+
+If you want to walk away from the Friday VIP Q&A with real clarity on your offer, the best thing you can do is show up prepared. You don't need a finished offer. You don't need a polished pitch. You just need to think through a few things before we get on the call.
+
+Here are three questions worth sitting with before Friday:
+
+1. Who do you help, and what specific problem do you solve for them?
+2. What result can someone expect from working with you, and roughly how long does it take?
+3. What's the one thing about your offer you're most unsure about right now?
+
+Bring your answers, even if they're rough.
+
+Here's how Friday works: Russ opens the floor. You can ask questions in the chat or unmute when called on. He'll pull offers from attendees and break them down live. Come with your offer rough draft and at least one question. Small group, real conversation, no scripts.
+
+Here's what one recent VIP attendee said:
+
+<span class="placeholder">[REAL VIP TESTIMONIAL + FTC DISCLAIMER]</span>
+
+Your session details:
+
+Friday VIP Q&A with Russ: <span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>
+Zoom link: <span class="merge-field">{{vip_zoom_link}}</span>
+Password: RUSSVIP
+
+This is a live session. There's no make-up. Come ready.
+
+See you soon,
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 4: Thursday Reminder (24hr before)</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Thursday PM</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Tomorrow, <span class="merge-field">{{first_name}}</span>. One day out.</div>
+        </div>
+        <div class="email-body">Hi <span class="merge-field">{{first_name}}</span>,
+
+Your Friday VIP Q&A with Russ is tomorrow.
+
+<span class="merge-field">{{vip_date}}</span> at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>.
+Zoom: <span class="merge-field">{{vip_zoom_link}}</span>
+Password: RUSSVIP
+
+If you answered those three questions from yesterday's email, you're ready. If you didn't, spend 10 minutes on them tonight. You'll get 10x more out of tomorrow.
+
+This is the session people remember. Be there.
+
+See you tomorrow,
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="sms-card">
+        <div class="sms-card-header">
+          <h3>VIP SMS 2: Thursday Reminder</h3>
+          <div><span class="email-badge badge-sms">SMS</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="sms-body"><span class="merge-field">{{first_name}}</span>, Friday VIP Q&A with Russ is tomorrow at <span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span>. Bring your questions. Zoom: <span class="merge-field">{{vip_zoom_link}}</span> Password: RUSSVIP</div>
+      </div>
+
+      <!-- VIP PHASE 4 -->
+      <div class="phase-header">
+        <h2>Phase 4: Friday Q&A Day</h2>
+        <div class="phase-sub">Final reminders. Zoom link front and center.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 5: Friday Morning</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Friday morning, 2-3 hours before Q&A</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Today's the day, <span class="merge-field">{{first_name}}</span>.</div>
+        </div>
+        <div class="email-body">Hi <span class="merge-field">{{first_name}}</span>,
+
+It's happening today.
+
+<span class="merge-field">{{vip_time}}</span> <span class="merge-field">{{timezone}}</span> on Zoom: <span class="merge-field">{{vip_zoom_link}}</span>
+Password: RUSSVIP
+
+See you in the room.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="sms-card">
+        <div class="sms-card-header">
+          <h3>VIP SMS 3: Friday Final Push</h3>
+          <div><span class="email-badge badge-sms">SMS</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="sms-body"><span class="merge-field">{{first_name}}</span>, Russ goes live in 30 min. Join now: <span class="merge-field">{{vip_zoom_link}}</span> Password: RUSSVIP</div>
+      </div>
+
+      <!-- VIP PHASE 5 -->
+      <div class="phase-header">
+        <h2>Phase 5: Post-Q&A Delivery (Saturday)</h2>
+        <div class="phase-sub">Deliver VIP-exclusive access. First time they receive bonus links.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 6: VIP Access Delivery</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Saturday 9am PT</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line"><span class="merge-field">{{first_name}}</span>, your VIP access is ready.</div>
+        </div>
+        <div class="email-body">Hi <span class="merge-field">{{first_name}}</span>,
+
+Great Q&A yesterday.
+
+Now it's time to put it to work. Here's your VIP access:
+
+Russ AI: <span class="placeholder">[RUSS_AI_LINK]</span>
+Ask it anything you'd ask Russ. Stuck on pricing, positioning, or packaging your offer at 2am? This is your answer.
+
+Workshop Replay: <span class="placeholder">[REPLAY_LINK]</span>
+Re-watch any section. Pause, rewind, take notes at your own pace.
+
+$30K-$100K Offer Masterclass: <span class="placeholder">[MASTERCLASS_LINK]</span>
+The system behind $100M+ in results. Watch it this weekend while everything is fresh.
+
+Between the workshop, Friday's Q&A, and these tools, you have everything you need to build and position your offer.
+
+If you want to take the next step and work with our team, we do offer a complimentary strategy call. It's not a fit for everyone, and there's no pressure. But if you're serious about getting your coaching program in front of the right clients, it's worth 30 minutes.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+Either way, you've got the tools. Use them.
+
+Proud of the work you put in this week.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <!-- VIP PHASE 6 -->
+      <div class="phase-header">
+        <h2>Phase 6: Post-Q&A Nurture (Sun-Thu)</h2>
+        <div class="phase-sub">Strategy call CTA. All gated: if they book, the sequence stops.</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 7: Sunday Check-In</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Sunday 10am PT</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Had a chance to dig into everything yet, <span class="merge-field">{{first_name}}</span>?</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Just checking in.
+
+You've got the toolkit in hand now: the workshop replay, access to Russ AI, the masterclass. That's a lot to land in 48 hours.
+
+Here's what I've seen happen with a lot of VIP attendees at this point. They open the email, they click around, they think "okay, this is solid" and then they close the laptop and go into the weekend. The tools sit there. The notes from Friday sit there. And then Monday comes, and so does everything else.
+
+That's not a failure of motivation. That's just life moving fast.
+
+The problem is the gap between "I have the knowledge" and "I have a clear plan for what to do with it." That gap is exactly what the strategy call is built to close. It's not a sales pitch. It's a working session where we look at your specific situation and map out what the next 90 days actually look like for you.
+
+If the Friday Q&A sparked something, don't let it cool down.
+
+Book your strategy call here: www.clientsondemand.com/apply
+
+Talk soon,
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 8: Execution Gap (Tuesday)</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Tuesday 9am PT</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">The gap between knowing and doing (and how to close it)</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Here's a pattern I've seen play out hundreds of times.
+
+Someone attends the workshop. They build their offer live in the session. They upgrade to VIP, come to the Friday Q&A, ask their questions, hear Russ break down real offers from the group. They leave energized. They have everything they need on paper.
+
+And then... nothing moves.
+
+Not because the offer is wrong. Not because they aren't capable. But because having the framework and knowing how to deploy it in your specific market, to your specific audience, at this specific moment in your business, are two completely different things.
+
+The strategy call is where that second part happens.
+
+It's the session where we look at where you actually are, who you're trying to reach, what's blocking you from getting there, and what the fastest path to your first (or next) high-ticket client looks like. Concrete. Specific to you.
+
+<span class="placeholder">[REAL TESTIMONIAL FROM ENROLLED VIP ATTENDEE + FTC DISCLAIMER]</span>
+
+That outcome doesn't happen by accident. It happens because there was a conversation. A real one. About their real situation.
+
+If you're sitting on a strong offer and a clear idea of who you help, you're closer than you think. The call is the next move.
+
+Book here: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 9: Final Push (Wednesday)</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-updated">Updated</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Wednesday 8:30am PT</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">This is the last email I'll send about this, <span class="merge-field">{{first_name}}</span></div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+I'm going to be straight with you.
+
+We don't chase. That's not how we operate. If the timing isn't right or this isn't the right fit for you, that's okay. There's no hard sell here.
+
+But there's a real problem with waiting, and it's not about us. It's about you.
+
+The energy and clarity you had coming out of the Friday Q&A? That has a shelf life. The offer you built in the workshop, the insights from the Q&A, the way you could picture exactly who you help and what result you deliver... that sharpness fades as the week fills back up. And every day that passes without a concrete next step is a day that momentum dissipates.
+
+The strategy call is exactly that next step. It's the thing that turns the Friday session from a powerful experience into an actual business decision. One conversation. A plan you can execute starting next week.
+
+After this, if we don't hear from you, we'll assume the timing isn't right. You'll move to our general updates list and hear from us occasionally. No pressure either way.
+
+But if you're serious about building this, now is the time to say so.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-card-header">
+          <h3>VIP Email 10: Fence-Sitter (Thursday)</h3>
+          <div><span class="email-badge badge-email">Email</span> <span class="email-badge badge-new">New Copy</span></div>
+        </div>
+        <div class="email-meta">
+          <div><strong>When:</strong> Thursday 11am PT</div>
+          <div><strong>Gate:</strong> Skip if strategy call booked</div>
+          <div><strong>Condition:</strong> Only sent to people who opened previous emails but didn't click</div>
+        </div>
+        <div class="email-subject">
+          <div class="label">Subject</div>
+          <div class="subject-line">Still thinking about it?</div>
+        </div>
+        <div class="email-body">Hey <span class="merge-field">{{first_name}}</span>,
+
+Still on your radar?
+
+I know this week gets busy fast. If the strategy call makes sense but the scheduling page didn't quite fit, just reply to this email with a day that tends to work for you. We'll find a slot.
+
+No form. No funnel. Just a reply.
+
+Russ Ruffino
+Clients on Demand</div>
+      </div>
+
+    </div>
+
+    <!-- ==================== REVIEW NOTES TAB ==================== -->
+    <div id="tab-review" class="tab-content">
+
+      <div class="review-box">
+        <h2>What We Need From You</h2>
+        <ol>
+          <li>Review all email copy for tone, voice, and accuracy</li>
+          <li>Flag any language that needs adjusting</li>
+          <li>Confirm the strategy call CTA copy is aligned with the current sales process</li>
+          <li>Provide real testimonials for placeholder spots (marked in <span style="color: var(--red);">red</span>)</li>
+          <li>Confirm VIP Q&A format description is accurate (Russ opens floor, chat or unmute, reviews offers from group)</li>
+          <li>Confirm the three prep questions in VIP Email 3 are the right ones</li>
+        </ol>
+      </div>
+
+      <div class="rules-box" style="margin-top: 24px;">
+        <h2>Rules Applied Throughout</h2>
+        <ul>
+          <li>No income claims or earnings representations</li>
+          <li>No fake scarcity (no "Only X spots")</li>
+          <li>Workshop is NOT live (only Friday VIP Q&A is live)</li>
+          <li>VIP = additive (never frames the standard workshop as lesser)</li>
+          <li>Friday VIP Q&A = group Q&A, never "private" or "1-on-1"</li>
+          <li>AI Prompt Library is for ALL buyers, not VIP-exclusive</li>
+          <li>"Russ AI" (not "Delphi AI")</li>
+          <li>"Coaching programs" (not "consulting offers")</li>
+        </ul>
+      </div>
+
+      <div class="rules-box" style="margin-top: 24px; border-color: rgba(239,68,68,0.3);">
+        <h2 style="color: var(--red);">Placeholders to Replace Before Launch</h2>
+        <ul>
+          <li style="color: var(--red);"><strong>[VIP_UPGRADE_LINK]</strong> -- VIP upgrade URL (appears in Standard Emails 1 and 4)</li>
+          <li style="color: var(--red);"><strong>[PROMPT_LIBRARY_LINK]</strong> and <strong>[PASSWORD]</strong> -- AI Prompt Library access</li>
+          <li style="color: var(--red);"><strong>[COURSE_CREATOR_BOT_LINK]</strong> -- Course Creator Bot URL</li>
+          <li style="color: var(--red);"><strong>[RUSS_AI_LINK]</strong> -- Russ AI access URL</li>
+          <li style="color: var(--red);"><strong>[MASTERCLASS_LINK]</strong> -- $30K-$100K Masterclass URL</li>
+          <li style="color: var(--red);"><strong>[REPLAY_LINK]</strong> -- Workshop replay URL and password</li>
+          <li style="color: var(--red);"><strong>[TESTIMONIAL_NAME]</strong> + <strong>[TESTIMONIAL]</strong> -- Real quotes from past attendees (3 needed: 1 standard, 1 VIP, 1 enrolled VIP) + FTC disclaimers</li>
+        </ul>
+      </div>
+
+      <div class="rules-box" style="margin-top: 24px; border-color: rgba(59,130,246,0.3);">
+        <h2 style="color: var(--blue);">Email Index Summary</h2>
+        <ul>
+          <li><strong>Standard Workshop:</strong> 5 new emails + 1 SMS. 2 existing reminders unchanged.</li>
+          <li><strong>VIP Journey:</strong> 9 new/updated emails + 3 SMS. Same 2 shared reminders.</li>
+          <li>VIP buyers get workshop reminders (shared) + all VIP-specific emails</li>
+          <li>VIP buyers do NOT receive the standard post-workshop nurture (Emails 4-8)</li>
+          <li>All post-workshop/post-Q&A emails stop if the person books a strategy call</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

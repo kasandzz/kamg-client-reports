@@ -11,41 +11,31 @@ const Shell = (() => {
   // Navigation structure (mirrors index.html sidebar)
   const NAV = [
     { section: 'COMMAND', items: [
-      { page: 'war-room',      icon: '&#127919;', label: 'War Room' },
-      { page: 'insights',      icon: '&#128161;', label: 'Insights' },
-      { page: 'segments',      icon: '&#128202;', label: 'Segments' },
-      { page: 'live-feed',     icon: '&#9889;',   label: 'Live Feed' },
+      { page: 'war-room',   icon: '&#127919;', label: 'War Room' },
+      { page: 'revenue',    icon: '&#128176;', label: 'Revenue & LTV', dimmed: true },
+      { page: 'cold-email', icon: '&#9993;&#65039;', label: 'Email' },
     ]},
     { section: 'ACQUISITION', items: [
-      { page: 'ads-meta',      icon: '&#128227;', label: 'Meta Ads' },
-      { page: 'ads-google',    icon: '&#128270;', label: 'Google Ads', dimmed: true },
-      { page: 'cold-email',    icon: '&#9993;&#65039;', label: 'Cold Email' },
-      { page: 'hyros',         icon: '&#128269;', label: 'Hyros', dimmed: true },
+      { page: 'ads-meta',    icon: '&#128227;', label: 'Meta Ads' },
+      { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads', dimmed: true },
+      { page: 'attribution', icon: '&#128200;', label: 'Attribution', dimmed: true },
     ]},
     { section: 'CONVERSION', items: [
-      { page: 'funnels',       icon: '&#127744;', label: '$27 Workshop' },
-      { page: 'ma-funnel',     icon: '&#127891;', label: 'MA Funnel', dimmed: true },
-      { page: 'calls',         icon: '&#128222;', label: 'Bookings', dimmed: true },
-      { page: 'enrollment',    icon: '&#128176;', label: 'Enrollment' },
-      { page: 'retargeting',   icon: '&#127919;', label: 'Retargeting', dimmed: true },
-      { page: 'email-intel',   icon: '&#128236;', label: 'Email' },
-      { page: 'wistia',        icon: '&#127909;', label: 'Wistia' },
+      { page: 'funnels',     icon: '&#127744;', label: '$27 Funnel' },
+      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel', dimmed: true },
+      { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team', dimmed: true },
+      { page: 'experiments', icon: '&#129514;', label: 'Experiments', dimmed: true },
     ]},
     { section: 'INTELLIGENCE', items: [
-      { page: 'behavioral',    icon: '&#129504;', label: 'Behavioral' },
-      { page: 'experiments',   icon: '&#129514;', label: 'Experiments' },
-      { page: 'competitors',   icon: '&#9876;&#65039;', label: 'Competitors', dimmed: true },
+      { page: 'segments',         icon: '&#128202;', label: 'Segments' },
+      { page: 'journey-explorer', icon: '&#128279;', label: 'Journey Explorer', dimmed: true },
     ]},
     { section: 'OPERATIONS', items: [
-      { page: 'sales-team',    icon: '&#128101;', label: 'Sales Team', dimmed: true },
-      { page: 'churn',         icon: '&#128200;', label: 'Churn', dimmed: true },
-      { page: 'worklists',     icon: '&#128203;', label: 'Worklists', dimmed: true },
-      { page: 'geo-intel',     icon: '&#127760;', label: 'Geo Intel', dimmed: true },
-      { page: 'email-deliverability', icon: '&#128232;', label: 'Email Deliverability', dimmed: true },
+      { page: 'live-feed',   icon: '&#9889;',   label: 'Live Feed' },
+      { page: 'data-health', icon: '&#129681;', label: 'Data Health', dimmed: true },
     ]},
     { section: 'COMING SOON', sectionStyle: 'opacity:0.4', items: [
-      { page: 'leaks',         icon: '&#9888;&#65039;', label: 'Leaks', disabled: true },
-      { page: 'opportunities', icon: '&#128142;', label: 'Opportunities', disabled: true },
+      { page: 'competitors', icon: '&#9876;&#65039;', label: 'Competitors', disabled: true },
     ]},
   ];
 

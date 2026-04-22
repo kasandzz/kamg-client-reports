@@ -458,6 +458,258 @@ const Components = (() => {
     return banner;
   }
 
+  // ---- Sankey CSS (lazy-injected once) ----
+
+  function _injectSankeyCSS() {
+    if (document.getElementById('sankey-component-css')) return;
+    var style = document.createElement('style');
+    style.id = 'sankey-component-css';
+    style.textContent = [
+      '.sankey-node-card { cursor: default; }',
+      '.sankey-node-card .node-bg { rx: 10; ry: 10; }',
+      '.sankey-node-card .node-border { rx: 10; ry: 10; }',
+      '.sankey-node-card .node-value { font-family: var(--font-mono); font-size: 14px; font-weight: 700; fill: #fff; }',
+      '.sankey-node-card .node-label { font-family: var(--font-body); font-size: 9px; font-weight: 500; fill: rgba(255,255,255,0.7); }',
+      '.sankey-node-card .node-pct { font-family: var(--font-mono); font-size: 8px; font-weight: 600; fill: rgba(255,255,255,0.45); }',
+      '.sankey-node-card.is-dropoff .node-value { font-size: 12px; }',
+      '.sankey-node-card.is-dropoff .node-label { font-size: 8px; }',
+      '.sankey-link { opacity: 0.25; transition: opacity 0.2s; }',
+      '.sankey-link:hover { opacity: 0.5; }',
+      '.sankey-link.is-dropoff { opacity: 0.15; }',
+      '.sankey-link.is-dropoff:hover { opacity: 0.35; }',
+      '.sankey-leak-label { font-family: var(--font-mono); font-size: 8px; font-weight: 600; fill: #ef4444; fill-opacity: 0.7; }',
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  // ---- Sankey Renderer ----
+
+  /**
+   * Render a Sankey flow diagram into a container.
+   * Reusable across $27 Funnel, MA/VSL Funnel, or any column-based flow.
+   *
+   * @param {Object} config
+   * @param {HTMLElement|string} config.container - Target element or CSS selector
+   * @param {Array} config.nodes - Array of { id, label, value, color, col, row }
+   * @param {Array} config.links - Array of { from, to, value }
+   * @param {Object} [config.options] - Optional overrides
+   * @param {boolean} [config.options.compact] - Compact mode: hide dropoff nodes
+   * @param {string[]} [config.options.dropoffIds] - Node IDs considered drop-offs (styled red, smaller)
+   * @param {string[]} [config.options.hideNodeIds] - Node IDs to hide entirely (e.g. 'ads' when toggled off)
+   * @param {Object} [config.options.leakAnnotations] - Map of node ID -> { dollars, label } for dollar-leak text
+   * @param {number} [config.options.minWidth] - Minimum SVG width (default 900)
+   * @param {number} [config.options.nodeW] - Main node width (default 140)
+   * @param {number} [config.options.nodeH] - Main node height (default 52)
+   * @param {number} [config.options.smallW] - Small (dropoff/branch) node width (default 110)
+   * @param {number} [config.options.smallH] - Small (dropoff/branch) node height (default 42)
+   * @param {number} [config.options.rowGap] - Gap between column rows (default 64, 56 in compact)
+   */
+  function renderSankey(config) {
+    _injectSankeyCSS();
+
+    var el = typeof config.container === 'string'
+      ? document.querySelector(config.container)
+      : config.container;
+    if (!el) return;
+
+    var opts = config.options || {};
+    var compact = !!opts.compact;
+    var dropoffSet = {};
+    (opts.dropoffIds || []).forEach(function(id) { dropoffSet[id] = true; });
+    var hideSet = {};
+    (opts.hideNodeIds || []).forEach(function(id) { hideSet[id] = true; });
+    var leakAnnotations = opts.leakAnnotations || {};
+    var minWidth = opts.minWidth || 900;
+
+    var nodeW = opts.nodeW || 140;
+    var nodeH = opts.nodeH || 52;
+    var smallW = opts.smallW || 110;
+    var smallH = opts.smallH || 42;
+    var rowGap = compact ? (opts.rowGap ? opts.rowGap - 8 : 56) : (opts.rowGap || 64);
+    var padX = 30;
+    var padY = 20;
+
+    // Build node map
+    var nodeMap = {};
+    config.nodes.forEach(function(n) { nodeMap[n.id] = n; });
+
+    // Filter nodes: remove hidden and (if compact) dropoff nodes
+    var nodes = config.nodes.filter(function(n) {
+      if (hideSet[n.id]) return false;
+      if (compact && dropoffSet[n.id]) return false;
+      return true;
+    });
+
+    // Filter links to only include visible node pairs
+    var visibleIds = {};
+    nodes.forEach(function(n) { visibleIds[n.id] = true; });
+    var links = config.links.filter(function(l) {
+      return visibleIds[l.from] && visibleIds[l.to];
+    });
+
+    // Determine if any hidden node shifts column indices
+    var hasHidden = Object.keys(hideSet).length > 0;
+
+    var W = Math.max(el.offsetWidth, minWidth);
+    var centerX = W / 2;
+
+    // Group nodes by column
+    var colGroups = {};
+    var maxCol = 0;
+    nodes.forEach(function(n) {
+      // Shift columns left if a lower column is entirely hidden
+      var c = n.col;
+      if (hasHidden) {
+        // Count how many distinct cols below this one are entirely hidden
+        var shift = 0;
+        for (var ci = 0; ci < c; ci++) {
+          var anyVisible = config.nodes.some(function(nn) { return nn.col === ci && !hideSet[nn.id] && !(compact && dropoffSet[nn.id]); });
+          if (!anyVisible) shift++;
+        }
+        c = c - shift;
+      }
+      if (!colGroups[c]) colGroups[c] = [];
+      colGroups[c].push(n);
+      if (c > maxCol) maxCol = c;
+    });
+
+    // Position nodes
+    var positions = {};
+    var currentY = padY;
+    var firstVal = nodes.length > 0 ? nodes[0].value : 1;
+
+    for (var c = 0; c <= maxCol; c++) {
+      var group = colGroups[c];
+      if (!group) continue;
+
+      var main = [];
+      var left = [];
+      var right = [];
+      group.forEach(function(n) {
+        if (dropoffSet[n.id]) { left.push(n); }
+        else if (n.row > 0 && !dropoffSet[n.id] && group.length > 1) { right.push(n); }
+        else { main.push(n); }
+      });
+
+      if (main.length > 1 && left.length === 0 && right.length === 0) {
+        for (var mi = 1; mi < main.length; mi++) right.push(main[mi]);
+        main = [main[0]];
+      }
+
+      var rowH = Math.max(
+        main.length * (nodeH + 8),
+        left.length * (smallH + 8),
+        right.length * (smallH + 8)
+      );
+
+      main.forEach(function(n, i) {
+        positions[n.id] = { x: centerX - nodeW / 2, y: currentY + i * (nodeH + 8), w: nodeW, h: nodeH };
+      });
+
+      left.forEach(function(n, i) {
+        positions[n.id] = { x: centerX - nodeW / 2 - smallW - 60, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
+      });
+
+      right.forEach(function(n, i) {
+        positions[n.id] = { x: centerX + nodeW / 2 + 60, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
+      });
+
+      currentY += rowH + rowGap;
+    }
+
+    var H = currentY + padY;
+
+    // Build SVG
+    var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
+
+    // Gradients for links
+    links.forEach(function(link, i) {
+      var fromNode = nodeMap[link.from];
+      var toNode = nodeMap[link.to];
+      if (!fromNode || !toNode) return;
+      svg += '<linearGradient id="skg' + i + '" x1="0" x2="0" y1="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + fromNode.color + '" stop-opacity="0.55"/>' +
+        '<stop offset="100%" stop-color="' + toNode.color + '" stop-opacity="0.55"/>' +
+        '</linearGradient>';
+    });
+
+    // Glow filters
+    nodes.forEach(function(node, idx) {
+      svg += '<filter id="skglow' + idx + '" x="-25%" y="-25%" width="150%" height="150%">' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="' + node.color + '" flood-opacity="0.3"/></filter>';
+    });
+    svg += '</defs>';
+
+    // Draw flow ribbons
+    var maxVal = firstVal;
+    var maxRibbon = 28;
+
+    links.forEach(function(link, i) {
+      var fp = positions[link.from];
+      var tp = positions[link.to];
+      if (!fp || !tp) return;
+
+      var ribbonW = Math.max(3, (link.value / maxVal) * maxRibbon);
+      var isDropoff = dropoffSet[link.to];
+
+      var x1 = fp.x + fp.w / 2;
+      var y1 = fp.y + fp.h;
+      var x2 = tp.x + tp.w / 2;
+      var y2 = tp.y;
+
+      var dy = (y2 - y1);
+      var cy1 = y1 + dy * 0.35;
+      var cy2 = y1 + dy * 0.65;
+
+      svg += '<path class="sankey-link' + (isDropoff ? ' is-dropoff' : '') + '" d="' +
+        'M' + (x1 - ribbonW / 2) + ',' + y1 +
+        ' C' + (x1 - ribbonW / 2) + ',' + cy1 + ' ' + (x2 - ribbonW / 2) + ',' + cy2 + ' ' + (x2 - ribbonW / 2) + ',' + y2 +
+        ' L' + (x2 + ribbonW / 2) + ',' + y2 +
+        ' C' + (x2 + ribbonW / 2) + ',' + cy2 + ' ' + (x1 + ribbonW / 2) + ',' + cy1 + ' ' + (x1 + ribbonW / 2) + ',' + y1 +
+        ' Z" fill="url(#skg' + i + ')" />';
+    });
+
+    // Draw node cards
+    nodes.forEach(function(node, idx) {
+      var p = positions[node.id];
+      if (!p) return;
+      var isSmall = dropoffSet[node.id] || p.w < nodeW;
+      var pct = (node.value / firstVal * 100);
+      var pctStr = pct >= 1 ? pct.toFixed(1) : pct.toFixed(2);
+
+      svg += '<g class="sankey-node-card' + (dropoffSet[node.id] ? ' is-dropoff' : '') + '">';
+      svg += '<rect class="node-bg" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" fill="' + node.color + '" filter="url(#skglow' + idx + ')" opacity="0.15"/>';
+      svg += '<rect class="node-border" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" fill="none" stroke="' + node.color + '" stroke-opacity="0.45" stroke-width="1.5"/>';
+
+      var valY = isSmall ? p.y + p.h * 0.45 : p.y + p.h * 0.4;
+      svg += '<text class="node-value" x="' + (p.x + p.w / 2) + '" y="' + valY + '" text-anchor="middle">' + node.value.toLocaleString() + '</text>';
+
+      var lblY = isSmall ? p.y + p.h * 0.78 : p.y + p.h * 0.68;
+      svg += '<text class="node-label" x="' + (p.x + p.w / 2) + '" y="' + lblY + '" text-anchor="middle">' + node.label + '</text>';
+
+      if (node.id !== nodes[0].id) {
+        var pctY = isSmall ? p.y + p.h * 0.95 : p.y + p.h * 0.9;
+        svg += '<text class="node-pct" x="' + (p.x + p.w / 2) + '" y="' + pctY + '" text-anchor="middle">' + pctStr + '%</text>';
+      }
+
+      svg += '</g>';
+
+      // Leak annotation (dollar-value label below dropoff nodes)
+      if (leakAnnotations[node.id]) {
+        var ann = leakAnnotations[node.id];
+        var dollarStr = typeof ann.dollars === 'number'
+          ? '$' + (ann.dollars >= 1000 ? Math.round(ann.dollars / 1000) + 'K' : ann.dollars.toLocaleString())
+          : ann.dollars;
+        var leakY = p.y + p.h + 13;
+        svg += '<text class="sankey-leak-label" x="' + (p.x + p.w / 2) + '" y="' + leakY + '" text-anchor="middle">' +
+          dollarStr + ' lost to ' + (ann.label || node.label) + '</text>';
+      }
+    });
+
+    svg += '</svg>';
+    el.innerHTML = svg;
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -469,5 +721,6 @@ const Components = (() => {
     splitPeriods,
     addCompareDataset,
     renderStaleBanner,
+    renderSankey,
   };
 })();

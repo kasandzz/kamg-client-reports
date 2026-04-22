@@ -640,49 +640,7 @@ App.registerPage('funnels', async (container) => {
       text-align: right;
       flex-shrink: 0;
     }
-    /* Sankey Chart - Vertical Card Style */
-    .sankey-node-card {
-      cursor: default;
-    }
-    .sankey-node-card .node-bg {
-      rx: 10; ry: 10;
-    }
-    .sankey-node-card .node-border {
-      rx: 10; ry: 10;
-    }
-    .sankey-node-card .node-value {
-      font-family: var(--font-mono);
-      font-size: 14px;
-      font-weight: 700;
-      fill: #fff;
-    }
-    .sankey-node-card .node-label {
-      font-family: var(--font-body);
-      font-size: 9px;
-      font-weight: 500;
-      fill: rgba(255,255,255,0.7);
-    }
-    .sankey-node-card .node-pct {
-      font-family: var(--font-mono);
-      font-size: 8px;
-      font-weight: 600;
-      fill: rgba(255,255,255,0.45);
-    }
-    .sankey-node-card.is-dropoff .node-value { font-size: 12px; }
-    .sankey-node-card.is-dropoff .node-label { font-size: 8px; }
-    .sankey-link {
-      opacity: 0.25;
-      transition: opacity 0.2s;
-    }
-    .sankey-link:hover {
-      opacity: 0.5;
-    }
-    .sankey-link.is-dropoff {
-      opacity: 0.15;
-    }
-    .sankey-link.is-dropoff:hover {
-      opacity: 0.35;
-    }
+    /* Sankey styles moved to Components.renderSankey (components.js) */
     #sankeyControls {
       display: flex;
       align-items: center;
@@ -2540,17 +2498,17 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
   funnelChartInstance.update();
 }
 
-// ---- Render: Customer Journey Sankey ----
+// ---- Render: Customer Journey Sankey (data-driven from funnel-27) ----
 var activeSankeyView = 'all';
 
-// Column-based layout: each node has a col (x position) and row (y position within that column)
-// Columns: 0=Ads, 1=Landing Page, 2=Checkout, 3=Post-Purchase, 4=Pre-Workshop, 5=Workshop, 6=Post-Workshop, 7=Booking, 8=Enrollment
-var SANKEY_DATA = {
+// Sankey is now fully data-driven -- no more hardcoded SANKEY_DATA.
+// Builds node/link structure dynamically from API.query('funnel-27', 'sankey', { days }).
+// Falls back to a minimal placeholder if query fails.
+
+var SANKEY_DATA_PLACEHOLDER = {
   all: {
     nodes: [
-      // Col 0: Traffic
       { id: 'ads',           label: 'Ad Impressions',     value: 48200, color: '#6366f1', col: 0, row: 0 },
-      // Col 1: Landing Page
       { id: 'clicks',        label: 'LP Visitors',        value: 6840,  color: '#818cf8', col: 1, row: 0 },
       { id: 'bounce',        label: 'Bounced',            value: 2394,  color: '#ef4444', col: 1, row: 1 },
       // Col 2: VSL + Engagement
@@ -2691,203 +2649,23 @@ async function renderSankey() {
   var hideAds = document.getElementById('sankeyHideAdsCheck').checked && activeSankeyView === 'all';
   var compact = document.getElementById('sankeyCompactCheck').checked;
 
-  // Build node map by id
-  var nodeMap = {};
-  raw.nodes.forEach(function(n) { nodeMap[n.id] = n; });
+  // Build hide list
+  var hideNodeIds = [];
+  if (hideAds) hideNodeIds.push('ads');
 
-  // Filter nodes
-  var nodes = raw.nodes.filter(function(n) {
-    if (hideAds && n.id === 'ads') return false;
-    // Compact mode: hide drop-off nodes
-    if (compact && (n.id === 'bounce' || n.id === 'abandon_checkout' || n.id === 'cancel' || n.id === 'reschedule')) return false;
-    return true;
-  });
-
-  // Filter links
-  var nodeIds = {};
-  nodes.forEach(function(n) { nodeIds[n.id] = true; });
-  var links = raw.links.filter(function(l) {
-    return nodeIds[l.from] && nodeIds[l.to];
-  });
-
-  // Drop-off node ids for styling
-  var dropoffIds = { bounce: 1, abandon_checkout: 1, cancel: 1, reschedule: 1 };
-
-  var container = document.getElementById('sankeyContainer');
-  var W = Math.max(container.offsetWidth, 900);
-
-  // Vertical layout: nodes arranged in rows, 3 tracks (left=dropoff, center=main, right=branch)
-  // Group nodes by their col value
-  var colGroups = {};
-  var maxCol = 0;
-  nodes.forEach(function(n) {
-    var c = hideAds && n.col > 0 ? n.col - 1 : n.col;
-    if (!colGroups[c]) colGroups[c] = [];
-    colGroups[c].push(n);
-    if (c > maxCol) maxCol = c;
-  });
-
-  // Layout params
-  var nodeW = 140;
-  var nodeH = 52;
-  var smallW = 110;
-  var smallH = 42;
-  var rowGap = compact ? 56 : 64;
-  var padX = 30;
-  var padY = 20;
-  var centerX = W / 2;
-
-  // Position each node: center track for main path, left for dropoffs, right for branches
-  var positions = {}; // id -> {x, y, w, h}
-  var currentY = padY;
-  var firstVal = nodes[0].value;
-
-  // Process columns top to bottom
-  for (var c = 0; c <= maxCol; c++) {
-    var group = colGroups[c];
-    if (!group) continue;
-
-    // Separate main, dropoff, and branch nodes
-    var main = [];
-    var left = [];
-    var right = [];
-    group.forEach(function(n) {
-      if (dropoffIds[n.id]) { left.push(n); }
-      else if (n.row > 0 && !dropoffIds[n.id] && group.length > 1) { right.push(n); }
-      else { main.push(n); }
-    });
-
-    // If all nodes are "main" but there are multiple, distribute them
-    if (main.length > 1 && left.length === 0 && right.length === 0) {
-      // Keep first as main, rest as right
-      for (var mi = 1; mi < main.length; mi++) right.push(main[mi]);
-      main = [main[0]];
+  // Delegate rendering to reusable Components.renderSankey
+  Components.renderSankey({
+    container: '#sankeyContainer',
+    nodes: raw.nodes,
+    links: raw.links,
+    options: {
+      compact: compact,
+      dropoffIds: ['bounce', 'abandon_checkout', 'cancel', 'reschedule'],
+      hideNodeIds: hideNodeIds,
+      leakAnnotations: {},
+      minWidth: 900
     }
-
-    var rowH = Math.max(
-      main.length * (nodeH + 8),
-      left.length * (smallH + 8),
-      right.length * (smallH + 8)
-    );
-
-    // Place main nodes centered
-    main.forEach(function(n, i) {
-      var w = nodeW;
-      var h = nodeH;
-      positions[n.id] = {
-        x: centerX - w / 2,
-        y: currentY + i * (h + 8),
-        w: w, h: h
-      };
-    });
-
-    // Place dropoff nodes to the left
-    left.forEach(function(n, i) {
-      var w = smallW;
-      var h = smallH;
-      positions[n.id] = {
-        x: centerX - nodeW / 2 - w - 60,
-        y: currentY + i * (h + 8),
-        w: w, h: h
-      };
-    });
-
-    // Place branch nodes to the right
-    right.forEach(function(n, i) {
-      var w = smallW;
-      var h = smallH;
-      positions[n.id] = {
-        x: centerX + nodeW / 2 + 60,
-        y: currentY + i * (h + 8),
-        w: w, h: h
-      };
-    });
-
-    currentY += rowH + rowGap;
-  }
-
-  var H = currentY + padY;
-
-  // Build SVG
-  var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
-
-  // Gradients for links (vertical: y1=0, y2=1)
-  links.forEach(function(link, i) {
-    var fromNode = nodeMap[link.from];
-    var toNode = nodeMap[link.to];
-    svg += '<linearGradient id="skg' + i + '" x1="0" x2="0" y1="0" y2="1">' +
-      '<stop offset="0%" stop-color="' + fromNode.color + '" stop-opacity="0.55"/>' +
-      '<stop offset="100%" stop-color="' + toNode.color + '" stop-opacity="0.55"/>' +
-      '</linearGradient>';
   });
-
-  // Glow filters
-  nodes.forEach(function(node, idx) {
-    svg += '<filter id="skglow' + idx + '" x="-25%" y="-25%" width="150%" height="150%">' +
-      '<feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="' + node.color + '" flood-opacity="0.3"/></filter>';
-  });
-  svg += '</defs>';
-
-  // Draw flow ribbons
-  var maxVal = firstVal;
-  var maxRibbon = 28;
-
-  links.forEach(function(link, i) {
-    var fp = positions[link.from];
-    var tp = positions[link.to];
-    if (!fp || !tp) return;
-
-    var ribbonW = Math.max(3, (link.value / maxVal) * maxRibbon);
-    var isDropoff = dropoffIds[link.to];
-
-    // Source: bottom center of from node
-    var x1 = fp.x + fp.w / 2;
-    var y1 = fp.y + fp.h;
-    // Target: top center of to node
-    var x2 = tp.x + tp.w / 2;
-    var y2 = tp.y;
-
-    var dy = (y2 - y1);
-    var cy1 = y1 + dy * 0.35;
-    var cy2 = y1 + dy * 0.65;
-
-    svg += '<path class="sankey-link' + (isDropoff ? ' is-dropoff' : '') + '" d="' +
-      'M' + (x1 - ribbonW / 2) + ',' + y1 +
-      ' C' + (x1 - ribbonW / 2) + ',' + cy1 + ' ' + (x2 - ribbonW / 2) + ',' + cy2 + ' ' + (x2 - ribbonW / 2) + ',' + y2 +
-      ' L' + (x2 + ribbonW / 2) + ',' + y2 +
-      ' C' + (x2 + ribbonW / 2) + ',' + cy2 + ' ' + (x1 + ribbonW / 2) + ',' + cy1 + ' ' + (x1 + ribbonW / 2) + ',' + y1 +
-      ' Z" fill="url(#skg' + i + ')" />';
-  });
-
-  // Draw node cards
-  nodes.forEach(function(node, idx) {
-    var p = positions[node.id];
-    if (!p) return;
-    var isSmall = dropoffIds[node.id] || p.w < nodeW;
-    var pct = (node.value / firstVal * 100);
-    var pctStr = pct >= 1 ? pct.toFixed(1) : pct.toFixed(2);
-
-    svg += '<g class="sankey-node-card' + (dropoffIds[node.id] ? ' is-dropoff' : '') + '">';
-    // Glow bg
-    svg += '<rect class="node-bg" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" fill="' + node.color + '" filter="url(#skglow' + idx + ')" opacity="0.15"/>';
-    // Border
-    svg += '<rect class="node-border" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" fill="none" stroke="' + node.color + '" stroke-opacity="0.45" stroke-width="1.5"/>';
-    // Value
-    var valY = isSmall ? p.y + p.h * 0.45 : p.y + p.h * 0.4;
-    svg += '<text class="node-value" x="' + (p.x + p.w / 2) + '" y="' + valY + '" text-anchor="middle">' + node.value.toLocaleString() + '</text>';
-    // Label
-    var lblY = isSmall ? p.y + p.h * 0.78 : p.y + p.h * 0.68;
-    svg += '<text class="node-label" x="' + (p.x + p.w / 2) + '" y="' + lblY + '" text-anchor="middle">' + node.label + '</text>';
-    // Pct
-    if (node.id !== nodes[0].id) {
-      var pctY = isSmall ? p.y + p.h * 0.95 : p.y + p.h * 0.9;
-      svg += '<text class="node-pct" x="' + (p.x + p.w / 2) + '" y="' + pctY + '" text-anchor="middle">' + pctStr + '%</text>';
-    }
-    svg += '</g>';
-  });
-
-  svg += '</svg>';
-  container.innerHTML = svg;
 
   // Wire toggles
   var toggle = document.getElementById('sankeyToggle');

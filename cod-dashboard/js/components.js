@@ -458,6 +458,13 @@ const Components = (() => {
     return banner;
   }
 
+  // ---- ROAS Guard ----
+
+  function guardROAS(value) {
+    if (value === Infinity || value === -Infinity || value !== value || value == null) return 'N/A';
+    return value;
+  }
+
   // ---- Sankey CSS (lazy-injected once) ----
 
   function _injectSankeyCSS() {
@@ -721,6 +728,7 @@ const Components = (() => {
     splitPeriods,
     addCompareDataset,
     renderStaleBanner,
+    guardROAS,
     renderSankey,
   };
 })();

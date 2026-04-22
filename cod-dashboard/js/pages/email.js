@@ -7,23 +7,94 @@
 App.registerPage('email-intel', async (container) => {
   const days = Filters.getDays();
 
-  let kpiRows, dailyRows, subjectRows;
+  // Shimmer skeleton loader
+  container.innerHTML = `
+    <style>
+      @keyframes ei-shimmer {
+        0% { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+      }
+      .ei-skeleton-bar {
+        background: linear-gradient(90deg, #1a1a26 25%, #252536 50%, #1a1a26 75%);
+        background-size: 800px 100%;
+        animation: ei-shimmer 1.5s infinite ease-in-out;
+        border-radius: 6px;
+      }
+      @media(max-width:768px) {
+        .ei-kpi-strip, .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+        .ei-chart-grid { grid-template-columns: 1fr !important; }
+      }
+    </style>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
+      ${[1,2,3,4].map(() => `<div class="card" style="padding:24px"><div class="ei-skeleton-bar" style="height:14px;width:60%;margin-bottom:12px"></div><div class="ei-skeleton-bar" style="height:28px;width:40%"></div></div>`).join('')}
+    </div>
+    <div class="card" style="padding:24px"><div class="ei-skeleton-bar" style="height:200px;width:100%"></div></div>
+  `;
 
-  try {
-    [kpiRows, dailyRows, subjectRows] = await Promise.all([
-      API.query('email', 'default',  { days }),
-      API.query('email', 'daily',    { days }),
-      API.query('email', 'subjects', { days }),
-    ]);
-  } catch (err) {
-    container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Email data: ${err.message}</p></div>`;
-    return;
-  }
+  // Track per-query errors
+  const _eiQueryErrors = {};
+
+  const results = await Promise.allSettled([
+    API.query('email', 'default',  { days }),
+    API.query('email', 'daily',    { days }),
+    API.query('email', 'subjects', { days }),
+  ]);
+
+  const queryNames = ['default', 'daily', 'subjects'];
+  const extract = (idx) => {
+    if (results[idx].status === 'fulfilled') return results[idx].value;
+    _eiQueryErrors[queryNames[idx]] = results[idx].reason?.message || 'Query failed';
+    return null;
+  };
+
+  const kpiRows = extract(0);
+  const dailyRows = extract(1);
+  const subjectRows = extract(2);
 
   const kpi = (kpiRows && kpiRows.length > 0) ? kpiRows[0] : {};
   container.innerHTML = '';
 
+  // Helper: inline error card for failed query section
+  function _eiErrorCard(sectionName, queryKey) {
+    const err = _eiQueryErrors[queryKey];
+    if (!err) return null;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = `padding:24px;text-align:center;border:1px solid rgba(239,68,68,0.3)`;
+    card.innerHTML = `
+      <div style="font-size:14px;color:#ef4444;font-weight:600;margin-bottom:8px">Email Intelligence: ${sectionName} unavailable</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-bottom:12px">${err}</div>
+      <button onclick="App.navigate('email-intel')" style="background:${Theme.COLORS.accent};color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer;font-family:Manrope,sans-serif">Retry</button>
+    `;
+    return card;
+  }
+
+  // Helper: empty state card
+  function _eiEmptyState(sectionLabel) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'padding:48px 24px;text-align:center';
+    card.innerHTML = `
+      <div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div>
+      <div style="font-size:13px;color:#8888a0">No ${sectionLabel} data for this period</div>
+    `;
+    return card;
+  }
+
+  // ---- SendGrid Source Label (EMAIL-03) ----
+  const sourceLabel = document.createElement('div');
+  sourceLabel.style.cssText = `font-size:12px;color:${Theme.COLORS.textMuted};margin-bottom:16px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)`;
+  sourceLabel.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span> SendGrid Blast Email Analytics`;
+  container.appendChild(sourceLabel);
+
   // ---- KPI Strip ----
+  const kpiErrCard = _eiErrorCard('KPIs', 'default');
+  if (kpiErrCard) {
+    container.appendChild(kpiErrCard);
+  } else if (!kpiRows || kpiRows.length === 0) {
+    container.appendChild(_eiEmptyState('KPI'));
+  } else {
+
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
@@ -81,21 +152,31 @@ App.registerPage('email-intel', async (container) => {
     },
   ]);
 
+  } // end KPI else block
+
   // ---- 2-column chart grid ----
   const grid = document.createElement('div');
+  grid.className = 'ei-chart-grid';
   grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
   container.appendChild(grid);
 
   // ---- Chart 1: Daily Send Volume (stacked bar) ----
+  const dailyErrCard = _eiErrorCard('Daily Volume', 'daily');
+  if (dailyErrCard) {
+    grid.appendChild(dailyErrCard);
+  } else if (!dailyRows || dailyRows.length === 0) {
+    grid.appendChild(_eiEmptyState('daily volume'));
+  } else {
+
   const dailyCard = document.createElement('div');
   dailyCard.className = 'card';
-  dailyCard.style.cssText = 'padding:20px';
-  dailyCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Daily Send Volume</div>`;
+  dailyCard.style.cssText = 'padding:24px';
+  dailyCard.innerHTML = `<div style="font-size:1.1rem;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Daily Send Volume</div>`;
 
   const dailyCanvasId = 'email-daily-volume';
   const dailyCanvas   = document.createElement('canvas');
   dailyCanvas.id      = dailyCanvasId;
-  dailyCanvas.style.height = '300px';
+  dailyCanvas.style.cssText = 'height:300px;min-height:200px;width:100%';
   dailyCard.appendChild(dailyCanvas);
   grid.appendChild(dailyCard);
 
@@ -153,7 +234,16 @@ App.registerPage('email-intel', async (container) => {
     },
   });
 
+  } // end Daily Volume else block
+
   // ---- Chart 2: Engagement Rates (dual-axis line) ----
+  const dailyEngErr = _eiErrorCard('Engagement Rates', 'daily');
+  if (dailyEngErr) {
+    grid.appendChild(dailyEngErr);
+  } else if (!dailyRows || dailyRows.length === 0) {
+    grid.appendChild(_eiEmptyState('engagement rates'));
+  } else {
+
   const engCard = document.createElement('div');
   engCard.className = 'card';
   engCard.style.cssText = 'padding:20px';
@@ -247,7 +337,16 @@ App.registerPage('email-intel', async (container) => {
     },
   });
 
+  } // end Engagement Rates else block
+
   // ---- Chart 3: Subject Performance (Plotly horizontal bar) ----
+  const subjectErrCard = _eiErrorCard('Subject Performance', 'subjects');
+  if (subjectErrCard) {
+    grid.appendChild(subjectErrCard);
+  } else if (!subjectRows || subjectRows.length === 0) {
+    grid.appendChild(_eiEmptyState('subject performance'));
+  } else {
+
   const subjectCard = document.createElement('div');
   subjectCard.className = 'card';
   subjectCard.style.cssText = 'padding:20px';
@@ -302,6 +401,8 @@ App.registerPage('email-intel', async (container) => {
     },
     Theme.PLOTLY_CONFIG
   );
+
+  } // end Subject Performance else block
 
   // ---- Chart 4: Click-to-Booking (data gap card) ----
   const gapCard = document.createElement('div');

@@ -1,13 +1,7 @@
-/* Placeholder pages -- Google Ads + Cold Email (Coming Soon) */
+/* Placeholder pages -- Wistia (Coming Soon) */
 
 (function() {
   const PLACEHOLDERS = {
-    'google-ads': {
-      title: 'Google Ads',
-      description: 'Search, Display, and YouTube campaign analytics',
-      metrics: ['Total Spend', 'ROAS', 'CPC', 'CTR', 'Conversions', 'Cost/Conv'],
-      charts: ['Campaign Performance', 'Keyword Analysis', 'Quality Score Trend', 'Search Terms'],
-    },
     'wistia': {
       title: 'Wistia',
       description: 'Workshop video analytics, watch time, engagement heatmaps',

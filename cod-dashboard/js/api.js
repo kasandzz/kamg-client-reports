@@ -13,7 +13,7 @@ const API = (() => {
   const PAGE_TABLES = {
     'war-room':             ['stripe_transactions', 'hyros_sales', 'meta_ad_performance', 'posthog_events', 'ghl_contacts'],
     'ads-meta':             ['meta_ad_performance'],
-    'ads-google':           ['ga4_daily_metrics', 'ga4_traffic_sources'],
+    'ads-google':           ['google_ads_campaign_performance', 'google_ads_keyword_stats', 'google_ads_video_stats', 'meta_ad_performance'],
     'hyros':                ['hyros_sales', 'hyros_leads', 'hyros_calls', 'ghl_contacts', 'meta_ad_performance'],
     'cold-email':           ['cold_outbound_campaigns', 'cold_outbound_leads', 'cold_outbound_replies'],
     'email-intel':          ['sendgrid_messages'],

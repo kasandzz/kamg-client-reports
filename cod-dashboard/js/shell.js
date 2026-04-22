@@ -17,7 +17,7 @@ const Shell = (() => {
     ]},
     { section: 'ACQUISITION', items: [
       { page: 'ads-meta',    icon: '&#128227;', label: 'Meta Ads' },
-      { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads', dimmed: true },
+      { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads' },
       { page: 'attribution', icon: '&#128200;', label: 'Attribution', dimmed: true },
     ]},
     { section: 'CONVERSION', items: [

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clutch Email Templates | Copy & Send</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --surface-3: #222233;
+    --border: #2a2a3d;
+    --text: #e8e6e3;
+    --text-muted: #8a8a9a;
+    --accent: #ff6b35;
+    --accent-soft: rgba(255,107,53,0.12);
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,0.12);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96,165,250,0.12);
+    --yellow: #fbbf24;
+    --yellow-soft: rgba(251,191,36,0.12);
+    --red: #f87171;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 760px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* Nav */
+  .nav {
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    z-index: 100;
+    margin-bottom: 32px;
+  }
+  .nav-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .nav-brand {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-right: 16px;
+    white-space: nowrap;
+  }
+  .nav a {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav a:hover { background: var(--surface-2); color: var(--text); }
+  .nav a.active { background: var(--accent-soft); color: var(--accent); }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 24px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Flow indicator */
+  .flow-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .flow-step.highlight {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .flow-arrow { color: var(--border); font-size: 16px; }
+
+  /* Email block */
+  .email-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .email-header {
+    padding: 14px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .email-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .email-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-right: 8px;
+  }
+  .email-timing {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface-3);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .email-meta {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .email-meta strong { color: var(--text); font-weight: 600; }
+  .email-body {
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'Georgia', serif;
+    position: relative;
+  }
+  .placeholder {
+    background: var(--yellow-soft);
+    color: var(--yellow);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: var(--green-soft);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  /* Notes */
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .note strong { color: var(--blue); }
+  .note-warn {
+    border-left-color: var(--yellow);
+  }
+  .note-warn strong { color: var(--yellow); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 16px 14px 60px; }
+    .header h1 { font-size: 22px; }
+    .flow-indicator { flex-direction: column; align-items: center; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">CLUTCH</div>
+    <a href="clutch-review-collection-guide.html">Guide</a>
+    <a href="clutch-call-questions.html">Questions</a>
+    <a href="clutch-email-templates.html" class="active">Emails</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">Copy & Personalize & Send</div>
+    <h1>Clutch Email Templates</h1>
+    <p>Four emails cover the entire process. Copy each one, swap the yellow placeholders, send.</p>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow-indicator">
+    <div class="flow-step highlight">1. Ask</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">2. Call Link</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">3. Do the Call</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step highlight">4. Copy-Paste</div>
+    <div class="flow-arrow">&rarr;</div>
+    <div class="flow-step">5. Nudge</div>
+  </div>
+
+  <!-- EMAIL 1 -->
+  <div class="email-block">
+    <div class="email-header">
+      <div>
+        <span class="email-label">Email 1</span>
+        <h3>The Initial Ask</h3>
+      </div>
+      <div class="email-timing">Send: After a win or at 90-day mark</div>
+    </div>
+    <div class="email-meta">
+      <div><strong>Subject:</strong> Quick 15-min feedback call? (I'll make it painless)</div>
+    </div>
+    <div class="email-body" id="email1">Hey <span class="placeholder">[CLIENT NAME]</span>,
+
+Hope you're doing well!
+
+I'm putting together some case studies and I'd love to get your perspective on the work we've done together. Nothing formal -- just a quick 15-minute video chat where I ask you a few questions about your experience.
+
+Here's the deal: I know filling out review forms is tedious, so I'll handle all the heavy lifting. All you'd need to do is hop on a quick call, and I'll take care of the rest.
+
+Would you have 15 minutes this week or next? Happy to work around your schedule.
+
+Thanks,
+<span class="placeholder">[YOUR NAME]</span></div>
+    <div style="padding: 12px 20px; border-top: 1px solid var(--border);">
+      <button class="copy-btn" onclick="copyEmail(this, 'email1')">Copy Email</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Why this works:</strong> You're framing it as "feedback" not "review." You're removing the burden ("I'll handle the heavy lifting"). And you're asking for time, not effort.
+  </div>
+
+  <!-- EMAIL 2 -->
+  <div class="email-block">
+    <div class="email-header">
+      <div>
+        <span class="email-label">Email 2</span>
+        <h3>Sending the Call Link</h3>
+      </div>
+      <div class="email-timing">Send: Once they agree to the call</div>
+    </div>
+    <div class="email-meta">
+      <div><strong>Subject:</strong> All set for <span class="placeholder">[DAY/TIME]</span> -- here's the link</div>
+    </div>
+    <div class="email-body" id="email2">Hey <span class="placeholder">[CLIENT NAME]</span>,
+
+Looking forward to our chat on <span class="placeholder">[DAY at TIME]</span>.
+
+Here's the link to join: <span class="placeholder">[RIVERSIDE STUDIO LINK]</span>
+
+No downloads needed -- just click and it opens in your browser. Quick heads up: it'll record in high quality video so we can use some clips for a case study (with your approval, of course).
+
+The whole thing will take 15 minutes max. I'll just ask you a few questions about the project and your experience.
+
+Talk soon,
+<span class="placeholder">[YOUR NAME]</span></div>
+    <div style="padding: 12px 20px; border-top: 1px solid var(--border);">
+      <button class="copy-btn" onclick="copyEmail(this, 'email2')">Copy Email</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Key detail:</strong> You mention the video recording upfront so they're not surprised. "With your approval" gives them an easy out that almost nobody takes.
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="note-warn note">
+    <strong>Between Email 2 and 3: Do the call.</strong> Use the <a href="clutch-call-questions.html" style="color: var(--yellow);">Questions Reference Sheet</a> during the call. After the call, transcribe their answers, clean them up, and map to Clutch sections. Then send Email 3.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- EMAIL 3 -->
+  <div class="email-block">
+    <div class="email-header">
+      <div>
+        <span class="email-label">Email 3</span>
+        <h3>The Copy-Paste Email</h3>
+      </div>
+      <div class="email-timing">Send: Within 24-48 hrs after the call</div>
+    </div>
+    <div class="email-meta">
+      <div><strong>Subject:</strong> Your Clutch review -- all pre-filled, just copy & paste</div>
+    </div>
+    <div class="email-body" id="email3">Hey <span class="placeholder">[CLIENT NAME]</span>,
+
+Thanks so much for taking the time to chat -- I really appreciate the kind words!
+
+As promised, I've taken what you said on our call and formatted it to match the Clutch review questions. This way you don't have to type anything from scratch.
+
+Here's the link to leave the review: https://review.clutch.co
+
+Quick steps:
+1. Click the link above
+2. Sign in with your work email, Google, or LinkedIn
+3. Choose "Classic Review Form" (the left option -- not the AI chat)
+4. Copy and paste the answers below into the matching questions
+5. Add your star ratings (takes 30 seconds)
+6. Hit submit
+
+You can keep the project cost confidential if you prefer -- totally up to you.
+
+Here are your pre-filled answers:
+
+---
+
+BACKGROUND
+
+<span class="placeholder">[Paste their answer about their company, role, and what you did for them]</span>
+
+THE CHALLENGE
+
+<span class="placeholder">[Paste their answer about the problem they were solving]</span>
+
+THE SOLUTION
+
+<span class="placeholder">[Paste their answer about how they found you, what the work looked like, team size, timeline, budget]</span>
+
+RESULTS
+
+<span class="placeholder">[Paste their answer about outcomes, project management, what impressed them, what could improve, and advice for future clients]</span>
+
+---
+
+That's it! Should take about 5 minutes since everything's already written out. If anything doesn't sound right, feel free to tweak it -- these are your words, just cleaned up.
+
+Thanks again, <span class="placeholder">[CLIENT NAME]</span>. It means a lot.
+
+Best,
+<span class="placeholder">[YOUR NAME]</span></div>
+    <div style="padding: 12px 20px; border-top: 1px solid var(--border);">
+      <button class="copy-btn" onclick="copyEmail(this, 'email3')">Copy Email</button>
+    </div>
+  </div>
+
+  <div class="note-warn note">
+    <strong>Classic Review Form only.</strong> The AI chat option rewrites their words into generic fluff and defeats the entire purpose of our system. Always tell the client to pick "Classic Review Form" (the left option).
+  </div>
+
+  <!-- EMAIL 4 -->
+  <div class="email-block">
+    <div class="email-header">
+      <div>
+        <span class="email-label">Email 4</span>
+        <h3>The Gentle Nudge</h3>
+      </div>
+      <div class="email-timing">Send: Only if no submission after 5-7 days</div>
+    </div>
+    <div class="email-meta">
+      <div><strong>Subject:</strong> Re: Your Clutch review -- all pre-filled, just copy & paste</div>
+    </div>
+    <div class="email-body" id="email4">Hey <span class="placeholder">[CLIENT NAME]</span>,
+
+Just checking in -- did you have any trouble with the Clutch link? Happy to walk you through it if needed.
+
+If you're swamped, no worries at all. The pre-filled answers from our call are still in my last email whenever you get a chance.
+
+Thanks!
+<span class="placeholder">[YOUR NAME]</span></div>
+    <div style="padding: 12px 20px; border-top: 1px solid var(--border);">
+      <button class="copy-btn" onclick="copyEmail(this, 'email4')">Copy Email</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>One nudge max.</strong> If they don't do it after this, let it go. You can always re-ask after the next win. Pestering kills the relationship.
+  </div>
+
+  <div class="footer">
+    KAMG &middot; Clutch Email Templates &middot; April 2026
+  </div>
+
+</div>
+
+<script>
+function copyEmail(btn, emailId) {
+  const el = document.getElementById(emailId);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy Email';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

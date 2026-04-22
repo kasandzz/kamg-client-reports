@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clutch Review Collection System | KAMG Internal Guide</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --surface-3: #222233;
+    --border: #2a2a3d;
+    --text: #e8e6e3;
+    --text-muted: #8a8a9a;
+    --accent: #ff6b35;
+    --accent-soft: rgba(255,107,53,0.12);
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,0.12);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96,165,250,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #fbbf24;
+    --yellow-soft: rgba(251,191,36,0.12);
+    --red: #f87171;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .hero {
+    text-align: center;
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .section h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .section .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .card p, .card li {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+  .card ul, .card ol {
+    padding-left: 20px;
+  }
+  .card li { margin-bottom: 6px; }
+  .card li strong { color: var(--text); }
+
+  /* Flow diagram */
+  .flow {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 24px 0;
+  }
+  .flow-step {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 56px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .flow-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    z-index: 1;
+  }
+  .flow-icon.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .flow-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .flow-content p {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+  .flow-content .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+  .tag-time { background: var(--blue-soft); color: var(--blue); }
+  .tag-asset { background: var(--green-soft); color: var(--green); }
+  .tag-tool { background: var(--purple-soft); color: var(--purple); }
+
+  /* 3-asset highlight */
+  .triple-asset {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .asset-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .asset-card .emoji { font-size: 28px; margin-bottom: 8px; }
+  .asset-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .asset-card p { font-size: 12px; color: var(--text-muted); }
+
+  /* Questions table */
+  .q-section {
+    margin-bottom: 24px;
+  }
+  .q-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px 10px 0 0;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .q-section-header .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .q-list {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  .q-item {
+    padding: 14px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--surface-3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+  .q-text { color: var(--text); }
+  .q-text .hint {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* Email template */
+  .email-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .email-header {
+    padding: 14px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .email-header h4 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+  }
+  .email-header .copy-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface-3);
+    padding: 3px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .email-body {
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'Georgia', serif;
+  }
+  .email-body .placeholder {
+    background: var(--yellow-soft);
+    color: var(--yellow);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Ratings */
+  .rating-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .rating-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .rating-item .stars { font-size: 16px; margin-bottom: 6px; }
+  .rating-item .label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+  /* Riverside setup */
+  .setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .setup-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .setup-item h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+  .setup-item p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* Callout */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .callout strong { color: var(--accent); }
+  .callout-green {
+    background: var(--green-soft);
+    border-left-color: var(--green);
+  }
+  .callout-green strong { color: var(--green); }
+  .callout-blue {
+    background: var(--blue-soft);
+    border-left-color: var(--blue);
+  }
+  .callout-blue strong { color: var(--blue); }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    padding: 0;
+  }
+  .checklist li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    margin-top: 2px;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 28px; }
+    .triple-asset { grid-template-columns: 1fr; }
+    .rating-grid { grid-template-columns: repeat(3, 1fr); }
+    .setup-grid { grid-template-columns: 1fr; }
+    .container { padding: 20px 16px 60px; }
+  }
+
+  /* Copy button */
+  .copy-btn {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .copy-btn.copied {
+    background: var(--green-soft);
+    color: var(--green);
+    border-color: var(--green);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div style="position:sticky;top:0;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 0;z-index:100;">
+  <div style="max-width:860px;margin:0 auto;padding:0 24px;display:flex;gap:6px;align-items:center;">
+    <div style="font-size:13px;font-weight:800;color:var(--accent);margin-right:16px;">CLUTCH</div>
+    <a href="clutch-review-collection-guide.html" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;padding:6px 12px;border-radius:6px;background:rgba(255,107,53,0.12);">Guide</a>
+    <a href="clutch-call-questions.html" style="font-size:12px;font-weight:600;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:6px;">Questions</a>
+    <a href="clutch-email-templates.html" style="font-size:12px;font-weight:600;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:6px;">Emails</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">KAMG Internal Playbook</div>
+    <h1>Clutch Review<br>Collection System</h1>
+    <p>One 15-minute call. Three assets. Zero client friction. The complete guide to collecting Clutch reviews that actually get submitted.</p>
+  </div>
+
+  <!-- THE BIG IDEA -->
+  <div class="section">
+    <div class="section-number">!</div>
+    <h2>The Big Idea</h2>
+    <p class="subtitle">Why this system exists and why it works</p>
+
+    <div class="card">
+      <h3>The Problem</h3>
+      <p>Clutch reviews have ~30 questions. Nobody wants to sit down and type paragraphs about your agency. The friction is enormous. You ask, they say "yeah sure", and then it never happens.</p>
+    </div>
+
+    <div class="card">
+      <h3>The Solution</h3>
+      <p>You do the work for them. Book a 15-minute video call, ask them the Clutch questions conversationally, record it in 4K, transcribe their answers, paraphrase into Clutch format, and send it back saying <strong>"here's what you already said, just copy and paste."</strong></p>
+    </div>
+
+    <div class="callout-green callout">
+      <strong>One call = Three assets.</strong> From a single 15-minute conversation you get: a video case study (for proposals + website), a written testimonial, and a Clutch review. The hardest thing is getting people on video. Once they're on, you extract everything.
+    </div>
+
+    <div class="triple-asset">
+      <div class="asset-card">
+        <div class="emoji">🎬</div>
+        <h4>Video Case Study</h4>
+        <p>4K footage for proposals, website, social proof</p>
+      </div>
+      <div class="asset-card">
+        <div class="emoji">📝</div>
+        <h4>Written Testimonial</h4>
+        <p>Quotes for landing pages, pitch decks, emails</p>
+      </div>
+      <div class="asset-card">
+        <div class="emoji">⭐</div>
+        <h4>Clutch Review</h4>
+        <p>Verified review on your Clutch profile</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- STEP-BY-STEP PROCESS -->
+  <div class="section">
+    <div class="section-number">1</div>
+    <h2>The Full Process</h2>
+    <p class="subtitle">Step by step, from first ask to published review</p>
+
+    <div class="flow">
+
+      <div class="flow-step">
+        <div class="flow-icon active">📧</div>
+        <div class="flow-content">
+          <h4>Send the Request Email</h4>
+          <p>Email your client asking for 15 minutes of their time for a "quick feedback call." Frame it as helping you improve, not as a favor. Mention you'll handle everything on your end.</p>
+          <span class="tag tag-time">Day 1</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon active">📅</div>
+        <div class="flow-content">
+          <h4>Book the Call</h4>
+          <p>Send a Riverside.fm studio link (not Zoom). This records locally in 4K. No software install needed for the client. They just click the link and join in their browser.</p>
+          <span class="tag tag-tool">Riverside.fm</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon active">🎙️</div>
+        <div class="flow-content">
+          <h4>Run the 15-Minute Call</h4>
+          <p>Ask the Clutch questions conversationally (see full list below). Keep it natural. You're having a chat, not conducting an interrogation. Record everything.</p>
+          <span class="tag tag-time">15 minutes</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon active">✍️</div>
+        <div class="flow-content">
+          <h4>Transcribe + Paraphrase</h4>
+          <p>Take their spoken answers and clean them up into Clutch question-answer format. Use their exact words where possible. Paraphrase only where they were repetitive or rambling. Keep their voice.</p>
+          <span class="tag tag-asset">Creates: Written Testimonial</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon active">✂️</div>
+        <div class="flow-content">
+          <h4>Edit the Video</h4>
+          <p>Cut the 4K recording into a tight 2-3 minute highlight reel. Best quotes, genuine reactions, specific results. This becomes your video case study.</p>
+          <span class="tag tag-asset">Creates: Video Case Study</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon active">📤</div>
+        <div class="flow-content">
+          <h4>Send the Copy-Paste Email</h4>
+          <p>Email the client their pre-filled answers. "Here's what you said, transcribed to save you time. Just copy and paste into Clutch." Include direct link to leave a review.</p>
+          <span class="tag tag-asset">Creates: Clutch Review</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon">✅</div>
+        <div class="flow-content">
+          <h4>Follow Up (if needed)</h4>
+          <p>If they haven't submitted within 3-5 days, send a gentle nudge. "Just checking if you had any trouble with the Clutch link." One follow-up max.</p>
+          <span class="tag tag-time">Day 5-7</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QUICK LINKS TO STANDALONE PAGES -->
+  <div class="section">
+    <div class="section-number">2</div>
+    <h2>Your Tools</h2>
+    <p class="subtitle">Open these on a second screen during calls and when sending emails.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px;">
+      <a href="clutch-call-questions.html" style="text-decoration:none;">
+        <div class="card" style="cursor:pointer; transition: border-color 0.2s; height:100%;">
+          <div style="font-size:32px; margin-bottom:12px;">🎙️</div>
+          <h3 style="color: var(--blue);">Call Questions</h3>
+          <p>15 questions to ask on the call. Interactive checklist with timer. Open this on a second screen during the Riverside call.</p>
+          <div style="margin-top:12px; font-size:12px; font-weight:700; color:var(--accent);">Open &rarr;</div>
+        </div>
+      </a>
+      <a href="clutch-email-templates.html" style="text-decoration:none;">
+        <div class="card" style="cursor:pointer; transition: border-color 0.2s; height:100%;">
+          <div style="font-size:32px; margin-bottom:12px;">📧</div>
+          <h3 style="color: var(--green);">Email Templates</h3>
+          <p>4 copy-paste emails covering the full flow: initial ask, call link, the copy-paste email, and the gentle nudge.</p>
+          <div style="margin-top:12px; font-size:12px; font-weight:700; color:var(--accent);">Open &rarr;</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RIVERSIDE SETUP -->
+  <div class="section">
+    <div class="section-number">3</div>
+    <h2>Riverside.fm Setup Guide</h2>
+    <p class="subtitle">How to record client calls in 4K like a pro</p>
+
+    <div class="card">
+      <h3>Why Riverside (Not Zoom)</h3>
+      <p>Riverside records <strong>locally on each person's device</strong>, then uploads the raw files. This means:</p>
+      <ul>
+        <li><strong>4K video quality</strong> (up to 2160p) regardless of internet speed</li>
+        <li><strong>No connection dropouts</strong> in the recording, even if their WiFi stutters</li>
+        <li><strong>Separate audio tracks</strong> per person (critical for editing)</li>
+        <li><strong>No software install</strong> for the guest -- browser-based</li>
+        <li><strong>Built-in transcription</strong> you can export immediately</li>
+      </ul>
+    </div>
+
+    <div class="setup-grid">
+      <div class="setup-item">
+        <h4>1. Create Your Studio</h4>
+        <p>Go to riverside.fm, create a free or paid account. Create a new Studio for "Client Feedback Calls." Enable video recording + transcription.</p>
+      </div>
+      <div class="setup-item">
+        <h4>2. Your Camera</h4>
+        <p>For 4K, you need a 4K webcam (Logitech Brio, Elgato Facecam) or a DSLR/mirrorless with HDMI capture card. The client's webcam quality is on them.</p>
+      </div>
+      <div class="setup-item">
+        <h4>3. Your Audio</h4>
+        <p>Use a dedicated USB mic (Blue Yeti, Rode NT-USB) or a lapel mic. Wired headphones recommended to prevent echo. Never rely on laptop mic.</p>
+      </div>
+      <div class="setup-item">
+        <h4>4. Lighting</h4>
+        <p>Face a window (natural light) or use a ring light / key light. Avoid overhead-only lighting. The client doesn't need to worry about this.</p>
+      </div>
+      <div class="setup-item">
+        <h4>5. Invite the Client</h4>
+        <p>Share the studio link via email. They click it, enter their name, allow camera/mic, and they're in. No account required for guests.</p>
+      </div>
+      <div class="setup-item">
+        <h4>6. After the Call</h4>
+        <p>Riverside processes the recordings (may take a few minutes). Download 4K video + transcript. Export separate audio tracks if needed for editing.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Cost:</strong> Riverside has a free tier (limited recordings/hours). The Standard plan (~$15/mo) is enough for client review calls. Business plan for teams.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WHAT CLUTCH ASKS THE CLIENT TO DO -->
+  <div class="section">
+    <div class="section-number">4</div>
+    <h2>What the Client Sees on Clutch</h2>
+    <p class="subtitle">So you can walk them through it if they get stuck</p>
+
+    <div class="card">
+      <h3>Step 1: Create an Account / Sign In</h3>
+      <p>The client goes to <strong>review.clutch.co</strong> and either signs in or creates a new account. They can use:</p>
+      <ul>
+        <li><strong>Google</strong> (fastest)</li>
+        <li><strong>LinkedIn</strong></li>
+        <li><strong>Work email</strong> (First Name, Last Name, Work Email, Password)</li>
+      </ul>
+      <p style="margin-top: 8px; color: var(--yellow);">Note: Personal email addresses (Gmail, Yahoo) may be flagged. They should use their company email for credibility.</p>
+    </div>
+
+    <div class="card">
+      <h3>Step 2: Choose Review Format</h3>
+      <p>After signing in, they see two options:</p>
+      <ul>
+        <li><strong>Classic Review Form</strong> -- Traditional question-and-answer format. This is the one we want. They copy-paste our pre-filled answers into each field.</li>
+        <li><strong style="color: var(--red);">AI-Powered Chat (Beta) -- DO NOT USE</strong> -- This rewrites everything with generic AI language and ignores what they actually said. It defeats the entire purpose of our system. Always use Classic Review Form.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Step 3: Fill In + Submit</h3>
+      <p>They paste your pre-written answers into each section, add their star ratings, and hit submit. With pre-filled answers, this takes about 5 minutes.</p>
+    </div>
+
+    <div class="callout-green callout">
+      <strong>IMPORTANT: Tell them to choose "Classic Review Form"</strong> -- NEVER the AI chat. The AI chat will rewrite their words into generic fluff. Our whole system is built on using their real words from the call. Classic form = paste and done.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PRE-CALL CHECKLIST -->
+  <div class="section">
+    <div class="section-number">5</div>
+    <h2>Pre-Call Checklist</h2>
+    <p class="subtitle">Run through this before every client feedback call</p>
+
+    <div class="card">
+      <ul class="checklist">
+        <li><div class="check"></div><strong>Riverside studio created</strong> with video recording + transcription enabled</li>
+        <li><div class="check"></div><strong>Camera working</strong> in 4K / highest quality available</li>
+        <li><div class="check"></div><strong>Mic tested</strong> with headphones (no echo)</li>
+        <li><div class="check"></div><strong>Lighting good</strong> -- face lit, no backlight, no weird shadows</li>
+        <li><div class="check"></div><strong>Questions printed/visible</strong> on a second screen or notepad</li>
+        <li><div class="check"></div><strong>Client name + project details</strong> reviewed so you can prompt naturally</li>
+        <li><div class="check"></div><strong>Studio link sent</strong> to client with calendar invite</li>
+        <li><div class="check"></div><strong>Quiet environment</strong> -- no background noise, door closed</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- AFTER THE CALL -->
+  <div class="section">
+    <div class="section-number">6</div>
+    <h2>After the Call</h2>
+    <p class="subtitle">The post-call workflow to turn one call into three assets</p>
+
+    <div class="card">
+      <h3>Transcription + Paraphrasing (30-60 min)</h3>
+      <ol>
+        <li><strong>Download the transcript</strong> from Riverside</li>
+        <li><strong>Map answers to Clutch sections</strong> -- Background, Challenge, Solution, Results</li>
+        <li><strong>Clean up the language</strong> -- remove filler words ("um," "like," "you know"), fix grammar, tighten sentences</li>
+        <li><strong>Keep their voice</strong> -- don't rewrite everything. Use their exact phrasing where it's strong. Only paraphrase where they were repetitive or rambling</li>
+        <li><strong>Pull the best quotes</strong> -- identify 2-3 one-liners for your testimonial library</li>
+        <li><strong>Format into the copy-paste email</strong> -- organize by Clutch section with clear labels</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Video Editing (30-60 min)</h3>
+      <ol>
+        <li><strong>Download the 4K footage</strong> from Riverside</li>
+        <li><strong>Cut a 2-3 minute highlight reel</strong> -- best moments, specific results, genuine reactions</li>
+        <li><strong>Add lower third</strong> with client name + title + company</li>
+        <li><strong>Add your logo</strong> intro/outro</li>
+        <li><strong>Export in 1080p</strong> for web, keep 4K master for future use</li>
+      </ol>
+    </div>
+
+    <div class="callout-blue callout">
+      <strong>Time investment:</strong> ~15 min call + ~60 min post-production = 1.5 hours total per client for 3 high-value assets. Compare that to begging for reviews that never arrive.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TIPS -->
+  <div class="section">
+    <div class="section-number">7</div>
+    <h2>Pro Tips</h2>
+
+    <div class="card">
+      <h3>On the Call</h3>
+      <ul>
+        <li><strong>Start with small talk</strong> -- 1-2 minutes to warm them up before recording</li>
+        <li><strong>Tell them what you're doing</strong> -- "I'm going to ask you a few questions about our project, just talk naturally, and I'll handle the rest"</li>
+        <li><strong>Don't read questions robotically</strong> -- have a conversation, use their answers to segue into the next topic</li>
+        <li><strong>Prompt for specifics</strong> -- "You mentioned a 30% increase, do you remember roughly what that translated to in revenue?"</li>
+        <li><strong>Let silences sit</strong> -- people often fill silence with their best answers</li>
+        <li><strong>End with: "Anything else you'd want other business owners to know?"</strong> -- this often produces the best testimonial quote</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Getting More Reviews</h3>
+      <ul>
+        <li><strong>Best time to ask:</strong> right after a win (big result, successful launch, positive feedback)</li>
+        <li><strong>Build it into onboarding:</strong> "At the 90-day mark, we'll do a quick feedback call" -- set the expectation upfront</li>
+        <li><strong>For Clutch Gold Verified status:</strong> you need 20 reviews. Start collecting now.</li>
+        <li><strong>Reviews with zero criticism look fake.</strong> The "what could we improve?" question is important. A small piece of constructive feedback makes the whole review more credible.</li>
+        <li><strong>Phone reviews (by a Clutch analyst)</strong> are available for projects over $25K. These carry more weight but you have less control. Prefer the online/self-submit method.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>KAMG Internal Playbook &middot; Clutch Review Collection System</p>
+    <p style="margin-top: 4px;">Built from call transcripts: CPG 2026-04-14 (Krik/Kas) + B2BLabs 2026-01-06 (Leo/Agustin/Kas)</p>
+    <p style="margin-top: 4px;">Last updated: April 2026</p>
+  </div>
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clutch Call Questions | Quick Reference</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --surface-3: #222233;
+    --border: #2a2a3d;
+    --text: #e8e6e3;
+    --text-muted: #8a8a9a;
+    --accent: #ff6b35;
+    --accent-soft: rgba(255,107,53,0.12);
+    --green: #34d399;
+    --green-soft: rgba(52,211,153,0.12);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96,165,250,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #fbbf24;
+    --yellow-soft: rgba(251,191,36,0.12);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 700px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 24px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  /* Section */
+  .q-section { margin-bottom: 20px; }
+  .q-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px 10px 0 0;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .q-list {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  .q-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: background 0.15s;
+  }
+  .q-item:last-child { border-bottom: none; }
+  .q-item:hover { background: var(--surface-2); }
+  .q-item.active { background: var(--accent-soft); border-left: 3px solid var(--accent); }
+  .q-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--surface-3);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .q-num.done {
+    background: var(--green-soft);
+    color: var(--green);
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .hint {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 400;
+    font-style: italic;
+  }
+  .follow-up {
+    display: block;
+    font-size: 12px;
+    color: var(--yellow);
+    margin-top: 6px;
+    font-weight: 500;
+    padding-left: 12px;
+    border-left: 2px solid var(--yellow-soft);
+  }
+
+  /* Tip bar */
+  .tip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .tip strong { color: var(--accent); }
+  .tip-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* Ratings note */
+  .ratings {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .ratings h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .stars-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .star-item {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    padding: 6px 12px;
+    border-radius: 6px;
+  }
+  .star-item span { color: var(--yellow); }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--surface-3);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Timer */
+  .timer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+    font-size: 13px;
+  }
+  .timer {
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--green);
+    min-width: 70px;
+    text-align: center;
+  }
+  .timer.warning { color: var(--yellow); }
+  .timer.over { color: var(--accent); }
+  .timer-btn {
+    background: var(--surface-3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .timer-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .timer-btn.active { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+  .progress-count {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .container { padding: 16px 14px 80px; }
+    .header h1 { font-size: 22px; }
+    .q-text { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div style="position:sticky;top:0;background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 0;z-index:101;">
+  <div style="max-width:700px;margin:0 auto;padding:0 20px;display:flex;gap:6px;align-items:center;">
+    <div style="font-size:13px;font-weight:800;color:var(--accent);margin-right:16px;">CLUTCH</div>
+    <a href="clutch-review-collection-guide.html" style="font-size:12px;font-weight:600;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:6px;">Guide</a>
+    <a href="clutch-call-questions.html" style="font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;padding:6px 12px;border-radius:6px;background:rgba(255,107,53,0.12);">Questions</a>
+    <a href="clutch-email-templates.html" style="font-size:12px;font-weight:600;color:var(--text-muted);text-decoration:none;padding:6px 12px;border-radius:6px;">Emails</a>
+  </div>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="badge">Call Reference Sheet</div>
+    <h1>Clutch Review Questions</h1>
+    <p>Click each number to mark as covered. Keep it conversational.</p>
+  </div>
+
+  <div class="tip">
+    <div class="tip-icon">💡</div>
+    <div><strong>Don't read these robotically.</strong> Have a natural conversation. Use their answers to flow into the next question. The hints tell you what information you're trying to capture.</div>
+  </div>
+
+  <!-- BACKGROUND -->
+  <div class="q-section">
+    <div class="q-section-header">
+      <div class="dot" style="background: var(--blue)"></div>
+      Background
+      <span style="margin-left:auto; font-size:11px; color:var(--text-muted); font-weight:400">~2 min</span>
+    </div>
+    <div class="q-list">
+      <div class="q-item" id="q1">
+        <div class="q-num" onclick="toggleQ(1)">1</div>
+        <div class="q-text">
+          Tell me about your company. What do you guys do?
+          <span class="hint">You're getting: company name, industry, size, what they sell/do</span>
+        </div>
+      </div>
+      <div class="q-item" id="q2">
+        <div class="q-num" onclick="toggleQ(2)">2</div>
+        <div class="q-text">
+          And what's your role there?
+          <span class="hint">You're getting: their title + responsibilities</span>
+        </div>
+      </div>
+      <div class="q-item" id="q3">
+        <div class="q-num" onclick="toggleQ(3)">3</div>
+        <div class="q-text">
+          What did we do for you? What was the scope of the work?
+          <span class="hint">You're getting: which services they hired you for</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE -->
+  <div class="q-section">
+    <div class="q-section-header">
+      <div class="dot" style="background: var(--accent)"></div>
+      The Challenge
+      <span style="margin-left:auto; font-size:11px; color:var(--text-muted); font-weight:400">~2 min</span>
+    </div>
+    <div class="q-list">
+      <div class="q-item" id="q4">
+        <div class="q-num" onclick="toggleQ(4)">4</div>
+        <div class="q-text">
+          What was the problem you were trying to solve when you came to us?
+          <span class="hint">You're getting: the business pain or challenge</span>
+          <span class="follow-up">Follow-up if vague: "What was happening in the business that made you say, we need help with this?"</span>
+        </div>
+      </div>
+      <div class="q-item" id="q5">
+        <div class="q-num" onclick="toggleQ(5)">5</div>
+        <div class="q-text">
+          What were your goals going into it?
+          <span class="hint">You're getting: specific targets -- revenue, leads, traffic, etc.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOLUTION -->
+  <div class="q-section">
+    <div class="q-section-header">
+      <div class="dot" style="background: var(--purple)"></div>
+      The Solution
+      <span style="margin-left:auto; font-size:11px; color:var(--text-muted); font-weight:400">~4 min</span>
+    </div>
+    <div class="q-list">
+      <div class="q-item" id="q6">
+        <div class="q-num" onclick="toggleQ(6)">6</div>
+        <div class="q-text">
+          How did you find us? And why'd you go with us over other options?
+          <span class="hint">You're getting: referral / Google / Clutch + what tipped the decision</span>
+        </div>
+      </div>
+      <div class="q-item" id="q7">
+        <div class="q-num" onclick="toggleQ(7)">7</div>
+        <div class="q-text">
+          Walk me through what we actually did. What did the engagement look like?
+          <span class="hint">You're getting: detailed description of the work, process, deliverables</span>
+          <span class="follow-up">Follow-up: "What was the process like working together day-to-day?"</span>
+        </div>
+      </div>
+      <div class="q-item" id="q8">
+        <div class="q-num" onclick="toggleQ(8)">8</div>
+        <div class="q-text">
+          How big was the team on your side? And on ours?
+          <span class="hint">You're getting: team size + composition</span>
+        </div>
+      </div>
+      <div class="q-item" id="q9">
+        <div class="q-num" onclick="toggleQ(9)">9</div>
+        <div class="q-text">
+          When did we start, and is it still ongoing?
+          <span class="hint">You're getting: start date, duration, current status</span>
+        </div>
+      </div>
+      <div class="q-item" id="q10">
+        <div class="q-num" onclick="toggleQ(10)">10</div>
+        <div class="q-text">
+          Can you share the rough budget? Totally fine to keep it confidential on Clutch.
+          <span class="hint">You're getting: investment range -- optional but helpful</span>
+          <span class="follow-up">If they hesitate: "No worries at all, Clutch has a confidential option for that."</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="q-section">
+    <div class="q-section-header">
+      <div class="dot" style="background: var(--green)"></div>
+      Results
+      <span style="margin-left:auto; font-size:11px; color:var(--text-muted); font-weight:400">~5 min</span>
+    </div>
+    <div class="q-list">
+      <div class="q-item" id="q11">
+        <div class="q-num" onclick="toggleQ(11)">11</div>
+        <div class="q-text">
+          What results have you seen? Any numbers you can share?
+          <span class="hint">THIS IS THE MONEY QUESTION -- get specifics: percentages, revenue, leads, traffic</span>
+          <span class="follow-up">Dig deeper: "You mentioned a 30% increase -- do you know roughly what that was in revenue?"</span>
+        </div>
+      </div>
+      <div class="q-item" id="q12">
+        <div class="q-num" onclick="toggleQ(12)">12</div>
+        <div class="q-text">
+          How was the project management side? Communication, responsiveness?
+          <span class="hint">You're getting: feedback on working together -- meetings, updates, organization</span>
+        </div>
+      </div>
+      <div class="q-item" id="q13">
+        <div class="q-num" onclick="toggleQ(13)">13</div>
+        <div class="q-text">
+          What impressed you most about working with us?
+          <span class="hint">You're getting: the standout quote for your website/proposals</span>
+        </div>
+      </div>
+      <div class="q-item" id="q14">
+        <div class="q-num" onclick="toggleQ(14)">14</div>
+        <div class="q-text">
+          Anything we could've done better?
+          <span class="hint">Clutch expects this. Reviews with zero criticism look fake. A small thing here adds credibility.</span>
+        </div>
+      </div>
+      <div class="q-item" id="q15">
+        <div class="q-num" onclick="toggleQ(15)">15</div>
+        <div class="q-text">
+          What advice would you give someone thinking about working with us?
+          <span class="hint">You're getting: a recommendation in their words -- strongest testimonial material</span>
+          <span class="follow-up">Alternative closer: "Anything else you'd want other business owners to know?"</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATINGS NOTE -->
+  <div class="ratings">
+    <h3>Star Ratings (Client does this in Clutch, not on the call)</h3>
+    <div class="stars-row">
+      <div class="star-item"><span>⭐</span> Quality</div>
+      <div class="star-item"><span>⭐</span> Schedule</div>
+      <div class="star-item"><span>⭐</span> Cost</div>
+      <div class="star-item"><span>⭐</span> Willingness to Refer</div>
+      <div class="star-item"><span>⭐</span> Overall</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    KAMG &middot; Clutch Review Call Reference &middot; Keep this open on a second screen during calls
+  </div>
+
+</div>
+
+<!-- TIMER BAR -->
+<div class="timer-bar">
+  <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Start Timer</button>
+  <div class="timer" id="timerDisplay">0:00</div>
+  <div class="progress-count" id="progressCount">0 / 15 covered</div>
+</div>
+
+<script>
+const totalQ = 15;
+let completed = new Set();
+let timerInterval = null;
+let seconds = 0;
+let running = false;
+
+function toggleQ(n) {
+  const el = document.getElementById('q' + n);
+  const num = el.querySelector('.q-num');
+  if (completed.has(n)) {
+    completed.delete(n);
+    num.classList.remove('done');
+    num.textContent = n;
+    el.classList.remove('active');
+  } else {
+    completed.add(n);
+    num.classList.add('done');
+    num.textContent = '✓';
+    el.classList.add('active');
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = (completed.size / totalQ) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = completed.size + ' / ' + totalQ + ' covered';
+}
+
+function toggleTimer() {
+  const btn = document.getElementById('timerBtn');
+  if (running) {
+    clearInterval(timerInterval);
+    running = false;
+    btn.textContent = 'Resume';
+    btn.classList.remove('active');
+  } else {
+    timerInterval = setInterval(() => {
+      seconds++;
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      const display = document.getElementById('timerDisplay');
+      display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (seconds >= 900) display.className = 'timer over';
+      else if (seconds >= 720) display.className = 'timer warning';
+      else display.className = 'timer';
+    }, 1000);
+    running = true;
+    btn.textContent = 'Pause';
+    btn.classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>

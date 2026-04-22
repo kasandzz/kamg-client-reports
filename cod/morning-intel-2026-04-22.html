@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Intel &mdash; Apr 22, 2026</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e4e4e7;
+    --text2: #71717a;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --radius: 8px;
+    --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 0 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .header .subtitle { color: var(--text2); font-size: 12px; margin-top: 2px; }
+  .header .logo { font-size: 11px; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 0; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .card h3 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); margin-bottom: 12px; }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .stat-card .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; font-family: var(--mono); letter-spacing: -0.5px; }
+  .stat-card .sub { font-size: 11px; color: var(--text2); margin-top: 2px; font-family: var(--mono); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); padding: 8px 10px; border-bottom: 1px solid var(--border); font-weight: 600; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,0.12); color: var(--red); }
+  .badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .badge-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .badge-done { background: rgba(34,197,94,0.1); color: var(--green); }
+  .badge-muted { background: rgba(113,113,122,0.12); color: var(--text2); }
+
+  /* Amber card (carry-forward) */
+  .amber-card {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.18);
+    border-left: 3px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .amber-card .urgent { color: var(--red); font-weight: 600; font-size: 11px; }
+
+  /* Green card (win) */
+  .green-card {
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.18);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  /* Alert banner */
+  .alert-banner {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--amber);
+  }
+
+  /* Email items */
+  .email-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .email-item:last-child { border-bottom: none; }
+  .email-item .from { font-weight: 600; font-size: 13px; }
+  .email-item .subject { color: var(--text); font-size: 13px; margin-top: 2px; }
+  .email-item .excerpt { color: var(--text2); font-size: 12px; margin-top: 4px; font-style: italic; }
+  .email-item .meta { color: var(--text2); font-size: 11px; margin-top: 4px; }
+
+  /* Action items */
+  .action-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .action-item:last-child { border-bottom: none; }
+  .action-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .action-num.urgent { background: rgba(239,68,68,0.15); color: var(--red); }
+  .action-num.high { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .action-num.medium { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .action-num.fyi { background: rgba(113,113,122,0.12); color: var(--text2); }
+
+  /* Funnel bar */
+  .funnel-stage {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .funnel-label {
+    font-size: 12px; width: 80px; text-align: right; color: var(--text2); flex-shrink: 0;
+  }
+  .funnel-bar-bg {
+    flex: 1; height: 24px; background: rgba(255,255,255,0.03);
+    border-radius: 4px; overflow: hidden; position: relative;
+  }
+  .funnel-bar {
+    height: 100%; border-radius: 4px;
+    display: flex; align-items: center; padding-left: 8px;
+    font-size: 11px; font-family: var(--mono); font-weight: 600;
+    min-width: fit-content;
+  }
+  .funnel-pct { font-size: 11px; color: var(--text2); margin-left: 8px; flex-shrink: 0; font-family: var(--mono); }
+
+  /* Sources list */
+  .source-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .source-row:last-child { border-bottom: none; }
+
+  /* Section header */
+  .section-title {
+    font-size: 15px; font-weight: 700; margin-bottom: 12px; margin-top: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Sparkline wrapper */
+  .sparkline-wrap {
+    padding: 12px 0;
+  }
+  .sparkline-wrap .label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  /* Slack item */
+  .slack-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .slack-item:last-child { border-bottom: none; }
+  .slack-item .channel { font-weight: 600; font-size: 12px; font-family: var(--mono); color: var(--blue); margin-bottom: 3px; }
+  .slack-item .body { font-size: 13px; color: var(--text); }
+  .slack-item .note { font-size: 12px; color: var(--text2); margin-top: 3px; font-style: italic; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-card .value { font-size: 18px; }
+    .header h1 { font-size: 17px; }
+    .tab { padding: 8px 12px; font-size: 12px; }
+    .container { padding: 10px; }
+    table { font-size: 12px; }
+    th, td { padding: 6px 6px; }
+  }
+  @media (max-width: 440px) {
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .funnel-label { width: 60px; font-size: 11px; }
+  }
+
+  /* Print */
+  @media print {
+    body { background: #fff; color: #111; }
+    .card, .stat-card { background: #fff; border-color: #ddd; box-shadow: none; }
+    .tabs { display: none; }
+    .tab-content { display: block !important; page-break-inside: avoid; margin-bottom: 24px; }
+    .tab-content::before { content: attr(data-title); display: block; font-size: 16px; font-weight: 700; margin-bottom: 12px; border-bottom: 2px solid #111; padding-bottom: 4px; }
+    .amber-card { border-color: #ccc; background: #fffbeb; }
+    .green-card { border-color: #ccc; background: #f0fdf4; }
+    .alert-banner { background: #fffbeb; border-color: #ccc; color: #92400e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Morning Intelligence</h1>
+      <div class="subtitle">April 22, 2026 &mdash; Project Ares</div>
+    </div>
+    <div class="logo">KAMG OPS</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <div class="tab active" data-tab="myday" role="tab">My Day</div>
+    <div class="tab" data-tab="cod" role="tab">COD Intel</div>
+    <div class="tab" data-tab="overnight" role="tab">Overnight</div>
+    <div class="tab" data-tab="actions" role="tab">Actions</div>
+    <div class="tab" data-tab="cpg" role="tab">CPG</div>
+    <div class="tab" data-tab="lths" role="tab">LTHS</div>
+    <div class="tab" data-tab="sources" role="tab">Sources</div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 1: MY DAY -->
+  <!-- ============================================ -->
+  <div class="tab-content active" id="tab-myday" data-title="My Day">
+
+    <div class="card" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+      <div>
+        <div style="font-size:18px; font-weight:700;">Wednesday, April 22, 2026</div>
+        <div style="color:var(--text2); font-size:13px; margin-top:4px;">Late catch-up &mdash; sync-only mode (4:09 PM CST)</div>
+      </div>
+      <span class="badge badge-green">Skill Health: OK</span>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+      <h3>Schedule</h3>
+      <table>
+        <thead><tr><th>Time</th><th>Event</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">06:45</td><td>Exercise</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">07:15</td><td>Shower</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">07:45</td><td>Morning Focus Block</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">08:30 &ndash; 10:00</td><td>Russ Call Block</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">09:00 &ndash; 10:00</td><td>Power VS Force Drop In <span style="color:var(--text2); font-size:11px;">(tentative)</span></td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">10:30 &ndash; 11:00</td><td>Daniel &amp; Krik // Google Ads (Google Meet)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">11:30 &ndash; 12:00</td><td>LTHS Strategy Session (Boris, Vladislav, Vovik)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">12:30 &ndash; 1:00</td><td>Triston &amp; Kas</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">1:00 &ndash; 1:30</td><td>Stef &amp; Kas // Clutch (CPG)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">2:00 &ndash; 3:00</td><td>CPG // Marketing (Krik, Stef, Julieta)</td><td style="text-align:right"><span class="badge badge-done">DONE</span></td></tr>
+          <tr><td class="mono">8:00 PM</td><td>Relax</td><td style="text-align:right"><span class="badge badge-muted">&mdash;</span></td></tr>
+          <tr><td class="mono">10:00 PM</td><td>Go To Bed</td><td style="text-align:right"><span class="badge badge-muted">&mdash;</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Carry-forwards -->
+    <div class="section-title" style="color:var(--amber);">Carry-Forwards from Yesterday</div>
+    <div class="amber-card"><span class="urgent">URGENT (TODAY!) &mdash;</span> Cancel Sembly AI before Apr 22</div>
+    <div class="amber-card">Redstone LP die casting: resume at Pass 3 (Frontend Dev)</div>
+    <div class="amber-card">Redstone ads: fix targeting US+CA, link to correct LPs</div>
+    <div class="amber-card">Leo profit share model (Superhuman reminder)</div>
+    <div class="amber-card">Send Rehan: VIP session calendar link + workshop calendar link + workshop date</div>
+    <div class="amber-card">Follow up with Lucah on pixel double-fire fix</div>
+    <div class="amber-card">COD VIP survey removed, new thank-you video pending Russ recording</div>
+
+    <!-- Wins -->
+    <div class="section-title" style="color:var(--green); margin-top:16px;">Today's Wins</div>
+    <div class="green-card">COD Dashboard Phase 6 complete &mdash; Meta Ads + Google Ads + Cross-Platform pages all built</div>
+    <div class="green-card">6 meetings completed across COD, CPG, LTHS</div>
+    <div class="green-card">New Fathom recap: financing fallback strategy discussed</div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 2: COD INTEL -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-cod" data-title="COD Intel">
+
+    <div class="alert-banner">&#9888; BQ unavailable &mdash; cloud collector data from Apr 15 (7 days stale). No fresh COD KPIs.</div>
+
+    <div class="card" style="border-left: 3px solid rgba(245,158,11,0.4);">
+      <h3>Last Known Data &mdash; Apr 15</h3>
+      <p style="font-size:13px; color:var(--text); line-height:1.7;">
+        $18,606 gross revenue &nbsp;&bull;&nbsp; 0.24x ROAS &nbsp;&bull;&nbsp; 3 enrollments &nbsp;&bull;&nbsp; $77,989 total spend
+      </p>
+      <p style="font-size:12px; color:var(--text2); margin-top:10px;">
+        Dashboard rebuild Phase 6 complete &mdash; Meta Ads + Google Ads pages now live at cod-dashboard.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 3: OVERNIGHT -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-overnight" data-title="Overnight">
+
+    <div class="card">
+      <h3>Email <span class="badge badge-blue" style="margin-left:6px;">1 new</span></h3>
+
+      <div class="email-item">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-blue">FYI</span>
+          <span class="from">Fathom</span>
+        </div>
+        <div class="subject">Recap for "Impromptu Zoom Meeting"</div>
+        <div class="excerpt">Customer financing fallback strategy, purchase hesitation from husband, discussed financing options.</div>
+        <div class="meta">Received 3:59 PM &mdash; Source: Gmail</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Slack &mdash; Open Items from Yesterday's Digest</h3>
+
+      <div class="slack-item">
+        <div class="channel">#brickellads</div>
+        <div class="body">Booking volume crash (35% &rarr; 16%), refund pattern worsening (daily), AEvent no-shows high</div>
+        <div class="note">Still open &mdash; no resolution confirmed</div>
+      </div>
+
+      <div class="slack-item">
+        <div class="channel">#marketing-optimization</div>
+        <div class="body">Meta pixel double-firing on niche LP A/B pages (Lucah investigating)</div>
+        <div class="note">Pending fix from Lucah</div>
+      </div>
+
+      <div class="slack-item">
+        <div class="channel">#x-russ-internal</div>
+        <div class="body">Rehan: VIP Thank You + VIP Upsell pages ready &mdash; needs calendar links + workshop date</div>
+        <div class="note">Blocked on Kas sending calendar links</div>
+      </div>
+
+      <div class="slack-item">
+        <div class="channel">#sales-fun</div>
+        <div class="body">Amanda D Polk closed $9k (Dorian Matney)</div>
+        <div class="note">Win logged</div>
+      </div>
+
+      <div class="slack-item">
+        <div class="channel">#tech-titans</div>
+        <div class="body">Referral/affiliate link page nearly complete &mdash; Ryan video script blocking</div>
+        <div class="note">Pending Ryan's video script</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 4: ACTIONS -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-actions" data-title="Actions">
+
+    <div class="card">
+      <h3>Urgent <span class="badge badge-red" style="margin-left:6px;">Do Now</span></h3>
+      <div class="action-item">
+        <div class="action-num urgent">1</div>
+        <div>
+          <div style="font-weight:600;">Cancel Sembly AI renewal</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Today's deadline &mdash; cancel immediately before end of day.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>High Priority</h3>
+      <div class="action-item">
+        <div class="action-num high">2</div>
+        <div>
+          <div style="font-weight:600;">Send Rehan: VIP calendar links + workshop date</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">VIP Thank You + VIP Upsell pages blocked until received.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num high">3</div>
+        <div>
+          <div style="font-weight:600;">Follow up with Lucah: pixel double-fire fix</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Meta pixel double-firing on niche LP A/B pages &mdash; check status.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num high">4</div>
+        <div>
+          <div style="font-weight:600;">Pull Stealth vs AEvent data (last 30 days)</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Conversion + attendance comparison &mdash; inform brickellads strategy.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Medium Priority</h3>
+      <div class="action-item">
+        <div class="action-num medium">5</div>
+        <div>
+          <div style="font-weight:600;">Redstone LP die casting &mdash; resume Pass 3</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Frontend Dev pass on die casting LP.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num medium">6</div>
+        <div>
+          <div style="font-weight:600;">Redstone ads: fix targeting US+CA</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Link ads to correct LP URLs.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-num medium">7</div>
+        <div>
+          <div style="font-weight:600;">Leo profit share model</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Superhuman reminder &mdash; define terms.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>FYI</h3>
+      <div class="action-item">
+        <div class="action-num fyi">8</div>
+        <div>
+          <div style="font-weight:600;">COD Dashboard Phase 6 shipped</div>
+          <div style="color:var(--text2); font-size:12px; margin-top:2px;">Visual verification pending &mdash; Meta Ads + Google Ads + Cross-Platform pages live.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 5: CPG -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-cpg" data-title="CPG">
+
+    <div class="card" style="border-left: 3px solid var(--blue);">
+      <div style="font-size:16px; font-weight:700; margin-bottom:4px;">CPG Affiliate &mdash; Krik Angacian</div>
+      <div style="color:var(--text2); font-size:12px;">Client tab</div>
+    </div>
+
+    <div class="card">
+      <h3>Today's Meetings</h3>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <span class="mono">1:00 PM</span>
+        <span>Stef &amp; Kas // Clutch (CPG)</span>
+        <span class="badge badge-done">DONE</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="mono">2:00 PM</span>
+        <span>CPG // Marketing (Krik, Stef, Julieta)</span>
+        <span class="badge badge-done">DONE</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Pending Actions</h3>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:6px 0; border-bottom:1px solid var(--border);">
+          <span class="badge badge-amber" style="margin-right:8px;">TODAY</span>
+          LP copy changes from Stef + Krik &mdash; Wednesday deadline
+        </li>
+        <li style="padding:6px 0; border-bottom:1px solid var(--border);">
+          <span class="badge badge-amber" style="margin-right:8px;">PENDING</span>
+          Stef to send branding assets &mdash; Kas to update LP (remove charts, ad spend &ge;$10K, reword 70% CAC)
+        </li>
+        <li style="padding:6px 0; border-bottom:1px solid var(--border);">
+          <span class="badge badge-blue" style="margin-right:8px;">TEST</span>
+          Test Atio CRM, report findings to Krik + Stef
+        </li>
+        <li style="padding:6px 0;">
+          <span class="badge badge-blue" style="margin-right:8px;">SCHED</span>
+          Schedule Gmail/CRM integration call
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 6: LTHS -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-lths" data-title="LTHS">
+
+    <div class="card" style="border-left: 3px solid var(--blue);">
+      <div style="font-size:16px; font-weight:700; margin-bottom:4px;">LTHS</div>
+      <div style="color:var(--text2); font-size:12px;">Client tab &mdash; first appearance in daily dashboard</div>
+    </div>
+
+    <div class="card">
+      <h3>Today's Meeting</h3>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="mono">11:30 &ndash; 12:00</span>
+        <span>LTHS Strategy Session (Boris, Vladislav, Vovik)</span>
+        <span class="badge badge-done">DONE</span>
+      </div>
+    </div>
+
+    <div style="color:var(--text2); font-size:13px; padding:16px 0; text-align:center; font-style:italic;">
+      No prior intel available &mdash; first time appearing in daily dashboard.
+    </div>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- TAB 7: SOURCES -->
+  <!-- ============================================ -->
+  <div class="tab-content" id="tab-sources" data-title="Sources">
+
+    <div class="card">
+      <h3>Data Freshness</h3>
+
+      <div class="source-row">
+        <span>Data Source</span>
+        <span class="badge badge-amber">local-fallback</span>
+      </div>
+      <div class="source-row">
+        <span>Cloud JSON</span>
+        <span style="color:var(--amber); font-size:12px; font-family:var(--mono);">Apr 15 (7 days stale)</span>
+      </div>
+      <div class="source-row">
+        <span>Integrations</span>
+        <span><span class="badge badge-green">6/7 healthy</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">Fathom MCP not loading</span></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Infrastructure</h3>
+
+      <div class="source-row">
+        <span>Backup</span>
+        <span><span class="badge badge-amber">WARNING</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">Apr 20 &mdash; 2 days ago</span></span>
+      </div>
+      <div class="source-row">
+        <span>Knowledge Compiler</span>
+        <span><span class="badge badge-green">Healthy</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">10h ago &nbsp;&bull;&nbsp; 53 runs lifetime</span></span>
+      </div>
+      <div class="source-row">
+        <span>Brain</span>
+        <span class="badge badge-muted">Offline</span>
+      </div>
+      <div class="source-row">
+        <span>Cache</span>
+        <span><span class="badge badge-green">100/100 HEALTHY</span> <span style="color:var(--text2); font-size:11px; margin-left:4px;">patch applied</span></span>
+      </div>
+      <div class="source-row">
+        <span>Rate Limits</span>
+        <span style="font-size:12px; font-family:var(--mono);">5hr <span style="color:var(--green);">4%</span> &nbsp;&bull;&nbsp; Weekly <span style="color:var(--amber);">84%</span></span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Tab switching -->
+<script>
+(function() {
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      const target = this.getAttribute('data-tab');
+
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      contents.forEach(function(c) { c.classList.remove('active'); });
+
+      this.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

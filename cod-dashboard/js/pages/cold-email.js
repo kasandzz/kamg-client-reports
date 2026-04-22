@@ -49,22 +49,66 @@ let _CE_REPLY_CONVERSIONS = {}; // email -> funnel_stage
 
 App.registerPage('cold-email', async (container) => {
   const days = Filters.getDays();
-  container.innerHTML = `<div class="card" style="padding:24px;text-align:center"><p style="color:${Theme.COLORS.textMuted}">Loading cold outbound data...</p></div>`;
 
-  try {
-    const [kpiData, campData, replyData, senderData, dailyData, bridgeData, industryData, replyHoursData, metaCpaData, replyConvData] = await Promise.all([
-      API.query('cold-email', 'kpis',              { days }),
-      API.query('cold-email', 'campaigns',         { days }),
-      API.query('cold-email', 'replies',           { days }),
-      API.query('cold-email', 'sender_health',     { days }),
-      API.query('cold-email', 'daily',             { days }),
-      API.query('cold-email', 'bridge',            { days }),
-      API.query('cold-email', 'lead_breakdown',    { days }),
-      API.query('cold-email', 'reply_hours',       { days: 90 }),
-      API.query('cold-email', 'meta_cpa').catch(() => []),
-      API.query('cold-email', 'reply_conversions', { days }),
-    ]);
+  // Shimmer skeleton loader while data loads
+  container.innerHTML = `
+    <style>
+      @keyframes ce-shimmer {
+        0% { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+      }
+      .ce-skeleton-bar {
+        background: linear-gradient(90deg, #1a1a26 25%, #252536 50%, #1a1a26 75%);
+        background-size: 800px 100%;
+        animation: ce-shimmer 1.5s infinite ease-in-out;
+        border-radius: 6px;
+      }
+      @media(max-width:768px) {
+        .kpi-strip { grid-template-columns: 1fr 1fr !important; }
+        .ce-chart-grid { grid-template-columns: 1fr !important; }
+      }
+    </style>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px">
+      ${[1,2,3,4].map(() => `<div class="card" style="padding:24px"><div class="ce-skeleton-bar" style="height:14px;width:60%;margin-bottom:12px"></div><div class="ce-skeleton-bar" style="height:28px;width:40%"></div></div>`).join('')}
+    </div>
+    <div class="card" style="padding:24px"><div class="ce-skeleton-bar" style="height:200px;width:100%"></div></div>
+  `;
 
+  // Track per-query errors for inline error cards
+  const _ceQueryErrors = {};
+
+  const results = await Promise.allSettled([
+    API.query('cold-email', 'kpis',              { days }),
+    API.query('cold-email', 'campaigns',         { days }),
+    API.query('cold-email', 'replies',           { days }),
+    API.query('cold-email', 'sender_health',     { days }),
+    API.query('cold-email', 'daily',             { days }),
+    API.query('cold-email', 'bridge',            { days }),
+    API.query('cold-email', 'lead_breakdown',    { days }),
+    API.query('cold-email', 'reply_hours',       { days: 90 }),
+    API.query('cold-email', 'meta_cpa').catch(() => []),
+    API.query('cold-email', 'reply_conversions', { days }),
+  ]);
+
+  const queryNames = ['kpis', 'campaigns', 'replies', 'sender_health', 'daily', 'bridge', 'lead_breakdown', 'reply_hours', 'meta_cpa', 'reply_conversions'];
+  const extract = (idx) => {
+    if (results[idx].status === 'fulfilled') return results[idx].value;
+    _ceQueryErrors[queryNames[idx]] = results[idx].reason?.message || 'Query failed';
+    return null;
+  };
+
+  const kpiData = extract(0);
+  const campData = extract(1);
+  const replyData = extract(2);
+  const senderData = extract(3);
+  const dailyData = extract(4);
+  const bridgeData = extract(5);
+  const industryData = extract(6);
+  const replyHoursData = extract(7);
+  const metaCpaData = extract(8);
+  const replyConvData = extract(9);
+
+  {
     _CE_KPI = (kpiData && kpiData.length > 0) ? kpiData[0] : {};
     _CE_BRIDGE = bridgeData || [];
     _CE_INDUSTRY = industryData || [];
@@ -212,21 +256,49 @@ App.registerPage('cold-email', async (container) => {
       }
     });
 
-  } catch (err) {
-    container.innerHTML = `<div class="card" style="padding:24px"><p style="color:${Theme.COLORS.textMuted}">Failed to load cold email data: ${err.message}</p></div>`;
-    return;
   }
 
   container.innerHTML = '';
 
-  _renderColdEmailKPIs(container);
-  _renderCampaignTable(container);
-  _renderCampaignCharts(container);
-  _renderReplyTracker(container);
-  _renderDomainHealth(container);
-  _renderConversionBridge(container);
+  // Helper: render inline error card for a failed query section
+  function _ceErrorCard(container, sectionName, queryKey) {
+    const err = _ceQueryErrors[queryKey];
+    if (!err) return false;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = `padding:24px;text-align:center;border:1px solid rgba(239,68,68,0.3)`;
+    card.innerHTML = `
+      <div style="font-size:14px;color:#ef4444;font-weight:600;margin-bottom:8px">Cold Email: ${sectionName} unavailable</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-bottom:12px">${err}</div>
+      <button onclick="App.navigate('cold-email')" style="background:${Theme.COLORS.accent};color:#fff;border:none;border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer;font-family:Manrope,sans-serif">Retry</button>
+    `;
+    container.appendChild(card);
+    return true;
+  }
+
+  // Helper: render empty state for a section with no data
+  function _ceEmptyState(container, sectionLabel) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'padding:48px 24px;text-align:center';
+    card.innerHTML = `
+      <div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div>
+      <div style="font-size:13px;color:#8888a0">No ${sectionLabel} data for this period</div>
+    `;
+    container.appendChild(card);
+  }
+
+  if (!_ceErrorCard(container, 'KPIs', 'kpis')) _renderColdEmailKPIs(container);
+  if (!_ceErrorCard(container, 'Campaigns', 'campaigns')) _renderCampaignTable(container);
+  if (!_ceErrorCard(container, 'Campaign Analytics', 'daily')) _renderCampaignCharts(container);
+  if (!_ceErrorCard(container, 'Replies', 'replies')) _renderReplyTracker(container);
+  if (!_ceErrorCard(container, 'Sender Health', 'sender_health')) _renderDomainHealth(container);
+  if (!_ceErrorCard(container, 'Conversion Bridge', 'bridge')) _renderConversionBridge(container);
   _renderABTests(container);
   _renderInsights(container);
+
+  // Wire filter re-render
+  App.onFilterChange(() => App.navigate('cold-email'));
 });
 
 // ---------------------------------------------------------------------------
@@ -236,8 +308,8 @@ App.registerPage('cold-email', async (container) => {
 function _ceCard(title, subtitle) {
   const card = document.createElement('div');
   card.className = 'card';
-  card.style.cssText = 'padding:16px 20px';
-  let html = `<div style="font-size:13px;font-weight:700;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">${title}</div>`;
+  card.style.cssText = 'padding:24px';
+  let html = `<div style="font-size:1.1rem;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">${title}</div>`;
   if (subtitle) html += `<div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:12px">${subtitle}</div>`;
   else html += `<div style="margin-bottom:12px"></div>`;
   card.innerHTML = html;
@@ -248,7 +320,7 @@ function _ceSectionHeader(container, title, subtitle) {
   const header = document.createElement('div');
   header.style.cssText = 'margin-top:32px;margin-bottom:12px';
   header.innerHTML = `
-    <div style="font-size:18px;font-weight:800;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};letter-spacing:-0.03em">${title}</div>
+    <div style="font-size:1.1rem;font-weight:600;font-family:Manrope,sans-serif;color:${Theme.COLORS.textPrimary};letter-spacing:-0.03em">${title}</div>
     ${subtitle ? `<div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">${subtitle}</div>` : ''}
   `;
   container.appendChild(header);
@@ -293,6 +365,15 @@ function _ceRelativeDate(dateStr) {
 
 function _renderColdEmailKPIs(container) {
   const k = _CE_KPI;
+  // Empty state if no KPI data at all
+  if (!k || (Object.keys(k).length === 0 && _CE_CAMPAIGNS.length === 0)) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:48px 24px;text-align:center';
+    empty.innerHTML = `<div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div><div style="font-size:13px;color:#8888a0">No KPI data for this period</div>`;
+    container.appendChild(empty);
+    return;
+  }
   const activeCampaigns = _CE_CAMPAIGNS.filter(c => c.status === 'active').length;
 
   // Sparkline data from daily BQ data
@@ -322,6 +403,15 @@ let _ceActiveStatus = 'all';
 
 function _renderCampaignTable(container) {
   _ceSectionHeader(container, 'Campaign Performance', 'Live from EmailBison via BigQuery');
+
+  if (_CE_CAMPAIGNS.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:48px 24px;text-align:center';
+    empty.innerHTML = `<div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div><div style="font-size:13px;color:#8888a0">No campaign data for this period</div>`;
+    container.appendChild(empty);
+    return;
+  }
 
   // Filter bar (status only -- niche not available from EmailBison)
   const filterBar = document.createElement('div');
@@ -444,15 +534,30 @@ function _renderCampaignTable(container) {
 function _renderCampaignCharts(container) {
   _ceSectionHeader(container, 'Campaign Analytics', 'Visual breakdown of cold email performance');
 
+  // Empty state: if no daily data and no campaigns with sends
+  if (_CE_DAILY.length === 0 && _CE_CAMPAIGNS.filter(c => c.sent > 0).length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:48px 24px;text-align:center';
+    empty.innerHTML = `<div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div><div style="font-size:13px;color:#8888a0">No campaign analytics data for this period</div>`;
+    container.appendChild(empty);
+    return;
+  }
+
   const grid = document.createElement('div');
   grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px';
+  // Mobile: single column
+  const mobileStyle = document.createElement('style');
+  mobileStyle.textContent = '@media(max-width:768px){.ce-chart-grid{grid-template-columns:1fr !important}}';
+  container.appendChild(mobileStyle);
+  grid.className = 'ce-chart-grid';
   container.appendChild(grid);
 
   // -- Chart 1: Reply Rate by Campaign (horizontal bar) --
   const replyCard = _ceCard('Reply Rate by Campaign');
   const replyCanvas = document.createElement('canvas');
   replyCanvas.id = 'ce-reply-rate-chart';
-  replyCanvas.style.height = '280px';
+  replyCanvas.style.cssText = 'height:280px;min-height:200px;width:100%';
   replyCard.appendChild(replyCanvas);
   grid.appendChild(replyCard);
 
@@ -500,7 +605,7 @@ function _renderCampaignCharts(container) {
   const volumeCard = _ceCard('Send Volume Over Time');
   const volumeCanvas = document.createElement('canvas');
   volumeCanvas.id = 'ce-volume-chart';
-  volumeCanvas.style.height = '280px';
+  volumeCanvas.style.cssText = 'height:280px;min-height:200px;width:100%';
   volumeCard.appendChild(volumeCanvas);
   grid.appendChild(volumeCard);
 
@@ -546,7 +651,7 @@ function _renderCampaignCharts(container) {
   const funnelCard = _ceCard('Cold Email Funnel');
   const funnelCanvas = document.createElement('canvas');
   funnelCanvas.id = 'ce-funnel-chart';
-  funnelCanvas.style.height = '200px';
+  funnelCanvas.style.cssText = 'height:200px;min-height:200px;width:100%';
   funnelCard.appendChild(funnelCanvas);
   grid.appendChild(funnelCard);
 
@@ -613,7 +718,7 @@ function _renderCampaignCharts(container) {
   const hourCard = _ceCard('Replies by Hour of Day', 'Human replies vs automated/bounced');
   const hourCanvas = document.createElement('canvas');
   hourCanvas.id = 'ce-reply-hours-chart';
-  hourCanvas.style.height = '280px';
+  hourCanvas.style.cssText = 'height:280px;min-height:200px;width:100%';
   hourCard.appendChild(hourCanvas);
   grid.appendChild(hourCard);
 
@@ -709,6 +814,15 @@ function _renderCampaignCharts(container) {
 
 function _renderReplyTracker(container) {
   _ceSectionHeader(container, 'Reply Tracker', 'Contact-level replies with conversion event tracking');
+
+  if (_CE_REPLIES.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:48px 24px;text-align:center';
+    empty.innerHTML = `<div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div><div style="font-size:13px;color:#8888a0">No reply data for this period</div>`;
+    container.appendChild(empty);
+    return;
+  }
 
   // Search + filter bar
   const filterBar = document.createElement('div');
@@ -944,6 +1058,15 @@ function _renderReplyTracker(container) {
 
 function _renderDomainHealth(container) {
   _ceSectionHeader(container, 'Sender Infrastructure', 'Domain health and deliverability monitoring');
+
+  if (_CE_SENDERS.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = 'padding:48px 24px;text-align:center';
+    empty.innerHTML = `<div style="font-size:28px;margin-bottom:8px;opacity:0.4">&#9776;</div><div style="font-size:13px;color:#8888a0">No sender health data for this period</div>`;
+    container.appendChild(empty);
+    return;
+  }
 
   const card = document.createElement('div');
   card.className = 'card';
@@ -1295,6 +1418,7 @@ function _renderInsights(container) {
 
   // -- 8b: Campaign Intelligence Cards (derived from live data) --
   const insightsGrid = document.createElement('div');
+  insightsGrid.className = 'ce-chart-grid';
   insightsGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
 
   const insightCard = (title, body, accentColor) => {

@@ -424,3 +424,5 @@ App.registerPage('email-intel', async (container) => {
   `;
   grid.appendChild(gapCard);
 });
+
+App.onFilterChange(() => App.navigate('email-intel'));

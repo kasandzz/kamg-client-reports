@@ -607,6 +607,8 @@ App.registerPage('enrollment', async (container) => {
   });
 });
 
+App.onFilterChange(() => App.navigate('enrollment'));
+
 // Helper: escape HTML
 function _esc(str) {
   const el = document.createElement('span');

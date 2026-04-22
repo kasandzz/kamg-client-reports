@@ -18,7 +18,7 @@ const API = (() => {
     'cold-email':           ['cold_outbound_campaigns', 'cold_outbound_leads', 'cold_outbound_replies'],
     'email-intel':          ['sendgrid_messages'],
     'email-deliverability': ['sendgrid_daily_stats', 'sendgrid_mailbox_provider_stats'],
-    'enrollment':           ['stripe_transactions', 'meta_ad_performance'],
+    'enrollment':           ['stripe_transactions', 'meta_ad_performance', 'hyros_sales'],
     'sales-team':           ['sheets_bookings'],
     'calls':                ['sheets_bookings'],
     'journey-map':          ['mat_pipeline'],

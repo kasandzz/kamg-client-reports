@@ -12,7 +12,7 @@ const Shell = (() => {
   const NAV = [
     { section: 'COMMAND', items: [
       { page: 'war-room',   icon: '&#127919;', label: 'War Room' },
-      { page: 'revenue',    icon: '&#128176;', label: 'Revenue & LTV', dimmed: true },
+      { page: 'enrollment', icon: '&#128176;', label: 'Revenue & LTV' },
       { page: 'cold-email', icon: '&#9993;&#65039;', label: 'Email' },
     ]},
     { section: 'ACQUISITION', items: [

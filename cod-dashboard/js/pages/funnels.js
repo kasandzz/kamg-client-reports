@@ -973,11 +973,6 @@ App.registerPage('funnels', async (container) => {
         <div style="font-size:11px;color:#475569;margin-top:2px;">Every stage from ad click to enrollment. Width = volume at each transition.</div>
       </div>
       <div id="sankeyControls">
-        <div class="completion-toggle" id="sankeyToggle">
-          <button class="completion-toggle__btn completion-toggle__btn--active" data-view="all">All</button>
-          <button class="completion-toggle__btn" data-view="vip">VIP Only</button>
-        </div>
-        <label id="sankeyHideAds"><input type="checkbox" id="sankeyHideAdsCheck"> Hide Impressions</label>
         <label><input type="checkbox" id="sankeyCompactCheck"> Compact</label>
       </div>
     </div>
@@ -2505,181 +2500,282 @@ var activeSankeyView = 'all';
 // Builds node/link structure dynamically from API.query('funnel-27', 'sankey', { days }).
 // Falls back to a minimal placeholder if query fails.
 
-var SANKEY_DATA_PLACEHOLDER = {
-  all: {
+// Build sankey node/link data from funnel-27 API response
+function buildSankeyFromData(d) {
+  // d is a single row from funnel-27:sankey
+  var pv = d.page_visits || 0;
+  var tickets = d.tickets || 0;
+  var vip = d.vip || 0;
+  var attended = d.attended || 0;
+  var booked = d.booked || 0;
+  var showed = d.showed || 0;
+  var enrolled = d.enrolled || 0;
+  var noShowWorkshop = d.no_show_workshop || 0;
+  var noBook = d.no_book || 0;
+  var noShowCall = d.no_show_call || 0;
+  var noClose = d.no_close || 0;
+  var adSpend = d.ad_spend || 0;
+  var ticketRev = d.ticket_revenue || 0;
+  var vipRev = d.vip_revenue || 0;
+  var avgDeal = d.avg_deal_value || 0;
+  var nonVip = tickets - vip;
+
+  // Registration-to-ticket drop (page visits that didn't purchase)
+  var regDrop = Math.max(0, pv - tickets);
+
+  return {
     nodes: [
-      { id: 'ads',           label: 'Ad Impressions',     value: 48200, color: '#6366f1', col: 0, row: 0 },
-      { id: 'clicks',        label: 'LP Visitors',        value: 6840,  color: '#818cf8', col: 1, row: 0 },
-      { id: 'bounce',        label: 'Bounced',            value: 2394,  color: '#ef4444', col: 1, row: 1 },
-      // Col 2: VSL + Engagement
-      { id: 'vsl_played',    label: 'VSL Played',         value: 4446,  color: '#8b5cf6', col: 2, row: 0 },
-      { id: 'engaged',       label: 'Engaged User',       value: 3890,  color: '#a78bfa', col: 2, row: 1 },
-      // Col 3: Checkout
-      { id: 'start_checkout',label: 'Started Checkout',   value: 3540,  color: '#c084fc', col: 3, row: 0 },
-      { id: 'abandon_checkout',label:'Abandoned Checkout', value: 330,   color: '#ef4444', col: 3, row: 1 },
-      { id: 'done_checkout', label: 'Completed Checkout',  value: 3210,  color: '#22c55e', col: 3, row: 2 },
-      // Col 4: VIP Upsell
-      { id: 'vip_tick',      label: 'VIP Checkbox',       value: 641,   color: '#facc15', col: 4, row: 0 },
-      { id: 'vip_upsell',    label: 'VIP Upsell Page',    value: 2569,  color: '#fbbf24', col: 4, row: 1 },
-      { id: 'vip_total',     label: 'Total VIP',          value: 912,   color: '#facc15', col: 4, row: 2 },
-      // Col 5: Pre-Workshop
-      { id: 'email_open',    label: 'Email Opened',       value: 2247,  color: '#38bdf8', col: 5, row: 0 },
-      // Col 6: Workshop
-      { id: 'attend',        label: 'Attended',           value: 1847,  color: '#22d3ee', col: 6, row: 0 },
-      { id: 'watch_30',      label: 'Watched 30min',      value: 1588,  color: '#06b6d4', col: 6, row: 1 },
-      { id: 'watch_full',    label: 'Watched Full',       value: 1145,  color: '#0891b2', col: 6, row: 2 },
-      // Col 7: Booking
-      { id: 'book',          label: 'Call Booked',        value: 592,   color: '#34d399', col: 7, row: 0 },
-      { id: 'vip_email_book',label: 'VIP Email Book',     value: 87,    color: '#fbbf24', col: 7, row: 1 },
-      { id: 'cancel',        label: 'Cancelled',          value: 64,    color: '#ef4444', col: 7, row: 2 },
-      { id: 'reschedule',    label: 'Rescheduled',        value: 41,    color: '#f97316', col: 7, row: 3 },
-      // Col 8: Enrollment
-      { id: 'enroll_cod',    label: 'Enroll COD',         value: 52,    color: '#a855f7', col: 8, row: 0 },
-      { id: 'enroll_ma',     label: 'Enroll MA',          value: 31,    color: '#ec4899', col: 8, row: 1 },
-      { id: 'enroll_lp',     label: 'Enroll LP',          value: 14,    color: '#f43f5e', col: 8, row: 2 }
+      { id: 'page_visits',  label: 'Page Visits',        value: pv,             color: '#6366f1',  col: 0, row: 0, dollar: '$' + Math.round(adSpend).toLocaleString() + ' ad spend' },
+      { id: 'reg_drop',     label: 'Did Not Purchase',   value: regDrop,        color: '#ef4444',  col: 0, row: 1 },
+      { id: 'tickets',      label: 'Ticket Purchases',   value: tickets,        color: '#818cf8',  col: 1, row: 0, dollar: '$' + Math.round(ticketRev).toLocaleString() },
+      { id: 'vip',          label: 'VIP Upgrades',       value: vip,            color: '#facc15',  col: 1, row: 1, dollar: '$' + Math.round(vipRev).toLocaleString() },
+      { id: 'non_vip',      label: 'Standard Tickets',   value: nonVip,         color: '#94a3b8',  col: 1, row: 2 },
+      { id: 'attended',     label: 'Workshop Attended',  value: attended,       color: '#22d3ee',  col: 2, row: 0 },
+      { id: 'no_show',      label: 'No-Show',            value: noShowWorkshop, color: '#ef4444',  col: 2, row: 1 },
+      { id: 'booked',       label: 'Call Booked',        value: booked,         color: '#34d399',  col: 3, row: 0 },
+      { id: 'no_book',      label: 'Did Not Book',       value: noBook,         color: '#f59e0b',  col: 3, row: 1 },
+      { id: 'showed',       label: 'Call Attended',      value: showed,         color: '#10b981',  col: 4, row: 0 },
+      { id: 'no_show_call', label: 'Call No-Show',       value: noShowCall,     color: '#ef4444',  col: 4, row: 1 },
+      { id: 'enrolled',     label: 'Enrolled',           value: enrolled,       color: '#a855f7',  col: 5, row: 0, dollar: avgDeal > 0 ? ('$' + Math.round(avgDeal).toLocaleString() + ' avg deal') : '' },
+      { id: 'no_close',     label: 'Did Not Close',      value: noClose,        color: '#f59e0b',  col: 5, row: 1 }
     ],
     links: [
-      // Ads -> LP
-      { from: 'ads',           to: 'clicks',         value: 6840 },
-      // LP -> Bounce / VSL
-      { from: 'clicks',        to: 'bounce',         value: 2394 },
-      { from: 'clicks',        to: 'vsl_played',     value: 4446 },
-      // VSL -> Engaged
-      { from: 'vsl_played',    to: 'engaged',        value: 3890 },
-      // Engaged -> Checkout
-      { from: 'engaged',       to: 'start_checkout', value: 3540 },
-      // Checkout split
-      { from: 'start_checkout',to: 'abandon_checkout',value: 330 },
-      { from: 'start_checkout',to: 'done_checkout',  value: 3210 },
-      // Post-checkout -> VIP paths
-      { from: 'done_checkout', to: 'vip_tick',       value: 641 },
-      { from: 'done_checkout', to: 'vip_upsell',     value: 2569 },
-      { from: 'vip_tick',      to: 'vip_total',      value: 641 },
-      { from: 'vip_upsell',    to: 'vip_total',      value: 271 },
-      // Pre-workshop email
-      { from: 'done_checkout', to: 'email_open',     value: 2247 },
-      // Workshop attendance
-      { from: 'email_open',    to: 'attend',         value: 1847 },
-      // Watch progression
-      { from: 'attend',        to: 'watch_30',       value: 1588 },
-      { from: 'watch_30',      to: 'watch_full',     value: 1145 },
-      // Booking
-      { from: 'watch_full',    to: 'book',           value: 592 },
-      { from: 'vip_total',     to: 'vip_email_book', value: 87 },
-      // Cancel / Reschedule from booked
-      { from: 'book',          to: 'cancel',         value: 64 },
-      { from: 'book',          to: 'reschedule',     value: 41 },
-      // Enrollment
-      { from: 'book',          to: 'enroll_cod',     value: 52 },
-      { from: 'book',          to: 'enroll_ma',      value: 31 },
-      { from: 'book',          to: 'enroll_lp',      value: 14 },
-      { from: 'vip_email_book',to: 'enroll_cod',     value: 18 },
-      { from: 'vip_email_book',to: 'enroll_ma',      value: 9 }
+      // Page visits -> purchased / dropped
+      { from: 'page_visits', to: 'tickets',    value: tickets },
+      { from: 'page_visits', to: 'reg_drop',   value: regDrop },
+      // Tickets -> VIP / Standard
+      { from: 'tickets',     to: 'vip',        value: vip },
+      { from: 'tickets',     to: 'non_vip',    value: nonVip },
+      // VIP + Standard -> Attended / No-show
+      { from: 'vip',         to: 'attended',    value: Math.round(vip * (attended / Math.max(tickets, 1))) },
+      { from: 'non_vip',     to: 'attended',    value: Math.round(nonVip * (attended / Math.max(tickets, 1))) },
+      { from: 'vip',         to: 'no_show',     value: Math.round(vip * (noShowWorkshop / Math.max(tickets, 1))) },
+      { from: 'non_vip',     to: 'no_show',     value: Math.round(nonVip * (noShowWorkshop / Math.max(tickets, 1))) },
+      // Attended -> Booked / Not booked
+      { from: 'attended',    to: 'booked',      value: booked },
+      { from: 'attended',    to: 'no_book',     value: noBook },
+      // Booked -> Showed / No-show call
+      { from: 'booked',      to: 'showed',      value: showed },
+      { from: 'booked',      to: 'no_show_call',value: noShowCall },
+      // Showed -> Enrolled / Not closed
+      { from: 'showed',      to: 'enrolled',    value: enrolled },
+      { from: 'showed',      to: 'no_close',    value: noClose }
     ]
-  },
-  vip: {
-    nodes: [
-      { id: 'vip_total',     label: 'Total VIP',         value: 912,  color: '#facc15', col: 0, row: 0 },
-      { id: 'email_open',    label: 'Email Opened',      value: 724,  color: '#38bdf8', col: 1, row: 0 },
-      { id: 'attend',        label: 'VIP Attended',      value: 780,  color: '#22d3ee', col: 2, row: 0 },
-      { id: 'watch_30',      label: 'Watched 30min',     value: 702,  color: '#06b6d4', col: 2, row: 1 },
-      { id: 'watch_full',    label: 'Watched Full',      value: 648,  color: '#0891b2', col: 2, row: 2 },
-      { id: 'book',          label: 'Call Booked',       value: 389,  color: '#34d399', col: 3, row: 0 },
-      { id: 'vip_email_book',label: 'VIP Email Book',    value: 87,   color: '#fbbf24', col: 3, row: 1 },
-      { id: 'cancel',        label: 'Cancelled',         value: 38,   color: '#ef4444', col: 3, row: 2 },
-      { id: 'reschedule',    label: 'Rescheduled',       value: 22,   color: '#f97316', col: 3, row: 3 },
-      { id: 'enroll_cod',    label: 'Enroll COD',        value: 38,   color: '#a855f7', col: 4, row: 0 },
-      { id: 'enroll_ma',     label: 'Enroll MA',         value: 22,   color: '#ec4899', col: 4, row: 1 },
-      { id: 'enroll_lp',     label: 'Enroll LP',         value: 11,   color: '#f43f5e', col: 4, row: 2 }
-    ],
-    links: [
-      { from: 'vip_total',     to: 'email_open',     value: 724 },
-      { from: 'vip_total',     to: 'attend',         value: 780 },
-      { from: 'attend',        to: 'watch_30',       value: 702 },
-      { from: 'watch_30',      to: 'watch_full',     value: 648 },
-      { from: 'watch_full',    to: 'book',           value: 389 },
-      { from: 'vip_total',     to: 'vip_email_book', value: 87 },
-      { from: 'book',          to: 'cancel',         value: 38 },
-      { from: 'book',          to: 'reschedule',     value: 22 },
-      { from: 'book',          to: 'enroll_cod',     value: 38 },
-      { from: 'book',          to: 'enroll_ma',      value: 22 },
-      { from: 'book',          to: 'enroll_lp',      value: 11 },
-      { from: 'vip_email_book',to: 'enroll_cod',     value: 18 },
-      { from: 'vip_email_book',to: 'enroll_ma',      value: 9 }
-    ]
-  }
-};
+  };
+}
+
+// Fallback data when API unavailable
+function getSankeyFallback() {
+  return buildSankeyFromData({
+    page_visits: 6840, tickets: 452, vip: 175, attended: 264,
+    booked: 121, showed: 97, enrolled: 16,
+    no_show_workshop: 188, no_book: 143, no_show_call: 24, no_close: 81,
+    ad_spend: 21600, ticket_revenue: 12204, vip_revenue: 9450, avg_deal_value: 4981
+  });
+}
 
 async function renderSankey() {
-  // Try fetching real sankey data from BQ and patch node values
-  try {
-    var sk = await API.query('workshop', 'sankey', { days: currentDays });
-    if (sk && sk.length > 0) {
-      var s = sk[0];
-      // Patch 'all' view node values
-      var nm = {};
-      SANKEY_DATA.all.nodes.forEach(function(n){ nm[n.id] = n; });
-      if (nm.attend && s.attended) nm.attend.value = s.attended;
-      if (nm.book && s.booked) nm.book.value = s.booked;
-      if (nm.enroll_cod && s.enrolled) nm.enroll_cod.value = s.enrolled;
-      if (nm.enroll_lp && s.enrolled_lp) nm.enroll_lp.value = s.enrolled_lp;
-      if (nm.enroll_ma && s.enrolled_ma) nm.enroll_ma.value = s.enrolled_ma;
-      if (nm.done_checkout && s.tickets) nm.done_checkout.value = s.tickets;
-      if (nm.vip_total && s.vip) nm.vip_total.value = s.vip;
-      if (nm.watch_30 && s.watched_most) nm.watch_30.value = s.watched_most;
-      if (nm.watch_full && s.watched_full) nm.watch_full.value = s.watched_full;
-      if (nm.cancel && s.no_show_call) nm.cancel.value = s.no_show_call;
-      // Patch links where possible
-      SANKEY_DATA.all.links.forEach(function(link) {
-        if (link.to === 'attend' && link.from === 'email_open' && s.attended) link.value = s.attended;
-        if (link.to === 'watch_30' && link.from === 'attend' && s.watched_most) link.value = s.watched_most;
-        if (link.to === 'watch_full' && link.from === 'watch_30' && s.watched_full) link.value = s.watched_full;
-        if (link.to === 'book' && link.from === 'watch_full' && s.booked) link.value = s.booked;
-      });
-      // Patch VIP view
-      var vnm = {};
-      SANKEY_DATA.vip.nodes.forEach(function(n){ vnm[n.id] = n; });
-      if (vnm.vip_total && s.vip) vnm.vip_total.value = s.vip;
-      if (vnm.attend && s.attended) vnm.attend.value = s.attended;
-      if (vnm.book && s.booked) vnm.book.value = s.booked;
-    }
-  } catch(e) { /* keep mock sankey */ }
+  var sankeyData;
 
-  var raw = SANKEY_DATA[activeSankeyView];
-  var hideAds = document.getElementById('sankeyHideAdsCheck').checked && activeSankeyView === 'all';
+  // Fetch real data from funnel-27 sankey endpoint
+  try {
+    var sk = await API.query('funnel-27', 'sankey', { days: currentDays });
+    if (sk && sk.length > 0) {
+      sankeyData = buildSankeyFromData(sk[0]);
+    }
+  } catch(e) { /* fall through to fallback */ }
+
+  if (!sankeyData) {
+    sankeyData = getSankeyFallback();
+  }
+
   var compact = document.getElementById('sankeyCompactCheck').checked;
 
-  // Build hide list
-  var hideNodeIds = [];
-  if (hideAds) hideNodeIds.push('ads');
+  // Drop-off node ids for styling (red/amber links, smaller cards)
+  var dropoffIds = { reg_drop: 1, no_show: 1, no_book: 1, no_show_call: 1, no_close: 1 };
 
-  // Delegate rendering to reusable Components.renderSankey
-  Components.renderSankey({
-    container: '#sankeyContainer',
-    nodes: raw.nodes,
-    links: raw.links,
-    options: {
-      compact: compact,
-      dropoffIds: ['bounce', 'abandon_checkout', 'cancel', 'reschedule'],
-      hideNodeIds: hideNodeIds,
-      leakAnnotations: {},
-      minWidth: 900
+  // Build node map by id
+  var nodeMap = {};
+  sankeyData.nodes.forEach(function(n) { nodeMap[n.id] = n; });
+
+  // Filter nodes in compact mode (hide drop-off nodes)
+  var nodes = sankeyData.nodes.filter(function(n) {
+    if (compact && dropoffIds[n.id]) return false;
+    return true;
+  });
+
+  // Filter links to match visible nodes
+  var nodeIds = {};
+  nodes.forEach(function(n) { nodeIds[n.id] = true; });
+  var links = sankeyData.links.filter(function(l) {
+    return nodeIds[l.from] && nodeIds[l.to] && l.value > 0;
+  });
+
+  var container = document.getElementById('sankeyContainer');
+  var W = Math.max(container.offsetWidth, 900);
+
+  // Group nodes by column
+  var colGroups = {};
+  var maxCol = 0;
+  nodes.forEach(function(n) {
+    if (!colGroups[n.col]) colGroups[n.col] = [];
+    colGroups[n.col].push(n);
+    if (n.col > maxCol) maxCol = n.col;
+  });
+
+  // Layout params
+  var nodeW = 150;
+  var nodeH = 60;
+  var smallW = 120;
+  var smallH = 46;
+  var rowGap = compact ? 56 : 68;
+  var padX = 30;
+  var padY = 20;
+  var centerX = W / 2;
+
+  // Position each node
+  var positions = {};
+  var currentY = padY;
+  var firstVal = nodes.length > 0 ? nodes[0].value : 1;
+
+  for (var c = 0; c <= maxCol; c++) {
+    var group = colGroups[c];
+    if (!group) continue;
+
+    var main = [];
+    var left = [];
+    var right = [];
+    group.forEach(function(n) {
+      if (dropoffIds[n.id]) { left.push(n); }
+      else if (n.row > 0 && !dropoffIds[n.id] && group.length > 1) { right.push(n); }
+      else { main.push(n); }
+    });
+
+    if (main.length > 1 && left.length === 0 && right.length === 0) {
+      for (var mi = 1; mi < main.length; mi++) right.push(main[mi]);
+      main = [main[0]];
+    }
+
+    var rowH = Math.max(
+      main.length * (nodeH + 8),
+      left.length * (smallH + 8),
+      right.length * (smallH + 8)
+    );
+
+    main.forEach(function(n, i) {
+      positions[n.id] = { x: centerX - nodeW / 2, y: currentY + i * (nodeH + 8), w: nodeW, h: nodeH };
+    });
+
+    left.forEach(function(n, i) {
+      positions[n.id] = { x: centerX - nodeW / 2 - smallW - 70, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
+    });
+
+    right.forEach(function(n, i) {
+      positions[n.id] = { x: centerX + nodeW / 2 + 70, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
+    });
+
+    currentY += rowH + rowGap;
+  }
+
+  var H = currentY + padY;
+
+  // Build SVG
+  var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
+
+  // Gradients for links
+  links.forEach(function(link, i) {
+    var fromNode = nodeMap[link.from];
+    var toNode = nodeMap[link.to];
+    if (!fromNode || !toNode) return;
+    var isLeak = dropoffIds[link.to];
+    svg += '<linearGradient id="skg' + i + '" x1="0" x2="0" y1="0" y2="1">' +
+      '<stop offset="0%" stop-color="' + (isLeak ? '#ef4444' : fromNode.color) + '" stop-opacity="' + (isLeak ? '0.5' : '0.55') + '"/>' +
+      '<stop offset="100%" stop-color="' + (isLeak ? '#ef4444' : toNode.color) + '" stop-opacity="' + (isLeak ? '0.3' : '0.55') + '"/>' +
+      '</linearGradient>';
+  });
+
+  // Glow filters
+  nodes.forEach(function(node, idx) {
+    svg += '<filter id="skglow' + idx + '" x="-25%" y="-25%" width="150%" height="150%">' +
+      '<feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="' + node.color + '" flood-opacity="0.3"/></filter>';
+  });
+  svg += '</defs>';
+
+  // Draw flow ribbons
+  var maxVal = firstVal || 1;
+  var maxRibbon = 32;
+
+  links.forEach(function(link, i) {
+    var fp = positions[link.from];
+    var tp = positions[link.to];
+    if (!fp || !tp) return;
+
+    var ribbonW = Math.max(3, (link.value / maxVal) * maxRibbon);
+    var isLeak = dropoffIds[link.to];
+
+    var x1 = fp.x + fp.w / 2;
+    var y1 = fp.y + fp.h;
+    var x2 = tp.x + tp.w / 2;
+    var y2 = tp.y;
+
+    var dy = (y2 - y1);
+    var cy1 = y1 + dy * 0.35;
+    var cy2 = y1 + dy * 0.65;
+
+    svg += '<path class="sankey-link' + (isLeak ? ' is-dropoff' : '') + '" d="' +
+      'M' + (x1 - ribbonW / 2) + ',' + y1 +
+      ' C' + (x1 - ribbonW / 2) + ',' + cy1 + ' ' + (x2 - ribbonW / 2) + ',' + cy2 + ' ' + (x2 - ribbonW / 2) + ',' + y2 +
+      ' L' + (x2 + ribbonW / 2) + ',' + y2 +
+      ' C' + (x2 + ribbonW / 2) + ',' + cy2 + ' ' + (x1 + ribbonW / 2) + ',' + cy1 + ' ' + (x1 + ribbonW / 2) + ',' + y1 +
+      ' Z" fill="url(#skg' + i + ')" />';
+
+    // Leak amount annotation on drop-off links
+    if (isLeak && link.value > 0) {
+      var midX = (x1 + x2) / 2;
+      var midY = (y1 + y2) / 2;
+      var leakPct = firstVal > 0 ? (link.value / firstVal * 100).toFixed(1) : '0';
+      svg += '<text x="' + midX + '" y="' + (midY - 4) + '" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="600" opacity="0.8">' +
+        '-' + link.value.toLocaleString() + ' (' + leakPct + '%)</text>';
     }
   });
 
-  // Wire toggles
-  var toggle = document.getElementById('sankeyToggle');
-  toggle.querySelectorAll('.completion-toggle__btn').forEach(function(btn) {
-    btn.onclick = function() {
-      toggle.querySelectorAll('.completion-toggle__btn').forEach(function(b) { b.classList.remove('completion-toggle__btn--active'); });
-      this.classList.add('completion-toggle__btn--active');
-      activeSankeyView = this.dataset.view;
-      document.getElementById('sankeyHideAds').style.display = activeSankeyView === 'vip' ? 'none' : '';
-      renderSankey();
-    };
+  // Draw node cards
+  nodes.forEach(function(node, idx) {
+    var p = positions[node.id];
+    if (!p) return;
+    var isSmall = dropoffIds[node.id] || p.w < nodeW;
+    var pct = (node.value / firstVal * 100);
+    var pctStr = pct >= 1 ? pct.toFixed(1) : pct.toFixed(2);
+    var isLeak = dropoffIds[node.id];
+
+    svg += '<g class="sankey-node-card' + (isLeak ? ' is-dropoff' : '') + '">';
+    // Glow bg
+    svg += '<rect class="node-bg" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="6" fill="' + node.color + '" filter="url(#skglow' + idx + ')" opacity="0.12"/>';
+    // Border
+    svg += '<rect class="node-border" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="6" fill="none" stroke="' + node.color + '" stroke-opacity="0.45" stroke-width="1.5"/>';
+    // Value
+    var valY = isSmall ? p.y + p.h * 0.4 : p.y + p.h * 0.35;
+    svg += '<text class="node-value" x="' + (p.x + p.w / 2) + '" y="' + valY + '" text-anchor="middle" fill="#f1f5f9" font-size="' + (isSmall ? '13' : '16') + '" font-weight="700">' + node.value.toLocaleString() + '</text>';
+    // Label
+    var lblY = isSmall ? p.y + p.h * 0.7 : p.y + p.h * 0.58;
+    svg += '<text class="node-label" x="' + (p.x + p.w / 2) + '" y="' + lblY + '" text-anchor="middle" fill="' + (isLeak ? '#ef4444' : '#7c8da4') + '" font-size="' + (isSmall ? '9' : '10') + '" font-weight="500">' + node.label + '</text>';
+    // Percentage of top-of-funnel
+    if (node.id !== nodes[0].id) {
+      var pctY = isSmall ? p.y + p.h * 0.9 : p.y + p.h * 0.78;
+      svg += '<text class="node-pct" x="' + (p.x + p.w / 2) + '" y="' + pctY + '" text-anchor="middle" fill="' + node.color + '" font-size="9" opacity="0.7">' + pctStr + '% of top</text>';
+    }
+    // Dollar annotation if present
+    if (node.dollar) {
+      var dolY = p.y + p.h + 13;
+      svg += '<text x="' + (p.x + p.w / 2) + '" y="' + dolY + '" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="600">' + node.dollar + '</text>';
+    }
+    svg += '</g>';
   });
 
-  document.getElementById('sankeyHideAdsCheck').onchange = function() { renderSankey(); };
+  svg += '</svg>';
+  container.innerHTML = svg;
+
+  // Wire toggles (compact only -- removed VIP/All toggle since data is API-driven)
   document.getElementById('sankeyCompactCheck').onchange = function() { renderSankey(); };
 }
 

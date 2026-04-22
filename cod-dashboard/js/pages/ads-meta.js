@@ -9,20 +9,30 @@ App.registerPage('ads-meta', async (container) => {
   const compare = Filters.getCompare();
 
   let kpis, campaigns, adsets, daily, unitEconData, dailyCompare;
+  let stalenessData, retargetingData, wastedSpendData, creativeFatigueData;
+
+  // Staleness check first
+  try {
+    stalenessData = await API.query('ads-meta', 'staleness').catch(() => null);
+    if (stalenessData && stalenessData.length > 0 && stalenessData[0].days_stale > 3) {
+      const banner = Components.renderStaleBanner('Meta Ads', stalenessData[0].latest_date);
+      if (banner) container.appendChild(banner);
+    }
+  } catch (_) {}
 
   try {
-    [kpis, campaigns, adsets, daily, unitEconData] = await Promise.all([
-      API.query('ads-meta', 'default',    { days }),
-      API.query('ads-meta', 'campaigns',  { days }),
-      API.query('ads-meta', 'adsets',     { days }),
-      API.query('ads-meta', 'daily',      { days }),
-      API.query('ads-meta', 'unitEcon',   { days }).catch(() => null),
+    [kpis, campaigns, adsets, daily, unitEconData, retargetingData, wastedSpendData, creativeFatigueData] = await Promise.all([
+      API.query('ads-meta', 'default',         { days }),
+      API.query('ads-meta', 'campaigns',       { days }),
+      API.query('ads-meta', 'adsets',          { days }),
+      API.query('ads-meta', 'daily',           { days }),
+      API.query('ads-meta', 'unitEcon',        { days }).catch(() => null),
+      API.query('ads-meta', 'retargeting',     { days }).catch(() => null),
+      API.query('ads-meta', 'wastedSpend',     { days }).catch(() => null),
+      API.query('ads-meta', 'creativeFatigue', { days: 14 }).catch(() => null),
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Ads (Meta): ${err.message}</p></div>`;
-    // Still render dummy panels below
-    _renderSourceAttribution(container);
-    _renderDemographicIntel(container);
     return;
   }
 
@@ -59,7 +69,7 @@ App.registerPage('ads-meta', async (container) => {
     },
     {
       label: 'ROAS',
-      value: accountRoas,
+      value: Components.guardROAS(accountRoas),
       format: 'num',
       source: 'BQ: meta_ads_campaigns (revenue rollup) / meta_ads_insights (spend)',
       calc: 'SUM(campaign.revenue) / SUM(spend); revenue from Hyros attribution joined to campaigns',
@@ -147,11 +157,20 @@ App.registerPage('ads-meta', async (container) => {
   // ---- Unit Economics Panel ----
   try { _renderUnitEcon(container, unitEconData, totalSpend); } catch (e) { console.warn('Unit econ error:', e); }
 
-  // ---- Source Attribution Table ----
-  try { _renderSourceAttribution(container); } catch (e) { console.warn('Source attribution error:', e); }
+  // ---- Retargeting Performance Panel (AMETA-02) ----
+  try { _renderRetargeting(container, retargetingData); } catch (e) { console.warn('Retargeting error:', e); }
 
-  // ---- Demographic Intelligence Panel ----
-  try { _renderDemographicIntel(container); } catch (e) { console.warn('Demographic intel error:', e); }
+  // ---- Wasted Spend Alerts (AMETA-04) ----
+  try { _renderWastedSpend(container, wastedSpendData); } catch (e) { console.warn('Wasted spend error:', e); }
+
+  // ---- Creative Fatigue Indicators (AMETA-06) ----
+  try { _renderCreativeFatigue(container, creativeFatigueData); } catch (e) { console.warn('Creative fatigue error:', e); }
+
+  // ---- Source Attribution (deferred) ----
+  _renderDeferredPlaceholder(container, 'Source Attribution', 'Source attribution requires Hyros API integration. Coming in Attribution page (Phase 3).');
+
+  // ---- Demographic Intelligence (deferred) ----
+  _renderDeferredPlaceholder(container, 'Demographic Intelligence', 'Demographic intelligence requires Meta API demographic breakdowns. Deferred to v2 (ENH-02).');
 });
 
 // ---------------------------------------------------------------------------
@@ -401,7 +420,9 @@ function _renderCampaignTable(card, campaigns) {
     {
       key: 'roas', label: 'ROAS',
       fmt: (v) => {
-        const n = +(v || 0);
+        const guarded = Components.guardROAS(+(v || 0));
+        if (guarded === 'N/A') return `<span style="color:${Theme.COLORS.textMuted}">N/A</span>`;
+        const n = +guarded;
         const color = n >= 3 ? Theme.COLORS.success : n >= 1 ? Theme.COLORS.warning : Theme.COLORS.danger;
         return `<span style="font-weight:700;color:${color}">${n.toFixed(2)}x</span>`;
       },
@@ -659,7 +680,135 @@ function _renderUnitEcon(container, rawData, fallbackSpend) {
 }
 
 // ---------------------------------------------------------------------------
-// Source Attribution Table (Hyros-style)
+// Retargeting Performance Panel (AMETA-02)
+// ---------------------------------------------------------------------------
+
+function _renderRetargeting(container, data) {
+  const card = _metaCard('Retargeting Performance');
+  card.style.marginTop = '16px';
+
+  if (!data || data.length === 0) {
+    card.innerHTML += `<p style="color:${Theme.COLORS.textMuted};font-size:13px">No retargeting campaigns detected (campaigns containing 'retarget' or 'remarketing').</p>`;
+    container.appendChild(card);
+    return;
+  }
+
+  const thStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+  const tdStyle = `padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;font-family:'JetBrains Mono',monospace`;
+
+  const rows = data.map(r => {
+    const roasVal = Components.guardROAS(r.roas);
+    const roasDisplay = roasVal === 'N/A' ? `<span style="color:${Theme.COLORS.textMuted}">N/A</span>` : `<span style="font-weight:700;color:${+roasVal >= 3 ? Theme.COLORS.success : +roasVal >= 1 ? Theme.COLORS.warning : Theme.COLORS.danger}">${(+roasVal).toFixed(2)}x</span>`;
+    return `<tr>
+      <td style="${tdStyle};font-family:Inter,sans-serif;font-weight:500;max-width:260px;overflow:hidden;text-overflow:ellipsis">${r.campaign_name || '--'}</td>
+      <td style="${tdStyle}">${Theme.money(r.spend || 0)}</td>
+      <td style="${tdStyle}">${Theme.num(r.conversions || 0)}</td>
+      <td style="${tdStyle}">${Theme.money(r.cpa || 0)}</td>
+      <td style="${tdStyle}">${roasDisplay}</td>
+      <td style="${tdStyle}">${(+(r.frequency_proxy || 0)).toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+
+  card.innerHTML += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="${thStyle}">Campaign</th>
+      <th style="${thStyle}">Spend</th>
+      <th style="${thStyle}">Conv.</th>
+      <th style="${thStyle}">CPA</th>
+      <th style="${thStyle}">ROAS</th>
+      <th style="${thStyle}">Frequency</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Wasted Spend Alerts (AMETA-04)
+// ---------------------------------------------------------------------------
+
+function _renderWastedSpend(container, data) {
+  const card = _metaCard('Wasted Spend Alerts');
+  card.style.marginTop = '16px';
+  card.style.borderLeft = `3px solid ${Theme.COLORS.danger}`;
+
+  if (!data || data.length === 0) {
+    card.style.borderLeft = `3px solid ${Theme.COLORS.success}`;
+    card.innerHTML += `<p style="color:${Theme.COLORS.success};font-size:13px;font-weight:500">No wasted spend detected above $200 threshold.</p>`;
+    container.appendChild(card);
+    return;
+  }
+
+  const rows = data.map(r => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+    <div>
+      <div style="font-size:13px;color:${Theme.COLORS.textPrimary};font-weight:500">${r.campaign_name || '--'}</div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted}">${r.ad_set_name || ''}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:${Theme.COLORS.danger}">${Theme.money(r.spend || 0)}</span>
+      <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(239,68,68,0.15);color:${Theme.COLORS.danger};font-weight:600;text-transform:uppercase">Kill this</span>
+    </div>
+  </div>`).join('');
+
+  card.innerHTML += rows;
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Creative Fatigue Indicators (AMETA-06)
+// ---------------------------------------------------------------------------
+
+function _renderCreativeFatigue(container, data) {
+  const card = _metaCard('Creative Fatigue Watch');
+  card.style.marginTop = '16px';
+
+  if (!data || data.length === 0) {
+    card.style.borderLeft = `3px solid ${Theme.COLORS.success}`;
+    card.innerHTML += `<p style="color:${Theme.COLORS.success};font-size:13px;font-weight:500">No creative fatigue detected in the last 14 days.</p>`;
+    container.appendChild(card);
+    return;
+  }
+
+  const thStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap`;
+  const tdStyle = `padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;font-family:'JetBrains Mono',monospace`;
+
+  const rows = data.map(r => {
+    const changePct = +(r.ctr_change_pct || 0);
+    return `<tr>
+      <td style="${tdStyle};font-family:Inter,sans-serif;font-weight:500;max-width:240px;overflow:hidden;text-overflow:ellipsis">${r.ad_set_name || '--'}</td>
+      <td style="${tdStyle}">${(+(r.avg_ctr || 0)).toFixed(2)}%</td>
+      <td style="${tdStyle};color:${Theme.COLORS.danger};font-weight:600">${changePct.toFixed(1)}%</td>
+      <td style="${tdStyle}">${Theme.money(r.total_spend || 0)}</td>
+      <td style="${tdStyle}"><span style="font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(245,158,11,0.15);color:${Theme.COLORS.warning};font-weight:600;text-transform:uppercase">Fatiguing</span></td>
+    </tr>`;
+  }).join('');
+
+  card.innerHTML += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="${thStyle}">Ad Set</th>
+      <th style="${thStyle}">Avg CTR</th>
+      <th style="${thStyle}">CTR Change</th>
+      <th style="${thStyle}">Spend</th>
+      <th style="${thStyle}">Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Deferred Placeholder
+// ---------------------------------------------------------------------------
+
+function _renderDeferredPlaceholder(container, title, message) {
+  const card = _metaCard(title);
+  card.style.marginTop = '16px';
+  card.innerHTML += `<p style="color:${Theme.COLORS.textMuted};font-size:13px;font-style:italic">${message}</p>`;
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Source Attribution Table (Hyros-style) -- DEFERRED
 // ---------------------------------------------------------------------------
 
 function _renderSourceAttribution(container) {

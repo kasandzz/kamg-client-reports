@@ -1748,8 +1748,11 @@ function drawShowRateLine(curRows, prevRows, metricKey, color) {
   var ctx = canvas.getContext('2d');
   if (trendChartInstance) trendChartInstance.destroy();
 
+  // Respect compare toggle -- only show previous period if compare is on
+  var showCompare = document.getElementById('compareToggle').checked;
+
   var curVals = curRows.map(function(r) { return r[metricKey] || 0; });
-  var prevVals = prevRows.map(function(r) { return r[metricKey] || 0; });
+  var prevVals = showCompare ? prevRows.map(function(r) { return r[metricKey] || 0; }) : [];
   var rawDates = curRows.map(function(r) { return r.date; });
   var labels = curRows.map(function(r) {
     var d = new Date(r.date);
@@ -2458,8 +2461,11 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
   var ctx = canvas.getContext('2d');
   if (funnelChartInstance) funnelChartInstance.destroy();
 
+  // Respect compare toggle -- only show previous period if compare is on
+  var showCompare = document.getElementById('compareToggle').checked;
+
   var curVals = curRows.map(function(r) { return r[metricKey] || 0; });
-  var prevVals = prevRows.map(function(r) { return r[metricKey] || 0; });
+  var prevVals = showCompare ? prevRows.map(function(r) { return r[metricKey] || 0; }) : [];
   var rawDates = curRows.map(function(r) { return r.dt; });
   var labels = curRows.map(function(r) {
     var d = new Date(r.dt);

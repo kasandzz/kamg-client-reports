@@ -4,7 +4,7 @@
    Rebuilt from enrollment.js for Phase 01-02
    ============================================ */
 
-App.registerPage('enrollment', async (container) => {
+App.registerPage('revenue', async (container) => {
   const days = Filters.getDays();
 
   // ---- Fetch all data in parallel ----
@@ -607,7 +607,7 @@ App.registerPage('enrollment', async (container) => {
   });
 });
 
-App.onFilterChange(() => App.navigate('enrollment'));
+App.onFilterChange(() => App.navigate('revenue'));
 
 // Helper: escape HTML
 function _esc(str) {

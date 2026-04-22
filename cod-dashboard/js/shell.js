@@ -22,7 +22,7 @@ const Shell = (() => {
     ]},
     { section: 'CONVERSION', items: [
       { page: 'funnels',     icon: '&#127744;', label: '$27 Funnel' },
-      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel', dimmed: true },
+      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
       { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team', dimmed: true },
       { page: 'experiments', icon: '&#129514;', label: 'Experiments', dimmed: true },
     ]},

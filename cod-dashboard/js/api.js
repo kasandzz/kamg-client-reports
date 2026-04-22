@@ -23,6 +23,7 @@ const API = (() => {
     'calls':                ['sheets_bookings'],
     'journey-map':          ['mat_pipeline'],
     'funnels':              ['mat_pipeline'],
+    'funnel-27':            ['mat_pipeline', 'meta_ad_performance', 'stripe_transactions'],
     'landing-pages':        ['posthog_events'],
     'behavioral':           ['posthog_events'],
     'churn':                ['stripe_transactions'],

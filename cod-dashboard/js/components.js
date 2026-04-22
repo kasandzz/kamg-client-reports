@@ -375,6 +375,89 @@ const Components = (() => {
     chartConfig.data.datasets.push(ds);
   }
 
+  // ---- Staleness Banner ----
+
+  /**
+   * Compute a relative time string from an ISO date/timestamp.
+   * @param {string|Date} isoString
+   * @returns {string} e.g. "3 days ago", "2 hours ago"
+   */
+  function _relativeTime(isoString) {
+    const then = new Date(isoString);
+    const now = new Date();
+    const diffMs = now - then;
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return diffMin + ' minute' + (diffMin === 1 ? '' : 's') + ' ago';
+    const diffH = Math.floor(diffMin / 60);
+    if (diffH < 24) return diffH + ' hour' + (diffH === 1 ? '' : 's') + ' ago';
+    const diffD = Math.floor(diffH / 24);
+    return diffD + ' day' + (diffD === 1 ? '' : 's') + ' ago';
+  }
+
+  /**
+   * Render a staleness banner for a data source.
+   * Sticky amber banner indicating data freshness issues.
+   * Dismissible per session (sessionStorage).
+   *
+   * @param {string} source - Data source name (e.g. "Meta Ads")
+   * @param {string|Date} lastSync - ISO string or Date of last sync
+   * @returns {HTMLElement|null} Banner div, or null if dismissed this session
+   */
+  function renderStaleBanner(source, lastSync) {
+    const storageKey = 'stale-dismissed-' + source.replace(/\s+/g, '-').toLowerCase();
+
+    // If dismissed this session, return null
+    if (sessionStorage.getItem(storageKey)) return null;
+
+    const banner = document.createElement('div');
+    banner.className = 'stale-banner';
+    banner.style.cssText = [
+      'position:sticky',
+      'top:0',
+      'z-index:100',
+      'background:rgba(245,158,11,0.12)',
+      'color:#f1f5f9',
+      'border-left:3px solid #f59e0b',
+      'padding:10px 16px',
+      'margin-bottom:12px',
+      'border-radius:6px',
+      'display:flex',
+      'align-items:center',
+      'justify-content:space-between',
+      'gap:12px',
+      'font-size:13px',
+    ].join(';');
+
+    const relTime = _relativeTime(lastSync);
+
+    const msgSpan = document.createElement('span');
+    msgSpan.innerHTML = '<span style="color:#f59e0b;font-weight:600">' + _esc(source) + '</span> data paused &mdash; last sync ' + _esc(relTime);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '\u00D7';
+    closeBtn.setAttribute('aria-label', 'Dismiss staleness banner');
+    closeBtn.style.cssText = [
+      'background:none',
+      'border:none',
+      'color:#f59e0b',
+      'font-size:18px',
+      'cursor:pointer',
+      'padding:0 4px',
+      'line-height:1',
+      'flex-shrink:0',
+    ].join(';');
+    closeBtn.addEventListener('click', function () {
+      banner.style.display = 'none';
+      sessionStorage.setItem(storageKey, '1');
+    });
+
+    banner.appendChild(msgSpan);
+    banner.appendChild(closeBtn);
+
+    return banner;
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -385,5 +468,6 @@ const Components = (() => {
     stampSyncTime,
     splitPeriods,
     addCompareDataset,
+    renderStaleBanner,
   };
 })();

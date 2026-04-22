@@ -238,6 +238,43 @@ App.registerPage('funnels', async (container) => {
     }
 
     /* =========================================================
+       $27 Funnel Metrics Grid (16 KPIs)
+       ========================================================= */
+    .f27-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .f27-metric {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      position: relative;
+    }
+    .f27-metric__label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .f27-metric__value {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+    .f27-metric__delta {
+      font-size: var(--text-xs);
+      margin-top: 2px;
+    }
+    .f27-metric__delta--up { color: var(--status-up); }
+    .f27-metric__delta--down { color: var(--status-down); }
+    .f27-metric__delta--neutral { color: var(--status-neutral); }
+
+    /* =========================================================
        KPI Cards Grid
        ========================================================= */
     .kpi-grid {
@@ -946,6 +983,17 @@ App.registerPage('funnels', async (container) => {
 
   <!-- ====== 3. KPI Card Grid ====== -->
   <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- ====== 3a. Full Funnel Metrics (16 Russ KPIs from funnel-27) ====== -->
+  <div class="chart-card" id="f27MetricsCard" style="padding:16px 20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div>
+        <div class="chart-card__title" style="margin:0">$27 Funnel Unit Economics</div>
+        <div style="font-size:11px;color:#475569;margin-top:2px;">Full funnel from ad spend to enrollment. Source: funnel-27 BQ view.</div>
+      </div>
+    </div>
+    <div id="f27MetricsGrid" class="f27-metrics-grid"></div>
+  </div>
 
   <!-- ====== 3b. Funnel Analytics (Shopify-style) ====== -->
   <div class="chart-card" id="funnelAnalyticsCard">
@@ -2493,6 +2541,76 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
   funnelChartInstance.update();
 }
 
+// ---- Render: $27 Funnel Unit Economics (16 metrics from funnel-27) ----
+async function renderF27Metrics() {
+  var grid = document.getElementById('f27MetricsGrid');
+  if (!grid) return;
+
+  var data = null;
+  try {
+    var rows = await API.query('funnel-27', 'metrics', { days: currentDays });
+    if (rows && rows.length > 0) data = rows[0];
+  } catch(e) {}
+
+  if (!data) {
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:12px;">No funnel-27 data available. Check BQ connection.</div>';
+    return;
+  }
+
+  function fmtMoney(v) { return v == null ? '$0' : '$' + Math.round(v).toLocaleString(); }
+  function fmtPct(v) { return v == null ? '0.0%' : (v * 100).toFixed(1) + '%'; }
+  function fmtRoas(v) { return v == null ? '0.0x' : v.toFixed(2) + 'x'; }
+  function fmtNum(v) { return v == null ? '0' : Math.round(v).toLocaleString(); }
+
+  function delta(cur, prev) {
+    if (prev == null || prev === 0 || cur == null) return { html: '', cls: 'neutral' };
+    var pct = ((cur - prev) / Math.abs(prev)) * 100;
+    var dir = pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral';
+    var arrow = pct > 0 ? '\u25B2' : pct < 0 ? '\u25BC' : '\u2014';
+    return {
+      html: arrow + ' ' + Math.abs(pct).toFixed(1) + '% vs prior',
+      cls: dir
+    };
+  }
+
+  // Define the 16 metrics with their formatting
+  var metrics = [
+    { label: 'Ad Spend',            value: fmtMoney(data.ad_spend),            d: delta(data.ad_spend, data.prev_ad_spend), invertDelta: true },
+    { label: 'Page Visits',         value: fmtNum(data.page_visits),           d: delta(data.page_visits, data.prev_page_visits) },
+    { label: 'Tickets Sold',        value: fmtNum(data.total_tickets),         d: delta(data.total_tickets, data.prev_total_tickets) },
+    { label: 'VIP Upgrades',        value: fmtNum(data.vip_upgrades),          d: delta(data.vip_upgrades, data.prev_vip_upgrades) },
+    { label: 'Attended',            value: fmtNum(data.attendees),             d: delta(data.attendees, data.prev_attendees) },
+    { label: 'Calls Booked',        value: fmtNum(data.calls_booked),          d: delta(data.calls_booked, data.prev_calls_booked) },
+    { label: 'Cost / Ticket',       value: fmtMoney(data.cost_per_ticket),     d: delta(data.cost_per_ticket, data.prev_cost_per_ticket), invertDelta: true },
+    { label: 'Ticket + VIP Rev',    value: fmtMoney(data.ticket_vip_revenue),  d: delta(data.ticket_vip_revenue, data.prev_ticket_vip_revenue) },
+    { label: 'Net Cost / Ticket',   value: fmtMoney(data.net_cost_per_ticket), d: delta(data.net_cost_per_ticket, data.prev_net_cost_per_ticket), invertDelta: true },
+    { label: 'Cost / Booked Call',  value: fmtMoney(data.cost_per_booked_call),d: delta(data.cost_per_booked_call, data.prev_cost_per_booked_call), invertDelta: true },
+    { label: 'Enrollments',         value: fmtNum(data.enrollments),           d: delta(data.enrollments, data.prev_enrollments) },
+    { label: 'Cash Collected',      value: fmtMoney(data.total_cash),          d: delta(data.total_cash, data.prev_total_cash) },
+    { label: 'Contract Value',      value: fmtMoney(data.total_contract),      d: delta(data.total_contract, data.prev_total_contract) },
+    { label: 'Cash ROAS',           value: fmtRoas(data.cash_roas),            d: delta(data.cash_roas, data.prev_cash_roas) },
+    { label: 'Contract ROAS',       value: fmtRoas(data.contract_roas),        d: delta(data.contract_roas, data.prev_contract_roas) },
+    { label: 'CAC',                 value: fmtMoney(data.cac),                 d: delta(data.cac, data.prev_cac), invertDelta: true }
+  ];
+
+  var html = '';
+  metrics.forEach(function(m) {
+    // For inverted metrics (costs), up is bad, down is good
+    var deltaClass = m.d.cls;
+    if (m.invertDelta) {
+      if (deltaClass === 'up') deltaClass = 'down';
+      else if (deltaClass === 'down') deltaClass = 'up';
+    }
+    html += '<div class="f27-metric">' +
+      '<div class="f27-metric__label">' + m.label + '</div>' +
+      '<div class="f27-metric__value">' + m.value + '</div>' +
+      (m.d.html ? '<div class="f27-metric__delta f27-metric__delta--' + deltaClass + '">' + m.d.html + '</div>' : '') +
+    '</div>';
+  });
+
+  grid.innerHTML = html;
+}
+
 // ---- Render: Customer Journey Sankey (data-driven from funnel-27) ----
 var activeSankeyView = 'all';
 
@@ -2874,6 +2992,7 @@ async function renderAll(days) {
 
   renderYTD();
   renderKPICards(cur, prev, currentRows, previousRows);
+  renderF27Metrics();
   renderFunnelChart(days, currentRows, previousRows);
 
   // Slice daily data to match days

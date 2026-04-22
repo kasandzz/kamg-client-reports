@@ -1,252 +1,370 @@
 /* ============================================
-   Segments -- Hyros Attribution Segment Analysis
-   Replicates hyros-segment-comparison report
+   Segments -- Niche Funnel + Geo Intelligence +
+   Meta Demographics (live BQ data)
    ============================================ */
 
 App.registerPage('segments', async (container) => {
+  const days = Filters.getDays();
+  const T = Theme.COLORS;
+
+  let nicheData;
+  try {
+    nicheData = await API.query('segments', 'nicheFunnel', { days });
+  } catch (err) {
+    container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Segments: ${err.message}</p></div>`;
+    return;
+  }
 
   container.innerHTML = '';
+  const rows = nicheData || [];
 
-  // ---- Segment data (Hyros attribution since Mar 10 2026 + Meta spend since Mar 10) ----
-  // Source: BQ hyros_sales by source, classified by niche. Bookings from hyros_calls.
-  // Spend: Meta campaigns by niche (CBO niche-specific + ABO Cold split proportionally by sales volume)
-  // ABO Cold ($137K) split: Therapists 35%, Coaches 25%, Attorneys 11%, Educators 6%, Other 23% (by Hyros sales share)
-  const SEGMENTS = [
-    { name: 'Therapists',            color: '#3b82f6', calls: 73,  showRate: 91.2, sales: 160, tickets: 157, enrollments: 3, revenue: 22833, bookings: 73, costCall: 1126, costSale: 515,  slRatio: 1.02, adSets: ['Broad + CBO Licensed Therapists (111)', '03. Broad - Therapists 3065 (16)', '0.1 LLA Stack 01 - Licensed Therapists (13)', 'FB. Broad - Therapists 3564 (8)', 'LLA Stack 01 - Licensed Therapists - Copy (6)', '01. Broad + - Licensed Therapists (6)'] },
-    { name: 'Coaches & Consultants', color: '#a855f7', calls: 57,  showRate: 92.8, sales: 115, tickets: 111, enrollments: 4, revenue: 39618, bookings: 57, costCall: 877,  costSale: 435,  slRatio: 1.04, adSets: ['Main Interest Stack - FB - Coaches (31)', 'Interest Stack Main - CBO Coaches (35)', 'LLA Stack - FB - Coaches (22)', '03. Broad - Coaches - Video (10)', '01. Broad - Coaches - Video Ad 6 (9)', '02. Broad - Coaches WITH CASH MONEY (8)'] },
-    { name: 'Attorneys',             color: '#06b6d4', calls: 9,   showRate: 88.9, sales: 51,  tickets: 50, enrollments: 1, revenue: 10566, bookings: 9,  costCall: 1673, costSale: 295,  slRatio: 0.18, adSets: ['Broad + - Attorney / Financial Advisor 1 (35)', 'Fb. Broad - Attorney Only (11)', 'Fb. Broad - Attorney Only v2 (5)'] },
-    { name: 'Educators',             color: '#f97316', calls: 0,   showRate: null, sales: 28,  tickets: 26, enrollments: 2, revenue: 12972, bookings: 0,  costCall: null, costSale: 329,  slRatio: null, adSets: ['FB. 3064 Broad - Educator / Teacher (16)', 'Broad + - Educator / Teacher (7)', 'FB. 3564 Broad - Educator / Teacher (5)'] },
-    { name: 'Health & Wellness',     color: '#ec4899', calls: 0,   showRate: null, sales: 11,  tickets: 11, enrollments: 0, revenue: 297,   bookings: 0,  costCall: null, costSale: null, slRatio: null, lowSample: true, adSets: ['Fb. Broad 3064 - Health & Wellness Coaches (11)'] },
+  // ---- Section 1: KPI Strip ----
+  const totalContacts = rows.reduce((s, r) => s + (r.contacts || 0), 0);
+  const totalEnrolled = rows.reduce((s, r) => s + (r.enrolled || 0), 0);
+  const totalRevenue = rows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+  const topSeg = rows.length > 0 ? [...rows].sort((a, b) => (b.enrolled || 0) - (a.enrolled || 0))[0] : null;
+  const bestConv = rows.length > 0 ? [...rows].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
+
+  const kpiEl = document.createElement('div');
+  container.appendChild(kpiEl);
+  Components.renderKPIStrip(kpiEl, [
+    { label: 'Total Contacts',    value: totalContacts,  format: 'num' },
+    { label: 'Total Enrollments',  value: totalEnrolled, format: 'num' },
+    { label: 'Total Revenue',     value: totalRevenue,   format: 'money' },
+    { label: 'Top Segment',       value: topSeg ? topSeg.profession : '--', format: 'text' },
+    { label: 'Best Conversion',   value: bestConv ? `${bestConv.profession} (${(bestConv.enroll_rate || 0).toFixed(1)}%)` : '--', format: 'text' },
+    { label: 'Segments Tracked',  value: rows.length,    format: 'num' },
+  ]);
+
+  // ---- Section 2: Niche Comparison Table (sortable) ----
+  const tableSection = document.createElement('div');
+  tableSection.style.cssText = 'margin-top:24px';
+  tableSection.innerHTML = `<h3 style="font-size:15px;font-weight:600;color:${T.textPrimary};margin-bottom:12px">Niche Funnel Comparison</h3>`;
+  container.appendChild(tableSection);
+
+  const tableCard = document.createElement('div');
+  tableCard.className = 'card';
+  tableCard.style.cssText = 'padding:20px;overflow-x:auto';
+  tableSection.appendChild(tableCard);
+
+  const columns = [
+    { key: 'profession',   label: 'Segment',   align: 'left',  fmt: v => v || 'Unknown' },
+    { key: 'contacts',     label: 'Contacts',   align: 'right', fmt: v => Theme.num(v || 0) },
+    { key: 'tickets',      label: 'Tickets',    align: 'right', fmt: v => Theme.num(v || 0) },
+    { key: 'ticket_rate',  label: 'Ticket%',    align: 'right', fmt: v => (v || 0).toFixed(1) + '%' },
+    { key: 'attended',     label: 'Attended',   align: 'right', fmt: v => Theme.num(v || 0) },
+    { key: 'show_rate',    label: 'Show%',      align: 'right', fmt: v => (v || 0).toFixed(1) + '%' },
+    { key: 'booked',       label: 'Booked',     align: 'right', fmt: v => Theme.num(v || 0) },
+    { key: 'book_rate',    label: 'Book%',      align: 'right', fmt: v => (v || 0).toFixed(1) + '%' },
+    { key: 'enrolled',     label: 'Enrolled',   align: 'right', fmt: v => Theme.num(v || 0) },
+    { key: 'enroll_rate',  label: 'Enroll%',    align: 'right', fmt: v => (v || 0).toFixed(1) + '%', color: v => (v || 0) >= 10 ? '#22c55e' : (v || 0) >= 5 ? '#f59e0b' : '#ef4444' },
+    { key: 'revenue',      label: 'Revenue',    align: 'right', fmt: v => Theme.money(parseFloat(v) || 0) },
+    { key: 'avg_deal',     label: 'Avg Deal',   align: 'right', fmt: v => Theme.money(parseFloat(v) || 0) },
   ];
 
-  const UNATTR = { name: 'Unattributed / Other', color: '#64748b', calls: 69, sales: 87, leads: 87 };
+  let sortKey = 'revenue';
+  let sortAsc = false;
 
-  const totalCalls = 208, totalSales = 452, totalLeads = 452;
+  function renderNicheTable() {
+    const sorted = [...rows].sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (typeof av === 'string') return sortAsc ? (av || '').localeCompare(bv || '') : (bv || '').localeCompare(av || '');
+      return sortAsc ? ((av || 0) - (bv || 0)) : ((bv || 0) - (av || 0));
+    });
 
-  const T = Theme.COLORS;
-  const money = Theme.money;
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>';
+    columns.forEach(c => {
+      const arrow = sortKey === c.key ? (sortAsc ? ' &#9650;' : ' &#9660;') : '';
+      html += `<th data-sort="${c.key}" style="text-align:${c.align};padding:8px 10px;color:${T.textMuted};border-bottom:1px solid rgba(255,255,255,0.07);cursor:pointer;user-select:none;white-space:nowrap">${c.label}${arrow}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    sorted.forEach(r => {
+      html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">';
+      columns.forEach(c => {
+        const val = r[c.key];
+        const cellColor = c.color ? c.color(val) : (c.key === 'profession' ? T.textPrimary : T.textSecondary);
+        html += `<td style="padding:8px 10px;text-align:${c.align};color:${cellColor};white-space:nowrap">${c.fmt(val)}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    tableCard.innerHTML = html;
 
-  // ==== DEMOGRAPHIC INTELLIGENCE (top of page) ====
-  _renderDemographicIntel(container, SEGMENTS);
+    tableCard.querySelectorAll('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const newKey = th.dataset.sort;
+        if (sortKey === newKey) sortAsc = !sortAsc;
+        else { sortKey = newKey; sortAsc = false; }
+        renderNicheTable();
+      });
+    });
+  }
+  renderNicheTable();
 
-  // ==== SECTION 1: SHOW RATE COMPARISON ====
-  const s2 = _section(container, '1', 'Show Rate Comparison');
-  const showSorted = [...SEGMENTS].sort((a, b) => b.showRate - a.showRate);
+  // ---- Section 3: Segment Funnel Bars ----
+  const COLORS = { 'Therapists': '#3b82f6', 'Coaches': '#a855f7', 'Attorneys': '#06b6d4', 'Educators': '#f97316', 'Health & Wellness': '#ec4899', 'Real Estate': '#14b8a6', 'Financial': '#8b5cf6' };
+  const stages = ['contacts', 'tickets', 'attended', 'booked', 'enrolled'];
+  const stageLabels = ['Contacts', 'Tickets', 'Attended', 'Booked', 'Enrolled'];
 
-  let showHtml = '<div style="margin:12px 0">';
-  showSorted.forEach((seg, i) => {
-    const isBest = i === 0;
-    const isWorst = i === showSorted.length - 1;
-    const badge = isBest ? `<span style="font-size:12px;font-weight:600;color:${T.success};width:50px;flex-shrink:0;text-align:right">BEST</span>` : (isWorst ? `<span style="font-size:12px;font-weight:600;color:#f59e0b;width:50px;flex-shrink:0;text-align:right">WORST</span>` : '<span style="width:50px;flex-shrink:0"></span>');
-    const lowTag = seg.lowSample ? ` <span style="font-size:10px;color:#f59e0b">n=${seg.calls}</span>` : '';
-    showHtml += `
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-        <div style="width:180px;flex-shrink:0;font-size:13px;text-align:right;color:${T.textSecondary}">${seg.name}${lowTag}</div>
-        <div style="flex:1;height:28px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden">
-          <div style="height:100%;width:${seg.showRate}%;background:${isWorst ? '#ef4444' : seg.color};border-radius:6px;display:flex;align-items:center;padding:0 10px;font-size:12px;font-weight:600;color:#fff">${seg.showRate}%</div>
+  const barsSection = document.createElement('div');
+  barsSection.style.cssText = 'margin-top:24px';
+  barsSection.innerHTML = `<h3 style="font-size:15px;font-weight:600;color:${T.textPrimary};margin-bottom:12px">Segment Funnel Progression</h3>`;
+  container.appendChild(barsSection);
+
+  const barsCard = document.createElement('div');
+  barsCard.className = 'card';
+  barsCard.style.cssText = 'padding:20px';
+  barsSection.appendChild(barsCard);
+
+  const maxByStage = stages.map(s => Math.max(...rows.map(r => r[s] || 0), 1));
+
+  rows.forEach(r => {
+    const color = COLORS[r.profession] || '#6b7280';
+    let html = `<div style="margin-bottom:20px"><div style="font-size:13px;font-weight:600;color:${T.textPrimary};margin-bottom:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};margin-right:8px;vertical-align:middle"></span>${r.profession}</div>`;
+    stages.forEach((s, i) => {
+      const val = r[s] || 0;
+      const pct = Math.max((val / maxByStage[i]) * 100, 2);
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="width:70px;font-size:11px;color:${T.textMuted};text-align:right;flex-shrink:0">${stageLabels[i]}</div>
+        <div style="flex:1;height:18px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;opacity:${0.4 + (i * 0.15)}"></div>
         </div>
-        ${badge}
+        <div style="width:40px;font-size:11px;color:${T.textSecondary};text-align:right;flex-shrink:0">${Theme.num(val)}</div>
       </div>`;
-  });
-  showHtml += '</div>';
-  showHtml += `<div style="font-size:12px;color:${T.textMuted};padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:8px;margin-top:8px;border-left:3px solid #3b82f6">Show Rate = Hyros QUALIFIED state / Total Calls</div>`;
-  s2.innerHTML += showHtml;
-
-  // ==== SECTION 2: EFFICIENCY RANKINGS ====
-  const s3 = _section(container, '2', 'Efficiency Rankings');
-  const rankGrid = document.createElement('div');
-  rankGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px';
-  s3.appendChild(rankGrid);
-
-  // Cost per Call
-  const costCallSorted = SEGMENTS.filter(s => s.costCall).sort((a, b) => a.costCall - b.costCall);
-  rankGrid.appendChild(_rankingCard('Cost per Call', '(lower = better)', costCallSorted.map(s => ({ name: s.name, value: '$' + s.costCall.toLocaleString() })), 'Healthcare Providers: N/A'));
-
-  // Cost per Sale
-  const costSaleSorted = SEGMENTS.filter(s => s.costSale).sort((a, b) => a.costSale - b.costSale);
-  rankGrid.appendChild(_rankingCard('Cost per Sale', '(lower = better)', costSaleSorted.map(s => ({ name: s.name, value: '$' + s.costSale.toLocaleString() })), 'Healthcare Providers: N/A'));
-
-  // Sales / Lead Ratio
-  const slSorted = [...SEGMENTS].sort((a, b) => b.slRatio - a.slRatio);
-  rankGrid.appendChild(_rankingCard('Sales / Lead Ratio', '(higher = better)', slSorted.map(s => ({ name: s.name, value: s.slRatio.toFixed(2) + 'x' }))));
-
-  // ==== SECTION 3: VOLUME DISTRIBUTION ====
-  const s4 = _section(container, '3', 'Volume Distribution');
-
-  const allSegs = [...SEGMENTS, UNATTR];
-  s4.appendChild(_stackedBar('Calls (' + totalCalls + ' total)', allSegs.map(s => ({ name: s.name, value: s.calls, color: s.color })), totalCalls));
-  s4.appendChild(_stackedBar('Sales (' + totalSales + ' total)', allSegs.map(s => ({ name: s.name, value: s.sales, color: s.color })), totalSales));
-  s4.appendChild(_stackedBar('Leads (' + totalLeads + ' total)', allSegs.map(s => ({ name: s.name, value: s.leads, color: s.color })), totalLeads));
-
-  // Legend
-  const legend = document.createElement('div');
-  legend.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;margin-top:12px';
-  allSegs.forEach(s => {
-    legend.innerHTML += `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:${T.textSecondary}"><div style="width:12px;height:12px;border-radius:3px;background:${s.color}"></div>${s.name}</div>`;
-  });
-  s4.appendChild(legend);
-
-  // ==== SECTION 4: TOP AD SETS PER SEGMENT ====
-  const s5 = _section(container, '4', 'Top Ad Sets per Segment');
-  const accordion = document.createElement('div');
-  s5.appendChild(accordion);
-
-  SEGMENTS.forEach((seg, idx) => {
-    const item = document.createElement('div');
-    item.className = 'card';
-    item.style.cssText = 'margin-bottom:8px;overflow:hidden';
-
-    const headerDiv = document.createElement('div');
-    headerDiv.style.cssText = 'padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none';
-    headerDiv.innerHTML = `
-      <div>
-        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${seg.color};margin-right:8px;vertical-align:middle"></span>
-        <span style="font-weight:600;color:#fff">${seg.name}</span>
-        <span style="font-size:12px;color:${T.textMuted}"> -- ${seg.calls} calls, ${seg.sales} sales</span>
-        ${seg.lowSample ? `<span style="display:inline-block;padding:2px 6px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:4px;font-size:10px;color:#f59e0b;margin-left:6px">n=${seg.calls}</span>` : ''}
-      </div>
-      <span class="accordion-arrow" style="transition:transform .2s;color:${T.textMuted};font-size:14px">&#9660;</span>
-    `;
-
-    const content = document.createElement('div');
-    content.style.cssText = 'padding:0 16px 12px;display:' + (idx === 0 ? 'block' : 'none');
-    if (idx === 0) headerDiv.querySelector('.accordion-arrow').style.transform = 'rotate(180deg)';
-
-    let adHtml = '';
-    seg.adSets.forEach((ad, ai) => {
-      adHtml += `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px">
-        <span style="color:${T.textMuted};font-weight:600;width:24px;text-align:center;flex-shrink:0">${ai + 1}</span>
-        <span style="flex:1;color:${T.textSecondary};word-break:break-word">${ad}</span>
-      </div>`;
-    });
-    content.innerHTML = adHtml;
-
-    headerDiv.addEventListener('click', () => {
-      const isOpen = content.style.display === 'block';
-      content.style.display = isOpen ? 'none' : 'block';
-      headerDiv.querySelector('.accordion-arrow').style.transform = isOpen ? '' : 'rotate(180deg)';
-    });
-
-    item.appendChild(headerDiv);
-    item.appendChild(content);
-    accordion.appendChild(item);
-  });
-
-  // Add Unattributed accordion
-  const uItem = document.createElement('div');
-  uItem.className = 'card';
-  uItem.style.cssText = 'margin-bottom:8px;overflow:hidden';
-  const uHeader = document.createElement('div');
-  uHeader.style.cssText = 'padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none';
-  uHeader.innerHTML = `<div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${UNATTR.color};margin-right:8px;vertical-align:middle"></span><span style="font-weight:600;color:#fff">Unattributed</span><span style="font-size:12px;color:${T.textMuted}"> -- 194 calls, 130 sales</span></div><span class="accordion-arrow" style="transition:transform .2s;color:${T.textMuted};font-size:14px">&#9660;</span>`;
-  const uContent = document.createElement('div');
-  uContent.style.cssText = 'padding:0 16px 12px;display:none';
-  uContent.innerHTML = [
-    'unknown (190)', 'Broad - Masterclass HOME (57)', 'Broad - "AND THEN" HOME 1 WIFI (26)', 'Book Call - Workshop Purchases 030226 (14)', 'TOF | Video | MC | KW Broad: Coaching (12)'
-  ].map((ad, i) => `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px"><span style="color:${T.textMuted};font-weight:600;width:24px;text-align:center;flex-shrink:0">${i+1}</span><span style="flex:1;color:${T.textSecondary}">${ad}</span></div>`).join('');
-  uHeader.addEventListener('click', () => {
-    const isOpen = uContent.style.display === 'block';
-    uContent.style.display = isOpen ? 'none' : 'block';
-    uHeader.querySelector('.accordion-arrow').style.transform = isOpen ? '' : 'rotate(180deg)';
-  });
-  uItem.appendChild(uHeader);
-  uItem.appendChild(uContent);
-  accordion.appendChild(uItem);
-
-
-
-  // ---- Footer ----
-  const footer = document.createElement('div');
-  footer.style.cssText = `text-align:center;padding:16px;color:${T.textMuted};font-size:12px;border-top:1px solid ${T.border};margin-top:16px`;
-  footer.textContent = 'Generated: Apr 2, 2026 | Source: Hyros API Full Pull (531 calls, 628 sales, 641 leads)';
-  container.appendChild(footer);
-
-  // ===== HELPER FUNCTIONS =====
-
-  function _section(parent, num, title) {
-    const sec = document.createElement('div');
-    sec.className = 'card';
-    sec.style.cssText = 'padding:24px;margin-bottom:16px';
-    sec.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:#3b82f6;color:#fff;border-radius:6px;font-size:12px;font-weight:700;flex-shrink:0">${num}</div>
-        <div style="font-size:16px;font-weight:700;color:#fff">${title}</div>
-      </div>`;
-    parent.appendChild(sec);
-    return sec;
-  }
-
-  function _rankingCard(title, direction, items, footnote) {
-    const card = document.createElement('div');
-    card.style.cssText = `background:rgba(255,255,255,0.03);border-radius:12px;padding:20px;border:1px solid ${T.border}`;
-
-    let html = `<div style="font-size:14px;font-weight:600;color:${T.textPrimary};margin-bottom:12px">${title} <span style="font-size:11px;color:${T.textMuted};font-weight:400">${direction}</span></div>`;
-    html += '<ol style="list-style:none;padding:0;margin:0">';
-    items.forEach((item, i) => {
-      const isFirst = i === 0;
-      const isLast = i === items.length - 1;
-      const bg = isFirst ? 'rgba(34,197,94,0.12)' : (isLast ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.03)');
-      const border = isFirst ? 'rgba(34,197,94,0.3)' : (isLast ? 'rgba(245,158,11,0.2)' : 'transparent');
-      const numBg = isFirst ? '#22c55e' : T.border;
-      const numColor = isFirst ? '#fff' : T.textSecondary;
-      const valColor = isFirst ? T.success : (isLast ? '#f59e0b' : T.textPrimary);
-      html += `<li style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:${bg};border:1px solid ${border}">
-        <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px;font-weight:700;background:${numBg};color:${numColor};flex-shrink:0">${i+1}</div>
-        <div style="flex:1;font-weight:500;color:${T.textPrimary}">${item.name}</div>
-        <div style="font-weight:700;font-variant-numeric:tabular-nums;color:${valColor}">${item.value}</div>
-      </li>`;
-    });
-    html += '</ol>';
-    if (footnote) html += `<div style="font-size:11px;color:${T.textMuted};margin-top:6px;padding-left:6px">${footnote}</div>`;
-    card.innerHTML = html;
-    return card;
-  }
-
-  function _stackedBar(label, segments, total) {
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'margin-bottom:16px';
-    let html = `<div style="font-size:13px;color:${T.textSecondary};margin-bottom:6px;font-weight:600">${label}</div>`;
-    html += '<div style="display:flex;height:36px;border-radius:8px;overflow:hidden">';
-    segments.forEach(s => {
-      const pct = (s.value / total * 100);
-      if (pct < 0.5) return;
-      const showLabel = pct > 8;
-      html += `<div style="width:${pct}%;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;min-width:2px;transition:width .3s;cursor:default" title="${s.name}: ${pct.toFixed(1)}%">${showLabel ? s.name + ' ' + pct.toFixed(1) + '%' : ''}</div>`;
     });
     html += '</div>';
-    wrap.innerHTML = html;
-    return wrap;
-  }
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    barsCard.appendChild(wrapper);
+  });
+
+  // ---- Section 4: Geographic Intelligence (absorbed from geo-intel) ----
+  await _renderGeoSection(container, days);
+
+  // ---- Section 5: Demographic Intelligence (existing) ----
+  _renderDemographicIntel(container);
 });
 
+App.onFilterChange(() => App.navigate('segments'));
+
+// ---- Geographic Intelligence Panel ----
+async function _renderGeoSection(container, days) {
+  const T = Theme.COLORS;
+
+  let stateData, deadZones;
+  try {
+    [stateData, deadZones] = await Promise.all([
+      API.query('geo-intel', 'states', { days }),
+      API.query('geo-intel', 'deadZones', { days }),
+    ]);
+  } catch (err) {
+    const errEl = document.createElement('div');
+    errEl.className = 'card';
+    errEl.style.cssText = 'padding:20px;margin-top:24px';
+    errEl.innerHTML = `<p class="text-muted">Geographic data unavailable: ${err.message}</p>`;
+    container.appendChild(errEl);
+    return;
+  }
+
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-top:32px;margin-bottom:12px';
+  header.innerHTML = `
+    <h3 style="font-size:15px;font-weight:600;color:${T.textPrimary};margin-bottom:4px">Geographic Intelligence</h3>
+    <div style="font-size:12px;color:${T.textMuted}">Revenue density and dead zone analysis by US state</div>`;
+  container.appendChild(header);
+
+  // Geo KPI strip
+  const states = stateData || [];
+  const dzRows = deadZones || [];
+  const stateCount = new Set(states.map(r => r.state).filter(Boolean)).size;
+  const topState = states.length > 0 ? states[0].state : '--';
+  const wastedSpend = dzRows.reduce((s, r) => s + (parseFloat(r.spend) || 0), 0);
+  const roasRanked = states.filter(r => r.roas != null && isFinite(r.roas) && r.roas > 0).sort((a, b) => (parseFloat(b.roas) || 0) - (parseFloat(a.roas) || 0));
+  const bestRoas = roasRanked.length > 0 ? `${roasRanked[0].state} (${parseFloat(roasRanked[0].roas).toFixed(1)}x)` : '--';
+
+  const geoKpi = document.createElement('div');
+  container.appendChild(geoKpi);
+  Components.renderKPIStrip(geoKpi, [
+    { label: 'States with Revenue', value: stateCount,   format: 'num' },
+    { label: 'Top State',           value: topState,     format: 'text' },
+    { label: 'Wasted in Dead Zones', value: wastedSpend, format: 'money', invertCost: true },
+    { label: 'Best ROAS State',     value: bestRoas,     format: 'text' },
+  ]);
+
+  // Choropleth (full width)
+  const mapCard = document.createElement('div');
+  mapCard.className = 'card';
+  mapCard.style.cssText = 'padding:20px;margin-top:12px';
+  const mapDiv = document.createElement('div');
+  mapDiv.id = 'seg-choropleth';
+  mapDiv.style.height = '400px';
+  mapCard.appendChild(mapDiv);
+  container.appendChild(mapCard);
+
+  // 2-column grid: state bars + dead zones
+  const geoGrid = document.createElement('div');
+  geoGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
+  container.appendChild(geoGrid);
+
+  if (!document.getElementById('seg-geo-responsive')) {
+    const style = document.createElement('style');
+    style.id = 'seg-geo-responsive';
+    style.textContent = '@media(max-width:768px){.seg-geo-grid{grid-template-columns:1fr!important}}';
+    document.head.appendChild(style);
+    geoGrid.classList.add('seg-geo-grid');
+  }
+
+  // State bars
+  const barCard = document.createElement('div');
+  barCard.className = 'card';
+  barCard.style.cssText = 'padding:20px';
+  barCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Top 15 States by Revenue</div>`;
+  const barDiv = document.createElement('div');
+  barDiv.id = 'seg-state-bars';
+  barDiv.style.height = '440px';
+  barCard.appendChild(barDiv);
+  geoGrid.appendChild(barCard);
+
+  // Dead zones table
+  const dzCard = document.createElement('div');
+  dzCard.className = 'card';
+  dzCard.style.cssText = 'padding:20px;border:1px solid rgba(231,76,60,0.3);background:rgba(231,76,60,0.04)';
+  dzCard.innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:#e74c3c;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Dead Zones: Spend &gt; $500, Zero Enrollments</div>
+    <div style="font-size:12px;color:${T.textMuted};margin-bottom:16px">${dzRows.length} location${dzRows.length !== 1 ? 's' : ''} spending money with no conversions</div>`;
+  dzCard.appendChild(_geoDeadZoneTable(dzRows));
+  geoGrid.appendChild(dzCard);
+
+  // Render Plotly charts
+  requestAnimationFrame(() => {
+    _geoChoropleth(mapDiv, states);
+    _geoStateBars(barDiv, states);
+  });
+}
+
+function _geoChoropleth(el, stateData) {
+  if (!stateData || stateData.length === 0) {
+    el.innerHTML = `<p style="color:${Theme.COLORS.textMuted};padding:16px">No state data available.</p>`;
+    return;
+  }
+
+  Plotly.newPlot(el, [{
+    type: 'choropleth',
+    locationmode: 'USA-states',
+    locations: stateData.map(r => r.state || ''),
+    z: stateData.map(r => parseFloat(r.revenue) || 0),
+    text: stateData.map(r => {
+      const rev = parseFloat(r.revenue) || 0;
+      const enr = parseFloat(r.enrollments) || 0;
+      const roas = parseFloat(r.roas) || 0;
+      return `${r.state}<br>Revenue: $${rev.toLocaleString()}<br>Enrollments: ${enr}<br>ROAS: ${isFinite(roas) && roas > 0 ? roas.toFixed(1) + 'x' : 'N/A'}`;
+    }),
+    hovertemplate: '%{text}<extra></extra>',
+    colorscale: [[0, '#1a1a2e'], [0.15, '#16213e'], [0.35, '#0f3460'], [0.55, '#1a6b3c'], [0.75, '#27ae60'], [1.0, '#2ecc71']],
+    colorbar: {
+      title: { text: 'Revenue', font: { color: Theme.COLORS.textSecondary, size: 11 } },
+      tickprefix: '$', tickformat: ',.0f', thickness: 14,
+      tickfont: { color: Theme.COLORS.textMuted, size: 10 },
+      bgcolor: 'rgba(0,0,0,0)', outlinecolor: Theme.COLORS.border,
+    },
+    marker: { line: { color: Theme.COLORS.border, width: 0.5 } },
+  }], Object.assign({}, Theme.PLOTLY_LAYOUT, {
+    height: 380,
+    margin: { t: 10, r: 10, b: 10, l: 10 },
+    geo: {
+      scope: 'usa',
+      bgcolor: Theme.COLORS.bgCard || '#12122a',
+      lakecolor: Theme.COLORS.bgCard || '#12122a',
+      landcolor: '#1a1a2e',
+      subunitcolor: Theme.COLORS.border,
+      showlakes: true, showframe: false,
+      projection: { type: 'albers usa' },
+    },
+  }), Theme.PLOTLY_CONFIG);
+}
+
+function _geoStateBars(el, stateData) {
+  if (!stateData || stateData.length === 0) {
+    el.innerHTML = `<p style="color:${Theme.COLORS.textMuted};padding:16px">No state data available.</p>`;
+    return;
+  }
+
+  const top15 = stateData.slice(0, 15);
+  const states = top15.map(r => r.state || '--').reverse();
+  const revenues = top15.map(r => parseFloat(r.revenue) || 0).reverse();
+
+  Plotly.newPlot(el, [{
+    type: 'bar', orientation: 'h',
+    x: revenues, y: states,
+    marker: { color: Theme.FUNNEL.green || '#2ecc71' },
+    hovertemplate: '%{y}: $%{x:,.0f}<extra></extra>',
+    text: revenues.map(v => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v.toFixed(0))),
+    textposition: 'outside',
+    textfont: { color: Theme.COLORS.textSecondary, size: 11 },
+  }], Object.assign({}, Theme.PLOTLY_LAYOUT, {
+    height: 410,
+    margin: { t: 10, r: 80, b: 40, l: 50 },
+    xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickprefix: '$', tickformat: ',.0f', title: { text: 'Revenue', font: { color: Theme.COLORS.textSecondary, size: 11 } } },
+    yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, automargin: true },
+  }), Theme.PLOTLY_CONFIG);
+}
+
+function _geoDeadZoneTable(rows) {
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'overflow:auto;max-height:360px';
+
+  if (rows.length === 0) {
+    wrapper.innerHTML = `<p style="color:${Theme.COLORS.textMuted};padding:8px 0">No dead zones found.</p>`;
+    return wrapper;
+  }
+
+  const table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px';
+  table.innerHTML = `<thead><tr style="border-bottom:1px solid rgba(231,76,60,0.3)">
+    <th style="text-align:left;padding:6px 8px;color:#e74c3c;font-weight:600">State</th>
+    <th style="text-align:left;padding:6px 8px;color:#e74c3c;font-weight:600">City</th>
+    <th style="text-align:right;padding:6px 8px;color:#e74c3c;font-weight:600">Spend Wasted</th>
+    <th style="text-align:right;padding:6px 8px;color:#e74c3c;font-weight:600">Enrollments</th>
+  </tr></thead>`;
+
+  const tbody = document.createElement('tbody');
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.style.cssText = `border-bottom:1px solid rgba(231,76,60,0.12);background:${i % 2 === 0 ? 'transparent' : 'rgba(231,76,60,0.03)'}`;
+    tr.innerHTML = `
+      <td style="padding:6px 8px;color:${Theme.COLORS.textPrimary}">${r.state || '--'}</td>
+      <td style="padding:6px 8px;color:${Theme.COLORS.textPrimary}">${r.city || '--'}</td>
+      <td style="padding:6px 8px;text-align:right;color:#e74c3c;font-weight:600">${Theme.money(parseFloat(r.spend) || 0)}</td>
+      <td style="padding:6px 8px;text-align:right;color:${Theme.COLORS.textMuted}">0</td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrapper.appendChild(table);
+  return wrapper;
+}
+
 // ---- Demographic Intelligence Panel ----
-// Tier 1 (Gender, Age, Device, Placement): Meta Ads aggregate metrics -- toggle between Spend/CPM/CTR/CPC/Purchases
-// Tier 2 (Location, Profession): Per-contact funnel -- all rates shown inline per group (no toggles)
 let _segDemoT1Stat = 'spend';
 
-function _renderDemographicIntel(container, SEGMENTS) {
+function _renderDemographicIntel(container) {
   const T = Theme.COLORS;
   const FC = [Theme.FUNNEL.blue, Theme.FUNNEL.cyan, Theme.FUNNEL.green, Theme.FUNNEL.orange, Theme.FUNNEL.purple];
 
-  // Responsive style
   const styleId = 'seg-demo-intel-responsive';
   if (!document.getElementById(styleId)) {
     const s = document.createElement('style');
     s.id = styleId;
-    s.textContent = `@media (max-width: 768px) { .seg-demo-intel-grid { grid-template-columns: 1fr !important; } }`;
+    s.textContent = '@media (max-width: 768px) { .seg-demo-intel-grid { grid-template-columns: 1fr !important; } }';
     document.head.appendChild(s);
   }
 
-  // Header
   const header = document.createElement('div');
   header.style.cssText = 'margin-top:32px;margin-bottom:12px';
   header.innerHTML = `
     <div style="font-size:18px;font-weight:700;color:${T.textPrimary};letter-spacing:-.01em">Demographic Intelligence</div>
-    <div style="font-size:12px;color:${T.textMuted};margin-top:2px">Meta ad demographic breakdowns + per-contact funnel data</div>
-  `;
+    <div style="font-size:12px;color:${T.textMuted};margin-top:2px">Meta ad demographic breakdowns</div>`;
   container.appendChild(header);
 
-  // 3x2 grid
   const grid = document.createElement('div');
   grid.className = 'seg-demo-intel-grid';
   grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px';
@@ -254,21 +372,14 @@ function _renderDemographicIntel(container, SEGMENTS) {
 
   const days = Filters.getDays();
 
-  // ---- Label cleaners ----
   function cleanLabel(raw) {
     if (!raw) return '(unknown)';
-    // "facebook facebook_reels" -> "Facebook Reels", "instagram instagram_stories" -> "Instagram Stories"
-    // Remove duplicate platform prefix, replace underscores, title-case
     let s = String(raw);
-    // Remove redundant platform prefix from position (e.g. "facebook facebook_reels" -> "facebook reels")
     s = s.replace(/^(facebook|instagram|audience_network|messenger)\s+\1_/i, '$1 ');
-    // Replace underscores with spaces
     s = s.replace(/_/g, ' ');
-    // Title case
     return s.replace(/\b\w/g, c => c.toUpperCase());
   }
 
-  // ---- Shared bar renderer (single metric) ----
   function renderBars(barContainer, rows, statKey, labelField, formatFn, emptyMsg) {
     if (!rows || rows.length === 0) {
       barContainer.innerHTML = `<div style="font-size:12px;color:${T.textMuted};padding:16px 0">${emptyMsg || 'No data available.'}</div>`;
@@ -281,10 +392,9 @@ function _renderDemographicIntel(container, SEGMENTS) {
       const val = values[i];
       const pct = maxVal > 0 ? (val / maxVal) * 100 : 0;
       const color = FC[i % FC.length];
-      const label = cleanLabel(row[labelField]);
       html += `<div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-          <span style="font-size:11px;color:${T.textSecondary}">${label}</span>
+          <span style="font-size:11px;color:${T.textSecondary}">${cleanLabel(row[labelField])}</span>
           <span style="font-size:11px;font-weight:600;color:${T.textPrimary};font-family:'JetBrains Mono',monospace">${formatFn(val, statKey)}</span>
         </div>
         <div style="width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
@@ -295,7 +405,6 @@ function _renderDemographicIntel(container, SEGMENTS) {
     barContainer.innerHTML = html;
   }
 
-  // ---- Toggle builder (Tier 1 only) ----
   function buildToggles(toggleRow, statLabels, getActive, setActive, allCardRefs) {
     toggleRow.innerHTML = '';
     Object.entries(statLabels).forEach(([sk, label]) => {
@@ -303,29 +412,16 @@ function _renderDemographicIntel(container, SEGMENTS) {
       const btn = document.createElement('button');
       btn.textContent = label;
       btn.style.cssText = `font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-weight:${isActive ? '600' : '400'};border:1px solid ${isActive ? 'transparent' : T.border};background:${isActive ? T.accent : 'transparent'};color:${isActive ? '#fff' : T.textMuted};transition:all .15s;outline:none;line-height:1.4`;
-      btn.addEventListener('click', () => {
-        setActive(sk);
-        allCardRefs.forEach(fn => fn());
-      });
+      btn.addEventListener('click', () => { setActive(sk); allCardRefs.forEach(fn => fn()); });
       toggleRow.appendChild(btn);
     });
   }
 
-  // ---- Source badge ----
   function sourceBadge(text) {
     return `<div style="font-size:10px;color:${T.textMuted};margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)">${text}</div>`;
   }
 
-  // ============================================================
-  // TIER 1 -- Meta Ads aggregate metrics (with toggles)
-  // ============================================================
-  const T1_STAT_LABELS = {
-    spend:     'Spend',
-    cpm:       'CPM',
-    ctr:       'CTR',
-    cpc:       'CPC',
-    purchases: 'Purchases',
-  };
+  const T1_STAT_LABELS = { spend: 'Spend', cpm: 'CPM', ctr: 'CTR', cpc: 'CPC', purchases: 'Purchases' };
 
   function formatT1(val, statKey) {
     if (statKey === 'spend' || statKey === 'cpm' || statKey === 'cpc') return Theme.money(val);
@@ -343,12 +439,7 @@ function _renderDemographicIntel(container, SEGMENTS) {
   const _t1Cache = {};
   async function fetchT1(queryName) {
     if (_t1Cache[queryName]) return _t1Cache[queryName];
-    try {
-      const rows = await API.query('segments', queryName, { days });
-      _t1Cache[queryName] = rows || [];
-    } catch (e) {
-      _t1Cache[queryName] = [];
-    }
+    try { _t1Cache[queryName] = await API.query('segments', queryName, { days }) || []; } catch (e) { _t1Cache[queryName] = []; }
     return _t1Cache[queryName];
   }
 
@@ -365,7 +456,7 @@ function _renderDemographicIntel(container, SEGMENTS) {
     });
     return Object.values(map).map(r => {
       if (r.impressions > 0) r.cpm = (r.spend / r.impressions) * 1000;
-      if (r.clicks > 0)      r.cpc = r.spend / r.clicks;
+      if (r.clicks > 0) r.cpc = r.spend / r.clicks;
       if (r.impressions > 0) r.ctr = (r.clicks / r.impressions) * 100;
       return r;
     });
@@ -416,9 +507,7 @@ function _renderDemographicIntel(container, SEGMENTS) {
     grid.appendChild(card);
   });
 
-  // ============================================================
-  // LOCATION -- Meta region ad spend (same toggles as Tier 1)
-  // ============================================================
+  // Location card
   const locCard = document.createElement('div');
   locCard.className = 'card';
   locCard.style.cssText = 'padding:20px';
@@ -452,51 +541,4 @@ function _renderDemographicIntel(container, SEGMENTS) {
   locBadge.innerHTML = sourceBadge('Source: Meta Ads API (region)');
   locCard.appendChild(locBadge);
   grid.appendChild(locCard);
-
-  // ============================================================
-  // PROFESSION / SEGMENT -- Scorecard from Hyros data
-  // ============================================================
-  const profCard = document.createElement('div');
-  profCard.className = 'card';
-  profCard.style.cssText = 'padding:20px';
-  profCard.innerHTML = `<div style="font-size:14px;font-weight:600;color:${T.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Segment Scorecard</div>`;
-
-  if (SEGMENTS && SEGMENTS.length) {
-    const bestShowRate = Math.max(...SEGMENTS.filter(s => s.showRate != null).map(s => s.showRate));
-    const bestCostSale = Math.min(...SEGMENTS.filter(s => s.costSale).map(s => s.costSale));
-
-    const thS = `padding:6px 8px;text-align:right;font-size:9px;font-weight:600;color:${T.textMuted};text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid ${T.border};white-space:nowrap`;
-    const tdS = `padding:6px 8px;font-size:11px;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;border-bottom:1px solid rgba(255,255,255,0.04)`;
-
-    let shtml = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        <th style="${thS};text-align:left">Segment</th>
-        <th style="${thS}">Sales</th>
-        <th style="${thS}">Calls</th>
-        <th style="${thS}">Show%</th>
-        <th style="${thS}">CPS</th>
-      </tr></thead><tbody>`;
-
-    SEGMENTS.forEach(seg => {
-      const showColor = seg.showRate === bestShowRate ? T.success : T.textPrimary;
-      const csColor = seg.costSale === bestCostSale ? T.success : (seg.costSale && seg.costSale > 800 ? '#f59e0b' : T.textPrimary);
-      const lowTag = seg.lowSample ? ` <span style="font-size:8px;color:#f59e0b">n=${seg.calls}</span>` : '';
-
-      shtml += `<tr>
-        <td style="${tdS};text-align:left;white-space:nowrap"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${seg.color};margin-right:6px;vertical-align:middle"></span><span style="font-weight:600;color:${T.textPrimary};font-family:inherit">${seg.name}</span>${lowTag}</td>
-        <td style="${tdS};text-align:right;color:${T.textPrimary};font-weight:600">${seg.sales}</td>
-        <td style="${tdS};text-align:right;color:${T.textPrimary}">${seg.calls}</td>
-        <td style="${tdS};text-align:right;color:${showColor}">${seg.showRate != null ? seg.showRate + '%' : '<span style="color:' + T.textMuted + '">--</span>'}</td>
-        <td style="${tdS};text-align:right;color:${csColor};font-weight:600">${seg.costSale ? '$' + seg.costSale : '<span style="color:' + T.textMuted + '">--</span>'}</td>
-      </tr>`;
-    });
-
-    shtml += `</tbody></table></div>`;
-    profCard.innerHTML += shtml;
-  }
-
-  const profBadge = document.createElement('div');
-  profBadge.innerHTML = sourceBadge('Source: Hyros Attribution');
-  profCard.appendChild(profBadge);
-  grid.appendChild(profCard);
 }

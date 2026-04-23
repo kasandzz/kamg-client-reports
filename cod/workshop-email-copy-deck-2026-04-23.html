@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COD Standard Workshop Email Copy Deck -- v2 -- Apr 23, 2026</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --border: #1e1e2e;
+      --text: #e4e4e7;
+      --muted: #71717a;
+      --green: #22c55e;
+      --gold: #c8a96e;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a78bfa;
+      --cyan: #22d3ee;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 0 0 80px;
+    }
+    .header {
+      background: linear-gradient(135deg, #12121a 0%, #1a1a2e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    .header h1 { font-size: clamp(22px, 4vw, 30px); font-weight: 700; }
+    .header .sub { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .header .version {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(34,197,94,0.1);
+      color: var(--green);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+    /* ---- Changes in v2 banner ---- */
+    .v2-banner {
+      background: rgba(167,139,250,0.06);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 32px;
+    }
+    .v2-banner .v2-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--purple);
+      margin-bottom: 10px;
+    }
+    .v2-banner ul { list-style: none; }
+    .v2-banner li {
+      font-size: 13px;
+      color: rgba(167,139,250,0.8);
+      padding: 3px 0;
+      padding-left: 18px;
+      position: relative;
+    }
+    .v2-banner li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(167,139,250,0.5);
+    }
+
+    /* ---- Copy rules ---- */
+    .rules-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .rules-box h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); margin-bottom: 16px; }
+    .rules-box ul { list-style: none; }
+    .rules-box li {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .rules-box li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 11px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.4);
+    }
+
+    /* ---- Merge fields reference table ---- */
+    .merge-ref {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-top: 24px;
+    }
+    .merge-ref h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 14px; }
+    .merge-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .merge-table th {
+      text-align: left;
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .merge-table td { padding: 6px 10px; border-bottom: 1px solid rgba(30,30,46,0.5); vertical-align: top; }
+    .merge-table td:first-child { font-family: 'SF Mono', 'Fira Code', monospace; color: var(--cyan); }
+    .merge-table td:nth-child(2) { color: var(--muted); }
+    .merge-table td:nth-child(3) { color: rgba(255,255,255,0.4); font-style: italic; }
+
+    /* ---- Phase headers ---- */
+    .phase-header {
+      margin: 48px 0 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .phase-header .num {
+      font-size: 12px;
+      font-weight: 700;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .phase-header h2 { font-size: 16px; font-weight: 600; }
+    .phase-header p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .ph-purchase { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); }
+    .ph-purchase .num { background: rgba(34,197,94,0.15); color: var(--green); }
+    .ph-workshop { background: rgba(113,113,122,0.06); border: 1px solid rgba(113,113,122,0.15); }
+    .ph-workshop .num { background: rgba(113,113,122,0.15); color: var(--muted); }
+    .ph-post { background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15); }
+    .ph-post .num { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+    /* ---- Email cards ---- */
+    .email-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .email-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+    }
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .badge-email { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .badge-sms { background: rgba(34,197,94,0.15); color: var(--green); }
+    .badge-new { background: rgba(200,169,110,0.15); color: var(--gold); }
+    .badge-rewritten { background: rgba(167,139,250,0.15); color: var(--purple); }
+    .badge-existing { background: rgba(113,113,122,0.15); color: var(--muted); }
+    .email-meta .title { font-weight: 600; font-size: 14px; flex: 1; }
+    .email-meta .timing { font-size: 12px; color: var(--muted); }
+
+    .email-detail { padding: 20px; }
+    .email-detail .workflow { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .email-detail .purpose { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 16px; font-style: italic; }
+    .email-detail .gate {
+      font-size: 11px;
+      color: var(--amber);
+      background: rgba(245,158,11,0.08);
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(245,158,11,0.15);
+    }
+
+    .subject-lines { margin-bottom: 16px; }
+    .subject-lines h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .subject-lines ol { list-style: decimal; padding-left: 20px; }
+    .subject-lines li { font-size: 13px; color: var(--gold); padding: 2px 0; }
+
+    .email-body {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: rgba(255,255,255,0.85);
+    }
+    .merge-field {
+      color: var(--cyan);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      background: rgba(34,211,238,0.08);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .placeholder {
+      color: var(--red);
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+    }
+
+    .prod-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--amber);
+      background: rgba(245,158,11,0.06);
+      padding: 12px 16px;
+      border-radius: 6px;
+      border-left: 3px solid var(--amber);
+    }
+
+    .phase-note {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ---- VIP upsell timing block ---- */
+    .upsell-note {
+      background: rgba(200,169,110,0.04);
+      border: 1px solid rgba(200,169,110,0.15);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 32px;
+    }
+    .upsell-note h3 { font-size: 14px; color: var(--gold); margin-bottom: 8px; }
+    .upsell-note p { font-size: 13px; color: var(--muted); }
+    .upsell-note ul { list-style: none; margin-top: 8px; }
+    .upsell-note li { font-size: 13px; color: var(--muted); padding: 2px 0; padding-left: 16px; position: relative; }
+    .upsell-note li::before { content: ''; position: absolute; left: 0; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: rgba(200,169,110,0.4); }
+
+    /* ---- Workflow notes ---- */
+    .workflow-notes {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    .workflow-notes h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--blue); margin-bottom: 16px; }
+    .workflow-notes ol { padding-left: 20px; }
+    .workflow-notes li { font-size: 13px; color: var(--muted); padding: 6px 0; line-height: 1.6; }
+    .workflow-notes li strong { color: var(--text); }
+
+    /* ---- Email index table ---- */
+    .index-section { margin-top: 32px; }
+    .index-section h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 16px; }
+    .index-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .index-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .index-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(30,30,46,0.5);
+      vertical-align: middle;
+    }
+    .index-table tr:last-child td { border-bottom: none; }
+
+    /* ---- Checklist ---- */
+    .checklist {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    .checklist h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--red); margin-bottom: 16px; }
+    .checklist-section { margin-bottom: 20px; }
+    .checklist-section h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .checklist-section:first-of-type h3 { border-top: none; padding-top: 0; }
+    .checklist label {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .checklist label:hover { color: var(--text); }
+    .checklist input[type="checkbox"] { margin-top: 3px; accent-color: var(--green); flex-shrink: 0; }
+    .checklist input[type="checkbox"]:checked + span { color: rgba(34,197,94,0.6); text-decoration: line-through; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+    .footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 48px; }
+    @media (max-width: 600px) {
+      .email-meta { flex-direction: column; align-items: flex-start; }
+      .email-body { padding: 14px; font-size: 13px; }
+      .index-table { font-size: 11px; }
+      .index-table td, .index-table th { padding: 6px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Clients on Demand</div>
+  <h1>Standard Workshop Email/SMS Copy Deck</h1>
+  <div class="sub">Complete copy for the $27 standard workshop buyer journey. GHL-ready with merge fields.</div>
+  <div class="version">v2 -- Apr 23, 2026</div>
+</div>
+
+<div class="container">
+
+  <!-- Changes in v2 banner -->
+  <div class="v2-banner">
+    <div class="v2-label">Changes in v2</div>
+    <ul>
+      <li>Toolkit stripped. No Russ AI, Replay, or Masterclass mentions anywhere in the sequence.</li>
+      <li>Testimonials removed. Email 6 rewritten as social proof via pattern recognition (no placeholder quotes).</li>
+      <li>VIP upsell = Friday Q&A only. P.S. language updated in Emails 1 and 4 to remove all toolkit references.</li>
+      <li>Subject line 3 on Email 4 updated to "offer-building prompts" (was "offer-building toolkit").</li>
+      <li>Copy rules expanded to reflect all v2 constraints including no toolkit, no testimonial placeholders, VIP naming rules.</li>
+    </ul>
+  </div>
+
+  <!-- Copy Rules -->
+  <div class="rules-box">
+    <h2>Copy Rules (All Emails)</h2>
+    <ul>
+      <li>No em dashes (commas, periods, ellipses only)</li>
+      <li>No income claims or earnings representations</li>
+      <li>No fake scarcity ("Only X spots" banned; "Limited space available" OK)</li>
+      <li>No fake testimonials. Placeholders removed in v2. All social proof must be real quotes + FTC disclaimer before going live.</li>
+      <li>Workshop is NOT live. Only the Friday VIP Q&A is live.</li>
+      <li>Never denigrate the $27 workshop to sell VIP</li>
+      <li>VIP Q&A = "Friday VIP Q&A with Russ" -- never "VIP Session" / "VIP Call" / "Private Session"</li>
+      <li>No "private", "directly", "1-on-1", "personal review", or "by name" when referencing VIP</li>
+      <li>VIP is additive, not comparative. Standard buyers got full value. VIP is more, not better.</li>
+      <li>No toolkit references. No Russ AI, Replay, or Masterclass mentions in standard sequence.</li>
+      <li>"Russ AI" not "Delphi AI" (if ever referenced in future copy)</li>
+      <li>"Coaching programs" not "consulting offers"</li>
+      <li>AI Prompt Library = workshop deliverable for ALL buyers (not VIP-exclusive)</li>
+      <li>Sign-off: Russ Ruffino, Clients on Demand</li>
+    </ul>
+  </div>
+
+  <!-- GHL Merge Fields Reference -->
+  <div class="merge-ref">
+    <h2>GHL Merge Fields Reference</h2>
+    <table class="merge-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Source</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{contact.first_name}}</td>
+          <td>Contact</td>
+          <td>Sarah</td>
+        </tr>
+        <tr>
+          <td>{{contact.booked_workshop_pretty_date}}</td>
+          <td>Booking</td>
+          <td>April 24th @ 4:00 PM</td>
+        </tr>
+        <tr>
+          <td>{{contact.joinurl}}</td>
+          <td>AEvent</td>
+          <td>https://aevent.com/...</td>
+        </tr>
+        <tr>
+          <td>{{custom_values.cod_auto_workshop_vip_date_pretty}}</td>
+          <td>Custom value</td>
+          <td>April 25th</td>
+        </tr>
+        <tr>
+          <td>{{custom_values.cod_auto_workshop_vip_time_pretty}}</td>
+          <td>Custom value</td>
+          <td>9:00 AM</td>
+        </tr>
+        <tr>
+          <td>{{custom_values.cod_auto_workshop_timezone}}</td>
+          <td>Custom value</td>
+          <td>Pacific</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PHASE 1: Purchase -->
+  <div class="phase-header ph-purchase">
+    <div class="num">1</div>
+    <div>
+      <h2>Purchase Confirmation</h2>
+      <p>Immediately after $27 workshop purchase</p>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">Email 1: Workshop Purchase Confirmation</span>
+      <span class="timing">Immediately</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Workshop Purchase Success</div>
+      <div class="purpose">Confirm the purchase. Set expectations for workshop day. Include VIP upsell at bottom.</div>
+      <div class="gate">Note: If buyer also purchases VIP simultaneously, add 2-minute delay on this email to prevent pile-up with VIP confirmation.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>You're in, <span class="merge-field">{{contact.first_name}}</span>. Here's what happens next.</li>
+          <li>Confirmed. Your workshop seat is locked in.</li>
+          <li>Your workshop access is ready, <span class="merge-field">{{contact.first_name}}</span>.</li>
+        </ol>
+      </div>
+      <div class="email-body">Congrats <span class="merge-field">{{contact.first_name}}</span>,
+
+You're registered for the workshop.
+
+Here's your access info:
+
+Workshop: <span class="merge-field">{{ contact.booked_workshop_pretty_date }}</span> Pacific
+Access Link: <span class="merge-field">{{contact.joinurl}}</span>
+
+During the workshop, you'll learn the exact framework to build a high-ticket coaching program using AI. This is the system behind $100M+ in results, and you'll build your offer live during the session using AI prompts we give you.
+
+Save this email. You'll need the access link on workshop day.
+
+We'll send you a reminder 1 hour before and again at 15 minutes. Show up, do the work, and you'll walk away with something real.
+
+Talk soon,
+Russ Ruffino
+Clients on Demand
+
+P.S. Want to take it further? VIP includes the Friday VIP Q&amp;A with Russ on <span class="merge-field">{{custom_values.cod_auto_workshop_vip_date_pretty}}</span> at <span class="merge-field">{{custom_values.cod_auto_workshop_vip_time_pretty}}</span> <span class="merge-field">{{custom_values.cod_auto_workshop_timezone}}</span>. It's a separate live session where Russ takes questions and reviews real offers from attendees. Small group, real conversation, no scripts. Come with your offer and get it sharpened in real time.
+
+Upgrade to VIP: <span class="placeholder">[VIP_UPGRADE_LINK]</span></div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-sms">SMS</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">SMS 1: Workshop Confirmation</span>
+      <span class="timing">Immediately after Email 1</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Workshop Purchase Success</div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>, you're confirmed for the workshop on <span class="merge-field">{{ contact.booked_workshop_pretty_date }}</span> Pacific. Access link is in your email. See you there!</div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: Workshop Day -->
+  <div class="phase-header ph-workshop">
+    <div class="num">2</div>
+    <div>
+      <h2>Workshop Day Reminders</h2>
+      <p>Shared with all buyers (standard + VIP). Existing copy, no changes.</p>
+    </div>
+  </div>
+
+  <div class="phase-note">Workshop reminders are shared with all buyers (standard + VIP). These stay as-is from the existing Pre &amp; Post Event Reminders workflow. Emails 2-3 (1hr + 15min reminders) and SMS 2-3 remain identical. No changes needed to copy.</div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-existing">Existing</span>
+      <span class="title">Email 2: Workshop 1hr Reminder</span>
+      <span class="timing">1 hour before workshop</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="email-body">Hi <span class="merge-field">{{contact.first_name}}</span>,
+
+We start in 1 hour!
+
+Here's your access info:
+
+Access Link: <span class="merge-field">{{contact.joinurl}}</span>
+
+Date/Time: TODAY - <span class="merge-field">{{ contact.booked_workshop_pretty_date }}</span> Pacific
+
+Close everything else. This is the most important time you'll spend on your business this month.
+
+See you in 1 hour,
+
+Let's do this!
+
+- Russ</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-sms">SMS</span>
+      <span class="badge badge-existing">Existing</span>
+      <span class="title">SMS 2: Workshop 1hr Reminder</span>
+      <span class="timing">1 hour before workshop</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="email-body">Your Workshop with Russ Ruffino starts in 1 hour
+
+Access Link: <span class="merge-field">{{contact.joinurl}}</span>
+
+- Russ</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-existing">Existing</span>
+      <span class="title">Email 3: Workshop 15min Reminder</span>
+      <span class="timing">15 minutes before workshop</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="email-body">Hey it's Russ Ruffino. Quick heads-up: we're starting at the top of the hour!
+Don't miss this, you need to be there if you want my AI prompts that will create your Entire High Ticket Coaching Program, Start to Finish.
+
+Access Link: <span class="merge-field">{{contact.joinurl}}</span></div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-sms">SMS</span>
+      <span class="badge badge-existing">Existing</span>
+      <span class="title">SMS 3: Workshop 15min Reminder</span>
+      <span class="timing">15 minutes before workshop</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Same content as existing SMS. No change.</div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: Post-Workshop -->
+  <div class="phase-header ph-post">
+    <div class="num">3</div>
+    <div>
+      <h2>Post-Workshop Sequence (Standard Buyers Only)</h2>
+      <p>VIP buyers exit after workshop. Standard buyers receive these emails.</p>
+    </div>
+  </div>
+
+  <div class="phase-note">VIP buyers with "auto-workshop-vip" tag EXIT the Pre &amp; Post Event Reminders workflow after the 15-minute reminder. They receive their own VIP pre-event + post-Q&amp;A sequence instead. Standard buyers continue through the emails below.</div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">Email 4: Post-Workshop Prompt Delivery</span>
+      <span class="timing">4hr after workshop (~8pm PT)</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Deliver AI Prompt Library (workshop deliverable for ALL buyers). Soft VIP upsell. Soft strategy call CTA.</div>
+      <div class="gate">Gate: VIP buyers with "auto-workshop-vip" tag should have already exited this workflow.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>Your AI prompts are ready, <span class="merge-field">{{contact.first_name}}</span>.</li>
+          <li>Here's everything from today's workshop.</li>
+          <li><span class="merge-field">{{contact.first_name}}</span>, your offer-building prompts are unlocked.</li>
+        </ol>
+      </div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>,
+
+Great workshop today.
+
+As promised, here's your AI Prompt Library. These are the exact prompts you used during the session to build your offer. Keep them. Use them again. Share them with nobody.
+
+AI Prompt Library: https://items-obey-2ps.craft.me/s2HtZ1VyYS24Am
+Password: russisawesome
+
+Course Creator Bot: <span class="placeholder">[COURSE_CREATOR_BOT_LINK]</span>
+
+Between the framework, the prompts, and what you built today, you have a real starting point. Most people who attend this workshop walk away with more clarity on their offer than they've had in months.
+
+The question now is: what do you do with it?
+
+If you want help turning what you built into a live, paying coaching program, we offer a complimentary strategy call. It's a working session where we look at your specific situation and map out what the next 90 days look like for you.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+No pressure. Just the next step if you're ready.
+
+Russ Ruffino
+Clients on Demand
+
+P.S. Still thinking about VIP? The Friday VIP Q&amp;A with Russ is on <span class="merge-field">{{custom_values.cod_auto_workshop_vip_date_pretty}}</span> at <span class="merge-field">{{custom_values.cod_auto_workshop_vip_time_pretty}}</span> <span class="merge-field">{{custom_values.cod_auto_workshop_timezone}}</span>. Small group, real conversation, no scripts. Bring your offer and get it sharpened. Upgrade here: <span class="placeholder">[VIP_UPGRADE_LINK]</span></div>
+      <div class="prod-note"><strong>Production notes:</strong> Prompt Library link (https://items-obey-2ps.craft.me/s2HtZ1VyYS24Am) and password (russisawesome) must match current GHL values -- update if rotated. <span class="placeholder">[COURSE_CREATOR_BOT_LINK]</span> and <span class="placeholder">[VIP_UPGRADE_LINK]</span> must be replaced with actual URLs before deployment.</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">Email 5: Next Morning Follow-Up</span>
+      <span class="timing">Next day ~9am PT (+17hr)</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Re-engage while workshop is fresh. Reframe the value of what they built. Strategy call CTA.</div>
+      <div class="gate">Gate: Skip if contact has "call-discovery-booked" tag.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>Building the offer was the easy part, <span class="merge-field">{{contact.first_name}}</span>.</li>
+          <li>What happens after the workshop?</li>
+          <li>You built something yesterday. Here's what's next.</li>
+        </ol>
+      </div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>,
+
+Yesterday you built an offer.
+
+That's not a small thing. Most coaches, consultants, and service providers spend months circling around their positioning, their pricing, their packaging. You did it in one session using a proven framework and AI.
+
+But building the offer is the easy part.
+
+The hard part is deploying it. Knowing which platform to use. How to price it. How to position it so the right clients say "yes" without a hard sell. How to structure enrollment so it feels natural, not salesy.
+
+That's the gap the strategy call is designed to close. It's not a pitch. It's a conversation about your specific business, your specific audience, and what the fastest path to your first (or next) high-ticket client actually looks like.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+You have the offer. Now let's build the business around it.
+
+Russ Ruffino
+Clients on Demand</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-rewritten">Rewritten v2</span>
+      <span class="title">Email 6: Evening Social Proof</span>
+      <span class="timing">Next day ~6pm PT (+26hr)</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Social proof through pattern recognition. No testimonial placeholders. Moderate strategy call CTA.</div>
+      <div class="gate">Gate: Skip if contact has "call-discovery-booked" tag.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>What separates the people who make it work, <span class="merge-field">{{contact.first_name}}</span>.</li>
+          <li>You built the offer. Here's what the ones who win do next.</li>
+          <li>The pattern behind every workshop success story.</li>
+        </ol>
+      </div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>,
+
+Real quick.
+
+Here's a pattern we've seen hundreds of times.
+
+Someone attends the workshop. They build their offer live in the session. They walk out with something real on paper. They can see the path. And then... some of them turn it into paying clients within 30 days. And some of them let the notes sit in a folder.
+
+The difference is almost never talent. It's not a massive audience or a decade of marketing experience. It's one thing: a concrete next step. A conversation with someone who's done this before, who can look at their specific situation and say "here's what to do next."
+
+That's what the strategy call is.
+
+You already did the hard part. You built the offer. You learned the framework. Now the question is whether you turn it into something real or let it cool down.
+
+Book here: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">Email 7: Urgency + Momentum</span>
+      <span class="timing">Day 3 ~2pm PT (+46hr)</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Address momentum decay. Final direct push. Respectful but clear.</div>
+      <div class="gate">Gate: Skip if contact has "call-discovery-booked" tag.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>This is the last email I'll send about this, <span class="merge-field">{{contact.first_name}}</span>.</li>
+          <li>Don't let the momentum die.</li>
+          <li>Still thinking about it?</li>
+        </ol>
+      </div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>,
+
+Straight talk.
+
+The workshop was two days ago. The clarity you had during the session, the offer you built, the way everything clicked for a few hours... that sharpness fades. Not because you did anything wrong. Because life fills the space.
+
+Every day that passes without a concrete next step is a day that clarity dissolves.
+
+The strategy call takes 30 minutes. You'll walk away with a plan. Not a pitch, not a presentation. A plan specific to your business that you can start executing next week.
+
+After this, if we don't hear from you, we'll assume the timing isn't right. You'll stay on our list and hear from us occasionally with valuable content. No pressure.
+
+But if you're ready, the window is now.
+
+Book your strategy call: www.clientsondemand.com/apply
+
+Russ Ruffino
+Clients on Demand</div>
+    </div>
+  </div>
+
+  <div class="email-card">
+    <div class="email-meta">
+      <span class="badge badge-email">Email</span>
+      <span class="badge badge-new">New</span>
+      <span class="title">Email 8: Fence-Sitter (Conditional)</span>
+      <span class="timing">Day 4 ~11am PT (+58hr)</span>
+    </div>
+    <div class="email-detail">
+      <div class="workflow">Workflow: Pre &amp; Post Event Reminders</div>
+      <div class="purpose">Last touch for engaged non-converters. Remove friction. Offer reply path.</div>
+      <div class="gate">Condition: ONLY send if contact opened at least one of Emails 5-7 but did NOT click strategy call link. Skip if "call-discovery-booked" tag.</div>
+      <div class="subject-lines">
+        <h4>Subject Line Options</h4>
+        <ol>
+          <li>Quick question, <span class="merge-field">{{contact.first_name}}</span>.</li>
+          <li>Still on your mind?</li>
+          <li>One reply is all it takes.</li>
+        </ol>
+      </div>
+      <div class="email-body">Hey <span class="merge-field">{{contact.first_name}}</span>,
+
+Noticed you've been reading these emails.
+
+If the strategy call makes sense but the scheduling page didn't quite work, just reply with a day and time that works for you. We'll make it happen.
+
+No form. No funnel. Just a reply.
+
+Russ Ruffino
+Clients on Demand</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- VIP Upsell Timing -->
+  <div class="upsell-note">
+    <h3>VIP Upsell Timing</h3>
+    <p>VIP is mentioned in exactly 2 emails. After Email 4, no more VIP upsell. Strategy call is the only CTA from Email 5 onward.</p>
+    <ul>
+      <li><strong>Email 1</strong> (Purchase Confirmation P.S.) -- full VIP description + upgrade link</li>
+      <li><strong>Email 4</strong> (Post-Workshop Prompt Delivery P.S.) -- shorter VIP mention + upgrade link</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Workflow Notes -->
+  <div class="workflow-notes">
+    <h2>Workflow Notes for GHL Implementation</h2>
+    <ol>
+      <li><strong>VIP exit condition:</strong> After the 15min pre-workshop reminders, add condition: IF "auto-workshop-vip" tag -> END. This is where VIP buyers leave and enter their own VIP pre-event flow.</li>
+      <li><strong>2-minute delay:</strong> If a buyer purchases standard + VIP simultaneously, add a 2-min delay on the standard confirmation email to prevent collision with VIP confirmation.</li>
+      <li><strong>"call-discovery-booked" gate:</strong> Emails 5-8 all check for this tag. If contact books a strategy call at any point, they exit the nurture sequence.</li>
+      <li><strong>Email 8 conditional:</strong> Only fires if the contact opened Emails 5, 6, or 7 but did NOT click the strategy call link. This prevents sending to completely disengaged contacts.</li>
+      <li><strong>Post-workshop timing:</strong> All post-workshop email timing is relative to workshop end time, not purchase time. This keeps the cadence aligned with the buyer's actual experience.</li>
+    </ol>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Email Index -->
+  <div class="index-section">
+    <h2>Complete Standard Buyer Email Index</h2>
+    <table class="index-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Phase</th>
+          <th>Type</th>
+          <th>Timing</th>
+          <th>Subject (primary)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Purchase</td><td>Email</td><td>Immediately</td><td>You're in. Here's what happens next.</td><td><span class="badge badge-new">New</span></td></tr>
+        <tr><td>2</td><td>Purchase</td><td>SMS</td><td>Immediately</td><td>You're confirmed</td><td><span class="badge badge-new">New</span></td></tr>
+        <tr><td>3</td><td>Workshop</td><td>Email</td><td>-1hr</td><td>We start in 1 hour!</td><td><span class="badge badge-existing">Existing</span></td></tr>
+        <tr><td>4</td><td>Workshop</td><td>SMS</td><td>-1hr</td><td>starts in 1 hour</td><td><span class="badge badge-existing">Existing</span></td></tr>
+        <tr><td>5</td><td>Workshop</td><td>Email</td><td>-15min</td><td>starting at the top of the hour</td><td><span class="badge badge-existing">Existing</span></td></tr>
+        <tr><td>6</td><td>Workshop</td><td>SMS</td><td>-15min</td><td>(same as existing)</td><td><span class="badge badge-existing">Existing</span></td></tr>
+        <tr><td>7</td><td>Post-Workshop</td><td>Email</td><td>+4hr</td><td>Your AI prompts are ready</td><td><span class="badge badge-new">New</span></td></tr>
+        <tr><td>8</td><td>Post-Workshop</td><td>Email</td><td>+17hr</td><td>Building the offer was the easy part</td><td><span class="badge badge-new">New</span></td></tr>
+        <tr><td>9</td><td>Post-Workshop</td><td>Email</td><td>+26hr</td><td>What separates the people who make it work</td><td><span class="badge badge-rewritten">Rewritten v2</span></td></tr>
+        <tr><td>10</td><td>Post-Workshop</td><td>Email</td><td>+46hr</td><td>This is the last email I'll send about this</td><td><span class="badge badge-new">New</span></td></tr>
+        <tr><td>11</td><td>Post-Workshop</td><td>Email</td><td>+58hr</td><td>Quick question (conditional)</td><td><span class="badge badge-new">New</span></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 12px;">5 new emails + 1 new SMS. 2 existing emails + 2 existing SMS (unchanged). Email 6 rewritten.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Pre-Deployment Checklist -->
+  <div class="checklist">
+    <h2>Pre-Deployment Checklist</h2>
+
+    <div class="checklist-section">
+      <h3>Placeholder Links</h3>
+      <label><input type="checkbox"> <span>[VIP_UPGRADE_LINK] replaced with actual upgrade URL (appears in Emails 1 and 4)</span></label>
+      <label><input type="checkbox"> <span>[COURSE_CREATOR_BOT_LINK] replaced with actual bot link (Email 4)</span></label>
+      <label><input type="checkbox"> <span>AI Prompt Library link (https://items-obey-2ps.craft.me/s2HtZ1VyYS24Am) verified active</span></label>
+      <label><input type="checkbox"> <span>AI Prompt Library password (russisawesome) verified current</span></label>
+      <label><input type="checkbox"> <span>Strategy call link (www.clientsondemand.com/apply) verified as live booking page</span></label>
+    </div>
+
+    <div class="checklist-section">
+      <h3>GHL Workflow Configuration</h3>
+      <label><input type="checkbox"> <span>VIP exit condition added to Pre &amp; Post Event Reminders after 15min reminder (IF "auto-workshop-vip" tag -> END)</span></label>
+      <label><input type="checkbox"> <span>"call-discovery-booked" tag gates added to Emails 5, 6, 7, and 8</span></label>
+      <label><input type="checkbox"> <span>Email 8 conditional trigger configured: opened Emails 5/6/7 but no strategy call link click</span></label>
+      <label><input type="checkbox"> <span>2-minute delay added for simultaneous VIP+standard purchase edge case</span></label>
+      <label><input type="checkbox"> <span>Post-workshop email timing set relative to workshop end time, not purchase time</span></label>
+    </div>
+
+    <div class="checklist-section">
+      <h3>Copy Compliance</h3>
+      <label><input type="checkbox"> <span>All subject lines &lt; 60 characters with merge fields populated</span></label>
+      <label><input type="checkbox"> <span>No VIP upsell appears in Emails 5-8 (strategy call is the only CTA)</span></label>
+      <label><input type="checkbox"> <span>No toolkit references (Russ AI, Replay, Masterclass) anywhere in standard sequence</span></label>
+      <label><input type="checkbox"> <span>No testimonial placeholders remain. If adding real testimonials to future version: include FTC results disclaimer.</span></label>
+      <label><input type="checkbox"> <span>VIP Q&A referred to as "Friday VIP Q&amp;A with Russ" in all instances</span></label>
+      <label><input type="checkbox"> <span>FTC compliance review completed before launch</span></label>
+    </div>
+  </div>
+
+  <div class="footer">
+    COD Standard Workshop Email Copy Deck -- v2 -- Apr 23, 2026 | Generated by Claude Code
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matt — GHL Build Guide: VIP Upgrade-Later Email Sequences (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-2: #0b0d12;
+  --bg-3: #11141c;
+  --bg-4: #151924;
+  --border: #1f2430;
+  --border-2: #2a3040;
+  --text: #e6e8ee;
+  --text-2: #a5abb8;
+  --text-3: #6b7280;
+  --amber: #d4a84b;
+  --amber-soft: #e5b94e;
+  --amber-faint: rgba(212, 168, 75, 0.12);
+  --sage: #8fb28c;
+  --sage-faint: rgba(143, 178, 140, 0.10);
+  --sage-border: rgba(143, 178, 140, 0.32);
+  --blue: #7aa6c9;
+  --blue-faint: rgba(122, 166, 201, 0.10);
+  --blue-border: rgba(122, 166, 201, 0.32);
+  --shared: #b79bc9;
+  --shared-faint: rgba(183, 155, 201, 0.10);
+  --shared-border: rgba(183, 155, 201, 0.30);
+  --danger: #c0614e;
+  --success: #5d9e7b;
+  --mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: 'Inter', 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --serif: 'Fraunces', 'Cormorant', Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+aside.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 32px 20px 32px 28px;
+  border-right: 1px solid var(--border);
+  background: var(--bg-2);
+  font-size: 13px;
+}
+
+aside.toc .brand {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+aside.toc .brand-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+aside.toc h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 24px 0 10px;
+  font-weight: 500;
+}
+
+aside.toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+aside.toc li { margin: 2px 0; }
+
+aside.toc a {
+  display: block;
+  padding: 5px 10px;
+  color: var(--text-2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0 3px 3px 0;
+  transition: all 0.15s;
+  line-height: 1.35;
+}
+
+aside.toc a:hover {
+  color: var(--text);
+  background: var(--bg-3);
+  border-left-color: var(--amber);
+}
+
+aside.toc a.sub {
+  padding-left: 22px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+aside.toc a.seq-a { border-left-color: var(--sage-border); }
+aside.toc a.seq-b { border-left-color: var(--blue-border); }
+
+aside.toc .progress-box {
+  margin-top: 28px;
+  padding: 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+aside.toc .progress-box .pct {
+  font-family: var(--mono);
+  font-size: 22px;
+  color: var(--amber);
+  font-weight: 600;
+}
+
+aside.toc .progress-box .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+aside.toc .progress-bar {
+  margin-top: 10px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+aside.toc .progress-fill {
+  height: 100%;
+  background: var(--amber);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+/* MAIN */
+main {
+  padding: 44px 52px 120px;
+  max-width: 960px;
+  min-width: 0;
+}
+
+/* TOP MATTER */
+.top-matter {
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-matter .eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.top-matter h1 {
+  font-family: var(--serif);
+  font-size: 44px;
+  line-height: 1.08;
+  font-weight: 600;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.top-matter .subhead {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.5;
+  color: var(--text-2);
+  font-style: italic;
+  font-weight: 400;
+  margin-bottom: 28px;
+  max-width: 680px;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.meta-grid .cell {
+  background: var(--bg-2);
+  padding: 12px 14px;
+}
+
+.meta-grid .cell .k {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+
+.meta-grid .cell .v {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.status-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 3px;
+  background: rgba(93, 158, 123, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(93, 158, 123, 0.3);
+}
+
+.link-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.link-row a {
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--amber);
+  padding-bottom: 1px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.link-row a:hover { color: var(--amber-soft); border-bottom-style: solid; }
+
+/* SECTIONS */
+section {
+  margin: 60px 0;
+  scroll-margin-top: 24px;
+}
+
+section .section-no {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+section h2 {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 20px;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+
+section h3 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 40px 0 14px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+section h4 {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  margin: 26px 0 10px;
+  color: var(--text);
+  letter-spacing: 0.005em;
+}
+
+section p { color: var(--text-2); margin: 10px 0; }
+
+section strong { color: var(--text); font-weight: 600; }
+
+/* CALLOUTS */
+.callout {
+  padding: 16px 18px;
+  border-radius: 6px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  font-size: 14px;
+}
+
+.callout .tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.callout.open-q {
+  background: var(--amber-faint);
+  border-color: rgba(212, 168, 75, 0.3);
+}
+
+.callout.open-q .tag { color: var(--amber); }
+
+.callout.critical {
+  background: rgba(192, 97, 78, 0.08);
+  border-color: rgba(192, 97, 78, 0.3);
+}
+
+.callout.critical .tag { color: var(--danger); }
+
+.callout.note {
+  background: var(--bg-3);
+  border-color: var(--border);
+}
+
+.callout.note .tag { color: var(--text-3); }
+
+.callout.seq-a {
+  background: var(--sage-faint);
+  border-color: var(--sage-border);
+}
+
+.callout.seq-a .tag { color: var(--sage); }
+
+.callout.seq-b {
+  background: var(--blue-faint);
+  border-color: var(--blue-border);
+}
+
+.callout.seq-b .tag { color: var(--blue); }
+
+/* STEPS & CHECKBOXES */
+.step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  margin: 8px 0;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.step:hover { background: var(--bg-3); }
+
+.step.done {
+  opacity: 0.55;
+  background: var(--bg-2);
+}
+
+.step.done .body { text-decoration: line-through; text-decoration-color: var(--text-3); }
+
+.step input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--border-2);
+  border-radius: 3px;
+  background: var(--bg);
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.step input[type="checkbox"]:hover { border-color: var(--amber); }
+
+.step input[type="checkbox"]:checked {
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.step input[type="checkbox"]:checked::after {
+  content: "\2713";
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 700;
+  position: absolute;
+  top: -1px;
+  left: 3px;
+  font-family: var(--sans);
+}
+
+.step .body { flex: 1; min-width: 0; color: var(--text); font-size: 14px; }
+
+.step .body .step-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* CODE BLOCKS */
+.code-wrap {
+  position: relative;
+  margin: 14px 0 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.code-wrap .code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.code-wrap .copy-btn {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.code-wrap .copy-btn:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+.code-wrap .copy-btn.copied {
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.code-wrap pre {
+  margin: 0;
+  padding: 14px 18px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ARCHITECTURE DIAGRAM */
+.arch {
+  margin: 24px 0;
+  padding: 28px 20px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.arch pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre;
+}
+
+.arch .node-master { color: var(--amber); font-weight: 600; }
+.arch .node-a { color: var(--sage); font-weight: 600; }
+.arch .node-b { color: var(--blue); font-weight: 600; }
+.arch .node-exit { color: var(--text-3); }
+
+/* TABLES */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 13px;
+}
+
+table th {
+  background: var(--bg-3);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+
+table td {
+  padding: 10px 14px;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+table tr:last-child td { border-bottom: none; }
+
+table code {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  background: var(--amber-faint);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+/* INLINE CODE */
+p code, li code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--amber);
+  background: var(--amber-faint);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+/* SCREENSHOT PLACEHOLDER */
+.screenshot-placeholder {
+  margin: 16px 0;
+  padding: 36px 20px;
+  background: var(--bg-2);
+  border: 1px dashed var(--border-2);
+  border-radius: 6px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.screenshot-placeholder span {
+  display: block;
+  color: var(--amber);
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  margin-bottom: 4px;
+}
+
+/* ============================================
+   DIPTYCH — Side-by-side sequence map
+   ============================================ */
+.diptych {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 22px 0 18px;
+}
+
+.diptych .col {
+  padding: 18px 18px 20px;
+  border-radius: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+}
+
+.diptych .col.a { border-top: 2px solid var(--sage); }
+.diptych .col.b { border-top: 2px solid var(--blue); }
+
+.diptych .col-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.diptych .col.a .col-kicker { color: var(--sage); }
+.diptych .col.b .col-kicker { color: var(--blue); }
+
+.diptych .col-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.diptych .col-cohort {
+  font-size: 12.5px;
+  color: var(--text-3);
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+
+.diptych .col-count {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 3px 8px;
+  border: 1px solid var(--border-2);
+  border-radius: 3px;
+  margin-bottom: 14px;
+}
+
+.diptych .col.a .col-count { color: var(--sage); border-color: var(--sage-border); }
+.diptych .col.b .col-count { color: var(--blue); border-color: var(--blue-border); }
+
+.dip-pill {
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 5px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  margin: 5px 0;
+  font-size: 12.5px;
+  transition: border-color 0.15s;
+}
+
+.dip-pill:hover { border-color: var(--border-2); }
+
+.dip-pill .pos {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  padding: 2px 0;
+  border-radius: 3px;
+}
+
+.diptych .col.a .dip-pill .pos { color: var(--sage); background: var(--sage-faint); }
+.diptych .col.b .dip-pill .pos { color: var(--blue); background: var(--blue-faint); }
+
+.dip-pill.shared .pos { color: var(--shared); background: var(--shared-faint); }
+
+.dip-pill .name { color: var(--text); font-weight: 500; line-height: 1.35; }
+.dip-pill .when {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.dip-pill.shared { border-color: var(--shared-border); background: rgba(183, 155, 201, 0.05); }
+
+.convergence {
+  margin: 18px 0 0;
+  padding: 18px 22px;
+  border: 1px solid var(--shared-border);
+  border-radius: 8px;
+  background: rgba(183, 155, 201, 0.05);
+}
+
+.convergence .conv-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--shared);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.convergence h4 {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+  letter-spacing: -0.005em;
+}
+
+.convergence .conv-body {
+  font-size: 13.5px;
+  color: var(--text-2);
+  margin-bottom: 12px;
+  line-height: 1.55;
+}
+
+.conv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.conv-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-2);
+}
+
+.conv-item .p-pos {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: var(--shared);
+  margin-bottom: 2px;
+}
+
+.conv-item .p-name {
+  font-size: 12.5px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.conv-item .p-time {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+}
+
+/* ============================================
+   EMAIL CARDS (expandable)
+   ============================================ */
+.email-card {
+  margin: 22px 0 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+
+.email-card.seq-a-card { border-left: 3px solid var(--sage); }
+.email-card.seq-b-card { border-left: 3px solid var(--blue); }
+.email-card.shared-card { border-left: 3px solid var(--shared); }
+
+.email-card .email-header {
+  padding: 18px 22px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.email-card .email-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.email-card.seq-a-card .email-id { color: var(--sage); }
+.email-card.seq-b-card .email-id { color: var(--blue); }
+.email-card.shared-card .email-id { color: var(--shared); }
+
+.email-card .email-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+
+.email-card .email-sub {
+  font-size: 12.5px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  line-height: 1.5;
+}
+
+.email-card .email-sub code { color: var(--amber); background: var(--amber-faint); padding: 1px 5px; border-radius: 3px; }
+
+.email-card .email-body {
+  padding: 22px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.field-row:last-of-type { border-bottom: none; }
+
+.field-row .field-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.field-row .field-val { color: var(--text); word-break: break-word; }
+
+.email-body h5 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 22px 0 8px;
+  font-weight: 500;
+}
+
+/* Expand toggle */
+.email-reveal { margin-top: 18px; }
+
+.email-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 9px 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--border-2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.18s;
+  color: var(--text-2);
+}
+
+.email-toggle:hover { color: var(--text); border-color: var(--border-2); background: var(--bg-4); }
+
+.email-card.seq-a-card .email-toggle:hover { border-color: var(--sage-border); color: var(--sage); }
+.email-card.seq-b-card .email-toggle:hover { border-color: var(--blue-border); color: var(--blue); }
+.email-card.shared-card .email-toggle:hover { border-color: var(--shared-border); color: var(--shared); }
+
+.email-toggle .chev {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.email-toggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+.email-rendered {
+  margin-top: 14px;
+  padding: 0;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.email-rendered[data-open="true"] {
+  max-height: 20000px;
+  padding-top: 4px;
+}
+
+.email-rendered-inner {
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+/* Rendered email body styles */
+.email-rendered-inner .meta-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 18px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.email-rendered-inner .meta-bar .mb {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.email-rendered-inner .meta-bar .mb strong {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 500;
+  min-width: 64px;
+}
+
+.email-rendered-inner .meta-bar .mb span { color: var(--text-2); }
+
+.email-rendered-inner .alt-subj {
+  padding: 12px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  margin-bottom: 16px;
+  font-size: 12.5px;
+}
+
+.email-rendered-inner .alt-subj .asrow {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.email-rendered-inner .alt-subj .asrow .lbl {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding-top: 2px;
+}
+
+.email-rendered-inner .alt-subj .asrow .val { color: var(--text-2); font-style: italic; }
+
+.preview-quote {
+  border-left: 2px solid var(--amber);
+  padding: 3px 0 3px 14px;
+  margin: 0 0 18px;
+  font-style: italic;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.email-rendered-inner .rendered-body {
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.email-rendered-inner .rendered-body p { margin: 0 0 14px; color: var(--text); }
+.email-rendered-inner .rendered-body p.italic { font-style: italic; color: var(--text-2); }
+.email-rendered-inner .rendered-body p.ps {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-2);
+  font-size: 13.5px;
+}
+.email-rendered-inner .rendered-body strong { color: var(--text); font-weight: 600; }
+.email-rendered-inner .rendered-body em { font-style: italic; color: var(--text-2); }
+.email-rendered-inner .rendered-body ul {
+  padding-left: 22px;
+  margin: 10px 0 16px;
+}
+.email-rendered-inner .rendered-body ul li {
+  margin: 5px 0;
+  color: var(--text);
+}
+.email-rendered-inner .rendered-body h6 {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 22px 0 10px;
+  letter-spacing: -0.005em;
+}
+.email-rendered-inner .rendered-body a.email-link {
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--amber);
+}
+.email-rendered-inner .rendered-body a.email-link:hover { border-bottom-style: solid; color: var(--amber-soft); }
+
+.email-rendered-inner .rendered-body .arrow-cta {
+  display: inline-block;
+  margin: 6px 0 10px;
+  padding: 10px 16px;
+  border: 1px solid var(--amber);
+  border-radius: 5px;
+  color: var(--amber);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 13.5px;
+}
+
+.email-rendered-inner .rendered-body .arrow-cta:hover { background: var(--amber-faint); }
+
+.email-rendered-inner .rendered-body .sign {
+  color: var(--text-2);
+  font-style: italic;
+  margin-top: 16px;
+}
+
+/* Placeholder chip */
+.ph {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--amber);
+  background: var(--amber-faint);
+  padding: 1px 7px;
+  border-radius: 3px;
+  border: 1px solid rgba(212, 168, 75, 0.22);
+}
+
+/* Expand/collapse bar */
+.expand-bar {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 6px;
+  flex-wrap: wrap;
+}
+
+.expand-bar button {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 8px 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.expand-bar button:hover {
+  color: var(--text);
+  border-color: var(--border-2);
+  background: var(--bg-4);
+}
+
+/* Shared-copy badge */
+.shared-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--shared-faint);
+  color: var(--shared);
+  border: 1px solid var(--shared-border);
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 500;
+}
+
+/* LISTS */
+ul.clean { list-style: none; padding: 0; margin: 14px 0; }
+ul.clean li {
+  padding: 4px 0 4px 22px;
+  position: relative;
+  color: var(--text-2);
+}
+ul.clean li::before {
+  content: "\2014";
+  position: absolute;
+  left: 0;
+  color: var(--amber);
+  font-family: var(--mono);
+}
+
+/* MOBILE */
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; }
+  aside.toc {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  main { padding: 32px 22px 80px; }
+  .top-matter h1 { font-size: 30px; }
+  section h2 { font-size: 24px; }
+  .field-row { grid-template-columns: 1fr; gap: 2px; }
+  .diptych { grid-template-columns: 1fr; }
+  .conv-grid { grid-template-columns: 1fr; }
+  .dip-pill { grid-template-columns: 42px 1fr; }
+  .dip-pill .when { grid-column: 2; font-size: 10px; }
+  .email-rendered-inner .meta-bar { grid-template-columns: 1fr; }
+}
+
+/* Footnote / end */
+.end-note {
+  margin-top: 80px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="toc">
+  <div class="brand">VIP Upgrade-Later</div>
+  <div class="brand-sub">GHL Build Guide &middot; v2</div>
+
+  <h4>Navigation</h4>
+  <ul>
+    <li><a href="#s0">0. Overview</a></li>
+    <li><a href="#s1">1. What You're Building</a></li>
+    <li><a href="#s2">2. Pre-requisites</a></li>
+    <li><a href="#s3">3. Master Routing Workflow</a></li>
+    <li><a href="#s4" class="seq-a">4. Sequence A &mdash; Same-Week</a>
+      <ul>
+        <li><a href="#s4-2" class="sub seq-a">4.2 Email A1</a></li>
+        <li><a href="#s4-3" class="sub seq-a">4.3 Email A2</a></li>
+        <li><a href="#s4-4" class="sub seq-a">4.4 Email A3</a></li>
+        <li><a href="#s4-5" class="sub seq-a">4.5 Email A4</a></li>
+        <li><a href="#s4-6" class="sub seq-a">4.6 Email A5</a></li>
+      </ul>
+    </li>
+    <li><a href="#s5" class="seq-b">5. Sequence B &mdash; Next-Week</a>
+      <ul>
+        <li><a href="#s5-2" class="sub seq-b">5.2 Email B1</a></li>
+        <li><a href="#s5-3" class="sub seq-b">5.3 Email B2</a></li>
+        <li><a href="#s5-4" class="sub seq-b">5.4 Email B3</a></li>
+        <li><a href="#s5-5" class="sub seq-b">5.5 Email B4</a></li>
+        <li><a href="#s5-6" class="sub seq-b">5.6 Email B5</a></li>
+        <li><a href="#s5-7" class="sub seq-b">5.7 Email B6</a></li>
+      </ul>
+    </li>
+    <li><a href="#s6">6. Exit Condition</a></li>
+    <li><a href="#s7">7. Testing Plan</a></li>
+    <li><a href="#s8">8. Handoff Checklist</a></li>
+    <li><a href="#s9">9. Open Questions</a></li>
+  </ul>
+
+  <div class="progress-box">
+    <div class="pct" id="progress-pct">0%</div>
+    <div class="label">Build Progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- SECTION 0 -->
+<section id="s0" class="top-matter">
+  <div class="eyebrow">Matt &middot; Build Guide &middot; v2</div>
+  <h1>VIP Upgrade-Later Email Sequences</h1>
+  <div class="subhead">Three GoHighLevel workflows &mdash; one master router, two downstream email sequences &mdash; that handle everyone who upgrades to $54 VIP at least one day after attending the $27 workshop.</div>
+
+  <div class="meta-grid">
+    <div class="cell"><div class="k">Client</div><div class="v">Clients on Demand</div></div>
+    <div class="cell"><div class="k">Date</div><div class="v">2026-04-23</div></div>
+    <div class="cell"><div class="k">Version</div><div class="v">v2 &middot; dual sequence</div></div>
+    <div class="cell"><div class="k">Status</div><div class="v"><span class="status-pill">Ready for Build</span></div></div>
+    <div class="cell"><div class="k">Platform</div><div class="v">GoHighLevel</div></div>
+    <div class="cell"><div class="k">Owner</div><div class="v">Kas</div></div>
+    <div class="cell"><div class="k">Builder</div><div class="v">Matt</div></div>
+    <div class="cell"><div class="k">Workflows</div><div class="v">3 total</div></div>
+  </div>
+
+  <div class="link-row">
+    <a href="../../../docs/cod/2026-04-23-vip-upgrade-email-sequence.md">&#9656; Spec v2</a>
+    <a href="./">&#9656; Email Copy Folder</a>
+    <a href="./README.md">&#9656; README</a>
+  </div>
+
+  <p style="margin-top: 22px;">You are building three GoHighLevel workflows. A <strong>Master Routing Workflow</strong> fires on every $54 VIP upgrade purchase and decides which downstream sequence the contact enters. <strong>Sequence A</strong> is a tight 5-email flow for buyers who upgrade before Thursday 11:59pm of the current week. <strong>Sequence B</strong> is a 6-email flow with a weekend value drop for buyers who upgrade after Thursday, when Friday's Q&amp;A is a full week away.</p>
+
+  <h3 style="margin-top: 32px; font-size: 18px;">Architecture at a glance</h3>
+  <div class="arch">
+<pre>
+                  <span class="node-master">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>
+                  <span class="node-master">&#9474;   MASTER ROUTING WORKFLOW                 &#9474;</span>
+                  <span class="node-master">&#9474;   Trigger: $54 VIP upgrade purchase       &#9474;</span>
+                  <span class="node-master">&#9474;   (standalone vip-upgrade-rebuild page)   &#9474;</span>
+                  <span class="node-master">&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9516;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</span>
+                                       &#9474;
+                 days_since_workshop_attendance ?
+                                       &#9474;
+            <span class="node-exit">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9524;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>
+            &#9474;                                             &#9474;
+     <span class="node-exit">days = 0 (same day)</span>                        days &ge; 1
+            &#9474;                                             &#9474;
+  <span class="node-exit">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9660;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>                  purchase_timestamp ?
+  <span class="node-exit">&#9474; EXIT &rarr; existing    &#9474;</span>                          &#9474;
+  <span class="node-exit">&#9474; bundled/same-day   &#9474;</span>           <span class="node-a">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;</span>&#9524;&#9472;&#9472;<span class="node-b">&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>
+  <span class="node-exit">&#9474; flow (out of scope)&#9474;</span>           &#9474;                                &#9474;
+  <span class="node-exit">&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</span>       &le; Thu 23:59                  &ge; Fri 00:00
+                                       &#9474;                                &#9474;
+                       <span class="node-a">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9660;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>    <span class="node-b">&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9660;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;</span>
+                       <span class="node-a">&#9474; SEQUENCE A WORKFLOW    &#9474;</span>    <span class="node-b">&#9474; SEQUENCE B WORKFLOW   &#9474;</span>
+                       <span class="node-a">&#9474; Same-Week VIP          &#9474;</span>    <span class="node-b">&#9474; Next-Week VIP         &#9474;</span>
+                       <span class="node-a">&#9474; 5 emails, tight cadence&#9474;</span>    <span class="node-b">&#9474; 6 emails, longer run  &#9474;</span>
+                       <span class="node-a">&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</span>    <span class="node-b">&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</span>
+
+  GLOBAL EXIT: tag `vip-enrollment-call-booked` &rarr; remove from whichever
+               sequence contact is in, halt all further emails.
+</pre>
+  </div>
+</section>
+
+<!-- SECTION 1 -->
+<section id="s1">
+  <div class="section-no">Section 1</div>
+  <h2>What You're Building</h2>
+
+  <p>Before the build steps: here's the map. Two sequences, different cohorts, converging on the same three conversion emails.</p>
+
+  <div class="diptych">
+    <div class="col a">
+      <div class="col-kicker">Sequence A &middot; Same-Week</div>
+      <div class="col-title">Same-Week VIP</div>
+      <div class="col-cohort">Upgraded &ge; 1 day after workshop, before Thursday 11:59pm. Friday Q&amp;A is 0&ndash;4 days away.</div>
+      <div class="col-count">5 emails &middot; tight runway</div>
+
+      <div class="dip-pill"><span class="pos">A1</span><span class="name">Upgrade Confirmed (same-week)</span><span class="when">Immediate</span></div>
+      <div class="dip-pill"><span class="pos">A2</span><span class="name">Friday Session Details</span><span class="when">Fri 9am</span></div>
+      <div class="dip-pill shared"><span class="pos">A3</span><span class="name">Book Enrollment Call <span class="shared-badge">Shared = B4</span></span><span class="when">Fri 6pm</span></div>
+      <div class="dip-pill shared"><span class="pos">A4</span><span class="name">Still on the Fence <span class="shared-badge">Shared = B5</span></span><span class="when">Sat 9am</span></div>
+      <div class="dip-pill shared"><span class="pos">A5</span><span class="name">Transition / Handoff <span class="shared-badge">Shared = B6</span></span><span class="when">Sun 8pm</span></div>
+    </div>
+
+    <div class="col b">
+      <div class="col-kicker">Sequence B &middot; Next-Week</div>
+      <div class="col-title">Next-Week VIP</div>
+      <div class="col-cohort">Upgraded &ge; 1 day after workshop, after Thursday 11:59pm. Friday Q&amp;A is 5&ndash;7 days away.</div>
+      <div class="col-count">6 emails &middot; week-long runway</div>
+
+      <div class="dip-pill"><span class="pos">B1</span><span class="name">Upgrade Confirmed (next-week)</span><span class="when">Immediate</span></div>
+      <div class="dip-pill"><span class="pos">B2</span><span class="name">Weekend Value Drop <em style="color:var(--text-3);font-style:normal;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-left:4px;">B-only</em></span><span class="when">Sat/Sun 10am</span></div>
+      <div class="dip-pill"><span class="pos">B3</span><span class="name">Prep + Session Details (merged)</span><span class="when">Wed 10am</span></div>
+      <div class="dip-pill shared"><span class="pos">B4</span><span class="name">Book Enrollment Call <span class="shared-badge">Shared = A3</span></span><span class="when">Fri 6pm</span></div>
+      <div class="dip-pill shared"><span class="pos">B5</span><span class="name">Still on the Fence <span class="shared-badge">Shared = A4</span></span><span class="when">Sat 9am</span></div>
+      <div class="dip-pill shared"><span class="pos">B6</span><span class="name">Transition / Handoff <span class="shared-badge">Shared = A5</span></span><span class="when">Sun 8pm</span></div>
+    </div>
+  </div>
+
+  <div class="convergence">
+    <div class="conv-label">Shared Convergence &middot; Both sequences land here</div>
+    <h4>Friday 6pm, Saturday 9am, Sunday 8pm &mdash; identical copy, same wall-clock timing.</h4>
+    <div class="conv-body">Sequences diverge on the lead-up and converge on the conversion phase. A3/B4, A4/B5, A5/B6 use identical email copy and fire at the same times regardless of which sequence the contact is enrolled in. One copy source, two workflow references.</div>
+    <div class="conv-grid">
+      <div class="conv-item"><div class="p-pos">A3 / B4</div><div class="p-name">Book Enrollment Call</div><div class="p-time">Friday 6pm &middot; post-Q&amp;A</div></div>
+      <div class="conv-item"><div class="p-pos">A4 / B5</div><div class="p-name">Still on the Fence</div><div class="p-time">Saturday 9am</div></div>
+      <div class="conv-item"><div class="p-pos">A5 / B6</div><div class="p-name">Transition / Nurture Handoff</div><div class="p-time">Sunday 8pm</div></div>
+    </div>
+  </div>
+
+  <h3>The 1-day filter, and why it exists</h3>
+  <p>Someone who upgrades <em>while the workshop is still fresh</em> is emotionally the same as a bundled buyer &mdash; they're riding the momentum of the live event. Someone who upgrades a day later has done real consideration work: they watched, went away, thought about it, came back and paid more. That emotional state deserves different copy. So before anything else, the Master Routing Workflow checks <code>days_since_workshop_attendance</code>. If that value is <code>0</code>, the contact is routed out of this system entirely (they belong to the existing bundled/same-day flow &mdash; check with Kas on the destination). If the value is <code>&ge; 1</code>, they continue into one of the two upgrade-later sequences.</p>
+
+  <h3>The Thursday 11:59pm cutoff, and why it splits into two sequences</h3>
+  <p>The VIP Friday Q&amp;A is the anchor event of both sequences. If a contact upgrades Monday through Thursday, Friday is 0&ndash;4 days away &mdash; tight runway, no time for a weekend nurture. They get <strong>Sequence A</strong>: five emails, minimal filler, straight to Friday details and conversion.</p>
+  <p>If a contact upgrades Friday through Sunday (or any time after Thursday 11:59pm client-TZ), Friday is 5&ndash;7 days away. That's a full week of potential silence before the anchor event. They get <strong>Sequence B</strong>: six emails including a weekend value drop and a merged mid-week prep/details email, designed to keep the relationship warm across the longer runway.</p>
+
+  <div class="callout seq-a">
+    <div class="tag">Sequence A Voice</div>
+    Tight, action-oriented. Friday is around the corner. They already considered and committed &mdash; no extended nurture needed.
+  </div>
+
+  <div class="callout seq-b">
+    <div class="tag">Sequence B Voice</div>
+    Patient, coach-like. The week-long wait is framed as intentional &mdash; not a "sorry you have to wait" apology. Honors the considered decision, sets up the runway as useful.
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section id="s2">
+  <div class="section-no">Section 2</div>
+  <h2>Pre-requisites</h2>
+
+  <h3>Sub-account</h3>
+  <ul class="clean">
+    <li>COD's GHL workspace. You already have access &mdash; this is the same account you've been building in.</li>
+  </ul>
+
+  <h3>Stripe product to verify</h3>
+  <ul class="clean">
+    <li>The $54 VIP upgrade product sold through the <strong>standalone upgrade page</strong> <code>vip-upgrade-rebuild.html</code>. This is NOT the $27 workshop, and it is NOT the bundled $54 purchased at workshop checkout.</li>
+    <li>Confirm with Kas that this Stripe product is distinct from the bundled $54 &mdash; if they share a Stripe product ID, the master trigger will fire for both cohorts and the routing gets polluted.</li>
+  </ul>
+
+  <h3>Custom fields &mdash; create or verify</h3>
+  <table>
+    <thead><tr><th>Field Name</th><th>Type</th><th>Values / Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>vip_path</code></td><td>Text</td><td>Enum values: <code>upgrade_later_sameweek</code>, <code>upgrade_later_nextweek</code>, <code>bundled</code>, <code>same_day</code></td></tr>
+      <tr><td><code>workshop_attendance_date</code></td><td>Date</td><td>Date contact attended the $27 workshop. Source TBD &mdash; see Section 9 open questions.</td></tr>
+      <tr><td><code>friday_qa_date_assigned</code></td><td>Date</td><td>Calculated in Master Routing. This Friday's date for Sequence A, next Friday's date for Sequence B.</td></tr>
+      <tr><td><code>purchase_timestamp</code></td><td>Datetime</td><td>Captured at moment of $54 upgrade purchase.</td></tr>
+      <tr><td><code>days_since_workshop_attendance</code></td><td>Number</td><td>Calculated: <code>purchase_timestamp - workshop_attendance_date</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tags to create</h3>
+  <ul class="clean">
+    <li><code>vip-path-upgrade-later-sameweek</code></li>
+    <li><code>vip-path-upgrade-later-nextweek</code></li>
+    <li><code>vip-enrollment-call-booked</code> &mdash; added when contact books an enrollment call. Global exit trigger.</li>
+    <li><code>vip-didnt-book-nurture-pending</code> &mdash; added after A5 / B6 sends. The future nurture workflow listens for this tag.</li>
+  </ul>
+
+  <h3>Merge fields used across emails</h3>
+  <p>These placeholders appear in one or more of the email templates. Resolve sources with Kas (see Section 9 for blockers).</p>
+  <table>
+    <thead><tr><th>Merge Field</th><th>Used in</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><code>{{workshop_replay_url}}</code></td><td>A1, A2, B1, B2, B3</td><td>Unique per buyer or universal &mdash; open question</td></tr>
+      <tr><td><code>{{friday_qa_date}}</code></td><td>A1, A2, B1, B3</td><td><code>custom.friday_qa_date_assigned</code></td></tr>
+      <tr><td><code>{{friday_qa_time_et}}</code></td><td>A1, A2, B1, B3</td><td>Fixed time &mdash; open question</td></tr>
+      <tr><td><code>{{zoom_link}}</code></td><td>A2, B3</td><td>Zoom URL &mdash; open question</td></tr>
+      <tr><td><code>{{calendar_ics_url}}</code></td><td>A1, B1</td><td>.ics link &mdash; open question</td></tr>
+      <tr><td><code>{{enrollment_call_booking_url}}</code></td><td>A3/B4, A4/B5, A5/B6</td><td>Booking tool URL &mdash; open question</td></tr>
+      <tr><td><code>{{trustpilot_url}}</code></td><td>A1, B1, B2, A4/B5</td><td>COD's public Trustpilot reviews page &mdash; open question</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pre-flight checklist</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 1</div>Confirm Stripe product ID for $54 upgrade-via-standalone-page is distinct from any bundled product</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 2</div>Create all 5 custom fields listed above (or verify they exist and match type)</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 3</div>Create all 4 tags listed above</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 4</div>Confirm with Kas where <code>workshop_attendance_date</code> is populated from (Wistia replay open? Zoom attendance? GHL form?)</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 5</div>Confirm the destination workflow for the same-day exit route (contacts with <code>days_since_workshop_attendance = 0</code>)</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Prep &middot; Step 6</div>Get <code>{{trustpilot_url}}</code> (COD's public Trustpilot reviews page) from Kas &mdash; used in 4 emails</div></div>
+</section>
+
+<!-- SECTION 3 -->
+<section id="s3">
+  <div class="section-no">Section 3</div>
+  <h2>Master Routing Workflow</h2>
+
+  <p>Create a new GHL workflow named <strong>"VIP Upgrade-Later &mdash; Master Routing"</strong>. This is the entry point for every $54 VIP upgrade purchase. It does two things: filter out same-day upgraders and branch the rest by Thursday cutoff.</p>
+
+  <h3>Trigger</h3>
+  <div class="code-wrap">
+    <div class="code-header"><span>Trigger Config</span><button class="copy-btn" data-copy="trigger-master">Copy</button></div>
+    <pre id="trigger-master">Trigger type: Stripe Subscription / Product Purchase
+Product:      $54 VIP Upgrade (standalone upgrade page)
+Stripe ID:    [CONFIRM WITH KAS &mdash; must be the standalone product, NOT bundled]
+Source URL:   /vip-upgrade-rebuild OR any URL matching the standalone upgrade page</pre>
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Open Question</div>
+    The standalone $54 upgrade product's Stripe ID must be isolated from any bundled $54 product at workshop checkout. If they share an ID, add a secondary filter on <code>referring_page_url</code> or <code>utm_source</code> to distinguish them. Confirm with Kas before building.
+  </div>
+
+  <h3>Step 1 &mdash; Capture purchase timestamp</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 1</div>Add an "Update Contact Field" action as the first node. Set <code>purchase_timestamp = {{current_datetime}}</code> (GHL's built-in "now" merge field).</div></div>
+
+  <h3>Step 2 &mdash; Calculate days since workshop attendance</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 2</div>Add a "Math Operation" or "Update Contact Field" action that computes <code>days_since_workshop_attendance = DATEDIFF(purchase_timestamp, workshop_attendance_date, 'days')</code>.</div></div>
+
+  <div class="callout open-q">
+    <div class="tag">Open Question &mdash; Blocking</div>
+    <strong>Where is <code>workshop_attendance_date</code> populated in the current GHL setup?</strong> Options: a) a form field on the workshop registration; b) a Wistia replay-open webhook; c) a Zoom attendance webhook; d) it doesn't exist yet and we need to build the population logic first. Confirm with Kas before building this step &mdash; if no source exists, this entire filter fails open and every $54 upgrade routes into Sequence A or B regardless of attendance.
+  </div>
+
+  <h3>Step 3 &mdash; If/Else Node A: same-day exit</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 3a</div>Add an If/Else node with condition: <code>days_since_workshop_attendance = 0</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 3b</div><strong>TRUE branch:</strong> add action "Add Contact to Workflow" pointing at the existing bundled/same-day flow (get workflow name/ID from Kas &mdash; see Section 9), then "End Workflow" for this contact.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 3c</div><strong>FALSE branch:</strong> continue to Step 4.</div></div>
+
+  <h3>Step 4 &mdash; If/Else Node B: Thursday cutoff branching</h3>
+  <p>This is the core routing logic. You're comparing the contact's <code>purchase_timestamp</code> against Thursday 23:59 of the week containing that timestamp.</p>
+
+  <h4>The cutoff formula (GHL math)</h4>
+  <p>GHL doesn't have a single-line "is this before this week's Thursday 23:59" function, so build it as two helper fields then one comparison:</p>
+
+  <div class="code-wrap">
+    <div class="code-header"><span>Cutoff Math &mdash; Pseudo-expression</span><button class="copy-btn" data-copy="cutoff-math">Copy</button></div>
+    <pre id="cutoff-math">// Step 4a &mdash; compute this_weeks_thursday_2359 (helper field)
+// In GHL Custom Values or Math Op node:
+
+this_weeks_thursday_2359 =
+    DATE_TRUNC('week', purchase_timestamp, 'Monday')  // Monday 00:00 of the same week
+    + INTERVAL '3 days'                               // + 3 days -> Thursday 00:00
+    + INTERVAL '23 hours 59 minutes'                  // + 23:59 -> Thursday 23:59
+
+// Step 4b &mdash; compare
+
+IF purchase_timestamp &lt;= this_weeks_thursday_2359
+    THEN -> Sequence A branch
+    ELSE -> Sequence B branch
+
+// TIMEZONE NOTE:
+// All dates above must evaluate in COD's client timezone (see Section 9 open question
+// &mdash; confirm whether it's US/Eastern, US/Central, etc.). If GHL evaluates in UTC by
+// default, you'll need to convert explicitly.</pre>
+  </div>
+
+  <h4>If GHL doesn't support DATE_TRUNC directly</h4>
+  <div class="code-wrap">
+    <div class="code-header"><span>Fallback &mdash; Day-of-week check</span><button class="copy-btn" data-copy="cutoff-fallback">Copy</button></div>
+    <pre id="cutoff-fallback">// Alternative using day-of-week (1=Mon, 7=Sun):
+
+dow = DAYOFWEEK(purchase_timestamp)   // 1-7
+hr  = HOUR(purchase_timestamp)        // 0-23
+min = MINUTE(purchase_timestamp)      // 0-59
+
+IF dow &lt; 4
+   OR (dow = 4 AND hr &lt; 23)
+   OR (dow = 4 AND hr = 23 AND min &lt;= 59)
+   THEN -> Sequence A   // Mon-Wed any time, or Thu up to 23:59
+   ELSE -> Sequence B   // Fri/Sat/Sun, or Thu after 23:59 (which doesn't exist &mdash; but guard anyway)</pre>
+  </div>
+
+  <h3>Step 4 &mdash; action list</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4a (TRUE &mdash; Sequence A)</div>Set <code>vip_path = upgrade_later_sameweek</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4b</div>Add tag <code>vip-path-upgrade-later-sameweek</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4c</div>Calculate <code>friday_qa_date_assigned</code> = this week's Friday. Formula: <code>DATE_TRUNC('week', purchase_timestamp, 'Monday') + INTERVAL '4 days'</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4d</div>Action "Add Contact to Workflow" -> select <strong>Sequence A Workflow</strong></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4e (FALSE &mdash; Sequence B)</div>Set <code>vip_path = upgrade_later_nextweek</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4f</div>Add tag <code>vip-path-upgrade-later-nextweek</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4g</div>Calculate <code>friday_qa_date_assigned</code> = next week's Friday. Formula: <code>DATE_TRUNC('week', purchase_timestamp, 'Monday') + INTERVAL '11 days'</code></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Master &middot; Step 4h</div>Action "Add Contact to Workflow" -> select <strong>Sequence B Workflow</strong></div></div>
+
+  <div class="screenshot-placeholder"><span>[SCREENSHOT]</span>Master Routing Workflow canvas &mdash; full end-to-end view showing trigger, Step 1-4 nodes, and both downstream enroll actions</div>
+</section>
+
+<!-- SECTION 4 &mdash; SEQUENCE A -->
+<section id="s4">
+  <div class="section-no">Section 4</div>
+  <h2 style="color: var(--sage);">Sequence A &mdash; Same-Week VIP Workflow</h2>
+
+  <div class="callout seq-a">
+    <div class="tag">Sequence A &middot; Context</div>
+    5 emails. Cohort: upgraded at least 1 day after workshop, before Thursday 23:59 client-TZ of current week. Friday Q&amp;A is 0&ndash;4 days away. Voice is tight, action-oriented. No filler.
+  </div>
+
+  <h3 id="s4-1">4.1 Workflow setup</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq A &middot; Setup 1</div>Create new workflow named <strong>"VIP Upgrade-Later &mdash; Same-Week (Sequence A)"</strong></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq A &middot; Setup 2</div>Trigger: <em>manual only</em> &mdash; this workflow is entered exclusively via the Master Routing Workflow's "Add Contact to Workflow" action. Do not add any independent triggers.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq A &middot; Setup 3</div>Set workflow-level filter: re-entry disabled (contact cannot enter twice in the same week)</div></div>
+
+  <div class="expand-bar">
+    <button type="button" data-expand-all="open" data-section="seq-a">Expand all Sequence A copy</button>
+    <button type="button" data-expand-all="close" data-section="seq-a">Collapse all</button>
+  </div>
+
+  <!-- EMAIL A1 -->
+  <div id="s4-2" class="email-card seq-a-card" data-section="seq-a">
+    <div class="email-header">
+      <div class="email-id">Email A1 &middot; Same-Week</div>
+      <div class="email-title">Upgrade Confirmed (Same-Week)</div>
+      <div class="email-sub">Send: immediate (0 min after enrollment) &middot; From: Russ Ruffino &lt;russ@clientsondemand.com&gt;</div>
+    </div>
+    <div class="email-body">
+
+      <h3 id="s4-2-build" style="margin-top: 0;">4.2 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A1 &middot; Step 1</div>Add "Send Email" action as first node after workflow entry</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A1 &middot; Step 2</div>Delay: 0 minutes (immediate)</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A1 &middot; Step 3</div>Paste subject, preview, and body from the expandable panel below. Map merge fields.</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A1 &middot; Step 4</div>Mobile preview &mdash; open on iPhone and Android, confirm CTA button clickable, paragraphs not walls</div></div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="a1-subject">Copy</button></div>
+        <pre id="a1-subject">You slept on it and came back. Here's what happens Friday.</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="a1-preview">Copy</button></div>
+        <pre id="a1-preview">Your workshop replay + VIP Friday Q&amp;A on {{friday_qa_date}}.</pre>
+      </div>
+
+      <h5>Body &mdash; paste into GHL email editor</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="a1-body">Copy</button></div>
+        <pre id="a1-body">You watched the workshop, went away, thought about it, came back. That tells me something.
+
+You're now joining the 5,000+ coaches and professionals we've worked with. If you want a third-party read on what that's actually like, our [Trustpilot reviews]({{trustpilot_url}}) are public.
+
+Here's what happens next:
+
+**Your workshop replay -&gt;** [Watch the replay]({{workshop_replay_url}})
+Unlimited access. Re-watch as many times as you want.
+
+**Your VIP Friday Q&amp;A with Russ -&gt; {{friday_qa_date}} at {{friday_qa_time_et}}**
+A live group Q&amp;A session. Russ answers questions live, in front of the whole VIP room. Plan for 60-90 minutes.
+
+This is where the workshop turns into action for your specific situation. Whatever's holding you back &mdash; niche, pricing, positioning, what to say when a prospect hesitates &mdash; bring it to Friday.
+
+I'll send the Zoom link Friday morning.
+
+**-&gt; [Add Friday to your calendar]({{calendar_ics_url}})**
+
+Talk soon,
+Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-a1">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-a1" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>You slept on it and came back. Here's what happens Friday.</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">You're in. Friday Q&amp;A details + your replay</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">Your VIP upgrade is locked in &mdash; Friday's the payoff</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: Your workshop replay + VIP Friday Q&amp;A on <span class="ph">{{friday_qa_date}}</span>.</blockquote>
+            <div class="rendered-body">
+              <p>You watched the workshop, went away, thought about it, came back. That tells me something.</p>
+              <p>You're now joining the 5,000+ coaches and professionals we've worked with. If you want a third-party read on what that's actually like, our <a class="email-link" href="#">Trustpilot reviews</a> <span class="ph">{{trustpilot_url}}</span> are public.</p>
+              <p>Here's what happens next:</p>
+              <p><strong>Your workshop replay &rarr;</strong> <a class="email-link" href="#">Watch the replay</a> <span class="ph">{{workshop_replay_url}}</span><br>Unlimited access. Re-watch as many times as you want.</p>
+              <p><strong>Your VIP Friday Q&amp;A with Russ &rarr; <span class="ph">{{friday_qa_date}}</span> at <span class="ph">{{friday_qa_time_et}}</span></strong><br>A live group Q&amp;A session. Russ answers questions live, in front of the whole VIP room. Plan for 60&ndash;90 minutes.</p>
+              <p>This is where the workshop turns into action for your specific situation. Whatever's holding you back &mdash; niche, pricing, positioning, what to say when a prospect hesitates &mdash; bring it to Friday.</p>
+              <p>I'll send the Zoom link Friday morning.</p>
+              <a class="arrow-cta" href="#">&rarr; Add Friday to your calendar <span class="ph">{{calendar_ics_url}}</span></a>
+              <p class="sign">Talk soon,<br>Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge field mappings</h5>
+      <div class="field-row"><div class="field-label">workshop_replay_url</div><div class="field-val">[OPEN QUESTION: source URL &mdash; unique per buyer or universal? Confirm with Kas]</div></div>
+      <div class="field-row"><div class="field-label">friday_qa_date</div><div class="field-val">Map to <code>custom.friday_qa_date_assigned</code> with format "Friday, April 26"</div></div>
+      <div class="field-row"><div class="field-label">friday_qa_time_et</div><div class="field-val">[OPEN QUESTION: fixed time &mdash; e.g., "2pm ET"]</div></div>
+      <div class="field-row"><div class="field-label">calendar_ics_url</div><div class="field-val">[OPEN QUESTION: GHL-generated .ics URL or hard-coded calendar link]</div></div>
+      <div class="field-row"><div class="field-label">trustpilot_url</div><div class="field-val">[OPEN QUESTION: COD's public Trustpilot reviews page URL]</div></div>
+
+      <div class="screenshot-placeholder"><span>[SCREENSHOT]</span>Email A1 template in GHL &mdash; subject line, preview, rendered mobile preview side-by-side</div>
+
+      <div class="callout critical">
+        <div class="tag">Critical</div>
+        A1 copy is <strong>different</strong> from B1. Do not copy the A1 template into Sequence B. The opening framing ("You slept on it and came back") addresses buyers where Friday is days away &mdash; B1 addresses buyers with a full-week runway.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL A2 -->
+  <div id="s4-3" class="email-card seq-a-card" data-section="seq-a">
+    <div class="email-header">
+      <div class="email-id">Email A2 &middot; Same-Week</div>
+      <div class="email-title">Friday Session Details</div>
+      <div class="email-sub">Send: Friday 9am [TIMEZONE] &middot; From: Russ Ruffino &lt;russ@clientsondemand.com&gt;</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">4.3 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A2 &middot; Step 1</div>Add "Wait until day/time" node: Friday 9:00am [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A2 &middot; Step 2</div>Add "Send Email" action</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A2 &middot; Step 3</div>Paste subject, preview, and body. Map new merge field <code>zoom_link</code>.</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A2 &middot; Step 4</div>Make the Zoom CTA the dominant visual element &mdash; full-width button on mobile, above the fold</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A2 &middot; Step 5</div>Mobile preview</div></div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="a2-subject">Copy</button></div>
+        <pre id="a2-subject">Today at {{friday_qa_time_et}}: your VIP Q&amp;A with Russ</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="a2-preview">Copy</button></div>
+        <pre id="a2-preview">Zoom link + what to expect. Group Q&amp;A starts at {{friday_qa_time_et}}.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="a2-body">Copy</button></div>
+        <pre id="a2-body">VIP Q&amp;A is today.
+
+**{{friday_qa_date}} &mdash; {{friday_qa_time_et}}**
+
+**-&gt; [Join the Zoom]({{zoom_link}})**
+
+Plan on 60-90 minutes. Live group Q&amp;A &mdash; everyone on the call sees each other's questions.
+
+Come with 1-2 specific questions about YOUR situation. The more specific, the better answer you'll get.
+
+**What this is:**
+A live group Q&amp;A where Russ answers your questions one at a time.
+
+**What this is NOT:**
+- A 1-on-1 with Russ
+- A rehash of the workshop material
+- A generic Q&amp;A
+
+This is where you take what you learned in the workshop and get a direct answer to the question that's actually holding you back.
+
+Last chance to re-watch the replay before we go live:
+-&gt; [{{workshop_replay_url}}]({{workshop_replay_url}})
+
+See you in a few hours.
+
+&mdash; Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-a2">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-a2" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>Today at <span class="ph">{{friday_qa_time_et}}</span>: your VIP Q&amp;A with Russ</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">Your Zoom link for today's VIP Q&amp;A</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">Tonight: VIP Q&amp;A &mdash; here's the link</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: Zoom link + what to expect. Group Q&amp;A starts at <span class="ph">{{friday_qa_time_et}}</span>.</blockquote>
+            <div class="rendered-body">
+              <p>VIP Q&amp;A is today.</p>
+              <p><strong><span class="ph">{{friday_qa_date}}</span> &mdash; <span class="ph">{{friday_qa_time_et}}</span></strong></p>
+              <a class="arrow-cta" href="#">&rarr; Join the Zoom <span class="ph">{{zoom_link}}</span></a>
+              <p>Plan on 60&ndash;90 minutes. Live group Q&amp;A &mdash; everyone on the call sees each other's questions.</p>
+              <p>Come with 1&ndash;2 specific questions about YOUR situation. The more specific, the better answer you'll get.</p>
+              <p><strong>What this is:</strong><br>A live group Q&amp;A where Russ answers your questions one at a time.</p>
+              <p><strong>What this is NOT:</strong></p>
+              <ul>
+                <li>A 1-on-1 with Russ</li>
+                <li>A rehash of the workshop material</li>
+                <li>A generic Q&amp;A</li>
+              </ul>
+              <p>This is where you take what you learned in the workshop and get a direct answer to the question that's actually holding you back.</p>
+              <p>Last chance to re-watch the replay before we go live:<br>&rarr; <a class="email-link" href="#"><span class="ph">{{workshop_replay_url}}</span></a></p>
+              <p>See you in a few hours.</p>
+              <p class="sign">&mdash; Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">friday_qa_date</div><div class="field-val"><code>custom.friday_qa_date_assigned</code></div></div>
+      <div class="field-row"><div class="field-label">friday_qa_time_et</div><div class="field-val">[OPEN QUESTION: fixed time]</div></div>
+      <div class="field-row"><div class="field-label">zoom_link</div><div class="field-val">[OPEN QUESTION: Zoom URL source &mdash; static or dynamic?]</div></div>
+      <div class="field-row"><div class="field-label">workshop_replay_url</div><div class="field-val">Same as A1</div></div>
+
+      <div class="callout note">
+        <div class="tag">Copy Rule &mdash; Do Not Remove</div>
+        The "What this is NOT" section is required per COD memory rules. Do not soften, remove, or collapse it during design polish. "Last chance to re-watch" is allowed because it's factually true (Q&amp;A starts in hours) &mdash; this is not fake scarcity.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL A3 -->
+  <div id="s4-4" class="email-card shared-card" data-section="seq-a">
+    <div class="email-header">
+      <div class="email-id">Email A3 &middot; Same-Week <span class="shared-badge">Identical body = B4</span></div>
+      <div class="email-title">Book Enrollment Call</div>
+      <div class="email-sub">Send: Friday 6pm [TIMEZONE] &middot; From: Russ Ruffino &lt;russ@clientsondemand.com&gt;</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">4.4 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A3 &middot; Step 1</div>Add "Wait until day/time" node: Friday 6:00pm [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A3 &middot; Step 2</div>Add "Send Email" action</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A3 &middot; Step 3</div>Paste subject, preview, body. Map new merge field <code>enrollment_call_booking_url</code>.</div></div>
+
+      <div class="callout seq-b">
+        <div class="tag">Shared with Sequence B (B4)</div>
+        This email is copy-identical to B4. Same subject, same body, same CTA URL. If GHL supports template reuse across workflows, build it once and reference in both. If not, paste it in Sequence A and Sequence B separately. Either approach is fine &mdash; just keep the two copies in sync if you ever edit.
+      </div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="a3-subject">Copy</button></div>
+        <pre id="a3-subject">If today resonated, here's your next step</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="a3-preview">Copy</button></div>
+        <pre id="a3-preview">1:1 strategy call with our enrollment team. No pitch deck, no pressure.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="a3-body">Copy</button></div>
+        <pre id="a3-body">If today's Q&amp;A made it obvious that the gap between where you are and where you want to be isn't information &mdash; it's execution with someone who's been there &mdash; here's the next step.
+
+**Book a 1:1 strategy call with our enrollment team.**
+
+**What it is:**
+- About 45 minutes
+- We dig into YOUR specific situation (niche, current revenue, where you're stuck)
+- We figure out together whether working with us 1:1 is the right move for you
+- No pitch deck, no pressure
+
+**What it is NOT:**
+- A hard sell
+- An obligation because you went VIP
+- A group session
+
+If at the end of the call it's clear we're not the right fit, we'll tell you. You'll leave with a clearer plan either way.
+
+**-&gt; [Book your call]({{enrollment_call_booking_url}})**
+
+&mdash; Russ
+
+*P.S. If today made it clear this isn't for you, that's a valid answer too. No hard feelings. You got the workshop and the Q&amp;A, and that's the information you needed to decide.*</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-a3">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-a3" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>If today resonated, here's your next step</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">The door, after the Q&amp;A</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">A 45-minute conversation about your specific situation</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: 1:1 strategy call with our enrollment team. No pitch deck, no pressure.</blockquote>
+            <div class="rendered-body">
+              <p>If today's Q&amp;A made it obvious that the gap between where you are and where you want to be isn't information &mdash; it's execution with someone who's been there &mdash; here's the next step.</p>
+              <p><strong>Book a 1:1 strategy call with our enrollment team.</strong></p>
+              <p><strong>What it is:</strong></p>
+              <ul>
+                <li>About 45 minutes</li>
+                <li>We dig into YOUR specific situation (niche, current revenue, where you're stuck)</li>
+                <li>We figure out together whether working with us 1:1 is the right move for you</li>
+                <li>No pitch deck, no pressure</li>
+              </ul>
+              <p><strong>What it is NOT:</strong></p>
+              <ul>
+                <li>A hard sell</li>
+                <li>An obligation because you went VIP</li>
+                <li>A group session</li>
+              </ul>
+              <p>If at the end of the call it's clear we're not the right fit, we'll tell you. You'll leave with a clearer plan either way.</p>
+              <a class="arrow-cta" href="#">&rarr; Book your call <span class="ph">{{enrollment_call_booking_url}}</span></a>
+              <p class="sign">&mdash; Russ</p>
+              <p class="ps">P.S. If today made it clear this isn't for you, that's a valid answer too. No hard feelings. You got the workshop and the Q&amp;A, and that's the information you needed to decide.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">enrollment_call_booking_url</div><div class="field-val">[OPEN QUESTION: GHL Calendar / Calendly / SavvyCal &mdash; confirm tool + URL]</div></div>
+
+      <div class="callout critical">
+        <div class="tag">Do Not Soften</div>
+        The P.S. opt-out language is intentional pressure-reduction. Removing it measurably reduces response rate in this category of email. Leave it as-is.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL A4 -->
+  <div id="s4-5" class="email-card shared-card" data-section="seq-a">
+    <div class="email-header">
+      <div class="email-id">Email A4 &middot; Same-Week <span class="shared-badge">Identical body = B5</span></div>
+      <div class="email-title">Still on the Fence</div>
+      <div class="email-sub">Send: Saturday 9am [TIMEZONE] &middot; Filter: tag <code>vip-enrollment-call-booked</code> NOT present</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">4.5 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A4 &middot; Step 1</div>Add "Wait until day/time" node: Saturday 9:00am [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A4 &middot; Step 2</div>Add "If/Else" node &mdash; condition: tag <code>vip-enrollment-call-booked</code> is NOT present on contact</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A4 &middot; Step 3</div>TRUE branch: send email. FALSE branch: skip directly to the pre-A5 wait node (or exit workflow &mdash; see global exit rule in Section 6).</div></div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="a4-subject">Copy</button></div>
+        <pre id="a4-subject">3 hesitations people have after Friday</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="a4-preview">Copy</button></div>
+        <pre id="a4-preview">Time, money, or fit &mdash; one of these is usually why people pause.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="a4-body">Copy</button></div>
+        <pre id="a4-body">If you haven't booked a call yet, it's probably one of three things.
+
+**1. Time.**
+
+"I don't have the bandwidth right now."
+
+Fair. But time is almost never the real bottleneck &mdash; how the time is being spent usually is. That's what the call is for: a real look at your week and whether the ROI math makes sense for YOUR specific situation.
+
+**2. Money.**
+
+"It's more than I'm ready to invest right now."
+
+Also fair. We're not the cheapest option, and we're not trying to be. The call is where you find out whether the investment math works for YOUR situation &mdash; not a generic case study. Sometimes the answer is yes. Sometimes it's not-right-now. Both are valid.
+
+**3. Fit.**
+
+"I'm not sure this is right for my niche / my stage / my situation."
+
+This is the best reason to book a call instead of guess. 20 minutes of a real conversation will tell you more than 20 hours of thinking about it.
+
+&mdash;
+
+We've worked with 5,000+ coaches and professionals. If you want a third-party read on what that's been like, our [Trustpilot reviews]({{trustpilot_url}}) are public.
+
+If one of those three hesitations is why you paused, the call is how you get an actual answer:
+
+**-&gt; [Book the call]({{enrollment_call_booking_url}})**
+
+&mdash; Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-a4">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-a4" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>3 hesitations people have after Friday</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">Saturday thought</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">If you haven't booked yet...</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: Time, money, or fit &mdash; one of these is usually why people pause.</blockquote>
+            <div class="rendered-body">
+              <p>If you haven't booked a call yet, it's probably one of three things.</p>
+              <p><strong>1. Time.</strong></p>
+              <p><em>"I don't have the bandwidth right now."</em></p>
+              <p>Fair. But time is almost never the real bottleneck &mdash; how the time is being spent usually is. That's what the call is for: a real look at your week and whether the ROI math makes sense for YOUR specific situation.</p>
+              <p><strong>2. Money.</strong></p>
+              <p><em>"It's more than I'm ready to invest right now."</em></p>
+              <p>Also fair. We're not the cheapest option, and we're not trying to be. The call is where you find out whether the investment math works for YOUR situation &mdash; not a generic case study. Sometimes the answer is yes. Sometimes it's not-right-now. Both are valid.</p>
+              <p><strong>3. Fit.</strong></p>
+              <p><em>"I'm not sure this is right for my niche / my stage / my situation."</em></p>
+              <p>This is the best reason to book a call instead of guess. 20 minutes of a real conversation will tell you more than 20 hours of thinking about it.</p>
+              <p style="color:var(--text-3);">&mdash;</p>
+              <p>We've worked with 5,000+ coaches and professionals. If you want a third-party read on what that's been like, our <a class="email-link" href="#">Trustpilot reviews</a> <span class="ph">{{trustpilot_url}}</span> are public.</p>
+              <p>If one of those three hesitations is why you paused, the call is how you get an actual answer:</p>
+              <a class="arrow-cta" href="#">&rarr; Book the call <span class="ph">{{enrollment_call_booking_url}}</span></a>
+              <p class="sign">&mdash; Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">enrollment_call_booking_url</div><div class="field-val">Same as A3</div></div>
+      <div class="field-row"><div class="field-label">trustpilot_url</div><div class="field-val">Same as A1/B1/B2</div></div>
+
+      <div class="callout note">
+        <div class="tag">Copy Rewrite &middot; 2026-04-23</div>
+        All pattern-based social proof ("coaches who get the most out of working with us...", "Most VIPs who become clients...", "Plenty of coaches...") was stripped. Hesitation reframes now stand on their logic alone. Aggregate proof (5,000+ professionals + Trustpilot link) appears once near the end.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL A5 -->
+  <div id="s4-6" class="email-card shared-card" data-section="seq-a">
+    <div class="email-header">
+      <div class="email-id">Email A5 &middot; Same-Week <span class="shared-badge">Identical body = B6</span></div>
+      <div class="email-title">Transition / Nurture Handoff</div>
+      <div class="email-sub">Send: Sunday 8pm [TIMEZONE] &middot; Filter: tag <code>vip-enrollment-call-booked</code> NOT present &middot; After-send: add tag <code>vip-didnt-book-nurture-pending</code></div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">4.6 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A5 &middot; Step 1</div>Add "Wait until day/time" node: Sunday 8:00pm [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A5 &middot; Step 2</div>Add "If/Else" node &mdash; condition: tag <code>vip-enrollment-call-booked</code> is NOT present</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A5 &middot; Step 3</div>TRUE branch: send email</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A5 &middot; Step 4</div>Immediately after the email send, add "Add Tag" action: <code>vip-didnt-book-nurture-pending</code></div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">A5 &middot; Step 5</div>After tag action, add "End Workflow" node &mdash; workflow complete for this contact</div></div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="a5-subject">Copy</button></div>
+        <pre id="a5-subject">Not the right time? Here's what's coming</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="a5-preview">Copy</button></div>
+        <pre id="a5-preview">No pressure. Door stays open.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="a5-body">Copy</button></div>
+        <pre id="a5-body">Looks like now isn't the right moment. All good.
+
+I'll keep sending the occasional email &mdash; client stories, lessons from enrollment calls, and the stuff we learn inside the program that's useful whether you're a client or not.
+
+If something clicks later, the door's always open:
+
+**-&gt; [Book a call]({{enrollment_call_booking_url}})**
+
+&mdash; Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-a5">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-a5" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>Not the right time? Here's what's coming</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">All good either way</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">Just a quick note</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: No pressure. Door stays open.</blockquote>
+            <div class="rendered-body">
+              <p>Looks like now isn't the right moment. All good.</p>
+              <p>I'll keep sending the occasional email &mdash; client stories, lessons from enrollment calls, and the stuff we learn inside the program that's useful whether you're a client or not.</p>
+              <p>If something clicks later, the door's always open:</p>
+              <a class="arrow-cta" href="#">&rarr; Book a call <span class="ph">{{enrollment_call_booking_url}}</span></a>
+              <p class="sign">&mdash; Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">enrollment_call_booking_url</div><div class="field-val">Same as A3/A4</div></div>
+
+      <div class="callout note">
+        <div class="tag">Intentionally Short</div>
+        This email is ~80 words. Do not pad it. Its job is graceful exit, not one more conversion attempt.
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5 &mdash; SEQUENCE B -->
+<section id="s5">
+  <div class="section-no">Section 5</div>
+  <h2 style="color: var(--blue);">Sequence B &mdash; Next-Week VIP Workflow</h2>
+
+  <div class="callout seq-b">
+    <div class="tag">Sequence B &middot; Context</div>
+    6 emails. Cohort: upgraded at least 1 day after workshop, after Thursday 23:59 client-TZ (Friday/Saturday/Sunday buyers). Friday Q&amp;A is 5&ndash;7 days away. Voice is patient and coach-like &mdash; they deliberated longer, and the week-long wait is framed as intentional.
+  </div>
+
+  <h3 id="s5-1">5.1 Workflow setup</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq B &middot; Setup 1</div>Create new workflow named <strong>"VIP Upgrade-Later &mdash; Next-Week (Sequence B)"</strong></div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq B &middot; Setup 2</div>Trigger: <em>manual only</em> &mdash; entered exclusively via Master Routing Workflow's Sequence B branch</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Seq B &middot; Setup 3</div>Workflow-level filter: re-entry disabled</div></div>
+
+  <div class="expand-bar">
+    <button type="button" data-expand-all="open" data-section="seq-b">Expand all Sequence B copy</button>
+    <button type="button" data-expand-all="close" data-section="seq-b">Collapse all</button>
+  </div>
+
+  <!-- EMAIL B1 -->
+  <div id="s5-2" class="email-card seq-b-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B1 &middot; Next-Week</div>
+      <div class="email-title">Upgrade Confirmed (Next-Week)</div>
+      <div class="email-sub">Send: immediate (0 min after enrollment) &middot; From: Russ Ruffino &lt;russ@clientsondemand.com&gt;</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.2 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B1 &middot; Step 1</div>Add "Send Email" action as first node after workflow entry</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B1 &middot; Step 2</div>Delay: 0 minutes (immediate)</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B1 &middot; Step 3</div>Paste subject, preview, body. <code>friday_qa_date</code> should resolve to <strong>next Friday</strong> (per Master Routing's calculation).</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B1 &middot; Step 4</div>Mobile preview</div></div>
+
+      <div class="callout critical">
+        <div class="tag">Critical &mdash; Do Not Reuse A1</div>
+        B1 copy is DIFFERENT from A1. Different opening framing that acknowledges the multi-day gap and the week-long runway ahead. Do not paste A1's template here.
+      </div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="b1-subject">Copy</button></div>
+        <pre id="b1-subject">You're in. Here's how to use the week before Friday.</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="b1-preview">Copy</button></div>
+        <pre id="b1-preview">Replay inside + Friday Q&amp;A date + a few things to chew on this week.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="b1-body">Copy</button></div>
+        <pre id="b1-body">Good call.
+
+You're now joining the 5,000+ coaches and professionals we've worked with. For a third-party read on what that's actually like, our [Trustpilot reviews]({{trustpilot_url}}) are public.
+
+Here's how the next week looks:
+
+**Your workshop replay -&gt;** [Watch the replay]({{workshop_replay_url}})
+Unlimited access. I'd actually suggest watching it one more time in the next few days, now that you're in &mdash; you'll catch things you missed the first time.
+
+**Your VIP Friday Q&amp;A with Russ -&gt; {{friday_qa_date}} at {{friday_qa_time_et}}**
+A live group Q&amp;A session. Russ answers questions live, in front of the whole VIP room. Plan for 60-90 minutes.
+
+**Between now and Friday**, I'll send you one prep email mid-week with what to do before the Q&amp;A to get the most out of it.
+
+The week isn't dead time. It's how you show up Friday with a question that actually moves your business forward.
+
+**-&gt; [Add Friday to your calendar]({{calendar_ics_url}})**
+
+Talk soon,
+Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-b1">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-b1" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>You're in. Here's how to use the week before Friday.</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">VIP is locked in. Your Q&amp;A is next Friday (<span class="ph">{{friday_qa_date}}</span>).</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">A week until your VIP Q&amp;A &mdash; here's what's happening in between</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: Replay inside + Friday Q&amp;A date + a few things to chew on this week.</blockquote>
+            <div class="rendered-body">
+              <p>Good call.</p>
+              <p>You're now joining the 5,000+ coaches and professionals we've worked with. For a third-party read on what that's actually like, our <a class="email-link" href="#">Trustpilot reviews</a> <span class="ph">{{trustpilot_url}}</span> are public.</p>
+              <p>Here's how the next week looks:</p>
+              <p><strong>Your workshop replay &rarr;</strong> <a class="email-link" href="#">Watch the replay</a> <span class="ph">{{workshop_replay_url}}</span><br>Unlimited access. I'd actually suggest watching it one more time in the next few days, now that you're in &mdash; you'll catch things you missed the first time.</p>
+              <p><strong>Your VIP Friday Q&amp;A with Russ &rarr; <span class="ph">{{friday_qa_date}}</span> at <span class="ph">{{friday_qa_time_et}}</span></strong><br>A live group Q&amp;A session. Russ answers questions live, in front of the whole VIP room. Plan for 60&ndash;90 minutes.</p>
+              <p><strong>Between now and Friday</strong>, I'll send you one prep email mid-week with what to do before the Q&amp;A to get the most out of it.</p>
+              <p>The week isn't dead time. It's how you show up Friday with a question that actually moves your business forward.</p>
+              <a class="arrow-cta" href="#">&rarr; Add Friday to your calendar <span class="ph">{{calendar_ics_url}}</span></a>
+              <p class="sign">Talk soon,<br>Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">workshop_replay_url</div><div class="field-val">Same as A1</div></div>
+      <div class="field-row"><div class="field-label">friday_qa_date</div><div class="field-val"><code>custom.friday_qa_date_assigned</code> &mdash; resolves to NEXT Friday</div></div>
+      <div class="field-row"><div class="field-label">friday_qa_time_et</div><div class="field-val">[OPEN QUESTION: fixed time]</div></div>
+      <div class="field-row"><div class="field-label">calendar_ics_url</div><div class="field-val">Same as A1</div></div>
+      <div class="field-row"><div class="field-label">trustpilot_url</div><div class="field-val">Same as A1</div></div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL B2 -->
+  <div id="s5-3" class="email-card seq-b-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B2 &middot; Next-Week ONLY</div>
+      <div class="email-title">Weekend Value Drop</div>
+      <div class="email-sub">Send: 48h after B1, landing Sat/Sun morning client-TZ &middot; From: Russ Ruffino &lt;russ@clientsondemand.com&gt;</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.3 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B2 &middot; Step 1</div>Add "Wait" node: 48 hours after B1, THEN conditional wait until next Sat or Sun 10am [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B2 &middot; Step 2</div>Dynamic scheduling logic: if 48h post-B1 lands on a weekday, wait until next Saturday 10am. If it lands weekend already, fire at the next 10am window.</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B2 &middot; Step 3</div>Add "Send Email" action</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B2 &middot; Step 4</div>Paste subject, preview, body. No CTA button required &mdash; only the replay P.S. link.</div></div>
+
+      <div class="callout seq-b">
+        <div class="tag">B-Only Email</div>
+        This email exists ONLY in Sequence B. Sequence A has no weekend-fill email &mdash; its runway is too tight. Do not build a B2 equivalent into Sequence A.
+      </div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="b2-subject">Copy</button></div>
+        <pre id="b2-subject">One reframe before Friday</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="b2-preview">Copy</button></div>
+        <pre id="b2-preview">A 5-minute reframe you can bring to Friday's Q&amp;A.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="b2-body">Copy</button></div>
+        <pre id="b2-body">Before Friday gets here, I want to put one idea on your desk.
+
+Most coaches describe their offer as what they do:
+
+*"I help coaches get more clients."*
+*"I do mindset work."*
+*"I run a done-for-you service."*
+
+The ones who scale fastest describe their offer as the specific outcome the buyer already wants:
+
+*"I help coaches fill their first group program in 90 days."*
+*"I help founders stop losing deals they should've closed."*
+
+Same offer. Different sentence. One sells to anyone who already has the problem. The other waits for the buyer to do the translation work.
+
+**Here's the homework for this weekend:**
+
+Write down, in one sentence, the specific outcome your best client would pay anything to get. Not the service. Not the framework. The outcome.
+
+Bring that sentence to Friday.
+
+If it's clear and specific, we'll build positioning around it on the call. If it's vague, we'll work on it live.
+
+Either way, that's where the shift starts.
+
+Talk Friday.
+
+&mdash; Russ
+
+*P.S. The workshop replay is still there if you haven't re-watched yet: [{{workshop_replay_url}}]({{workshop_replay_url}}). And if you want a third-party read on what other coaches say about working with us, our [Trustpilot reviews]({{trustpilot_url}}) are public &mdash; 5,000+ professionals have been through this process.*</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-b2">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-b2" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>One reframe before Friday</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">The outcome you're actually selling</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">A thing to think about before Friday</span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: A 5-minute reframe you can bring to Friday's Q&amp;A.</blockquote>
+            <div class="rendered-body">
+              <p>Before Friday gets here, I want to put one idea on your desk.</p>
+              <p>Most coaches describe their offer as what they do:</p>
+              <p class="italic">"I help coaches get more clients."<br>"I do mindset work."<br>"I run a done-for-you service."</p>
+              <p>The ones who scale fastest describe their offer as the specific outcome the buyer already wants:</p>
+              <p class="italic">"I help coaches fill their first group program in 90 days."<br>"I help founders stop losing deals they should've closed."</p>
+              <p>Same offer. Different sentence. One sells to anyone who already has the problem. The other waits for the buyer to do the translation work.</p>
+              <p><strong>Here's the homework for this weekend:</strong></p>
+              <p>Write down, in one sentence, the specific outcome your best client would pay anything to get. Not the service. Not the framework. The outcome.</p>
+              <p>Bring that sentence to Friday.</p>
+              <p>If it's clear and specific, we'll build positioning around it on the call. If it's vague, we'll work on it live.</p>
+              <p>Either way, that's where the shift starts.</p>
+              <p>Talk Friday.</p>
+              <p class="sign">&mdash; Russ</p>
+              <p class="ps">P.S. The workshop replay is still there if you haven't re-watched yet: <a class="email-link" href="#"><span class="ph">{{workshop_replay_url}}</span></a>. And if you want a third-party read on what other coaches say about working with us, our <a class="email-link" href="#">Trustpilot reviews</a> <span class="ph">{{trustpilot_url}}</span> are public &mdash; 5,000+ professionals have been through this process.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">workshop_replay_url</div><div class="field-val">Same as A1/B1</div></div>
+      <div class="field-row"><div class="field-label">trustpilot_url</div><div class="field-val">Same as A1/B1</div></div>
+
+      <div class="callout note">
+        <div class="tag">No CTA Button</div>
+        Intentional. This is a teaching/trust email &mdash; adding a "book a call" button breaks the voice. Only two links appear, both in the P.S.: the workshop replay and the Trustpilot reviews page.
+      </div>
+
+      <div class="callout note">
+        <div class="tag">Copy Rewrite &middot; 2026-04-23</div>
+        Entire body was rewritten to strip all client-story framing ("Maria", "the VIPs who break through"). New version is a pure teaching reframe. Aggregate social proof (5,000+ professionals + Trustpilot link) lives only in the P.S.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL B3 -->
+  <div id="s5-4" class="email-card seq-b-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B3 &middot; Next-Week ONLY &middot; MERGED</div>
+      <div class="email-title">Prep + Session Details (merged)</div>
+      <div class="email-sub">Send: Wednesday 10am [TIMEZONE] of the week containing <code>friday_qa_date_assigned</code></div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.4 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B3 &middot; Step 1</div>Add "Wait until day/time" node: Wednesday 10:00am [TIMEZONE] of the week containing <code>friday_qa_date_assigned</code></div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B3 &middot; Step 2</div>Add "Send Email" action</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B3 &middot; Step 3</div>Paste subject, preview, body. Longer email &mdash; double-check mobile rendering.</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B3 &middot; Step 4</div>Ensure the two H2 sections ("First &mdash; the prep" and "Then &mdash; Friday's details") are visually distinct on mobile</div></div>
+
+      <div class="callout critical">
+        <div class="tag">Do Not Split</div>
+        This email intentionally MERGES what would be two separate emails (prep guidance + Friday logistics). Do not split this back into two emails. Sequence B has longer runway &mdash; one combined email at Wed 10am, not two.
+      </div>
+
+      <h5>Subject line (primary)</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Subject</span><button class="copy-btn" data-copy="b3-subject">Copy</button></div>
+        <pre id="b3-subject">Friday is in 2 days. Here's the prep + your Zoom link.</pre>
+      </div>
+
+      <h5>Preview text</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Preview</span><button class="copy-btn" data-copy="b3-preview">Copy</button></div>
+        <pre id="b3-preview">Prep guidance + Friday's Zoom link + format refresher.</pre>
+      </div>
+
+      <h5>Body</h5>
+      <div class="code-wrap">
+        <div class="code-header"><span>Body Copy (raw)</span><button class="copy-btn" data-copy="b3-body">Copy</button></div>
+        <pre id="b3-body">Friday is 2 days away. Here's everything you need.
+
+## First &mdash; the prep
+
+VIPs who get the most out of the Q&amp;A tend to do two things in the 48 hours before:
+
+**1. Re-watch the replay on 2x**
+
+It's shorter than you remember. On the second pass, write down the 1-2 things that trigger a question in your head. Something specific to your situation: *"How do I position this when my clients are [X]?"* or *"What do I say when a prospect pushes back on [Y]?"*
+
+Those questions are the whole reason Friday exists.
+
+**2. Know what "good question" looks like**
+
+The best questions in the group Q&amp;A are specific and situational:
+
+*"I'm a [niche] working with [type of client], stuck at [specific moment in the funnel]. What do I do?"*
+
+The worst are vague. "How do I get more clients?" &mdash; Russ can't answer that in a way that actually moves your business.
+
+Come with 1-2 specific, situational questions. Leave with 1-2 specific, situational answers.
+
+## Then &mdash; Friday's details
+
+**{{friday_qa_date}} &mdash; {{friday_qa_time_et}}**
+
+**-&gt; [Join the Zoom]({{zoom_link}})**
+
+Live group Q&amp;A. Plan on 60-90 minutes. Everyone on the call sees each other's questions, so you'll get value from what other VIPs ask as much as from your own.
+
+**What this is:** A live group Q&amp;A where Russ takes questions one at a time and answers them in front of the room.
+
+**What this is NOT:**
+- A 1-on-1 with Russ
+- A rehash of the workshop material
+- A generic Q&amp;A
+
+Replay link one more time, in case you want to re-watch today or tomorrow:
+-&gt; [{{workshop_replay_url}}]({{workshop_replay_url}})
+
+See you Friday.
+
+&mdash; Russ</pre>
+      </div>
+
+      <div class="email-reveal">
+        <button type="button" class="email-toggle" aria-expanded="false" aria-controls="rendered-b3">
+          <span class="toggle-label">Preview rendered email</span><span class="chev">&rsaquo;</span>
+        </button>
+        <div class="email-rendered" id="rendered-b3" data-open="false">
+          <div class="email-rendered-inner">
+            <div class="meta-bar">
+              <div class="mb"><strong>From</strong><span>Russ Ruffino &lt;russ@clientsondemand.com&gt;</span></div>
+              <div class="mb"><strong>Subject</strong><span>Friday is in 2 days. Here's the prep + your Zoom link.</span></div>
+            </div>
+            <div class="alt-subj">
+              <div class="asrow"><span class="lbl">Alt 1</span><span class="val">2 things to do before Friday's Q&amp;A</span></div>
+              <div class="asrow"><span class="lbl">Alt 2</span><span class="val">Everything you need for Friday at <span class="ph">{{friday_qa_time_et}}</span></span></div>
+            </div>
+            <blockquote class="preview-quote">Preview: Prep guidance + Friday's Zoom link + format refresher.</blockquote>
+            <div class="rendered-body">
+              <p>Friday is 2 days away. Here's everything you need.</p>
+
+              <h6>First &mdash; the prep</h6>
+              <p>VIPs who get the most out of the Q&amp;A tend to do two things in the 48 hours before:</p>
+              <p><strong>1. Re-watch the replay on 2x</strong></p>
+              <p>It's shorter than you remember. On the second pass, write down the 1&ndash;2 things that trigger a question in your head. Something specific to your situation: <em>"How do I position this when my clients are [X]?"</em> or <em>"What do I say when a prospect pushes back on [Y]?"</em></p>
+              <p>Those questions are the whole reason Friday exists.</p>
+              <p><strong>2. Know what "good question" looks like</strong></p>
+              <p>The best questions in the group Q&amp;A are specific and situational:</p>
+              <p class="italic">"I'm a [niche] working with [type of client], stuck at [specific moment in the funnel]. What do I do?"</p>
+              <p>The worst are vague. "How do I get more clients?" &mdash; Russ can't answer that in a way that actually moves your business.</p>
+              <p>Come with 1&ndash;2 specific, situational questions. Leave with 1&ndash;2 specific, situational answers.</p>
+
+              <h6>Then &mdash; Friday's details</h6>
+              <p><strong><span class="ph">{{friday_qa_date}}</span> &mdash; <span class="ph">{{friday_qa_time_et}}</span></strong></p>
+              <a class="arrow-cta" href="#">&rarr; Join the Zoom <span class="ph">{{zoom_link}}</span></a>
+              <p>Live group Q&amp;A. Plan on 60&ndash;90 minutes. Everyone on the call sees each other's questions, so you'll get value from what other VIPs ask as much as from your own.</p>
+              <p><strong>What this is:</strong> A live group Q&amp;A where Russ takes questions one at a time and answers them in front of the room.</p>
+              <p><strong>What this is NOT:</strong></p>
+              <ul>
+                <li>A 1-on-1 with Russ</li>
+                <li>A rehash of the workshop material</li>
+                <li>A generic Q&amp;A</li>
+              </ul>
+              <p>Replay link one more time, in case you want to re-watch today or tomorrow:<br>&rarr; <a class="email-link" href="#"><span class="ph">{{workshop_replay_url}}</span></a></p>
+              <p>See you Friday.</p>
+              <p class="sign">&mdash; Russ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h5>Merge fields</h5>
+      <div class="field-row"><div class="field-label">friday_qa_date</div><div class="field-val"><code>custom.friday_qa_date_assigned</code></div></div>
+      <div class="field-row"><div class="field-label">friday_qa_time_et</div><div class="field-val">[OPEN QUESTION: fixed time]</div></div>
+      <div class="field-row"><div class="field-label">zoom_link</div><div class="field-val">Same as A2</div></div>
+      <div class="field-row"><div class="field-label">workshop_replay_url</div><div class="field-val">Same as A1/B1/B2</div></div>
+
+    </div>
+  </div>
+
+  <!-- EMAIL B4 -->
+  <div id="s5-5" class="email-card shared-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B4 &middot; Next-Week <span class="shared-badge">Identical body = A3</span></div>
+      <div class="email-title">Book Enrollment Call</div>
+      <div class="email-sub">Send: Friday 6pm [TIMEZONE] &middot; Identical copy to A3 (section 4.4)</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.5 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B4 &middot; Step 1</div>Add "Wait until day/time" node: Friday 6:00pm [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B4 &middot; Step 2</div>Add "Send Email" action</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B4 &middot; Step 3</div>Reuse same template as A3 (copy-identical). Paste subject, preview, body from Section 4.4 above &mdash; or reference GHL shared template if supported.</div></div>
+
+      <div class="callout seq-a">
+        <div class="tag">Identical body used as A3</div>
+        Copy is identical to A3. Subject: "If today resonated, here's your next step". Full body + rendered preview lives in Section 4.4. Use GHL shared-template feature if available, else paste again here. Keep synced on future edits.
+      </div>
+
+      <h5>Reference</h5>
+      <div class="field-row"><div class="field-label">Source</div><div class="field-val"><a href="#s4-4" style="color: var(--amber); text-decoration: none; border-bottom: 1px dotted var(--amber);">Jump to Section 4.4 &mdash; Email A3 (identical copy)</a></div></div>
+      <div class="field-row"><div class="field-label">Subject</div><div class="field-val">If today resonated, here's your next step</div></div>
+      <div class="field-row"><div class="field-label">Preview</div><div class="field-val">1:1 strategy call with our enrollment team. No pitch deck, no pressure.</div></div>
+    </div>
+  </div>
+
+  <!-- EMAIL B5 -->
+  <div id="s5-6" class="email-card shared-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B5 &middot; Next-Week <span class="shared-badge">Identical body = A4</span></div>
+      <div class="email-title">Still on the Fence</div>
+      <div class="email-sub">Send: Saturday 9am [TIMEZONE] &middot; Filter: tag <code>vip-enrollment-call-booked</code> NOT present &middot; Identical copy to A4 (section 4.5)</div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.6 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B5 &middot; Step 1</div>Add "Wait until day/time" node: Saturday 9:00am [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B5 &middot; Step 2</div>Add "If/Else" node &mdash; condition: tag <code>vip-enrollment-call-booked</code> is NOT present</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B5 &middot; Step 3</div>TRUE branch: send email (same template as A4 &mdash; see Section 4.5)</div></div>
+
+      <div class="callout seq-a">
+        <div class="tag">Identical body used as A4</div>
+        Copy is identical to A4. Subject: "3 hesitations people have after Friday". Full body + rendered preview lives in Section 4.5.
+      </div>
+
+      <h5>Reference</h5>
+      <div class="field-row"><div class="field-label">Source</div><div class="field-val"><a href="#s4-5" style="color: var(--amber); text-decoration: none; border-bottom: 1px dotted var(--amber);">Jump to Section 4.5 &mdash; Email A4 (identical copy)</a></div></div>
+      <div class="field-row"><div class="field-label">Subject</div><div class="field-val">3 hesitations people have after Friday</div></div>
+      <div class="field-row"><div class="field-label">Preview</div><div class="field-val">Time, money, or fit &mdash; one of these is usually why people pause.</div></div>
+    </div>
+  </div>
+
+  <!-- EMAIL B6 -->
+  <div id="s5-7" class="email-card shared-card" data-section="seq-b">
+    <div class="email-header">
+      <div class="email-id">Email B6 &middot; Next-Week <span class="shared-badge">Identical body = A5</span></div>
+      <div class="email-title">Transition / Nurture Handoff</div>
+      <div class="email-sub">Send: Sunday 8pm [TIMEZONE] &middot; Filter: tag <code>vip-enrollment-call-booked</code> NOT present &middot; After-send: add <code>vip-didnt-book-nurture-pending</code></div>
+    </div>
+    <div class="email-body">
+
+      <h3 style="margin-top: 0;">5.7 Build steps</h3>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B6 &middot; Step 1</div>Add "Wait until day/time" node: Sunday 8:00pm [TIMEZONE]</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B6 &middot; Step 2</div>Add "If/Else" node &mdash; condition: tag <code>vip-enrollment-call-booked</code> is NOT present</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B6 &middot; Step 3</div>TRUE branch: send email (same template as A5 &mdash; see Section 4.6)</div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B6 &middot; Step 4</div>After send: add "Add Tag" action <code>vip-didnt-book-nurture-pending</code></div></div>
+      <div class="step"><input type="checkbox"><div class="body"><div class="step-label">B6 &middot; Step 5</div>After tag action: "End Workflow" node</div></div>
+
+      <div class="callout seq-a">
+        <div class="tag">Identical body used as A5</div>
+        Copy is identical to A5. Subject: "Not the right time? Here's what's coming". Full body + rendered preview lives in Section 4.6.
+      </div>
+
+      <h5>Reference</h5>
+      <div class="field-row"><div class="field-label">Source</div><div class="field-val"><a href="#s4-6" style="color: var(--amber); text-decoration: none; border-bottom: 1px dotted var(--amber);">Jump to Section 4.6 &mdash; Email A5 (identical copy)</a></div></div>
+      <div class="field-row"><div class="field-label">Subject</div><div class="field-val">Not the right time? Here's what's coming</div></div>
+      <div class="field-row"><div class="field-label">Preview</div><div class="field-val">No pressure. Door stays open.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section id="s6">
+  <div class="section-no">Section 6</div>
+  <h2>Exit Condition (Applies to Both Sequences)</h2>
+
+  <p>If a contact books the enrollment call at any point &mdash; from A1 CTA clicks all the way through A5/B6 &mdash; they must be removed from whichever workflow they're in. No more emails from this sequence.</p>
+
+  <h3>Listener setup</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Exit &middot; Step 1</div>Identify the booking event source: GHL Calendar webhook (if enrollment team uses GHL Calendar) or external tool webhook (Calendly, SavvyCal) firing into GHL</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Exit &middot; Step 2</div>Choose ONE of two approaches (pick the cleaner option in current GHL):</div></div>
+
+  <div class="callout note">
+    <div class="tag">Option A &mdash; Global exit workflow</div>
+    Create a separate tiny workflow "VIP Enrollment Call &mdash; Booked Handler". Trigger: booking event. Actions: (1) add tag <code>vip-enrollment-call-booked</code>, (2) remove contact from both Sequence A and Sequence B workflows. Cleaner because the booking logic lives in one place.
+  </div>
+
+  <div class="callout note">
+    <div class="tag">Option B &mdash; Per-workflow listener</div>
+    Inside each of Sequence A and Sequence B, add a parallel "wait for event" branch that listens for the booking event. On fire, tag + end workflow. More redundant but more explicit.
+  </div>
+
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Exit &middot; Step 3</div>Verify the tag <code>vip-enrollment-call-booked</code> is added on booking</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Exit &middot; Step 4</div>Verify contact is removed from the active sequence immediately (no more scheduled emails fire)</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Exit &middot; Step 5</div>Test with a booking event on a test contact already enrolled &mdash; confirm zero further emails sent</div></div>
+
+  <div class="screenshot-placeholder"><span>[SCREENSHOT]</span>Exit condition config &mdash; either the global booking-handler workflow or the per-workflow listener branch</div>
+</section>
+
+<!-- SECTION 7 -->
+<section id="s7">
+  <div class="section-no">Section 7</div>
+  <h2>Testing Plan</h2>
+
+  <p>Before handing back to Kas, run all four test scenarios below. Document the results and send screenshots.</p>
+
+  <h3>Test Contact #1 &mdash; Same-Day Exit</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 1 &middot; Setup</div>Create test contact with <code>workshop_attendance_date = today</code>. Trigger a simulated $54 purchase.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 1 &middot; Expected</div>Master Routing computes <code>days_since_workshop_attendance = 0</code>. Contact is routed to the existing bundled/same-day workflow. Contact does NOT enter Sequence A or Sequence B.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 1 &middot; Verify</div>Check contact record: not tagged <code>vip-path-upgrade-later-*</code>, not enrolled in Sequence A or B.</div></div>
+
+  <h3>Test Contact #2 &mdash; Sequence A (Same-Week)</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 2 &middot; Setup</div>Create test contact with <code>workshop_attendance_date</code> = 2 days ago. Trigger purchase on Wednesday 2pm.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 2 &middot; Expected</div>Routes to Sequence A. A1 fires immediately. <code>friday_qa_date_assigned</code> = this Friday.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 2 &middot; Verify</div>Confirm tag <code>vip-path-upgrade-later-sameweek</code> applied, A1 email received, subject matches primary variant.</div></div>
+
+  <h3>Test Contact #3 &mdash; Sequence B (Next-Week)</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 3 &middot; Setup</div>Create test contact with <code>workshop_attendance_date</code> = 5 days ago. Trigger purchase on Friday 10am.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 3 &middot; Expected</div>Routes to Sequence B. B1 fires immediately. <code>friday_qa_date_assigned</code> = next Friday.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 3 &middot; Verify</div>Confirm tag <code>vip-path-upgrade-later-nextweek</code> applied, B1 email received, opening copy is different from A1.</div></div>
+
+  <h3>Test Contact #4 &mdash; Exit on Booking</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 4 &middot; Setup</div>Create Sequence A test contact (as in Test 2). Let A1-A3 fire normally. Then manually trigger a booking event on Friday.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 4 &middot; Expected</div>A3 fires as planned. On booking, contact gets tag <code>vip-enrollment-call-booked</code>. A4 and A5 DO NOT fire.</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test 4 &middot; Verify</div>Check contact: removed from Sequence A after booking. No Saturday 9am email, no Sunday 8pm email.</div></div>
+
+  <h3>Cross-cutting verification</h3>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 1</div>Fast-forward timestamps using GHL test mode (or manually advance system time if available) to verify all email nodes fire at correct times</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 2</div>Mobile preview all 8 unique email templates (A1, A2, B1, B2, B3, shared-book, shared-fence, shared-transition) on iPhone and Android</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 3</div>Send screenshots of each test contact's journey to Kas for approval before go-live</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 4</div>Run a Thursday 11:58pm timestamp test &mdash; should route to Sequence A</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 5</div>Run a Thursday 23:59:30 timestamp test (boundary case) &mdash; should still route to Sequence A</div></div>
+  <div class="step"><input type="checkbox"><div class="body"><div class="step-label">Test &middot; Cross 6</div>Run a Friday 00:00:30 timestamp test &mdash; should route to Sequence B</div></div>
+</section>
+
+<!-- SECTION 8 -->
+<section id="s8">
+  <div class="section-no">Section 8</div>
+  <h2>Handoff Checklist</h2>
+
+  <p>When every box below is checked, send the status to Kas and wait for go-live approval.</p>
+
+  <div class="step"><input type="checkbox"><div class="body">Custom fields created (<code>vip_path</code>, <code>workshop_attendance_date</code>, <code>friday_qa_date_assigned</code>, <code>purchase_timestamp</code>, <code>days_since_workshop_attendance</code>)</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Tags created (<code>vip-path-upgrade-later-sameweek</code>, <code>vip-path-upgrade-later-nextweek</code>, <code>vip-enrollment-call-booked</code>, <code>vip-didnt-book-nurture-pending</code>)</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Master Routing Workflow built + tested</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Sequence A workflow built (5 emails)</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Sequence B workflow built (6 emails)</div></div>
+  <div class="step"><input type="checkbox"><div class="body">All 8 email templates populated with copy from markdown files</div></div>
+  <div class="step"><input type="checkbox"><div class="body">All merge fields mapped and resolving correctly</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Cutoff math (Thursday 23:59) verified with 3+ timestamp tests</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Same-day routing to existing bundled flow confirmed with Kas</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Exit-on-booking working for both sequences</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Nurture handoff tag applied on A5 / B6</div></div>
+  <div class="step"><input type="checkbox"><div class="body">All 4 test contact scenarios passed</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Mobile previews captured and approved</div></div>
+  <div class="step"><input type="checkbox"><div class="body">Screenshots of workflows + test journeys sent to Kas</div></div>
+</section>
+
+<!-- SECTION 9 -->
+<section id="s9">
+  <div class="section-no">Section 9</div>
+  <h2>Open Questions That Block Go-Live</h2>
+
+  <p>These items must be resolved with Kas before flipping the live toggle. List them in your end-of-build status update.</p>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 1</div>
+    <strong>Friday Q&amp;A exact time + timezone.</strong> All email timing ("wait until Friday 9am", "wait until Friday 6pm", etc.) resolves against this single timezone. Confirm which timezone GHL should evaluate in.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 2</div>
+    <strong>Workshop replay URL pattern.</strong> Is <code>{{workshop_replay_url}}</code> unique per buyer, or is it a universal link every VIP receives? Both are fine &mdash; affects whether GHL reads from a contact field or hard-codes a static URL.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 3</div>
+    <strong>Enrollment call booking tool + URL.</strong> GHL Calendar, Calendly, or SavvyCal? What's the exact link for <code>{{enrollment_call_booking_url}}</code>? Also: which booking event fires on calendar book &mdash; that's what the exit condition listens for.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 4</div>
+    <strong>Workshop attendance tracking.</strong> Where does <code>workshop_attendance_date</code> get populated in current GHL? Wistia replay-open webhook? Zoom attendance? Form field? If no source exists, the &ge;1-day filter fails open.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 5</div>
+    <strong>Same-day / in-workshop routing destination.</strong> When Master Routing sees <code>days_since_workshop_attendance = 0</code>, which existing workflow does it enroll the contact into? Kas to confirm the workflow name/ID.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 6</div>
+    <strong>Sender identity confirmation.</strong> All drafts are signed "Russ" with <code>russ@clientsondemand.com</code>. Confirm this sends from Russ personally vs a team alias. Affects reply routing.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Blocker 7 &middot; Trustpilot</div>
+    <strong>COD's Trustpilot reviews URL</strong> &mdash; populates <code>{{trustpilot_url}}</code> across 4 emails (A1, B1, B2, A4/B5). Needs to be the public reviews page, not the business dashboard. Confirm with Kas. This is the outstanding content blocker called out across the email markdown files.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Nice-to-have</div>
+    <strong>B2 teaching-email variants.</strong> Current copy is a single "one reframe before Friday" teaching email. Kas may want 2-3 rotating teaching variants to prevent staleness for repeat buyers. Flag this &mdash; not a blocker but worth deciding early.
+  </div>
+
+  <div class="callout open-q">
+    <div class="tag">Stripe Product Isolation</div>
+    <strong>Standalone $54 product must be distinct from bundled $54.</strong> If they share a Stripe product ID, Master Routing fires for both cohorts and pollutes the routing. Confirm the two are separate Stripe products (or add a secondary filter on referring URL).
+  </div>
+</section>
+
+<div class="end-note">
+End of build guide &middot; v2 &middot; 2026-04-23 &middot; Prepared for Matt by Kas &middot; Single-file, self-contained
+</div>
+
+</main>
+
+</div>
+
+<script>
+// Copy to clipboard
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.getAttribute('data-copy');
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 1400);
+    }).catch(err => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(ta);
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 1400);
+    });
+  });
+});
+
+// Email rendered-preview toggle (individual)
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.email-toggle');
+  if (!btn) return;
+  const targetId = btn.getAttribute('aria-controls');
+  const body = document.getElementById(targetId);
+  if (!body) return;
+  const isOpen = body.getAttribute('data-open') === 'true';
+  body.setAttribute('data-open', isOpen ? 'false' : 'true');
+  btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+  const label = btn.querySelector('.toggle-label');
+  if (label) label.textContent = isOpen ? 'Preview rendered email' : 'Hide rendered email';
+});
+
+// Expand / collapse all (scoped to section via data-section)
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-expand-all]');
+  if (!btn) return;
+  const mode = btn.getAttribute('data-expand-all');
+  const section = btn.getAttribute('data-section');
+  const scope = section
+    ? document.querySelectorAll(`.email-card[data-section="${section}"] .email-rendered`)
+    : document.querySelectorAll('.email-rendered');
+  const scopeToggles = section
+    ? document.querySelectorAll(`.email-card[data-section="${section}"] .email-toggle`)
+    : document.querySelectorAll('.email-toggle');
+  const shouldOpen = mode === 'open';
+  scope.forEach(b => b.setAttribute('data-open', shouldOpen ? 'true' : 'false'));
+  scopeToggles.forEach(t => {
+    t.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    const label = t.querySelector('.toggle-label');
+    if (label) label.textContent = shouldOpen ? 'Hide rendered email' : 'Preview rendered email';
+  });
+});
+
+// Progress tracking &mdash; persist to localStorage
+const STORAGE_KEY = 'matt-ghl-build-guide-progress-v2';
+const checkboxes = document.querySelectorAll('.step input[type="checkbox"]');
+const progressPct = document.getElementById('progress-pct');
+const progressFill = document.getElementById('progress-fill');
+
+// Load saved state
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    checkboxes.forEach((cb, i) => {
+      if (saved[i]) {
+        cb.checked = true;
+        cb.closest('.step').classList.add('done');
+      }
+    });
+  } catch (e) {}
+  updateProgress();
+}
+
+function saveState() {
+  const state = {};
+  checkboxes.forEach((cb, i) => { if (cb.checked) state[i] = true; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function updateProgress() {
+  const total = checkboxes.length;
+  const done = Array.from(checkboxes).filter(cb => cb.checked).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  if (progressPct) progressPct.textContent = pct + '%';
+  if (progressFill) progressFill.style.width = pct + '%';
+}
+
+checkboxes.forEach(cb => {
+  cb.addEventListener('change', (e) => {
+    const step = cb.closest('.step');
+    if (cb.checked) step.classList.add('done');
+    else step.classList.remove('done');
+    saveState();
+    updateProgress();
+  });
+});
+
+loadState();
+</script>
+
+</body>
+</html>

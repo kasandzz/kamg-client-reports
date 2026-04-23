@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-23</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* -- Reset -- */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* -- Header -- */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { display:inline-block; padding:4px 12px; border-radius:6px; font-size:10px; font-weight:600; margin-top:8px; background:rgba(16,185,129,.15); color:#10b981; }
+
+  /* -- Tabs -- */
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* -- Cards -- */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  /* -- Stat Grid -- */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  /* -- List Items -- */
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .amber-item { background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  /* -- Schedule -- */
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-item.past { opacity:0.5; }
+  .schedule-item.current { border-color:#3b82f6; box-shadow:0 0 12px rgba(59,130,246,.15); }
+  .schedule-item.upcoming { border-color:#10b981; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:90px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-redstone { background:rgba(178,30,36,.15); color:#ef4444; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-personal { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .tag-done { background:rgba(100,116,139,.1); color:#64748b; font-size:9px; padding:2px 6px; border-radius:4px; }
+
+  /* -- Overnight -- */
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+
+  /* -- Action Items -- */
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  /* -- Tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  /* -- Utility -- */
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+  .amber-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:12px 16px; margin-bottom:16px; color:#f59e0b; font-size:12px; }
+  .red-banner { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:12px 16px; margin-bottom:16px; color:#ef4444; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Wednesday, April 23, 2026 | Afternoon Catch-Up</div>
+    <div class="meta">Generated 2026-04-23 14:15 CST | Local-Fallback Mode</div>
+    <div class="health-badge">Skill Health: OK</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('cpg')">CPG</div>
+    <div class="tab" onclick="showTab('redstone')">Redstone</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- ===== MY DAY ===== -->
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Focus Statement</div>
+      <div class="card-subtitle">Russ Payday | Focus Day blocked</div>
+      <div class="insight-item">
+        <div class="item-title">3 billing emergencies need immediate attention</div>
+        <div class="item-detail">Zapier subscription canceled (Zaps paused), Zoom invoice 7 days overdue, AmEx transaction declined. Fix payment methods before anything else.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule</div>
+      <div class="card-subtitle">13 events | 4 client-facing | Currently: Hague audit block</div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">All Day</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Focus Day | No meetings <span class="tag-done">ALL DAY</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">All Day</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ Payday <span class="schedule-tag tag-cod">COD</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">06:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Exercise <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">07:15</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Shower <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">07:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Morning Focus Block <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">08:30 - 10:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ Call Block <span class="schedule-tag tag-cod">COD</span> <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">10:00 - 10:15</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Nurture Zach Vieth (Legacy Builder) <span class="schedule-tag tag-internal">BIZ DEV</span> <span class="tag-done">DONE</span></div>
+          <div class="schedule-prep">Week rotation: share win/case study, resource, ask about business, or soft referral</div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">10:30 - 11:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">AI Google Ads Plan <span class="schedule-tag tag-internal">INTERNAL</span> <span class="tag-done">DONE</span></div>
+          <div class="schedule-prep">With Daniel + Leo</div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">11:00 - 12:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Weekly Sales Development Review Call <span class="schedule-tag tag-cpg">CPG</span> <span class="tag-done">DONE</span></div>
+          <div class="schedule-prep">With Krik, Julieta, Mora, Stef | Zoom</div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">13:00 - 14:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Kas / Austin - Recruiting Platform <span class="schedule-tag tag-internal">BIZ DEV</span> <span class="tag-done">JUST ENDED</span></div>
+          <div class="schedule-prep">With austin@catalyst-crew.com | Google Meet</div>
+        </div>
+      </div>
+
+      <div class="schedule-item current">
+        <div class="schedule-time">14:00 - 15:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Hague audit and nurture email <span class="schedule-tag tag-internal">INTERNAL</span></div>
+          <div class="schedule-prep">Current block</div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">20:00 - 22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Relax <span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Go To Bed <span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-Forward from Yesterday</div>
+      <div class="card-subtitle">From 2026-04-22 daily note</div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">Redstone LP die casting: resume at Pass 3 (Frontend Dev)</div>
+        <div class="item-detail">LP rebuild in progress</div>
+      </div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">Leo profit share model (Superhuman reminder)</div>
+        <div class="item-detail">Internal compensation discussion</div>
+      </div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">VIP Thank-You Page recode</div>
+        <div class="item-detail">COD: TY page needs recode per Apr 22 call decisions. Non-VIP TY video needs Russ recording.</div>
+      </div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">Redstone: Send Eric the HTML setup guide</div>
+        <div class="item-detail">BQ setup guide already committed (f688456), needs to be emailed to Eric</div>
+      </div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">Leo: provision SA + coordinate Eric Drive folder share</div>
+        <div class="item-detail">Quote DB infrastructure: service account + IAM Editor on kamg-redstone</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COD INTEL ===== -->
+  <div class="section" id="cod">
+    <div class="amber-banner">
+      BQ unavailable — cloud collector did not populate cod_kpis. GCS file missing for 2026-04-23. Check the 5am scheduler run and the morningIntelCollector logs.
+    </div>
+    <div class="card">
+      <div class="card-title">COD Context</div>
+      <div class="card-subtitle">Key items from today</div>
+      <div class="insight-item">
+        <div class="item-title">Russ Payday Today</div>
+        <div class="item-detail">Calendar event marked. Ensure invoice is ready if applicable.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Russ Call Block completed (08:30-10:00)</div>
+        <div class="item-detail">Check for any action items from morning call with Russ.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">VIP TY Page Recode (carry-forward)</div>
+        <div class="item-detail">From Apr 22 call: recode TY page, streamline email journey. Email sequences already rewritten. Non-VIP video pending Russ recording.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Fathom Meeting Recap</div>
+      <div class="card-subtitle">Redstone Manufacturing call -- last night</div>
+      <div class="win-item">
+        <div class="item-title">Eric acknowledged improved pace and delivery</div>
+        <div class="item-detail">Genuine appreciation for increased effort and improved communication. Retention signal positive.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CPG ===== -->
+  <div class="section" id="cpg">
+    <div class="card">
+      <div class="card-title">CPG Affiliate</div>
+      <div class="card-subtitle">Weekly Sales Development Review Call (11:00-12:00 today, completed)</div>
+      <div class="insight-item">
+        <div class="item-title">Meeting completed with full team</div>
+        <div class="item-detail">Attendees: Krik Angacian, Julieta Oyanedel, Mora De Azcuenaga, Stef Borghese (optional). Zoom call.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Open Items</div>
+      <div class="card-subtitle">From project tracker</div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">Everflow deployment blocked on Krik credentials</div>
+        <div class="item-detail">Runbook ready, waiting for Krik to provide access credentials.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REDSTONE ===== -->
+  <div class="section" id="redstone">
+    <div class="card">
+      <div class="card-title">Redstone Manufacturing</div>
+      <div class="card-subtitle">Active work streams</div>
+      <div class="concern-item">
+        <div class="item-title">Daniel needs 2 new landing pages ASAP</div>
+        <div class="item-detail">Email from Daniel (07:40 today): Eric wants India + Mexico targeting. Only one India page exists. Needs: (1) India CNC machining replacement page, (2) Mexico page. All other ads already updated to new LP URLs. These 2 pages are blocking remaining ad updates.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">Eric praised improved pace and communication</div>
+        <div class="item-detail">From last night's Fathom recap. Retention signal moving positive after HIGH RISK period.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Quote Database pipeline</div>
+        <div class="item-detail">BQ setup guide committed. Pending: send guide to Eric, Leo SA provisioning, ~10 older pre-Dec 2025 quotes to extract.</div>
+      </div>
+      <div class="amber-item" style="padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b;">
+        <div class="item-title">LP die casting rebuild: resume at Pass 3 (Frontend Dev)</div>
+        <div class="item-detail">Carry-forward from Apr 22. In-progress LP rebuild.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OVERNIGHT ===== -->
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Overnight Activity</div>
+      <div class="card-subtitle">Email highlights since yesterday | No Slack sync data available</div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from billing@mail.zapier.com -- 14:22</div>
+          <div class="overnight-text"><strong>Zapier subscription canceled</strong> due to payment issue. 3 Zaps paused. Fix payment method immediately.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from billing@zoom.us -- 14:03</div>
+          <div class="overnight-text"><strong>Zoom invoice 7 days past due.</strong> Outstanding balance on account. Pay immediately to avoid service disruption.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from AmericanExpress -- 08:11</div>
+          <div class="overnight-text"><strong>Transaction declined</strong> -- over credit limit. Check AmEx balance and make payment.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from daniel@blogtrepreneur.co.uk -- 07:40</div>
+          <div class="overnight-text"><strong>Redstone: needs 2 new landing pages.</strong> Eric wants India + Mexico targeting. Only 1 India page exists. Need: India CNC machining page + Mexico page. All other ads already pointing to new LPs.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">MED</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from no-reply@fathom.video -- 00:08</div>
+          <div class="overnight-text"><strong>Redstone meeting recap:</strong> Eric acknowledged improved pace and delivery. Positive retention signal.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">MED</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from leo@kasandz.com -- 00:16</div>
+          <div class="overnight-text"><strong>Redstone LP thread:</strong> Leo notified Daniel about Eric wanting ads pointed to new LPs. Daniel confirmed all ads updated except 2 needing new pages.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">LOW</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from reviews@clutch.co -- 13:30</div>
+          <div class="overnight-text">Finish your review of Goji Labs on Clutch. Saved progress available.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">LOW</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from CloudPlatform-noreply@google.com -- 02:30</div>
+          <div class="overnight-text">Vertex AI renamed + Data & Analytics product updates (Google Cloud Next announcements). No action needed.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">LOW</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email from workspace-noreply@google.com -- 00:11</div>
+          <div class="overnight-text">New Workspace Intelligence admin controls. Review when convenient.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ACTIONS ===== -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Priority Actions</div>
+      <div class="card-subtitle">Ordered by urgency | 10 items</div>
+
+      <div class="red-banner">3 billing/payment emergencies detected</div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Fix Zapier payment</strong> -- subscription canceled, 3 Zaps paused</div>
+          <div class="action-context">URGENT | Billing | Re-subscribe and reactivate Zaps</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Pay Zoom invoice</strong> -- 7 days overdue</div>
+          <div class="action-context">URGENT | Billing | Avoid service disruption</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Check AmEx balance</strong> -- transaction declined, over credit limit</div>
+          <div class="action-context">URGENT | Billing | Make payment to clear limit</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Build 2 Redstone landing pages</strong> -- India CNC machining + Mexico</div>
+          <div class="action-context">HIGH | Client | Daniel blocked on these for remaining ad updates</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Send Eric BQ setup guide</strong> -- HTML ready (kamg-ops f688456)</div>
+          <div class="action-context">MED | Redstone | Carry-forward from Apr 22</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>VIP TY page recode</strong> -- per Apr 22 call decisions</div>
+          <div class="action-context">MED | COD | Rehan guide already sent</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Resume Redstone LP die casting</strong> -- Pass 3 (Frontend Dev)</div>
+          <div class="action-context">MED | Redstone | In-progress LP rebuild</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Leo: provision SA + Eric Drive folder share</strong></div>
+          <div class="action-context">MED | Redstone | Quote DB infrastructure</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Finish Clutch review of Goji Labs</strong></div>
+          <div class="action-context">LOW | Admin | Saved progress available</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Run backup</strong> -- last backup 3 days ago (CRITICAL)</div>
+          <div class="action-context">MED | Infra | Last: 2026-04-20, 5.1 GB</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SOURCES ===== -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data Sources</div>
+      <div class="card-subtitle">Freshness and reliability</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Source</th><th>Status</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GCS Cloud Intel</td><td><span class="hl-amber">MISSING</span></td><td>morning-intel-latest-2026-04-23.json not found in GCS. Cloud collector may not have run.</td></tr>
+          <tr><td>Data Mode</td><td><span class="hl-amber">LOCAL-FALLBACK</span></td><td>Dashboard built from MCP calendar + Gmail + vault reads</td></tr>
+          <tr><td>Google Calendar</td><td><span class="hl-green">LIVE</span></td><td>13 events fetched via MCP</td></tr>
+          <tr><td>Gmail</td><td><span class="hl-green">LIVE</span></td><td>20 threads fetched (unread, last 24h)</td></tr>
+          <tr><td>Slack Bot (COD)</td><td><span class="hl-green">PASS</span></td><td>claude_sync @ clientsondemand.slack.com</td></tr>
+          <tr><td>Slack MCP (Personal)</td><td><span class="hl-green">PASS</span></td><td>kasandz.slack.com</td></tr>
+          <tr><td>Google Sheets</td><td><span class="hl-green">PASS</span></td><td>Service account credentials present</td></tr>
+          <tr><td>Fathom</td><td><span class="hl-amber">FAIL</span></td><td>MCP tools not loading</td></tr>
+          <tr><td>Figma</td><td><span class="hl">SKIPPED</span></td><td>Optional, not checked in afternoon mode</td></tr>
+          <tr><td>Knowledge Compiler</td><td><span class="hl-green">HEALTHY</span></td><td>Last run: today 14:40 UTC | 64 notes, 83 enriched, 187 connections (lifetime)</td></tr>
+          <tr><td>Agency Brain</td><td><span class="hl-amber">OFFLINE</span></td><td>PC-C unreachable at 192.168.100.20:8080</td></tr>
+          <tr><td>Cache Health</td><td><span class="hl-green">90/100</span></td><td>95.3% hit rate | $1,383 saved | Patch APPLIED</td></tr>
+          <tr><td>Backup</td><td><span class="hl-amber">CRITICAL</span></td><td>Last: 2026-04-20 (3 days ago) | 5.1 GB</td></tr>
+          <tr><td>Skills Mirror</td><td><span class="hl-green">SYNCED</span></td><td>53 global skills mirrored to vault</td></tr>
+          <tr><td>kamg-ops Collab</td><td><span class="hl-green">UP TO DATE</span></td><td>No new commits from Leo since last pull</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Rate Limits (24h)</div>
+      <div class="card-subtitle">Cache health report</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Window</th><th>Usage</th><th>Sessions</th><th>Cost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>5-Hour</td><td>1.0%</td><td>--</td><td>--</td></tr>
+          <tr><td>Weekly</td><td>89.0%</td><td>17</td><td>$312.64</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

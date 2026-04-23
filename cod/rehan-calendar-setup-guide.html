@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP TY Booking Setup - Rehan Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; line-height: 1.7; }
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  h1 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 28px; }
+
+  .goal-box {
+    background: #0d1a2e; border: 1px solid #1e3a5f; border-radius: 10px;
+    padding: 18px 22px; margin-bottom: 28px;
+  }
+  .goal-box h2 { font-size: 14px; color: #60a5fa; margin-bottom: 6px; }
+  .goal-box p { font-size: 13px; color: #93c5fd; }
+
+  .option-card {
+    background: #111118; border: 1px solid #1e1e2e; border-radius: 10px;
+    padding: 22px 24px; margin-bottom: 16px;
+  }
+  .option-card.recommended { border-color: #22c55e; }
+  .option-label {
+    display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-bottom: 10px;
+  }
+  .label-green { background: #0d2818; color: #4ade80; }
+  .label-yellow { background: #1a1008; color: #fbbf24; }
+
+  .option-card h3 { font-size: 17px; color: #fff; margin-bottom: 12px; }
+
+  .step {
+    display: flex; gap: 14px; margin-bottom: 16px;
+  }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: #1e293b; color: #93c5fd; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .step-body { font-size: 13px; color: #bbb; }
+  .step-body code {
+    background: #1e293b; color: #fbbf24; padding: 1px 6px; border-radius: 3px; font-size: 12px;
+  }
+
+  .highlight-box {
+    background: #0f1117; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 12px 14px; margin-top: 8px; font-size: 12px; color: #93c5fd; line-height: 1.6;
+  }
+
+  .warn-box {
+    background: #1a0a0a; border: 1px solid #7f1d1d; border-radius: 8px;
+    padding: 14px 18px; margin-top: 12px; margin-bottom: 12px;
+  }
+  .warn-box p { font-size: 12px; color: #fca5a5; }
+  .warn-box strong { color: #f87171; }
+
+  .divider { border: none; border-top: 1px solid #1e1e2e; margin: 28px 0; }
+
+  .why-box {
+    background: #111118; border-left: 3px solid #c8a96e; border-radius: 0 8px 8px 0;
+    padding: 14px 18px; margin-bottom: 24px;
+  }
+  .why-box h4 { font-size: 12px; color: #c8a96e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .why-box p { font-size: 13px; color: #999; }
+
+  .email-note {
+    background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 10px;
+    padding: 18px 22px; margin-top: 24px;
+  }
+  .email-note h3 { font-size: 15px; color: #fff; margin-bottom: 10px; }
+  .email-note p { font-size: 13px; color: #bbb; margin-bottom: 8px; }
+
+  @media (max-width: 600px) {
+    .container { padding: 16px 14px 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>VIP TY Page: Booking Setup</h1>
+<p class="subtitle">The only remaining piece &bull; April 23, 2026</p>
+
+<div class="goal-box">
+  <h2>What We're Solving</h2>
+  <p>
+    The "Book Your Call Now" CTA on the VIP Thank-You page should NOT let people book immediately.
+    They need to attend the workshop first. So booking should only be possible <strong>~27 hours after purchase</strong>.
+    We need to do this <strong>without breaking the existing sales team calendar or email triggers</strong>.
+  </p>
+</div>
+
+<div class="why-box">
+  <h4>Why 27 hours?</h4>
+  <p>Workshop is usually the next day. 27 hours gives them time to watch it before booking a call. We don't want people booking calls before they've seen the content.</p>
+</div>
+
+<!-- OPTION A -->
+<div class="option-card recommended">
+  <span class="option-label label-green">Recommended - Easiest</span>
+  <h3>Option A: New GHL Calendar with Minimum Notice</h3>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Duplicate the existing sales team calendar</div>
+      <div class="step-body">
+        Go to GHL <strong>Calendars</strong>. Find the current sales team booking calendar.
+        Click the 3 dots and <strong>Clone</strong> it. Name the clone something like:
+        <div class="highlight-box"><strong>VIP Post-Workshop Booking</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Set Minimum Scheduling Notice to 27 hours</div>
+      <div class="step-body">
+        In the cloned calendar settings, find <code>Minimum Scheduling Notice</code> (sometimes called "Buffer before booking" or "Minimum advance notice").<br><br>
+        Set it to <strong>27 hours</strong> (or 1 day + 3 hours if it only takes days/hours separately).<br><br>
+        This means: when someone opens the booking page, the earliest slot they can see is 27+ hours away. They literally cannot book anything sooner.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Keep same team members / availability</div>
+      <div class="step-body">
+        Make sure the same sales reps are assigned to this calendar with the same availability windows. We're only changing the <strong>minimum notice</strong>, nothing else.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Get the new calendar booking link</div>
+      <div class="step-body">
+        Copy the booking link from the cloned calendar. It will look something like:
+        <div class="highlight-box">https://api.leadconnectorhq.com/widget/booking/XXXXXXXXX</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Update the CTA on VIP TY page</div>
+      <div class="step-body">
+        On <code>cod-hto-workshop-thanks-vip-b</code>, update the "Book Your Call Now" button to point to the <strong>new calendar link</strong> from Step 4.
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <p><strong>DO NOT</strong> edit the original sales team calendar. We're creating a separate one so nothing breaks for existing bookings or workflows.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Add new calendar to existing workflows (CRITICAL)</div>
+      <div class="step-body">
+        The cloned calendar won't automatically trigger existing workflows. You need to add it manually:
+        <br><br>
+        <strong>Step by step:</strong>
+        <br>&bull; Go to GHL <strong>Automation &rarr; Workflows</strong>
+        <br>&bull; Find every workflow that triggers on the <strong>original</strong> sales calendar (look for triggers like "Appointment Booked", "Appointment Reminder", "Appointment Status Changed", etc.)
+        <br>&bull; Open each one and click the <strong>trigger/entry condition</strong>
+        <br>&bull; Where it says "Calendar" or "Calendar is [original name]", add the new <strong>"VIP Post-Workshop Booking"</strong> calendar as an additional entry condition
+        <br>&bull; Usually this means changing "Calendar is [Original]" to "Calendar is [Original] <strong>OR</strong> [VIP Post-Workshop Booking]"
+        <div class="highlight-box">
+          <strong>Workflows to check:</strong><br>
+          &bull; Booking confirmation email<br>
+          &bull; Appointment reminder (24h, 1h, etc.)<br>
+          &bull; No-show follow-up<br>
+          &bull; Post-call follow-up<br>
+          &bull; Internal team notifications (Slack/email to sales rep)<br>
+          &bull; Any CRM pipeline/stage automations triggered by booking
+        </div>
+        <br>
+        <strong>How to find them fast:</strong> Search the workflow list for the original calendar name. Every workflow that references it needs the new calendar added too.
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <p><strong>If you miss a workflow:</strong> Bookings from the new calendar won't trigger confirmations, reminders, or team notifications. The customer books but gets no email. Sales rep doesn't know about the call. <strong>Check every workflow.</strong></p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <div class="step-title">Test it end-to-end</div>
+      <div class="step-body">
+        Open the new booking link in an incognito window. Confirm that:
+        <br>&bull; No slots show for today or early tomorrow
+        <br>&bull; The first available slot is 27+ hours from now
+        <br>&bull; The booking form works and submits correctly
+        <br>&bull; <strong>Confirmation email arrives</strong> after test booking
+        <br>&bull; <strong>Sales rep gets notified</strong> (Slack/email/CRM)
+        <br>&bull; Cancel the test booking after verifying
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div style="text-align: center; color: #444; font-size: 11px; margin-top: 40px;">
+  Generated Apr 23, 2026 &bull; KAMG Internal
+</div>
+
+</div>
+</body>
+</html>

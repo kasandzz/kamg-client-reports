@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPG Affiliate: Attio CRM Migration PRD | April 23, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface-2: #1a1a26;
+  --surface-3: #222233;
+  --border: #2a2a3d;
+  --text: #e8e8f0;
+  --text-muted: #8888aa;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.1);
+  --yellow: #eab308;
+  --yellow-bg: rgba(234,179,8,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --orange: #f97316;
+  --orange-bg: rgba(249,115,22,0.1);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.1);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.1);
+  --cyan: #06b6d4;
+  --cyan-bg: rgba(6,182,212,0.1);
+  --teal: #14b8a6;
+  --teal-bg: rgba(20,184,166,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+.container { max-width: 1400px; margin: 0 auto; }
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.meta-chip strong { color: var(--text); }
+
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+.section h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--accent-light);
+}
+
+.section h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: var(--text);
+}
+
+p, li { color: var(--text); font-size: 0.92rem; line-height: 1.7; }
+p { margin-bottom: 0.75rem; }
+ul, ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+li { margin-bottom: 0.3rem; }
+
+/* Verdict banner */
+.verdict-banner {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.1));
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.verdict-banner .label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-light);
+  margin-bottom: 0.5rem;
+}
+
+.verdict-banner .winner {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.verdict-banner .tagline {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.verdict-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.verdict-stat {
+  text-align: center;
+}
+
+.verdict-stat .num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.verdict-stat .desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Score cards */
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.score-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.score-card.recommended {
+  border-color: var(--green);
+  box-shadow: 0 0 20px rgba(34,197,94,0.1);
+}
+
+.score-card.runner-up {
+  border-color: var(--blue);
+}
+
+.score-card.viable {
+  border-color: var(--yellow);
+}
+
+.score-card .badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.3rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 0 10px 0 10px;
+}
+
+.score-card.recommended .badge { background: var(--green); color: #000; }
+.score-card.runner-up .badge { background: var(--blue); color: #fff; }
+.score-card.viable .badge { background: var(--yellow); color: #000; }
+
+.score-card .name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.score-card .price {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* Comparison table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+th {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:hover td { background: var(--surface-2); }
+
+.pill {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.pill-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+.pill-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+.pill-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(249,115,22,0.3); }
+.pill-cyan { background: var(--cyan-bg); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+.pill-teal { background: var(--teal-bg); color: var(--teal); border: 1px solid rgba(20,184,166,0.3); }
+
+/* Info boxes */
+.info-box {
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.info-box.green { background: var(--green-bg); border-left: 3px solid var(--green); }
+.info-box.yellow { background: var(--yellow-bg); border-left: 3px solid var(--yellow); }
+.info-box.red { background: var(--red-bg); border-left: 3px solid var(--red); }
+.info-box.blue { background: var(--blue-bg); border-left: 3px solid var(--blue); }
+.info-box.purple { background: var(--purple-bg); border-left: 3px solid var(--purple); }
+
+.info-box .title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-box p { margin-bottom: 0.5rem; }
+.info-box p:last-child { margin-bottom: 0; }
+
+/* Agent cards */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.agent-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.agent-card .agent-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.agent-card .agent-status {
+  font-size: 0.7rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+}
+
+.agent-card .agent-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.agent-card .agent-detail {
+  font-size: 0.8rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.agent-card .agent-need {
+  font-size: 0.8rem;
+  color: var(--cyan);
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.65rem;
+  top: 0.4rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+}
+
+.timeline-item .week {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-item .action {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-item .detail {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Grid layouts */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* Phase cards */
+.phase-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.phase-card .phase-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.phase-card .phase-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.phase-card .phase-timeline {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.phase-card .checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.phase-card .checklist li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.phase-card .checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+}
+
+/* Pipeline flow diagram */
+.flow-diagram {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.flow-stage {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.flow-stage.entry { border-color: var(--cyan); color: var(--cyan); }
+.flow-stage.qualify { border-color: var(--yellow); color: var(--yellow); }
+.flow-stage.active { border-color: var(--accent-light); color: var(--accent-light); }
+.flow-stage.won { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.flow-stage.lost { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+.flow-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.flow-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Integration diagram */
+.integration-diagram {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.integration-source, .integration-target {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.integration-node {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+.integration-node .node-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 0.15rem;
+}
+
+.integration-node .node-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.integration-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.integration-cf {
+  background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.05));
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.integration-cf .cf-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--accent-light);
+  margin-bottom: 0.5rem;
+}
+
+.integration-cf .cf-tasks {
+  list-style: none;
+  padding: 0;
+}
+
+.integration-cf .cf-tasks li {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 0.15rem 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+
+/* Sticky TOC nav */
+.toc-nav {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  position: sticky;
+  top: 1rem;
+  z-index: 100;
+}
+
+.toc-nav .toc-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.toc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.toc-links a {
+  color: var(--accent-light);
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding: 0.2rem 0;
+  transition: color 0.2s;
+}
+
+.toc-links a:hover { color: var(--cyan); }
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 2rem 0;
+}
+
+strong { color: var(--text); }
+
+a { color: var(--accent-light); text-decoration: none; }
+a:hover { color: var(--cyan); }
+
+/* Dedup strategy box */
+.dedup-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.dedup-box .dedup-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  color: var(--cyan);
+}
+
+.dedup-steps {
+  counter-reset: dedup;
+  list-style: none;
+  padding: 0;
+}
+
+.dedup-steps li {
+  counter-increment: dedup;
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.dedup-steps li::before {
+  content: counter(dedup);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 20px;
+  height: 20px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+/* Cost highlight */
+.cost-highlight {
+  background: var(--green-bg);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  body { padding: 1rem; }
+  h1 { font-size: 1.8rem; }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .score-grid { grid-template-columns: 1fr; }
+  .verdict-banner .winner { font-size: 2rem; }
+  table { font-size: 0.78rem; }
+  th, td { padding: 0.5rem; }
+  .integration-diagram { grid-template-columns: 1fr; }
+  .toc-nav { position: static; }
+  .flow-row { gap: 0.25rem; }
+  .flow-stage { min-width: auto; padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+}
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.4rem; }
+  .verdict-banner { padding: 1.5rem; }
+  .verdict-banner .winner { font-size: 1.6rem; }
+  .section { padding: 1.25rem; }
+  .header-meta { gap: 0.5rem; }
+  .meta-chip { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<h1>Attio CRM Migration &amp; Integration PRD</h1>
+<p class="subtitle">Complete build specification for CPG Affiliate's CRM migration, agent architecture, and adoption strategy</p>
+
+<div class="header-meta">
+  <div class="meta-chip"><strong>Client:</strong> CPG Affiliate</div>
+  <div class="meta-chip"><strong>Date:</strong> April 23, 2026</div>
+  <div class="meta-chip"><strong>Builder:</strong> Leo</div>
+  <div class="meta-chip"><strong>Status:</strong> <span class="pill pill-green" style="margin-left:0.25rem">Approved</span></div>
+  <div class="meta-chip"><strong>Attio Tier:</strong> Pro ($69/user/mo)</div>
+  <div class="meta-chip"><strong>Users:</strong> 3 (Krik, Julieta, Kas)</div>
+</div>
+
+<!-- STICKY TOC -->
+<div class="toc-nav">
+  <div class="toc-label">Contents</div>
+  <div class="toc-links">
+    <a href="#pipeline">1. Pipeline</a>
+    <a href="#data-model">2. Data Model</a>
+    <a href="#build-vs-buy">3. Build vs Buy</a>
+    <a href="#integration">4. Integration</a>
+    <a href="#agents">5. Agents</a>
+    <a href="#migration">6. Migration</a>
+    <a href="#adoption">7. Adoption</a>
+    <a href="#build-plan">8. Build Plan</a>
+    <a href="#cost">9. Cost</a>
+    <a href="#risks">10. Risks</a>
+    <a href="#metrics">11. Metrics</a>
+    <a href="#appendix">Appendix</a>
+  </div>
+</div>
+
+<!-- Sections 1-2 (Problem / Why Attio) removed — see CRM Research Report for context -->
+
+<!-- 3. PIPELINE ARCHITECTURE -->
+<div class="section" id="pipeline">
+  <h2>1. Pipeline Architecture</h2>
+
+  <h3>Pipeline 1: Direct Clients</h3>
+  <p style="color: var(--text-muted); margin-bottom: 1rem;">Three entry points feeding into shared stages</p>
+
+  <h4>Entry Points</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Entry Point</th>
+        <th>Source</th>
+        <th>Landing Stage</th>
+        <th>What Happens</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cold email reply</td>
+        <td><span class="pill pill-blue">Instantly (Steven)</span></td>
+        <td>Reply Received</td>
+        <td>Reply Agent classifies + drafts response</td>
+      </tr>
+      <tr>
+        <td>Cold email reply</td>
+        <td><span class="pill pill-purple">Email Bison (Vovik)</span></td>
+        <td>Reply Received</td>
+        <td>Reply Agent classifies + drafts response</td>
+      </tr>
+      <tr>
+        <td>LP form submission</td>
+        <td><span class="pill pill-orange">Google Ads LPs</span></td>
+        <td>Form Fill</td>
+        <td>Enrichment runs automatically</td>
+      </tr>
+      <tr>
+        <td>Calendly booking</td>
+        <td><span class="pill pill-cyan">Calendly</span></td>
+        <td>Call Scheduled</td>
+        <td>Enrichment runs in parallel</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>Stage Flow</h4>
+  <div class="flow-diagram" style="max-width:600px;">
+    <div class="flow-label">Entry Gates</div>
+    <div class="flow-row" style="flex-wrap:nowrap;">
+      <div class="flow-stage entry">Reply Received</div>
+      <div style="margin:0 0.5rem; color:var(--text-muted); font-size:0.8rem;">or</div>
+      <div class="flow-stage entry">Form Fill</div>
+    </div>
+    <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin:0.25rem 0;">Enrichment runs automatically</div>
+    <div style="text-align:center;"><div class="flow-arrow">&darr;</div></div>
+
+    <div class="flow-label">Qualification</div>
+    <div class="flow-row" style="flex-wrap:nowrap;">
+      <div class="flow-stage qualify">Qualified</div>
+      <div style="margin:0 0.5rem; color:var(--text-muted); font-size:0.8rem;">or</div>
+      <div class="flow-stage lost">Disqualified</div>
+    </div>
+    <div style="text-align:center;"><div class="flow-arrow">&darr;</div></div>
+
+    <div class="flow-label">Sales Cycle</div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0.3rem;">
+      <div class="flow-stage active" style="width:100%; max-width:280px;">Call Scheduled</div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-stage active" style="width:100%; max-width:280px;">Discovery Call Done</div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-stage active" style="width:100%; max-width:280px;">Proposal Sent</div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-stage active" style="width:100%; max-width:280px;">Follow Up Call Done</div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-stage active" style="width:100%; max-width:280px;">Negotiating</div>
+    </div>
+    <div style="text-align:center;"><div class="flow-arrow">&darr;</div></div>
+
+    <div class="flow-label">Outcome</div>
+    <div class="flow-row" style="flex-wrap:nowrap;">
+      <div class="flow-stage won">Closed Won</div>
+      <div style="margin:0 0.5rem; color:var(--text-muted); font-size:0.8rem;">or</div>
+      <div class="flow-stage lost">Closed Lost</div>
+    </div>
+    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Loss reasons: no_budget | timing | not_a_fit | no_show | declined | no_upfront_fee</div>
+  </div>
+
+  <h4>Stage-to-Spreadsheet Mapping (for migration)</h4>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Current Sheet Stage</th>
+        <th>Attio Stage</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Call Schedule</td><td>Call Scheduled</td></tr>
+      <tr><td>Meeting Completed</td><td>Discovery Call Done</td></tr>
+      <tr><td>Meeting Completed, Follow up</td><td>Follow Up Call Done</td></tr>
+      <tr><td>Meeting Completed, Likely to sign</td><td>Negotiating</td></tr>
+      <tr><td>Signed, Awaiting payment</td><td>Negotiating <span class="pill pill-yellow">awaiting_payment tag</span></td></tr>
+      <tr><td>Signed, New Client</td><td><span class="pill pill-green">Closed Won</span></td></tr>
+      <tr><td>They declined</td><td><span class="pill pill-red">Closed Lost</span> (reason: declined)</td></tr>
+      <tr><td>Not a fit</td><td><span class="pill pill-red">Closed Lost</span> (reason: not_a_fit)</td></tr>
+      <tr><td>Bad Lead</td><td>Disqualified</td></tr>
+      <tr><td>No Show</td><td>Call Scheduled <span class="pill pill-orange">no_show flag</span></td></tr>
+      <tr><td>Ping on [Month]</td><td>Appropriate stage + future follow-up date</td></tr>
+      <tr><td>Working with net team</td><td>Move to Pipeline 2: Network/AOR</td></tr>
+      <tr><td>Needs to reschedule</td><td>Call Scheduled <span class="pill pill-orange">reschedule flag</span></td></tr>
+      <tr><td>Awaiting call with CEO</td><td>Discovery Call Done <span class="pill pill-purple">pending_ceo tag</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Pipeline 2: Network/AOR</h3>
+  <div class="flow-diagram">
+    <div class="flow-label">Simpler pipeline for network/agency referral deals</div>
+    <div class="flow-row" style="margin-top:0.5rem;">
+      <div class="flow-stage entry">New Referral</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-stage active">Evaluating</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-stage active">Publisher Matching</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-stage won">Active</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-stage lost">Churned</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. DATA MODEL -->
+<div class="section" id="data-model">
+  <h2>2. Data Model</h2>
+
+  <h3>Standard Objects (extended)</h3>
+
+  <div class="two-col" style="margin-bottom:1.25rem">
+    <div>
+      <h4>People</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td>name, email, phone, LinkedIn URL</td><td><span class="pill pill-blue">Standard</span></td></tr>
+          <tr><td>position_title</td><td><span class="pill pill-purple">Custom</span></td></tr>
+          <tr><td>position_type</td><td><span class="pill pill-purple">Select</span> CEO/Founder, Marketing, Other</td></tr>
+          <tr><td>lead_owner</td><td><span class="pill pill-purple">Select</span> Krik / Juli</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h4>Companies</h4>
+      <table>
+        <thead><tr><th>Field</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td>name, domain, description</td><td><span class="pill pill-blue">Standard</span></td></tr>
+          <tr><td>monthly_traffic</td><td><span class="pill pill-purple">Number</span></td></tr>
+          <tr><td>monthly_ad_spend</td><td><span class="pill pill-purple">Currency</span></td></tr>
+          <tr><td>product_type</td><td><span class="pill pill-purple">Text</span></td></tr>
+          <tr><td>shopify_url</td><td><span class="pill pill-purple">URL</span></td></tr>
+          <tr><td>has_affiliate_program</td><td><span class="pill pill-purple">Boolean</span></td></tr>
+          <tr><td>tier</td><td><span class="pill pill-purple">Select</span> 1/2/3</td></tr>
+          <tr><td>industry_classification</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>estimated_employee_count</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>company_summary</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>icp_fit_assessment</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>founding_year</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>tech_stack_signals</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td>social_presence_summary</td><td><span class="pill pill-cyan">AI Attribute</span></td></tr>
+          <tr><td colspan="2" style="padding-top:0.75rem;"><strong style="color:var(--orange);">Ad Transparency Enrichment (custom agent)</strong></td></tr>
+          <tr><td>fb_ad_library_status</td><td><span class="pill pill-orange">Custom</span> running / not_running / no_page</td></tr>
+          <tr><td>fb_ad_count</td><td><span class="pill pill-orange">Number</span></td></tr>
+          <tr><td>fb_ad_themes</td><td><span class="pill pill-orange">Text</span></td></tr>
+          <tr><td>google_ads_status</td><td><span class="pill pill-orange">Custom</span> running / not_running / unknown</td></tr>
+          <tr><td>google_ads_count</td><td><span class="pill pill-orange">Number</span></td></tr>
+          <tr><td>ads_verified</td><td><span class="pill pill-orange">Boolean</span></td></tr>
+          <tr><td>ads_last_checked</td><td><span class="pill pill-orange">Date</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Deal Custom Fields</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>Type</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>tier</td><td><span class="pill pill-purple">Select</span> 1/2/3</td><td>ICP qualification tier</td></tr>
+      <tr><td>lead_owner</td><td><span class="pill pill-purple">Select</span> Krik/Juli</td><td>Primary contact owner</td></tr>
+      <tr><td>lead_source</td><td><span class="pill pill-purple">Select</span></td><td>instantly_steven / email_bison_vovik / google_ads_lp / calendly_inbound / referral</td></tr>
+      <tr><td>aov</td><td><span class="pill pill-orange">Currency</span></td><td>Average Order Value (extracted from calls/forms)</td></tr>
+      <tr><td>cpa_agreed</td><td><span class="pill pill-orange">Currency</span></td><td>CPA agreed upon</td></tr>
+      <tr><td>cpa_target</td><td><span class="pill pill-orange">Currency</span></td><td>Target CPA for negotiation</td></tr>
+      <tr><td>roas_target</td><td><span class="pill pill-blue">Number</span></td><td>ROAS target discussed</td></tr>
+      <tr><td>discount_code</td><td><span class="pill pill-blue">Text</span></td><td>Discount code offered</td></tr>
+      <tr><td>deal_value</td><td><span class="pill pill-orange">Currency</span></td><td>Estimated deal value</td></tr>
+      <tr><td>loss_reason</td><td><span class="pill pill-purple">Select</span></td><td>no_budget / timing / not_a_fit / no_show / declined / no_upfront_fee</td></tr>
+      <tr><td>follow_up_date</td><td><span class="pill pill-blue">Date</span></td><td>Next follow-up date</td></tr>
+      <tr><td>last_follow_up</td><td><span class="pill pill-blue">Date</span></td><td>Last follow-up date</td></tr>
+      <tr><td>no_show_count</td><td><span class="pill pill-blue">Number</span></td><td>Times prospect no-showed</td></tr>
+      <tr><td>ads_running</td><td><span class="pill pill-teal">Boolean</span></td><td>Whether prospect runs ads</td></tr>
+      <tr><td>reply_classification</td><td><span class="pill pill-purple">Select</span></td><td>interested / objection / not_interested / auto_reply</td></tr>
+      <tr><td>icp_score</td><td><span class="pill pill-blue">Number</span></td><td>Computed ICP qualification score</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Notes Structure</h3>
+  <p>Each deal accumulates notes from multiple sources:</p>
+  <div class="agent-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+    <div class="agent-card">
+      <div class="agent-name">Fireflies Import</div>
+      <div class="agent-desc">Historical call summaries with extracted AOV/CPA/objections</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Attio Pro Calls</div>
+      <div class="agent-desc">Native transcripts + AI summaries (going forward)</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Reply Agent</div>
+      <div class="agent-desc">Email thread context and classification reasoning</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Sales Intel Agent</div>
+      <div class="agent-desc">Pre-call briefs and post-call structured extractions</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-name">Manual</div>
+      <div class="agent-desc">Team member notes added directly</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. BUILD VS BUY -->
+<div class="section" id="build-vs-buy">
+  <h2>3. Build vs Buy Analysis</h2>
+
+  <div class="two-col">
+    <div>
+      <div style="background: var(--green-bg); border: 1px solid rgba(34,197,94,0.3); border-radius: 10px; padding: 1.25rem;">
+        <h3 style="color: var(--green); margin-top:0;">Attio Native (configure, don't build)</h3>
+        <table>
+          <thead><tr><th>Capability</th><th>How</th><th>Tier</th></tr></thead>
+          <tbody>
+            <tr><td>Lead enrichment (company, LinkedIn, headcount)</td><td>AI Attributes</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>ICP classification</td><td>AI Attributes</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>Auto-advance on Calendly booking</td><td>Workflow</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>Slack notifications on stage changes</td><td>Native Slack</td><td><span class="pill pill-blue">Plus</span></td></tr>
+            <tr><td>Deal stale &gt; 7 days reminder</td><td>Workflow</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>Closed Won team notify</td><td>Workflow</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>Call recording + transcription</td><td>Built-in</td><td><span class="pill pill-purple">Pro</span></td></tr>
+            <tr><td>Call summaries + action items</td><td>Built-in AI</td><td><span class="pill pill-purple">Pro</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div style="background: var(--blue-bg); border: 1px solid rgba(59,130,246,0.3); border-radius: 10px; padding: 1.25rem;">
+        <h3 style="color: var(--blue); margin-top:0;">Custom Build (Leo's scope)</h3>
+        <table>
+          <thead><tr><th>Component</th><th>Why Custom</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td>Instantly &rarr; Attio sync</td><td>No native integration</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>Email Bison &rarr; Attio sync</td><td>No native integration</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>LP form &rarr; Attio sync</td><td>Leo decides approach</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>Calendly &rarr; Attio sync</td><td>May need enrichment</td><td><span class="pill pill-orange">P1</span></td></tr>
+            <tr><td>Reply Agent</td><td>No reply drafting in Attio</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>Sales Intelligence Agent</td><td>Need structured extraction</td><td><span class="pill pill-orange">P1</span></td></tr>
+            <tr><td>Pipeline Health reports</td><td>Basic Attio reporting</td><td><span class="pill pill-orange">P1</span></td></tr>
+            <tr><td>BQ export pipeline</td><td>No native connector</td><td><span class="pill pill-yellow">P2</span></td></tr>
+            <tr><td>Fireflies migration</td><td>One-time import</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>Sheets migration</td><td>One-time import</td><td><span class="pill pill-red">P0</span></td></tr>
+            <tr><td>Ad Transparency Checker</td><td>FB Ad Library + Google Ads Transparency</td><td><span class="pill pill-orange">P1</span></td></tr>
+            <tr><td>Nurture Agent</td><td>No native drip/nurture in Attio</td><td><span class="pill pill-orange">P1</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. INTEGRATION ARCHITECTURE -->
+<div class="section" id="integration">
+  <h2>4. Integration Architecture</h2>
+
+  <h3>Tech Stack</h3>
+  <div class="header-meta" style="margin-bottom:1.5rem">
+    <div class="meta-chip"><strong>Runtime:</strong> Google Cloud Functions (Node.js/TS)</div>
+    <div class="meta-chip"><strong>SDK:</strong> @attio/client</div>
+    <div class="meta-chip"><strong>MCP:</strong> @attio/mcp-server</div>
+    <div class="meta-chip"><strong>BQ:</strong> kamg_cpg</div>
+    <div class="meta-chip"><strong>Source:</strong> kamg-ops/cloud-function/cpg-attio/</div>
+  </div>
+
+  <h3>Integration Map</h3>
+
+  <!-- Sources -> Cloud Functions -->
+  <div class="integration-diagram">
+    <div class="integration-source">
+      <div class="integration-node" style="border-color: var(--blue);">
+        <div class="node-name" style="color:var(--blue)">Instantly</div>
+        <div class="node-desc">Steven's cold email<br>webhook</div>
+      </div>
+      <div class="integration-node" style="border-color: var(--purple);">
+        <div class="node-name" style="color:var(--purple)">Email Bison</div>
+        <div class="node-desc">Vovik's cold email<br>API poll</div>
+      </div>
+      <div class="integration-node" style="border-color: var(--orange);">
+        <div class="node-name" style="color:var(--orange)">LP Forms</div>
+        <div class="node-desc">Google Ads LPs<br>POST</div>
+      </div>
+      <div class="integration-node" style="border-color: var(--cyan);">
+        <div class="node-name" style="color:var(--cyan)">Calendly</div>
+        <div class="node-desc">Direct bookings<br>webhook</div>
+      </div>
+      <div class="integration-node" style="border-color: var(--yellow);">
+        <div class="node-name" style="color:var(--yellow)">Google Sheet</div>
+        <div class="node-desc">130 deals<br>one-time</div>
+      </div>
+      <div class="integration-node" style="border-color: var(--teal);">
+        <div class="node-name" style="color:var(--teal)">Fireflies</div>
+        <div class="node-desc">all calls<br>export</div>
+      </div>
+    </div>
+
+    <div class="integration-middle">
+      <div class="integration-cf">
+        <div class="cf-name">cpg-inbound-sync</div>
+        <ul class="cf-tasks">
+          <li>Dedup by email</li>
+          <li>Create Person + Company + Deal</li>
+          <li>Tag lead_source</li>
+          <li>Notify Slack</li>
+        </ul>
+      </div>
+      <div class="integration-cf">
+        <div class="cf-name">cpg-booking-sync</div>
+        <ul class="cf-tasks">
+          <li>Match existing deal</li>
+          <li>Advance stage to Call Scheduled</li>
+        </ul>
+      </div>
+      <div class="integration-cf">
+        <div class="cf-name">cpg-migration</div>
+        <ul class="cf-tasks">
+          <li>Map stages from spreadsheet</li>
+          <li>Parse comments for AOV/CPA</li>
+          <li>Match Fireflies by email</li>
+          <li>Attach transcripts as notes</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="integration-target">
+      <div class="integration-node" style="border-color: var(--accent); background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.05));">
+        <div class="node-name" style="color:var(--accent-light)">Attio Pro</div>
+        <div class="node-desc" style="text-align:left; margin-top:0.5rem;">
+          People<br>Companies<br>Deals<br>Notes<br>Calls
+        </div>
+      </div>
+      <div style="text-align:center; color:var(--text-muted); font-size:0.75rem;">Attio webhooks &darr;</div>
+      <div class="integration-node" style="border-color: var(--green);">
+        <div class="node-name" style="color:var(--green)">AI Agents</div>
+        <div class="node-desc" style="text-align:left; margin-top:0.5rem;">
+          Reply Agent<br>Sales Intel Agent<br>Nurture Agent<br>Pipeline Health<br>Ad Transparency
+        </div>
+      </div>
+      <div class="integration-node" style="border-color: var(--yellow);">
+        <div class="node-name" style="color:var(--yellow)">Slack</div>
+        <div class="node-desc">#cpg-deals<br>#cpg-replies<br>Krik DM / Stef DM</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dedup-box">
+    <div class="dedup-title">Dedup Strategy (shared across all integrations)</div>
+    <ol class="dedup-steps">
+      <li>Match on email address (primary key)</li>
+      <li>Fallback: fuzzy match on company name + domain</li>
+      <li>If match found: upsert (update existing Person/Company/Deal)</li>
+      <li>If no match: create new records</li>
+      <li>Never create duplicate People or Companies</li>
+    </ol>
+  </div>
+</div>
+
+<!-- 7. AGENT SPECIFICATIONS -->
+<div class="section" id="agents">
+  <h2>5. Agent Specifications</h2>
+
+  <div class="agent-grid" style="grid-template-columns: 1fr;">
+
+    <!-- Agent 1: Reply Agent -->
+    <div class="agent-card" style="border-color: var(--green);">
+      <div class="agent-name">
+        Agent 1: Reply Agent
+        <span class="agent-status pill pill-red">P0</span>
+      </div>
+      <div class="agent-desc">Classify cold email replies and draft Claude-powered responses for Julieta's review.</div>
+
+      <h4 style="margin-top:0.75rem;">Trigger</h4>
+      <p style="font-size:0.85rem; margin-bottom:0.5rem;">Attio webhook when new deal created at "Reply Received" stage.</p>
+
+      <h4>Flow</h4>
+      <div class="timeline" style="margin-bottom:0.5rem;">
+        <div class="timeline-item">
+          <div class="week">Step 1</div>
+          <div class="action">Read &amp; Classify</div>
+          <div class="detail">Read reply content from Instantly/Email Bison. Classify: <span class="pill pill-green">interested</span> <span class="pill pill-yellow">objection</span> <span class="pill pill-red">not_interested</span> <span class="pill pill-blue">auto_reply</span> <span class="pill pill-purple">out_of_office</span></div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 2 (if interested/objection)</div>
+          <div class="action">Draft Response</div>
+          <div class="detail">Pull company enrichment data from Attio AI Attributes. Draft personalized response using CPG brand voice. Post to Slack #cpg-replies with draft + one-click approve/edit.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 3</div>
+          <div class="action">Send on Approve</div>
+          <div class="detail">On Slack approval: send via original source API. Route by lead_source field (Instantly for Steven leads, Email Bison for Vovik leads). Update Attio: classification, response note, advance to Qualified if interested.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Auto-disqualify</div>
+          <div class="action">Not Interested / Auto Reply</div>
+          <div class="detail">Auto-move to Disqualified with reason.</div>
+        </div>
+      </div>
+
+      <p style="font-size:0.82rem;"><strong>Attio fields written:</strong> reply_classification, notes (thread context), stage advancement</p>
+      <p style="font-size:0.82rem; color:var(--cyan); margin-bottom:0;"><strong>Dependencies:</strong> Instantly API, Email Bison API, Attio SDK, Slack API, Claude API</p>
+    </div>
+
+    <!-- Agent 2: Sales Intelligence -->
+    <div class="agent-card" style="border-color: var(--blue);">
+      <div class="agent-name">
+        Agent 2: Sales Intelligence Agent
+        <span class="agent-status pill pill-orange">P1</span>
+      </div>
+      <div class="agent-desc">Morning call prep for Krik, pre-call research briefs, auto-generated Gamma proposal decks, and post-call structured data extraction.</div>
+
+      <div style="margin-top:1rem;">
+        <h4>Morning Call Prep (Krik Daily Briefing)</h4>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Trigger: scheduled, every morning at 8am</p>
+        <ul style="font-size:0.82rem;">
+          <li>Check Krik's Calendly/calendar for all calls scheduled today</li>
+          <li>For each call: pull full deal context, company enrichment, ad transparency data, all notes/history</li>
+          <li>Generate a consolidated morning briefing with prep notes for each call</li>
+          <li>Post single Slack DM to Krik: "You have X calls today" + per-call summary cards with key talking points, ICP fit, objection predictions, and recommended approach</li>
+        </ul>
+      </div>
+
+      <div class="two-col" style="margin-top:1rem; gap:1rem;">
+        <div>
+          <h4>Pre-call Brief + Gamma Deck</h4>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Trigger: deal moves to Call Scheduled</p>
+          <ul style="font-size:0.82rem;">
+            <li>Pull from Attio: company data, deal history, all notes, enrichment</li>
+            <li>Pull similar past deals (same industry/tier) with outcomes</li>
+            <li>Pull ad transparency data from Attio (FB Ad Library + Google Ads fields)</li>
+            <li>Research: website, social presence, additional context</li>
+            <li>Generate brief: overview, ICP fit, suggested CPA range, objection predictions, talking points</li>
+            <li><strong style="color:var(--orange);">Auto-generate personalized Gamma deck</strong> via Gamma MCP: company-specific slides with their data, industry benchmarks, relevant case studies, proposed pricing tier</li>
+            <li>Post to Slack DM of lead owner (Krik or Juli) with brief + Gamma deck link</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Post-call Extraction</h4>
+          <p style="font-size:0.82rem; color:var(--text-muted);">Trigger: Attio Pro call recording completed</p>
+          <ul style="font-size:0.82rem;">
+            <li>Read call transcript from Attio's native call object</li>
+            <li>Extract: AOV, CPA discussed, objections, next steps, sentiment, timeline</li>
+            <li>Write extracted fields to deal custom fields</li>
+            <li>Auto-advance stage based on call outcome</li>
+            <li>Post summary to Slack #cpg-deals</li>
+          </ul>
+        </div>
+      </div>
+      <p style="font-size:0.82rem; color:var(--cyan); margin-top:0.5rem; margin-bottom:0;"><strong>Dependencies:</strong> Attio SDK, Attio MCP Server, Claude API, Slack API, Gamma MCP, Calendar API</p>
+    </div>
+
+    <!-- Agent 3: Pipeline Health -->
+    <div class="agent-card" style="border-color: var(--purple);">
+      <div class="agent-name">
+        Agent 3: Pipeline Health &amp; Reporting
+        <span class="agent-status pill pill-orange">P1</span>
+      </div>
+      <div class="agent-desc">Weekly pipeline intelligence to Slack + ongoing BQ export.</div>
+
+      <div class="two-col" style="margin-top:1rem; gap:1rem;">
+        <div>
+          <h4>Weekly Slack Report</h4>
+          <ul style="font-size:0.82rem;">
+            <li>Pipeline total $ by stage</li>
+            <li>Deals by stage count</li>
+            <li>Close rate by source (Instantly vs Email Bison vs Google Ads vs Calendly)</li>
+            <li>Close rate by rep (Krik vs Juli)</li>
+            <li>Stale deals (&gt;7 days no activity) with recommended actions</li>
+            <li>New deals this week vs last week</li>
+            <li>Win/loss breakdown with top loss reasons</li>
+          </ul>
+          <h4 style="margin-top:0.75rem;">Delivery</h4>
+          <ul style="font-size:0.82rem;">
+            <li><strong>Krik:</strong> Slack DM, condensed (total $, closing this week, action needed)</li>
+            <li><strong>Stef:</strong> Slack DM, operational (stale deals, follow-ups, weekly comparison)</li>
+            <li><strong>#cpg-deals:</strong> Full weekly digest</li>
+          </ul>
+        </div>
+        <div>
+          <h4>BQ Export (scheduled alongside weekly report)</h4>
+          <table>
+            <thead><tr><th>Target Table</th><th>Content</th></tr></thead>
+            <tbody>
+              <tr><td>kamg_cpg.attio_deals</td><td>All deals with stage, dates, fields</td></tr>
+              <tr><td>kamg_cpg.attio_activities</td><td>All activities/notes</td></tr>
+              <tr><td>kamg_cpg.pipeline_snapshots</td><td>Point-in-time snapshots</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box blue" style="margin-top:0.75rem; padding:0.75rem;">
+            <div class="title" style="font-size:0.82rem;">Attio Native Complement</div>
+            <p style="font-size:0.8rem;">Stale deal alerts (&gt;7 days) fire as real-time Slack notifications via Attio workflows, independent of the weekly batch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent 4: Nurture Agent -->
+    <div class="agent-card" style="border-color: var(--orange);">
+      <div class="agent-name">
+        Agent 4: Nurture Agent
+        <span class="agent-status pill pill-orange">P1</span>
+      </div>
+      <div class="agent-desc">Automatically re-engage cold prospects with context-aware nurture emails. Human-approval required before every send.</div>
+
+      <h4 style="margin-top:0.75rem;">Trigger</h4>
+      <p style="font-size:0.85rem; margin-bottom:0.5rem;">Scheduled scan (daily). Identifies deals going cold: no activity in &gt;5 days at Qualified, Proposal Sent, or Follow Up stages.</p>
+
+      <h4>Flow</h4>
+      <div class="timeline" style="margin-bottom:0.5rem;">
+        <div class="timeline-item">
+          <div class="week">Step 1</div>
+          <div class="action">Identify Cold Deals</div>
+          <div class="detail">Query Attio for deals with no activity &gt;5 days. Exclude Disqualified, Closed Won/Lost. Prioritize by lead score + deal value.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 2</div>
+          <div class="action">Build Context Package</div>
+          <div class="detail">For each cold deal, pull: all notes/history, Krik's comments, lead score, qualification status, last conversation topics, objections raised, proposal details if sent, company enrichment data.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 3</div>
+          <div class="action">Draft Nurture Email</div>
+          <div class="detail">Claude generates a personalized follow-up email based on full deal context. Tone matches CPG brand voice. References specific prior conversations. Provides value (case study, insight, resource) rather than just "checking in."</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 4</div>
+          <div class="action">Approval Gate (Slack)</div>
+          <div class="detail">Post draft to Slack with deal summary + reasoning. Buttons: <span class="pill pill-green">Approve &amp; Send</span> <span class="pill pill-yellow">Edit</span> <span class="pill pill-red">Skip</span> <span class="pill pill-purple">Snooze 3 days</span>. Nothing sends without human click.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 5</div>
+          <div class="action">Send &amp; Log</div>
+          <div class="detail">On approval: send via original source API (route by lead_source). Log nurture touch as Attio note. Reset cold-deal timer. Track open/reply if possible.</div>
+        </div>
+      </div>
+
+      <h4>Nurture Intelligence</h4>
+      <ul style="font-size:0.82rem;">
+        <li><strong>Cadence:</strong> Max 1 nurture email per deal every 5 days. Max 3 nurture attempts before auto-flagging for manual review.</li>
+        <li><strong>Escalation:</strong> After 3 unanswered nurtures, notify Krik in Slack DM with recommendation (archive, call, different angle).</li>
+        <li><strong>Learning:</strong> Track which nurture emails get replies vs ignored. Feed outcomes back to improve future drafts.</li>
+      </ul>
+
+      <p style="font-size:0.82rem; color:var(--cyan); margin-top:0.5rem; margin-bottom:0;"><strong>Dependencies:</strong> Attio SDK, Instantly API, Email Bison API, Claude API, Slack API</p>
+    </div>
+
+    <!-- Agent 5: Ad Transparency Checker -->
+    <div class="agent-card" style="border-color: var(--yellow);">
+      <div class="agent-name">
+        Agent 5: Ad Transparency Checker
+        <span class="agent-status pill pill-orange">P1</span>
+      </div>
+      <div class="agent-desc">Validate prospect ad spend claims by checking Facebook Ad Library and Google Ads Transparency Center.</div>
+
+      <h4 style="margin-top:0.75rem;">Trigger</h4>
+      <p style="font-size:0.85rem; margin-bottom:0.5rem;">Runs on new deal creation (any source) and on-demand before discovery calls.</p>
+
+      <h4>Flow</h4>
+      <div class="timeline" style="margin-bottom:0.5rem;">
+        <div class="timeline-item">
+          <div class="week">Step 1</div>
+          <div class="action">Resolve Company Identity</div>
+          <div class="detail">Pull company name + domain from Attio. Search for Facebook page and Google advertiser ID.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 2</div>
+          <div class="action">Facebook Ad Library Lookup</div>
+          <div class="detail">Query Meta Ad Library API. Extract: active ad count, ad themes/copy patterns, estimated spend range, creative types, how long running.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 3</div>
+          <div class="action">Google Ads Transparency Lookup</div>
+          <div class="detail">Scrape Google Ads Transparency Center. Extract: active ad count, ad formats, verified advertiser status.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="week">Step 4</div>
+          <div class="action">Write to Attio</div>
+          <div class="detail">Update Company record: fb_ad_library_status, fb_ad_count, fb_ad_themes, google_ads_status, google_ads_count, ads_verified, ads_last_checked.</div>
+        </div>
+      </div>
+
+      <div class="info-box orange" style="margin-top:0.5rem; padding:0.75rem;">
+        <div class="title" style="font-size:0.82rem;">ICP Validation</div>
+        <p style="font-size:0.8rem;">CPG's ICP qualifier is &ge;$10K/mo ad spend. Ad transparency data validates whether prospects actually run ads, cross-referenced against their claimed spend. Deals with no active ads get flagged for Krik before discovery call.</p>
+      </div>
+
+      <p style="font-size:0.82rem; color:var(--cyan); margin-top:0.5rem; margin-bottom:0;"><strong>Dependencies:</strong> Meta Ad Library API, Google Ads Transparency (scraper), Attio SDK</p>
+    </div>
+  </div>
+</div>
+
+<!-- 8. DATA MIGRATION -->
+<div class="section" id="migration">
+  <h2>6. Data Migration Plan</h2>
+
+  <h3>Source 1: Google Sheets (~130 deals)</h3>
+  <p style="font-size:0.85rem; color:var(--text-muted);">Sheet ID: <code style="background:var(--surface-3); padding:0.15rem 0.4rem; border-radius:4px; font-size:0.78rem;">1kr_mhcd_vmFq193MwqEUWq26A2nCRuupfvjmG6nUH_g</code></p>
+
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Sheet Column</th>
+        <th>Attio Object</th>
+        <th>Attio Field</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Client-Brand</td><td><span class="pill pill-blue">Company</span></td><td>name</td></tr>
+      <tr><td># Traffic</td><td><span class="pill pill-blue">Company</span></td><td>monthly_traffic</td></tr>
+      <tr><td>Lead</td><td><span class="pill pill-purple">Deal</span></td><td>lead_owner</td></tr>
+      <tr><td>Last FU</td><td><span class="pill pill-purple">Deal</span></td><td>last_follow_up</td></tr>
+      <tr><td>Stage</td><td><span class="pill pill-purple">Deal</span></td><td>pipeline stage (see Section 3 mapping)</td></tr>
+      <tr><td>Tier</td><td><span class="pill pill-purple">Deal</span></td><td>tier</td></tr>
+      <tr><td>ADS</td><td><span class="pill pill-blue">Company</span></td><td>ads_running</td></tr>
+      <tr><td>Product Type</td><td><span class="pill pill-blue">Company</span></td><td>product_type</td></tr>
+      <tr><td>Linkedin</td><td><span class="pill pill-green">Person</span></td><td>linkedin_url</td></tr>
+      <tr><td>Position name</td><td><span class="pill pill-green">Person</span></td><td>name</td></tr>
+      <tr><td>Position</td><td><span class="pill pill-green">Person</span></td><td>position_type</td></tr>
+      <tr><td>Point of contact</td><td><span class="pill pill-green">Person</span></td><td>email</td></tr>
+      <tr><td>Call date</td><td><span class="pill pill-purple">Deal</span></td><td>created_at</td></tr>
+      <tr><td>Comments</td><td><span class="pill pill-purple">Deal</span></td><td>notes (parsed, see below)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box blue" style="margin-top:1rem;">
+    <div class="title">Comments Parsing (Claude-powered extraction)</div>
+    <p style="font-size:0.85rem;">The Comments column contains rich deal context. The migration script must extract:</p>
+    <ul style="font-size:0.85rem;">
+      <li><strong>AOV</strong> (e.g., "AOV $85" &rarr; aov field)</li>
+      <li><strong>CPA agreed</strong> (e.g., "we agreed on a $25 CPA" &rarr; cpa_agreed field)</li>
+      <li><strong>CPA target</strong> (e.g., "CAC $30-40" &rarr; cpa_target field)</li>
+      <li><strong>ROAS</strong> (e.g., "1.5 ROAS" &rarr; roas_target field)</li>
+      <li><strong>Discount code</strong> mentions &rarr; discount_code field</li>
+      <li><strong>Objections</strong> (e.g., "doesn't want to pay upfront" &rarr; tagged)</li>
+      <li><strong>Next steps</strong> (e.g., "ping again in February" &rarr; follow_up_date)</li>
+      <li>Everything else &rarr; deal note</li>
+    </ul>
+  </div>
+
+  <h3>Source 2: Fireflies (all calls)</h3>
+  <div class="timeline" style="margin-top:0.75rem;">
+    <div class="timeline-item">
+      <div class="week">Step 1</div>
+      <div class="action">Export all CPG-related Fireflies transcripts</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Step 2</div>
+      <div class="action">Extract meeting date, attendees, summary, action items, key data points</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Step 3</div>
+      <div class="action">Match to Attio deal by company name or contact email</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Step 4</div>
+      <div class="action">Import as structured note with source tag <code style="background:var(--surface-3); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.78rem;">fireflies_import</code></div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Step 5</div>
+      <div class="action">Write key data points to deal custom fields if not already populated</div>
+    </div>
+  </div>
+
+  <h3>Migration Sequence</h3>
+  <div class="timeline" style="margin-top:0.75rem;">
+    <div class="timeline-item">
+      <div class="week">Phase 1</div>
+      <div class="action">Create Attio workspace, configure pipelines, stages, custom fields</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Phase 2</div>
+      <div class="action">Run sheet migration script (creates People + Companies + Deals)</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Phase 3</div>
+      <div class="action">Run Fireflies migration script (attaches notes + enriches deal fields)</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Phase 4</div>
+      <div class="action">Manual QA: spot-check 10 deals for accuracy</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Phase 5</div>
+      <div class="action">Announce to team</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. ADOPTION STRATEGY -->
+<div class="section" id="adoption">
+  <h2>7. Adoption Strategy</h2>
+
+  <div class="info-box purple">
+    <div class="title">The "Don't Call It CRM" Playbook</div>
+    <p><strong>For Krik:</strong> "Deal board" &mdash; visual pipeline he never has to touch. Weekly Slack DM with total pipeline $ and deals needing his attention.</p>
+    <p><strong>For Stef:</strong> "Pipeline tracker" &mdash; replaces 2-3 status meetings/week with Slack notifications. She never opens Attio.</p>
+    <p><strong>For Julieta:</strong> "AI sales assistant" &mdash; Reply Agent drafts her responses, pre-call briefs appear in Slack, follow-ups are automated. Less work, not more.</p>
+  </div>
+
+  <h3>30-Day Rollout</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="week">Week 0</div>
+      <div class="action">Attio setup + data migration + integrations</div>
+      <div class="detail">Nobody on team sees it yet. Leo + Kas only.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 1</div>
+      <div class="action">Show pipeline to Krik (view only)</div>
+      <div class="detail">Show Stef the Slack channel. Julieta gets view access. AI agents populate the board. Kas presents.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 2</div>
+      <div class="action">Julieta starts receiving Reply Agent drafts in Slack</div>
+      <div class="detail">She approves/edits. Never opens Attio.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 3</div>
+      <div class="action">Full automation live</div>
+      <div class="detail">Instantly/Bison/LP/Calendly syncing live. Sales Intel briefs before calls. All systems operational.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="week">Week 4</div>
+      <div class="action">Show results and evaluate</div>
+      <div class="detail">"You closed $X this month. Pipeline is $Y." Evaluate: has Stef had fewer status meetings? Kas + team review.</div>
+    </div>
+  </div>
+
+  <h3>Per-Person Strategy</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Person</th>
+        <th>Their Concern</th>
+        <th>What They Get</th>
+        <th>What They Do</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Krik</strong> (CEO)</td>
+        <td>"I hate CRMs."</td>
+        <td>Weekly "$X pipeline" Slack DM. Airtable-like board. Never logs anything.</td>
+        <td>Glance at board. Read Slack summary.</td>
+      </tr>
+      <tr>
+        <td><strong>Julieta</strong> (BDR)</td>
+        <td>"My manual system works."</td>
+        <td>AI drafts replies. Auto-qualification. Follow-up reminders.</td>
+        <td>Review AI drafts in Slack. Click approve/edit.</td>
+      </tr>
+      <tr>
+        <td><strong>Stef</strong> (COO)</td>
+        <td>"Don't add more tools."</td>
+        <td>Pipeline notifications IN Slack. 2-3 fewer meetings/week.</td>
+        <td>Read Slack notifications. Done.</td>
+      </tr>
+      <tr>
+        <td><strong>Kas</strong> (CMO)</td>
+        <td>Needs pipeline data for strategy.</td>
+        <td>BQ exports + weekly reports. Close rate by source/rep.</td>
+        <td>Configure agents. Review dashboards.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- 10. BUILD PLAN -->
+<div class="section" id="build-plan">
+  <h2>8. Phased Build Plan</h2>
+
+  <div class="three-col">
+    <!-- Phase 1 -->
+    <div class="phase-card" style="border-color: var(--green);">
+      <div class="phase-header">
+        <div class="phase-title" style="color:var(--green);">Phase 1: Foundation</div>
+        <div><span class="pill pill-red">P0</span></div>
+      </div>
+      <div class="phase-timeline">Week 1</div>
+      <ul class="checklist" style="margin-top:0.75rem;">
+        <li>Create Attio Pro workspace</li>
+        <li>Configure Pipeline 1 (Direct Clients) with all stages</li>
+        <li>Configure Pipeline 2 (Network/AOR)</li>
+        <li>Set up all custom fields on People, Companies, Deals</li>
+        <li>Configure all Attio AI Attributes (company_summary, icp_fit_assessment, founding_year, tech_stack_signals, social_presence_summary)</li>
+        <li>Set up Attio Slack integration + notification workflows</li>
+        <li>Configure native automations (auto-advance, stale alerts, Form Fill &rarr; Calendly booking)</li>
+        <li>Build + run Google Sheets migration script</li>
+        <li>Build + run Fireflies migration script (export ALL calls, not just 28)</li>
+        <li>Build Instantly &rarr; Attio sync (Cloud Function)</li>
+        <li>Build Email Bison &rarr; Attio sync (Cloud Function)</li>
+        <li>Build LP form &rarr; Attio sync</li>
+        <li>Build Calendly &rarr; Attio sync</li>
+        <li>Manual QA on migrated data</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-card" style="border-color: var(--blue);">
+      <div class="phase-header">
+        <div class="phase-title" style="color:var(--blue);">Phase 2: Core Agents</div>
+        <div><span class="pill pill-red">P0</span> <span class="pill pill-orange" style="margin-left:0.25rem;">P1</span></div>
+      </div>
+      <div class="phase-timeline">Week 2-3</div>
+      <ul class="checklist" style="margin-top:0.75rem;">
+        <li>Reply Agent: classification engine</li>
+        <li>Reply Agent: Claude-powered response drafting</li>
+        <li>Reply Agent: Slack review flow (#cpg-replies)</li>
+        <li>Reply Agent: send-on-approve via Instantly/Email Bison API</li>
+        <li>Sales Intel Agent: morning call prep (Krik daily Slack briefing)</li>
+        <li>Sales Intel Agent: pre-call brief generation (incl. ad transparency data)</li>
+        <li>Sales Intel Agent: auto-generated Gamma proposal deck per prospect</li>
+        <li>Sales Intel Agent: post-call transcript extraction</li>
+        <li>Sales Intel Agent: auto-field-update + stage advancement</li>
+        <li>Ad Transparency Checker: FB Ad Library + Google Ads Transparency lookups</li>
+        <li>Ad Transparency Checker: write results to Attio Company fields</li>
+        <li>Nurture Agent: cold deal detection + context assembly</li>
+        <li>Nurture Agent: Claude-powered email drafting</li>
+        <li>Nurture Agent: Slack approval flow (approve/edit/skip/snooze)</li>
+        <li>Nurture Agent: send-on-approve + Attio logging</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-card" style="border-color: var(--purple);">
+      <div class="phase-header">
+        <div class="phase-title" style="color:var(--purple);">Phase 3: Intelligence</div>
+        <div><span class="pill pill-orange">P1</span> <span class="pill pill-yellow" style="margin-left:0.25rem;">P2</span></div>
+      </div>
+      <div class="phase-timeline">Week 4</div>
+      <ul class="checklist" style="margin-top:0.75rem;">
+        <li>Pipeline Health: weekly Slack report (Krik DM + Stef DM + #cpg-deals)</li>
+        <li>Pipeline Health: close rate by source/rep calculations</li>
+        <li>BQ export pipeline (deals, activities, snapshots &rarr; kamg_cpg)</li>
+        <li>Dashboard integration (existing CPG infrastructure)</li>
+        <li>Attio Pro call recording setup + team training</li>
+        <li>30-day adoption review</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:1.25rem;">Backlog (Post-launch)</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>Item</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Onboarding Automation Agent</td><td>Closed Won &rarr; Bill.com + DocuSign + onboarding form</td></tr>
+      <tr><td>LP form A/B test tracking</td><td>Track LP variants in Attio</td></tr>
+      <tr><td>Competitor monitoring</td><td>Insights from deal loss reasons</td></tr>
+      <tr><td>Advanced BQ analytics</td><td>Deal velocity, stage duration, conversion funnels</td></tr>
+      <tr><td>Nurture email performance dashboard</td><td>Which nurture angles drive most re-engagement</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- 11. COST SUMMARY -->
+<div class="section" id="cost">
+  <h2>9. Cost Summary</h2>
+
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Monthly</th>
+        <th>Annual</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Attio Pro (3 users)</strong></td>
+        <td>$207</td>
+        <td>$2,484</td>
+      </tr>
+      <tr>
+        <td>Cloud Functions (GCP)</td>
+        <td>~$5</td>
+        <td>~$60</td>
+      </tr>
+      <tr>
+        <td>Claude API (agents)</td>
+        <td>~$30-50</td>
+        <td>~$360-600</td>
+      </tr>
+      <tr style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.05));">
+        <td><strong style="font-size:0.95rem;">Total</strong></td>
+        <td><strong style="font-size:0.95rem;">~$242-262</strong></td>
+        <td><strong style="font-size:0.95rem;">~$2,904-3,144</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Savings</h3>
+  <div class="score-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:0.75rem;">
+    <div class="score-card recommended" style="text-align:center;">
+      <div class="name" style="color:var(--green); font-size:1.1rem;">Fireflies</div>
+      <div class="price">Subscription eliminated</div>
+      <p style="font-size:0.82rem; margin-top:0.5rem;">Moving to Attio Pro native call recording + transcription</p>
+    </div>
+    <div class="score-card recommended" style="text-align:center;">
+      <div class="name" style="color:var(--green); font-size:1.1rem;">MailChimp</div>
+      <div class="price">Potentially eliminated</div>
+      <p style="font-size:0.82rem; margin-top:0.5rem;">Attio handles contact management</p>
+    </div>
+    <div class="score-card recommended" style="text-align:center;">
+      <div class="name" style="color:var(--green); font-size:1.1rem;">Status Meetings</div>
+      <div class="price">2-3/week eliminated</div>
+      <p style="font-size:0.82rem; margin-top:0.5rem;">Stef gets automated Slack pipeline updates</p>
+    </div>
+    <div class="score-card recommended" style="text-align:center;">
+      <div class="name" style="color:var(--green); font-size:1.1rem;">Manual Tracking</div>
+      <div class="price">Hours/week eliminated</div>
+      <p style="font-size:0.82rem; margin-top:0.5rem;">Julieta's pipeline tracking fully automated</p>
+    </div>
+  </div>
+</div>
+
+<!-- 12. RISKS & MITIGATIONS -->
+<div class="section" id="risks">
+  <h2>10. Risks &amp; Mitigations</h2>
+
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Risk</th>
+        <th>Impact</th>
+        <th>Mitigation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Attio Pro call recording quality &lt; Fireflies</td>
+        <td><span class="pill pill-yellow">Medium</span></td>
+        <td>Keep Fireflies as backup for 30 days. Evaluate side-by-side.</td>
+      </tr>
+      <tr>
+        <td>Team doesn't adopt (again)</td>
+        <td><span class="pill pill-red">High</span></td>
+        <td>"Invisible CRM" strategy: agents do all data entry, team only sees Slack. If Slack adoption fails, the system is broken.</td>
+      </tr>
+      <tr>
+        <td>Instantly/Email Bison API changes</td>
+        <td><span class="pill pill-yellow">Medium</span></td>
+        <td>Abstract sync layer so source changes don't require agent rewrites.</td>
+      </tr>
+      <tr>
+        <td>Rate limits hit with multiple agents</td>
+        <td><span class="pill pill-green">Low</span></td>
+        <td>Attio Pro at 100 reads/sec + 25 writes/sec is generous. Implement request queuing as safety net.</td>
+      </tr>
+      <tr>
+        <td>Comments parsing misses data</td>
+        <td><span class="pill pill-yellow">Medium</span></td>
+        <td>Claude-powered extraction with confidence scores. Low-confidence extractions flagged for manual review.</td>
+      </tr>
+      <tr>
+        <td>Vovik's Email Bison integration undocumented</td>
+        <td><span class="pill pill-yellow">Medium</span></td>
+        <td>Park as TBD; Leo investigates API docs during Phase 1. Fallback: manual CSV import.</td>
+      </tr>
+      <tr>
+        <td>Gamma MCP reliability for auto-deck generation</td>
+        <td><span class="pill pill-green">Low</span></td>
+        <td>Gamma deck is a bonus, not a blocker. If Gamma API fails, Sales Intel still delivers Slack brief. Queue failed deck for retry.</td>
+      </tr>
+      <tr>
+        <td>Nurture Agent over-contacts prospects</td>
+        <td><span class="pill pill-yellow">Medium</span></td>
+        <td>Hard cap: max 1 email per 5 days, max 3 attempts. Human approval gate prevents any send without explicit click.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- 13. SUCCESS METRICS -->
+<div class="section" id="metrics">
+  <h2>11. Success Metrics (30-day review)</h2>
+
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Target</th>
+        <th>How Measured</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Deals tracked with timestamps</strong></td>
+        <td><span class="pill pill-green">100%</span> of new leads</td>
+        <td>Attio deal count vs Instantly/Bison reply count</td>
+      </tr>
+      <tr>
+        <td><strong>Manual data entry by team</strong></td>
+        <td><span class="pill pill-green">0 hours/week</span></td>
+        <td>Survey Julieta + Stef</td>
+      </tr>
+      <tr>
+        <td><strong>Close rate measurable</strong></td>
+        <td><span class="pill pill-green">Yes</span>, by source + rep</td>
+        <td>Pipeline Health Agent output</td>
+      </tr>
+      <tr>
+        <td><strong>Status meetings replaced</strong></td>
+        <td><span class="pill pill-green">2-3/week fewer</span></td>
+        <td>Survey Stef</td>
+      </tr>
+      <tr>
+        <td><strong>Reply Agent accuracy</strong></td>
+        <td><span class="pill pill-green">&gt;80%</span> classification correct</td>
+        <td>Julieta approval rate in Slack</td>
+      </tr>
+      <tr>
+        <td><strong>Pre-call briefs delivered</strong></td>
+        <td><span class="pill pill-green">100%</span> of scheduled calls</td>
+        <td>Sales Intel Agent log</td>
+      </tr>
+      <tr>
+        <td><strong>Pipeline $ visible</strong></td>
+        <td><span class="pill pill-green">Weekly</span> in Slack</td>
+        <td>Krik confirms receiving DM</td>
+      </tr>
+      <tr>
+        <td><strong>Nurture re-engagement rate</strong></td>
+        <td><span class="pill pill-green">&gt;15%</span> reply rate</td>
+        <td>Nurture Agent reply tracking</td>
+      </tr>
+      <tr>
+        <td><strong>Morning call prep delivered</strong></td>
+        <td><span class="pill pill-green">100%</span> of call days</td>
+        <td>Krik Slack DM delivery log</td>
+      </tr>
+      <tr>
+        <td><strong>Gamma decks generated</strong></td>
+        <td><span class="pill pill-green">100%</span> of discovery calls</td>
+        <td>Sales Intel Agent log</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- APPENDIX -->
+<div class="section" id="appendix">
+  <h2>Appendix</h2>
+
+  <div class="three-col" style="margin-bottom:1rem;">
+    <div>
+      <h3 style="margin-top:0;">A. Attio API Reference</h3>
+      <ul style="font-size:0.82rem;">
+        <li><strong>REST API v2:</strong> <code style="background:var(--surface-3); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.78rem;">https://api.attio.com/v2/</code></li>
+        <li><strong>TypeScript SDK:</strong> @attio/client</li>
+        <li><strong>MCP Server:</strong> @attio/mcp-server (35 tools)</li>
+        <li><strong>Rate limits:</strong> Verify during setup (100 reads/sec documented; Leo to confirm on Pro)</li>
+        <li><strong>Auth:</strong> OAuth 2.0 or workspace API tokens (Bearer)</li>
+        <li><strong>Webhooks:</strong> Real-time events for record/list entry changes</li>
+        <li><strong>Docs:</strong> <a href="https://developers.attio.com" target="_blank">developers.attio.com</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">B. Data Source APIs</h3>
+      <ul style="font-size:0.82rem;">
+        <li><strong>Instantly:</strong> REST API with webhook support for reply events</li>
+        <li><strong>Email Bison:</strong> API (Leo to investigate Phase 1)</li>
+        <li><strong>Calendly:</strong> Webhook API for booking events</li>
+        <li><strong>Fireflies:</strong> Export API for transcripts</li>
+        <li><strong>Google Sheets:</strong> Sheets API v4 for migration read</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">C. Source Spreadsheet</h3>
+      <ul style="font-size:0.82rem;">
+        <li><strong>Sheet ID:</strong> <code style="background:var(--surface-3); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.72rem;">1kr_mhcd_vm...nUH_g</code></li>
+        <li><strong>Records:</strong> ~130 deals</li>
+        <li><strong>Date range:</strong> August 2025 - May 2026</li>
+        <li><strong>Contains:</strong> Contact info, stage, tier, traffic, product type, deal notes with AOV/CPA/objections</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.8rem;">
+  <div style="height:1px; background: var(--border); margin-bottom:2rem;"></div>
+  <p>CPG Affiliate Attio Migration PRD | KAMG | April 23, 2026</p>
+  <p style="margin-top:0.25rem;">Owner: Kas Andz | Builder: Leo | Status: Approved for Build</p>
+</div>
+
+</div>
+</body>
+</html>

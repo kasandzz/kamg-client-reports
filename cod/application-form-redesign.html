@@ -1115,7 +1115,7 @@
       <span>Trusted by 3,000+ coaches, therapists &amp; consultants</span>
     </div>
     <div class="trust-meta">
-      Featured in Forbes, Inc., Entrepreneur &middot; No pressure, no pitch &mdash; just a strategy conversation.
+      Featured in Forbes, Inc., Entrepreneur.
     </div>
   </div>
 
@@ -1446,7 +1446,7 @@
     <div class="trustpilot-widget"
          data-locale="en-US"
          data-template-id="53aa8807dec7e10d38f59f32"
-         data-businessunit-id="REPLACE_WITH_COD_TRUSTPILOT_ID"
+         data-businessunit-id="5b2050a59fda6800011ebf55"
          data-style-height="150px"
          data-style-width="100%"
          data-theme="dark">
@@ -1457,9 +1457,7 @@
   <!-- FTC compliance footer (always visible) -->
   <footer class="ftc-footer">
     <p class="ftc-text">
-      <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a><span class="ftc-divider">&middot;</span>
-      <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener">Terms of Service</a><span class="ftc-divider">&middot;</span>
-      <a href="https://clientsondemand.com/earnings-disclaimer" target="_blank" rel="noopener">Earnings Disclaimer</a>
+      <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
     </p>
   </footer>
 </div>
@@ -1595,6 +1593,14 @@
 
   // ---- General navigation ----
 
+  // Defensive: hide every step before any transition (prevents multi-step bleed)
+  function hideAllSteps() {
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.remove('active', 'slide-back');
+      s.style.display = 'none';
+    });
+  }
+
   function goNext() {
     if (currentStep === 1 && !document.getElementById('helpText').value.trim()) {
       document.getElementById('helpText').focus();
@@ -1605,15 +1611,7 @@
       persistState();
     }
 
-    const currentEl = document.querySelector(`.step[data-step="${currentStep}"]:not([id^="sub-"]):not([id="step-categories"])`);
-    if (!currentEl) {
-      const visible = document.querySelector('.step.active, .step.slide-back');
-      if (visible) { visible.classList.remove('active','slide-back'); visible.style.display = 'none'; }
-    } else {
-      currentEl.classList.remove('active');
-      currentEl.style.display = 'none';
-    }
-
+    hideAllSteps();
     currentStep++;
     showStep(currentStep, 'forward');
     updateDots();
@@ -1622,11 +1620,7 @@
   function goBack() {
     const wasOnCalendar = currentStep === 4;
 
-    const visible = document.querySelector('.step.active') || document.querySelector('.step.slide-back');
-    if (visible) {
-      visible.classList.remove('active','slide-back');
-      visible.style.display = 'none';
-    }
+    hideAllSteps();
 
     currentStep--;
 

@@ -106,17 +106,23 @@
   .booking-chip {
     display: none;
     align-items: center;
-    gap: 8px;
-    padding: 8px 14px 8px 10px;
+    gap: 10px;
+    padding: 10px 16px 10px 12px;
     background: rgba(200,169,110,0.06);
     border: 1px solid var(--accent-gold-border);
     border-radius: 100px;
     margin-bottom: 18px;
-    animation: fadeDown 0.4s ease forwards;
+    transform: translateY(-8px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .booking-chip.visible { display: inline-flex; }
+  .booking-chip.visible {
+    display: inline-flex;
+    transform: translateY(0);
+    opacity: 1;
+  }
   .booking-chip-avatar {
-    width: 22px; height: 22px;
+    width: 26px; height: 26px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
     color: var(--bg-base);
@@ -124,7 +130,14 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 11px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .booking-chip-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.2;
   }
   .booking-chip-text {
     font-size: 0.78rem;
@@ -135,6 +148,15 @@
     color: var(--text-primary);
     font-weight: 500;
   }
+  .booking-chip-sub {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .booking-chip-sub svg { width: 9px; height: 9px; stroke: var(--accent-gold); fill: none; stroke-width: 3; }
 
   /* Header */
   .form-header {

@@ -102,6 +102,40 @@
     font-size: 14px;
   }
 
+  /* Booking-for chip (shown only on calendar step) */
+  .booking-chip {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px 8px 10px;
+    background: rgba(200,169,110,0.06);
+    border: 1px solid var(--accent-gold-border);
+    border-radius: 100px;
+    margin-bottom: 18px;
+    animation: fadeDown 0.4s ease forwards;
+  }
+  .booking-chip.visible { display: inline-flex; }
+  .booking-chip-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+    color: var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .booking-chip-text {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .booking-chip-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
   /* Header */
   .form-header {
     text-align: center;
@@ -203,7 +237,7 @@
     font-style: italic;
   }
 
-  /* === CATEGORY CARDS (bigger, bolder) === */
+  /* === CATEGORY CARDS === */
   .category-card {
     display: flex;
     align-items: center;
@@ -256,7 +290,7 @@
   }
   .category-card:hover .cat-arrow { transform: translateX(3px); color: var(--accent-gold); }
 
-  /* === SUB-OPTION CARDS (standard size) === */
+  /* === SUB-OPTION CARDS === */
   .card-option {
     display: flex;
     align-items: center;
@@ -324,7 +358,7 @@
   }
   .card-check svg { width: 12px; height: 12px; stroke: var(--bg-base); stroke-width: 3; fill: none; }
 
-  /* Back link (inline, minimal) */
+  /* Back link */
   .back-link {
     display: inline-flex;
     align-items: center;
@@ -449,6 +483,226 @@
   }
   .consent-text { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; font-weight: 300; }
 
+  /* === STEP 5: CALENDAR PICKER === */
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 0 2px;
+  }
+  .month-nav-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .month-nav-controls { display: flex; gap: 6px; }
+  .month-nav-btn {
+    width: 32px; height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .month-nav-btn:hover:not(:disabled) { background: var(--bg-card-hover); border-color: var(--border-hover); color: var(--text-primary); }
+  .month-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .month-nav-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 2px;
+  }
+  .section-label-text {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .timezone-tag {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .timezone-tag svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .date-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 12px;
+    margin-bottom: 24px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .date-strip::-webkit-scrollbar { display: none; }
+
+  .date-card {
+    flex: 0 0 auto;
+    width: 64px;
+    padding: 12px 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    scroll-snap-align: start;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .date-card:hover:not(.disabled) {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+  .date-card:active:not(.disabled) { transform: scale(0.97); }
+  .date-card.selected {
+    background: var(--bg-card-selected);
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 0 24px var(--accent-gold-glow);
+  }
+  .date-card.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .date-card.today::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+  }
+  .date-card-day {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .date-card.selected .date-card-day { color: var(--accent-gold); }
+  .date-card-num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .date-card.disabled .date-card-num { color: var(--text-muted); }
+
+  .time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .time-slot {
+    padding: 14px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .time-slot:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .time-slot:active { transform: scale(0.98); }
+  .time-slot.selected {
+    background: var(--bg-card-selected);
+    border-color: var(--accent-gold-border);
+    box-shadow: 0 0 24px var(--accent-gold-glow);
+  }
+  .time-slot-time {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .time-slot.selected .time-slot-time { color: var(--accent-gold); }
+  .time-slot-meridiem {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-left: 2px;
+  }
+  .time-slot.selected .time-slot-meridiem { color: var(--accent-gold); opacity: 0.8; }
+  .time-slot.loading {
+    background: linear-gradient(90deg, var(--bg-card) 0%, var(--bg-card-hover) 50%, var(--bg-card) 100%);
+    background-size: 200% 100%;
+    animation: shimmer-bg 1.5s ease-in-out infinite;
+    pointer-events: none;
+    color: transparent;
+  }
+
+  .no-slots {
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-card);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+    margin-bottom: 24px;
+    grid-column: 1 / -1;
+  }
+
+  .summary-card {
+    padding: 18px 20px;
+    background: linear-gradient(135deg, rgba(200,169,110,0.08), rgba(200,169,110,0.02));
+    border: 1px solid var(--accent-gold-border);
+    border-radius: var(--radius-card);
+    margin-bottom: 16px;
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+  .summary-card.visible { display: block; }
+  .summary-label {
+    font-size: 0.68rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .summary-time {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .summary-meta {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
   /* Nav row */
   .nav-row {
     display: flex;
@@ -528,7 +782,8 @@
     transform: translateX(-100%);
     animation: shimmer 3s ease-in-out infinite;
   }
-  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; background: rgba(255,255,255,0.06); color: var(--text-muted); }
+  .btn-submit:disabled::after { display: none; }
   .btn-submit svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
 
   /* Success */
@@ -537,7 +792,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 16px;
+    gap: 18px;
     padding: 40px 20px;
     animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -552,16 +807,33 @@
     box-shadow: 0 0 40px var(--accent-gold-glow);
   }
   .success-icon svg { width: 32px; height: 32px; stroke: var(--bg-base); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-  .success-screen h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; }
-  .success-screen p { font-size: 0.9rem; color: var(--text-secondary); font-weight: 300; line-height: 1.6; max-width: 320px; }
+  .success-screen h2 { font-family: var(--font-display); font-size: 1.85rem; font-weight: 600; color: var(--text-primary); }
+  .success-screen .booked-time {
+    padding: 16px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-gold-border);
+    border-radius: var(--radius-card);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--accent-gold);
+    margin-top: 4px;
+  }
+  .success-screen p { font-size: 0.9rem; color: var(--text-secondary); font-weight: 300; line-height: 1.6; max-width: 340px; }
+  .success-screen .check-email {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
 
   /* Animations */
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-40px); } }
   @keyframes slideInReverse { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   @keyframes shimmer { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
+  @keyframes shimmer-bg { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
   /* Stagger */
   .step.active .card-option:nth-child(1), .step.active .category-card:nth-child(1) { animation-delay: 0ms; }
@@ -582,6 +854,8 @@
   @media (min-width: 640px) {
     .app { padding: 48px 24px 60px; }
     .step { gap: 12px; }
+    .date-card { width: 70px; }
+    .time-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -595,17 +869,24 @@
     <div class="logo-text">CLIENTS <span>on</span> DEMAND</div>
   </div>
 
-  <div class="form-header">
-    <h1>Schedule Your <em>Breakthrough</em> Call</h1>
-    <p>A few quick questions so we can make the most of our time together.</p>
+  <!-- Booking-for chip (visible only on calendar step) -->
+  <div class="booking-chip" id="bookingChip">
+    <div class="booking-chip-avatar" id="chipAvatar">?</div>
+    <div class="booking-chip-text">Booking for <strong id="chipName">—</strong></div>
   </div>
 
-  <div class="step-indicator">
+  <div class="form-header" id="formHeader">
+    <h1 id="headerTitle">Schedule Your <em>Breakthrough</em> Call</h1>
+    <p id="headerSub">A few quick questions so we can make the most of our time together.</p>
+  </div>
+
+  <div class="step-indicator" id="stepIndicator">
     <div class="step-dot active" data-dot="0"></div>
     <div class="step-dot" data-dot="1"></div>
     <div class="step-dot" data-dot="2"></div>
     <div class="step-dot" data-dot="3"></div>
-    <span class="step-count">1 of 4</span>
+    <div class="step-dot" data-dot="4"></div>
+    <span class="step-count">1 of 5</span>
   </div>
 
   <div class="form-container">
@@ -827,8 +1108,54 @@
           Back
         </button>
         <button class="btn-submit" id="btn-submit" onclick="submitForm()" disabled>
-          Schedule My Call
+          Continue to Calendar
           <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ============ STEP 5: CALENDAR PICKER ============ -->
+    <div class="step" data-step="4">
+      <div class="month-nav">
+        <div class="month-nav-title" id="monthLabel">—</div>
+        <div class="month-nav-controls">
+          <button class="month-nav-btn" id="prevMonth" disabled aria-label="Previous">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="month-nav-btn" id="nextMonth" aria-label="Next">
+            <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-label">
+        <span class="section-label-text">Select a Date</span>
+      </div>
+      <div class="date-strip" id="dateStrip"></div>
+
+      <div class="section-label">
+        <span class="section-label-text">Available Times</span>
+        <span class="timezone-tag">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="tzLabel">your local time</span>
+        </span>
+      </div>
+      <div class="time-grid" id="timeGrid"></div>
+
+      <div class="summary-card" id="summaryCard">
+        <div class="summary-label">Your Selected Time</div>
+        <div class="summary-time" id="summaryTime">—</div>
+        <div class="summary-meta" id="summaryMeta">—</div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <button class="btn-submit" id="btn-confirm" onclick="confirmBooking()" disabled>
+          Confirm My Call
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>
     </div>
@@ -838,8 +1165,10 @@
       <div class="success-icon">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2>You're In.</h2>
-      <p>Check your email for next steps. We'll be in touch shortly to confirm your Breakthrough Call.</p>
+      <h2>You're Booked.</h2>
+      <div class="booked-time" id="bookedTime">—</div>
+      <p>A calendar invite is on its way to <strong id="bookedEmail">—</strong>. We'll send a reminder 24 hours and 1 hour before your call.</p>
+      <p class="check-email">If you don't see the invite within 5 minutes, check spam or whitelist <em>booking@clientsondemand.com</em>.</p>
     </div>
 
   </div>
@@ -847,8 +1176,8 @@
 
 <script>
   let currentStep = 0;
-  const totalSteps = 4;
-  const formData = { role: '', category: '', helpText: '', decisionMaker: '', name: '', email: '', phone: '' };
+  const totalSteps = 5;
+  const formData = { role: '', category: '', helpText: '', decisionMaker: '', name: '', email: '', phone: '', smsConsent: false, bookingDate: null, bookingTime: '' };
 
   // ---- Step 1: Category drill-down ----
 
@@ -878,7 +1207,6 @@
   }
 
   function backToCategories() {
-    // Hide all sub-option panels
     ['sub-healthcare','sub-business','sub-professional','sub-custom'].forEach(id => {
       const el = document.getElementById(id);
       el.classList.remove('active', 'slide-back');
@@ -909,7 +1237,6 @@
   }
 
   function advanceFromStep1() {
-    // Hide whichever sub-panel is showing
     ['sub-healthcare','sub-business','sub-professional','sub-custom','step-categories'].forEach(id => {
       const el = document.getElementById(id);
       el.classList.remove('active','slide-back');
@@ -921,7 +1248,7 @@
     updateDots();
   }
 
-  // ---- Step 3: Decision maker (auto-advance) ----
+  // ---- Step 3: Decision maker ----
 
   function selectDecision(card, value) {
     const step = card.closest('.step');
@@ -943,7 +1270,6 @@
 
     const currentEl = document.querySelector(`.step[data-step="${currentStep}"]:not([id^="sub-"]):not([id="step-categories"])`);
     if (!currentEl) {
-      // Find visible step
       const visible = document.querySelector('.step.active, .step.slide-back');
       if (visible) { visible.classList.remove('active','slide-back'); visible.style.display = 'none'; }
     } else {
@@ -957,7 +1283,7 @@
   }
 
   function goBack() {
-    const visible = document.querySelector('.step[style*="flex"]:not([style*="none"])') || document.querySelector('.step.active');
+    const visible = document.querySelector('.step.active') || document.querySelector('.step.slide-back');
     if (visible) {
       visible.classList.remove('active','slide-back');
       visible.style.display = 'none';
@@ -965,8 +1291,12 @@
 
     currentStep--;
 
+    // Hide booking chip + restore default header when leaving calendar
+    document.getElementById('bookingChip').classList.remove('visible');
+    document.getElementById('headerTitle').innerHTML = 'Schedule Your <em>Breakthrough</em> Call';
+    document.getElementById('headerSub').textContent = 'A few quick questions so we can make the most of our time together.';
+
     if (currentStep === 0) {
-      // Go back to categories
       const cats = document.getElementById('step-categories');
       cats.style.display = 'flex';
       cats.classList.add('active');
@@ -980,13 +1310,11 @@
   }
 
   function showStep(index, direction) {
-    // Find the main step (not sub-panels)
     const steps = document.querySelectorAll(`.step[data-step="${index}"]`);
     let step;
     if (index === 0) {
       step = document.getElementById('step-categories');
     } else {
-      // Get the step that isn't a sub-panel
       steps.forEach(s => {
         if (!s.id.startsWith('sub-')) step = s;
       });
@@ -1001,6 +1329,11 @@
       step.classList.add('slide-back');
     } else {
       step.classList.add('active');
+    }
+
+    // Calendar step setup
+    if (index === 4) {
+      enterCalendarStep();
     }
   }
 
@@ -1046,12 +1379,186 @@
     formData.phone = document.getElementById('phone').value.trim();
     formData.smsConsent = document.getElementById('smsConsent').checked;
 
-    console.log('Application submitted:', formData);
+    // In production: POST to /api/cod/application -> GHL upsert contact -> returns contactId
+    // For now, log + advance to calendar step
+    console.log('Application submitted (would upsert to GHL):', formData);
 
+    goNext(); // advances to step 4 (calendar)
+  }
+
+  // ---- Step 5: Calendar ----
+
+  let selectedDate = null;
+  let selectedTime = null;
+  let viewStart = null;
+
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAYS_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  const SLOT_POOL = {
+    full: ['9:00 AM','10:00 AM','11:00 AM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'],
+    morning: ['9:00 AM','10:00 AM','11:00 AM','11:30 AM'],
+    afternoon: ['1:00 PM','2:00 PM','3:00 PM','4:00 PM'],
+    sparse: ['10:30 AM','2:00 PM','4:30 PM']
+  };
+
+  function enterCalendarStep() {
+    // Update header for calendar context
+    document.getElementById('headerTitle').innerHTML = 'Pick Your <em>Time</em>';
+    document.getElementById('headerSub').textContent = '30-minute Breakthrough Call. Choose any open slot below.';
+
+    // Show booking chip with name
+    const firstName = (formData.name || 'there').split(' ')[0];
+    const lastInitial = (formData.name || '').split(' ').slice(1).join(' ').charAt(0);
+    document.getElementById('chipAvatar').textContent = (firstName.charAt(0) || '?').toUpperCase();
+    document.getElementById('chipName').textContent = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
+    document.getElementById('bookingChip').classList.add('visible');
+
+    // Set timezone label from browser
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      document.getElementById('tzLabel').textContent = tz.replace(/_/g, ' ');
+    } catch (e) {
+      document.getElementById('tzLabel').textContent = 'your local time';
+    }
+
+    // Build the date strip (only once on first entry)
+    if (!viewStart) {
+      viewStart = new Date();
+      viewStart.setHours(0, 0, 0, 0);
+      buildDateStrip();
+    }
+  }
+
+  function buildDateStrip() {
+    const strip = document.getElementById('dateStrip');
+    strip.innerHTML = '';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(viewStart);
+      d.setDate(viewStart.getDate() + i);
+      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+      const isPast = d < today;
+      const isToday = d.getTime() === today.getTime();
+
+      const card = document.createElement('div');
+      card.className = 'date-card' + (isToday ? ' today' : '') + ((isWeekend || isPast) ? ' disabled' : '');
+      card.dataset.date = d.toISOString();
+      card.innerHTML = `
+        <div class="date-card-day">${DAYS_SHORT[d.getDay()]}</div>
+        <div class="date-card-num">${d.getDate()}</div>
+      `;
+      if (!isWeekend && !isPast) {
+        card.addEventListener('click', () => selectDateOnCalendar(d, card));
+      }
+      strip.appendChild(card);
+    }
+
+    document.getElementById('monthLabel').textContent = `${MONTHS[viewStart.getMonth()]} ${viewStart.getFullYear()}`;
+
+    // Auto-select first available
+    const firstAvailable = strip.querySelector('.date-card:not(.disabled)');
+    if (firstAvailable) firstAvailable.click();
+  }
+
+  function selectDateOnCalendar(date, card) {
+    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedDate = date;
+    selectedTime = null;
+    updateBookingSummary();
+    document.getElementById('btn-confirm').disabled = true;
+
+    showLoadingSlots();
+    setTimeout(() => {
+      const dayOfWeek = date.getDay();
+      let pool;
+      if (dayOfWeek === 1) pool = SLOT_POOL.full;
+      else if (dayOfWeek === 2) pool = SLOT_POOL.morning;
+      else if (dayOfWeek === 3) pool = SLOT_POOL.afternoon;
+      else if (dayOfWeek === 4) pool = SLOT_POOL.sparse;
+      else pool = SLOT_POOL.full;
+      renderTimeSlots(pool);
+    }, 350);
+  }
+
+  function showLoadingSlots() {
+    const grid = document.getElementById('timeGrid');
+    grid.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'time-slot loading';
+      slot.innerHTML = '<div class="time-slot-time">9:00 AM</div>';
+      grid.appendChild(slot);
+    }
+  }
+
+  function renderTimeSlots(times) {
+    const grid = document.getElementById('timeGrid');
+    grid.innerHTML = '';
+    if (!times || times.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'no-slots';
+      empty.textContent = 'No times available on this date. Try another day.';
+      grid.appendChild(empty);
+      return;
+    }
+    times.forEach(t => {
+      const [time, meridiem] = t.split(' ');
+      const slot = document.createElement('div');
+      slot.className = 'time-slot';
+      slot.dataset.time = t;
+      slot.innerHTML = `<div class="time-slot-time">${time}<span class="time-slot-meridiem">${meridiem}</span></div>`;
+      slot.addEventListener('click', () => selectTimeOnCalendar(t, slot));
+      grid.appendChild(slot);
+    });
+  }
+
+  function selectTimeOnCalendar(time, slot) {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    slot.classList.add('selected');
+    selectedTime = time;
+    updateBookingSummary();
+    document.getElementById('btn-confirm').disabled = false;
+  }
+
+  function updateBookingSummary() {
+    const card = document.getElementById('summaryCard');
+    if (!selectedDate || !selectedTime) {
+      card.classList.remove('visible');
+      return;
+    }
+    const dateStr = `${DAYS_LONG[selectedDate.getDay()]}, ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
+    document.getElementById('summaryTime').textContent = `${dateStr} · ${selectedTime}`;
+    let tz = 'your local time';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) {}
+    document.getElementById('summaryMeta').textContent = `30 minutes · ${tz}`;
+    card.classList.add('visible');
+  }
+
+  function confirmBooking() {
+    formData.bookingDate = selectedDate.toISOString();
+    formData.bookingTime = selectedTime;
+
+    // In production: POST to /api/cod/book -> GHL POST /calendars/events/appointments
+    console.log('Booking confirmed (would create GHL appointment):', formData);
+
+    const dateStr = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    document.getElementById('bookedTime').textContent = `${dateStr} at ${selectedTime}`;
+    document.getElementById('bookedEmail').textContent = formData.email;
+
+    // Hide chrome + show success
     document.querySelectorAll('.step').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
-    document.querySelector('.step-indicator').style.display = 'none';
-    document.querySelector('.form-header p').style.display = 'none';
+    document.getElementById('bookingChip').classList.remove('visible');
+    document.getElementById('stepIndicator').style.display = 'none';
+    document.getElementById('headerTitle').innerHTML = '';
+    document.getElementById('headerSub').style.display = 'none';
     document.getElementById('success').classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 

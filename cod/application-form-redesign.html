@@ -23,8 +23,8 @@
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border-default: rgba(255,255,255,0.06);
-    --border-hover: rgba(255,255,255,0.12);
+    --border-default: rgba(255,255,255,0.09);
+    --border-hover: rgba(255,255,255,0.14);
     --radius-card: 14px;
     --radius-btn: 8px;
     --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -157,6 +157,81 @@
     gap: 3px;
   }
   .booking-chip-sub svg { width: 9px; height: 9px; stroke: var(--accent-gold); fill: none; stroke-width: 3; }
+
+  /* Trust row (above-the-fold social proof) */
+  .trust-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    padding: 0 8px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeDown 0.6s ease 0.05s forwards;
+  }
+  .trust-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .trust-stars-glyphs {
+    color: var(--accent-gold);
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+  }
+  .trust-meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    max-width: 380px;
+  }
+
+  /* FTC footer (compliance) */
+  .ftc-footer {
+    margin-top: 40px;
+    padding: 18px 12px 0;
+    text-align: center;
+    max-width: 540px;
+    border-top: 1px solid var(--border-default);
+  }
+  .ftc-text {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+  .ftc-text a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin: 0 4px;
+  }
+  .ftc-text a:hover { color: var(--accent-gold); }
+  .ftc-divider { color: var(--text-muted); opacity: 0.5; margin: 0 2px; }
+
+  /* Phone optional microcopy */
+  .field-optional {
+    font-size: 0.66rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-left: 6px;
+    text-transform: lowercase;
+    letter-spacing: 0;
+  }
+  .field-microcopy {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-top: 4px;
+    padding-left: 4px;
+    font-style: italic;
+  }
 
   /* Header */
   .form-header {
@@ -480,13 +555,23 @@
   .field-input::placeholder { color: var(--text-muted); font-weight: 300; }
 
   /* SMS consent */
-  .consent-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; padding: 0 4px; }
+  .consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px 4px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+  }
+  .consent-row:hover { background: rgba(255,255,255,0.02); }
   .consent-check {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px; height: 20px; min-width: 20px;
+    width: 24px; height: 24px; min-width: 24px;
     border: 1px solid var(--border-hover);
-    border-radius: 5px;
+    border-radius: 6px;
     background: var(--bg-card);
     cursor: pointer;
     position: relative;
@@ -497,13 +582,15 @@
   .consent-check:checked::after {
     content: '';
     position: absolute;
-    top: 3px; left: 6px;
-    width: 5px; height: 9px;
+    top: 4px; left: 8px;
+    width: 6px; height: 11px;
     border: solid var(--bg-base);
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
   .consent-text { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; font-weight: 300; }
+  .consent-text a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; }
+  .consent-text a:hover { color: var(--accent-gold); }
 
   /* === STEP 5: CALENDAR PICKER === */
   .month-nav {
@@ -521,17 +608,23 @@
   }
   .month-nav-controls { display: flex; gap: 6px; }
   .month-nav-btn {
-    width: 32px; height: 32px;
+    width: 40px; height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--bg-card);
     border: 1px solid var(--border-default);
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     color: var(--text-secondary);
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .month-nav-btn::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
   }
   .month-nav-btn:hover:not(:disabled) { background: var(--bg-card-hover); border-color: var(--border-hover); color: var(--text-primary); }
   .month-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -758,9 +851,9 @@
     justify-content: center;
     gap: 8px;
     padding: 14px 28px;
-    background: rgba(255,255,255,0.06);
-    color: var(--text-primary);
-    border: 1px solid var(--border-hover);
+    background: transparent;
+    color: var(--accent-gold);
+    border: 1px solid var(--accent-gold-border);
     border-radius: var(--radius-btn);
     font-family: var(--font-body);
     font-size: 0.88rem;
@@ -770,7 +863,12 @@
     -webkit-tap-highlight-color: transparent;
     margin-left: auto;
   }
-  .btn-next:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+  .btn-next:hover {
+    background: var(--accent-gold-glow);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold-light);
+  }
+  .btn-next:active { transform: scale(0.98); }
   .btn-next svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
   .btn-submit {
@@ -847,6 +945,103 @@
     margin-top: 4px;
   }
 
+  /* Add-to-calendar buttons */
+  .calendar-add-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .calendar-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .calendar-add-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-gold-border);
+    color: var(--accent-gold);
+  }
+  .calendar-add-btn svg {
+    width: 14px; height: 14px;
+    fill: currentColor;
+  }
+
+  /* What to expect block */
+  .expect-block {
+    width: 100%;
+    max-width: 380px;
+    margin-top: 12px;
+    padding: 18px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-card);
+    text-align: left;
+  }
+  .expect-title {
+    font-size: 0.7rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .expect-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .expect-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+  .expect-list li::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+  .expect-list strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Reschedule link */
+  .reschedule-link {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+  .reschedule-link a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s ease;
+  }
+  .reschedule-link a:hover { color: var(--accent-gold); }
+
   /* Animations */
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
@@ -900,6 +1095,17 @@
   <div class="form-header" id="formHeader">
     <h1 id="headerTitle">Schedule Your <em>Breakthrough</em> Call</h1>
     <p id="headerSub">A few quick questions so we can make the most of our time together.</p>
+  </div>
+
+  <!-- Trust row: social proof above the fold -->
+  <div class="trust-row" id="trustRow">
+    <div class="trust-stars">
+      <span class="trust-stars-glyphs">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+      <span>Trusted by 3,000+ coaches, therapists &amp; consultants</span>
+    </div>
+    <div class="trust-meta">
+      Featured in Forbes, Inc., Entrepreneur &middot; No pressure, no pitch &mdash; just a strategy conversation.
+    </div>
   </div>
 
   <div class="step-indicator" id="stepIndicator">
@@ -1078,7 +1284,7 @@
     <!-- ============ STEP 3: DECISION MAKER ============ -->
     <div class="step" data-step="2">
       <div class="step-question">When it comes to investing in your growth, which best describes you?</div>
-      <div class="step-hint">Helps us know who to include in the conversation.</div>
+      <div class="step-hint">All answers are welcome &mdash; we'll tailor the conversation accordingly.</div>
 
       <div class="card-option" onclick="selectDecision(this, 'I make these decisions on my own')">
         <div class="card-icon">&#x1f464;</div>
@@ -1115,14 +1321,15 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="phone">Phone</label>
-        <input class="field-input" type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel" required oninput="formatPhone(this); validateContactForm()">
+        <label class="field-label" for="phone">Phone <span class="field-optional">(optional)</span></label>
+        <input class="field-input" type="tel" id="phone" placeholder="+1 (555) 123-4567" autocomplete="tel" inputmode="tel" oninput="formatPhone(this); validateContactForm()">
+        <div class="field-microcopy">We only call if your email bounces. No cold calls, ever.</div>
       </div>
 
-      <div class="consent-row">
+      <label class="consent-row" for="smsConsent">
         <input type="checkbox" class="consent-check" id="smsConsent">
-        <label class="consent-text" for="smsConsent">I consent to receive SMS notifications from Clients on Demand. Reply stop to unsubscribe at any time.</label>
-      </div>
+        <span class="consent-text">By checking this box, I consent to receive SMS appointment reminders from Clients on Demand at the number provided. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to cancel, HELP for help. <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener">Terms</a>.</span>
+      </label>
 
       <div class="nav-row">
         <button class="btn-back" onclick="goBack()">
@@ -1130,7 +1337,7 @@
           Back
         </button>
         <button class="btn-submit" id="btn-submit" onclick="submitForm()" disabled>
-          Continue to Calendar
+          See My Available Times
           <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
         </button>
       </div>
@@ -1176,7 +1383,7 @@
           Back
         </button>
         <button class="btn-submit" id="btn-confirm" onclick="confirmBooking()" disabled>
-          Confirm My Call
+          Lock In My Call
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>
@@ -1188,18 +1395,98 @@
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <h2>You're Booked.</h2>
-      <div class="booked-time" id="bookedTime">—</div>
-      <p>A calendar invite is on its way to <strong id="bookedEmail">—</strong>. We'll send a reminder 24 hours and 1 hour before your call.</p>
+      <div class="booked-time" id="bookedTime">&mdash;</div>
+
+      <div class="calendar-add-row">
+        <a href="#" class="calendar-add-btn" id="addGoogle" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Google
+        </a>
+        <a href="#" class="calendar-add-btn" id="addApple" download="breakthrough-call.ics">
+          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v16c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
+          Apple / .ics
+        </a>
+        <a href="#" class="calendar-add-btn" id="addOutlook" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21.5 6.5h-9v3h-1v-3h-9C1.67 6.5 1 7.17 1 8v8c0 .83.67 1.5 1.5 1.5h19c.83 0 1.5-.67 1.5-1.5V8c0-.83-.67-1.5-1.5-1.5z"/></svg>
+          Outlook
+        </a>
+      </div>
+
+      <div class="expect-block">
+        <div class="expect-title">What to expect</div>
+        <ul class="expect-list">
+          <li><strong>30 minutes, by Zoom.</strong> Link arrives in the calendar invite.</li>
+          <li><strong>No slide deck, no pitch.</strong> Just a real conversation about where you are and where you want to go.</li>
+          <li><strong>Come with questions.</strong> If we're not the right fit, we'll tell you.</li>
+        </ul>
+      </div>
+
+      <p>A calendar invite is on its way to <strong id="bookedEmail">&mdash;</strong>. We'll send reminders 24 hours and 1 hour before your call.</p>
+
+      <p class="reschedule-link">Need to change your time? <a href="#" id="rescheduleLink">Reschedule or cancel</a></p>
+
       <p class="check-email">If you don't see the invite within 5 minutes, check spam or whitelist <em>booking@clientsondemand.com</em>.</p>
     </div>
 
   </div>
+
+  <!-- FTC compliance footer (always visible) -->
+  <footer class="ftc-footer">
+    <p class="ftc-text">
+      Results not typical. Individual results vary based on effort, experience, and market conditions. This is not a guarantee of income.
+      <br>
+      <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a><span class="ftc-divider">&middot;</span>
+      <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener">Terms of Service</a><span class="ftc-divider">&middot;</span>
+      <a href="https://clientsondemand.com/earnings-disclaimer" target="_blank" rel="noopener">Earnings Disclaimer</a>
+    </p>
+  </footer>
 </div>
 
 <script>
   let currentStep = 0;
   const totalSteps = 5;
+  const STORAGE_KEY = 'cod_application_v1';
   const formData = { role: '', category: '', helpText: '', decisionMaker: '', name: '', email: '', phone: '', smsConsent: false, bookingDate: null, bookingTime: '' };
+
+  // ---- SessionStorage persistence (P0: prevent data loss on refresh) ----
+
+  function persistState() {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        formData,
+        currentStep,
+        savedAt: Date.now()
+      }));
+    } catch (e) { /* storage full / blocked — silent fail */ }
+  }
+
+  function restoreState() {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      // Only restore if saved within last 24h
+      if (Date.now() - saved.savedAt > 86400000) {
+        sessionStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      Object.assign(formData, saved.formData || {});
+      // Restore form fields if present
+      if (formData.helpText) {
+        const ta = document.getElementById('helpText');
+        if (ta) { ta.value = formData.helpText; updateCharCount(ta); }
+      }
+      if (formData.name) { const f = document.getElementById('fullName'); if (f) f.value = formData.name; }
+      if (formData.email) { const f = document.getElementById('email'); if (f) f.value = formData.email; }
+      if (formData.phone) { const f = document.getElementById('phone'); if (f) f.value = formData.phone; }
+      if (formData.smsConsent) { const f = document.getElementById('smsConsent'); if (f) f.checked = true; }
+      validateContactForm();
+    } catch (e) { /* corrupt storage — silent fail */ }
+  }
+
+  function clearState() {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
 
   // ---- Step 1: Category drill-down ----
 
@@ -1248,6 +1535,7 @@
     step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     formData.role = value;
+    persistState();
 
     setTimeout(() => advanceFromStep1(), 400);
   }
@@ -1255,6 +1543,7 @@
   function selectCustomRole(value) {
     if (!value) return;
     formData.role = value;
+    persistState();
     advanceFromStep1();
   }
 
@@ -1277,6 +1566,7 @@
     step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     formData.decisionMaker = value;
+    persistState();
 
     setTimeout(() => goNext(), 400);
   }
@@ -1288,7 +1578,10 @@
       document.getElementById('helpText').focus();
       return;
     }
-    if (currentStep === 1) formData.helpText = document.getElementById('helpText').value.trim();
+    if (currentStep === 1) {
+      formData.helpText = document.getElementById('helpText').value.trim();
+      persistState();
+    }
 
     const currentEl = document.querySelector(`.step[data-step="${currentStep}"]:not([id^="sub-"]):not([id="step-categories"])`);
     if (!currentEl) {
@@ -1305,6 +1598,8 @@
   }
 
   function goBack() {
+    const wasOnCalendar = currentStep === 4;
+
     const visible = document.querySelector('.step.active') || document.querySelector('.step.slide-back');
     if (visible) {
       visible.classList.remove('active','slide-back');
@@ -1313,8 +1608,21 @@
 
     currentStep--;
 
-    // Hide booking chip + restore default header when leaving calendar
+    // P0 FIX: reset calendar selection state when leaving step 5
+    if (wasOnCalendar) {
+      selectedDate = null;
+      selectedTime = null;
+      const confirmBtn = document.getElementById('btn-confirm');
+      if (confirmBtn) confirmBtn.disabled = true;
+      const summary = document.getElementById('summaryCard');
+      if (summary) summary.classList.remove('visible');
+      // Force date strip rebuild on re-entry so auto-select fires fresh
+      viewStart = null;
+    }
+
+    // Hide booking chip + trust row reappears + restore default header
     document.getElementById('bookingChip').classList.remove('visible');
+    document.getElementById('trustRow').style.display = '';
     document.getElementById('headerTitle').innerHTML = 'Schedule Your <em>Breakthrough</em> Call';
     document.getElementById('headerSub').textContent = 'A few quick questions so we can make the most of our time together.';
 
@@ -1382,13 +1690,27 @@
   function validateContactForm() {
     const name = document.getElementById('fullName').value.trim();
     const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    document.getElementById('btn-submit').disabled = !(name && emailValid && phone.length >= 10);
+    // Phone is optional; only name + valid email required
+    document.getElementById('btn-submit').disabled = !(name && emailValid);
+
+    // Persist on every keystroke
+    formData.name = name;
+    formData.email = email;
+    formData.phone = document.getElementById('phone').value.trim();
+    formData.smsConsent = document.getElementById('smsConsent').checked;
+    persistState();
   }
 
   function formatPhone(input) {
-    let val = input.value.replace(/\D/g, '');
+    let val = input.value;
+    // International format: starts with + → leave as-is, just strip invalid chars
+    if (val.startsWith('+')) {
+      input.value = '+' + val.slice(1).replace(/[^\d\s\-\(\)]/g, '');
+      return;
+    }
+    // US format default
+    val = val.replace(/\D/g, '');
     if (val.length > 10) val = val.slice(0, 10);
     if (val.length >= 7) input.value = `(${val.slice(0,3)}) ${val.slice(3,6)}-${val.slice(6)}`;
     else if (val.length >= 4) input.value = `(${val.slice(0,3)}) ${val.slice(3)}`;
@@ -1400,9 +1722,9 @@
     formData.email = document.getElementById('email').value.trim();
     formData.phone = document.getElementById('phone').value.trim();
     formData.smsConsent = document.getElementById('smsConsent').checked;
+    persistState();
 
     // In production: POST to /api/cod/application -> GHL upsert contact -> returns contactId
-    // For now, log + advance to calendar step
     console.log('Application submitted (would upsert to GHL):', formData);
 
     goNext(); // advances to step 4 (calendar)
@@ -1430,6 +1752,9 @@
     document.getElementById('headerTitle').innerHTML = 'Pick Your <em>Time</em>';
     document.getElementById('headerSub').textContent = '30-minute Breakthrough Call. Choose any open slot below.';
 
+    // Hide trust row on calendar step (already past consideration phase)
+    document.getElementById('trustRow').style.display = 'none';
+
     // Show booking chip with name
     const firstName = (formData.name || 'there').split(' ')[0];
     const lastInitial = (formData.name || '').split(' ').slice(1).join(' ').charAt(0);
@@ -1437,20 +1762,29 @@
     document.getElementById('chipName').textContent = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
     document.getElementById('bookingChip').classList.add('visible');
 
-    // Set timezone label from browser
+    // Set timezone label — human-friendly
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      document.getElementById('tzLabel').textContent = tz.replace(/_/g, ' ');
+      const friendly = tz.split('/').pop().replace(/_/g, ' ');
+      document.getElementById('tzLabel').textContent = `Shown in ${friendly} time`;
     } catch (e) {
       document.getElementById('tzLabel').textContent = 'your local time';
     }
 
-    // Build the date strip (only once on first entry)
+    // Build the date strip (only on first entry or after back-nav reset)
     if (!viewStart) {
       viewStart = new Date();
       viewStart.setHours(0, 0, 0, 0);
       buildDateStrip();
     }
+
+    // P0 FIX: scroll time grid into view after auto-select on mobile
+    setTimeout(() => {
+      const grid = document.getElementById('timeGrid');
+      if (grid && window.innerWidth < 640) {
+        grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 600);
   }
 
   function buildDateStrip() {
@@ -1547,6 +1881,27 @@
     document.getElementById('btn-confirm').disabled = false;
   }
 
+  // ---- Wire up month-nav buttons (P0 fix: previously dead clicks) ----
+  function shiftDateWindow(days) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const newStart = new Date(viewStart);
+    newStart.setDate(viewStart.getDate() + days);
+    viewStart = newStart < today ? today : newStart;
+    buildDateStrip();
+    document.getElementById('prevMonth').disabled = (viewStart.getTime() === today.getTime());
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const next = document.getElementById('nextMonth');
+    const prev = document.getElementById('prevMonth');
+    if (next) next.addEventListener('click', () => shiftDateWindow(14));
+    if (prev) prev.addEventListener('click', () => shiftDateWindow(-14));
+
+    // Restore form state from sessionStorage on page load
+    restoreState();
+  });
+
   function updateBookingSummary() {
     const card = document.getElementById('summaryCard');
     if (!selectedDate || !selectedTime) {
@@ -1572,15 +1927,69 @@
     document.getElementById('bookedTime').textContent = `${dateStr} at ${selectedTime}`;
     document.getElementById('bookedEmail').textContent = formData.email;
 
+    // Build add-to-calendar links (Google, Outlook, .ics download)
+    populateCalendarLinks(selectedDate, selectedTime);
+
+    // Clear stored draft now that booking is confirmed
+    clearState();
+
     // Hide chrome + show success
     document.querySelectorAll('.step').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
     document.getElementById('bookingChip').classList.remove('visible');
     document.getElementById('stepIndicator').style.display = 'none';
+    document.getElementById('trustRow').style.display = 'none';
     document.getElementById('headerTitle').innerHTML = '';
     document.getElementById('headerSub').style.display = 'none';
     document.getElementById('success').classList.add('active');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---- Add-to-calendar link generation ----
+  function populateCalendarLinks(date, timeStr) {
+    // Parse "9:00 AM" → 9, "2:00 PM" → 14
+    const [time, meridiem] = timeStr.split(' ');
+    const [hr, min] = time.split(':').map(Number);
+    const hour24 = meridiem === 'PM' && hr !== 12 ? hr + 12 : (meridiem === 'AM' && hr === 12 ? 0 : hr);
+
+    const start = new Date(date);
+    start.setHours(hour24, min, 0, 0);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + 30);
+
+    const fmtUTC = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const startUTC = fmtUTC(start);
+    const endUTC = fmtUTC(end);
+
+    const title = encodeURIComponent('Breakthrough Call · Clients on Demand');
+    const details = encodeURIComponent('Your 30-minute strategy conversation with Clients on Demand. Zoom link will be sent via email confirmation.');
+    const location = encodeURIComponent('Zoom (link in email)');
+
+    // Google Calendar
+    const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startUTC}/${endUTC}&details=${details}&location=${location}`;
+    document.getElementById('addGoogle').href = gcal;
+
+    // Outlook web
+    const outlook = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${start.toISOString()}&enddt=${end.toISOString()}&body=${details}&location=${location}`;
+    document.getElementById('addOutlook').href = outlook;
+
+    // .ics file (Apple / generic)
+    const ics = [
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ClientsOnDemand//Booking//EN',
+      'BEGIN:VEVENT',
+      `UID:${Date.now()}@clientsondemand.com`,
+      `DTSTAMP:${fmtUTC(new Date())}`,
+      `DTSTART:${startUTC}`, `DTEND:${endUTC}`,
+      'SUMMARY:Breakthrough Call · Clients on Demand',
+      'DESCRIPTION:Your 30-minute strategy conversation. Zoom link via email.',
+      'LOCATION:Zoom (link in email)',
+      'END:VEVENT', 'END:VCALENDAR'
+    ].join('\r\n');
+    const icsBlob = new Blob([ics], { type: 'text/calendar' });
+    document.getElementById('addApple').href = URL.createObjectURL(icsBlob);
+
+    // Reschedule link — wire to GHL contact reschedule URL in production
+    document.getElementById('rescheduleLink').href = `mailto:booking@clientsondemand.com?subject=Reschedule%20my%20Breakthrough%20Call&body=I%20need%20to%20reschedule%20my%20call%20originally%20booked%20for%20${encodeURIComponent(date.toLocaleDateString())}%20at%20${encodeURIComponent(timeStr)}.`;
   }
 </script>
 

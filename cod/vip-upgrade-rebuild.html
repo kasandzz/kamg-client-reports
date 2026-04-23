@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrade to VIP | Clients on Demand</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── GHL wrapper overrides ── */
+body .inner { max-width: 100% !important; }
+body .fullSection, body .c-row, body .c-wrapper { padding: 0 !important; }
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg-primary: #0a0a0c;
+    --bg-secondary: #101014;
+    --bg-card: #141418;
+    --bg-card-alt: #1a1a20;
+    --text-primary: #f0ede8;
+    --text-secondary: #9a968e;
+    --text-muted: #ffffff;
+    --accent-gold: #c8a96e;
+    --accent-gold-dim: rgba(200, 169, 110, 0.08);
+    --accent-gold-border: rgba(200, 169, 110, 0.15);
+    --accent-gold-glow: rgba(200, 169, 110, 0.12);
+    --font-body: 'Outfit', system-ui, -apple-system, sans-serif;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --radius-card: 14px;
+    --radius-pill: 100px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+/* ====== HERO ====== */
+.vip-hero {
+    padding: 48px 20px 32px;
+    text-align: center;
+    background: var(--bg-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.vip-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center top, rgba(200,169,110,0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.vip-hero-logo { margin-bottom: 24px; }
+
+.vip-hero-logo img {
+    height: 32px;
+    width: auto;
+    filter: invert(1) brightness(100);
+    opacity: 0.7;
+}
+
+.vip-hero-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent-gold);
+    margin-bottom: 12px;
+}
+
+.vip-hero h1 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 12px;
+}
+
+.vip-hero h1 span { color: var(--accent-gold); }
+
+.vip-hero-sub {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* ====== VIP CARD ====== */
+.vip-container {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 0 20px 32px;
+}
+
+.vip-card {
+    background: linear-gradient(180deg, rgba(200,169,110,0.06) 0%, var(--bg-card) 100%);
+    border: 2px solid var(--accent-gold);
+    border-radius: var(--radius-card);
+    padding: 32px 24px;
+    position: relative;
+    box-shadow: 0 0 40px rgba(200,169,110,0.1);
+}
+
+.vip-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, var(--accent-gold) 0%, #b8944a 100%);
+    color: #0a0a0c;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 20px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+}
+
+.vip-card-price {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--accent-gold-border);
+}
+
+.vip-card-price .price {
+    font-family: var(--font-body);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent-gold);
+}
+
+.vip-card-price .price-note {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Feature list */
+.vip-feature-list {
+    list-style: none;
+    margin-bottom: 24px;
+}
+
+.vip-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.vip-feature-list li .vf-icon {
+    color: var(--accent-gold);
+    flex-shrink: 0;
+    margin-top: 3px;
+}
+
+.vip-feature-list li span.vip-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vip-feature-list li strong {
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.vip-feature-list li .vip-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Star highlight item */
+.vip-feature-list li.star-item {
+    background: var(--accent-gold-dim);
+    border: 1px solid var(--accent-gold-border);
+    border-radius: 10px;
+    padding: 16px 14px;
+}
+
+.vip-feature-list li.star-item .vf-icon { font-size: 20px; }
+.vip-feature-list li.star-item strong { font-size: 18px; }
+
+/* Toolkit / Replay group */
+.vip-toolkit-group {
+    background: var(--accent-gold-dim);
+    border: 1px solid var(--accent-gold-border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.vip-toolkit-group h4 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+}
+
+.vip-toolkit-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vip-toolkit-list li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: rgba(200,169,110,0.04);
+    border: 1px solid rgba(200,169,110,0.08);
+    border-radius: 8px;
+}
+
+.vip-toolkit-list li strong {
+    color: var(--accent-gold);
+    font-size: 14px;
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+/* ====== CHECKOUT PLACEHOLDER (Rehan will replace) ====== */
+.checkout-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 320px;
+    background: #2a2a30;
+    border: 2px dashed #4a4a52;
+    border-radius: 10px;
+    color: #9a9aa0;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 24px;
+    margin-bottom: 14px;
+}
+
+.checkout-placeholder span {
+    display: block;
+    font-size: 18px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    color: #c8c8cc;
+}
+
+.checkout-placeholder small {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: none;
+    color: #6a6a72;
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+.skip-link {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.3s;
+}
+
+.skip-link:hover { color: var(--text-secondary); }
+
+/* ====== CLOSING BOX ====== */
+.vip-closing {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 0 20px 48px;
+}
+
+.vip-highlight-box {
+    padding: 20px 24px;
+    background: var(--accent-gold-dim);
+    border: 1px solid var(--accent-gold-border);
+    border-radius: var(--radius-card);
+}
+
+.vip-highlight-box p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    text-align: center;
+}
+
+.vip-highlight-box strong { color: var(--accent-gold); }
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 640px) {
+    .vip-hero { padding: 40px 16px 24px; }
+    .vip-hero h1 { font-size: 32px; }
+    .vip-container { padding: 0 16px 24px; }
+    .vip-card { padding: 28px 20px; }
+    .vip-closing { padding: 0 16px 32px; }
+    .checkout-placeholder { min-height: 280px; }
+}
+
+@media (min-width: 641px) {
+    .vip-hero h1 { font-size: 48px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="vip-hero">
+  <div class="vip-hero-logo">
+    <img src="https://images.leadconnectorhq.com/image/f_webp/q_80/r_1200/u_https://assets.cdn.filesafe.space/h83O4TKy09yLLdfnIw3K/media/69775085a87beb21e9fcfc1f.svg" alt="Clients on Demand">
+  </div>
+  <p class="vip-hero-label">Your Workshop Ticket Is Confirmed</p>
+  <h1>Upgrade to VIP for Just <span>$27</span></h1>
+  <p class="vip-hero-sub">With Your VIP Upgrade, You'll Receive...</p>
+</section>
+
+<!-- VIP Card -->
+<div class="vip-container">
+  <div class="vip-card">
+    <div class="vip-badge">Most Popular</div>
+
+    <div class="vip-card-price">
+      <div class="price">$27</div>
+      <div class="price-note">One-time VIP upgrade</div>
+    </div>
+
+    <ul class="vip-feature-list">
+      <!-- Star: Live Session -->
+      <li class="star-item">
+        <span class="vf-icon">&#9733;</span>
+        <span class="vip-text">
+          <strong>Live Q&amp;A Session with Russ</strong>
+          <span class="vip-desc" style="color: var(--accent-gold); font-weight: 600; margin-bottom: 4px;">May 1st @ 9:00 AM Pacific</span>
+          <span class="vip-desc">A separate, small-group session where Russ reviews your specific offer and gives you direct feedback on pricing, positioning, and enrollment. Come with what you built in the workshop and get it sharpened live.</span>
+        </span>
+      </li>
+    </ul>
+
+    <!-- Workshop Replay -->
+    <div class="vip-toolkit-group">
+      <h4>Workshop Replay</h4>
+      <ul class="vip-toolkit-list">
+        <li>
+          <strong>Workshop Replay</strong>
+          <span>Rewatch the workshop anytime. Use it as a reference as you build your offer at your own pace.</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- CHECKOUT PLACEHOLDER — Rehan to wire in real checkout -->
+    <div class="checkout-placeholder">
+      <div>
+        <span>CHECKOUT</span>
+        <small>Rehan to add GHL checkout element here</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Closing -->
+<div class="vip-closing">
+  <div class="vip-highlight-box">
+    <p>The workshop teaches you the framework. The Q&amp;A session makes sure you're using it right. <strong>For $27 more, your investment is protected.</strong></p>
+  </div>
+</div>
+
+</body>
+</html>

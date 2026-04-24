@@ -1158,9 +1158,284 @@ ul.clean li::before {
   color: var(--text-3);
   text-transform: uppercase;
 }
+
+/* ============================================================
+   VIEW MODE TOGGLE — Copy Review (Akari) vs Build Guide (Matt)
+   Default body class: view-copy
+   ============================================================ */
+
+.view-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 15, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.view-tabs .vt-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-right: 12px;
+}
+
+.view-tabs button {
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: -0.005em;
+}
+.view-tabs button:hover { color: var(--text); border-color: var(--text-3); }
+.view-tabs button.active {
+  background: var(--amber);
+  color: #0a0a0f;
+  border-color: var(--amber);
+  font-weight: 600;
+}
+.view-tabs .vt-spacer { flex: 1; }
+.view-tabs .vt-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* Akari intro panel — only in copy view */
+.akari-intro {
+  display: none;
+  background: linear-gradient(135deg, var(--amber-faint), transparent 60%);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin: 28px 0 36px;
+}
+body.view-copy .akari-intro { display: block; }
+.akari-intro h2 {
+  font-family: var(--serif);
+  font-size: 26px;
+  margin: 0 0 10px;
+  color: var(--amber);
+  letter-spacing: -0.015em;
+}
+.akari-intro p { color: var(--text-2); margin: 8px 0; line-height: 1.65; }
+.akari-intro .flow {
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: var(--bg-3);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.akari-intro .flow strong { color: var(--text); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--mono); }
+.akari-intro .flow .row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.akari-intro .flow .pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--bg-4);
+  border: 1px solid var(--border-2);
+  color: var(--text);
+  font-size: 12px;
+}
+.akari-intro .flow .pill.new {
+  background: rgba(217, 119, 6, 0.18);
+  border-color: rgba(217, 119, 6, 0.6);
+  color: #f4b860;
+  font-weight: 600;
+}
+.akari-intro .flow .arrow { color: var(--text-3); font-size: 13px; }
+
+/* Layout adjustments for copy view */
+body.view-copy .layout {
+  grid-template-columns: 1fr;
+  max-width: 880px;
+}
+body.view-copy aside.toc { display: none; }
+body.view-copy main { padding: 0 32px 80px; }
+
+/* HIDE ALL TECH BLOCKS WHEN IN COPY VIEW */
+body.view-copy section#s2,
+body.view-copy section#s3,
+body.view-copy section#s6,
+body.view-copy section#s7,
+body.view-copy section#s8,
+body.view-copy section#s9,
+body.view-copy .arch,
+body.view-copy .step,
+body.view-copy .code-wrap,
+body.view-copy .field-row,
+body.view-copy .screenshot-placeholder,
+body.view-copy .expand-bar,
+body.view-copy .email-toggle,
+body.view-copy .meta-grid,
+body.view-copy .link-row,
+body.view-copy h5,
+body.view-copy .progress-box,
+body.view-copy .col-grid {
+  display: none !important;
+}
+
+/* Hide build-step h3 headers (e.g. "4.2 Build steps") and merge field heading */
+body.view-copy h3[id*="-build"],
+body.view-copy h3:not([id]) {
+  display: none !important;
+}
+/* Hide the "Architecture at a glance" h3 in section 1 */
+body.view-copy section#s1 h3 { display: none !important; }
+body.view-copy section#s1 p:nth-of-type(n+3) { display: none !important; }
+
+/* Hide explicitly tech-only callouts (the orange "do not re-insert replay" + sequence-difference notes are for Matt) */
+body.view-copy .callout.critical .tag:not([style*="d97706"]) { /* keep v2.1 callouts visible */ }
+
+/* Force-show email rendered preview always in copy view */
+body.view-copy .email-rendered {
+  display: block !important;
+  max-height: none !important;
+  opacity: 1 !important;
+  margin-top: 12px;
+}
+body.view-copy .email-rendered .email-rendered-inner {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  background: var(--bg-2);
+}
+body.view-copy .email-reveal { margin-top: 0; }
+
+/* Promote email cards to feel like reading view */
+body.view-copy .email-card {
+  margin: 24px 0 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+body.view-copy .email-header {
+  padding: 18px 24px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--border);
+}
+body.view-copy .email-id {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+}
+body.view-copy .email-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 4px 0 2px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+body.view-copy .email-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--mono);
+}
+body.view-copy .email-body { padding: 22px 24px 26px; }
+
+/* Bigger, more readable body copy in rendered preview when in copy view */
+body.view-copy .rendered-body {
+  font-size: 16px;
+  line-height: 1.7;
+  font-family: var(--sans);
+  color: #d8dde6;
+}
+body.view-copy .rendered-body p { margin: 0 0 14px; }
+body.view-copy .rendered-body strong { color: var(--text); }
+body.view-copy .preview-quote {
+  font-size: 13px;
+  color: var(--text-2);
+  font-style: italic;
+}
+body.view-copy .alt-subj {
+  background: var(--bg-3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 8px 0 14px;
+  font-size: 13px;
+}
+body.view-copy .alt-subj .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text-3); margin-right: 8px; }
+
+/* Sequence header sections — keep but tighter in copy view */
+body.view-copy section#s4 > h2,
+body.view-copy section#s5 > h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  margin-top: 48px;
+  letter-spacing: -0.01em;
+}
+body.view-copy section#s4 > .callout.seq-a,
+body.view-copy section#s5 > .callout.seq-b {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* The v2.1 "read first" banner — make it smaller in copy view (Akari already knows the changes) */
+body.view-copy .top-matter > .callout.critical[style*="d97706"] {
+  font-size: 13px;
+  padding: 14px 18px;
+}
+body.view-copy .top-matter > .callout.critical[style*="d97706"] ol { font-size: 13px; }
+
+/* Show the build-only "do not re-insert replay" callouts as informational notes in copy view (Akari WANTS to see this is honored) */
+body.view-copy .callout.critical[class] { font-size: 13px; }
+
+/* HIDE COPY-ONLY ELEMENTS WHEN IN BUILD VIEW (default Matt mode) */
+body.view-build .akari-intro { display: none; }
+
+/* Hide Matt-specific eyebrow + the v2.1 build-instructions callout in copy view (akari-intro covers it) */
+body.view-copy .top-matter .eyebrow { display: none; }
+body.view-copy .top-matter > .callout.critical { display: none; }
+body.view-copy .top-matter .subhead { font-size: 16px; color: var(--text-2); }
+
+/* Hide the section #s1 entirely in copy view — sequence flow already in akari-intro */
+body.view-copy section#s1 { display: none !important; }
+
+/* Hide the build-only "do not re-insert replay" callouts inside email cards in copy view —
+   they're guard rails for Matt, not info for Akari. Akari already sees the change in the intro. */
+body.view-copy .email-card .callout.critical { display: none; }
+
+/* Tighter h1 in copy view */
+body.view-copy .top-matter h1 {
+  font-size: 30px;
+  margin-top: 18px;
+}
+
 </style>
 </head>
-<body>
+<body class="view-copy">
+
+<!-- VIEW MODE TAB BAR -->
+<div class="view-tabs">
+  <span class="vt-label">View as</span>
+  <button type="button" data-view="copy" class="active">Copy Review &middot; Akari</button>
+  <button type="button" data-view="build">Build Guide &middot; Matt</button>
+  <span class="vt-spacer"></span>
+  <span class="vt-hint">v2.1 &middot; 2026-04-24</span>
+</div>
+
 <div class="layout">
 
 <!-- SIDEBAR -->
@@ -1210,6 +1485,51 @@ ul.clean li::before {
 
 <!-- MAIN CONTENT -->
 <main>
+
+<!-- AKARI COPY-REVIEW INTRO (shown only in copy view) -->
+<div class="akari-intro">
+  <h2>VIP Upgrade-Later &mdash; Email Sequence Review</h2>
+  <p>This is the email sequence for buyers who upgrade to VIP <strong>at least 1 day after the workshop</strong> &mdash; not during the workshop, not same-day. Two variants depending on when they upgrade relative to that week's Friday Q&amp;A.</p>
+  <p style="font-size: 13px; color: var(--text-3); margin-top: 14px;">Build details for Matt are on the <strong>Build Guide</strong> tab above. This view shows just the emails as a contact would receive them.</p>
+
+  <div class="flow">
+    <strong>Sequence A &middot; Same-week (upgrade Mon&ndash;Thu, Q&amp;A 0&ndash;4 days away)</strong>
+    <div class="row">
+      <span class="pill">A1 &middot; Upgrade confirmed</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill new">A1.5 &middot; Replay (+24h) &middot; NEW</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">A2 &middot; Friday session</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">A3 &middot; Book call</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">A4 &middot; On the fence</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">A5 &middot; Handoff</span>
+    </div>
+  </div>
+
+  <div class="flow">
+    <strong>Sequence B &middot; Next-week (upgrade Fri&ndash;Sun, Q&amp;A 5&ndash;7 days away)</strong>
+    <div class="row">
+      <span class="pill">B1 &middot; Upgrade confirmed</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill new">B1.5 &middot; Replay (+24h) &middot; NEW</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">B2 &middot; Weekend value drop</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">B3 &middot; Prep + details</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">B4 &middot; Book call</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">B5 &middot; On the fence</span>
+      <span class="arrow">&rarr;</span>
+      <span class="pill">B6 &middot; Handoff</span>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: var(--text-2); margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border);"><strong style="color: var(--amber);">v2.1 changes per your feedback:</strong> "slept on it" framing removed from A1, workshop replay pulled out of A1 and B1, and two new dedicated replay-delivery emails added at +24h (A1.5 and B1.5).</p>
+</div>
 
 <!-- SECTION 0 -->
 <section id="s0" class="top-matter">
@@ -2954,6 +3274,40 @@ checkboxes.forEach(cb => {
 });
 
 loadState();
+
+// View-mode toggle (Akari copy review vs Matt build guide)
+const VIEW_KEY = 'matt-ghl-build-guide-view-mode';
+const viewButtons = document.querySelectorAll('.view-tabs button[data-view]');
+
+function setView(mode) {
+  document.body.classList.remove('view-copy', 'view-build');
+  document.body.classList.add('view-' + mode);
+  viewButtons.forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-view') === mode);
+  });
+  try { localStorage.setItem(VIEW_KEY, mode); } catch (e) {}
+  // When entering copy view, force-open all rendered email previews so Akari sees them immediately
+  if (mode === 'copy') {
+    document.querySelectorAll('.email-rendered').forEach(el => {
+      el.setAttribute('data-open', 'true');
+    });
+    document.querySelectorAll('.email-toggle').forEach(t => {
+      t.setAttribute('aria-expanded', 'true');
+      const lbl = t.querySelector('.toggle-label');
+      if (lbl) lbl.textContent = 'Hide rendered email';
+    });
+  }
+}
+
+viewButtons.forEach(btn => {
+  btn.addEventListener('click', () => setView(btn.getAttribute('data-view')));
+});
+
+// Restore saved view mode (default copy)
+try {
+  const savedView = localStorage.getItem(VIEW_KEY) || 'copy';
+  setView(savedView);
+} catch (e) { setView('copy'); }
 </script>
 
 </body>

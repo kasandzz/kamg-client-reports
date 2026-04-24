@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redstone Status Update — Apr 24, 2026</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: var(--rs-bg);
+    color: var(--rs-fg);
+    font-family: var(--rs-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 96px;
+  }
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rs-border);
+    margin-bottom: 32px;
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+  }
+  .topbar .brand {
+    font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .topbar .brand span { color: var(--rs-red); }
+
+  .hero {
+    margin-bottom: 48px;
+  }
+  .hero .eyebrow {
+    font-size: var(--rs-text-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rs-red);
+    font-weight: var(--rs-weight-medium);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 40px;
+    line-height: 1.08;
+    letter-spacing: var(--rs-tracking-tightest);
+    font-weight: var(--rs-weight-regular);
+    margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: var(--rs-text-md);
+    color: var(--rs-fg-secondary);
+    line-height: 1.55;
+    font-weight: var(--rs-weight-light);
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    margin-bottom: 48px;
+  }
+  section h2 {
+    font-size: var(--rs-text-3xl);
+    line-height: 1.2;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rs-border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  section h2 .count {
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light);
+    letter-spacing: 0;
+  }
+
+  /* ---------- Status list ---------- */
+  ul.items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ul.items li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rs-border);
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+    align-items: baseline;
+  }
+  ul.items li:last-child { border-bottom: none; }
+
+  .tag {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: var(--rs-weight-medium);
+    padding: 4px 8px;
+    border: 1px solid var(--rs-border-strong);
+    color: var(--rs-fg-secondary);
+    display: inline-block;
+    white-space: nowrap;
+    width: fit-content;
+  }
+  .tag.done     { color: rgb(46, 132, 84); border-color: rgb(46, 132, 84); }
+  .tag.live     { color: var(--rs-red); border-color: var(--rs-red); }
+  .tag.building { color: rgb(200, 120, 20); border-color: rgb(200, 120, 20); }
+  .tag.next     { color: var(--rs-ink); border-color: var(--rs-ink); }
+  .tag.new      { color: rgb(60, 80, 180); border-color: rgb(60, 80, 180); }
+  .tag.wait     { color: var(--rs-fog); border-color: var(--rs-fog); }
+
+  .item-body .title {
+    font-size: var(--rs-text-md);
+    font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 4px;
+    line-height: 1.35;
+  }
+  .item-body .meta {
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-secondary);
+    line-height: 1.5;
+    font-weight: var(--rs-weight-light);
+  }
+  .item-body .meta a {
+    color: var(--rs-red);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(178, 30, 36, 0.3);
+  }
+  .item-body .meta a:hover { border-bottom-color: var(--rs-red); }
+
+  /* ---------- Links block ---------- */
+  .links {
+    background: var(--rs-off-white);
+    border: 1px solid var(--rs-border);
+    padding: 24px;
+  }
+  .links h3 {
+    font-size: var(--rs-text-md);
+    font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 16px 0;
+  }
+  .links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 32px;
+  }
+  .links ul li {
+    font-size: var(--rs-text-sm);
+    line-height: 1.6;
+  }
+  .links ul li .lbl {
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  .links ul li a {
+    color: var(--rs-red);
+    text-decoration: none;
+  }
+  .links ul li a:hover { text-decoration: underline; }
+
+  /* ---------- Footer ---------- */
+  .foot {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rs-border);
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 16px 80px; }
+    .hero h1 { font-size: 30px; }
+    ul.items li {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .links ul { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">Redstone <span>Status</span></div>
+    <div>Apr 24, 2026 &nbsp;&middot;&nbsp; For Eric Millinger</div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Weekly Update</div>
+    <h1>What's shipped, what's building, what's next.</h1>
+    <p class="sub">Status snapshot covering the last week plus everything new from Tuesday's call. Anything with a link below is live and clickable.</p>
+  </header>
+
+  <!-- =========================================================
+       1. RECENTLY LAUNCHED
+       ========================================================= -->
+  <section>
+    <h2>Recently Launched <span class="count">last 7 days</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag live">LIVE</span>
+        <div class="item-body">
+          <div class="title">Lead Tracker Dashboard</div>
+          <div class="meta">
+            Replaces the Google Sheet. Three views: 30-day summary, PPC leads, live landing pages. Updated Mon / Thu.
+            <a href="https://kasandzz.github.io/kamg-client-reports/redstone/tracker-dashboard.html" target="_blank">Open tracker &rarr;</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag live">LIVE</span>
+        <div class="item-body">
+          <div class="title">Quote Database in BigQuery</div>
+          <div class="meta">
+            92 quotes + 791 line items from your Drive, loaded into <code>kamg-redstone.quotes</code>. You have Data Viewer access. Claude setup guide ready to walk through when you have 15 min.
+            <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-bq-setup-guide.html" target="_blank">Setup guide &rarr;</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag live">LIVE</span>
+        <div class="item-body">
+          <div class="title">21 Landing Pages</div>
+          <div class="meta">
+            1 master Mexico page + 11 service pages + 9 geo pages, all on <code>theredstonemanufacturing.com</code>, all wired to HubSpot and BigQuery.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Quote Form Redesign</div>
+          <div class="meta">
+            16 of 19 items from your Apr 19 email implemented. Final 3 items on the list this week.
+            <a href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank">Live demo &rarr;</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Google Ads Geo + Negative Keyword Cleanup</div>
+          <div class="meta">
+            Locked targeting to US + Canada only. Negative keyword audit complete. Every ad now points to its matching country landing page, not the homepage.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Homepage Capabilities Section Reworked</div>
+          <div class="meta">
+            Repositioned capabilities + increased US facility emphasis per your Apr 17 feedback. Ready for your review Monday.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       2. CURRENTLY BUILDING
+       ========================================================= -->
+  <section>
+    <h2>Currently Building <span class="count">in flight</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Die Casting Mexico SEO Test Page</div>
+          <div class="meta">
+            Single-page ranking test to prove the domain itself is not penalized before committing to the full rebuild. Ships Monday.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Ad-to-LP Rewiring</div>
+          <div class="meta">
+            Daniel connecting every active ad to its dedicated landing page. Orphaned ads paused. Complete tomorrow AM.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">PostHog Session Recording</div>
+          <div class="meta">
+            Installed on the new landing pages so we can watch actual prospect behavior (where they scroll, where they drop off, which CTAs get clicked).
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Cold Email — Warmup to First Send</div>
+          <div class="meta">
+            5 domains, 15 inboxes. Warmup complete, list building in progress, first send window opens this week.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       3. SHIPPING MONDAY
+       ========================================================= -->
+  <section>
+    <h2>Shipping Monday <span class="count">Apr 28</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag next">NEXT</span>
+        <div class="item-body">
+          <div class="title">Revised Homepage</div>
+          <div class="meta">
+            Presented at Monday check-in for your approval. Incorporates Apr 17 feedback + Apr 19 copy rules.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">NEXT</span>
+        <div class="item-body">
+          <div class="title">Die Casting Mexico SEO Test — Live</div>
+          <div class="meta">
+            Goes live Monday. We watch indexing and rank signals for 2 weeks before deciding on the full rebuild scope.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">NEXT</span>
+        <div class="item-body">
+          <div class="title">Quote Form — Final 3 Items</div>
+          <div class="meta">
+            Closes out the 19-item list from your Apr 19 email.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">NEXT</span>
+        <div class="item-body">
+          <div class="title">Weekly Check-in Cadence Re-Established</div>
+          <div class="meta">
+            You're back in CDMX Friday. Monday resets the weekly rhythm: 30 min, status + decisions.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       4. NEW BUILDS FROM CALL
+       ========================================================= -->
+  <section>
+    <h2>New Builds From Tuesday's Call <span class="count">scoped this week</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">Lead Qualification Form + Framework</div>
+          <div class="meta">
+            Two-gate model: MQL = replies / books discovery call, SQL = invests time in a real quote. Disqualifiers documented up front so sales does not burn cycles on tire-kickers. Form fields + scoring live in the PRD.
+            <a href="https://kasandzz.github.io/kamg-client-reports/redstone/lead-qualification-agent-prd.html" target="_blank">PRD &rarr;</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">HubSpot 1-Click Booking Verification</div>
+          <div class="meta">
+            Confirming whether your current HubSpot plan supports auto-booking discovery calls straight off a form submission. If yes, we wire it in. If no, we pick the cheapest add-on that unlocks it.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">Slack &rarr; Quote DB Bridge</div>
+          <div class="meta">
+            Slash command or @mention inside your new Redstone Slack that queries the 92-quote BigQuery dataset in plain English. Claude API, roughly $1/mo, single account, team-wide. Internal tool, no external exposure.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">Lead Tracker &rarr; Slack Ping</div>
+          <div class="meta">
+            When a qualified lead lands in HubSpot, Slack pings the Redstone channel. No more checking the dashboard to see if something arrived.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">Centralized Drive Archive</div>
+          <div class="meta">
+            You create a top-level Drive folder; we mirror every deliverable (reports, forms, LPs, guides) there. GitHub &rarr; Drive sync automation is on the backlog so it stays current without manual uploads.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag new">NEW</span>
+        <div class="item-body">
+          <div class="title">Jack — Reduced SEO Scope</div>
+          <div class="meta">
+            Hired at ~$1.5K / mo (down from the $12K retainer proposal). Scope: keyword research, content cadence, link building. Starts once the SEO test results come in.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       5. WAITING ON YOU
+       ========================================================= -->
+  <section>
+    <h2>Waiting On You <span class="count">blockers</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Service Account Provisioning (15 min, in person)</div>
+          <div class="meta">
+            Share the Drive quote folder with the service account so we can automate future quote ingests instead of manual pulls. Grab me when you're back in CDMX.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Google Search Console + GA4 Owner Access</div>
+          <div class="meta">
+            Blocks Phase 1 of the data warehouse. Without this we are inferring SEO performance instead of measuring it.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">HubSpot Private App Token</div>
+          <div class="meta">
+            Needed to close the loop between form submission &rarr; qualified lead &rarr; revenue. Tutorial already in your inbox.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Drive Archive Folder</div>
+          <div class="meta">
+            Create the top-level folder, share edit access, we handle the rest.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       6. LINKS
+       ========================================================= -->
+  <section class="links">
+    <h3>Quick Links</h3>
+    <ul>
+      <li><span class="lbl">Lead Tracker:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/tracker-dashboard.html" target="_blank">tracker-dashboard</a></li>
+      <li><span class="lbl">Tuesday Call Brief:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-call-brief-2026-04-22.html" target="_blank">eric-call-brief-2026-04-22</a></li>
+      <li><span class="lbl">Quote Form Demo:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank">quote-form-demo</a></li>
+      <li><span class="lbl">Lead Qualification PRD:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/lead-qualification-agent-prd.html" target="_blank">lead-qualification-agent-prd</a></li>
+      <li><span class="lbl">BigQuery Setup Guide:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-bq-setup-guide.html" target="_blank">eric-bq-setup-guide</a></li>
+      <li><span class="lbl">Google Ads Snapshot:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads.html" target="_blank">google-ads</a></li>
+      <li><span class="lbl">Project Plan:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/project-plan.html" target="_blank">project-plan</a></li>
+      <li><span class="lbl">Shipped Changes (Apr 20):</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-shipped-changes-2026-04-20.html" target="_blank">eric-shipped-changes-2026-04-20</a></li>
+      <li><span class="lbl">Live LPs:</span> <a href="https://theredstonemanufacturing.com" target="_blank">theredstonemanufacturing.com</a></li>
+      <li><span class="lbl">Die Casting Master:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/die-casting-company.html" target="_blank">die-casting-company</a></li>
+    </ul>
+  </section>
+
+  <div class="foot">
+    Prepared by Kas. Quick questions over Slack, anything that needs a decision we hold for Monday.
+  </div>
+
+</div>
+</body>
+</html>

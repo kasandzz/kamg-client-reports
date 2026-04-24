@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-24</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { display:inline-block; padding:4px 12px; border-radius:6px; font-size:10px; font-weight:600; margin-top:8px; background:rgba(16,185,129,.15); color:#10b981; }
+  .health-badge.amber { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+  .win-item, .concern-item, .insight-item, .amber-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .amber-item { background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-item.past { opacity:0.5; }
+  .schedule-item.current { border-color:#3b82f6; box-shadow:0 0 12px rgba(59,130,246,.15); }
+  .schedule-item.upcoming { border-color:#10b981; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:90px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-redstone { background:rgba(178,30,36,.15); color:#ef4444; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-personal { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .tag-done { background:rgba(100,116,139,.1); color:#64748b; font-size:9px; padding:2px 6px; border-radius:4px; }
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+  .amber-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:12px 16px; margin-bottom:16px; color:#f59e0b; font-size:12px; }
+  .red-banner { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:12px 16px; margin-bottom:16px; color:#ef4444; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Friday, April 24, 2026 | Full Morning</div>
+    <div class="meta">Generated 2026-04-24 10:01 CST | Local-Fallback Mode</div>
+    <div class="health-badge amber">Skill Health: 2 integrations degraded</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('cpg')">CPG</div>
+    <div class="tab" onclick="showTab('redstone')">Redstone</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- ===== MY DAY ===== -->
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Focus Statement</div>
+      <div class="card-subtitle">No client meetings today - billing & audit day</div>
+      <div class="insight-item">
+        <div class="item-title">Billing emergencies still open from yesterday</div>
+        <div class="item-detail">Zapier subscription (3 Zaps paused), Zoom invoice (now 8 days overdue), AmEx (limit). Fix payment methods first if not already handled.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Two invoices to ship today</div>
+        <div class="item-detail">Invoice CPG Affiliate (Krik) Month 1 $3,000 (all-day reminder) + Invoice Eric (Redstone) at 14:00. Net 0, Wise USD, thank-you card on both.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Hague audit + nurture email at 15:00</div>
+        <div class="item-detail">Hague audit block scheduled. Use audit output to anchor nurture email tone.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule</div>
+      <div class="card-subtitle">9 events | 0 client calls | Currently: Russ Call Block window</div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">All Day</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Invoice CPG Affiliate (Krik) - Month 1 <span class="schedule-tag tag-cpg">CPG</span></div>
+          <div class="schedule-prep">$3,000 Net 0 engagement signed 2026-03-24. Wise USD + personalized thank-you card.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">06:45 - 07:15</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Exercise <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">07:15 - 07:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Shower <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">07:45 - 08:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Morning Focus Block <span class="tag-done">DONE</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item current">
+        <div class="schedule-time">08:30 - 10:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ Call Block <span class="schedule-tag tag-cod">COD</span> <span class="tag-done">ENDING NOW</span></div>
+          <div class="schedule-prep">Block window. No Russ call confirmed on calendar.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">14:00 - 14:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Invoice Eric &amp; Krik <span class="schedule-tag tag-internal">BILLING</span></div>
+          <div class="schedule-prep">Dedicated invoice block. Eric (Redstone) + Krik (CPG). Net 0, Wise USD, thank-you cards per memory rules.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">15:00 - 16:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Hague audit and nurture email <span class="schedule-tag tag-internal">BIZ DEV</span></div>
+          <div class="schedule-prep">Audit Hague site, draft nurture email based on findings.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">20:00 - 22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Relax <span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+
+      <div class="schedule-item upcoming">
+        <div class="schedule-time">22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Go To Bed <span class="schedule-tag tag-personal">PERSONAL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Yesterday's Wins</div>
+      <div class="card-subtitle">From 2026-04-23 daily note</div>
+      <div class="win-item">
+        <div class="item-title">COD VIP upgrade email sequence shipped</div>
+        <div class="item-detail">Full VIP upgrade page rebuild for Rehan + email decks v4/v2 committed to kamg-ops</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">CPG Google Ads LP updated with Krik's revisions</div>
+        <div class="item-detail">Stats, brand cards, founder bio, CEO pairings corrected. Published to GitHub Pages.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">CPG Clutch.co profile drafted (~half done)</div>
+        <div class="item-detail">Company Summary, Services, Our Story, initial sections complete. Ready to finish.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">Kas residency dossier v2 complete</div>
+        <div class="item-detail">Documents/private/ + kasandzz/kas-residency repo consolidated</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">COD application + calendar merge + Trustpilot</div>
+        <div class="item-detail">Audit fixes applied</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-Forward from Yesterday</div>
+      <div class="card-subtitle">From 2026-04-23 daily note</div>
+      <div class="concern-item">
+        <div class="item-title">Zapier / Zoom / AmEx billing emergencies</div>
+        <div class="item-detail">If not yet handled yesterday: Zapier subscription canceled (3 Zaps paused), Zoom invoice now 8 days overdue, AmEx limit hit.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Redstone LP die casting: resume at Pass 3 (Frontend Dev)</div>
+        <div class="item-detail">LP rebuild pipeline paused at Pass 3</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">VIP Thank-You Page recode</div>
+        <div class="item-detail">COD: TY page needs recode per Apr 22 call decisions. Non-VIP TY video needs Russ recording.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Send Eric the BQ setup guide</div>
+        <div class="item-detail">Guide committed (f688456), needs to be emailed to Eric</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Leo: provision SA + coordinate Eric Drive folder share</div>
+        <div class="item-detail">Quote DB infrastructure: service account + IAM Editor on kamg-redstone. 23-task Attio migration plan handed to Leo yesterday.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Leo profit share model</div>
+        <div class="item-detail">Internal compensation discussion still open</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">CPG: ~10 older Redstone quotes (pre-Dec 2025) not yet extracted</div>
+        <div class="item-detail">Tied to Redstone quote ingest BQ pipeline</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">CPG: Krik to confirm 4 removed testimonials</div>
+        <div class="item-detail">Dan Webster, Russell Saks, Jack McNamara, Adam Miocevich - removed because companies unknown. Krik to confirm if he wants them restored with correct attribution.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== COD INTEL ===== -->
+  <div class="section" id="cod">
+    <div class="amber-banner">
+      BQ unavailable - cloud collector (GCS) returned 403 for service account. Going local-fallback. Check kamg-morning-intel bucket IAM for claude-sheets SA.
+    </div>
+    <div class="card">
+      <div class="card-title">COD Context</div>
+      <div class="card-subtitle">Active fires + recent decisions</div>
+      <div class="insight-item">
+        <div class="item-title">VIP Upgrade flow shipped to Rehan for GHL build</div>
+        <div class="item-detail">Yesterday: full page rebuild + email sequence (A1 upgrade-confirmed, akari journey review, matt/rehan GHL build guides) committed to output/cod/vip-upgrade-email-sequence/</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Russ call block (08:30-10:00) - no specific call on calendar</div>
+        <div class="item-detail">Block window just ended. If Russ posted to Slack or DMs during this window, review before moving to billing block.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">FTC compliance + niche LP rules still in force</div>
+        <div class="item-detail">All COD outputs must pass FTC check, log at output/cod/ftc-compliance-log.md. No fake scarcity, no toolkit in emails, VIP = Workshop + Friday Q&A only.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Open COD Threads</div>
+      <div class="insight-item">
+        <div class="item-title">VIP TY page recode (still pending)</div>
+        <div class="item-detail">Per Apr 22 call. Non-VIP TY video needs Russ recording.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Reg page B-test + link UX fix</div>
+        <div class="item-detail">P0 Russ items. Reg page redesign + "register" link should route to proper CTA.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Workshop LP value stack redesign</div>
+        <div class="item-detail">P0 redesign value stack with GIFs + research</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Niche LPs (therapist, etc.) + BQ labels</div>
+        <div class="item-detail">Build niche LPs on GHL using canonical template, then BQ labels for attribution</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CPG ===== -->
+  <div class="section" id="cpg">
+    <div class="card">
+      <div class="card-title">CPG Status</div>
+      <div class="card-subtitle">Krik Angacian - fractional CMO engagement</div>
+      <div class="win-item">
+        <div class="item-title">Month 1 invoice due today ($3,000)</div>
+        <div class="item-detail">All-day calendar reminder. Net 0, Wise USD, thank-you card. Template at 03-Resources/templates/invoice/invoice-template.html.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Clutch.co profile ~50% drafted</div>
+        <div class="item-detail">Sections done: Company Summary (v2), Services Focus, Our Story. In-progress MD at kamg-ops/output/cpg/cpg-clutch-profile.md.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Google Ads LP published w/ Krik revisions</div>
+        <div class="item-detail">kasandzz.github.io/kamg-client-reports/output/cpg/cpg-google-ads-lp.html</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Attio migration plan delegated to Leo</div>
+        <div class="item-detail">23-task plan, CRM migration off Sheets+Fireflies to Attio Pro, handed off 2026-04-23.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">4 testimonials removed - Krik confirmation pending</div>
+        <div class="item-detail">Dan Webster, Russell Saks, Jack McNamara, Adam Miocevich - companies unknown. Krik to confirm if restored with attribution.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Everflow deployment still blocked on Krik creds</div>
+        <div class="item-detail">Runbook ready, waiting on Krik</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REDSTONE ===== -->
+  <div class="section" id="redstone">
+    <div class="card">
+      <div class="card-title">Redstone Status</div>
+      <div class="card-subtitle">Eric - HIGH RISK retention</div>
+      <div class="concern-item">
+        <div class="item-title">Retention risk - "one more week" signal from Apr 17 call</div>
+        <div class="item-detail">Homepage speed + ads performance cited. Must show progress on LP + quote DB this week.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">LP die casting - resume at Pass 3 (Frontend Dev)</div>
+        <div class="item-detail">Design discipline passes framework: UI -> Visual -> Frontend (current) -> CRO -> Taste. Paused mid-pipeline.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Eric BQ setup guide needs to be sent</div>
+        <div class="item-detail">Guide committed f688456 yesterday, not yet emailed. Include as part of today's Eric invoice touch.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Invoice Eric at 14:00 block</div>
+        <div class="item-detail">Month invoice, Net 0, Wise USD, thank-you card anchored on Redstone momentum this week.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Leo: SA + IAM Editor on kamg-redstone</div>
+        <div class="item-detail">Quote DB infra dependency. Leo has IAM, provisioning in progress.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Permanent rules locked Apr 17</div>
+        <div class="item-detail">Red (#B21E24) only for CTAs, table format for comms, 2 KPIs max, AI skepticism, autonomy preference.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OVERNIGHT ===== -->
+  <div class="section" id="overnight">
+    <div class="amber-banner">
+      Gmail MCP token expired - overnight email digest not available. Re-auth Gmail MCP in Claude settings to restore.
+    </div>
+    <div class="card">
+      <div class="card-title">Slack Overnight (COD)</div>
+      <div class="card-subtitle">Last 12h - pull skipped (sync not run today)</div>
+      <div class="item-detail">Sync-slack skill not triggered yet. If anything urgent came in overnight from Russ / Akari / Matt / Jayne, manually check client-slack before 14:00 billing block.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Email Overnight</div>
+      <div class="card-subtitle">Gmail MCP offline</div>
+      <div class="item-detail">Token expired. Use Gmail web to scan for anything urgent before billing block.</div>
+    </div>
+  </div>
+
+  <!-- ===== ACTIONS ===== -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Priority Actions Today</div>
+      <div class="card-subtitle">Ordered by time + priority</div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Handle billing emergencies (Zapier, Zoom, AmEx)</strong>
+          <div class="action-context">Carry-over from yesterday if not resolved - fix payment methods first</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>14:00 - Invoice Eric (Redstone) Month 1</strong>
+          <div class="action-context">Net 0, Wise USD, thank-you card referencing Redstone momentum this week. Bundle with BQ setup guide send.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>14:00 - Invoice Krik (CPG) Month 1 $3,000</strong>
+          <div class="action-context">All-day reminder. Net 0, Wise USD, thank-you card. Use invoice template.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>15:00 - Hague audit + nurture email draft</strong>
+          <div class="action-context">Audit then email. Use audit output as nurture anchor.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Re-auth Gmail MCP token</strong>
+          <div class="action-context">Token expired - blocking email digest and /sync-email</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Resume Redstone LP die casting Pass 3</strong>
+          <div class="action-context">High retention risk - show progress this week</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>VIP TY page recode (COD)</strong>
+          <div class="action-context">Per Apr 22 call. Pending Russ for non-VIP TY video recording.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Finish CPG Clutch.co profile (remaining sections)</strong>
+          <div class="action-context">~50% drafted. kamg-ops/output/cpg/cpg-clutch-profile.md</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Fix GCS bucket permission (kamg-morning-intel)</strong>
+          <div class="action-context">Service account claude-sheets missing storage.objects.list/get. Morning-intel local-fallback has run 2+ days. Either grant SA read or switch dashboard to user OAuth.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SOURCES ===== -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data Source</div>
+      <div class="card-subtitle">local-fallback (GCS blocked for service account)</div>
+      <table class="data-table">
+        <tr><th>Source</th><th>Status</th><th>Notes</th></tr>
+        <tr><td>Calendar (k@kasandz.com)</td><td><span class="hl-green">OK</span></td><td>3 calendars read, 9 events today</td></tr>
+        <tr><td>Calendar (kas@russruffino.com)</td><td><span class="hl-green">OK</span></td><td>Akari unavailable block only - no Russ calls today</td></tr>
+        <tr><td>Slack Bot (COD)</td><td><span class="hl-green">OK</span></td><td>claude_sync @ clientsondemand - auth.test passed</td></tr>
+        <tr><td>Slack MCP (Personal)</td><td><span class="hl-amber">SKIPPED</span></td><td>Not queried in local-fallback path</td></tr>
+        <tr><td>Gmail MCP</td><td><span class="hl-rose">EXPIRED</span></td><td>Token expired - needs re-auth</td></tr>
+        <tr><td>Google Sheets (service account)</td><td><span class="hl-green">OK</span></td><td>Credentials present</td></tr>
+        <tr><td>GCS (kamg-morning-intel)</td><td><span class="hl-rose">403</span></td><td>Service account missing storage.objects.list/get permission</td></tr>
+        <tr><td>Agency Brain (PC-C)</td><td><span class="hl-rose">OFFLINE</span></td><td>192.168.100.20:8080 unreachable - non-blocking</td></tr>
+        <tr><td>Knowledge Compiler</td><td><span class="hl-green">OK</span></td><td>Last run 2026-04-24T00:03Z (10h ago) - success</td></tr>
+        <tr><td>Cache Health</td><td><span class="hl-green">90/100</span></td><td>95.7% hit rate, patch applied, $2,770 saved across 19 sessions</td></tr>
+        <tr><td>Backup (PersonalOS)</td><td><span class="hl-green">OK</span></td><td>Last backup 2026-04-23 08:37 (5.06 GB, no errors)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Known Issues</div>
+      <div class="concern-item">
+        <div class="item-title">Gmail MCP token expired</div>
+        <div class="item-detail">Re-authorize at claude.ai settings -> MCP servers -> Gmail</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">GCS bucket 403 for service account</div>
+        <div class="item-detail">kamg-morning-intel bucket IAM missing Storage Object Viewer for claude-sheets@green-segment-491604-j8. Either grant role or migrate morning-intel dashboard to user OAuth path.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Heartbeat skill not installed globally</div>
+        <div class="item-detail">Morning SKILL.md references ~/.claude/skills/heartbeat but only project-local skill exists. Phase 2.0 heartbeat gate falls through silently.</div>
+      </div>
+      <div class="amber-item">
+        <div class="item-title">Agency Brain offline on PC-C</div>
+        <div class="item-detail">Non-blocking. Compiler-brain ingest bridge inactive until brought up.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

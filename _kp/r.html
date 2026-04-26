@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-2H · Emergency Rundown</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --card: #1a1a22;
+  --card2: #20202a;
+  --gold: #c8a96e;
+  --gold-bright: #e0c388;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --green: #4ade80;
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --border: rgba(200,169,110,0.18);
+}
+body { font-family: 'Outfit', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; -webkit-font-smoothing: antialiased; padding-bottom: 80px; }
+.container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, #1a1208 0%, var(--bg) 60%);
+  padding: 32px 0 28px; border-bottom: 2px solid var(--gold); text-align: center;
+  position: sticky; top: 0; z-index: 10;
+}
+.hero-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 8px;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 700;
+  line-height: 1; color: var(--gold-bright);
+}
+.hero h1 em { font-style: italic; color: var(--text); }
+.hero-sub { font-size: 14px; color: var(--text2); margin-top: 8px; }
+
+/* Section */
+section { padding: 28px 0 8px; }
+.s-num {
+  display: inline-block; width: 32px; height: 32px; line-height: 32px; text-align: center;
+  background: var(--gold); color: #1a1208; font-weight: 800; border-radius: 50%; font-size: 16px;
+  margin-right: 12px;
+}
+h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; }
+h2 em { color: var(--gold); font-style: italic; margin-left: 6px; }
+.s-time { font-size: 12px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; padding-left: 44px; }
+
+/* Action card */
+.act {
+  background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold);
+  border-radius: 10px; padding: 18px 20px; margin-bottom: 12px;
+}
+.act-h { font-size: 16px; font-weight: 600; color: var(--gold-bright); margin-bottom: 6px; }
+.act p { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.act p:last-child { margin-bottom: 0; }
+.act .quote { color: var(--text2); font-style: italic; font-size: 13px; }
+.act ul { margin: 6px 0 0 18px; font-size: 14px; }
+.act li { margin-bottom: 4px; }
+
+/* Letter (the only one you need) */
+.letter {
+  background: #faf7f0; color: #2a2820; padding: 28px 24px; border-radius: 8px;
+  font-family: 'Cormorant Garamond', serif; font-size: 15px; line-height: 1.7;
+  margin: 12px 0;
+}
+.letter h3 { font-size: 18px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #c8a96e; color: #2a2820; }
+.letter p { color: #2a2820; margin-bottom: 12px; font-size: 15px; }
+.letter .sig { margin-top: 20px; font-style: italic; color: #5a574f; font-size: 14px; }
+
+/* Speech */
+.speech {
+  background: var(--card2); border-left: 4px solid var(--gold);
+  padding: 18px 20px; margin: 10px 0; border-radius: 6px;
+  font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; line-height: 1.65;
+}
+.speech .lbl {
+  display: block; font-family: 'Outfit', sans-serif; font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 8px; font-style: normal;
+}
+.phon {
+  background: #050507; padding: 12px 16px; border-radius: 6px; margin-top: 8px;
+  font-family: 'Courier New', monospace; font-size: 12px; color: var(--gold); line-height: 1.8;
+}
+
+/* Checklist */
+.check { list-style: none; padding: 0; margin: 0; }
+.check li {
+  padding: 12px 14px; background: var(--card); border-radius: 8px; margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 12px; font-size: 14px;
+  border: 1px solid var(--border);
+}
+.check li::before {
+  content: '☐'; color: var(--gold); font-size: 18px; flex-shrink: 0; line-height: 1.2;
+}
+
+/* Critical box */
+.crit {
+  background: linear-gradient(180deg, rgba(248,113,113,0.1) 0%, var(--card) 100%);
+  border: 1px solid rgba(248,113,113,0.4); border-radius: 10px; padding: 18px;
+  margin: 14px 0;
+}
+.crit-l { color: var(--red); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.crit p { font-size: 14px; }
+
+/* Inline tags */
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; margin-left: 6px;
+}
+.tag-now { background: rgba(248,113,113,0.15); color: var(--red); }
+.tag-1h { background: rgba(251,191,36,0.15); color: var(--amber); }
+.tag-go { background: rgba(74,222,128,0.15); color: var(--green); }
+
+/* Footer anchor */
+.anchor {
+  background: var(--card2); border: 1px solid var(--gold); border-radius: 12px;
+  padding: 22px; margin: 32px 0 0; text-align: center;
+}
+.anchor h2 { justify-content: center; font-family: 'Cormorant Garamond', serif; }
+.anchor p { font-size: 15px; color: var(--text); }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 32px; }
+  h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="hero-tag">T-2 Hours · Sunday Morning</p>
+  <h1>The <em>Emergency</em> Rundown</h1>
+  <p class="hero-sub">Only what you need to do before you knock.</p>
+</div>
+
+<div class="container">
+
+<!-- THE LETTER -->
+<section>
+  <h2><span class="s-num">1</span>The Letter <em>(write now)</em></h2>
+  <p class="s-time">Do first · 15 min · sit down with paper and a pen</p>
+
+  <div class="crit">
+    <p class="crit-l">⚠ Reality check</p>
+    <p>Your parents can't write this in time. So <strong>YOU write it on their behalf</strong>, in their voice, by hand, and sign it from them. This is fine. The letter being from them in spirit matters more than logistics. If they can record a 30-sec WhatsApp voice note in the next hour, even better — play it for her after she reads.</p>
+  </div>
+
+  <p style="font-size: 14px; color: var(--text2); margin: 12px 0 8px;">Copy this onto nice paper by hand. Cream/white envelope. Front: <em>Para Doña [Nombre]</em></p>
+
+  <div class="letter">
+    <h3>Querida Doña [Nombre],</h3>
+    <p>Aunque la distancia no nos permite estar ahí con ustedes hoy, no queríamos que este momento pasara sin que usted escuchara nuestras palabras.</p>
+    <p>Kas nos ha hablado de Aranza desde el primer momento. La manera en que habla de ella, la forma en que ella lo hace mejor persona, lo que ha visto en ella de bondad, inteligencia, y fuerza. Nosotros desde la distancia ya la queremos como si fuera de nuestra familia, y sabemos que lo seguirá siendo por toda la vida.</p>
+    <p>Sabemos bien lo que significa criar a una hija así. Y sabemos que esa fuerza, esa ternura, esa manera de ser que amamos en Aranza, viene de usted. Por eso hoy no solo le agradecemos que confíe en nuestro hijo. Le agradecemos por la mujer que ha criado.</p>
+    <p>Desde Inglaterra le mandamos un abrazo muy fuerte, la bienvenida a nuestra familia, y la promesa de conocerla pronto en persona. Que sus manos, que han cuidado tanto a Aranza, sepan hoy que nuestras manos también la van a cuidar siempre.</p>
+    <p class="sig">Con mucho cariño y profundo respeto,<br>
+    [Dad's name] y [Mum's name]<br>
+    Los padres de Kas</p>
+  </div>
+</section>
+
+<!-- THE BUYS -->
+<section>
+  <h2><span class="s-num">2</span>The <em>Buys</em></h2>
+  <p class="s-time">Do next · 45 min round trip</p>
+
+  <div class="act">
+    <div class="act-h">Flowers <span class="tag tag-now">Now</span></div>
+    <p>Proper florist. Not OXXO, not supermarket. White, cream, or soft pink. Mid-size arrangement (not giant, not small).</p>
+    <p class="quote">CDMX fast options: Matilde Florería, Rosa Mexicano, or any decent flower shop in Roma/Polanco/Condesa. Walk in, point, pay.</p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">Cake <span class="tag tag-now">Now</span></div>
+    <p>Small to medium. Something elegant, not flashy. Tres leches, a fine pound cake, a tarta de manzana, or a quality chocolate cake. Box it nicely.</p>
+    <p class="quote">Solid CDMX bets: Maque (Condesa/Polanco), Rosetta Panadería (Roma), Eno, or Da Silva. Whichever is closest.</p>
+    <p class="quote">When you give it: <em>"Le traje algo para acompañar el café."</em></p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">Envelope + paper <span class="tag tag-now">Now</span></div>
+    <p>If you don't already have nice cream paper and an envelope: pick up at any papelería on the way (Lumen, OfficeMax, even a corner store has cream stationery). Write the letter when you get back.</p>
+  </div>
+</section>
+
+<!-- THE SPEECH -->
+<section>
+  <h2><span class="s-num">3</span>The <em>Speech</em></h2>
+  <p class="s-time">Memorize · 20 min · say each block out loud 5x</p>
+
+  <p style="font-size: 13px; color: var(--text2); margin-bottom: 10px;">Three blocks. Pause between each. Eye contact. Slow. Then hand her the envelope.</p>
+
+  <div class="speech">
+    <span class="lbl">Block 1 · About Aranza</span>
+    Doña [Nombre], llevo [X años] con Aranza, y en ese tiempo ella se ha convertido en la persona más importante de mi vida. La amo profundamente, la respeto, y quiero construir mi futuro a su lado.
+    <div class="phon">DOH-nya, YEH-voh [X AH-nyohs] kohn ah-RAN-sah, ee en EH-seh tee-EM-poh EH-yah seh ah kohn-vehr-TEE-doh en lah pehr-SOH-nah MAHS eem-por-TAHN-teh deh mee VEE-dah. Lah AH-moh proh-FOON-dah-MEN-teh, lah res-PEH-toh, ee kee-EH-roh kohns-troo-EER mee foo-TOO-roh ah soo LAH-doh.</div>
+  </div>
+
+  <div class="speech">
+    <span class="lbl">Block 2 · The ask</span>
+    Sé que usted es la persona que más la conoce, la que la ha cuidado toda su vida, y la que más la quiere en este mundo. Por eso, con todo el respeto y el cariño que le tengo, vengo a pedirle su bendición para pedirle matrimonio a Aranza.
+    <div class="phon">SEH keh oos-TED ehs lah pehr-SOH-nah keh MAHS lah koh-NOH-seh, lah keh lah ah kwee-DAH-doh TOH-dah soo VEE-dah, ee lah keh MAHS lah kee-EH-reh en EHS-teh MOON-doh. Por EH-soh, kohn TOH-doh el res-PEH-toh ee el kah-REE-nyoh keh leh TEN-goh, VEN-goh ah peh-DEER-leh soo ben-dee-see-OHN PAH-rah peh-DEER-leh mah-tree-MOH-nee-oh ah ah-RAN-sah.</div>
+  </div>
+
+  <div class="speech">
+    <span class="lbl">Block 3 · The letter handoff</span>
+    Quiero que sepa que Aranza no pierde a una mamá, y yo no llego solo. Llego con mi familia detrás, que ya la quiere a ella, y que también quiere quererla a usted. Mis papás me pidieron que le entregara esto.
+    <div class="phon">kee-EH-roh keh SEH-pah keh ah-RAN-sah noh pee-EHR-deh ah OO-nah MAH-mah, ee yoh noh YEH-goh SOH-loh. YEH-goh kohn mee fah-MEE-lee-ah deh-TRAHS, keh yah lah kee-EH-reh ah EH-yah, ee keh tahm-bee-EN kee-EH-reh keh-REHR-lah ah oos-TED. Mees pah-PAHS meh pee-dee-EH-rohn keh leh en-treh-GAH-rah EHS-toh.</div>
+  </div>
+
+  <p style="font-size: 13px; color: var(--gold); margin-top: 8px;"><em>Hand her the envelope. Then stop talking.</em></p>
+</section>
+
+<!-- THE BIG 3 RULES -->
+<section>
+  <h2><span class="s-num">4</span>The <em>Three Rules</em></h2>
+  <p class="s-time">Do not break these · ever</p>
+
+  <div class="crit">
+    <p class="crit-l">Rule 1 · Usted, never tú</p>
+    <p>From the moment she opens the door until you leave. Even if she switches to tú with you, stay with usted for the whole visit.</p>
+  </div>
+
+  <div class="crit">
+    <p class="crit-l">Rule 2 · Zero residency talk</p>
+    <p>Not a word. Not a hint. If she asks about visas: <em>"Eso es algo separado que estoy resolviendo, no tiene nada que ver con esto."</em> Pivot back to her daughter.</p>
+  </div>
+
+  <div class="crit">
+    <p class="crit-l">Rule 3 · Never about her father</p>
+    <p>Don't bring him up. If she does, neutral and respectful. Don't take sides. <em>"Eso lo voy a platicar con Aranza. Quiero hacer lo que a ella y a usted les parezca mejor."</em></p>
+  </div>
+</section>
+
+<!-- THE FLOW -->
+<section>
+  <h2><span class="s-num">5</span>The <em>Flow</em></h2>
+  <p class="s-time">When you're inside</p>
+
+  <div class="act">
+    <div class="act-h">Door</div>
+    <p>Hand flowers immediately: <em>"Doña [Nombre], le traje estas flores."</em></p>
+    <p style="font-size: 12px; color: var(--text3);"><em>EN: "Doña [Name], I brought you these flowers."</em></p>
+    <p>Hug or cheek kiss as you normally would.</p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">First 15 min · small talk</div>
+    <p>Hand her the cake: <em>"Y esto, para acompañar el café."</em></p>
+    <p style="font-size: 12px; color: var(--text3);"><em>EN: "And this, to go with the coffee."</em></p>
+    <p>Accept whatever she offers (coffee, water). Ask about her, the house, her week. Do NOT open with Aranza.</p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">The transition</div>
+    <p>At a natural pause:</p>
+    <p class="quote">"Doña [Nombre], hay algo muy importante que quiero platicar con usted. Por eso le pedí que platicáramos las dos solas hoy."</p>
+    <p style="font-size: 12px; color: var(--text3);"><em>EN: "Doña [Name], there's something very important I want to talk with you about. That's why I asked to speak with just the two of us today."</em></p>
+    <p>Pause. Let her settle.</p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">The speech</div>
+    <p>Block 1 → pause. Block 2 → pause. Block 3 → hand her the envelope. <strong>Then stop talking.</strong></p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">Her reaction</div>
+    <p>Silence is fine. Tears are common. Let her read at her pace. Match her energy.</p>
+    <p class="quote">If she says yes: <em>"Gracias, Doña [Nombre]. Le prometo que la voy a cuidar toda la vida. Y a usted también la considero parte de mi familia desde hoy."</em></p>
+    <p style="font-size: 12px; color: var(--text3);"><em>EN: "Thank you, Doña [Name]. I promise I will care for her my whole life. And I consider you part of my family from today, too."</em></p>
+    <p class="quote">If "déjame pensarlo": <em>"Por supuesto, Doña [Nombre]. Tómese el tiempo que necesite."</em></p>
+    <p style="font-size: 12px; color: var(--text3);"><em>EN: "Of course, Doña [Name]. Take the time you need."</em> Then one week of patience.</p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">Stay 45+ min after</div>
+    <p>Don't bolt. Drink the coffee. Eat the cake with her. Ask her about Aranza as a child. Let her show photos. This is the warmest part of the visit.</p>
+  </div>
+</section>
+
+<!-- TALK TOPICS -->
+<section>
+  <h2><span class="s-num">6</span>Things to <em>Talk About</em></h2>
+  <p class="s-time">When the speech is done · keep her talking · listen more than you speak</p>
+
+  <div class="act">
+    <div class="act-h">About Aranza (open here, this is gold)</div>
+    <ul>
+      <li><em>"¿Cómo era Aranza de niña?"</em> — What was Aranza like as a child?</li>
+      <li><em>"¿Qué le hacía reír de ella cuando era pequeña?"</em> — What made you laugh about her when she was little?</li>
+      <li><em>"¿En qué se parece a usted? ¿En qué es diferente?"</em> — How is she like you? How is she different?</li>
+      <li><em>"¿Qué es lo que más le admira?"</em> — What do you admire most about her?</li>
+    </ul>
+    <p style="font-size: 12px; color: var(--text3);"><em>Mothers light up at these questions. She'll likely get up to find photos. Let her.</em></p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">About the future (when she asks)</div>
+    <ul>
+      <li><strong>Where you'll live:</strong> <em>"Por ahora aquí en México. Nos gusta mucho nuestra vida acá. A largo plazo lo vamos a decidir juntos."</em></li>
+      <li style="font-size: 12px; color: var(--text3); list-style: none; margin-left: -18px;"><em>EN: For now here in Mexico. We love our life here. Long term we'll decide together.</em></li>
+      <li><strong>Kids:</strong> [say what you and Aranza have actually discussed] — if open: <em>"Sí queremos formar familia, cuando sea el momento correcto para los dos."</em></li>
+      <li style="font-size: 12px; color: var(--text3); list-style: none; margin-left: -18px;"><em>EN: Yes we want to start a family, when the time is right for both of us.</em></li>
+      <li><strong>Wedding timing:</strong> <em>"Eso lo vamos a platicar entre Aranza, usted y yo. Queremos que sea algo que respete a las dos familias."</em></li>
+      <li style="font-size: 12px; color: var(--text3); list-style: none; margin-left: -18px;"><em>EN: We'll discuss that between Aranza, you and me. We want it to respect both families.</em></li>
+      <li><strong>Work / stability:</strong> <em>"Tengo un negocio que va bien y me permite darle estabilidad. Puedo trabajar desde donde sea, así que tengo flexibilidad."</em></li>
+      <li style="font-size: 12px; color: var(--text3); list-style: none; margin-left: -18px;"><em>EN: I have a business that's going well and gives me stability. I can work from anywhere, so I have flexibility.</em></li>
+    </ul>
+  </div>
+
+  <div class="act">
+    <div class="act-h">About your family in the UK</div>
+    <ul>
+      <li><em>"Mis papás están en [city], llevan ahí toda la vida. Mi mamá hace [job], mi papá [job]."</em> Brief, warm.</li>
+      <li><em>"Quieren mucho a Aranza. La conocen por videollamadas y siempre preguntan por ella."</em></li>
+      <li style="font-size: 12px; color: var(--text3);"><em>EN: They love Aranza. They know her through video calls and always ask about her.</em></li>
+      <li><em>"Mi mamá quiere hablar con usted esta semana por videollamada. Yo lo organizo."</em></li>
+      <li style="font-size: 12px; color: var(--text3);"><em>EN: My mum wants to speak with you this week by video call. I'll organize it.</em></li>
+    </ul>
+  </div>
+
+  <div class="act">
+    <div class="act-h">About her (turn it back to her)</div>
+    <ul>
+      <li><em>"¿Qué es lo que usted más le desea a Aranza para su futuro?"</em> — What do you most wish for Aranza in her future?</li>
+      <li><em>"¿Qué le gustaría que yo supiera de ella que tal vez no me ha contado?"</em> — What would you want me to know about her that maybe she hasn't told me?</li>
+      <li><em>"¿Qué consejo me daría a mí, como esposo?"</em> — What advice would you give me, as a husband?</li>
+    </ul>
+    <p style="font-size: 12px; color: var(--text3);"><em>This last one is the magic question. It signals you see her as a teacher, not just a gatekeeper. Get ready to listen for 10 minutes.</em></p>
+  </div>
+
+  <div class="act">
+    <div class="act-h">Safe topics if conversation slows</div>
+    <ul>
+      <li>How you and Aranza met (your version of the story — keep it warm and specific)</li>
+      <li>A recent trip the two of you took together</li>
+      <li>Something Aranza has been excited about lately</li>
+      <li>The home / the neighborhood / something you noticed about her place</li>
+      <li>Cooking, food, what she likes to make</li>
+      <li>Her grandkids if she has any, or her own family/siblings</li>
+    </ul>
+  </div>
+
+  <div class="crit">
+    <p class="crit-l">Avoid these topics</p>
+    <p>Politics. Religion debates. The father (unless she opens it). Money specifics. Past relationships. Anything Aranza told you about her family in confidence. Residency. Work stress. Mexico vs UK comparisons that sound critical of Mexico.</p>
+  </div>
+</section>
+
+<!-- ANCHOR -->
+<div class="anchor">
+  <h2>Anchor <em>thought</em></h2>
+  <p>You are not asking her to release her daughter. You are asking her to add a son. Make her feel like she's gaining, not losing. Every word, every pause, every gift reinforces that.</p>
+  <p style="margin-top: 14px; color: var(--gold); font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic;">She has been waiting for this moment. Show up worthy of it.</p>
+</div>
+
+</div>
+</body>
+</html>

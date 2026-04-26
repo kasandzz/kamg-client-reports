@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunday Playbook — Asking Aranza's Mother</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --bg3: #18181f;
+  --card: #1a1a22;
+  --card2: #1f1f28;
+  --border: rgba(200,169,110,0.12);
+  --border-h: rgba(200,169,110,0.28);
+  --gold: #c8a96e;
+  --gold-bright: #d9b878;
+  --gold-dim: rgba(200,169,110,0.1);
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --teal: #2dd4bf;
+  --blue: #60a5fa;
+  --font: 'Outfit', system-ui, sans-serif;
+  --display: 'Cormorant Garamond', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+section:nth-child(even) { background: var(--bg2); }
+
+/* Hero */
+.hero {
+  padding: 100px 0 72px;
+  background: radial-gradient(circle at 30% 20%, #141420 0%, var(--bg) 55%);
+  text-align: center;
+}
+.hero-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--display); font-size: clamp(40px, 6vw, 72px); font-weight: 600;
+  line-height: 1.05; margin-bottom: 20px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; }
+.hero-sub { font-size: 19px; color: var(--text2); max-width: 680px; margin: 0 auto 48px; line-height: 1.7; }
+
+.countdown {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 720px; margin: 0 auto;
+}
+.count-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px 16px;
+}
+.count-card strong {
+  display: block; font-family: var(--display); font-size: 36px; font-weight: 700; color: var(--gold); line-height: 1;
+}
+.count-card span { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; display: block; }
+
+/* Section header */
+.sh { margin-bottom: 44px; }
+.sh-label { font-size: 11px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.sh h2 { font-family: var(--display); font-size: clamp(32px, 4.5vw, 48px); font-weight: 600; line-height: 1.15; }
+.sh h2 em { color: var(--gold); font-style: italic; }
+.sh p { font-size: 16px; color: var(--text2); margin-top: 10px; max-width: 640px; }
+
+/* Text */
+h3 { font-family: var(--display); font-size: 26px; font-weight: 600; margin: 32px 0 16px; color: var(--text); }
+h4 { font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin: 24px 0 12px; }
+p { margin-bottom: 14px; font-size: 16px; color: var(--text); }
+p.muted { color: var(--text2); }
+ul, ol { margin: 0 0 16px 22px; color: var(--text); font-size: 16px; }
+ul li, ol li { margin-bottom: 8px; line-height: 1.65; }
+strong { color: var(--text); font-weight: 600; }
+
+/* Callout */
+.callout {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 28px; margin: 24px 0;
+}
+.callout.warn { border-color: rgba(251,191,36,0.35); background: linear-gradient(180deg, rgba(251,191,36,0.06) 0%, var(--card) 100%); }
+.callout.critical { border-color: rgba(248,113,113,0.35); background: linear-gradient(180deg, rgba(248,113,113,0.06) 0%, var(--card) 100%); }
+.callout.win { border-color: rgba(74,222,128,0.35); background: linear-gradient(180deg, rgba(74,222,128,0.06) 0%, var(--card) 100%); }
+.callout.gold { border-color: rgba(200,169,110,0.35); background: linear-gradient(180deg, rgba(200,169,110,0.08) 0%, var(--card) 100%); }
+.callout h3 { margin-top: 0; font-size: 20px; }
+.callout-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 8px; display: block;
+}
+.callout.warn .callout-label { color: var(--amber); }
+.callout.critical .callout-label { color: var(--red); }
+.callout.win .callout-label { color: var(--green); }
+.callout.gold .callout-label { color: var(--gold); }
+
+/* Speech box */
+.speech-box {
+  background: var(--card2); border: 1px solid var(--gold-dim); border-left: 4px solid var(--gold);
+  border-radius: 8px; padding: 28px 32px; margin: 20px 0;
+  font-family: var(--display); font-size: 20px; line-height: 1.7; color: var(--text); font-style: italic;
+}
+.speech-box.en { color: var(--text2); font-size: 17px; font-style: normal; font-family: var(--font); border-left-color: var(--text3); }
+.speech-box .stage {
+  display: block; font-family: var(--font); font-size: 12px; font-style: normal; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+}
+.speech-box.en .stage { color: var(--text3); }
+
+/* Phonetic */
+.phonetic {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin: 16px 0; font-size: 14px;
+}
+.phonetic table { width: 100%; border-collapse: collapse; }
+.phonetic td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.phonetic td:first-child { color: var(--gold); font-weight: 500; width: 35%; }
+.phonetic td:nth-child(2) { color: var(--text2); font-family: 'Courier New', monospace; font-size: 13px; width: 35%; }
+.phonetic td:nth-child(3) { color: var(--text3); font-size: 13px; }
+.phonetic tr:last-child td { border-bottom: none; }
+
+/* Checklist */
+.checklist {
+  list-style: none; margin: 0; padding: 0;
+}
+.checklist li {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px;
+  font-size: 15px; transition: border-color 0.2s;
+}
+.checklist li:hover { border-color: var(--border-h); }
+.checklist li::before {
+  content: '☐'; color: var(--gold); font-size: 18px; flex-shrink: 0; line-height: 1;
+}
+.checklist.done li::before { content: '✓'; color: var(--green); }
+
+/* Day timeline */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 8px; top: 10px; bottom: 10px;
+  width: 2px; background: var(--gold-dim);
+}
+.time-item { margin-bottom: 32px; position: relative; }
+.time-item::before {
+  content: ''; position: absolute; left: -32px; top: 6px;
+  width: 14px; height: 14px; border-radius: 50%; background: var(--gold);
+  box-shadow: 0 0 0 4px var(--bg2);
+}
+.time-item h4 { color: var(--gold); font-size: 12px; margin: 0 0 6px; }
+.time-item p { font-size: 15px; margin: 0; color: var(--text); }
+
+/* Q&A */
+.qa-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.qa-item:hover { border-color: var(--border-h); }
+.qa-q {
+  font-family: var(--display); font-size: 18px; color: var(--gold-bright); margin-bottom: 14px; font-style: italic;
+}
+.qa-q-en { font-size: 13px; color: var(--text3); font-family: var(--font); font-style: normal; display: block; margin-top: 4px; }
+.qa-a { font-size: 15px; color: var(--text); margin-bottom: 10px; line-height: 1.7; }
+.qa-a-en { font-size: 13px; color: var(--text2); font-style: italic; }
+.qa-tip { font-size: 12px; color: var(--amber); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+/* Letter */
+.letter {
+  background: #faf7f0; color: #2a2820; padding: 48px; border-radius: 8px;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; line-height: 1.8;
+  max-width: 640px; margin: 24px auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.letter h3 { font-family: var(--display); font-size: 24px; color: #2a2820; margin-bottom: 24px; border-bottom: 1px solid #c8a96e; padding-bottom: 12px; }
+.letter p { color: #2a2820; margin-bottom: 16px; font-size: 17px; }
+.letter .sig { margin-top: 28px; font-style: italic; color: #5a574f; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+/* Footer */
+footer {
+  padding: 48px 0; border-top: 1px solid var(--border); text-align: center;
+  font-size: 13px; color: var(--text3);
+}
+footer em { font-family: var(--display); color: var(--gold); font-size: 18px; display: block; margin-bottom: 12px; font-style: italic; }
+
+/* Print */
+@media print {
+  body { background: white; color: black; }
+  section { padding: 20px 0; page-break-inside: avoid; }
+  section:nth-child(even) { background: white; }
+  .hero { padding: 20px 0; }
+  .speech-box { background: #f5f0e5; color: black; }
+  .qa-item, .callout, .checklist li, .phonetic { background: white; border: 1px solid #999; }
+  .hero h1 em, .sh h2 em, .gold, .sh-label, .hero-label { color: #8a6f3e !important; }
+}
+
+@media (max-width: 680px) {
+  section { padding: 48px 0; }
+  .hero { padding: 64px 0 48px; }
+  .countdown { grid-template-columns: repeat(2, 1fr); }
+  .letter { padding: 32px 24px; }
+  .speech-box { padding: 20px; font-size: 17px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <p class="hero-label">Sunday Playbook · April 26, 2026</p>
+    <h1>The <em>Ask</em></h1>
+    <p class="hero-sub">A full operational plan for asking Aranza's mother for her blessing to propose. Private. Offline. Execute with love.</p>
+    <div class="countdown">
+      <div class="count-card"><strong>48</strong><span>Hours to Sunday</span></div>
+      <div class="count-card"><strong>1</strong><span>Conversation</span></div>
+      <div class="count-card"><strong>1</strong><span>Lifetime</span></div>
+      <div class="count-card"><strong>∞</strong><span>Love</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- The one thing -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">The Single Most Important Thing</p>
+      <h2>This is not a <em>formality</em>. It is a <em>transfer of trust</em>.</h2>
+    </div>
+    <p>Aranza's mother has likely raised her daughter largely on her own given the father situation. Her daughter is not just family, she is the thing she is most proud of. When you ask for her blessing, you are not asking for a ceremonial yes. You are asking her to trust you with her life's work.</p>
+    <p>Lead with that reverence. Every other sentence in this playbook unlocks from there.</p>
+    <div class="callout gold">
+      <span class="callout-label">The core reframe</span>
+      <p>With an estranged father, her mother is not a proxy for the father's blessing. She IS the blessing. In matriarchal Mexican family dynamics this is often the deepest reality anyway. Sunday is the real thing. Not a preview. Not a precursor. The real moment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- The Residency Landmine -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Pre-flight: read before anything else</p>
+      <h2>The <em>residency landmine</em></h2>
+    </div>
+    <div class="callout critical">
+      <span class="callout-label">Never cross this line</span>
+      <p>You are pursuing Mexican permanent residency. Your motivation must read as 100% love. Not once today do you mention residency, papers, canje, visas, or timelines. If she asks directly, your line is: <em>"Eso es algo separado que estoy resolviendo, no tiene nada que ver con esto."</em> Then pivot back to her daughter.</p>
+      <p style="margin-top: 12px;">After the engagement, residency-via-spouse is a quiet side effect you discuss privately with Aranza. Never framed as the reason. Not today, not ever to her family.</p>
+    </div>
+  </div>
+</section>
+
+<!-- The 48-hour plan -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">48-Hour Countdown</p>
+      <h2>The plan from <em>now</em> until she opens the door</h2>
+    </div>
+
+    <h3>Friday evening (today)</h3>
+    <ul class="checklist">
+      <li>Call your parents. Tell them Sunday is the day. Ask them to draft a letter to Aranza's mother tonight.</li>
+      <li>Send them the letter template (next section) as a starting point. They can personalize.</li>
+      <li>Confirm flower order for Sunday delivery or Sunday morning pickup.</li>
+      <li>Buy the second gift: good chocolates, fine tea, or something personal she would love.</li>
+      <li>Confirm outfit: dark trousers, button-down, blazer, leather shoes. Hang, steam, polish.</li>
+      <li>Read the full speech out loud 3 times. Slowly. Don't memorize yet, just read.</li>
+      <li>Airplane-mode your phone for 20 minutes. Sit quietly. Picture the conversation going well.</li>
+    </ul>
+
+    <h3>Saturday</h3>
+    <ul class="checklist">
+      <li>Receive finalized letter from your parents. Print on good paper OR have it handwritten.</li>
+      <li>Seal in a plain cream envelope. Write on the front: <em>Para Doña [Nombre]</em>.</li>
+      <li>Record a 30-60 second voice note from your mother if you're doing that (WhatsApp is fine).</li>
+      <li>Rehearse the full speech 5 more times. Record yourself once on video. Watch it back, fix wooden parts.</li>
+      <li>Practice the 15 Q&A drills from this document aloud.</li>
+      <li>Light dinner. No drinking. Early night. Sleep is your friend.</li>
+    </ul>
+
+    <h3>Sunday morning</h3>
+    <ul class="checklist">
+      <li>Shower, shave, dress.</li>
+      <li>Pick up flowers if same-day.</li>
+      <li>Envelope, second gift, flowers. In your hand.</li>
+      <li>Leave with 20 min buffer. Arrive 5 min early, not 20.</li>
+      <li>Airplane mode before knocking. Full presence.</li>
+      <li>One deep breath. Knock.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- The Letter -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">From your parents</p>
+      <h2>The <em>letter</em> you will hand her</h2>
+      <p>Send this template to your parents tonight. They personalize it, sign it, photograph it, and send it to you by Saturday. You print on nice paper or transcribe by hand.</p>
+    </div>
+
+    <h3>Spanish version (what she reads)</h3>
+    <div class="letter">
+      <h3>Querida Doña [Nombre],</h3>
+      <p>Aunque la distancia no nos permite estar ahí con ustedes hoy, no queríamos que este momento pasara sin que usted escuchara nuestras palabras.</p>
+      <p>Kas nos ha hablado de Aranza desde el primer momento. La manera en que habla de ella, la forma en que ella lo hace mejor persona, lo que ha visto en ella de bondad, inteligencia, y fuerza. Nosotros desde la distancia ya la queremos como si fuera de nuestra familia, y sabemos que lo seguirá siendo por toda la vida.</p>
+      <p>Sabemos bien lo que significa criar a una hija así. Y sabemos que esa fuerza, esa ternura, esa manera de ser que amamos en Aranza, viene de usted. Por eso hoy no solo le agradecemos que confíe en nuestro hijo. Le agradecemos por la mujer que ha criado.</p>
+      <p>Desde [city, UK] queremos mandarle un abrazo muy fuerte, la bienvenida a nuestra familia, y la promesa de conocerla pronto en persona. Que sus manos, que han cuidado tanto a Aranza, sepan hoy que nuestras manos también la van a cuidar siempre.</p>
+      <p class="sig">Con mucho cariño y profundo respeto,<br>
+      [Dad's name] y [Mum's name]<br>
+      Los padres de Kas</p>
+    </div>
+
+    <h3>English version (for your parents to write from)</h3>
+    <div class="letter">
+      <h3>Dear Doña [Name],</h3>
+      <p>Although the distance does not allow us to be there with you today, we did not want this moment to pass without you hearing our words.</p>
+      <p>Kas has spoken of Aranza from the very first day. The way he speaks of her, the way she makes him a better person, what he has seen in her of kindness, intelligence, and strength. From this distance, we already love her as if she were part of our family, and we know she will remain so for a lifetime.</p>
+      <p>We know well what it means to raise a daughter like this. And we know that the strength, the tenderness, the way of being that we love in Aranza, comes from you. So today we are not only grateful that you trust our son. We are grateful for the woman you have raised.</p>
+      <p>From [city, UK] we send you the warmest embrace, a welcome to our family, and the promise of meeting you soon in person. May your hands, which have cared so deeply for Aranza, know today that our hands will care for her always, too.</p>
+      <p class="sig">With deep affection and profound respect,<br>
+      [Dad's name] and [Mum's name]<br>
+      Kas's parents</p>
+    </div>
+
+    <div class="callout win">
+      <span class="callout-label">Why this works</span>
+      <p>Most foreigners never think to do this. A handwritten letter from parents who cannot be there puts your whole family in the room. It honors her as a mother, not just as a gatekeeper. It gives her something to keep forever. Expect tears when she reads it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Gifts plan -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">What you arrive with</p>
+      <h2>The <em>three things</em> in your hands</h2>
+    </div>
+
+    <div class="grid-3">
+      <div class="callout">
+        <span class="callout-label">1. Flowers</span>
+        <p>Proper florist arrangement. White, cream, or her favorite color if you know it. Not supermarket. Hand them to her immediately at the door.</p>
+        <p class="muted" style="font-size: 14px;"><em>"Doña [Nombre], le traje estas flores."</em></p>
+      </div>
+      <div class="callout">
+        <span class="callout-label">2. Second gift</span>
+        <p>Something personal. Good chocolates (Tout Chocolat), fine British tea (Fortnum & Mason or similar English classic), a small quality item with a story. Not alcohol unless you know her drink. Personal beats expensive.</p>
+      </div>
+      <div class="callout">
+        <span class="callout-label">3. The envelope</span>
+        <p>Sealed cream envelope with the letter from your parents. Front reads: <em>Para Doña [Nombre]</em>. You give this to her during the conversation, not at the door. Timing matters.</p>
+      </div>
+    </div>
+
+    <div class="callout warn" style="margin-top: 24px;">
+      <span class="callout-label">Do NOT bring</span>
+      <p>The ring. A bottle of tequila or mezcal (save for the father conversation if it happens later). Gifts for siblings or extended family. A printed speech you can read from. Your phone ringing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- The Speech -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">The core moment</p>
+      <h2>The <em>speech</em></h2>
+      <p>Memorize this. Deliver it looking at her, not at the floor. Pause between each block. Let her breathe. Let yourself breathe.</p>
+    </div>
+
+    <h3>Phase 1: The transition</h3>
+    <p class="muted">Deliver this when there is a natural pause in small talk, 10 to 15 minutes after arrival.</p>
+    <div class="speech-box">
+      <span class="stage">In Spanish · deliver first</span>
+      Doña [Nombre], hay algo muy importante que quiero platicar con usted. Por eso le pedí que platicáramos las dos solas hoy.
+    </div>
+    <div class="speech-box en">
+      <span class="stage">Meaning (for your own understanding)</span>
+      There's something very important I want to talk with you about. That's why I asked to speak with just the two of us today.
+    </div>
+
+    <h3>Phase 2: The core</h3>
+    <p class="muted">Pause between sentences. Eye contact. Slow. This is the whole conversation in three breaths.</p>
+
+    <div class="speech-box">
+      <span class="stage">Block 1 · About her daughter</span>
+      Doña [Nombre], llevo [X años] con Aranza, y en ese tiempo ella se ha convertido en la persona más importante de mi vida. La amo profundamente, la respeto, y quiero construir mi futuro a su lado.
+    </div>
+
+    <div class="speech-box">
+      <span class="stage">Block 2 · About her</span>
+      Sé que usted es la persona que más la conoce, la que la ha cuidado toda su vida, y la que más la quiere en este mundo. Por eso, con todo el respeto y el cariño que le tengo, vengo a pedirle su bendición para pedirle matrimonio a Aranza.
+    </div>
+
+    <div class="speech-box">
+      <span class="stage">Block 3 · About family</span>
+      Quiero que sepa que Aranza no pierde a una mamá, y yo no llego solo. Llego con mi familia detrás, que ya la quiere a ella, y que también quiere quererla a usted. Mis papás me pidieron que le entregara esto.
+    </div>
+
+    <p class="muted"><em>Hand her the envelope. Then stop talking. Let her read. Let her react. Do not fill the silence.</em></p>
+
+    <h3>English meaning (do not say this in English)</h3>
+    <div class="speech-box en">
+      <span class="stage">Block 1</span>
+      Doña [Name], I've been with Aranza for [X] years, and in that time she has become the most important person in my life. I love her deeply, I respect her, and I want to build my future alongside her.
+    </div>
+    <div class="speech-box en">
+      <span class="stage">Block 2</span>
+      I know you are the person who knows her best, who has cared for her all her life, and who loves her most in this world. That's why, with all the respect and affection I have for you, I've come to ask for your blessing to propose marriage to Aranza.
+    </div>
+    <div class="speech-box en">
+      <span class="stage">Block 3</span>
+      I want you to know that Aranza is not losing a mother, and I am not arriving alone. I come with my family behind me, who already love her and who want to love you too. My parents asked me to give you this.
+    </div>
+  </div>
+</section>
+
+<!-- Phonetic -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Pronunciation</p>
+      <h2>Sound it out <em>cleanly</em></h2>
+      <p>British-English phonetic approximations. Stress the capitalized syllable. Mexican Spanish uses soft "s" (not Castilian "th") and flat vowels. Practice each line 5 times before moving to the next.</p>
+    </div>
+
+    <h4>Key words</h4>
+    <div class="phonetic">
+      <table>
+        <tr><td>Doña</td><td>DOH-nya</td><td>"Doña" opens with a soft D, nya as in "canyon"</td></tr>
+        <tr><td>Señora</td><td>seh-NYOR-ah</td><td>Use only if she prefers formal Señora over Doña</td></tr>
+        <tr><td>Aranza</td><td>ah-RAN-sah</td><td>Soft "s" in Mexican Spanish, flat A's</td></tr>
+        <tr><td>Matrimonio</td><td>mah-tree-MOH-nee-oh</td><td>Four syllables, stress on MOH</td></tr>
+        <tr><td>Bendición</td><td>ben-dee-see-OHN</td><td>Stress at the very end: OHN</td></tr>
+        <tr><td>Respeto</td><td>res-PEH-toh</td><td>Rolled R if you can, flat otherwise</td></tr>
+        <tr><td>Cariño</td><td>kah-REE-nyoh</td><td>The ñ is "ny" as in "canyon"</td></tr>
+        <tr><td>Familia</td><td>fah-MEE-lee-ah</td><td>Four syllables blurred fast</td></tr>
+        <tr><td>Quiero</td><td>kee-EH-roh</td><td>Starts like "key"</td></tr>
+        <tr><td>Platicar</td><td>plah-tee-KAR</td><td>Mexican word for "to talk" (chat)</td></tr>
+      </table>
+    </div>
+
+    <h4>Block 1 phoneticized</h4>
+    <div class="phonetic">
+      <p style="color: var(--gold); font-family: 'Courier New', monospace; line-height: 2; font-size: 14px;">
+        DOH-nya [Nombre], YEH-voh [X AH-nyohs] kohn ah-RAN-sah, ee en EH-seh tee-EM-poh EH-yah seh ah kohn-vehr-TEE-doh en lah pehr-SOH-nah MAHS eem-por-TAHN-teh deh mee VEE-dah. Lah AH-moh proh-FOON-dah-MEN-teh, lah res-PEH-toh, ee kee-EH-roh kohns-troo-EER mee foo-TOO-roh ah soo LAH-doh.
+      </p>
+    </div>
+
+    <h4>Block 2 phoneticized</h4>
+    <div class="phonetic">
+      <p style="color: var(--gold); font-family: 'Courier New', monospace; line-height: 2; font-size: 14px;">
+        SEH keh oos-TED ehs lah pehr-SOH-nah keh MAHS lah koh-NOH-seh, lah keh lah ah kwee-DAH-doh TOH-dah soo VEE-dah, ee lah keh MAHS lah kee-EH-reh en EHS-teh MOON-doh. Por EH-soh, kohn TOH-doh el res-PEH-toh ee el kah-REE-nyoh keh leh TEN-goh, VEN-goh ah peh-DEER-leh soo ben-dee-see-OHN PAH-rah peh-DEER-leh mah-tree-MOH-nee-oh ah ah-RAN-sah.
+      </p>
+    </div>
+
+    <h4>Block 3 phoneticized</h4>
+    <div class="phonetic">
+      <p style="color: var(--gold); font-family: 'Courier New', monospace; line-height: 2; font-size: 14px;">
+        kee-EH-roh keh SEH-pah keh ah-RAN-sah noh pee-EHR-deh ah OO-nah MAH-mah, ee yoh noh YEH-goh SOH-loh. YEH-goh kohn mee fah-MEE-lee-ah deh-TRAHS, keh yah lah kee-EH-reh ah EH-yah, ee keh tahm-bee-EN kee-EH-reh keh-REHR-lah ah oos-TED. Mees pah-PAHS meh pee-dee-EH-rohn keh leh en-treh-GAH-rah EHS-toh.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Day flow -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Sunday arc</p>
+      <h2>The flow of the <em>day</em></h2>
+    </div>
+
+    <div class="timeline">
+      <div class="time-item">
+        <h4>Minute 0 · Arrival</h4>
+        <p>Knock. Warm greeting (kiss on cheek as appropriate). <em>"Doña [Nombre], le traje estas flores."</em> Hand over flowers first. Compliment something specific about the home.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minutes 1-15 · Small talk</h4>
+        <p>Accept whatever she offers (coffee, water, food). Ask about her week, the house, something she's been working on. Do NOT open with Aranza. Let her lead if she wants. One light drink maximum.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minutes 15-18 · The transition</h4>
+        <p>At a natural pause: <em>"Doña [Nombre], hay algo muy importante que quiero platicar con usted."</em> Pause. Let her lean in. She knows something is coming.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minutes 18-22 · The speech</h4>
+        <p>Deliver the three blocks. Slowly. Eye contact. Hand her the envelope on the last line.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minutes 22-30 · Her reaction</h4>
+        <p>Silence is fine. Tears are common. Let her read the letter at her pace. Do not rush to speak. If she hugs you, hug her back fully.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minutes 30-75 · The conversation</h4>
+        <p>She will have questions. Answer them honestly and briefly (see Q&A drill). Ask her about Aranza as a child. Ask her what she hopes for her daughter's future. Listen more than you speak.</p>
+      </div>
+      <div class="time-item">
+        <h4>Minute 75-90 · Closing</h4>
+        <p>Commit to the next step: <em>"Mi mamá quiere hablar con usted esta semana por videollamada. Yo se lo voy a organizar."</em> Hug. Thank her again. Exit warm, not rushed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Q&A drill -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Drill</p>
+      <h2>15 questions she <em>might ask</em></h2>
+      <p>Rehearse each aloud. Keep answers short, specific, honest. Rambling signals you haven't thought this through.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">1. ¿Por qué ahora?
+        <span class="qa-q-en">Why now?</span>
+      </div>
+      <p class="qa-a">Porque llegamos a un punto donde casarnos es el siguiente paso natural de nuestra vida juntos. No tiene nada que ver con algo de fuera. Es solo que ya estoy seguro.</p>
+      <p class="qa-a-en">Because we've reached a point where marrying is the natural next step in our life together. It has nothing to do with anything external. I'm just certain now.</p>
+      <p class="qa-tip">TIP: If you can name a specific moment or realization, add it. Don't mention residency.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">2. ¿Cómo la vas a cuidar?
+        <span class="qa-q-en">How will you take care of her?</span>
+      </div>
+      <p class="qa-a">Económicamente tengo un negocio estable que me permite darle seguridad. Pero más que eso, quiero que ella siempre sepa que alguien la está viendo, que alguien está a su lado, en lo bueno y en lo difícil.</p>
+      <p class="qa-a-en">Financially I have a stable business that allows me to give her security. But more than that, I want her to always know that someone is seeing her, that someone is beside her, in good times and in hard ones.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">3. ¿Y tus papás qué piensan?
+        <span class="qa-q-en">What do your parents think?</span>
+      </div>
+      <p class="qa-a">Están muy felices. Ya conocen a Aranza por videollamadas y la quieren mucho. Me pidieron que le entregara esta carta. Y también quieren platicar con usted esta semana por videollamada.</p>
+      <p class="qa-a-en">They're very happy. They already know Aranza through video calls and love her very much. They asked me to hand you this letter, and they want to speak with you this week by video call.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">4. ¿Dónde van a vivir?
+        <span class="qa-q-en">Where will you live?</span>
+      </div>
+      <p class="qa-a">Por ahora aquí en México. Nos gusta mucho nuestra vida aquí. A largo plazo es algo que vamos a decidir juntos, pero mi intención es quedarnos.</p>
+      <p class="qa-a-en">For now here in Mexico. We love our life here. Long term is something we'll decide together, but my intention is to stay.</p>
+      <p class="qa-tip">TIP: Be honest. Don't commit to "forever in Mexico" if that isn't true.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">5. ¿Cuándo se van a casar?
+        <span class="qa-q-en">When will you get married?</span>
+      </div>
+      <p class="qa-a">Primero necesito que Aranza me diga que sí. Después lo vamos a platicar entre los tres, con usted incluida. Queremos que sea algo que respete a ambas familias.</p>
+      <p class="qa-a-en">First I need Aranza to say yes. Then we'll discuss it as a three, with you included. We want it to be something that respects both families.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">6. ¿Y los niños?
+        <span class="qa-q-en">And children?</span>
+      </div>
+      <p class="qa-a">[Answer honestly based on what you and Aranza have actually discussed. Don't make up a plan you don't have.]</p>
+      <p class="qa-a-en">Truthful answer only. If it's "we both want kids," say that. If undecided, say "Eso es algo que todavía estamos platicando, pero estamos abiertos."</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">7. ¿Vas a hablar con el papá de Aranza?
+        <span class="qa-q-en">Will you speak with Aranza's father?</span>
+      </div>
+      <p class="qa-a">Eso lo voy a platicar con Aranza. Como entiendo que la situación es delicada, quiero hacer lo que a ella y a usted les parezca mejor. No quiero adelantarme.</p>
+      <p class="qa-a-en">I'll discuss that with Aranza. Since I understand the situation is delicate, I want to do what she and you think is best. I don't want to get ahead of myself.</p>
+      <p class="qa-tip">TIP: Do NOT take a position on the father. Neutral, respectful, defer to them.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">8. ¿Aranza sabe que estás aquí?
+        <span class="qa-q-en">Does Aranza know you're here?</span>
+      </div>
+      <p class="qa-a">No, Doña [Nombre]. Quiero que sea una sorpresa completa. Por eso le pedí platicar con usted sola hoy. Le voy a pedir matrimonio en los próximos días.</p>
+      <p class="qa-a-en">No. I want it to be a complete surprise for her. That's why I asked to speak with you alone today. I'll propose to her in the coming days.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">9. ¿Tienes el anillo?
+        <span class="qa-q-en">Do you have the ring?</span>
+      </div>
+      <p class="qa-a">Sí, ya lo tengo. [Optional: add a brief detail like "lo escogí pensando en ella" / "I chose it thinking of her."] Pero hoy venía a hablar con usted primero.</p>
+      <p class="qa-a-en">Yes, I have it. But today I came to speak with you first.</p>
+      <p class="qa-tip">TIP: Do NOT show the ring. Keep it for Aranza.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">10. ¿Cómo se la vas a pedir?
+        <span class="qa-q-en">How will you propose to her?</span>
+      </div>
+      <p class="qa-a">[Share your plan briefly. Or: "Estoy terminando los detalles. Me gustaría que me diera su opinión si quiere."]</p>
+      <p class="qa-a-en">If plan is set: share briefly. If not: "I'm finalizing the details. I'd love your thoughts if you'd like to share them." This makes her an accomplice, not just a witness.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">11. ¿Qué es lo que más amas de ella?
+        <span class="qa-q-en">What do you love most about her?</span>
+      </div>
+      <p class="qa-a">[One specific, true, non-obvious thing. Not beauty. Something only someone paying attention would notice. Example: <em>"Cómo cuida a la gente que quiere, incluso cuando nadie más se da cuenta."</em>]</p>
+      <p class="qa-a-en">Be specific. Be true. This is the question she'll remember your answer to for the rest of her life.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">12. ¿Y si algún día deja de quererte?
+        <span class="qa-q-en">And if one day she stops loving you?</span>
+      </div>
+      <p class="qa-a">Espero que eso nunca pase, pero si pasara, yo siempre la voy a cuidar como amiga y como familia. No voy a dejar de respetarla ni a ella ni a ustedes.</p>
+      <p class="qa-a-en">I hope that never happens, but if it did, I'd always care for her as a friend and as family. I won't stop respecting her or your family.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">13. ¿Eres religioso? ¿Van a casarse por la iglesia?
+        <span class="qa-q-en">Are you religious? Will you marry in the Church?</span>
+      </div>
+      <p class="qa-a">[Honest answer about your religious life. If Catholic church matters to them and you're willing: "Es algo que Aranza y yo vamos a platicar." If you're not and want civil only: "Preferimos algo más íntimo, civil, pero con mucho respeto a la fe de la familia."]</p>
+      <p class="qa-a-en">Honest. Don't promise a church wedding if you won't do one. Honesty now beats drama later.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">14. ¿Cuánto tiempo llevan? / ¿Tan rápido?
+        <span class="qa-q-en">How long have you been together? / So fast?</span>
+      </div>
+      <p class="qa-a">[State the real duration.] Para mí el tiempo no era el factor. El factor era estar seguro. Y estoy seguro.</p>
+      <p class="qa-a-en">For me, time wasn't the factor. The factor was being certain. And I'm certain.</p>
+    </div>
+
+    <div class="qa-item">
+      <div class="qa-q">15. ¿Y si yo no te diera mi bendición?
+        <span class="qa-q-en">And if I didn't give you my blessing?</span>
+      </div>
+      <p class="qa-a">Doña [Nombre], con mucho respeto le digo: yo amo a Aranza. Pero también la amo lo suficiente como para no querer casarme con ella sin su bendición. Si usted me dijera que no, yo la escucharía, entendería por qué, y haríamos lo necesario para llegar a ese sí con el tiempo.</p>
+      <p class="qa-a-en">Doña, with all respect: I love Aranza. But I love her enough to not want to marry her without your blessing. If you said no, I would listen, understand why, and we would do what was needed to get to a yes over time.</p>
+      <p class="qa-tip">TIP: This answer is gold. It says: you matter, your daughter matters, and I'm not going to strong-arm anything.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Responses and contingencies -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">After you finish the speech</p>
+      <h2>How to <em>handle every response</em></h2>
+    </div>
+
+    <div class="callout win">
+      <span class="callout-label">Best case · Immediate yes</span>
+      <p><em>"Sí, claro que sí. Cuídala mucho."</em></p>
+      <p style="margin-top: 12px;"><strong>Your response:</strong> <em>"Gracias, Doña [Nombre]. Le prometo que la voy a cuidar toda la vida. Y a usted también la considero parte de mi familia desde hoy."</em></p>
+      <p style="margin-top: 12px;">Stay another 45 minutes. Talk about Aranza. Let her show you photos. Don't leave the moment early.</p>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-label">Common · "Déjame pensarlo"</span>
+      <p>She wants time. Maybe to talk to a sister, a close friend, or to Aranza herself. This is not a no.</p>
+      <p style="margin-top: 12px;"><strong>Your response:</strong> <em>"Por supuesto, Doña [Nombre]. Tómese el tiempo que necesite. Si prefiere platicarlo con Aranza, se lo pido con todo respeto: háganlo con calma, juntas. Yo quiero hacer esto bien."</em></p>
+      <p style="margin-top: 12px;">Give her 7 days. One "Gracias por la plática del domingo" message on Monday. Then silence. She'll come back.</p>
+    </div>
+
+    <div class="callout">
+      <span class="callout-label">She cries or hugs you without words</span>
+      <p>Match her. Don't fill silence. Hold the moment. This is the answer.</p>
+    </div>
+
+    <div class="callout critical">
+      <span class="callout-label">Rare · Hostile or "no"</span>
+      <p>Don't argue. Don't negotiate. Listen.</p>
+      <p style="margin-top: 12px;"><strong>Your response:</strong> <em>"Entiendo, Doña [Nombre]. Respeto profundamente su opinión. Me gustaría saber qué le preocupa para poder hablarlo con usted ahora o en otro momento."</em></p>
+      <p style="margin-top: 12px;">Listen. Don't defend. Leave warm. Regroup with Aranza offline. Do not propose in the next 48 hours regardless.</p>
+    </div>
+  </div>
+</section>
+
+<!-- What NOT to -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Avoid at all costs</p>
+      <h2>Ten ways to <em>lose this</em></h2>
+    </div>
+
+    <ol style="font-size: 16px; line-height: 1.9;">
+      <li><strong>Using "tú" instead of "usted."</strong> Signals disrespect or ignorance of Mexican etiquette. Stay with usted for the entire visit.</li>
+      <li><strong>Mentioning residency or visas.</strong> The instant ejection seat. Not even as a passing joke.</li>
+      <li><strong>Bad-mouthing her father, even subtly.</strong> Even if she opens the door. A mother can hate an ex and still be wounded by her son-in-law insulting him.</li>
+      <li><strong>Jokes to cut tension.</strong> Sincerity carries this. Humor reads as deflection.</li>
+      <li><strong>Apologetic energy.</strong> You're not begging permission. You're honoring her with the ask.</li>
+      <li><strong>Leaving immediately after her answer.</strong> Stay. Drink tea. Let her show you photos of Aranza as a child.</li>
+      <li><strong>Checking your phone.</strong> Airplane mode from the moment you knock.</li>
+      <li><strong>Promising things you won't deliver.</strong> Church wedding, specific timelines, where you'll live. Honesty over performance.</li>
+      <li><strong>Showing the ring.</strong> The ring is for Aranza. Not a prop in this meeting.</li>
+      <li><strong>Rambling.</strong> Short answers, eye contact, breathe. Silence between sentences is powerful.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- After Sunday -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">The next 14 days</p>
+      <h2>What happens <em>after</em> she says yes</h2>
+    </div>
+
+    <h3>Sunday evening</h3>
+    <ul>
+      <li>Text your parents from the car the moment you leave. They've been waiting.</li>
+      <li>Go see Aranza. Act normal. This is your hardest acting job of the year.</li>
+      <li>Before bed: write down exactly what her mother said. Word for word. You'll want this memory.</li>
+    </ul>
+
+    <h3>Monday</h3>
+    <ul>
+      <li>WhatsApp her mother: <em>"Doña [Nombre], gracias de corazón por ayer. Significó todo para mí."</em></li>
+      <li>Schedule the video call between your mother and Aranza's mother for this week. You are the coordinator. Do not leave it to them.</li>
+      <li>Begin finalizing the proposal: venue, timing, ring, logistics.</li>
+    </ul>
+
+    <h3>Mid-week</h3>
+    <ul>
+      <li>Video call: your mother ↔ her mother. 20-30 minutes. Both will cry. It's fine. Budget for translation or let them navigate the language barrier with warmth.</li>
+      <li>Plan the proposal day. CDMX options: a meaningful place from your relationship, a rooftop (Balcón del Zócalo, Casa Prunes, Octavia), a private dinner at Pujol / Quintonil if budget allows, or something more intimate and personal.</li>
+    </ul>
+
+    <h3>Within 14 days</h3>
+    <ul>
+      <li>Propose to Aranza.</li>
+      <li>Decide together with her what to do about her father. Her call, not yours.</li>
+      <li>Plan the engagement announcement cascade: close family first, then friends, then anyone else.</li>
+    </ul>
+
+    <div class="callout gold">
+      <span class="callout-label">The engagement celebration (rethink)</span>
+      <p>Traditional Mexican "pedida de mano" gathers both families at her parents' home after the engagement. Your UK family cannot fly in. That's okay. Realistic paths:</p>
+      <ul style="margin-top: 12px; margin-bottom: 0;">
+        <li><strong>Intimate CDMX dinner:</strong> You, Aranza, her mother, 1-2 of her closest. Your parents join by video call for the toast.</li>
+        <li><strong>Two celebrations:</strong> One in CDMX now, a second in the UK on your next visit.</li>
+        <li><strong>Skip the formal Phase B:</strong> Not every modern family insists. Ask her mother what she wants.</li>
+        <li><strong>Save UK family for the wedding:</strong> The event that actually matters. Save their flight for that.</li>
+      </ul>
+      <p style="margin-top: 14px;">Decide this WITH Aranza and her mother after the engagement. Don't pre-commit Sunday to a format you can't deliver.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Final anchor -->
+<section>
+  <div class="container">
+    <div class="sh">
+      <p class="sh-label">Anchor thought</p>
+      <h2>What you're <em>really</em> doing on Sunday</h2>
+    </div>
+    <p>You are walking into the home of a woman who has spent decades raising the person you love. You are entering not as a taker, but as a giver. You are not asking her to release her daughter. You are asking her to add a son.</p>
+    <p>Make her feel like she is gaining, not losing. Every sentence, every pause, every gift, every word of the letter: all of it reinforces that one truth.</p>
+    <p>She has been waiting for this moment, even if she didn't know it. Show up worthy of it.</p>
+  </div>
+</section>
+
+<footer>
+  <em>Con todo el cariño y respeto del mundo.</em>
+  <p>Personal playbook · Private · April 24, 2026</p>
+</footer>
+
+</body>
+</html>

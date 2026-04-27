@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redstone Cycle 1 Recap, Mar 24 – Apr 24, 2026</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: var(--rs-bg);
+    color: var(--rs-fg);
+    font-family: var(--rs-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 96px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid var(--rs-border);
+    margin-bottom: 32px; font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+  }
+  .topbar .brand {
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .topbar .brand span { color: var(--rs-red); }
+
+  .hero { margin-bottom: 48px; }
+  .hero .eyebrow {
+    font-size: var(--rs-text-sm); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium); margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 40px; line-height: 1.08;
+    letter-spacing: var(--rs-tracking-tightest);
+    font-weight: var(--rs-weight-regular); margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+  }
+
+  /* ---------- KPI strip ---------- */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rs-border);
+    margin-bottom: 48px;
+  }
+  .kpi {
+    padding: 20px 18px;
+    border-right: 1px solid var(--rs-border);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi .label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-size: 26px; line-height: 1.05;
+    letter-spacing: var(--rs-tracking-tight);
+    font-weight: var(--rs-weight-regular);
+    color: var(--rs-fg); margin-bottom: 4px;
+  }
+  .kpi .value.red { color: var(--rs-red); }
+  .kpi .delta {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: var(--rs-text-3xl); line-height: 1.2;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--rs-border);
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  section h2 .count {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light); letter-spacing: 0;
+  }
+
+  /* ---------- Workstream tables ---------- */
+  table.ws {
+    width: 100%; border-collapse: collapse;
+    font-size: var(--rs-text-sm);
+  }
+  table.ws thead th {
+    text-align: left; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rs-border-strong);
+  }
+  table.ws tbody td {
+    padding: 14px 12px 14px 0;
+    border-bottom: 1px solid var(--rs-border);
+    vertical-align: top; line-height: 1.5;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  table.ws tbody td:first-child { width: 38%; }
+  table.ws tbody td .title {
+    font-size: var(--rs-text-md); font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg); letter-spacing: var(--rs-tracking-tight);
+    line-height: 1.4; display: block; margin-bottom: 4px;
+  }
+  table.ws tbody td .meta { font-size: var(--rs-text-sm); color: var(--rs-fg-secondary); }
+  table.ws tbody td a {
+    color: var(--rs-red); text-decoration: none;
+    border-bottom: 1px solid rgba(178, 30, 36, 0.3);
+  }
+  table.ws tbody td a:hover { border-bottom-color: var(--rs-red); }
+  table.ws tbody tr:last-child td { border-bottom: none; }
+
+  .tag {
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: var(--rs-weight-medium); padding: 3px 7px;
+    border: 1px solid var(--rs-border-strong); color: var(--rs-fg-secondary);
+    display: inline-block; white-space: nowrap;
+  }
+  .tag.live { color: var(--rs-red); border-color: var(--rs-red); }
+  .tag.done { color: rgb(46, 132, 84); border-color: rgb(46, 132, 84); }
+  .tag.building { color: rgb(200, 120, 20); border-color: rgb(200, 120, 20); }
+  .tag.scoped { color: rgb(60, 80, 180); border-color: rgb(60, 80, 180); }
+
+  /* ---------- Pull quote ---------- */
+  .quote {
+    background: var(--rs-off-white);
+    border-left: 3px solid var(--rs-red);
+    padding: 24px 28px; margin: 32px 0;
+  }
+  .quote p {
+    font-size: var(--rs-text-md); line-height: 1.55;
+    color: var(--rs-fg); font-weight: var(--rs-weight-light);
+    margin: 0 0 12px 0;
+  }
+  .quote .attr {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* ---------- Billing card ---------- */
+  .billing {
+    background: var(--rs-off-white);
+    border: 1px solid var(--rs-border);
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .billing h2 {
+    font-size: var(--rs-text-2xl); margin: 0 0 16px 0;
+    padding: 0; border: none;
+    font-weight: var(--rs-weight-medium);
+  }
+  .billing .billing-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    margin-bottom: 24px;
+  }
+  .billing .item .lbl {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    margin-bottom: 6px;
+  }
+  .billing .item .val {
+    font-size: var(--rs-text-lg); color: var(--rs-fg);
+    font-weight: var(--rs-weight-regular);
+  }
+  .billing .item .val.amt { font-size: 26px; color: var(--rs-red); letter-spacing: var(--rs-tracking-tight); }
+  .billing p {
+    font-size: var(--rs-text-sm); line-height: 1.6;
+    color: var(--rs-fg-secondary); font-weight: var(--rs-weight-light);
+    margin: 0 0 8px 0;
+  }
+  .billing .invoice-link {
+    display: inline-block; margin-top: 12px;
+    color: var(--rs-red); text-decoration: none;
+    font-weight: var(--rs-weight-medium);
+    border-bottom: 1px solid rgba(178, 30, 36, 0.3);
+  }
+  .billing .invoice-link:hover { border-bottom-color: var(--rs-red); }
+
+  /* ---------- Foot ---------- */
+  .foot {
+    margin-top: 64px; padding-top: 24px;
+    border-top: 1px solid var(--rs-border);
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary); line-height: 1.6;
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 16px 80px; }
+    .hero h1 { font-size: 30px; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi { border-right: none; border-bottom: 1px solid var(--rs-border); }
+    .kpi:nth-child(odd) { border-right: 1px solid var(--rs-border); }
+    .kpi:last-child, .kpi:nth-last-child(2) { border-bottom: none; }
+    table.ws tbody td:first-child { width: auto; display: block; padding-bottom: 4px; }
+    table.ws tbody td { display: block; padding: 10px 0; }
+    .billing .billing-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">Redstone <span>Cycle 1</span></div>
+    <div>Mar 24 &ndash; Apr 24, 2026 &nbsp;&middot;&nbsp; For Eric Millinger</div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Monthly Recap</div>
+    <h1>Cycle 1: what shipped, what moved, what's next.</h1>
+    <p class="sub">First full month under the new retainer. This is the consolidated view of every workstream from Mar 24 through Apr 24, with the matching invoice attached at the bottom.</p>
+  </header>
+
+  <!-- ============ KPI STRIP ============ -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">Ad conv. rate</div>
+      <div class="value red">0.8% &rarr; 2.27%</div>
+      <div class="delta">nearly tripled, full account</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Landing pages live</div>
+      <div class="value">21</div>
+      <div class="delta">1 master + 11 service + 9 geo</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Cold email infra</div>
+      <div class="value">5 / 15</div>
+      <div class="delta">domains warmed, inboxes ready</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Quote archive scoped</div>
+      <div class="value">1,335</div>
+      <div class="delta">PDFs manifested for ingest</div>
+    </div>
+  </div>
+
+  <!-- ============ FRAME ============ -->
+  <section>
+    <h2>Cycle 1 in one paragraph</h2>
+    <p style="font-size: var(--rs-text-md); line-height: 1.6; color: var(--rs-fg-secondary); font-weight: var(--rs-weight-light); margin: 0;">
+      We started Cycle 1 with one Replit homepage draft, ads pointing at the wrong pages, an SEO collapse with no diagnosis, no cold email infrastructure, no analytics layer beneath the funnel, and a Google Sheet for project tracking. We end Cycle 1 with 21 production landing pages, every active ad rewired to a matching LP, conversion rate up from 0.8% to 2.27%, an SEO forensic explaining the rank crash, a 5-domain cold email engine warmed and ready to send, PostHog session recording on the new pages, a BigQuery quote database scoped against the full 1,335-PDF archive, a live tracker dashboard replacing the sheet, and a four-person Redstone delivery pod (Kas, Rehan, Daniel, Leo) with Jack onboarded for SEO at a quarter of his original retainer.
+    </p>
+  </section>
+
+  <!-- ============ WORKSTREAM 1: ADS ============ -->
+  <section>
+    <h2>Paid Ads <span class="count">Google Ads management + LP rewiring</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">Account conversion rate 0.8% &rarr; 2.27%</span><span class="meta">Full account, not single campaign. Driven by the changes below.</span></td>
+          <td>The single most important number in the cycle. Traffic costs the same, leads produced almost 3&times;.</td>
+          <td><span class="tag live">LIVE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Ad-to-LP rewiring</span></td>
+          <td>Every active ad now points to a matching country / service landing page. Ads with no matching LP were paused or redirected. Ended the prior leak where LP-less ad spend was wasted.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Geo-targeting locked: US + Canada only</span></td>
+          <td>Cleared out non-target countries that were eating budget without producing manufacturing-grade leads.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Negative-keyword sweep (initial + ongoing)</span></td>
+          <td>Initial sweep cleared known junk (jewelry, machine, how-to). Weekly sweep continues so new bad queries get pruned as they appear.</td>
+          <td><span class="tag building">ONGOING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">RSAs rewritten for "American facilities, global pricing"</span></td>
+          <td>Removed legacy "legal protection" / "neighborhoods" angles. Lead with US-owned + facilities in 5 countries to match the homepage hook Rachel surfaced.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Bing Ads paused</span></td>
+          <td>Held until Google conv. rate stabilises further. Then mirror what works.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Google Ads snapshot report</span></td>
+          <td>Mid-cycle report covering structure, performance, and the 4,000&times; Protolabs gap.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/google-ads.html" target="_blank">View report</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ WORKSTREAM 2: LPs + WEB ============ -->
+  <section>
+    <h2>Landing Pages &amp; Web Build <span class="count">21 LPs + homepage + quote form</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">21 landing pages built and shipped</span></td>
+          <td>1 Mexico master + 11 service pages (CNC machining, die casting, sheet metal, sand casting, investment casting, precision machining, custom CNC, etc.) + 9 geo pages. All on theredstonemanufacturing.com, wired to HubSpot + BigQuery.</td>
+          <td><span class="tag live">LIVE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Die Casting Services Mexico (master LP)</span></td>
+          <td>Full design + copy rebuild. Multiple revisions through the design discipline passes. Shipped per Apr 19 copy rules.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/lp-die-casting-services-mexico.html" target="_blank">Live LP</a></td>
+        </tr>
+        <tr>
+          <td><span class="title">Homepage capabilities rework</span></td>
+          <td>Capabilities section moved higher, US facility prominently surfaced, eye-tracking optimisation queued for the full rebuild. Revised version presented at Monday check-in.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Quote form rebuild</span></td>
+          <td>16 of 19 items from your Apr 19 email implemented. Rachel's copy fixes folded in. Final 3 items being closed this week.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html" target="_blank">Live demo</a></td>
+        </tr>
+        <tr>
+          <td><span class="title">WordPress maintenance + plugin cleanup</span></td>
+          <td>31 plugins audited; bloat removed; Link Whisper fatal error caught and fixed; site stability restored.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Hosting + DNS migration prep</span></td>
+          <td>Hosting.com login captured, DNS records mapped, infra ready for the rebuild without last-minute cutover risk.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Die Casting Mexico SEO test page</span></td>
+          <td>Single-page ranking test: heavy SEO, light design. Goal: prove the domain itself is not penalised before committing to full rebuild. First draft Monday.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Page architecture for full rebuild</span></td>
+          <td>Service pages, geo pages, content hubs, and internal linking strategy mapped end-to-end.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/seo/redstone-seo-page-architecture-2026-04-19.html" target="_blank">Architecture</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ WORKSTREAM 3: SEO ============ -->
+  <section>
+    <h2>SEO Recovery <span class="count">forensic + plan + Jack onboarded</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">SEO forensic report</span></td>
+          <td>Reconstructed the rank collapse from 13K sessions/mo down. Root cause: 114 AI-written pages + Google's Sep&ndash;Nov 2025 anti-AI algorithm hit + likely manual penalty + duplicate content cannibalisation. Documented page-by-page.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/redstone-seo-report.html" target="_blank">Read report</a></td>
+        </tr>
+        <tr>
+          <td><span class="title">Jack onboarded at lighter scope</span></td>
+          <td>~$1.5K/mo (down from his $12K retainer proposal). Scope narrowed to keyword research, content cadence, link building. Technical SEO stays with the rebuild.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Domain-penalty hypothesis test</span></td>
+          <td>Die Casting Mexico SEO page (above) is the experiment. If it ranks: domain healthy, rebuild proceeds. If not: we evaluate domain migration.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Competitive intel on Protolabs / Xometry / Fictiv</span></td>
+          <td>Documented the keyword coverage gap (Protolabs runs 4,000&times; our keyword volume) and what each competitor leads with. Feeds the rebuild content plan.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/competitive-intelligence-google-ads-2026-04-09.html" target="_blank">View intel</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ WORKSTREAM 4: COLD EMAIL ============ -->
+  <section>
+    <h2>Cold Email Infrastructure <span class="count">5 domains + 15 inboxes + warmup complete</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">5 domains purchased + Google Workspace seats provisioned</span></td>
+          <td>redstone-mfg.com, redstonemfg.co, redstonemanufacturing.co, redstonemanufacture.com, redstonemachining.com. Built to protect the primary domain reputation.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">15 inboxes spun up across alec@, sales@, info@</span></td>
+          <td>Per your rule: zero outbound from eric@. Each domain split across 3 sender personas to spread volume.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Lemlist 5-seat plan provisioned + warmup live</span></td>
+          <td>All 15 inboxes warming since Apr 1. Heading into first-send window this week.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">List building + sequence drafting</span></td>
+          <td>Target lists drafted against the Mexico-manufacturing angle. Sequence copy in review.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ WORKSTREAM 5: DATA + TRACKING ============ -->
+  <section>
+    <h2>Data, Tracking &amp; Tooling <span class="count">PostHog + BigQuery + tracker</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Item</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">PostHog session recording installed</span></td>
+          <td>On the new landing pages. Real prospect behaviour visible: scroll depth, drop points, CTA clicks. Replaces Unbounce + CrazyEgg at a fraction of the cost.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">GTM rebuild + tracking finalised</span></td>
+          <td>Old time-on-page "conversions" cleaned out. Real form fills only. Last 14 days of data trustworthy for the first time.</td>
+          <td><span class="tag done">DONE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">BigQuery quote database (PRD + pilot)</span></td>
+          <td>Full PRD shipped Mar 31. Pilot ingest of 92 quotes complete. 1,335-PDF full archive scoped against the manifest with 1,274 unique quote numbers identified, range #50 through #33929.</td>
+          <td><span class="tag building">BUILDING</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Lead tracker dashboard (replaces the Google Sheet)</span></td>
+          <td>Live HTML, light Redstone style, Mon/Thu update cadence, three views: 30-day summary, PPC leads, live LPs. Replaces the manual sheet.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/tracker-dashboard.html" target="_blank">Open tracker</a></td>
+        </tr>
+        <tr>
+          <td><span class="title">Lead tracker &rarr; Slack ping</span></td>
+          <td>Qualified lead lands in HubSpot &rarr; Slack pings the Redstone channel. No more manual checking.</td>
+          <td><span class="tag live">LIVE</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Google Reviews package</span></td>
+          <td>Shipped Mar 31 in the in-person review. Templates + ask flow + response rules.</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-shipped-changes-2026-04-20.html" target="_blank">View changes</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ WORKSTREAM 6: STRATEGIC ============ -->
+  <section>
+    <h2>Strategic Decisions Locked <span class="count">things no longer up for debate</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Decision</th><th>Detail</th><th style="width:90px;">Date</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">Homepage hook</span></td>
+          <td>"The trustworthiness of an American company with the pricing from overseas." Rachel's line in the Mar 31 call. You confirmed. It anchors the homepage, the LPs, and the ad copy.</td>
+          <td>Mar 31</td>
+        </tr>
+        <tr>
+          <td><span class="title">LP-first approach (not homepage-first)</span></td>
+          <td>Ads point to dedicated LPs. Homepage cleaned in parallel but is no longer the primary conversion surface.</td>
+          <td>Apr 22</td>
+        </tr>
+        <tr>
+          <td><span class="title">Test one SEO page before committing to full rebuild</span></td>
+          <td>Die Casting Mexico SEO page is the test. Cheaper than rebuilding under a wrong hypothesis.</td>
+          <td>Apr 22</td>
+        </tr>
+        <tr>
+          <td><span class="title">Quote DB queryable from Slack via Claude API</span></td>
+          <td>Single team account, ~$1/mo, no per-seat Claude subscriptions. Internal tool only.</td>
+          <td>Apr 22</td>
+        </tr>
+        <tr>
+          <td><span class="title">Lead qualification gates (MQL / SQL)</span></td>
+          <td>Two-gate model with disqualifiers documented: personal email, sub-$50k design phase, pure China cost-savings (with Tier-1 logo exceptions).</td>
+          <td><a href="https://kasandzz.github.io/kamg-client-reports/redstone/lead-qualification-agent-prd.html" target="_blank">PRD</a></td>
+        </tr>
+        <tr>
+          <td><span class="title">Reporting format: tables only</span></td>
+          <td>Per your "I'm an engineer, I just want all the data." Visual summaries retired. This recap is in that format.</td>
+          <td>Mar 31</td>
+        </tr>
+        <tr>
+          <td><span class="title">All deliverables = Redstone IP</span></td>
+          <td>Data warehouse will live in your GCP. Agents and skills are exportable. Centralised Drive archive once you provision the folder.</td>
+          <td>Mar 31</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ Eric quote anchor ============ -->
+  <div class="quote">
+    <p>"I want you to put time into this. I don't want you to feel like the budget is low for you not to put time into it. I want to be like your most important client. Let's start with 4k. Let's see how things go for the first month, and then reassess."</p>
+    <div class="attr">Eric &middot; Mar 24, 2026 call &middot; ~14:30</div>
+  </div>
+
+  <!-- ============ BILLING ============ -->
+  <section class="billing">
+    <h2>Cycle 1 Billing</h2>
+
+    <div class="billing-grid">
+      <div class="item">
+        <div class="lbl">Period</div>
+        <div class="val">Mar 24 &rarr; Apr 24, 2026</div>
+      </div>
+      <div class="item">
+        <div class="lbl">Amount</div>
+        <div class="val amt">$4,000.00 USD</div>
+      </div>
+      <div class="item">
+        <div class="lbl">Invoice</div>
+        <div class="val">No. 003 &middot; Net 0</div>
+      </div>
+      <div class="item">
+        <div class="lbl">Reassessment</div>
+        <div class="val">Per Mar 24 agreement</div>
+      </div>
+    </div>
+
+    <p>Per our Mar 24 call, Cycle 1 is billed at the $4,000 flat retainer you proposed, with the agreement to reassess after the first month. Cycle 2 default will continue at $4,000 unless we mutually agree to step it.</p>
+    <p>Invoice 003 attached with full Wise / ACH banking details. Same payable structure as Invoice 002, Net 0.</p>
+
+    <a class="invoice-link" href="https://kasandzz.github.io/kamg-client-reports/redstone/invoice-003-2026-04-27.html" target="_blank">Open Invoice 003 &rarr;</a>
+  </section>
+
+  <!-- ============ CYCLE 2 PREVIEW ============ -->
+  <section>
+    <h2>Cycle 2 in flight <span class="count">Apr 24 &rarr; May 24, already moving</span></h2>
+    <table class="ws">
+      <thead>
+        <tr><th>Track</th><th>Detail</th><th style="width:90px;">Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="title">Die Casting Mexico SEO page ranks (or doesn't)</span></td>
+          <td>Test resolves. Direction on the rebuild gets locked.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Cold email first-send window</span></td>
+          <td>Warmup ends. Lists go in. First sequences out.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Full quote archive ingest</span></td>
+          <td>1,243 remaining PDFs after the pilot 92. Output: queryable Claude/Slack agent over historical pricing.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Homepage final approval + push live</span></td>
+          <td>Monday review &rarr; publish. Replaces /updated-home/ staging.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">PostHog A/B round 1</span></td>
+          <td>First read on real prospect behaviour, first hypothesis-driven test against the highest-traffic LP.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+        <tr>
+          <td><span class="title">Lead tracker &rarr; HubSpot pipeline mapping</span></td>
+          <td>Form submit &rarr; deal vs lead object decided. 1-click booking flow scoped.</td>
+          <td><span class="tag scoped">SCOPED</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="foot">
+    Prepared by Kas. Cycle 1 covers Mar 24 through Apr 24, 2026. Invoice 003 is attached above. Anything that needs a decision, hold for Monday's check-in. Anything urgent, ping me directly.
+  </div>
+
+</div>
+</body>
+</html>

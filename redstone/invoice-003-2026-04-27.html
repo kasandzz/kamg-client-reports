@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Invoice 003 · Redstone · 27 Apr 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 10mm 10mm; }
+  :root {
+    --bg: #0f0f10;
+    --panel: #18181b;
+    --panel-2: #1d1d21;
+    --panel-3: #232328;
+    --ink: #f4f4f5;
+    --ink-dim: #a1a1aa;
+    --ink-faint: #6b6b73;
+    --hair: rgba(255,255,255,0.06);
+    --hair-2: rgba(255,255,255,0.10);
+    --mint: #b8f5c9;
+    --butter: #f5e79e;
+    --coral: #f5b8b8;
+    --lavender: #c4b8f5;
+    --mint-ink: #16361f;
+    --butter-ink: #3a3208;
+    --coral-ink: #3a1414;
+    --lavender-ink: #1f1640;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    font-size: 10.5px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .tnum { font-variant-numeric: tabular-nums; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  .page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 8px 10px 6px;
+  }
+
+  /* ====== ROW 1: Status pill strip ====== */
+  .strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.5fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .pill-card {
+    border-radius: 18px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    min-height: 88px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .pill-card .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    font-weight: 500;
+  }
+  .pill-card .value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .pill-card .sub {
+    font-size: 9px;
+    margin-top: 6px;
+    opacity: 0.7;
+    font-weight: 500;
+  }
+  .pill-card .icon {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: rgba(0,0,0,0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .pc-mint    { background: var(--mint);     color: var(--mint-ink); }
+  .pc-butter  { background: var(--butter);   color: var(--butter-ink); }
+  .pc-coral   { background: var(--coral);    color: var(--coral-ink); }
+  .pc-lavender{
+    background: var(--lavender);
+    color: var(--lavender-ink);
+    background-image: radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 55%),
+                      radial-gradient(80% 60% at 0% 100%, rgba(245,184,184,0.55) 0%, rgba(196,184,245,0) 60%);
+  }
+  .pc-lavender .value { font-size: 30px; }
+
+  /* ====== Generic dark cards ====== */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-radius: 20px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .card .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  /* ====== ROW 2: Parties ====== */
+  .parties {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .party .name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .party .lines {
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--ink-dim);
+    line-height: 1.55;
+  }
+  .party .lines strong { color: var(--ink); font-weight: 600; }
+  .party .avatar {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, var(--lavender) 0%, var(--coral) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1f;
+  }
+  .party.billed .avatar { background: linear-gradient(135deg, var(--mint) 0%, var(--butter) 100%); }
+
+  /* ====== ROW 3: Line items bento ====== */
+  .lines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .line-card {
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+  }
+  .line-card .title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 2px;
+  }
+  .line-card .desc {
+    font-size: 10px;
+    color: var(--ink-dim);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .basis-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--panel-3);
+    border: 1px solid var(--hair-2);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    color: var(--ink-dim);
+    margin-top: 10px;
+    align-self: flex-start;
+    font-variant-numeric: tabular-nums;
+  }
+  .basis-chip .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--mint);
+  }
+  .line-card .footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 10px;
+  }
+  .line-card .sub-ref {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    color: var(--ink-faint);
+  }
+  .line-card .amount {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ====== ROW 4: Bank + Terms/Due ====== */
+  .row-4 {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .bank-card .bank-lines {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    white-space: pre-line;
+    margin: 0;
+  }
+  .bank-card .bank-lines .k { color: var(--ink-faint); }
+  .bank-badge {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--mint);
+    color: var(--mint-ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .right-stack {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+  }
+  .due-card {
+    border-radius: 20px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+    background: #1a1226;
+    background-image:
+      radial-gradient(120% 100% at 100% 0%, rgba(196,184,245,0.55) 0%, rgba(196,184,245,0) 55%),
+      radial-gradient(100% 100% at 0% 100%, rgba(245,184,184,0.45) 0%, rgba(245,184,184,0) 60%),
+      radial-gradient(80% 80% at 50% 100%, rgba(245,231,158,0.30) 0%, rgba(245,231,158,0) 60%);
+    border: 1px solid var(--hair-2);
+  }
+  .due-card .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+  }
+  .due-card .amount {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #ffffff;
+    line-height: 1;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .due-card .meta {
+    margin-top: 8px;
+    font-size: 9.5px;
+    color: rgba(255,255,255,0.78);
+  }
+  .pixel-grid {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    display: grid;
+    grid-template-columns: repeat(6, 5px);
+    gap: 2px;
+    opacity: 0.9;
+  }
+  .pixel-grid span {
+    width: 5px; height: 5px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 1px;
+  }
+  .pixel-grid span.on { background: var(--mint); }
+  .pixel-grid span.on2 { background: var(--butter); }
+  .pixel-grid span.on3 { background: var(--coral); }
+
+  .terms-card p {
+    margin: 0;
+    font-size: 10px;
+    color: var(--ink-dim);
+    line-height: 1.6;
+  }
+  .terms-card p strong { color: var(--ink); font-weight: 600; }
+
+  /* ====== Thank you card ====== */
+  .thanks-card {
+    margin-top: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(184,245,201,0.08), rgba(196,184,245,0.06));
+    border: 1px solid var(--hair-2);
+    border-radius: 14px;
+  }
+  .thanks-card .note {
+    font-size: 11px;
+    color: var(--ink);
+    line-height: 1.6;
+    font-style: italic;
+  }
+  .thanks-card .note strong { font-style: normal; font-weight: 600; }
+
+  /* ====== Footer signoff ====== */
+  .signoff-bar {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hair);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .signoff-bar .left {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .signoff-bar .right {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.10em;
+  }
+
+  @media print {
+    html, body { background: #0f0f10; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Row 1: Status pill strip -->
+  <section class="strip">
+    <div class="pill-card pc-mint">
+      <div>
+        <div class="eyebrow">Invoice</div>
+        <div class="value tnum">№ 003</div>
+      </div>
+      <div class="sub">Document</div>
+      <div class="icon">#</div>
+    </div>
+    <div class="pill-card pc-butter">
+      <div>
+        <div class="eyebrow">Status</div>
+        <div class="value" style="font-size:18px;">Due on receipt</div>
+      </div>
+      <div class="sub">Net 0</div>
+      <div class="icon">!</div>
+    </div>
+    <div class="pill-card pc-coral">
+      <div>
+        <div class="eyebrow">Issued</div>
+        <div class="value" style="font-size:18px;">27 Apr 2026</div>
+      </div>
+      <div class="sub">CDMX</div>
+      <div class="icon">↗</div>
+    </div>
+    <div class="pill-card pc-lavender">
+      <div>
+        <div class="eyebrow">Amount</div>
+        <div class="value tnum">$4,000.00</div>
+      </div>
+      <div class="sub">USD · Cycle 1 retainer</div>
+      <div class="icon">$</div>
+    </div>
+  </section>
+
+  <!-- Row 2: Parties -->
+  <section class="parties">
+    <div class="card party">
+      <div class="eyebrow">From</div>
+      <div class="name">Kas Andz</div>
+      <div class="lines">
+        C. Cuyutlán 16, Roma Sur, Cuauhtémoc<br/>
+        06760 Ciudad de México, CDMX, Mexico<br/>
+        <strong>k@kasandz.com</strong>
+      </div>
+      <div class="avatar">KA</div>
+    </div>
+    <div class="card party billed">
+      <div class="eyebrow">Billed to</div>
+      <div class="name">Redstone Manufacturing</div>
+      <div class="lines">
+        <strong>Eric Millinger</strong><br/>
+        eric@redstonemanufacturing.com
+      </div>
+      <div class="avatar">RM</div>
+    </div>
+  </section>
+
+  <!-- Row 3: Line items bento -->
+  <section class="lines-grid">
+    <div class="card line-card">
+      <div class="eyebrow">Line 01 · Retainer</div>
+      <div class="title">Marketing retainer, Cycle 1</div>
+      <div class="desc">Flat retainer for first cycle of the new agreement, covering ads, landing pages, SEO recovery, cold email infrastructure, data warehouse, and tracker. Per Mar 24 call.</div>
+      <div class="basis-chip"><span class="dot"></span>Mar 24 to Apr 24, 2026</div>
+      <div class="footer">
+        <div class="sub-ref">PERIOD · 1 MONTH</div>
+        <div class="amount">$4,000.00</div>
+      </div>
+    </div>
+    <div class="card line-card" style="background: var(--panel-2); border-style: dashed;">
+      <div class="eyebrow">Cycle 1 Recap</div>
+      <div class="title">Full month of work documented</div>
+      <div class="desc">21 LPs live, ad conv. rate 0.8% to 2.27%, 5 cold email domains warmed, BigQuery quote DB scoped on 1,335 PDFs, SEO forensic delivered, Jack onboarded at lighter scope.</div>
+      <div class="footer">
+        <div class="sub-ref">CYCLE 1 RECAP</div>
+        <div class="amount" style="font-size: 11px; color: var(--ink-dim); font-weight: 500; letter-spacing: 0.04em;">SEE LINKED RECAP</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Row 4: Bank + Terms/Due -->
+  <section class="row-4">
+    <div class="card bank-card">
+      <div class="eyebrow">Payable to · Receiving Bank</div>
+      <p class="bank-lines"><span class="k">Name:</span> Kristupas Andziukevicius
+<span class="k">Account number:</span> 803595029998880
+<span class="k">Account type:</span> Deposit
+<span class="k">Routing number (for wire and ACH):</span> 084009519
+<span class="k">Swift/BIC:</span> TRWIUS35XXX
+<span class="k">Use when sending money from outside the US</span>
+<span class="k">Address:</span> Wise US Inc, 108 W 13th St, Wilmington, DE, 19801, United States</p>
+      <div class="bank-badge">USD ACH/Wire</div>
+    </div>
+
+    <div class="right-stack">
+      <div class="due-card">
+        <div class="eyebrow">Amount Due</div>
+        <div class="amount">$4,000.00</div>
+        <div class="meta">Due on receipt · USD</div>
+        <div class="pixel-grid">
+          <span></span><span class="on"></span><span></span><span class="on2"></span><span></span><span class="on3"></span>
+          <span class="on"></span><span></span><span class="on2"></span><span></span><span class="on3"></span><span></span>
+          <span></span><span class="on2"></span><span></span><span class="on3"></span><span></span><span class="on"></span>
+          <span class="on3"></span><span></span><span class="on"></span><span></span><span class="on2"></span><span></span>
+        </div>
+      </div>
+      <div class="card terms-card">
+        <div class="eyebrow">Payment Terms</div>
+        <p>Due on receipt. ACH or wire to the US account. Funds clear next business day. Reply with any line-item questions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thank you -->
+  <div class="thanks-card">
+    <div class="note">Eric, this first cycle was the densest stretch of build I have run on a new account in a while. Ad conv. rate up to 2.27%, 21 LPs in flight, the SEO mystery cracked, and the cold email engine warmed and ready. Cycle 2 is already moving. Any questions on this invoice, ping me directly.<br><strong>Kas</strong></div>
+  </div>
+
+  <!-- Footer signoff -->
+  <div class="signoff-bar">
+    <div class="left">Kas</div>
+    <div class="right">INVOICE 003 · 27 APR 2026 · CDMX</div>
+  </div>
+
+</div>
+</body>
+</html>

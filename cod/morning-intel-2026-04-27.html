@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Morning Intel — Mon 2026-04-27</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --panel: #11161d;
+    --panel-2: #161c25;
+    --line: #1f2731;
+    --text: #e7edf3;
+    --muted: #8b95a3;
+    --dim: #5a6573;
+    --accent: #6ee7ff;
+    --good: #2bd4a7;
+    --warn: #f5c14b;
+    --bad: #ff5d6c;
+    --p0: #ff3548;
+    --p1: #ff9a3c;
+    --p2: #6ee7ff;
+    --shadow: 0 6px 30px rgba(0,0,0,0.55);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 28px 22px 80px; }
+
+  /* Header */
+  .hdr { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  .hdr h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px 0; }
+  .hdr .sub { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .badge.good { color: var(--good); border-color: rgba(43,212,167,0.3); background: rgba(43,212,167,0.08); }
+  .badge.warn { color: var(--warn); border-color: rgba(245,193,75,0.3); background: rgba(245,193,75,0.08); }
+  .badge.bad { color: var(--bad); border-color: rgba(255,93,108,0.3); background: rgba(255,93,108,0.08); }
+
+  /* P0 Banner */
+  .p0-banner {
+    background: linear-gradient(90deg, rgba(255,53,72,0.18), rgba(255,53,72,0.04));
+    border: 1px solid rgba(255,53,72,0.4);
+    border-left: 4px solid var(--p0);
+    padding: 16px 18px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+  }
+  .p0-banner .label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: var(--p0); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+  .p0-banner .title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .p0-banner .body { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+
+  /* Section */
+  section { margin-bottom: 26px; }
+  h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin: 0 0 12px 0; }
+
+  /* Schedule */
+  .meet-grid { display: grid; gap: 8px; }
+  .meet {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 11px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+  }
+  .meet.past { opacity: 0.45; }
+  .meet.upcoming { border-left: 3px solid var(--accent); }
+  .meet.conflict { border-left: 3px solid var(--bad); background: rgba(255,93,108,0.04); }
+  .meet .time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+  .meet .name { font-weight: 600; font-size: 14px; }
+  .meet .detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .meet .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+  .meet .tag.cod { color: #ffb380; border-color: rgba(255,179,128,0.25); }
+  .meet .tag.redstone { color: #ff8b95; border-color: rgba(255,139,149,0.25); }
+  .meet .tag.kamg { color: #6ee7ff; border-color: rgba(110,231,255,0.25); }
+  .meet .tag.personal { color: #b8a4ff; border-color: rgba(184,164,255,0.25); }
+
+  /* Action cards */
+  .actions { display: grid; gap: 10px; }
+  .action {
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    border-left: 3px solid var(--p2);
+  }
+  .action.p0 { border-left-color: var(--p0); }
+  .action.p1 { border-left-color: var(--p1); }
+  .action .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .action .head .ttl { font-weight: 600; font-size: 13.5px; }
+  .action .head .pri { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--panel-2); }
+  .action.p0 .head .pri { color: var(--p0); background: rgba(255,53,72,0.12); }
+  .action.p1 .head .pri { color: var(--p1); background: rgba(255,154,60,0.12); }
+  .action.p2 .head .pri { color: var(--p2); background: rgba(110,231,255,0.12); }
+  .action .body { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  /* Two-col */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Health grid */
+  .health { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .h-cell { background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; }
+  .h-cell .lbl { font-size: 10px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .h-cell .val { font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .h-cell.good .val { color: var(--good); }
+  .h-cell.warn .val { color: var(--warn); }
+  .h-cell.bad .val { color: var(--bad); }
+  @media (max-width: 760px) { .health { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Footer */
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--dim); font-family: 'JetBrains Mono', monospace; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hdr">
+    <div>
+      <h1>Morning Intel — Monday 2026-04-27</h1>
+      <div class="sub">10:30 CDMX • week 18 • local-fallback (GCS bucket access denied)</div>
+    </div>
+    <div class="badges">
+      <span class="badge good">Slack ✓</span>
+      <span class="badge good">Gmail ✓</span>
+      <span class="badge good">Calendar ✓</span>
+      <span class="badge good">Sheets ✓</span>
+      <span class="badge good">Compiler 26m ago</span>
+      <span class="badge good">Cache 90.3%</span>
+      <span class="badge warn">Brain offline</span>
+      <span class="badge warn">GCS 403</span>
+    </div>
+  </header>
+
+  <div class="p0-banner">
+    <div class="label">P0 — BLOCKS ALL CLIENT MEETINGS TODAY</div>
+    <div class="title">Zoom plan suspended due to non-payment</div>
+    <div class="body">Email at 08:55 CDMX from billing@zoom.us. You have 3 Zoom-based meetings starting in &lt;30 min: Russ Monday Huddle (11:00), Eric Redstone (11:30 — uses Zoom), AI Google Ads Plan (11:00, conflict). Resolve billing now or all calls drop to phone/Meet. Backup: switch to Google Meet from k@kasandz Calendar.</div>
+  </div>
+
+  <section>
+    <h2>Today's Schedule — Mon 27 Apr (CDMX)</h2>
+    <div class="meet-grid">
+      <div class="meet past">
+        <div class="time">06:30 CDMX</div>
+        <div>
+          <div class="name">COD Daily Check-In <span class="tag cod">cod</span></div>
+          <div class="detail">Akari, Russ, Pedro (Brickell), Dorian, Matt — 30 min Zoom (already past)</div>
+        </div>
+        <div class="tag">past</div>
+      </div>
+      <div class="meet past">
+        <div class="time">08:30 CDMX</div>
+        <div>
+          <div class="name">Russ Call Block (focus block, color 11) <span class="tag cod">cod</span></div>
+          <div class="detail">Personal block, no attendees</div>
+        </div>
+        <div class="tag">past</div>
+      </div>
+      <div class="meet upcoming conflict">
+        <div class="time">11:00 CDMX</div>
+        <div>
+          <div class="name">⚠ CONFLICT — Monday Morning Team Huddle (Russ, full COD team) <span class="tag cod">cod</span></div>
+          <div class="detail">vs <strong>AI Google Ads Plan</strong> (Daniel declined, Leo invited) — same slot. Russ huddle is recurring + 18 attendees, AI Ads is internal. Suggest moving AI Ads to 14:00.</div>
+        </div>
+        <div class="tag">conflict</div>
+      </div>
+      <div class="meet upcoming">
+        <div class="time">11:30 CDMX</div>
+        <div>
+          <div class="name">Check-in with Eric — Website <span class="tag redstone">redstone</span></div>
+          <div class="detail">Eric Redstone. Bring: (1) Search Console flagged 4xx indexing on redstonemanufacturing.com today 02:02 CDMX; (2) LP rebuild status (paused at Pass 3 Frontend Dev); (3) Jack/Outrider SEO SOW Apr 11 finalized.</div>
+        </div>
+        <div class="tag">60 min</div>
+      </div>
+      <div class="meet upcoming">
+        <div class="time">15:00 CDMX</div>
+        <div>
+          <div class="name">Book Meroma — Aranza mum <span class="tag personal">personal</span></div>
+          <div class="detail">Meeting with mother Sun 4/26 was today block context — high importance per engagement plan</div>
+        </div>
+        <div class="tag">30 min</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Action Queue — Pre-11:00</h2>
+    <div class="actions">
+      <div class="action p0">
+        <div class="head"><div class="ttl">Resolve Zoom billing OR migrate today's calls to Google Meet</div><div class="pri">P0</div></div>
+        <div class="body">Login → zoom.us/billing. If can't pay in next 25 min, email Eric + COD coordinator with Meet links (calendar event has Google Meet built-in via gcal). Russ huddle is a fixed Zoom URL that won't switch — you'd need Russ team to update.</div>
+      </div>
+      <div class="action p0">
+        <div class="head"><div class="ttl">Resolve 11:00 calendar conflict</div><div class="pri">P0</div></div>
+        <div class="body">Russ Monday Huddle is mandatory team meeting (recurring, 18 attendees). Move "AI Google Ads Plan" with Leo to 14:00 — Daniel already declined, low impact. Reply on the AI Google Ads Plan event with new time.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Eric prep (15 min before 11:30) — Search Console 4xx indexing</div><div class="pri">P1</div></div>
+        <div class="body">Google Search Console flagged "Blocked due to other 4xx issue" on redstonemanufacturing.com (email 08:02 CDMX). Pull which URLs are affected, root-cause likely related to LP rebuild redirects. Mention before Eric raises it.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">CPG LP comments — action Stef's notes</div><div class="pri">P1</div></div>
+        <div class="body">Apr 21: Stef left "small tweaks" on the LP doc (docs.google.com/document/d/1yKnu...). Commit to permanent rules per CPG doc. Krik expected comments by Wed Apr 23 — already overdue 4 days.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Fathom recap from Russ meeting — FTC compliance resolved on AI Mission Statement Creator</div><div class="pri">P2</div></div>
+        <div class="body">Karen confirmed FTC compliance issue resolved 09:39 CDMX — tool ready to launch. Update COD experiment tracker if affected. Auction post hit ~100 comments per Christina Pariso (also useful for Russ dashboard).</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Email Inbox — Filtered (newer than 1d)</h2>
+    <div class="actions">
+      <div class="action p1">
+        <div class="head"><div class="ttl">Search Console — Indexing failures, redstonemanufacturing.com</div><div class="pri">P1</div></div>
+        <div class="body">sc-noreply@google.com • 08:02 CDMX • "Blocked due to other 4xx issue" — surface in Eric call.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">AmEx Business Platinum statement ready (343004)</div><div class="pri">P2</div></div>
+        <div class="body">12:43 CDMX • Admin — file under Accounts/Huzefa or pay before due date.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Daniel: Following + Declined "AI Google Ads Plan"</div><div class="pri">P2</div></div>
+        <div class="body">Leo will need to lead. Update meeting before reschedule.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Fathom: 2 recent recaps from this morning</div><div class="pri">P2</div></div>
+        <div class="body">"Russ Ruffino" (FTC + AI Mission tool) + "Impromptu Zoom" (auction momentum, Christina VIP).</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>System Health</h2>
+    <div class="health">
+      <div class="h-cell good"><div class="lbl">Compiler</div><div class="val">26 min ago • success</div></div>
+      <div class="h-cell good"><div class="lbl">Cache hit ratio</div><div class="val">90.3% • patch ON</div></div>
+      <div class="h-cell good"><div class="lbl">Backup</div><div class="val">Yesterday • 5.16 GB</div></div>
+      <div class="h-cell good"><div class="lbl">kamg-ops</div><div class="val">up-to-date • 3 stale locks cleared</div></div>
+      <div class="h-cell warn"><div class="lbl">Agency Brain</div><div class="val">Offline (PC-C unreachable)</div></div>
+      <div class="h-cell warn"><div class="lbl">Cloud morning-intel</div><div class="val">GCS 403 — bucket ACL</div></div>
+      <div class="h-cell warn"><div class="lbl">Heartbeat skill</div><div class="val">cli.mjs missing — graceful</div></div>
+      <div class="h-cell good"><div class="lbl">Slack/Gmail/Cal/Sheets</div><div class="val">All 4 critical PASS</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Carry-forward (from Apr 24)</h2>
+    <div class="actions">
+      <div class="action p2">
+        <div class="head"><div class="ttl">Astro spec sections 4-7 + M1 scaffold</div><div class="pri">P2</div></div>
+        <div class="body">Last commit on master: "vault(daily): session save 2026-04-24 — astro spec sections 4-7 + M1 scaffold code complete" — confirm what's pending vs shipped.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Redstone LP — resume at Pass 3 Frontend Dev</div><div class="pri">P2</div></div>
+        <div class="body">In-progress per memory; 4 sequential discipline passes still owed before user gate.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated 2026-04-27 10:30 CDMX • data source: local-fallback • published: kamg-client-reports/output/cod/morning-intel-2026-04-27.html
+  </footer>
+
+</div>
+</body>
+</html>

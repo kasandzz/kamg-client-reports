@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Morning Intel — Tue 2026-04-28</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --panel: #11161d;
+    --panel-2: #161c25;
+    --line: #1f2731;
+    --text: #e7edf3;
+    --muted: #8b95a3;
+    --dim: #5a6573;
+    --accent: #6ee7ff;
+    --good: #2bd4a7;
+    --warn: #f5c14b;
+    --bad: #ff5d6c;
+    --p0: #ff3548;
+    --p1: #ff9a3c;
+    --p2: #6ee7ff;
+    --shadow: 0 6px 30px rgba(0,0,0,0.55);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 28px 22px 80px; }
+
+  .hdr { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 22px; flex-wrap: wrap; }
+  .hdr h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px 0; }
+  .hdr .sub { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .badge.good { color: var(--good); border-color: rgba(43,212,167,0.3); background: rgba(43,212,167,0.08); }
+  .badge.warn { color: var(--warn); border-color: rgba(245,193,75,0.3); background: rgba(245,193,75,0.08); }
+  .badge.bad { color: var(--bad); border-color: rgba(255,93,108,0.3); background: rgba(255,93,108,0.08); }
+
+  .p0-banner {
+    background: linear-gradient(90deg, rgba(255,53,72,0.18), rgba(255,53,72,0.04));
+    border: 1px solid rgba(255,53,72,0.4);
+    border-left: 4px solid var(--p0);
+    padding: 16px 18px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .p0-banner .label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: var(--p0); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+  .p0-banner .title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .p0-banner .body { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+
+  .win-banner {
+    background: linear-gradient(90deg, rgba(43,212,167,0.16), rgba(43,212,167,0.03));
+    border: 1px solid rgba(43,212,167,0.35);
+    border-left: 4px solid var(--good);
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+  }
+  .win-banner .label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: var(--good); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+  .win-banner .title { font-size: 15px; font-weight: 700; }
+  .win-banner .body { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+
+  section { margin-bottom: 26px; }
+  h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: var(--dim); text-transform: uppercase; margin: 0 0 12px 0; }
+
+  .meet-grid { display: grid; gap: 8px; }
+  .meet {
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 11px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+  }
+  .meet.past { opacity: 0.45; }
+  .meet.upcoming { border-left: 3px solid var(--accent); }
+  .meet.flagship { border-left: 3px solid var(--warn); background: rgba(245,193,75,0.04); }
+  .meet .time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
+  .meet .name { font-weight: 600; font-size: 14px; }
+  .meet .detail { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .meet .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
+  .meet .tag.cod { color: #ffb380; border-color: rgba(255,179,128,0.25); }
+  .meet .tag.redstone { color: #ff8b95; border-color: rgba(255,139,149,0.25); }
+  .meet .tag.kamg { color: #6ee7ff; border-color: rgba(110,231,255,0.25); }
+  .meet .tag.personal { color: #b8a4ff; border-color: rgba(184,164,255,0.25); }
+
+  .actions { display: grid; gap: 10px; }
+  .action {
+    padding: 12px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    border-left: 3px solid var(--p2);
+  }
+  .action.p0 { border-left-color: var(--p0); }
+  .action.p1 { border-left-color: var(--p1); }
+  .action .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 12px; }
+  .action .head .ttl { font-weight: 600; font-size: 13.5px; }
+  .action .head .pri { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--panel-2); flex-shrink: 0; }
+  .action.p0 .head .pri { color: var(--p0); background: rgba(255,53,72,0.12); }
+  .action.p1 .head .pri { color: var(--p1); background: rgba(255,154,60,0.12); }
+  .action.p2 .head .pri { color: var(--p2); background: rgba(110,231,255,0.12); }
+  .action .body { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+
+  .health { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .h-cell { background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; }
+  .h-cell .lbl { font-size: 10px; letter-spacing: 0.14em; color: var(--dim); text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .h-cell .val { font-size: 13px; font-weight: 600; margin-top: 4px; }
+  .h-cell.good .val { color: var(--good); }
+  .h-cell.warn .val { color: var(--warn); }
+  .h-cell.bad .val { color: var(--bad); }
+  @media (max-width: 760px) { .health { grid-template-columns: repeat(2, 1fr); } }
+
+  .item-list { display: grid; gap: 6px; }
+  .item { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 8px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; font-size: 12.5px; }
+  .item .src { font-family: 'JetBrains Mono', monospace; color: var(--dim); font-size: 11px; }
+  .item .body { color: var(--text); line-height: 1.45; }
+  .item.urgent { border-left: 3px solid var(--p1); }
+  .item.win { border-left: 3px solid var(--good); }
+
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--dim); font-family: 'JetBrains Mono', monospace; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="hdr">
+    <div>
+      <h1>Morning Intel — Tuesday 2026-04-28</h1>
+      <div class="sub">08:38 CDMX • week 18 • local-fallback (GCS 403, no cloud collector)</div>
+    </div>
+    <div class="badges">
+      <span class="badge good">Slack ✓</span>
+      <span class="badge good">Gmail ✓</span>
+      <span class="badge good">Calendar ✓</span>
+      <span class="badge good">Sheets ✓</span>
+      <span class="badge good">Backup ✓</span>
+      <span class="badge warn">Compiler 17h</span>
+      <span class="badge warn">Cache 80/100</span>
+      <span class="badge warn">Brain offline</span>
+    </div>
+  </header>
+
+  <div class="win-banner">
+    <div class="label">WIN — INVOICE 003 PAID</div>
+    <div class="title">Redstone wired $4,000 USD overnight</div>
+    <div class="body">Wise notification 12:36 CDMX yesterday — Eric paid Invoice 003 (first Cycle 1 flat retainer, Mar 24 → Apr 24). Cycle 2 routine already scheduled for May 27. Acknowledge in 14:30 call only if Eric raises it.</div>
+  </div>
+
+  <div class="p0-banner">
+    <div class="label">P0 — DOMAIN ACCESS AT RISK</div>
+    <div class="title">Google Workspace payment failed for kasandz.com</div>
+    <div class="body">Two notices from workspace-noreply@google.com 07:29 CDMX. Last subscription payment failed. If unresolved, will lose Workspace + Gmail for k@kasandz.com (your primary). Update billing in Google Admin before close of day.</div>
+  </div>
+
+  <section>
+    <h2>Today's Schedule — Tue 28 Apr (CDMX)</h2>
+    <div class="meet-grid">
+      <div class="meet past">
+        <div class="time">06:45–08:30</div>
+        <div>
+          <div class="name">Routine — Exercise → Shower → Morning Focus Block <span class="tag personal">routine</span></div>
+          <div class="detail">All past. Russ Call Block ended 10:00.</div>
+        </div>
+        <div class="tag">past</div>
+      </div>
+      <div class="meet upcoming">
+        <div class="time">11:30 CDMX</div>
+        <div>
+          <div class="name">COD Application Page <span class="tag cod">cod</span></div>
+          <div class="detail">Personal work block, 30 min, no attendees. Russ on plane today — push JIT webinar process work + Asana adoption.</div>
+        </div>
+        <div class="tag">work</div>
+      </div>
+      <div class="meet upcoming">
+        <div class="time">12:00 CDMX</div>
+        <div>
+          <div class="name">Check-in with Eric — Website (internal block) <span class="tag redstone">redstone</span></div>
+          <div class="detail">No attendees on invite — likely Kas's own prep block ahead of the 14:30 Eric+Alec call. Use it to consolidate Search Console findings + Cycle 2 in-flight status.</div>
+        </div>
+        <div class="tag">prep</div>
+      </div>
+      <div class="meet upcoming flagship">
+        <div class="time">14:30 CDMX</div>
+        <div>
+          <div class="name">⭐ Lists &amp; Copy Discussion // Redstone <span class="tag redstone">redstone</span></div>
+          <div class="detail">60 min Zoom (us06web.zoom.us/j/83379749111, pw XHW7ee). Eric Story + Alec Story (Redstone) — both accepted. Topic per title: lists + copy. First flagship Redstone meeting since Cycle 1 recap shipped + invoice 003 paid. Prep below.</div>
+        </div>
+        <div class="tag">flagship</div>
+      </div>
+      <div class="meet upcoming">
+        <div class="time">15:30 CDMX</div>
+        <div>
+          <div class="name">Oli — send in Uber Skull <span class="tag personal">personal</span></div>
+          <div class="detail">Personal/admin task block, no attendees.</div>
+        </div>
+        <div class="tag">admin</div>
+      </div>
+      <div class="meet past">
+        <div class="time">cancelled</div>
+        <div>
+          <div class="name">Yodel Mobile &amp; B2B Labs Weekly Call (10:00) <span class="tag personal">b2blabs</span></div>
+          <div class="detail">Cancelled by Agustin overnight (06:55). Boris &amp; B2BLabs (Wed 10:30) updated, no action.</div>
+        </div>
+        <div class="tag">cancelled</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>14:30 Redstone Meeting Prep — Lists &amp; Copy Discussion</h2>
+    <div class="actions">
+      <div class="action p0">
+        <div class="head"><div class="ttl">Eric paid the $4k retainer overnight — DON'T volunteer unless he raises it</div><div class="pri">P0</div></div>
+        <div class="body">Wise confirmation 12:36 CDMX. If Eric thanks you / mentions, acknowledge briefly and pivot to Cycle 2 deliverables. Don't invoice-talk a working call. Tone: pace + excitement (matches the recap thank-you you already sent).</div>
+      </div>
+      <div class="action p0">
+        <div class="head"><div class="ttl">Two Redstone "lists" angles — clarify which Eric means</div><div class="pri">P0</div></div>
+        <div class="body">Lists could mean (a) <strong>cold email list segmentation</strong> (Bison sender pool, 5 cold email domains scoped) or (b) <strong>Redstone customer/prospect lists for ads + LP audience targeting</strong> (Daniel asked for India/Mexico segmentation Apr 23). First minute: ask "lists for cold email or for ads/LP audiences?" — both are in flight, the answer changes the rest of the call.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Copy = which page(s)?</div><div class="pri">P1</div></div>
+        <div class="body">Active copy threads: (1) the 21 LPs from Cycle 1, (2) the new India + Mexico segmentation pages Daniel requested Apr 23 (Leo committed EOD that day), (3) Redstone homepage copy from the rebuild Pass 3 Frontend Dev work. Bring the live URL list — let Eric point at the one he means.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">SEO weekly digest is sitting in your inbox — quick win to cite</div><div class="pri">P1</div></div>
+        <div class="body">AtomicAGI digest 09:23 CDMX: redstonemanufacturing.com organic clicks <strong>+17.1% to 295</strong>, AI clicks +50% to 6 (small base). Ahrefs Health Score 97 (-1), 47 errors (+3) including broken links on 15 URLs. Frame as: "trend is up, but I want to clean these 15 broken-link URLs before next week." Don't dwell — Eric prefers tables + 2 KPIs (per your comms rules).</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Cycle 2 in-flight reminder</div><div class="pri">P1</div></div>
+        <div class="body">Per your Cycle 1 recap (shipped 04-27), Cycle 2 lead row is "Full website rebuild" status BUILDING. Have the deliverables-in-flight table ready: rebuild Pass 3 (Frontend Dev), India/Mexico segment pages, new ad campaigns aligned to LP audiences, broken-link cleanup. Eric likes autonomy + table format — present, don't ask for direction unless he probes.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Watch-fors during call</div><div class="pri">P2</div></div>
+        <div class="body">Alec on the call is new signal — first time he's been on a Redstone strategy call with you. Mirror Eric's lead. Avoid em-dashes (per your client-facing rule). No AI skepticism flash points unless prompted.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>P1 Action Queue (today)</h2>
+    <div class="actions">
+      <div class="action p1">
+        <div class="head"><div class="ttl">Daniel Hall — AI tooling NDA standoff</div><div class="pri">P1</div></div>
+        <div class="body">Yesterday Daniel declined the AI Google Ads Plan call, then pushed back: <em>"An NDA wouldn't protect my intellectual property... I'm not going to give away 15 years of experience for free."</em> You replied 13:47 CDMX inviting him to send <em>his</em> contract. Wait for him to respond — don't chase. Risk: he walks. Mitigation: Leo already shipped the PostHog mobile findings to him 23:40 last night, that work continues regardless. Keep the AI tooling track on hold this week.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">JIT webinar launching TODAY (COD, Russ on plane)</div><div class="pri">P1</div></div>
+        <div class="body">Russ in Brickell channel: <em>"I'll be on a plane during the meeting. Please make it a good one and get everyone in sync. Check on… Using Asana, Launching JIT webinar (TODAY, please), JV WEBINARS (Art of Charm, Bonnie Fahy)"</em>. Pedro driving. Yesterday's $27 CPP was $346 (Akari), VIP upgrade 61.54% (8/13) — both pages converting equally. Watch for any tracking/ads prompts in #brickellads while Russ flies.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Astro spec sections 4-7 + M1 scaffold</div><div class="pri">P1</div></div>
+        <div class="body">Carry-forward from 04-27. Verify what's pending vs shipped from the Apr 24 stack lock. Resume after Eric call.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Redstone LP rebuild — Pass 3 (Frontend Dev)</div><div class="pri">P1</div></div>
+        <div class="body">Carry-forward. Likely surfaces in 14:30 Eric call as "the rebuild." Have current state of Pass 3 ready.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Asana adoption — COD-wide PM tool</div><div class="pri">P2</div></div>
+        <div class="body">Pedro pushed it in Brickell yesterday with Loom walkthrough. Akari thanked him. Russ supports. Low-effort: don't fight it, mirror it for COD-side tasks. Keep KasOS/Plane internal as primary.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Overnight Inbox (last 18h)</h2>
+    <div class="two-col">
+      <div>
+        <h2 style="margin-bottom: 8px;">Email — 18 threads</h2>
+        <div class="item-list">
+          <div class="item win"><div class="src">Wise 12:36</div><div class="body"><strong>$4,000 USD from REDSTONE MANUFAC</strong> — Invoice 003 paid.</div></div>
+          <div class="item urgent"><div class="src">Workspace 07:29</div><div class="body"><strong>Payment failure: Google Workspace Business Standard for kasandz.com</strong> (×2 notices). Resolve today.</div></div>
+          <div class="item urgent"><div class="src">Daniel 08:15</div><div class="body">"NDA wouldn't protect my IP... not giving away 15 years for free." Replied 13:47 CDMX inviting his contract.</div></div>
+          <div class="item"><div class="src">Daniel 08:16</div><div class="body">Declined invitation: AI Google Ads Plan.</div></div>
+          <div class="item"><div class="src">AtomicAGI 09:23</div><div class="body">Redstone weekly: +17.1% organic clicks (295), +50% AI clicks (6). 1 health flag.</div></div>
+          <div class="item"><div class="src">Ahrefs 08:36</div><div class="body">Yodelmobile: 47 errors (+3), broken links on 15 URLs. Health 97 (-1).</div></div>
+          <div class="item"><div class="src">Alec 27 21:28</div><div class="body">Accepted: Lists &amp; Copy Discussion // Redstone (today 14:30).</div></div>
+          <div class="item"><div class="src">Leo→Daniel 23:40</div><div class="body">PostHog Redstone findings: HubSpot chat blocks sticky CTA on mobile (now fixed).</div></div>
+          <div class="item"><div class="src">Daniel 07:51</div><div class="body">Re: Early Ad Views — agrees mobile changes are right call.</div></div>
+          <div class="item"><div class="src">Wise 01:15</div><div class="body">Transfer sent £73.25 GBP (#2100440065).</div></div>
+          <div class="item"><div class="src">Airbnb 04:03</div><div class="body">Confirmed: Acapulco trip May 1–4.</div></div>
+          <div class="item"><div class="src">Agustin 06:55</div><div class="body">Yodel Mobile B2B Labs weekly cancelled today, Boris LTHS bi-weekly time updated.</div></div>
+          <div class="item"><div class="src">Upwork 00:12</div><div class="body">Invited to Enterprise job: Education Survey ($4 study) — likely ignore.</div></div>
+          <div class="item"><div class="src">Self 04:15</div><div class="body">Self-note: "Resimplify email fixes for Russ, then focus on one metric at a time. Fix all reporting and tracking too."</div></div>
+        </div>
+      </div>
+      <div>
+        <h2 style="margin-bottom: 8px;">Slack COD — Brickell channel</h2>
+        <div class="item-list">
+          <div class="item urgent"><div class="src">Russ 03:14</div><div class="body">"Is the just in time webinar up and running?"</div></div>
+          <div class="item"><div class="src">Pedro 05:40</div><div class="body">"Ready, but automations need tweaking from masterclass links — spinning up today."</div></div>
+          <div class="item"><div class="src">Russ 05:57</div><div class="body">JIT webinar ads dropped in (probably need to trim first/last second).</div></div>
+          <div class="item urgent"><div class="src">Pedro 10:19</div><div class="body">PROCESS UPDATE: switching COD project management to Asana (Loom walkthrough attached). Akari endorsed.</div></div>
+          <div class="item urgent"><div class="src">Russ 13:04</div><div class="body">"I'll be on a plane during the meeting. Make it a good one. Check on Asana, JIT webinar TODAY, JV WEBINARS (Art of Charm, Bonnie Fahy)."</div></div>
+          <div class="item win"><div class="src">Akari 14:03</div><div class="body">$27 CPP yesterday = $346. VIP upgrade % holding at <strong>61.54% (8/13)</strong> — even with stripped-back package. Both pages converting equally.</div></div>
+          <div class="item"><div class="src">Akari 14:13</div><div class="body">Asked: "Easier for viewers if we showed California / NY time vs PST/EST? Less confusing for Australia?"</div></div>
+          <div class="item"><div class="src">Pedro 14:22</div><div class="body">"We can show local time first with PST as backup, e.g. 5PM GMT (9AM PST)." Akari approved.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>System Health</h2>
+    <div class="health">
+      <div class="h-cell good"><div class="lbl">Critical syncs</div><div class="val">4/4 PASS</div></div>
+      <div class="h-cell good"><div class="lbl">Backup</div><div class="val">Healthy, no errors</div></div>
+      <div class="h-cell warn"><div class="lbl">Knowledge Compiler</div><div class="val">17h since last (success)</div></div>
+      <div class="h-cell warn"><div class="lbl">Cache health</div><div class="val">80/100, 94.8% hit</div></div>
+      <div class="h-cell good"><div class="lbl">Heartbeat</div><div class="val">0 issues, no triggers</div></div>
+      <div class="h-cell good"><div class="lbl">kamg-ops</div><div class="val">Up to date, 0 locks</div></div>
+      <div class="h-cell warn"><div class="lbl">Agency Brain</div><div class="val">Offline (PC-C)</div></div>
+      <div class="h-cell warn"><div class="lbl">GCS morning-intel</div><div class="val">403 (SA perms)</div></div>
+    </div>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5;">
+      Cache savings last 24h: <strong style="color: var(--good);">$1,807.79</strong> across 13 sessions (94.8% hit ratio, target 90%+, patch APPLIED). One synthetic rate limit. Compiler last ran 2026-04-27 21:30 UTC — exceeded 12h gate but last status was success. Brain + GCS warnings are pre-existing (carry from yesterday), neither is blocking morning. Heartbeat skill clean — no stuck/failed/chronic flags.
+    </p>
+  </section>
+
+  <section>
+    <h2>Carry-forward (from 2026-04-27)</h2>
+    <div class="actions">
+      <div class="action p1">
+        <div class="head"><div class="ttl">Astro spec sections 4-7 + M1 scaffold</div><div class="pri">P1</div></div>
+        <div class="body">Verify pending vs shipped from Apr 24 stack lock.</div>
+      </div>
+      <div class="action p1">
+        <div class="head"><div class="ttl">Redstone LP rebuild — Pass 3 (Frontend Dev)</div><div class="pri">P1</div></div>
+        <div class="body">Resume after 14:30 Eric call (likely surfaces there as "the rebuild").</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Plane: AI Google Ads Plan handoff to Leo</div><div class="pri">P2</div></div>
+        <div class="body">Now in NDA standoff with Daniel. Pause active push until Daniel sends his contract template.</div>
+      </div>
+      <div class="action p2">
+        <div class="head"><div class="ttl">Akari conduct casefile</div><div class="pri">P2</div></div>
+        <div class="body">Pending — once today's Fathom syncs to vault, add verbatim journey/colours fight quotes. Manual Brickell screenshots/Apr 27 Fathom timestamps to be added by Kas before sending to Russ.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated 2026-04-28 08:38 CDMX • morning v4.5.0 • local-fallback (GCS bucket SA lacks `kamg-morning-intel` perms — same as yesterday) • cache hit 94.8% • dashboard auto-opens after build • <a href="https://kasandzz.github.io/kamg-client-reports/cod/morning-intel-2026-04-28.html">live link</a>
+  </footer>
+</div>
+</body>
+</html>

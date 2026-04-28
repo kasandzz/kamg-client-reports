@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Account #5 -- Meta Ads Intelligence -- 30d -- 2026-04-28</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg-primary:#0a0e1a;
+    --bg-secondary:#111827;
+    --bg-card:#161d2f;
+    --bg-card-hover:#1c2540;
+    --border:#1e293b;
+    --border-light:#2a3654;
+    --text-primary:#f1f5f9;
+    --text-secondary:#94a3b8;
+    --text-muted:#64748b;
+    --gold:#D4A843;
+    --gold-dim:rgba(212,168,67,0.15);
+    --gold-border:rgba(212,168,67,0.3);
+    --green:#22c55e;
+    --green-dim:rgba(34,197,94,0.12);
+    --red:#ef4444;
+    --red-dim:rgba(239,68,68,0.10);
+    --amber:#f59e0b;
+    --amber-dim:rgba(245,158,11,0.12);
+    --blue:#3b82f6;
+    --blue-dim:rgba(59,130,246,0.12);
+    --yellow:#eab308;
+    --yellow-dim:rgba(234,179,8,0.12);
+    --purple:#a855f7;
+    --purple-dim:rgba(168,85,247,0.12);
+    --font:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius:12px;
+    --radius-sm:8px;
+  }
+  html{scroll-behavior:smooth;font-size:16px}
+  body{
+    font-family:var(--font);
+    background:var(--bg-primary);
+    color:var(--text-primary);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .nav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,14,26,0.92);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    padding:0 16px;
+  }
+  .nav-inner{
+    max-width:1400px;margin:0 auto;
+    display:flex;align-items:center;gap:6px;
+    overflow-x:auto;scrollbar-width:none;
+    padding:10px 0;
+  }
+  .nav-inner::-webkit-scrollbar{display:none}
+  .nav-link{
+    color:var(--text-muted);font-size:11px;font-weight:600;
+    text-decoration:none;white-space:nowrap;
+    padding:6px 12px;border-radius:6px;
+    transition:all .2s;letter-spacing:0.04em;text-transform:uppercase;
+  }
+  .nav-link:hover{color:var(--gold);background:var(--gold-dim)}
+  .container{max-width:1400px;margin:0 auto;padding:0 16px 80px}
+  .header{padding:48px 0 32px;border-bottom:1px solid var(--border);margin-bottom:40px}
+  .header-eyebrow{
+    font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--gold);font-weight:700;margin-bottom:12px;
+  }
+  .header h1{
+    font-size:clamp(26px,4vw,40px);font-weight:800;
+    color:var(--text-primary);line-height:1.15;margin-bottom:10px;letter-spacing:-0.02em;
+  }
+  .header-subtitle{font-size:16px;color:var(--text-secondary);margin-bottom:20px}
+  .header-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .badge{
+    font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;
+    letter-spacing:0.05em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;
+  }
+  .badge-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+  .badge-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+  .badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+  .badge-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+  .badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
+  .badge-purple{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(168,85,247,0.25)}
+  .badge-grey{background:rgba(148,163,184,0.10);color:var(--text-secondary);border:1px solid var(--border-light)}
+
+  .section{margin-bottom:48px;scroll-margin-top:60px}
+  .section-header{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:22px;padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+  .section-number{
+    font-size:13px;font-weight:800;color:var(--gold);
+    width:32px;height:32px;border-radius:8px;
+    background:var(--gold-dim);border:1px solid var(--gold-border);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .section h2{
+    font-size:clamp(20px,3vw,26px);font-weight:700;
+    color:var(--text-primary);letter-spacing:-0.01em;
+  }
+  .section-tagline{
+    color:var(--text-secondary);font-size:13px;margin-top:4px;font-style:italic;
+  }
+  .grid{display:grid;gap:14px}
+  .grid-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .stat{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px;
+    transition:all .2s;
+  }
+  .stat:hover{border-color:var(--border-light);background:var(--bg-card-hover)}
+  .stat-label{
+    font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--text-muted);margin-bottom:8px;
+  }
+  .stat-value{font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.05;letter-spacing:-0.02em}
+  .stat-sub{font-size:12px;color:var(--text-secondary);margin-top:6px}
+  .stat-value.green{color:var(--green)}
+  .stat-value.red{color:var(--red)}
+  .stat-value.gold{color:var(--gold)}
+  .stat-value.amber{color:var(--amber)}
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    margin-bottom:14px;
+  }
+  .card h3{
+    font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .card-tag{font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+  .card p{color:var(--text-secondary);font-size:14px;margin-bottom:8px}
+  .card p strong{color:var(--text-primary);font-weight:600}
+  .card ul{list-style:none;padding:0}
+  .card li{
+    padding:8px 0;border-bottom:1px solid var(--border);
+    color:var(--text-secondary);font-size:13px;
+  }
+  .card li:last-child{border-bottom:none}
+  .card li strong{color:var(--text-primary)}
+
+  .table-wrap{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+  th{
+    background:var(--bg-secondary);
+    color:var(--text-muted);
+    font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+    position:sticky;top:0;z-index:1;
+  }
+  td{color:var(--text-secondary);font-variant-numeric:tabular-nums}
+  td.name{color:var(--text-primary);font-weight:500;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  td.dim{color:var(--text-muted);font-size:11.5px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  tr:hover td{background:var(--bg-card-hover)}
+  .num{font-variant-numeric:tabular-nums;text-align:right}
+  .pos{color:var(--green);font-weight:600}
+  .neg{color:var(--red);font-weight:600}
+  .neutral{color:var(--amber);font-weight:600}
+
+  .alert{
+    border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;
+    border-left:3px solid;
+  }
+  .alert-red{background:var(--red-dim);border-left-color:var(--red)}
+  .alert-green{background:var(--green-dim);border-left-color:var(--green)}
+  .alert-amber{background:var(--amber-dim);border-left-color:var(--amber)}
+  .alert-blue{background:var(--blue-dim);border-left-color:var(--blue)}
+  .alert h4{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+  .alert p{font-size:13px;color:var(--text-secondary);line-height:1.55}
+  .alert strong{color:var(--text-primary)}
+
+  .chart-wrap{position:relative;height:320px;margin-top:12px}
+  .chart-wrap.tall{height:420px}
+
+  .test-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:14px;
+    border-left:3px solid var(--blue);
+  }
+  .test-card.p0{border-left-color:var(--red)}
+  .test-card.p1{border-left-color:var(--amber)}
+  .test-card .test-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+  .test-card h4{font-size:15px;font-weight:700;color:var(--text-primary)}
+  .test-card .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+  .test-card .meta-item{font-size:12px;color:var(--text-secondary)}
+  .test-card .meta-item strong{display:block;color:var(--text-muted);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;margin-bottom:3px}
+
+  .toc{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px 22px;
+    margin-bottom:32px;
+  }
+  .toc h3{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:10px}
+  .toc ol{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px}
+  .toc li{font-size:13px}
+  .toc a{color:var(--text-secondary);text-decoration:none;display:flex;align-items:center;gap:8px;padding:4px 0}
+  .toc a:hover{color:var(--gold)}
+  .toc .num{color:var(--text-muted);font-weight:700;font-size:11px;width:20px}
+
+  footer{
+    margin-top:64px;padding-top:32px;border-top:1px solid var(--border);
+    color:var(--text-muted);font-size:12px;text-align:center;
+  }
+
+  @media (max-width:768px){
+    .stat-value{font-size:22px}
+    .grid-3{grid-template-columns:1fr 1fr}
+    th,td{padding:8px 10px;font-size:11.5px}
+    td.name{max-width:160px}
+    .header{padding:32px 0 24px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#summary" class="nav-link">Summary</a>
+    <a href="#totals" class="nav-link">Totals</a>
+    <a href="#audience" class="nav-link">Audiences</a>
+    <a href="#angles" class="nav-link">Angles</a>
+    <a href="#matrix" class="nav-link">Matrix</a>
+    <a href="#kill" class="nav-link">Kill List</a>
+    <a href="#scale" class="nav-link">Scale List</a>
+    <a href="#quality" class="nav-link">Quality</a>
+    <a href="#frequency" class="nav-link">Frequency</a>
+    <a href="#attribution" class="nav-link">Attribution</a>
+    <a href="#urls" class="nav-link">URL Audit</a>
+    <a href="#tests" class="nav-link">Tests</a>
+    <a href="#followups" class="nav-link">Follow-ups</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<header class="header">
+  <div class="header-eyebrow">Clients on Demand -- Account #5 (act_206306693361622)</div>
+  <h1>Meta Ads Intelligence -- 30-Day Diagnostic</h1>
+  <p class="header-subtitle">Performance, audience and angle teardown for the 2026-03-29 to 2026-04-27 window. CSV-only run; URL + Hyros cross-reference deferred to next pass.</p>
+  <div class="header-meta">
+    <span class="badge badge-gold">30 days</span>
+    <span class="badge badge-blue">1,958 ads</span>
+    <span class="badge badge-blue">$223,219 spend</span>
+    <span class="badge badge-amber">553 purchases</span>
+    <span class="badge badge-red">Meta token expired</span>
+    <span class="badge badge-grey">Generated 2026-04-28</span>
+  </div>
+</header>
+
+<div class="toc">
+  <h3>Table of contents</h3>
+  <ol>
+    <li><a href="#summary"><span class="num">01</span>Executive summary</a></li>
+    <li><a href="#totals"><span class="num">02</span>Totals & headline numbers</a></li>
+    <li><a href="#audience"><span class="num">03</span>Audience cluster performance</a></li>
+    <li><a href="#angles"><span class="num">04</span>Creative angle performance</a></li>
+    <li><a href="#matrix"><span class="num">05</span>Audience x Angle matrix</a></li>
+    <li><a href="#kill"><span class="num">06</span>Kill list</a></li>
+    <li><a href="#scale"><span class="num">07</span>Scale list</a></li>
+    <li><a href="#quality"><span class="num">08</span>Quality & ranking diagnostics</a></li>
+    <li><a href="#frequency"><span class="num">09</span>Frequency & saturation</a></li>
+    <li><a href="#attribution"><span class="num">10</span>Attribution sanity</a></li>
+    <li><a href="#urls"><span class="num">11</span>URL traffic audit</a></li>
+    <li><a href="#tests"><span class="num">12</span>Test recommendations</a></li>
+    <li><a href="#followups"><span class="num">13</span>Follow-ups blocked on API</a></li>
+  </ol>
+</div>
+
+<!-- ========== 01 SUMMARY ========== -->
+<section class="section" id="summary">
+  <div class="section-header">
+    <div class="section-number">01</div>
+    <div>
+      <h2>Executive summary</h2>
+      <p class="section-tagline">The three findings that should drive this week's decisions.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-green">
+    <h4>Finding 1 -- Therapists x Text Ad is the only 2x+ ROAS combo on the account, and it is starved of budget</h4>
+    <p>Of the 25 audience x angle combinations with material spend, exactly one clears 2.0 ROAS: <strong>Therapists x Text Ad at 2.33 ROAS on $3,994 spend, 10 purchases</strong>. That is 1.8% of total account spend producing 12% of attributable revenue. "Therapists Text v5 a" alone returned 9.87 ROAS on $915. <strong>Recommendation:</strong> 3x the budget on this combination this week, with two fresh text variants in parallel.</p>
+  </div>
+
+  <div class="alert alert-red">
+    <h4>Finding 2 -- Millionaire Alliance audience and Retargeting / Warm pools are dead-zones, $22K wasted in 30d</h4>
+    <p><strong>MA / 500K NW audience:</strong> $13,198 spend, 0.02 ROAS, 9 purchases over 30 days. Russ Castle MA Ad 1 alone burned $3,866 at 0.04 ROAS while sitting at "Below Average" quality and is still active. <strong>Retargeting / Warm:</strong> $9,004 spend across 179 ads, 0.02 ROAS, 7 purchases. The "Retargeting Ad 17 - Build Once Sell Daily" hit 2.96 frequency at 0.01 ROAS before pausing. The warm-pool pattern is structural -- either pixel/CAPI is misfiring on these audiences (likely, per Brickell/Lucah attribution issues already on file) or the warm offer fundamentally is not converting. Either way, $22K in two diagnostic-grade dead-zones in 30 days. <strong>Recommendation:</strong> pause MA entirely; rebuild ONE warm pool from scratch on Hyros 7-day attendees with 3 fresh creatives; escalate to tracking specialist if it does not lift to ~1.0 ROAS in 7 days.</p>
+  </div>
+
+  <div class="alert alert-amber">
+    <h4>Finding 3 -- Educators is the highest-ROAS niche audience at 0.49 but has zero active ads right now</h4>
+    <p>Over the 30-day window, Educators / Teachers produced $22,476 spend at 0.49 ROAS and 67 purchases (CPA $335). It is the #1 niche audience by ROAS on the account. Yet zero ads are currently active in Educator-tagged adsets. Either the Educators v2 LP relaunch (Akari rules from 2026-04-14) is mid-deploy and this is intentional, or a winning audience has gone dark unintentionally. Educator Ad 4 hit 1.42 ROAS on $6,774 with Above Average engagement -- this is a creative we should be running, not pausing. <strong>Recommendation:</strong> confirm with Akari whether the gap is intentional; if not, relaunch the top Educator creative this week.</p>
+  </div>
+</section>
+
+<!-- ========== 02 TOTALS ========== -->
+<section class="section" id="totals">
+  <div class="section-header">
+    <div class="section-number">02</div>
+    <div>
+      <h2>Totals & headline numbers</h2>
+      <p class="section-tagline">30-day window, account-wide. ROAS is Meta-reported (front-end ticket layer only).</p>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="stat">
+      <div class="stat-label">Total spend</div>
+      <div class="stat-value gold" id="kpi-spend">--</div>
+      <div class="stat-sub">$7,440 / day</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Meta-reported revenue</div>
+      <div class="stat-value" id="kpi-rev">--</div>
+      <div class="stat-sub">Front-end ticket layer only</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Blended ROAS</div>
+      <div class="stat-value red" id="kpi-roas">--</div>
+      <div class="stat-sub">CAPI events only; full-funnel multiples higher</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Purchases</div>
+      <div class="stat-value" id="kpi-purch">--</div>
+      <div class="stat-sub">Meta-attributed in window</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Active ads</div>
+      <div class="stat-value" id="kpi-active">--</div>
+      <div class="stat-sub">Out of 1,958 total exposed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Avg CPM</div>
+      <div class="stat-value amber" id="kpi-cpm">--</div>
+      <div class="stat-sub">Account-wide, weighted by impressions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Front-end CPA</div>
+      <div class="stat-value" id="kpi-cpa">--</div>
+      <div class="stat-sub">Spend / Meta-attributed purchases</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Reach</div>
+      <div class="stat-value" id="kpi-reach">--</div>
+      <div class="stat-sub">Unique users in window</div>
+    </div>
+  </div>
+
+  <div class="alert alert-blue" style="margin-top:18px">
+    <h4>Why the 0.34 blended ROAS does not mean the campaigns are losing money</h4>
+    <p>Per the established attribution architecture, only $27 ticket and $54 VIP events flow to Meta CAPI. High-ticket enrollment revenue lives in Hyros (and downstream in GHL and Stripe). The 0.34 blended ROAS reflects only the front-end ticket layer. To see real funnel ROAS, we need a Hyros + BQ join on the same window, which is queued as a follow-up once the Meta token is refreshed. Historically the multiplier from CAPI ROAS to true funnel ROAS has been roughly 8x-15x for working campaigns.</p>
+  </div>
+</section>
+
+<!-- ========== 03 AUDIENCE ========== -->
+<section class="section" id="audience">
+  <div class="section-header">
+    <div class="section-number">03</div>
+    <div>
+      <h2>Audience cluster performance</h2>
+      <p class="section-tagline">Re-tagged from ad set + ad name patterns. ROAS sorted by spend.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chart-wrap"><canvas id="chart-audience"></canvas></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="table-audience">
+        <thead>
+          <tr>
+            <th>Audience</th>
+            <th class="num">Spend</th>
+            <th class="num">ROAS</th>
+            <th class="num">Purchases</th>
+            <th class="num">CPA</th>
+            <th class="num">CPM</th>
+            <th class="num">Active</th>
+            <th class="num">Total ads</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 04 ANGLES ========== -->
+<section class="section" id="angles">
+  <div class="section-header">
+    <div class="section-number">04</div>
+    <div>
+      <h2>Creative angle performance</h2>
+      <p class="section-tagline">Mining ad names: hooks, formats, themes. Text Ad angle is the only one above 1.0 ROAS.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chart-wrap"><canvas id="chart-angle"></canvas></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="table-angle">
+        <thead>
+          <tr>
+            <th>Angle / Hook</th>
+            <th class="num">Spend</th>
+            <th class="num">ROAS</th>
+            <th class="num">Purchases</th>
+            <th class="num">CPA</th>
+            <th class="num">Active</th>
+            <th class="num">Total ads</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:14px">
+    <div class="card">
+      <h3>Top 3 winning angles</h3>
+      <ul>
+        <li><strong>Text Ad -- 1.21 ROAS</strong> on $7,865 spend. The only angle clearing 1.0. "Therapists Text v5 a" hit 9.87. Massively under-invested.</li>
+        <li><strong>Static / Reel Image -- 0.57 ROAS</strong> on $23,124 spend, 42 purchases. Best ROAS at scale. "Ad Static Reel 2 - Copy 2" hit 2.66 ROAS but stopped delivering -- recover it.</li>
+        <li><strong>Meme -- 0.46 ROAS</strong> on $23,397 spend, 62 purchases. "Meme Ad 2 - Copy" alone did 48 purchases at 0.72 ROAS -- the workhorse on Therapists.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Top 3 losing angles still consuming spend</h3>
+      <ul>
+        <li><strong>Authority Reel -- 0 ROAS, 0 purchases on $1,518</strong> across 32 active ads. Cold-audience bucket producing zero attributable conversions. Kill all 32 or move to warm-only.</li>
+        <li><strong>Educational -- 0 ROAS, 0 purchases on $1,746</strong> across 8 active ads. Same pattern. Kill.</li>
+        <li><strong>Retargeting Creative -- 0.01 ROAS</strong> on $3,432, 1 purchase. Structural problem; rebuild from scratch.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 05 MATRIX ========== -->
+<section class="section" id="matrix">
+  <div class="section-header">
+    <div class="section-number">05</div>
+    <div>
+      <h2>Audience x Angle matrix</h2>
+      <p class="section-tagline">Where the money goes vs where the returns are. Top 25 cells by spend.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="table-matrix">
+        <thead>
+          <tr>
+            <th>Audience</th>
+            <th>Angle</th>
+            <th class="num">Spend</th>
+            <th class="num">ROAS</th>
+            <th class="num">Purchases</th>
+            <th class="num">CPA</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 06 KILL ========== -->
+<section class="section" id="kill">
+  <div class="section-header">
+    <div class="section-number">06</div>
+    <div>
+      <h2>Kill list -- 20 active ads burning spend with zero purchases</h2>
+      <p class="section-tagline">Active, $100+ spend, zero Meta-attributed purchases over 30d. Total bleed: ~$3,850.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-red">
+    <h4>Pattern: cold Authority Reels and Educational Ads dominate the kill list</h4>
+    <p>10 of 20 ads are "Authority Reel" or "Educational" creatives running on cold LLA / Interest stacks. They have produced zero Meta-attributed purchases despite ~$1.7K of combined spend. The format may have a place in retargeting or brand-reach, but on cold acquisition it is a clear loser.</p>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="table-kill">
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th class="dim">Ad set</th>
+            <th class="num">Spend</th>
+            <th class="num">Impressions</th>
+            <th class="num">Freq</th>
+            <th>Quality</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 07 SCALE ========== -->
+<section class="section" id="scale">
+  <div class="section-header">
+    <div class="section-number">07</div>
+    <div>
+      <h2>Scale list -- proven winners under-funded or recently paused</h2>
+      <p class="section-tagline">Top 12 ROAS performers. Mix of currently active and recently-stopped that should be revived.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="table-winners">
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th class="dim">Ad set</th>
+            <th class="num">Spend</th>
+            <th class="num">ROAS</th>
+            <th class="num">Purchases</th>
+            <th class="num">Freq</th>
+            <th>Quality</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 08 QUALITY ========== -->
+<section class="section" id="quality">
+  <div class="section-header">
+    <div class="section-number">08</div>
+    <div>
+      <h2>Quality & ranking diagnostics</h2>
+      <p class="section-tagline">Active spending ads only. Below-average quality is correlated with the kill list.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Quality Ranking <span class="card-tag">Active spending ads</span></h3>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-quality"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Engagement Ranking</h3>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-engagement"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Conversion Ranking</h3>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-conversion"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Spend by ranking bucket</h3>
+      <p>$<strong id="qual-bottom">--</strong> spent on Below Average quality ads in window. That is the directly visible spend bleed; killing this cluster frees roughly that much per 30 days.</p>
+      <p><strong>Note:</strong> 39 active spending ads have "-" rankings. These are early-cycle tests that have not accumulated enough impressions for Meta to score. Most will resolve to a ranking within 7 days; revisit then.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 09 FREQUENCY ========== -->
+<section class="section" id="frequency">
+  <div class="section-header">
+    <div class="section-number">09</div>
+    <div>
+      <h2>Frequency & saturation</h2>
+      <p class="section-tagline">The account is not saturated. Creative effectiveness is the bottleneck, not audience exhaustion.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Active spending ads -- frequency distribution</h3>
+      <div class="chart-wrap" style="height:240px"><canvas id="chart-frequency"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Saturation read</h3>
+      <p><strong>60 of 67 active ads are below 1.5 frequency.</strong> Only 3 ads sit in the 1.5 to 2.5 band. Zero ads are above 2.5 currently. This is the inverse of a saturation problem.</p>
+      <p>The single fatigue case worth flagging is now off: "Retargeting - Ad 17 - Build Once Sell Daily" hit 2.96 frequency at 0.01 ROAS before stopping, but had already burned $3,282 en route. Pattern suggests retargeting creatives ride frequency hard and break.</p>
+      <p><strong>Conclusion:</strong> the problem on Account #5 is creative effectiveness and audience selection, not fatigue. Throwing more rotations at the same audiences will not solve a 0.34 blended ROAS.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 10 ATTRIBUTION ========== -->
+<section class="section" id="attribution">
+  <div class="section-header">
+    <div class="section-number">10</div>
+    <div>
+      <h2>Attribution sanity (CSV-only)</h2>
+      <p class="section-tagline">Full Meta vs Hyros vs BQ triangulation requires API access. CSV alone surfaces these signals.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="stat">
+      <div class="stat-label">Spending ads with non-null ROAS</div>
+      <div class="stat-value">123 / 632</div>
+      <div class="stat-sub">19% -- the rest spent without recorded conversions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Avg revenue per Meta-purchase</div>
+      <div class="stat-value">$137</div>
+      <div class="stat-sub">$27 ticket + VIP $54 + occasional high-ticket fire</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Implied $27-only revenue</div>
+      <div class="stat-value">$14,931</div>
+      <div class="stat-sub">553 purchases x $27 -- Meta sees more than this</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Unexplained Meta revenue</div>
+      <div class="stat-value">~$60,904</div>
+      <div class="stat-sub">Likely VIP $54 + some high-ticket CAPI fires; needs Hyros confirm</div>
+    </div>
+  </div>
+
+  <div class="alert alert-amber" style="margin-top:14px">
+    <h4>Three signals that need a Hyros + BQ pass to resolve</h4>
+    <p><strong>1. CAPI dropout suspicion:</strong> 81% of ads with material spend show zero ROAS. Some of that is real (the ad genuinely did not convert), but a chunk is likely CAPI dedup failure or event_id mismatch. Brickell and Lucah cases are already on file as instances of this pattern.</p>
+    <p><strong>2. Attribution-window reconciliation:</strong> Meta default is 7-day click + 1-day view. Hyros uses a 90-day click model. Conversions in the 7-90 day window land in Hyros but not Meta; this alone explains a meaningful portion of the gap.</p>
+    <p><strong>3. CAC reported at $6,426 vs front-end CAC of $404:</strong> The Apr 20 call number ($6,426) is high-ticket CAC across enrollments. With 553 ticket purchases at $223K spend, front-end CAC is $404. The gap implies ~6% of ticket buyers enroll in high-ticket; at avg PIF ~$8.5K and split-pay LTV ~$2.8K this should produce roughly $300K-$1M in true LTV revenue against the $223K spend depending on PIF/split mix. Confirm via GHL pipeline + Stripe charges.</p>
+  </div>
+</section>
+
+<!-- ========== 11 URLS ========== -->
+<section class="section" id="urls">
+  <div class="section-header">
+    <div class="section-number">11</div>
+    <div>
+      <h2>URL traffic & A/B integrity audit</h2>
+      <p class="section-tagline">Cannot complete this run -- Meta token expired 2026-04-09. Plan documented for next pass.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-red">
+    <h4>Meta API token expired -- URL audit blocked</h4>
+    <p>The CSV does not include destination URLs (`creative.link_url`). Pulling them requires the Meta Marketing API. Token in `KasOS/.env` returned `OAuthException 190/463 -- Session has expired on Thursday, 09-Apr-26 23:00:00 PDT`. To unblock: regenerate long-lived token from the "Claude Sync COD" Meta app, write to `.env` as `META_ADS_ACCESS_TOKEN`, re-run `02-fetch-urls-from-meta.cjs`.</p>
+  </div>
+
+  <div class="card">
+    <h3>What the audit will check once unblocked</h3>
+    <ul>
+      <li><strong>Master URL integrity:</strong> Are any active ads bypassing the master canonical (clientsondemand.live/registration2 per current B-test) and pointing directly at variant URLs? That defeats the A/B test.</li>
+      <li><strong>Niche LP routing:</strong> Are niche LP variants (therapist LP first, others coming) only receiving traffic from their intended audience? An attorney ad pointing at a therapist LP is a routing bug.</li>
+      <li><strong>A/B split balance:</strong> Is the master variant traffic split being honored, or is one variant starved due to ad-level routing imbalance?</li>
+      <li><strong>Orphan URLs:</strong> Are any active ads pointing at retired pages? With 67 active ads across 1,958 total exposed, the chance of a stale URL is non-trivial.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== 12 TESTS ========== -->
+<section class="section" id="tests">
+  <div class="section-header">
+    <div class="section-number">12</div>
+    <div>
+      <h2>Test recommendations</h2>
+      <p class="section-tagline">P0 = run this week. P1 = next sprint. Each has hypothesis, design, success metric, kill criteria.</p>
+    </div>
+  </div>
+
+  <div class="test-card p0">
+    <div class="test-head">
+      <h4>Test 1 -- Therapists x Text Ad scale-up</h4>
+      <span class="badge badge-red">P0</span>
+    </div>
+    <p><strong>Hypothesis:</strong> Therapists x Text Ad is the only 2x+ ROAS combo on the account. Current spend ($4K, 1.8% of total) under-funds the proven winner.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>"Therapists Text v5 a/b/c" + 2 fresh text variants. CBO $200/day.</div>
+      <div class="meta-item"><strong>Control</strong>Current Therapists Text spend baseline.</div>
+      <div class="meta-item"><strong>Success</strong>ROAS >= 1.5 at $200/day for 7 days.</div>
+      <div class="meta-item"><strong>Kill</strong>ROAS < 0.5 after 5 days OR freq > 3.0 with below-avg quality.</div>
+    </div>
+  </div>
+
+  <div class="test-card p0">
+    <div class="test-head">
+      <h4>Test 2 -- Kill MA / 500K NW audience entirely</h4>
+      <span class="badge badge-red">P0</span>
+    </div>
+    <p><strong>Hypothesis:</strong> $13K spent at 0.02 ROAS over 30 days is a structural mismatch, not a creative problem. The MA audience is fundamentally not a Meta cold-acquisition fit; better channel is organic + Russ podcast referrals.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>Pause all 4 MA-themed adsets immediately. Redeploy budget to Educators reactivation + Therapists Text scale.</div>
+      <div class="meta-item"><strong>Control</strong>30-day MA baseline (0.02 ROAS, $440/day).</div>
+      <div class="meta-item"><strong>Success</strong>>=3x revenue lift on the same $440/day in 7 days.</div>
+      <div class="meta-item"><strong>Kill</strong>Revive only on direct Russ creative direction.</div>
+    </div>
+  </div>
+
+  <div class="test-card p0">
+    <div class="test-head">
+      <h4>Test 3 -- Educator audience reactivation</h4>
+      <span class="badge badge-red">P0</span>
+    </div>
+    <p><strong>Hypothesis:</strong> Educators is the highest-ROAS niche audience (0.49) over the window but has zero active ads now. If the relaunch is intentional, fine; if not, we are leaving the best niche performer on the table.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>Confirm with Akari first. If green-light, relaunch Educator Ad 4 (1.42 ROAS) at $150/day, master URL pinned.</div>
+      <div class="meta-item"><strong>Control</strong>Educator 30-day baseline (0.49 ROAS at $750/day spend).</div>
+      <div class="meta-item"><strong>Success</strong>ROAS >= 0.6 at $150/day for 7 days.</div>
+      <div class="meta-item"><strong>Kill</strong>ROAS < 0.3 after 5 days.</div>
+    </div>
+  </div>
+
+  <div class="test-card p0">
+    <div class="test-head">
+      <h4>Test 4 -- Retargeting / Warm rebuild from scratch</h4>
+      <span class="badge badge-red">P0</span>
+    </div>
+    <p><strong>Hypothesis:</strong> 0.02 ROAS on $9K with 179 ads is not a creative problem, it is a structural one. Likely audience definition or pixel/CAPI misfire on the warm pool. The booking-crash issue from the Apr 20 call may be related.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>Pause all 12 active warm-pool ads. Rebuild ONE warm pool from clean Hyros 7-day workshop attendees. 3 fresh creatives addressing post-workshop objections. $100/day.</div>
+      <div class="meta-item"><strong>Control</strong>Current warm-pool baseline (0.02 ROAS).</div>
+      <div class="meta-item"><strong>Success</strong>ROAS >= 1.0 at $100/day in 7 days. Warm pools should clear 1.0 trivially.</div>
+      <div class="meta-item"><strong>Kill</strong>ROAS < 0.3 after 5 days = pixel/CAPI plumbing is broken; escalate to tracking specialist.</div>
+    </div>
+  </div>
+
+  <div class="test-card p1">
+    <div class="test-head">
+      <h4>Test 5 -- Static Image angle expansion</h4>
+      <span class="badge badge-amber">P1</span>
+    </div>
+    <p><strong>Hypothesis:</strong> Static / Reel Image angle has 0.57 ROAS at $23K spend (second-best at scale) with a 2.66-ROAS top performer ("Ad Static Reel 2 - Copy 2") not currently delivering. Production cost is low, ROI is high.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>Produce 5 new static image variants per top-3 audiences (therapists, attorneys, educators), $50/day each.</div>
+      <div class="meta-item"><strong>Control</strong>Static angle 30-day baseline.</div>
+      <div class="meta-item"><strong>Success</strong>>=2 of 15 new statics clear 1.0 ROAS in 7 days.</div>
+      <div class="meta-item"><strong>Kill</strong>Zero new statics clear 0.5 ROAS = format exhausted on these audiences.</div>
+    </div>
+  </div>
+
+  <div class="test-card p1">
+    <div class="test-head">
+      <h4>Test 6 -- Authority Reel kill OR re-purpose to warm</h4>
+      <span class="badge badge-amber">P1</span>
+    </div>
+    <p><strong>Hypothesis:</strong> 32 active Authority Reel ads have produced zero Meta-attributed purchases on $1.5K spend. Format may have a place on warm pools as nurture content; on cold acquisition it is a clear loser.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Design</strong>Pause all 32 on cold. Relaunch 3 best-engaging on a clean 14-day warm pool only.</div>
+      <div class="meta-item"><strong>Control</strong>Cold Authority Reel baseline (0 ROAS).</div>
+      <div class="meta-item"><strong>Success</strong>ROAS >= 0.5 on warm in 7 days.</div>
+      <div class="meta-item"><strong>Kill</strong>ROAS < 0.2 = format does not drive revenue at all.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 13 FOLLOWUPS ========== -->
+<section class="section" id="followups">
+  <div class="section-header">
+    <div class="section-number">13</div>
+    <div>
+      <h2>Follow-ups requiring API access</h2>
+      <p class="section-tagline">P0 unblock: refresh Meta token. Then run the queued passes below.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Step 1 -- Token refresh</h3>
+    <p>Regenerate long-lived Meta Marketing API token from the "Claude Sync COD" app (permissions: ads_read, ads_management, read_insights, attribution_read, business_management). Write to `C:\Users\Kas Andz\Documents\KasOS\.env` as `META_ADS_ACCESS_TOKEN=...` -- per the save-tokens-immediately rule, never store in-session only.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 2 -- Re-run URL fetch</h3>
+    <p>Execute `02-fetch-urls-from-meta.cjs` from the run folder. This pulls `creative.link_url`, `object_story_spec`, and `asset_feed_spec` for every ad on Account #5. Output: `ads-with-urls.json` and `url-groups.json`.</p>
+  </div>
+
+  <div class="card">
+    <h3>Step 3 -- URL audit cross-checks</h3>
+    <ul>
+      <li>Group active ads by destination URL; flag any non-master URLs on the cold-acquisition flow</li>
+      <li>Cross-reference niche LP URLs against ad-set audience tags; flag mismatches</li>
+      <li>Identify orphan URLs (ads pointing at retired or test-only pages)</li>
+      <li>Estimate variant traffic split from impressions per URL; flag variants getting under 30% or over 70% of expected share</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Step 4 -- Hyros + BQ triangulation</h3>
+    <ul>
+      <li>BQ query: `meta_ad_performance` JOIN `hyros_attribution` ON `ad_id` for the same window</li>
+      <li>For each ad with $200+ spend, compute Meta-reported revenue vs Hyros-attributed revenue. Flag |delta| / Hyros > 25%.</li>
+      <li>Pull GHL `opportunities` filtered to enrollment stage. Match contacts via Hyros. Cross-check Stripe charges to validate payment.</li>
+      <li>Compute true funnel ROAS per campaign (Meta + Hyros + GHL + Stripe). This is the number Russ actually wants to see.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Step 5 -- Creative body text + FTC compliance</h3>
+    <ul>
+      <li>Pull primary text and headline for every active ad (Meta API `creative` object)</li>
+      <li>Run FTC compliance checker (per ftc-compliance-log.md): no fake scarcity, no income guarantees, accurate workshop framing, no VIP private/1-on-1 framing</li>
+      <li>Check against permanent COD rules: no testimonials inline (where applicable to ad copy patterns), workshop replay framing not "live"</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Generated 2026-04-28 | Source CSV: COD-#5-Ads-29-Mar-2026-27-Apr-2026.csv | 1,958 ad rows | Account act_206306693361622 | Window 2026-03-29 to 2026-04-27<br>
+  Research artifacts: /kamg-ops/output/cod/account-5-intel-2026-04-28/
+</footer>
+
+</div>
+
+<script id="dashboard-data" type="application/json">{"totals":{"ads":1958,"active":67,"inactive":673,"totalSpend":223219.5199999998,"totalImpressions":2926615,"totalReach":2291570,"totalPurchases":553,"adsWithSpend":632,"adsWithRoas":123,"adsWithPurchases":126,"adsZeroSpend":1326,"avgCpm":76.27225309786213,"weightedRoas":0.4780573658733821,"totalRevenue":75835.00484028002},"qualityDist":{"-":{"count":38,"spend":3735.9300000000003,"impressions":26336},"Average":{"count":7,"spend":3974.6600000000003,"impressions":80333},"Below average – bottom 35% of ads":{"count":18,"spend":6465.33,"impressions":278832}},"engagementDist":{"-":{"count":39,"spend":7602.350000000002,"impressions":41465},"Below average – bottom 35% of ads":{"count":3,"spend":1894.98,"impressions":29077},"Average":{"count":17,"spend":4330.61,"impressions":261613},"Above average":{"count":4,"spend":347.98,"impressions":53346}},"conversionDist":{"-":{"count":39,"spend":7602.350000000002,"impressions":41465},"Average":{"count":12,"spend":3963.2099999999996,"impressions":158223},"Below average – bottom 20% of ads":{"count":1,"spend":1278.49,"impressions":8471},"Above average":{"count":11,"spend":1331.87,"impressions":177342}},"freqBuckets":{"<1.5":60,"1.5-2.5":3,"2.5-3.0":0,"3.0-5.0":0,"5.0+":0},"freqBucketSpend":{"<1.5":11232.52,"1.5-2.5":2943.4,"2.5-3.0":0,"3.0-5.0":0,"5.0+":0},"fatiguedAds":[],"winners":[{"adName":"attorney-financial-advisor-other-licensed-professional Ad 3","adSet":"Broad + - Attorney / Financial Advisor / Other Licensed Professional 1 Facebook","spend":1.96,"roas":41.326531,"purchases":3,"cpm":98,"freq":1,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Therapists Text v5 a","adSet":"FB. Broad - Therapists 3564 - New Vids","spend":914.91,"roas":9.866544,"purchases":2,"cpm":78.378309,"freq":1.26908,"qual":"Average","engRank":"Above average","cvrRank":"Average"},{"adName":"attorney-financial-advisor-other-licensed-professional Ad 6","adSet":"Fb. Broad - Attorney Only - 1","spend":1051.36,"roas":8.637384,"purchases":3,"cpm":30.08011,"freq":1.174107,"qual":"Average","engRank":"Above average","cvrRank":"Average"},{"adName":"Russ Castle MA Ad 4","adSet":"Warm IG - MA - Videos - 500K Net Worth 700+ FICO Audience - Copy","spend":9.87,"roas":5.471125,"purchases":2,"cpm":145.147059,"freq":1.192982,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Coaches Consultants and Experts WITH CASH MONEY AND 700+ CREDIT GROW YOUR BUSINESS NOW - Copy","adSet":"LLA Stack - FB - Coaches Consultants Experts - 3064 - 2","spend":7.51,"roas":3.595206,"purchases":1,"cpm":55.62963,"freq":1.451613,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"W Ad - Ad 6 - Today you don't have 6 months W","adSet":"Interest Stack Main - CBO Coaches Consultants Experts","spend":724.39,"roas":2.910035,"purchases":4,"cpm":263.894353,"freq":1.269071,"qual":"Average","engRank":"Average","cvrRank":"Below average – bottom 20% of ads"},{"adName":"Ad Static Reel 2 - Copy 2","adSet":"Main Interest Stack - FB - Coaches Consultants Experts - 3064 - Copy","spend":3435.93,"roas":2.658669,"purchases":8,"cpm":147.086045,"freq":1.497628,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"attorney-financial-advisor-other-licensed-professional Ad 7 - Copy","adSet":"Fb. Broad - Attorney Only - 1","spend":5690.69,"roas":1.685912,"purchases":21,"cpm":36.079136,"freq":1.547567,"qual":"Average","engRank":"Average","cvrRank":"Below average – bottom 35% of ads"},{"adName":"Educator / Teacher / Academic Professional Ad 4","adSet":"FB. 3064 Broad -  Educator / Teacher / Academic Professional - 1","spend":6773.67,"roas":1.416367,"purchases":21,"cpm":162.484888,"freq":1.439851,"qual":"Average","engRank":"Above average","cvrRank":"Below average – bottom 35% of ads"},{"adName":"attorney-financial-advisor-other-licensed-professional Ad 3","adSet":"FB|IG Broad - Attorney Only - 2","spend":84.71,"roas":0.956204,"purchases":2,"cpm":108.741977,"freq":1.067123,"qual":"Average","engRank":"Average","cvrRank":"Below average – bottom 35% of ads"},{"adName":"Educator Text v2","adSet":"FB. 3064 Broad -  Educator / Teacher / Academic Professional TEXT- 2","spend":85.33,"roas":0.949256,"purchases":2,"cpm":87.607803,"freq":1.200986,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Ad 8 - Today Launch model - Copy 2","adSet":"Interest Stack Main v2 - FB Coaches Consultants Experts - 2","spend":87.78,"roas":0.922761,"purchases":2,"cpm":172.455796,"freq":1.096983,"qual":"-","engRank":"-","cvrRank":"-"}],"losers":[{"adName":"Retargeting - Ad 17 - Build Once Sell Daily- 2 Choices","adSet":"Book Call - Workshop Purchases - WARM Only FB","spend":3282.24,"roas":0.008226,"purchases":1,"cpm":230.300309,"freq":2.956233,"qual":"Average","engRank":"-","cvrRank":"-"},{"adName":"Ad Static Reel 1 - Copy 4","adSet":"Main Interest Stack - FB - Coaches Consultants Experts - 3064 - Copy","spend":2821.8,"roas":0.009568,"purchases":1,"cpm":183.364741,"freq":1.50651,"qual":"Average","engRank":"Average","cvrRank":"Below average – bottom 35% of ads"},{"adName":"New Overlay Vid 3 - Copy 3","adSet":"LLA Stack - FB - Coaches Consultants Experts - 3064","spend":1558.52,"roas":0.017324,"purchases":1,"cpm":238.30581,"freq":1.416504,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Attorney Lawyer new image v3 - Copy 2","adSet":"Fb. Broad - Attorney Only - Ad 1 Only Copy v2","spend":991.79,"roas":0.027224,"purchases":1,"cpm":103.722025,"freq":1.450766,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"attorney-financial-advisor-other-licensed-professional Ad 3","adSet":"Fb. Broad - Attorney Only - Copy v2 - 1","spend":790.53,"roas":0.034154,"purchases":1,"cpm":78.5737,"freq":1.213046,"qual":"Average","engRank":"Average","cvrRank":"Average"},{"adName":"Ad 8 - Today Launch model - Copy 2","adSet":"LLA Stack - FB - Coaches Consultants Experts - 3064","spend":788.81,"roas":0.034229,"purchases":1,"cpm":188.440038,"freq":1.22112,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Russ Castle MA Ad 3","adSet":"Interest Stack FB - MA - Videos - 500K Net Worth 700+ FICO Audience - Copy","spend":716.32,"roas":0.037693,"purchases":1,"cpm":265.598814,"freq":1.256757,"qual":"Below average – bottom 35% of ads","engRank":"-","cvrRank":"-"},{"adName":"Attorney Lawyer new image v2","adSet":"FB. LLA Stack + Attorney Only - v2 New URL","spend":2109.61,"roas":0.038396,"purchases":2,"cpm":15.04822,"freq":1.288215,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Attorney Qualified New Image 1","adSet":"Broad + FB - Attorneys","spend":696.75,"roas":0.038751,"purchases":1,"cpm":40.961199,"freq":1.146922,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"New Overlay Vid 5 - Copy 2","adSet":"LLA Stack - FB - Coaches Consultants Experts - 3064","spend":676.86,"roas":0.03989,"purchases":1,"cpm":201.806798,"freq":1.202151,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"New Reel Call Out 2 - Licensed Therapists Counselors (LMFT, LCSW, LPC) Ad 2 - Copy 3","adSet":"FB. Broad - Therapists 3564 - New Vids","spend":675.05,"roas":0.039997,"purchases":1,"cpm":122.247374,"freq":1.125331,"qual":"Average","engRank":"Average","cvrRank":"Below average – bottom 35% of ads"},{"adName":"Russ Castle MA Ad 1","adSet":"Interest Stack FB - MA - Videos - 500K Net Worth 700+ FICO Audience - Copy","spend":3866.42,"roas":0.041899,"purchases":6,"cpm":255.563487,"freq":1.461316,"qual":"Below average – bottom 35% of ads","engRank":"-","cvrRank":"-"}],"killCandidates":[{"adName":"Russ Castle MA Ad 2","adSet":"Interest Stack FB - MA - Videos - 500K Net Worth 700+ FICO Audience - 2","spend":369.13,"impressions":911,"freq":1.154626,"cpm":405.192097,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"WS Paid Today Coaches - Russ Image 1 - Copy","adSet":"LLA Stack - FB - Coaches Consultants Experts - 3064","spend":338.78,"impressions":2742,"freq":2.315878,"cpm":123.552152,"qual":"Average","engRank":"Below average – bottom 35% of ads","cvrRank":"Average"},{"adName":"Educational Ad 2","adSet":"[COLD] LLA Stack - FB - EDU Videos","spend":312.49,"impressions":19138,"freq":1.111124,"cpm":16.328247,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Average"},{"adName":"Educational Ad 1","adSet":"[COLD] Interest Stack - FB - EDU Videos","spend":280.28,"impressions":18400,"freq":1.087149,"cpm":15.232609,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Average"},{"adName":"Educational Ad 2","adSet":"[COLD] Interest Stack - FB - EDU Videos","spend":277.71,"impressions":17864,"freq":1.137038,"cpm":15.54579,"qual":"Below average – bottom 35% of ads","engRank":"Below average – bottom 35% of ads","cvrRank":"Average"},{"adName":"Educational Ad 1","adSet":"[COLD] LLA Stack - FB - EDU Videos","spend":242.78,"impressions":14722,"freq":1.12142,"cpm":16.490966,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Average"},{"adName":"Educational Ad 2","adSet":"[COLD] Interest Stack - IG - EDU Videos","spend":203.08,"impressions":23152,"freq":1.237083,"cpm":8.771596,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Above average"},{"adName":"Authority Reel – David Strategy Mindset Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"[COLD] LLA Stack - FB - Authority Reels","spend":174.02,"impressions":32294,"freq":1.156413,"cpm":5.388617,"qual":"Below average – bottom 35% of ads","engRank":"Above average","cvrRank":"Above average"},{"adName":"Authority Reel – David Strategy Mindset Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"[COLD] LLA Stack - IG - Authority Reels","spend":162.24,"impressions":26440,"freq":1.213234,"cpm":6.136157,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Above average"},{"adName":"Educational Ad 2","adSet":"[COLD] LLA Stack - IG - EDU Videos","spend":159.62,"impressions":15772,"freq":1.294166,"cpm":10.120467,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Above average"},{"adName":"Russ New Ad 1 - Copy 2","adSet":"Interest Stack Main - AU|CA|UK Coaches Consultants Experts - 1","spend":157.12,"impressions":988,"freq":1.102679,"cpm":159.02834,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Educational Ad 1","adSet":"[COLD] LLA Stack - IG - EDU Videos","spend":154.35,"impressions":16252,"freq":1.408075,"cpm":9.497293,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Above average"},{"adName":"Authority Reel – Robyn - Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"030926 Robyn D 7/14 Day Purchasers + Call Bookers – Authority Content","spend":151.31,"impressions":19661,"freq":1.313097,"cpm":7.695946,"qual":"Average","engRank":"Average","cvrRank":"Average"},{"adName":"Authority Reel – Iddo Tal - Premium Pricing Attracting High Ticket Buyers and Committed Clients - Copy","adSet":"031426 Authority Reel – Iddo Tal - Premium Pricing Attracting High Ticket Buyers and Committed Clients","spend":150.23,"impressions":18337,"freq":1.253983,"cpm":8.192725,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Average"},{"adName":"Authority Reel – Karen Real Deal - Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"030926 Karen 7/14 Day Purchasers + Call Bookers – Authority Content","spend":145.68,"impressions":17083,"freq":1.329209,"cpm":8.527776,"qual":"Below average – bottom 35% of ads","engRank":"Above average","cvrRank":"Average"},{"adName":"Authority Reel – Joseph - Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"030926 Joseph C  7/14 Day Purchasers + Call Bookers – Authority Content","spend":143.04,"impressions":18342,"freq":1.397805,"cpm":7.798495,"qual":"Average","engRank":"Average","cvrRank":"Above average"},{"adName":"Authority Reel – Success Montage - Premium Pricing Attracting High Ticket Buyers and Committed Clients","adSet":"030926 Success Montage  7/14 Day Purchasers + Call Bookers – Authority Content","spend":130.19,"impressions":5166,"freq":1.092178,"cpm":25.201316,"qual":"Average","engRank":"Average","cvrRank":"Average"},{"adName":"$27 Workshop - Therapists Ad 5","adSet":"FB. Broad - Therapists 3564 - Russ Therapists Videos","spend":129.12,"impressions":908,"freq":1.044879,"cpm":142.202643,"qual":"-","engRank":"-","cvrRank":"-"},{"adName":"Educational Ad 1","adSet":"[COLD] Interest Stack - IG - EDU Videos","spend":115.28,"impressions":14496,"freq":1.229308,"cpm":7.952539,"qual":"Below average – bottom 35% of ads","engRank":"Average","cvrRank":"Above average"},{"adName":"$27 Workshop - Therapists Ad 6","adSet":"FB. Broad - Therapists 3564 - Russ Therapists Videos","spend":113.18,"impressions":773,"freq":1.075104,"cpm":146.416559,"qual":"-","engRank":"-","cvrRank":"-"}],"audienceClusters":[{"key":"Coaches / Consultants / Experts","ads":902,"activeAds":15,"spend":75369.81000000001,"impressions":440662,"purchases":189,"revenue":20150.998139840005,"roasWeighted":0.26736166828389246,"cpm":171.03768875010783,"cpa":398.78206349206357},{"key":"Therapists","ads":362,"activeAds":7,"spend":58724.590000000004,"impressions":617906,"purchases":172,"revenue":22887.002618509996,"roasWeighted":0.38973456636325593,"cpm":95.0380640421035,"cpa":341.4220348837209},{"key":"Attorneys / Lawyers","ads":318,"activeAds":2,"spend":45106.53999999997,"impressions":1303329,"purchases":114,"revenue":21394.002565580002,"roasWeighted":0.4742993491759735,"cpm":34.60871353280712,"cpa":395.6714035087717},{"key":"Educators / Teachers","ads":56,"activeAds":0,"spend":22476.35,"impressions":157771,"purchases":67,"revenue":11106.00249922,"roasWeighted":0.4941194855579309,"cpm":142.46185927705343,"cpa":335.4679104477612},{"key":"Millionaire Alliance (MA / 500K NW)","ads":76,"activeAds":2,"spend":13198.16,"impressions":52374,"purchases":9,"revenue":242.99938509,"roasWeighted":0.01841161079195888,"cpm":251.99831977698855,"cpa":1466.4622222222222},{"key":"Retargeting / WARM","ads":179,"activeAds":12,"spend":9004.169999999998,"impressions":117777,"purchases":7,"revenue":161.99970197,"roasWeighted":0.017991630763301895,"cpm":76.45100486512646,"cpa":1286.3099999999997},{"key":"Health & Wellness Coaches","ads":76,"activeAds":0,"spend":3976.87,"impressions":24668,"purchases":8,"revenue":270.00001428,"roasWeighted":0.06789259248605059,"cpm":161.21574509485973,"cpa":497.10875},{"key":"Untagged","ads":264,"activeAds":31,"spend":2517.4199999999996,"impressions":257264,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":9.785356676410224,"cpa":null},{"key":"CPAs / Accountants","ads":26,"activeAds":0,"spend":1524.2,"impressions":37249,"purchases":2,"revenue":80.99994602,"roasWeighted":0.05314259678519879,"cpm":40.91921930790088,"cpa":762.1},{"key":"Financial Advisors","ads":82,"activeAds":0,"spend":414.71,"impressions":40017,"purchases":3,"revenue":81.00000076,"roasWeighted":0.19531721144896436,"cpm":10.363345578129294,"cpa":138.23666666666665},{"key":"Doulas / Birth Coaches","ads":1,"activeAds":0,"spend":44.48,"impressions":437,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":101.78489702517162,"cpa":null},{"key":"Physicians / Doctors","ads":21,"activeAds":2,"spend":33.98,"impressions":172,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":197.5581395348837,"cpa":null}],"angleClusters":[{"key":"Copy Variant","ads":645,"activeAds":7,"spend":128321.79000000005,"impressions":1358524,"purchases":368,"revenue":41354.00193252002,"roasWeighted":0.3222679634730781,"cpm":94.45677073058705,"cpa":348.70051630434796},{"key":"Other / Unmatched","ads":969,"activeAds":0,"spend":43793.259999999995,"impressions":639931,"purchases":91,"revenue":20781.0027092,"roasWeighted":0.4745251371832104,"cpm":68.43434682801738,"cpa":481.2446153846153},{"key":"Russ Authority","ads":102,"activeAds":5,"spend":31011.350000000002,"impressions":160164,"purchases":78,"revenue":2845.9978651099987,"roasWeighted":0.09177278206559851,"cpm":193.62247446367476,"cpa":397.58141025641027},{"key":"Meme","ads":67,"activeAds":0,"spend":23396.519999999997,"impressions":286294,"purchases":62,"revenue":10701.002448449999,"roasWeighted":0.4573758169355956,"cpm":81.7220060497251,"cpa":377.36322580645157},{"key":"Static / Reel Image","ads":77,"activeAds":0,"spend":23123.74,"impressions":120994,"purchases":42,"revenue":13107.00054309,"roasWeighted":0.5668200967097018,"cpm":191.11476602145564,"cpa":550.5652380952381},{"key":"Today / Build Once","ads":67,"activeAds":1,"spend":19420.109999999997,"impressions":104054,"purchases":51,"revenue":3954.999265499999,"roasWeighted":0.2036548333402849,"cpm":186.6349203298287,"cpa":380.78647058823526},{"key":"Workshop / $27","ads":61,"activeAds":5,"spend":14953.800000000003,"impressions":85443,"purchases":43,"revenue":1711.99927607,"roasWeighted":0.11448590164841041,"cpm":175.01492222885437,"cpa":347.76279069767446},{"key":"New Image","ads":45,"activeAds":1,"spend":12556.65,"impressions":393946,"purchases":36,"revenue":999.00137024,"roasWeighted":0.07955954575782553,"cpm":31.874038573814683,"cpa":348.79583333333335},{"key":"Overlay Video","ads":68,"activeAds":2,"spend":10974.41,"impressions":55365,"purchases":32,"revenue":918.00039086,"roasWeighted":0.08364917939643225,"cpm":198.21927210331435,"cpa":342.9503125},{"key":"Castle / MA","ads":23,"activeAds":2,"spend":10088,"impressions":40667,"purchases":9,"revenue":242.99938509,"roasWeighted":0.024087964422085648,"cpm":248.0635404627831,"cpa":1120.888888888889},{"key":"Text Ad","ads":69,"activeAds":0,"spend":7865.089999999999,"impressions":92474,"purchases":18,"revenue":9512.999768089998,"roasWeighted":1.209522048455898,"cpm":85.05190648182192,"cpa":436.9494444444444},{"key":"Retargeting Creative","ads":16,"activeAds":2,"spend":3431.91,"impressions":36582,"purchases":1,"revenue":26.999706240000002,"roasWeighted":0.007867253581824699,"cpm":93.81417090372314,"cpa":3431.91},{"key":"Educational","ads":11,"activeAds":8,"spend":1745.59,"impressions":139796,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":12.486694898280351,"cpa":null},{"key":"Authority Reel","ads":88,"activeAds":32,"spend":1517.6699999999998,"impressions":199370,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":7.612328835832873,"cpa":null},{"key":"Expertise Call Out","ads":16,"activeAds":14,"spend":354.27000000000004,"impressions":2350,"purchases":0,"revenue":0,"roasWeighted":0,"cpm":150.75319148936174,"cpa":null}],"matrix":[{"aud":"Coaches / Consultants / Experts","ang":"Copy Variant","ads":149,"spend":56884.74999999996,"purchases":161,"revenue":17313.997494230003,"roas":0.30436975629197655,"cpa":353.3214285714283},{"aud":"Therapists","ang":"Copy Variant","ads":37,"spend":44012.26000000001,"purchases":131,"revenue":12726.00282016,"roas":0.2891467700172633,"cpa":335.97145038167946},{"aud":"Coaches / Consultants / Experts","ang":"Static / Reel Image","ads":35,"spend":22687.31,"purchases":42,"revenue":13107.00054309,"roas":0.5777238704407882,"cpa":540.1740476190477},{"aud":"Therapists","ang":"Meme","ads":14,"spend":20262.3,"purchases":56,"revenue":10566.00286881,"roas":0.5214611800639611,"cpa":361.8267857142857},{"aud":"Attorneys / Lawyers","ang":"Copy Variant","ads":41,"spend":17540.129999999997,"purchases":48,"revenue":10396.00278171,"roas":0.5926981602593596,"cpa":365.41937499999995},{"aud":"Coaches / Consultants / Experts","ang":"Russ Authority","ads":39,"spend":16822.25,"purchases":47,"revenue":1954.9985162700002,"roas":0.11621504354471014,"cpa":357.92021276595744},{"aud":"Coaches / Consultants / Experts","ang":"Today / Build Once","ads":42,"spend":16137.869999999997,"purchases":50,"revenue":3927.9995592599994,"roas":0.24340260265202285,"cpa":322.75739999999996},{"aud":"Attorneys / Lawyers","ang":"Other / Unmatched","ads":75,"spend":14670.589999999998,"purchases":31,"revenue":9998.99936518,"roas":0.6815676373738208,"cpa":473.24483870967737},{"aud":"Coaches / Consultants / Experts","ang":"Workshop / $27","ads":35,"spend":14518.890000000001,"purchases":43,"revenue":1711.99927607,"roas":0.11791530041690514,"cpa":337.6486046511628},{"aud":"Attorneys / Lawyers","ang":"New Image","ads":39,"spend":12556.65,"purchases":36,"revenue":999.00137024,"roas":0.07955954575782553,"cpa":348.79583333333335},{"aud":"Educators / Teachers","ang":"Other / Unmatched","ads":11,"spend":12091.400000000001,"purchases":38,"revenue":10134.003677629998,"roas":0.8381166513083677,"cpa":318.1947368421053},{"aud":"Coaches / Consultants / Experts","ang":"Overlay Video","ads":34,"spend":10974.41,"purchases":32,"revenue":918.00039086,"roas":0.08364917939643225,"cpa":342.9503125},{"aud":"Millionaire Alliance (MA / 500K NW)","ang":"Russ Authority","ads":20,"spend":10088,"purchases":9,"revenue":242.99938509,"roas":0.024087964422085648,"cpa":1120.888888888889},{"aud":"Millionaire Alliance (MA / 500K NW)","ang":"Castle / MA","ads":20,"spend":10088,"purchases":9,"revenue":242.99938509,"roas":0.024087964422085648,"cpa":1120.888888888889},{"aud":"Educators / Teachers","ang":"Copy Variant","ads":9,"spend":8984.95,"purchases":26,"revenue":863.9988272399999,"roas":0.096160671705463,"cpa":345.57500000000005},{"aud":"Coaches / Consultants / Experts","ang":"Other / Unmatched","ads":39,"spend":7786.719999999999,"purchases":13,"revenue":404.9996558700001,"roas":0.0520115858628537,"cpa":598.9784615384615},{"aud":"Therapists","ang":"Other / Unmatched","ads":26,"spend":4994.989999999999,"purchases":10,"revenue":270.0000939,"roas":0.054054181069431585,"cpa":499.4989999999999},{"aud":"Therapists","ang":"Russ Authority","ads":10,"spend":4101.1,"purchases":22,"revenue":647.99996375,"roas":0.15800637969081466,"cpa":186.41363636363639},{"aud":"Therapists","ang":"Text Ad","ads":12,"spend":3993.7700000000004,"purchases":10,"revenue":9297.000095739997,"roas":2.3278756903226765,"cpa":399.37700000000007},{"aud":"Health & Wellness Coaches","ang":"Other / Unmatched","ads":18,"spend":3976.87,"purchases":8,"revenue":270.00001428,"roas":0.06789259248605059,"cpa":497.10875},{"aud":"Retargeting / WARM","ang":"Retargeting Creative","ads":2,"spend":3319.06,"purchases":1,"revenue":26.999706240000002,"roas":0.008134744849445326,"cpa":3319.06},{"aud":"Retargeting / WARM","ang":"Today / Build Once","ads":1,"spend":3282.24,"purchases":1,"revenue":26.999706240000002,"roas":0.008226,"cpa":3282.24},{"aud":"Coaches / Consultants / Experts","ang":"Meme","ads":8,"spend":3134.22,"purchases":6,"revenue":134.99957964,"roas":0.04307278354423111,"cpa":522.37},{"aud":"Millionaire Alliance (MA / 500K NW)","ang":"Other / Unmatched","ads":7,"spend":3110.16,"purchases":0,"revenue":0,"roas":0,"cpa":null},{"aud":"Attorneys / Lawyers","ang":"Text Ad","ads":23,"spend":2471.3199999999997,"purchases":5,"revenue":107.99967800000002,"roas":0.043701211498308606,"cpa":494.26399999999995}],"topAdSets":[{"key":"Broad + CBO Licensed Therapists","ads":36,"spend":37820.670000000006,"impressions":414911,"purchases":119,"revenue":12375.00237957,"roasWeighted":0.32720209291823754,"cpm":91.15369320167459,"cpa":317.82075630252103},{"key":"LLA Stack - FB - Coaches Consultants Experts - 3064","ads":27,"spend":19053.389999999996,"impressions":90898,"purchases":51,"revenue":5101.001606039999,"roasWeighted":0.2677214714043013,"cpm":209.61286276925782,"cpa":373.5958823529411},{"key":"Main Interest Stack - FB - Coaches Consultants Experts - 3064 - Copy","ads":26,"spend":16288.81,"impressions":103177,"purchases":41,"revenue":10187.99800643,"roasWeighted":0.6254599327041079,"cpm":157.872490962133,"cpa":397.28804878048777},{"key":"Fb. Broad - Attorney Only - Copy v2 - 1","ads":26,"spend":12773.59,"impressions":318130,"purchases":47,"revenue":1403.9987742300002,"roasWeighted":0.1099141881201761,"cpm":40.15210762895672,"cpa":271.77851063829786},{"key":"FB. Broad - Therapists 3564 - New Vids","ads":16,"spend":12331.11,"impressions":126792,"purchases":37,"revenue":10025.999860469998,"roasWeighted":0.8130654791393473,"cpm":97.25463751656257,"cpa":333.27324324324326},{"key":"Fb. Broad - Attorney Only - 1","ads":17,"spend":12149.15,"impressions":337120,"purchases":41,"revenue":19261.00282783,"roasWeighted":1.5853786337175853,"cpm":36.038057664926434,"cpa":296.32073170731707},{"key":"Interest Stack Main - CBO Coaches Consultants Experts","ads":41,"spend":9484.54,"impressions":45197,"purchases":19,"revenue":2540.00095953,"roasWeighted":0.26780433837908846,"cpm":209.84888377547185,"cpa":499.1863157894737},{"key":"FB. 3064 Broad -  Educator / Teacher / Academic Professional - 1","ads":12,"spend":8541.82,"impressions":51258,"purchases":25,"revenue":9729.00290349,"roasWeighted":1.1389847718039012,"cpm":166.64364586991297,"cpa":341.6728},{"key":"Interest Stack Main - AU|CA|UK Coaches Consultants Experts - 1","ads":23,"spend":6774.4800000000005,"impressions":43337,"purchases":39,"revenue":1187.99837352,"roasWeighted":0.17536377308959508,"cpm":156.32092669081848,"cpa":173.7046153846154},{"key":"FB. LLA Stack -  Educator / Teacher / Academic Professional - 1","ads":7,"spend":5338.71,"impressions":50789,"purchases":16,"revenue":512.9984042,"roasWeighted":0.09609032972384714,"cpm":105.11547776093248,"cpa":333.669375},{"key":"Interest Stack FB - MA - Videos - 500K Net Worth 700+ FICO Audience - Copy","ads":4,"spend":5077.27,"impressions":19513,"purchases":7,"revenue":188.99938134,"roasWeighted":0.037224607188508785,"cpm":260.1993542766361,"cpa":725.3242857142858},{"key":"FB. LLA Stack + Attorney Only - v2 New URL","ads":14,"spend":4864.939999999999,"impressions":225003,"purchases":6,"revenue":189.00053117000002,"roasWeighted":0.0388495091758583,"cpm":21.621667266658662,"cpa":810.8233333333332}]}</script>
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById('dashboard-data').textContent);
+  const fmt = n => n==null?'--':'$'+Math.round(n).toLocaleString();
+  const fmt2 = n => n==null?'--':n.toFixed(2);
+  const fmtNum = n => n==null?'--':Math.round(n).toLocaleString();
+
+  // KPI tiles
+  const t = D.totals;
+  const blendedRoas = t.totalSpend ? (t.totalRevenue / t.totalSpend) : 0;
+  const cpa = t.totalPurchases ? (t.totalSpend / t.totalPurchases) : 0;
+  document.getElementById('kpi-spend').textContent = fmt(t.totalSpend);
+  document.getElementById('kpi-rev').textContent = fmt(t.totalRevenue);
+  document.getElementById('kpi-roas').textContent = blendedRoas.toFixed(2);
+  document.getElementById('kpi-purch').textContent = fmtNum(t.totalPurchases);
+  document.getElementById('kpi-active').textContent = fmtNum(t.active);
+  document.getElementById('kpi-cpm').textContent = '$'+t.avgCpm.toFixed(2);
+  document.getElementById('kpi-cpa').textContent = fmt(cpa);
+  document.getElementById('kpi-reach').textContent = fmtNum(t.totalReach);
+
+  // Audience table
+  const audTable = document.querySelector('#table-audience tbody');
+  for (const row of D.audienceClusters) {
+    const tr = document.createElement('tr');
+    const roasClass = row.roasWeighted >= 1 ? 'pos' : (row.roasWeighted >= 0.4 ? 'neutral' : 'neg');
+    tr.innerHTML = `
+      <td class="name">${row.key}</td>
+      <td class="num">${fmt(row.spend)}</td>
+      <td class="num ${roasClass}">${row.roasWeighted!=null?row.roasWeighted.toFixed(2):'--'}</td>
+      <td class="num">${row.purchases}</td>
+      <td class="num">${row.cpa?fmt(row.cpa):'--'}</td>
+      <td class="num">${row.cpm?'$'+row.cpm.toFixed(2):'--'}</td>
+      <td class="num">${row.activeAds}</td>
+      <td class="num">${row.ads}</td>
+    `;
+    audTable.appendChild(tr);
+  }
+
+  // Angle table
+  const angTable = document.querySelector('#table-angle tbody');
+  for (const row of D.angleClusters) {
+    const tr = document.createElement('tr');
+    const roasClass = row.roasWeighted >= 1 ? 'pos' : (row.roasWeighted >= 0.4 ? 'neutral' : 'neg');
+    tr.innerHTML = `
+      <td class="name">${row.key}</td>
+      <td class="num">${fmt(row.spend)}</td>
+      <td class="num ${roasClass}">${row.roasWeighted!=null?row.roasWeighted.toFixed(2):'--'}</td>
+      <td class="num">${row.purchases}</td>
+      <td class="num">${row.cpa?fmt(row.cpa):'--'}</td>
+      <td class="num">${row.activeAds}</td>
+      <td class="num">${row.ads}</td>
+    `;
+    angTable.appendChild(tr);
+  }
+
+  // Matrix table
+  const matTable = document.querySelector('#table-matrix tbody');
+  for (const row of D.matrix) {
+    const tr = document.createElement('tr');
+    const roasClass = row.roas >= 1 ? 'pos' : (row.roas >= 0.4 ? 'neutral' : 'neg');
+    tr.innerHTML = `
+      <td class="name">${row.aud}</td>
+      <td class="dim">${row.ang}</td>
+      <td class="num">${fmt(row.spend)}</td>
+      <td class="num ${roasClass}">${row.roas!=null?row.roas.toFixed(2):'--'}</td>
+      <td class="num">${row.purchases}</td>
+      <td class="num">${row.cpa?fmt(row.cpa):'--'}</td>
+    `;
+    matTable.appendChild(tr);
+  }
+
+  // Kill table
+  const killTable = document.querySelector('#table-kill tbody');
+  for (const row of D.killCandidates) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="name" title="${row.adName}">${row.adName}</td>
+      <td class="dim" title="${row.adSet}">${row.adSet}</td>
+      <td class="num">${fmt(row.spend)}</td>
+      <td class="num">${fmtNum(row.impressions)}</td>
+      <td class="num">${row.freq?row.freq.toFixed(2):'--'}</td>
+      <td>${row.qual||'--'}</td>
+    `;
+    killTable.appendChild(tr);
+  }
+
+  // Winners table
+  const winTable = document.querySelector('#table-winners tbody');
+  for (const row of D.winners) {
+    const tr = document.createElement('tr');
+    const roasClass = row.roas >= 2 ? 'pos' : (row.roas >= 1 ? 'neutral' : 'neg');
+    tr.innerHTML = `
+      <td class="name" title="${row.adName}">${row.adName}</td>
+      <td class="dim" title="${row.adSet}">${row.adSet}</td>
+      <td class="num">${fmt(row.spend)}</td>
+      <td class="num ${roasClass}">${row.roas.toFixed(2)}</td>
+      <td class="num">${row.purchases||0}</td>
+      <td class="num">${row.freq?row.freq.toFixed(2):'--'}</td>
+      <td>${row.qual||'--'}</td>
+    `;
+    winTable.appendChild(tr);
+  }
+
+  // Quality bottom amount
+  const bottomQual = D.qualityDist['Below average – bottom 35% of ads'];
+  if (bottomQual) document.getElementById('qual-bottom').textContent = Math.round(bottomQual.spend).toLocaleString();
+
+  // ===== CHARTS =====
+  Chart.defaults.color = '#94a3b8';
+  Chart.defaults.font.family = "'Inter',system-ui,-apple-system,sans-serif";
+  Chart.defaults.font.size = 11;
+  const palette = {
+    gold:'#D4A843',green:'#22c55e',red:'#ef4444',amber:'#f59e0b',blue:'#3b82f6',purple:'#a855f7',teal:'#14b8a6',pink:'#ec4899'
+  };
+
+  // Audience bar (spend) + ROAS line
+  new Chart(document.getElementById('chart-audience'), {
+    type:'bar',
+    data:{
+      labels: D.audienceClusters.map(c=>c.key.length>20?c.key.slice(0,20)+'...':c.key),
+      datasets:[
+        {label:'Spend', data: D.audienceClusters.map(c=>c.spend), backgroundColor:'rgba(212,168,67,0.6)', borderColor:palette.gold, borderWidth:1, yAxisID:'y'},
+        {label:'ROAS', data: D.audienceClusters.map(c=>c.roasWeighted||0), type:'line', borderColor:palette.green, backgroundColor:'rgba(34,197,94,0.15)', borderWidth:2, pointRadius:5, pointBackgroundColor:palette.green, yAxisID:'y1', tension:0.2}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12}}, tooltip:{callbacks:{label:ctx=>{
+        const d = D.audienceClusters[ctx.dataIndex];
+        if (ctx.dataset.label==='Spend') return `Spend $${Math.round(d.spend).toLocaleString()}`;
+        return `ROAS ${(d.roasWeighted||0).toFixed(2)} | ${d.purchases} purch`;
+      }}}},
+      scales:{
+        y:{position:'left',grid:{color:'rgba(148,163,184,0.08)'},ticks:{callback:v=>'$'+(v/1000).toFixed(0)+'K'}},
+        y1:{position:'right',grid:{display:false},ticks:{callback:v=>v.toFixed(1)}},
+        x:{grid:{display:false},ticks:{maxRotation:35,minRotation:35,font:{size:9}}}
+      }
+    }
+  });
+
+  // Angle bar
+  new Chart(document.getElementById('chart-angle'), {
+    type:'bar',
+    data:{
+      labels: D.angleClusters.map(c=>c.key.length>18?c.key.slice(0,18)+'...':c.key),
+      datasets:[
+        {label:'Spend', data: D.angleClusters.map(c=>c.spend), backgroundColor:'rgba(59,130,246,0.55)', borderColor:palette.blue, borderWidth:1, yAxisID:'y'},
+        {label:'ROAS', data: D.angleClusters.map(c=>c.roasWeighted||0), type:'line', borderColor:palette.green, backgroundColor:'rgba(34,197,94,0.15)', borderWidth:2, pointRadius:5, pointBackgroundColor:palette.green, yAxisID:'y1', tension:0.2}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12}}, tooltip:{callbacks:{label:ctx=>{
+        const d = D.angleClusters[ctx.dataIndex];
+        if (ctx.dataset.label==='Spend') return `Spend $${Math.round(d.spend).toLocaleString()}`;
+        return `ROAS ${(d.roasWeighted||0).toFixed(2)} | ${d.purchases} purch`;
+      }}}},
+      scales:{
+        y:{position:'left',grid:{color:'rgba(148,163,184,0.08)'},ticks:{callback:v=>'$'+(v/1000).toFixed(0)+'K'}},
+        y1:{position:'right',grid:{display:false},ticks:{callback:v=>v.toFixed(1)}},
+        x:{grid:{display:false},ticks:{maxRotation:35,minRotation:35,font:{size:9}}}
+      }
+    }
+  });
+
+  // Quality donut
+  function rankingChart(elId, dist) {
+    const order = ['Above average','Average','Below average – bottom 35% of ads','Below average – bottom 20% of ads','-'];
+    const colors = {'Above average':palette.green,'Average':palette.blue,'Below average – bottom 35% of ads':palette.red,'Below average – bottom 20% of ads':'#991b1b','-':'#64748b'};
+    const labels=[], data=[], bg=[];
+    for (const k of order) {
+      if (dist[k]) {
+        labels.push(k);
+        data.push(dist[k].spend);
+        bg.push(colors[k]);
+      }
+    }
+    new Chart(document.getElementById(elId), {
+      type:'doughnut',
+      data:{labels,datasets:[{data,backgroundColor:bg,borderColor:'#0a0e1a',borderWidth:2}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: $${Math.round(ctx.raw).toLocaleString()}`}}},
+        cutout:'62%'
+      }
+    });
+  }
+  rankingChart('chart-quality', D.qualityDist);
+  rankingChart('chart-engagement', D.engagementDist);
+  rankingChart('chart-conversion', D.conversionDist);
+
+  // Frequency bar
+  const freqLabels = ['<1.5','1.5-2.5','2.5-3.0','3.0-5.0','5.0+'];
+  new Chart(document.getElementById('chart-frequency'), {
+    type:'bar',
+    data:{
+      labels: freqLabels,
+      datasets:[
+        {label:'# Ads', data: freqLabels.map(k=>D.freqBuckets[k]||0), backgroundColor:'rgba(168,85,247,0.55)', borderColor:palette.purple, borderWidth:1, yAxisID:'y'},
+        {label:'Spend', data: freqLabels.map(k=>D.freqBucketSpend[k]||0), type:'line', borderColor:palette.gold, backgroundColor:'rgba(212,168,67,0.15)', borderWidth:2, pointRadius:5, pointBackgroundColor:palette.gold, yAxisID:'y1', tension:0.2}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:12}}},
+      scales:{
+        y:{position:'left',grid:{color:'rgba(148,163,184,0.08)'},ticks:{stepSize:10}},
+        y1:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+(v/1000).toFixed(0)+'K'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>

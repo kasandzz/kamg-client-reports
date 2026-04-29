@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-29</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* -- Reset -- */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* -- Header -- */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+
+  /* -- Tabs -- */
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* -- Cards -- */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  /* -- Stat Grid -- */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  /* -- Sparkline -- */
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* -- List Items -- */
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  /* -- Schedule -- */
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:70px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-aoc { background:rgba(236,72,153,.15); color:#ec4899; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+
+  /* -- Overnight -- */
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+
+  /* -- Action Items -- */
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  /* -- Tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  /* -- Funnel -- */
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  /* -- Talking Points -- */
+  .talk-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .talk-trigger { font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px; }
+  .talk-response { font-size:11px; color:#e2e8f0; }
+  .talk-data { font-size:10px; color:#64748b; margin-top:6px; }
+
+  /* -- Russ Intel -- */
+  .russ-decision { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(139,92,246,.08); border-left:3px solid #8b5cf6; }
+  .russ-question { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .russ-date { font-size:10px; color:#64748b; }
+  .russ-source { font-size:9px; color:#64748b; margin-left:8px; }
+
+  /* -- Utility -- */
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Late-start catch-up | 15:35 CDMX | 3 upcoming items today <div style="display:inline-block; padding:4px 10px; background:rgba(16,185,129,.15); color:#10b981; border-radius:4px; font-size:10px; font-weight:600; margin-left:8px;">Skill Health: OK</div></div>
+    <div class="meta">Generated 2026-04-29 15:35 CDMX | Data as of cloud blob 276min old | calendar+email = live MCP</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    
+    
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <div class="section active" id="myday">
+<div class="card" style="background:rgba(245,158,11,.08); border-color:#f59e0b;">
+  <div class="card-title" style="color:#f59e0b;">⚠ Late-Start Catch-Up Mode</div>
+  <div class="card-subtitle">Morning routine started 15:31 CDMX. Stages 1-6 (planning + meeting prep) skipped per skill rules. Sync + dashboard run normally. Schedule below filtered for upcoming items.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Focus Right Now</div>
+  <div class="card-subtitle">Auto-derived from upcoming calendar + overnight signals</div>
+  <ul style="padding-left:20px; line-height:1.9; font-size:12px;">
+    <li><span class="hl-rose">⏰ 16:00 CDMX (~25 min):</span> Alex Lopez GADs Intro w/ Leo. No prep yet -- read briefly into the lead before joining (https://meet.google.com/csr-ikid-qqz).</li>
+    <li><span class="hl-amber">🔥 Russ flagged broken JIT webinar CTA on mobile</span> -- Matt has shipped a fix + Loom; verify on Android+Instagram browser today.</li>
+    <li><span class="hl-amber">💰 COD MTD ROAS = 0.30x</span> on $186K spend. Cash decoupled from spend last 4 days (spend dropped to $0, cash trickle continues). Investigate ad pause cause.</li>
+    <li><span class="hl">🧾 Zoom invoice 7d past due</span> -- pay or escalate.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Schedule</div>
+  <div class="card-subtitle">All times CDMX. Past items dimmed.</div>
+  
+    <div class="schedule-item" style="opacity:.45;">
+      <div class="schedule-time">06:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-cod">COD</span>
+          COD Daily Check-In <span style="color:#64748b; font-weight:400; margin-left:8px;">[past]</span>
+        </div>
+        <div class="schedule-prep">Akari, Russ, Matt, Pedro, Dorian -- recurring</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:.45;">
+      <div class="schedule-time">06:45</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          Exercise <span style="color:#64748b; font-weight:400; margin-left:8px;">[past]</span>
+        </div>
+        <div class="schedule-prep">Personal block</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:.45;">
+      <div class="schedule-time">07:15</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          Shower / Morning Focus <span style="color:#64748b; font-weight:400; margin-left:8px;">[past]</span>
+        </div>
+        <div class="schedule-prep">Personal block</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:.45;">
+      <div class="schedule-time">08:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-cod">COD</span>
+          Russ Call Block <span style="color:#64748b; font-weight:400; margin-left:8px;">[past]</span>
+        </div>
+        <div class="schedule-prep">Personal block</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:.45;">
+      <div class="schedule-time">11:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          LTHS Strategy Session <span style="color:#64748b; font-weight:400; margin-left:8px;">[past]</span>
+        </div>
+        <div class="schedule-prep">Boris, Vlad, Vovik -- meet.google.com/hvi-nsxh-fqc</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="border-color:#f59e0b; background:rgba(245,158,11,.06);">
+      <div class="schedule-time">16:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          Alex Lopez -- GADs Intro <span style="color:#f59e0b; font-weight:700; margin-left:8px;">[UPCOMING]</span>
+        </div>
+        <div class="schedule-prep">Leo + Alex Lopez (alexlopez@thealexlopezteam.com) -- meet.google.com/csr-ikid-qqz</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">20:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          Relax
+        </div>
+        <div class="schedule-prep">Personal block</div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">22:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title">
+          <span class="schedule-tag tag-internal">INTERNAL</span>
+          Go To Bed
+        </div>
+        <div class="schedule-prep">Personal block</div>
+      </div>
+    </div>
+  
+</div>
+
+<div class="card">
+  <div class="card-title">Wins Overnight</div>
+  <div class="card-subtitle">Synthesized from #cod-new-sales-eod + #sales-fun + #sales-team-help</div>
+  <div class="win-item">
+    <div class="item-title">💰 Laura Riness enrolled -- $13,500 clarity pay (start immediate, no refund)</div>
+    <div class="item-detail">Closed by Matt Dakan. New COD w/ DFY client: Enrollment=Matt Dakan, Business=Jodi, Copy=Karen, FB=Sheena.</div>
+  </div>
+  <div class="win-item">
+    <div class="item-title">👥 Rebecca Pasko onboarded -- COD w/ DFY</div>
+    <div class="item-detail">healingworkministry@gmail.com. Coaches: Jodi (business), Karen (copy), Sheena (FB).</div>
+  </div>
+  <div class="win-item">
+    <div class="item-title">📅 New set -- Joseph Seagle (Dorian Matney)</div>
+    <div class="item-detail">Thursday Apr 30 3:00 PM EDT.</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Yesterday's Carry-Forward</div>
+  <div class="card-subtitle">From last commit: cpg attio pipeline cleanup pass, attio late-night sheet ingest, attio pipelines rebuild PRD, knowledge compilation +3 insights</div>
+  <ul style="padding-left:20px; line-height:1.9; font-size:12px; color:#94a3b8;">
+    <li>CPG Attio migration (23-task plan handed to Leo Apr 23) -- pipeline cleanup ongoing</li>
+    <li>COD Meta foul-play audit BLOCKED on re-export with Website URL col</li>
+    <li>Redstone call prep for Apr 28 meeting drafted (call-prep-2026-04-28*.html in 07-Meetings/redstone/)</li>
+  </ul>
+</div>
+</div>
+  <div class="section" id="cod">
+
+<div class="stat-grid">
+  <div class="stat-card red">
+    <div class="stat-value">0.30x</div>
+    <div class="stat-label">ROAS (MTD)</div>
+    <div class="stat-delta down">break-even = 1.00x</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">$55,422</div>
+    <div class="stat-label">Gross Revenue</div>
+    <div class="stat-delta">2026-04-01 to 2026-04-29</div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-value">$186,475</div>
+    <div class="stat-label">Total Ad Spend</div>
+    <div class="stat-delta down">net -$131,053</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">10</div>
+    <div class="stat-label">Enrollments</div>
+    <div class="stat-delta">avg $3,900</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">6.4%</div>
+    <div class="stat-label">VIP Take Rate (proxy)</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">466</div>
+    <div class="stat-label">Leads</div>
+    <div class="stat-delta">→ 145 applied (31.1%)</div>
+  </div>
+</div>
+
+
+<div class="card" style="background:rgba(239,68,68,.06); border-color:#ef4444;">
+  <div class="card-title" style="color:#ef4444;">🚨 ROAS Alert</div>
+  <div class="card-subtitle">MTD ROAS is 0.30x -- $1 in for every $3.36 spent. Cash collected lags spend dramatically.</div>
+  <ul style="padding-left:20px; line-height:1.8; font-size:12px;">
+    <li>Last 4 days spend = $0/day (Apr 26-28 + today). Either ads paused, attribution broke, or BQ didn't pick up the spend yet.</li>
+    <li>Top campaign "Industry Adsets - Winning" burned $120,679 (65% of MTD spend) at $73.89 CPM, 7.2% CTR -- click-through is fine, conversion isn't there.</li>
+    <li>0 booked calls in funnel (BQ pipeline issue, since 10 enrollments + show data exists for closer attribution -- worth verifying).</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-title">7-Day Trend <svg class="sparkline" width="60" height="20" viewBox="0 0 60 20"><polyline points="0,2 10,18.778477346649897 20,14.832177730860584 30,18.823718926403604 40,19.555809944236326 50,17.589857660393395 60,19.000572374531732" stroke="#10b981"/></svg></div>
+  <table class="data-table">
+    <thead><tr><th>Date</th><th>Cash</th><th>Spend</th><th>ROAS</th><th>Enroll</th></tr></thead>
+    <tbody>
+  <tr>
+    <td>2026-04-22</td>
+    <td>$8,753</td>
+    <td>$9,728</td>
+    <td>0.90x</td>
+    <td>1</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-23</td>
+    <td>$594</td>
+    <td>$7,359</td>
+    <td>0.08x</td>
+    <td>0</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-24</td>
+    <td>$2,513</td>
+    <td>$6,335</td>
+    <td>0.40x</td>
+    <td>1</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-25</td>
+    <td>$572</td>
+    <td>$4,940</td>
+    <td>0.12x</td>
+    <td>0</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-26</td>
+    <td>$216</td>
+    <td>$0</td>
+    <td>--</td>
+    <td>0</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-27</td>
+    <td>$1,172</td>
+    <td>$0</td>
+    <td>--</td>
+    <td>0</td>
+  </tr>
+
+  <tr>
+    <td>2026-04-28</td>
+    <td>$486</td>
+    <td>$0</td>
+    <td>--</td>
+    <td>0</td>
+  </tr>
+</tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">Funnel (MTD)</div>
+  <div class="funnel-row"><div class="funnel-label">Leads</div><div class="funnel-bar" style="width:600px; background:#3b82f6;">466</div><div class="funnel-pct">100%</div></div>
+  <div class="funnel-row"><div class="funnel-label">Applied</div><div class="funnel-bar" style="width:186.6952789699571px; background:#8b5cf6;">145</div><div class="funnel-pct">31.1% of leads</div></div>
+  <div class="funnel-row"><div class="funnel-label">Booked</div><div class="funnel-bar" style="width:40px; background:#64748b;">0</div><div class="funnel-pct">BQ shows 0 -- pipeline gap</div></div>
+  <div class="funnel-row"><div class="funnel-label">Enrolled</div><div class="funnel-bar" style="width:40px; background:#10b981;">10</div><div class="funnel-pct">2.1% of leads</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Ad Spend Breakdown -- Top 10 Campaigns</div>
+  <table class="data-table">
+    <thead><tr><th>Campaign</th><th>Spend</th><th>Impr</th><th>Clicks</th><th>CPM</th><th>CTR</th></tr></thead>
+    <tbody>
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Paid Workshop - ABO (Cold) - Industry Adsets - Winning</td>
+    <td>$120,679</td>
+    <td>1633K</td>
+    <td>118.0K</td>
+    <td>$73.89</td>
+    <td>7.22%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Paid Workshop - CBO | Licensed Therapists Counselors (LMFT, LCSW, LPC) Winning Ads+Aud</td>
+    <td>$33,413</td>
+    <td>374K</td>
+    <td>23.1K</td>
+    <td>$89.27</td>
+    <td>6.18%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">MA Funnel Application | ABO - Millionaire Alliance Mastermind - Application</td>
+    <td>$10,570</td>
+    <td>43K</td>
+    <td>2.1K</td>
+    <td>$248.58</td>
+    <td>4.88%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Paid Workshop - CBO - FB | Coaches Consultants and Experts - Winning Ads - 2</td>
+    <td>$7,485</td>
+    <td>36K</td>
+    <td>1.0K</td>
+    <td>$207.36</td>
+    <td>2.70%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Retargeting - VSL Book Call (COD#5) - 3</td>
+    <td>$4,963</td>
+    <td>22K</td>
+    <td>0.6K</td>
+    <td>$230.08</td>
+    <td>2.60%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Paid Workshop - CBO | Attorneys Lawyers - Winning Ads+Aud</td>
+    <td>$3,123</td>
+    <td>158K</td>
+    <td>14.5K</td>
+    <td>$19.77</td>
+    <td>9.17%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">[TOF - COLD] Authority Reels – All Exclusions</td>
+    <td>$2,142</td>
+    <td>213K</td>
+    <td>1.0K</td>
+    <td>$10.05</td>
+    <td>0.48%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">Paid Workshop - CBO | Coaches Consultants and Experts - Old Winning Ads - 3</td>
+    <td>$2,000</td>
+    <td>9K</td>
+    <td>0.3K</td>
+    <td>$219.71</td>
+    <td>3.00%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">2026 Masterclass | Booked Calls | April 2026</td>
+    <td>$1,358</td>
+    <td>10K</td>
+    <td>0.3K</td>
+    <td>$141.83</td>
+    <td>3.07%</td>
+  </tr>
+
+  <tr>
+    <td style="max-width:340px; white-space:normal; font-size:10px;">[RETARGET] Authority Reels – Workshop Buyers + Call Bookers</td>
+    <td>$744</td>
+    <td>83K</td>
+    <td>0.8K</td>
+    <td>$9.00</td>
+    <td>0.99%</td>
+  </tr>
+</tbody>
+  </table>
+</div>
+
+<div class="card" style="background:rgba(100,116,139,.06);">
+  <div class="card-title" style="color:#94a3b8;">Closer Performance</div>
+  <div class="card-subtitle">Cloud collector returned an empty closer_performance array. Either no calls in the BQ window, or closer-attribution view needs a refresh. Skipping table.</div>
+</div>
+</div>
+  
+  
+  <div class="section" id="overnight">
+<div class="card">
+  <div class="card-title">Overnight Slack (COD) -- 14 items</div>
+  <div class="card-subtitle">Last 12h from #marketing-optimization, #tech-titans, #sales-fun, #sales-team-help, #cod-new-sales-eod</div>
+  <div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #marketing-optimization | Matt</div>
+      <div class="overnight-text">For the First Attribute and Last Attribution fields these come directly from UTMs that GHL processes. The data is pushed to that Reporting Workbook at multiple points. (There are multiple sheets inside the workbook.) So some is via Form Submissions, Purchases, Booked Calls etc. I don't think there's many (or many any now) that happen via Zapier.
+
+What are you wanting to change?</div>
+    </div>
+    <span class="priority-badge priority-med">MED</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | Matt</div>
+      <div class="overnight-text">Weird one that as it looks like it's behind a bar that isn't there on many devices. I've stuck the CTA to the bottom using a more robust method now.
+
+All the click actions have worked for me correctly on all tests so not sure what's happening there. Does anyone have an Android mobile device they can test on the Instagram browser?
+
+Loom for reference:
+&lt;https://www.loom.com/share/4f1f15c5756343bb9681a4c62d3fb59f&gt;</div>
+    </div>
+    <span class="priority-badge priority-high">HIGH</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #sales-fun | franzi</div>
+      <div class="overnight-text">&lt;@U8V881XGA&gt;</div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #sales-team-help | unknown</div>
+      <div class="overnight-text">A new *COD w/ DFY* client has been kicked off and is ready to onboard!
+&gt;*Client*: &lt;https://app.ontraport.com/#!/contact/edit&amp;id=495137|Laura Riness&gt; | &lt;mailto:laura.riness@outlook.com|laura.riness@outlook.com&gt; | 495137
+&gt;*Enrollment Coach*: Matt Dakan
+&gt;*Business Coach*: Jodi Cecchini
+&gt;*Copy Coach*: Karen King
+&gt;*Facebook Coach*: Sheena Murphy</div>
+    </div>
+    <span class="priority-badge priority-med">MED</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #sales-fun | Kas</div>
+      <div class="overnight-text">fist bump</div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | russruffino</div>
+      <div class="overnight-text"></div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | russruffino</div>
+      <div class="overnight-text">May need to move it up</div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | russruffino</div>
+      <div class="overnight-text">Also CTA is below the fold on mobile</div>
+    </div>
+    <span class="priority-badge priority-high">HIGH</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | russruffino</div>
+      <div class="overnight-text">Please check out</div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #tech-titans | russruffino</div>
+      <div class="overnight-text">Mike Buontempo messaged me to say that CTA on JIT webinar is broken. Then he clicked again and it worked</div>
+    </div>
+    <span class="priority-badge priority-high">HIGH</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #sales-fun | Matt Dakan</div>
+      <div class="overnight-text">Laura Riness 13500 (clarity pay) start Imm no ref</div>
+    </div>
+    <span class="priority-badge priority-celebrate">$ WIN</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #cod-new-sales-eod | Matt Dakan</div>
+      <div class="overnight-text">4/28
+
+Steve McCabe - MA FUNNEL~ definitely not a fit for what we do. He actually does have a bio mechanical degree or bio engineering that is, and is working on putting a device that would help coagulated blood within five minutes of being drawn but I do feel bad for this guy. He’s pretty out there lost his wife in 2017 to breast cancer. He lives in Queens New York and wants to open a nail salon for women basically think Chippendales but get your hands and toes done. I can’t make this shit up guys super super sweet old man just not right for us.
+&lt;https://fathom.video/share/o18ZX7A6yPh-9q5xx...</div>
+    </div>
+    <span class="priority-badge priority-celebrate">$ WIN</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #sales-team-help | unknown</div>
+      <div class="overnight-text">A new *COD w/ DFY* client has been kicked off and is ready to onboard!
+&gt;*Client*: &lt;https://app.ontraport.com/#!/contact/edit&amp;id=167169|Rebecca Pasko&gt; | &lt;mailto:healingworkministry@gmail.com|healingworkministry@gmail.com&gt; | 167169
+&gt;*Enrollment Coach*: 
+&gt;*Business Coach*: Jodi Cecchini
+&gt;*Copy Coach*: Karen King
+&gt;*Facebook Coach*: Sheena Murphy</div>
+    </div>
+    <span class="priority-badge priority-med">MED</span>
+  </div><div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Slack #cod-new-sales-eod | franzi</div>
+      <div class="overnight-text">4/28
+
+1 set
+
+Joseph Seagle
+*Sales Rep:* Dorian Matney
+*Meeting:* Thursday, April 30, 2026 3:00 PM EDT</div>
+    </div>
+    <span class="priority-badge priority-med">MED</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Overnight Email -- 2 items needing attention</div>
+  <div class="card-subtitle">Filtered: action-required only. Superhuman snooze reminders excluded (own notes resurfacing).</div>
+  
+  <div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Email | billing@zoom.us</div>
+      <div class="overnight-text"><strong>Zoom Invoice 7 Days Past Due</strong> -- Outstanding balance, 7 days past due</div>
+    </div>
+    <span class="priority-badge priority-high">HIGH</span>
+  </div>
+
+  <div class="overnight-item">
+    <div class="overnight-body">
+      <div class="overnight-source">Email | Angele Black (Russ)</div>
+      <div class="overnight-text"><strong>Folder shared: "Lead Magnets"</strong> -- angele.black@russruffino.com -- shared Lead Magnets folder</div>
+    </div>
+    <span class="priority-badge priority-low">LOW</span>
+  </div>
+
+</div>
+</div>
+  <div class="section" id="actions">
+<div class="card">
+  <div class="card-title">Action Items -- Priority Order</div>
+  <div class="card-subtitle">Time-sensitive first. Each item links to the source signal.</div>
+
+  <div class="action-item" style="border-color:#f59e0b;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Join 16:00 Alex Lopez GADs Intro</strong> in ~25 min -- read briefly on lead before joining
+      <div class="action-context">Calendar | meet.google.com/csr-ikid-qqz | w/ Leo + Alex Lopez (alexlopez@thealexlopezteam.com)</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#ef4444;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Verify JIT webinar CTA on mobile (Android + Instagram browser)</strong>
+      <div class="action-context">Slack #tech-titans | Russ + Matt | Matt has fixed + posted Loom -- needs final verification</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#ef4444;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Diagnose COD ROAS collapse -- 0.30x MTD, $0 spend last 3 days</strong>
+      <div class="action-context">BigQuery cod_kpis | Pull why spend dropped (paused?) and why booked-calls funnel = 0</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#f59e0b;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Pay Zoom invoice (7 days past due)</strong>
+      <div class="action-context">Email | billing@zoom.us</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#3b82f6;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Fix morning-intel CF Gmail+Calendar OAuth (invalid_client)</strong>
+      <div class="action-context">Cloud Function errors | Both APIs returning invalid_client; Phase 0a MCP is healthy so dashboard unaffected, but the CF needs fresh OAuth credentials</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#3b82f6;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>CPG Attio migration (Leo) -- check progress</strong>
+      <div class="action-context">kamg-ops commits show fix-person-names + audit-person-names + merge-deals scripts running today</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#3b82f6;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>COD Meta foul-play audit -- still BLOCKED on re-export with Website URL column</strong>
+      <div class="action-context">project_cod_meta_foulplay_audit.md</div>
+    </div>
+  </div>
+
+  <div class="action-item" style="border-color:#64748b;">
+    <div class="action-check"></div>
+    <div class="action-text">
+      <strong>Review Angele Black "Lead Magnets" Drive folder share</strong>
+      <div class="action-context">Email | angele.black@russruffino.com</div>
+    </div>
+  </div>
+</div>
+</div>
+  <div class="section" id="sources">
+<div class="card">
+  <div class="card-title">Data Sources & Freshness</div>
+  <div class="card-subtitle">Cloud-primary (GCS) supplemented by live MCP for fields the CF couldn't fetch.</div>
+  <table class="data-table">
+    <thead><tr><th>Source</th><th>Status</th><th>Age</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>GCS morning-intel cloud blob</td><td><span class="hl-green">cloud</span></td><td>276 min</td><td>generated_at 2026-04-29T11:00:23.521Z</td></tr>
+      <tr><td>COD KPIs (BigQuery)</td><td><span class="hl-green">PASS</span></td><td>via cloud</td><td>2026-04-01 to 2026-04-29, 7d trends + funnel + ad spend present</td></tr>
+      <tr><td>Slack overnight (COD)</td><td><span class="hl-green">PASS</span></td><td>via cloud</td><td>14 items, 7 channels</td></tr>
+      <tr><td>Calendar (k@kasandz.com + kas@russruffino)</td><td><span class="hl-amber">LIVE-MCP fallback</span></td><td>--</td><td>Cloud CF returned invalid_client; pulled live from MCP</td></tr>
+      <tr><td>Gmail overnight</td><td><span class="hl-amber">LIVE-MCP fallback</span></td><td>--</td><td>Cloud CF returned invalid_client; pulled live from MCP</td></tr>
+      <tr><td>Russ Intel</td><td><span class="hl">N/A</span></td><td>--</td><td>fetchDMs removed from CF (per skill v4.1.0); skeleton arrays empty -- tab hidden</td></tr>
+      <tr><td>client_kpis</td><td><span class="hl">empty</span></td><td>--</td><td>No non-COD client KPIs configured in the CF</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">Phase 0 Health Checks</div>
+  <table class="data-table">
+    <thead><tr><th>Check</th><th>Result</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Slack Bot (COD)</td><td><span class="hl-green">PASS</span></td><td>claude_sync @ clientsondemand.slack.com</td></tr>
+      <tr><td>Slack MCP (Personal)</td><td><span class="hl-green">PASS</span></td><td>kasandz.slack.com #general found</td></tr>
+      <tr><td>Gmail MCP</td><td><span class="hl-green">PASS</span></td><td>44 labels listed</td></tr>
+      <tr><td>Google Calendar MCP</td><td><span class="hl-green">PASS</span></td><td>4 calendars listed</td></tr>
+      <tr><td>Google Sheets credentials</td><td><span class="hl-green">PASS</span></td><td>~/.claude/credentials/google-service-account.json</td></tr>
+      <tr><td>Backup</td><td><span class="hl-green">Healthy</span></td><td>2026-04-29 08:41 -- 5,150.2 MB, 0 errors</td></tr>
+      <tr><td>Skills mirror</td><td><span class="hl-green">Synced</span></td><td>0 skills updated (already in sync)</td></tr>
+      <tr><td>Knowledge Compiler</td><td><span class="hl-green">Healthy</span></td><td>Last run 06:00 today, status=success, lifetime: +71 notes / +95 enriched / +204 connections</td></tr>
+      <tr><td>Agency Brain (PC-C)</td><td><span class="hl-amber">Offline</span></td><td>Non-blocking; brain not always running</td></tr>
+      <tr><td>Heartbeat (skill health)</td><td><span class="hl-green">OK</span></td><td>0 critical / 0 warning / 0 healthy logged in 48h window</td></tr>
+      <tr><td>kamg-ops collab pull</td><td><span class="hl-green">PASS</span></td><td>Already up to date; cleaned 1 expired self-lock from yesterday</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="background:rgba(245,158,11,.06); border-color:#f59e0b;">
+  <div class="card-title" style="color:#f59e0b;">Cloud Function Errors (non-blocking)</div>
+  <ul style="padding-left:20px; line-height:1.8; font-size:12px;">
+    <li><strong>Gmail: invalid_client</strong> -- OAuth credentials expired/revoked in morningIntelCollector</li>
+    <li><strong>Calendar: invalid_client</strong> -- same root cause</li>
+  </ul>
+  <div style="font-size:11px; color:#94a3b8; margin-top:8px;">Both supplemented by live MCP in this dashboard, but the CF should be repaired so the 5am scheduled run works without human assistance.</div>
+</div>
+</div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redstone Cold Email Strategy and Plan of Attack — April 29, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #000000; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+.band-dark { background: #000000; color: #FFFFFF; padding: 50px 60px; }
+.band-white { background: #FFFFFF; color: #000000; padding: 50px 60px; border-bottom: 1px solid #E0E0E0; }
+.band-surface { background: #F5F5F5; color: #000000; padding: 50px 60px; border-bottom: 1px solid #E0E0E0; }
+.inner { max-width: 1200px; margin: 0 auto; }
+
+.report-header { background: #000000; color: #FFFFFF; padding: 50px 60px; border-bottom: 4px solid #B21E24; }
+.header-meta { font-size: 0.72em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #999; margin-bottom: 16px; }
+.header-meta span { margin-right: 20px; }
+.report-title { font-size: 2.2em; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 8px; }
+.report-subtitle { font-size: 1em; color: #BBB; max-width: 760px; }
+
+.summary-card { background: #111; border: 1px solid #333; padding: 20px 24px; margin-top: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.summary-card .sc-item { font-size: 0.85em; }
+.summary-card .sc-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 4px; }
+.summary-card .sc-value { color: #FFF; font-weight: 600; font-size: 1.1em; }
+.summary-card .sc-value-red { color: #fb7185; }
+.summary-card .sc-value-amber { color: #fbbf24; }
+.summary-card .sc-value-green { color: #4ade80; }
+
+.section-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #B21E24; margin-bottom: 6px; }
+.section-title { font-size: 1.5em; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+.section-intro { font-size: 0.92em; color: #666; max-width: 900px; margin-bottom: 28px; line-height: 1.6; }
+.band-dark .section-intro { color: #AAA; }
+
+.callout { border-left: 4px solid #B21E24; padding: 16px 20px; margin-bottom: 28px; font-size: 0.9em; line-height: 1.6; }
+.band-dark .callout { background: #111; color: #CCC; }
+.band-white .callout { background: #F5F5F5; color: #333; }
+.band-surface .callout { background: #FFF; color: #333; }
+.callout-amber { border-left-color: #ea580c; }
+.callout-green { border-left-color: #16a34a; }
+.callout-blue { border-left-color: #2563eb; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88em; margin-bottom: 28px; }
+thead th { text-align: left; font-size: 0.72em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 10px 16px; border-bottom: 2px solid #B21E24; white-space: nowrap; }
+.band-dark thead th { color: #999; background: #000; }
+.band-white thead th, .band-surface thead th { color: #666; background: #F5F5F5; }
+tbody tr { border-bottom: 1px solid #E0E0E0; }
+.band-dark tbody tr { border-bottom: 1px solid #1E1E1E; }
+tbody td { padding: 12px 16px; vertical-align: top; line-height: 1.55; }
+.band-dark tbody td { color: #CCC; }
+tbody td.col-track { font-weight: 700; white-space: nowrap; }
+.band-dark tbody td.col-track { color: #FFF; }
+tbody td a { color: #2563eb; text-decoration: none; font-weight: 500; }
+.band-dark tbody td a { color: #60a5fa; }
+tbody td a:hover { text-decoration: underline; }
+
+.badge { display: inline-block; font-size: 0.7em; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border: 1px solid; }
+.badge-green { color: #16a34a; border-color: #16a34a; }
+.badge-blue { color: #2563eb; border-color: #2563eb; }
+.badge-amber { color: #ea580c; border-color: #ea580c; }
+.badge-red { color: #B21E24; border-color: #B21E24; }
+.badge-gray { color: #666; border-color: #666; }
+.badge-core { color: #B21E24; border-color: #B21E24; background: rgba(178,30,36,0.06); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #333; border: 1px solid #333; margin-bottom: 32px; }
+.stat-cell { background: #111; padding: 24px 20px; }
+.stat-label { font-size: 0.7em; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 6px; }
+.stat-value { font-size: 1.8em; font-weight: 800; color: #FFF; letter-spacing: -0.02em; line-height: 1; }
+.stat-value-red { color: #fb7185; }
+.stat-value-green { color: #4ade80; }
+.stat-value-blue { color: #60a5fa; }
+.stat-value-amber { color: #fbbf24; }
+.stat-sub { font-size: 0.75em; color: #888; margin-top: 4px; }
+
+.hl { color: #2563eb; font-weight: 600; }
+.hl-red { color: #B21E24; font-weight: 600; }
+.hl-green { color: #16a34a; font-weight: 600; }
+.hl-amber { color: #ea580c; font-weight: 600; }
+
+.email-card { background: #FFF; border: 1px solid #E0E0E0; border-left: 4px solid #B21E24; padding: 22px 26px; margin-bottom: 18px; font-family: 'Inter', sans-serif; font-size: 0.9em; line-height: 1.65; }
+.email-card .ec-meta { font-size: 0.72em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #B21E24; margin-bottom: 10px; }
+.email-card .ec-subject { font-size: 0.95em; font-weight: 700; color: #000; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #E0E0E0; }
+.email-card .ec-subject .ec-subject-label { font-size: 0.7em; font-weight: 600; color: #999; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 8px; }
+.email-card .ec-body { color: #222; white-space: pre-line; }
+.email-card .ec-var { background: #FFF7E6; padding: 1px 5px; font-weight: 600; color: #92400e; font-size: 0.93em; border-radius: 0; }
+
+.list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+.list-card { background: #FFF; border: 1px solid #E0E0E0; padding: 22px 26px; }
+.list-card.dark { background: #111; border: 1px solid #333; color: #CCC; }
+.list-card .lc-label { font-size: 0.72em; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #B21E24; margin-bottom: 6px; }
+.list-card .lc-title { font-size: 1.1em; font-weight: 700; color: #000; margin-bottom: 12px; }
+.list-card.dark .lc-title { color: #FFF; }
+.list-card ul { list-style: none; padding: 0; }
+.list-card ul li { padding: 6px 0; border-top: 1px solid #EEE; font-size: 0.88em; }
+.list-card.dark ul li { border-top: 1px solid #1E1E1E; }
+.list-card ul li:first-child { border-top: none; }
+
+.timeline-grid { display: grid; grid-template-columns: 140px 1fr 100px; gap: 0; }
+.timeline-row { display: contents; }
+.timeline-date { font-size: 0.82em; font-weight: 700; color: #B21E24; padding: 14px 16px 14px 0; border-top: 1px solid #E0E0E0; font-variant-numeric: tabular-nums; }
+.band-dark .timeline-date { color: #fb7185; border-top: 1px solid #1E1E1E; }
+.timeline-body { padding: 14px 0; border-top: 1px solid #E0E0E0; font-size: 0.9em; color: #333; }
+.band-dark .timeline-body { color: #CCC; border-top: 1px solid #1E1E1E; }
+.timeline-owner { padding: 14px 0; border-top: 1px solid #E0E0E0; font-size: 0.78em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #666; text-align: right; }
+.band-dark .timeline-owner { color: #999; border-top: 1px solid #1E1E1E; }
+.timeline-row:first-of-type .timeline-date,
+.timeline-row:first-of-type .timeline-body,
+.timeline-row:first-of-type .timeline-owner { border-top: none; }
+
+.q-block { background: #F5F5F5; border-left: 4px solid #B21E24; padding: 18px 22px; margin-bottom: 14px; font-size: 0.92em; line-height: 1.6; color: #222; }
+.q-block .q-text { font-style: italic; }
+.q-block .q-attr { font-size: 0.78em; color: #777; margin-top: 8px; font-style: normal; }
+
+.report-footer { background: #F5F5F5; padding: 30px 60px; border-top: 1px solid #E0E0E0; }
+.footer-text { font-size: 0.78em; color: #999; }
+.footer-text a { color: #2563eb; }
+
+@media (max-width: 768px) {
+  .band-dark, .band-white, .band-surface, .report-header, .report-footer { padding: 28px 20px; }
+  .report-title { font-size: 1.6em; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .summary-card { grid-template-columns: 1fr 1fr; }
+  .list-grid { grid-template-columns: 1fr; }
+  .timeline-grid { grid-template-columns: 110px 1fr; }
+  .timeline-owner { display: none; }
+  table { font-size: 0.82em; }
+  thead th, tbody td { padding: 8px 10px; }
+  .email-card { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="report-header">
+  <div class="inner">
+    <div class="header-meta">
+      <span>Cold Email Strategy</span>
+      <span>April 29, 2026</span>
+      <span>For: Eric Millinger and Alec Story</span>
+      <span>From: Kas Andz</span>
+    </div>
+    <h1 class="report-title">Redstone Cold Email: Strategy and Plan of Attack</h1>
+    <p class="report-subtitle">Consolidated brief covering the April 28 working session decisions, ICP and list architecture, copy angles for testing, suppression scope, reply handling, and a 30-day build-and-launch timeline. This document supersedes the verbal recap and is the source of truth for the campaign.</p>
+
+    <div class="summary-card">
+      <div class="sc-item">
+        <div class="sc-label">Infrastructure</div>
+        <div class="sc-value sc-value-green">Ready</div>
+        <div class="stat-sub" style="color:#999">5 domains, 15 inboxes, 85 percent warm</div>
+      </div>
+      <div class="sc-item">
+        <div class="sc-label">Active Campaign Tracks</div>
+        <div class="sc-value">6</div>
+        <div class="stat-sub" style="color:#999">One domain per angle</div>
+      </div>
+      <div class="sc-item">
+        <div class="sc-label">Track A Launch Target</div>
+        <div class="sc-value sc-value-amber">May 5</div>
+        <div class="stat-sub" style="color:#999">Soft start May 1 if warmups green</div>
+      </div>
+      <div class="sc-item">
+        <div class="sc-label">First Reply Data Window</div>
+        <div class="sc-value sc-value-amber">By May 17</div>
+        <div class="stat-sub" style="color:#999">19 days from today</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 1</div>
+    <h2 class="section-title">What was decided on the April 28 call</h2>
+    <p class="section-intro">The 39-minute Zoom call ended early when the connection dropped. Kas continued recording on his phone for the final three minutes, capturing five additional decisions Eric and Alec made before the call closed. Both segments are reflected below.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24%">Topic</th>
+          <th>Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-track">Industries IN</td>
+          <td>Firearms, robotics, industrial machinery, off-road vehicles and accessories, dental equipment, fitness equipment, defense (non-aerospace), electrical and electrical manufacturing, industrial automation, machinery, mechanical and industrial engineering. Underlying pattern: smart-device companies that assemble in the United States.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Industries OUT</td>
+          <td>Aerospace and medical removed. No track record in either, no proof points to lead with.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Geography</td>
+          <td>United States primary, Canada acceptable. Mexico explicitly excluded since Mexico is supply, not a buyer market.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Company size</td>
+          <td>Track A and most volume tracks: 5 to 200 employees. Track B (China-exit angle): 200 to 5,000 employees. Track F (reps): under 10 employees. Filter on employee count, not revenue, since revenue figures in Apollo are projected and unreliable.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Job titles</td>
+          <td>Director of Engineering, Engineering Manager, Engineering Supervisor, Senior and Lead Engineer, Director of Manufacturing, Director of Operations, Plant Manager, Supply Chain Manager, Director and VP Supply Chain, Procurement Manager, Director of Procurement. Anyone in supply chain at any level plus high-level engineering. Excluded: consultants, distributors, importers, sourcing agents, traders, brokers.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Campaign architecture</td>
+          <td>One domain per angle. Each domain runs through a roughly 1,000-lead list at its own ramp pace, exhausting in approximately two months. Schedule and order tracked in a simple sheet. Roughly three tests live at any given time.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Tariff angle <span class="badge badge-amber">New</span></td>
+          <td>Section 301 tariffs going up summer 2026. Plant the seed now via cold email so prospects remember Redstone the moment the tariff hits. No meeting CTA in the first email, just "wanted to be on your radar before summer."</td>
+        </tr>
+        <tr>
+          <td class="col-track">Monthly nurture <span class="badge badge-amber">New</span></td>
+          <td>For contacts who received the full three-touch sequence and did not reply, bounce, or unsubscribe: a personalized monthly email (not a newsletter, not a blast) every four to six weeks. Skip months where there is no real signal.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Reply handling</td>
+          <td>Positive replies sync to HubSpot with full enriched data (website, company size, industry, original opener body). Zapier auto-forwards positives to Alec's inbox so he replies natively from his usual address. A new Slack channel, <code>#redstone-cold-email-replies</code>, pings Alec on his phone for every neutral or positive reply. Negatives are silently suppressed.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Industry case-study table</td>
+          <td>Two columns. Column 1: parts Redstone has already produced for that industry. Column 2: parts not yet produced but a strong fit. Eric explicitly added column 2 at the close of the call so we can pitch into adjacent verticals where capability exists but track record does not.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Approval gate</td>
+          <td>Kas reviews any team change before it goes live, including homepage updates. Eric raised this directly: "I want you to be the person that checks it rather than me."</td>
+        </tr>
+        <tr>
+          <td class="col-track">HubSpot lead-form gap</td>
+          <td>Rachel surfaced that the past five days of leads did not trigger email notifications. Likely scope: only the new slide-out form on AdWords landing pages. Standard HubSpot form fills on /contact and /quote should be unaffected. Test pass and report due Wednesday April 30 EOD.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label" style="color:#fb7185">Section 2</div>
+    <h2 class="section-title">The six campaign tracks at a glance</h2>
+    <p class="section-intro">Each track is isolated to its own domain so reputations do not bleed across angles. Track A is the core. Tracks B through F roll in over the four weeks following A.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:8%">Track</th>
+          <th style="width:18%">Angle</th>
+          <th style="width:22%">Audience</th>
+          <th style="width:14%">Domain</th>
+          <th style="width:14%">Daily Volume Per Inbox</th>
+          <th>Why this track</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-track">A <span class="badge badge-core">Core</span></td>
+          <td>Same-Parts</td>
+          <td>Engineering and supply chain at 5 to 200 employee US and Canada manufacturers in the proven verticals</td>
+          <td>Domain 1, 3 inboxes</td>
+          <td>10 to 30</td>
+          <td>Strongest case study, highest conviction angle, biggest list. Proves the channel and gives every other track its proof points.</td>
+        </tr>
+        <tr>
+          <td class="col-track">B</td>
+          <td>Big Co. China-Exit</td>
+          <td>Engineering and supply chain at 200 to 5,000 employee US and Canada manufacturers</td>
+          <td>Domain 2, 3 inboxes</td>
+          <td>10 to 25</td>
+          <td>Same audience profile but larger, where the conversation is "moving out of China" rather than landed cost. Slower ramp because larger orgs are a more sensitive deliverability segment.</td>
+        </tr>
+        <tr>
+          <td class="col-track">C</td>
+          <td>In-the-Area</td>
+          <td>Same as A, geo-segmented weekly to a 50 mile city radius</td>
+          <td>Domain 3, 3 inboxes</td>
+          <td>10 to 20</td>
+          <td>Alec's historical top performer. Rotates city by city.</td>
+        </tr>
+        <tr>
+          <td class="col-track">D</td>
+          <td>Trade Show</td>
+          <td>Same as A, filtered to companies sending people to upcoming relevant shows (IMTS, Fabtech, SHOT Show, etc.)</td>
+          <td>Domain 4, 3 inboxes</td>
+          <td>10 to 20</td>
+          <td>Event-triggered. Short campaign window per show, then domain returns to seasonal idle until next event.</td>
+        </tr>
+        <tr>
+          <td class="col-track">E <span class="badge badge-amber">New</span></td>
+          <td>Tariff Top-of-Mind</td>
+          <td>Same as A and B, skewed to heavy China-importer profile</td>
+          <td>Shares Domain 4 (sub-segmented in Lemlist)</td>
+          <td>10 to 20</td>
+          <td>Plant the seed before summer 2026 Section 301 lands. No meeting ask in email 1. The whole purpose is to be the first call when the tariff hits.</td>
+        </tr>
+        <tr>
+          <td class="col-track">F</td>
+          <td>Reps Partnership</td>
+          <td>Independent manufacturers' reps, under 10 employee shops, US only</td>
+          <td>Domain 5, 1 active inbox</td>
+          <td>5 (capped)</td>
+          <td>Roughly 200 contacts, 100 percent hand-personalized via Claude API. Deliverability-first, never scaled. Commission referral angle.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-amber">
+      <strong>Plus two ongoing layers running on top of the six tracks:</strong>
+      <br><br>
+      <strong>1. Monthly nurture:</strong> personalized monthly email to every contact who received the three-touch sequence and did not reply, bounce, or unsubscribe. Not a newsletter. Cadence four to six weeks. Skip months without real signal.
+      <br><br>
+      <strong>2. Shipping and freight partner campaign:</strong> P2 backlog. Once Tracks A through F are stable, build a parallel partnership campaign to international freight forwarders. Reciprocal commission plus we route their existing US machine-shop customers our way in exchange for their prospect pipeline.
+    </div>
+  </div>
+</section>
+
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 3</div>
+    <h2 class="section-title">Apollo list specifications, by track</h2>
+    <p class="section-intro">All filters below feed directly into Apollo. Email status is set to verified only. Spot-check 25 random rows per pull before we push to Lemlist. If more than 20 percent are obvious distributors, consultants, or non-fit, refine and re-pull before validation.</p>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin-bottom:12px;">Track A and B (Same-Parts and China-Exit) shared filters</h3>
+    <table>
+      <thead>
+        <tr><th style="width:30%">Filter</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-track">Job title contains any</td><td>Director of Engineering, Engineering Manager, Engineering Supervisor, Senior Engineer, Lead Engineer, Director of Manufacturing, Director of Operations, Manufacturing Manager, Operations Manager, Plant Manager, Supply Chain Manager, Director of Supply Chain, VP Supply Chain, Procurement Manager, Director of Procurement, Project Manager (manufacturing context only). "Include similar titles" enabled.</td></tr>
+        <tr><td class="col-track">Company size</td><td>Track A: 5 to 200 employees. Track B: 200 to 5,000 employees.</td></tr>
+        <tr><td class="col-track">Location</td><td>United States, Canada</td></tr>
+        <tr><td class="col-track">Industries (Apollo taxonomy)</td><td>Manufacturing, Mechanical or Industrial Engineering, Industrial Automation, Machinery, Defense and Space, Electrical and Electrical Manufacturing, Consumer Electronics (smart-device subset only, spot-check)</td></tr>
+        <tr><td class="col-track">Company keywords (any)</td><td>firearms, robotics, off-road, dental, fitness equipment, smart device, IoT device, hardware</td></tr>
+        <tr><td class="col-track">Exclude (job title or company description)</td><td>Consultant, Consulting, Distributor, Distribution, Importer, Import, Sourcing agent, Sourcing, Trading, Trader, Broker, Brokerage, Aerospace, Medical, Medical Device, Jewelry, Hobbyist, Maker</td></tr>
+        <tr><td class="col-track">Email status</td><td>Verified only</td></tr>
+        <tr><td class="col-track">Market segment</td><td>B2B only. Exclude B2B2C, e-commerce, non-profit.</td></tr>
+        <tr><td class="col-track">Expected pull</td><td>Track A: roughly 8,000 to 15,000 contacts. Track B: roughly 3,000 to 6,000 contacts.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 12px;">Track C (In-the-Area) and Track D (Trade Show) overlay filters</h3>
+    <p style="font-size:0.9em; color:#444; margin-bottom:14px;">Both inherit the Track A filter set, then add a single overlay each.</p>
+    <table>
+      <thead>
+        <tr><th style="width:24%">Track</th><th>Overlay filter</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-track">C — In-the-Area</td><td>Company HQ within 50 miles of the rotating week's chosen city. Cities to confirm with Alec; suggested rotation: Chicago, Cleveland, Detroit, Indianapolis, Houston, Phoenix, Charlotte, Atlanta, Nashville.</td></tr>
+        <tr><td class="col-track">D — Trade Show</td><td>Companies whose people register for or attend a specific upcoming show. Confirmed candidates pending Eric and Alec input: IMTS (Sept Chicago), Fabtech (Nov Atlanta), SHOT Show 2027 (firearms vertical), regional NTMA and ASM events.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 12px;">Track E (Tariff Top-of-Mind) overlay</h3>
+    <p style="font-size:0.9em; color:#444; margin-bottom:14px;">Inherits Track A and B filter set. Skewed toward heavy China importer profile via these additional signals (where Apollo can detect them): companies with publicly disclosed offshore China manufacturing, recent earnings or 10-Q tariff exposure language (Track E benefits from the Clay or Quartr signal layer if budget allows; otherwise we work from public web mentions). Launch four weeks before Eric's confirmed Section 301 implementation date.</p>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 12px;">Track F (Reps Partnership) filters</h3>
+    <table>
+      <thead>
+        <tr><th style="width:30%">Filter</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-track">Job title contains any</td><td>Manufacturers Rep, Manufacturer's Rep, Independent Rep, Independent Sales Rep, Outside Sales Rep, Territory Sales Rep, Regional Sales Rep, Sales Rep (only if company size under 10). Include similar titles enabled.</td></tr>
+        <tr><td class="col-track">Company size</td><td>1 to 10 employees</td></tr>
+        <tr><td class="col-track">Location</td><td>United States</td></tr>
+        <tr><td class="col-track">Industries</td><td>Manufacturing, Mechanical or Industrial Engineering, Defense and Space, Industrial Automation, Machinery</td></tr>
+        <tr><td class="col-track">Exclude keywords</td><td>consultant, trading, jewelry, distributor, importer, sourcing</td></tr>
+        <tr><td class="col-track">Supplemental source</td><td>MANA (Manufacturers' Agents National Association) directory at manaonline.org if Apollo coverage is weak</td></tr>
+        <tr><td class="col-track">Expected pull</td><td>Roughly 500 to 800 contacts, then manually culled to top 200 with strongest territory and industry signal.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 4</div>
+    <h2 class="section-title">Suppression list, built before any send</h2>
+    <p class="section-intro">Hitting an existing customer or active deal with a cold email burns trust faster than any other failure mode. The suppression list is built before launch and imported to Lemlist as a global blocklist that applies across every campaign and every domain.</p>
+
+    <div class="list-grid">
+      <div class="list-card">
+        <div class="lc-label">Pulled from HubSpot</div>
+        <div class="lc-title">Existing relationships</div>
+        <ul>
+          <li>All companies tagged "Customer" (current and past)</li>
+          <li>All contacts on any open deal, regardless of pipeline stage</li>
+          <li>All contacts with lifecycle stage "Customer"</li>
+          <li>All contacts with HubSpot activity in the past 90 days from form fills, website, or sales-led channels</li>
+          <li>Anyone tagged "Do Not Contact" (property to be created if it does not exist)</li>
+          <li>Internal team: anyone @redstonemanufacturing.com plus Eric and Alec's personal addresses</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">Manually added</div>
+        <div class="lc-title">Direct competitor domains</div>
+        <ul>
+          <li>xometry.com, fictiv.com, protolabs.com, hubs.com, 3erp.com</li>
+          <li>rapiddirect.com, jiga.io, get3dsmith.com, pcbway.com</li>
+          <li>icomold.com, star-rapid.com</li>
+          <li>Eric and Alec to confirm any additions</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">Manually added</div>
+        <div class="lc-title">Aggregator and broker domains</div>
+        <ul>
+          <li>thomasnet.com</li>
+          <li>mfg.com</li>
+          <li>kompass.com</li>
+          <li>europages.com</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">Domain class blocks</div>
+        <div class="lc-title">Non-buyer domains</div>
+        <ul>
+          <li>*.gov, *.mil, *.edu suppressed entirely</li>
+          <li>Free-mail providers (gmail, yahoo, outlook, hotmail, aol, icloud, proton) suppressed at campaign filter for Tracks A through E</li>
+          <li>Track F whitelists indie reps using Gmail manually</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">Validation pass</div>
+        <div class="lc-title">Email validation pre-Lemlist</div>
+        <ul>
+          <li>Apollo built-in verifier, verified status only</li>
+          <li>NeverBounce or MillionVerifier second-pass for any list over 2,000 contacts</li>
+          <li>Drop deliverability scores under 85 percent</li>
+          <li>Drop catch-all domains entirely</li>
+        </ul>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">Lemlist global rules</div>
+        <div class="lc-title">Ongoing automatic suppression</div>
+        <ul>
+          <li>Any "unsubscribe" or "remove me" reply auto-suppresses</li>
+          <li>Any hard bounce auto-suppresses</li>
+          <li>Any spam classification auto-suppresses across all campaigns</li>
+          <li>Any positive reply auto-suppresses from all other active campaigns so a hot lead never gets multi-touched from three angles</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 5</div>
+    <h2 class="section-title">Copy: angles to test in week one</h2>
+    <p class="section-intro">All copy uses Alec's voice. Halliburton at $1.2M per year off Ni-Resist pump impellers is the only verified case study and is the only one that appears in week one copy. Banned words: "project", "marketplace", "network", "save money", "savings", "guarantee", "free". Use "lower landed cost" and "comparison quote" instead. No em dashes (they look AI-generated on phone). No "Hope this finds you well." Sign-off is Alec, with phone number once he provides it.</p>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin-bottom:14px;">Track A — Same-Parts (the core)</h3>
+    <div class="email-card">
+      <div class="ec-meta">Email 1, Day 0</div>
+      <div class="ec-subject"><span class="ec-subject-label">Subject</span><span class="ec-var">{{industry_part_type}}</span> for <span class="ec-var">{{industry}}</span> companies</div>
+      <div class="ec-body"><span class="ec-var">{{first_name}}</span>,
+
+We make <span class="ec-var">{{industry_part_type}}</span> for several companies in your sector. Things like <span class="ec-var">{{specific_part_examples}}</span>.
+
+Out of our shops in Defiance OH, Mexico, India and Taiwan. American PM, USMCA-compliant Mexico capacity = no tariff hit. Tooling stays American shop, casting and machining run offshore.
+
+Halliburton dropped $1.2M per year off their Ni-Resist pump impellers running parts through us.
+
+Worth a comparison quote on your next <span class="ec-var">{{industry_part_type}}</span> PO?
+
+Alec
+Redstone Manufacturing</div>
+    </div>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Track B — Big Co. China-Exit</h3>
+    <div class="email-card">
+      <div class="ec-meta">Email 1, Day 0</div>
+      <div class="ec-subject"><span class="ec-subject-label">Subject</span>quick question <span class="ec-var">{{first_name}}</span></div>
+      <div class="ec-body"><span class="ec-var">{{first_name}}</span>,
+
+How is <span class="ec-var">{{company}}</span> handling Section 301 right now? Most procurement teams I talk to are either eating the 25 percent or scrambling to nearshore.
+
+Redstone is a US-headquartered manufacturer with USMCA-compliant Mexico capacity plus India, Taiwan and Vietnam. Die-cast, CNC, sheet metal, plastic injection. American PM, overseas pricing.
+
+Halliburton saved $1.2M per year with us off Ni-Resist pump impellers.
+
+Worth a comparison quote on your next die-cast or CNC PO?
+
+Alec</div>
+    </div>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Track C — In-the-Area</h3>
+    <div class="email-card">
+      <div class="ec-meta">Email 1, Day 0</div>
+      <div class="ec-subject"><span class="ec-subject-label">Subject</span>in <span class="ec-var">{{city}}</span> next week, quick stop?</div>
+      <div class="ec-body"><span class="ec-var">{{first_name}}</span>,
+
+Quick one. Our team is going to be around <span class="ec-var">{{city}}</span> the week of <span class="ec-var">{{date}}</span> visiting a few customers.
+
+We run die-cast, CNC, sheet metal and plastic injection out of Defiance OH plus owned facilities in Mexico, India and Taiwan. American shop, English-speaking PM, USMCA-compliant Mexico capacity = no Section 301 hit.
+
+Halliburton dropped $1.2M off their Ni-Resist pump impellers running parts through us.
+
+Worth a 15-minute stop by <span class="ec-var">{{company}}</span> to see if there's a fit on your next die-cast or CNC PO?
+
+Alec
+Redstone Manufacturing</div>
+    </div>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Track D — Trade Show</h3>
+    <div class="email-card">
+      <div class="ec-meta">Email 1, Day 0</div>
+      <div class="ec-subject"><span class="ec-subject-label">Subject</span>at <span class="ec-var">{{trade_show}}</span> this year?</div>
+      <div class="ec-body"><span class="ec-var">{{first_name}}</span>,
+
+Are you or anyone from <span class="ec-var">{{company}}</span> going to be at <span class="ec-var">{{trade_show}}</span>?
+
+We will be on the floor showing how we run die-cast, CNC, sheet metal and plastic injection out of US-led shops in Defiance OH, Mexico, India and Taiwan. USMCA-compliant, English-speaking PM, Section 301 dodge.
+
+Halliburton saved $1.2M per year off Ni-Resist pump impellers running parts through us.
+
+Even if you are not at the show, would a 5-minute comparison quote on your next die-cast or CNC PO be worth a look?
+
+Alec
+Redstone Manufacturing</div>
+    </div>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Track E — Tariff Top-of-Mind <span class="badge badge-amber" style="font-size:0.62em; vertical-align:middle;">New</span></h3>
+    <p style="font-size:0.88em; color:#444; margin-bottom:14px;">No meeting CTA in email 1. The whole purpose is the seed, not the conversion.</p>
+    <div class="email-card">
+      <div class="ec-meta">Email 1, Day 0</div>
+      <div class="ec-subject"><span class="ec-subject-label">Subject</span>heads up before summer</div>
+      <div class="ec-body"><span class="ec-var">{{first_name}}</span>,
+
+Quick one. Section 301 is going up again summer 2026. If you are sourcing any die-cast, CNC, sheet metal or plastic injection out of China you are going to feel it.
+
+Not pitching today. Just wanted to be on your radar before the price hike lands. We run die-cast, CNC, sheet metal and plastic injection out of Defiance OH plus owned facilities in Mexico, India, Taiwan and Vietnam. American shop, English-speaking PM, USMCA-compliant Mexico capacity = no Section 301 hit.
+
+Halliburton dropped $1.2M per year off Ni-Resist pump impellers running parts through us.
+
+I will check back in <span class="ec-var">{{month_before_tariff}}</span> when it is actually relevant. If you would rather get ahead of it, just reply.
+
+Alec
+Redstone Manufacturing</div>
+    </div>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Track F — Reps Partnership (hand-personalized template only)</h3>
+    <p style="font-size:0.88em; color:#444; margin-bottom:14px;">No template. Each email is generated per row from five fields: rep name, company name (if any), territory, current lines they rep, one specific signal (recent post, customer, or territory event). Subject 5 to 7 words, lowercase, lead with their territory or one of their lines. Body 70 to 110 words, lead with the specific signal, then the offer ("we would give you a cut on any account you bring in, we make custom metal parts and a lot of your existing accounts are likely already buying these from someone"), close with a one-line CTA: "Worth a 15-minute call to see what your existing accounts spend on metal parts?"</p>
+
+    <h3 style="font-size:1.1em; font-weight:700; margin: 24px 0 14px;">Sequence structure (all tracks except F)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:14%">Touch</th>
+          <th style="width:14%">Day</th>
+          <th>Body</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-track">Email 1</td><td>Day 0</td><td>Full opener as above. Stops on any reply.</td></tr>
+        <tr><td class="col-track">Email 2</td><td>Day 3</td><td>60-word bump. "Wanted to make sure <span class="ec-var">{{first_name}}</span>, worth a quick comparison quote?" plus one new specific (different case study reference or different angle).</td></tr>
+        <tr><td class="col-track">Email 3</td><td>Day 8</td><td>Pure breakup. "Should I close the loop on this for now? Happy to revisit when <span class="ec-var">{{trigger}}</span> comes up." No new pitch.</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:0.88em; color:#444; margin-top: 14px;">Send window: Tuesday, Wednesday, Thursday primary days. Monday and Friday at half-volume. 9 AM to 4 PM in recipient timezone (Lemlist supports this and it is enabled).</p>
+  </div>
+</section>
+
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 6</div>
+    <h2 class="section-title">Reply handling: how a positive reply moves through the system</h2>
+    <p class="section-intro">Designed to keep Alec out of new tools as much as possible. He answers the question "did this person reply?" from his phone or his existing inbox.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24%">Lemlist sentiment</th>
+          <th style="width:38%">HubSpot action</th>
+          <th>Notification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-track">Positive</td>
+          <td>Create deal at "Email Reply" stage. Tag "Source = Cold Email". Sync the full enriched contact record (website, company size, industry, original opener body). Assign to Alec.</td>
+          <td>Slack DM Alec, plus email forward via Zapier so Alec can reply natively from his usual address.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Neutral</td>
+          <td>Add contact to HubSpot list "Cold Email — Neutral Replies." Do not create a deal.</td>
+          <td>Slack DM Alec.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Negative</td>
+          <td>Suppress globally in Lemlist. No HubSpot record.</td>
+          <td>Silent.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Out-of-office</td>
+          <td>Pause sequence for that contact 7 days. No HubSpot record.</td>
+          <td>Silent.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Auto-responder (other)</td>
+          <td>Pause sequence. No HubSpot record.</td>
+          <td>Silent.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-blue">
+      <strong>The reply-from-different-domain workaround.</strong> Each campaign sends from a different domain, so Alec replying from his usual address would normally break the email chain. The Zapier rule auto-forwards every Lemlist positive reply to alec@redstonemanufacturing.com. Alec opens the forward, deletes the auto-generated forward header (the "Forwarded message" block plus the timestamp lines above it), and replies in his own client. The thread chains correctly and Lemlist marks the contact engaged. A one-pager will document this for Alec on launch day.
+    </div>
+
+    <div class="callout callout-green">
+      <strong>The Slack channel for Alec.</strong> A new channel <code>#redstone-cold-email-replies</code> in the team Slack, with Alec invited as a guest user via Google SSO. Lemlist webhooks post into the channel: positive replies tag Alec so his phone gets the push notification, neutral replies post silently for visibility, negatives are not posted because they are already suppressed. Alec can acknowledge from his phone without ever opening Slack desktop.
+    </div>
+  </div>
+</section>
+
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label" style="color:#fb7185">Section 7</div>
+    <h2 class="section-title">30-day timeline and gates</h2>
+    <p class="section-intro">Five approvals must clear before the first send. After that, Track A is the only campaign live for the first week. Tracks B through F roll in over the following three weeks based on warmup health and approval cadence.</p>
+
+    <div class="timeline-grid">
+      <div class="timeline-row"><div class="timeline-date">Apr 28 EOD</div><div class="timeline-body">Post-call email to Eric and Alec sent. HubSpot scope, ICP confirmation, copy direction, two-column industry case-study template.</div><div class="timeline-owner">Kas</div></div>
+      <div class="timeline-row"><div class="timeline-date">Apr 29</div><div class="timeline-body">Pull Track A, B and F Apollo lists. Run validation pass.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">Apr 29</div><div class="timeline-body">Pull HubSpot suppression export from Alec. Build master suppression CSV. Import to Lemlist global blocklist.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">Apr 30 EOD</div><div class="timeline-body">Test HubSpot lead-form notifications across all 18 landing pages plus the homepage. Report which forms route to which pipeline and whether notifications fire. Address the past five days of missing leads.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">Apr 30</div><div class="timeline-body">Draft Track A and B sequences in Lemlist.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 1</div><div class="timeline-body">Hand-personalize Track F first 50 rep contacts via Claude API.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 1</div><div class="timeline-body">Two-column industry case-study table returned, populated for the eight priority verticals.</div><div class="timeline-owner">Eric and Alec</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 2</div><div class="timeline-body">Track A and B copy approved in writing.</div><div class="timeline-owner">Alec</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 2</div><div class="timeline-body">List and suppression spot-check sign-off.</div><div class="timeline-owner">Kas</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 2</div><div class="timeline-body">Configure Zapier reply-forwarding rule. Create #redstone-cold-email-replies Slack channel and invite Alec.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 5</div><div class="timeline-body" style="color:#fbbf24; font-weight:600;">TRACK A LIVE. First sends fire 9 AM recipient timezone.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 8</div><div class="timeline-body">Track A Day-3 follow-ups fire automatically.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 9</div><div class="timeline-body">First Mon and Thu KPI tracker row populated. Send, open, reply, meeting and suppression counts.</div><div class="timeline-owner">Kas</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 12</div><div class="timeline-body">Tracks B and C launch. Big Co. China-Exit and In-the-Area.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">May 19</div><div class="timeline-body">Tracks D and F launch. Trade Show and Reps Partnership.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">Tariff date minus 4 wk</div><div class="timeline-body">Track E (Tariff Top-of-Mind) launches. Date set once Eric confirms the summer 2026 Section 301 implementation date.</div><div class="timeline-owner">Kas team</div></div>
+      <div class="timeline-row"><div class="timeline-date">Track A list exhaust + 14 d</div><div class="timeline-body">Monthly nurture layer activates for non-replies on Track A. Recurs every four to six weeks.</div><div class="timeline-owner">Kas team</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 8</div>
+    <h2 class="section-title">Reporting cadence</h2>
+    <p class="section-intro">A Cold Email tab will be added to the existing Google roadmap KPI sheet. One row per Monday and Thursday, populated before 9 AM sender timezone. Real numbers only. No projections of meetings or closes.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Track</th>
+          <th>Sent</th>
+          <th>Delivered</th>
+          <th>Open %</th>
+          <th>Reply %</th>
+          <th>Positive replies</th>
+          <th>Meetings booked</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="9" style="font-style:italic; color:#888; text-align:center; padding:20px;">First row populates Thursday May 9. Updates every Monday and Thursday thereafter.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-blue">
+      <strong>Why no projections.</strong> The first 30 days of cold email reply data is the projection. Until we have that, any forecast is a guess and a guess will be held against me. What I will commit to: first sends inside 7 days, first reply data inside 30 days, and a Mon and Thu tracker showing every send, open, reply, meeting and suppression as they happen. Once we have two to three weeks of real reply data we will know whether the copy and list are working, and we tune from there.
+    </div>
+  </div>
+</section>
+
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 9</div>
+    <h2 class="section-title">Open questions to resolve before May 5</h2>
+    <p class="section-intro">All ten items below need answers from Eric or Alec by Wednesday April 30 EOD so the May 5 launch holds.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:6%">#</th>
+          <th style="width:32%">Question</th>
+          <th>Why we need it</th>
+          <th style="width:14%">Owner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Two-column industry case-study table populated</td><td>Track A and the industry-specific opener live or die on this. Without it, every opener falls back to a generic Halliburton reference.</td><td class="col-track">Eric and Alec</td></tr>
+        <tr><td>2</td><td>Alec's phone number for sign-off block</td><td>Sign-off looks under-credentialed without a number. Affects every campaign.</td><td class="col-track">Alec</td></tr>
+        <tr><td>3</td><td>Direct competitor list additions</td><td>The 11 domains we have are the obvious ones. Any specialty competitors Eric knows by name should be added before launch.</td><td class="col-track">Eric</td></tr>
+        <tr><td>4</td><td>HubSpot "Do Not Contact" property</td><td>Required for the suppression list pull. Need to know if it exists or whether we create it.</td><td class="col-track">Alec</td></tr>
+        <tr><td>5</td><td>Pause Alec's manual outbound during sprint</td><td>Two senders, two voices, two domains hitting the same prospect destroys deliverability and confuses the reply flow.</td><td class="col-track">Alec</td></tr>
+        <tr><td>6</td><td>Apollo and Lemlist subscriptions confirmed paid and active</td><td>Both should already be active. Just confirming so launch is not blocked by a billing issue.</td><td class="col-track">Eric</td></tr>
+        <tr><td>7</td><td>Trade-show calendar for H2 2026</td><td>Track D copy needs the names of two or three shows Alec will actually attend. Without it, Track D cannot launch.</td><td class="col-track">Alec</td></tr>
+        <tr><td>8</td><td>Section 301 summer 2026 implementation date</td><td>Track E launches four weeks before this date. If we miss the window the angle does not work.</td><td class="col-track">Eric</td></tr>
+        <tr><td>9</td><td>Slack guest invite for Alec acknowledged</td><td>If Alec will not use Slack we route everything through email. Need confirmation either way.</td><td class="col-track">Alec</td></tr>
+        <tr><td>10</td><td>Reply-forwarding default confirmed</td><td>Default is Zapier auto-forward. If Alec prefers to live in Lemlist instead, we configure differently.</td><td class="col-track">Alec</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band-dark">
+  <div class="inner">
+    <div class="section-label" style="color:#fb7185">Section 10</div>
+    <h2 class="section-title">Risk register</h2>
+    <p class="section-intro">Every risk below has a documented mitigation. None of these are theoretical. They are the failure modes I have personally seen burn cold email programs.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:30%">Risk</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-track">Hit existing customer with cold email</td>
+          <td>Suppression master list mandatory. Nothing sends until it is built and imported to Lemlist global blocklist. Five gates before first send (see timeline).</td>
+        </tr>
+        <tr>
+          <td class="col-track">Domain burn from too-fast ramp</td>
+          <td>10 to 30 emails per inbox per day with weekly +5 increments. Hard halt rule: any inbox over 5 percent bounce in 48 hours pauses immediately and restarts warmup. Domain stays live unless 2 of 3 inboxes on it breach.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Spam trigger words in copy</td>
+          <td>Banned word list enforced. Pre-send linter on every sequence checks for banned phrases before activation.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Negative reply leaks into HubSpot pipeline</td>
+          <td>Lemlist sentiment classifier gates HubSpot writes. Negatives suppress only, no record created.</td>
+        </tr>
+        <tr>
+          <td class="col-track">No visibility for Eric for a week</td>
+          <td>Mon and Thu tracker non-negotiable. Real numbers, no projections, regardless of how the first week looks.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Track F consumes all team time at expense of A and B</td>
+          <td>Track F capped at 4 hours per week of team bandwidth. Tracks A and B get the remaining 80 percent.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Apollo list 30 percent or more junk</td>
+          <td>Spot-check 25 random rows before push. Refine and re-pull if junk rate is high. Validate before any sequence is activated against the list.</td>
+        </tr>
+        <tr>
+          <td class="col-track">Warmup decay during the 27 idle days since infra was built</td>
+          <td>Each inbox validated at 5 to 10 emails per day for 5 days before the ramp begins. Any inbox below 75 percent reputation in Lemlist warmup is held off the live send and continues warming.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band-white">
+  <div class="inner">
+    <div class="section-label">Section 11</div>
+    <h2 class="section-title">Net new ideas surfaced on the call (P2 backlog)</h2>
+    <p class="section-intro">These are not blocked from launch and they are not part of week one. They are queued for week two and beyond.</p>
+
+    <div class="list-grid">
+      <div class="list-card">
+        <div class="lc-label">P2 backlog</div>
+        <div class="lc-title">Shipping and freight partner campaign</div>
+        <p style="font-size:0.9em; color:#333; line-height:1.6;">Eric flagged that international shipping companies email him daily wanting his shipping business. They are sales-hungry and likely to share leads in exchange for the international shipping volume Redstone could create. Target: business development and partnerships at international freight forwarders. Offer: reciprocal commission plus we route their existing US machine-shop customers our quotes. Build as a parallel campaign once Tracks A through F are stable.</p>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">P2 backlog</div>
+        <div class="lc-title">Import-record databases</div>
+        <p style="font-size:0.9em; color:#333; line-height:1.6;">Eric called out ImportGenius and Panjiva as potential sources for companies importing specific HTS-coded parts from China above a threshold. If we can pull a list of importers of (for example) HTS 7616.99 cast aluminum parts from China at over $50,000 per year, that becomes a hyper-targeted Track B and Track E variant. Research feasibility plus pricing plus API access. Report by next Friday.</p>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">P2 backlog</div>
+        <div class="lc-title">MANA listings and posts</div>
+        <p style="font-size:0.9em; color:#333; line-height:1.6;">Reciprocal idea. Either post on manaonline.org as a manufacturer looking for reps, or pull rep names from the directory to feed Track F. Eric: "Maybe there's a way we can get a list of these guys and see who's interested." One-hour scrape feasibility check.</p>
+      </div>
+
+      <div class="list-card">
+        <div class="lc-label">P2 backlog</div>
+        <div class="lc-title">Adjacent verticals via column 2</div>
+        <p style="font-size:0.9em; color:#333; line-height:1.6;">Once the two-column industry case-study table is populated, every entry in column 2 becomes a candidate for an "expand-into" mini-campaign. We are not pitching a fabricated case study. We are pitching capability and an honest "we have not yet but we are set up to" position. Validate after Track A produces real reply data so we know what is working before we expand.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-surface">
+  <div class="inner">
+    <div class="section-label">Section 12</div>
+    <h2 class="section-title">Key quotes from the call worth re-reading</h2>
+
+    <div class="q-block">
+      <span class="q-text">"When they do go up, like, if we have already made contact, we want to have planted that seed so they remember to reach out to us. That makes sense. I think that's a good approach. Like instead of trying to get them on board now, like being there for them when they need it."</span>
+      <div class="q-attr">Eric, on the tariff angle</div>
+    </div>
+
+    <div class="q-block">
+      <span class="q-text">"On that sheet you're going to send over for what products we've already produced, I think also let's create another column for parts that we have not produced but we know would fit."</span>
+      <div class="q-attr">Eric, closing the call. The single most important addition to the case-study table.</div>
+    </div>
+
+    <div class="q-block">
+      <span class="q-text">"I want you to be the person that checks it rather than me. And that applies for like, you know, homepage and whatever else."</span>
+      <div class="q-attr">Eric, on the new approval gate. Standing rule from this call forward.</div>
+    </div>
+
+    <div class="q-block">
+      <span class="q-text">"It has to be B2B. We want reps that are driving around, going to facilities, have a relationship. This is a different world. This is very, like, older and it's, like, in person."</span>
+      <div class="q-attr">Eric, on the rep campaign profile</div>
+    </div>
+
+    <div class="q-block">
+      <span class="q-text">"What we want is, like, who's already ordering from US machine shops and US sheet metal fabricators. If we had a list of customers from US machine shops, that would be the holy grail, because those are the people we can really save money."</span>
+      <div class="q-attr">Eric, on the deeper signal we are working toward via import records and shipping partnerships</div>
+    </div>
+  </div>
+</section>
+
+<footer class="report-footer">
+  <div class="inner">
+    <div class="footer-text">
+      Document version: 1.0 — generated April 29, 2026. Prepared by Kas Andz for Eric Millinger and Alec Story. Based on the April 28, 2026 working session and the prior April 17 marketing review. Source meeting recording: <a href="https://fathom.video/share/A7nyy_Ve3J_fUfk1Mk1FHHG3SXcaeQzs">Fathom share link</a>. Questions or amendments: reply to the email this was attached to or message Kas in Slack.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

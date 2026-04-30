@@ -32,7 +32,7 @@ const Shell = (() => {
     ]},
     { section: 'OPERATIONS', items: [
       { page: 'live-feed',   icon: '&#9889;',   label: 'Live Feed' },
-      { page: 'data-health', icon: '&#129681;', label: 'Data Health', dimmed: true },
+      { page: 'data-health', icon: '&#129681;', label: 'Data Health' },
     ]},
     { section: 'COMING SOON', sectionStyle: 'opacity:0.4', items: [
       { page: 'competitors', icon: '&#9876;&#65039;', label: 'Competitors', disabled: true },

@@ -13,11 +13,11 @@ const Shell = (() => {
     { section: 'COMMAND', items: [
       { page: 'war-room',   icon: '&#127919;', label: 'War Room' },
       { page: 'revenue', icon: '&#128176;', label: 'Revenue & LTV' },
-      { page: 'cold-email', icon: '&#9993;&#65039;', label: 'Email' },
     ]},
     { section: 'ACQUISITION', items: [
       { page: 'ads-meta',    icon: '&#128227;', label: 'Meta Ads' },
       { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads' },
+      { page: 'cold-email',  icon: '&#9993;&#65039;', label: 'Cold Email' },
       { page: 'attribution', icon: '&#128200;', label: 'Attribution', dimmed: true },
     ]},
     { section: 'CONVERSION', items: [

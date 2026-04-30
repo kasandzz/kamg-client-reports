@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-04-30</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:24px; padding:24px 0; border-bottom:1px solid #1e293b; position:relative; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { position:absolute; top:24px; right:0; padding:6px 12px; border-radius:20px; font-size:10px; font-weight:600; }
+  .health-ok { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+  .health-warn { background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+  .data-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:10px 14px; margin-bottom:20px; font-size:11px; color:#f59e0b; }
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-card.blue::before { background:#3b82f6; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .win-item, .concern-item, .insight-item, .priority-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .priority-item { background:rgba(236,72,153,.1); border-left:3px solid #ec4899; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-item.urgent { border-color:#ec4899; background:linear-gradient(135deg,#111827,rgba(236,72,153,.08)); }
+  .schedule-item.past { opacity:.4; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:90px; }
+  .schedule-time.urgent { color:#ec4899; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-prep a { color:#38bdf8; text-decoration:none; }
+  .schedule-prep a:hover { text-decoration:underline; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-redstone { background:rgba(239,68,68,.15); color:#ef4444; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-personal { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; align-self:flex-start; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:flex-start; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; margin-top:2px; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; margin-top:4px; }
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+  .talk-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .talk-trigger { font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px; text-transform:uppercase; }
+  .talk-response { font-size:12px; color:#e2e8f0; line-height:1.6; }
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+  .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; margin-left:6px; }
+  .badge-now { background:#ec4899; color:#fff; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.6; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Thursday, April 30, 2026 | Focus Day | 2 client calls (CPG 11am, Redstone 1pm)</div>
+    <div class="meta">Generated 2026-04-30 09:57 CDMX | Data: local-fallback (GCS auth expired)</div>
+    <div class="health-badge health-warn">Skill Health: amber | 2 warnings</div>
+  </div>
+
+  <div class="data-banner">
+    <strong>Data source:</strong> local-fallback. Cloud morning-intel JSON unavailable (gcloud auth expired -- run <code style="background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px;">gcloud auth login</code>). Calendar + Gmail live via MCP. Slack overnight scan: bot reachable, channel scopes failing (channel_not_found on history reads).
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('redstone')">Redstone (1pm)</div>
+    <div class="tab" onclick="showTab('cpg')">CPG (11am)</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- MY DAY -->
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Focus Statement</div>
+      <div class="card-subtitle">Calendar marks today as "Focus Day | No meetings" -- ignore that label, two real client calls landed.</div>
+      <div class="priority-item">
+        <div class="item-title">Primary win condition</div>
+        <div class="item-detail">Eric (Redstone) approves the website plan at 1pm so the 30/60/90 build can start tomorrow. Everything else this morning is preserve-and-protect.</div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card amber"><div class="stat-value">2</div><div class="stat-label">Client calls today</div></div>
+      <div class="stat-card blue"><div class="stat-value">15</div><div class="stat-label">Threads in inbox (24h)</div></div>
+      <div class="stat-card green"><div class="stat-value">1</div><div class="stat-label">Live deliverable to ship (Redstone plan)</div></div>
+      <div class="stat-card red"><div class="stat-value">2</div><div class="stat-label">Account warnings (1Pwd, Namecheap)</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule (CDMX)</div>
+      <div class="schedule-item past">
+        <div class="schedule-time">06:45-08:30</div>
+        <div class="schedule-body"><div class="schedule-title">Morning routine (exercise, shower, focus block)</div><div class="schedule-prep">Done.</div></div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">08:30-10:00 <span class="badge badge-now">NOW</span></div>
+        <div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Russ Call Block</div><div class="schedule-prep">Hold for any incoming Russ asks. Coverage 33 minutes remaining.</div></div>
+      </div>
+      <div class="schedule-item urgent">
+        <div class="schedule-time urgent">11:00-12:00</div>
+        <div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">CPG</span>Weekly Sales Development Review Call</div><div class="schedule-prep">Krik + Julieta + Mora + Stef (optional). Zoom: <a href="https://us05web.zoom.us/j/9638055313?pwd=VnVQdnR1dTYwT2ZjNkRhb1NPWC9yZz09">us05web.zoom.us/j/9638055313</a> | <strong>See CPG tab for prep.</strong></div></div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">12:00-12:30</div>
+        <div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-personal">Personal</span>Book Meroma -- Aranza's mom</div><div class="schedule-prep">Restaurant booking task. Sunday context (engagement plan -- mother-blessing meeting).</div></div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">12:30-13:00</div>
+        <div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-redstone">REDSTONE</span>Redstone call PLAN block</div><div class="schedule-prep">30 min to re-read the plan doc, pull Eric's Apr 19 19-item LP feedback list, open Halliburton PDF.</div></div>
+      </div>
+      <div class="schedule-item urgent">
+        <div class="schedule-time urgent">13:00-14:00</div>
+        <div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-redstone">REDSTONE</span>Eric &amp; Kas // Marketing Review <span class="badge" style="background:#ec4899;color:#fff;">PRIMARY</span></div><div class="schedule-prep">Solo with Eric Millinger. Website plan presentation (~150 URLs, 3 hubs, 17 locked rules). <strong>See Redstone tab for full prep.</strong></div></div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">14:00-20:00</div>
+        <div class="schedule-body"><div class="schedule-title">Open block (post-Redstone work + Joseph Seagle Thursday 3pm EDT?)</div><div class="schedule-prep">Yesterday's note flagged Joseph Seagle Thursday 3pm EDT (= 1pm CDMX) -- collides with Eric. Verify before the Eric call ends.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Yesterday recap (carried into today)</div>
+      <div class="win-item"><div class="item-title">CPG: Attio backfill complete</div><div class="item-detail">69 deals patched, 33 new disqualified companies + 30 people ingested, 0 errors. Net new attribute <code>disqualification_reason</code> live on Companies object. <strong>Surface in today's CPG call as "Attio is now your single source of truth -- here's how to filter on disqualification reason."</strong></div></div>
+      <div class="win-item"><div class="item-title">Redstone: Quote DB v3.3 shipped</div><div class="item-detail">1,332/1,335 quotes parsed, 100% customer fill, 273 distinct customers. Eric's dual-price catch fixed (Q#32934, Q#32614). 11PBH query returns 13 line items / 6 quotes -- pricing trend $47.97 (2024) → $52.19 (2025) → $62.32 (2026, tier shift). Eric will likely ask about this on call.</div></div>
+      <div class="win-item"><div class="item-title">Redstone: Cold email strategy doc cleaned</div><div class="item-detail">v1.1 stripped all timeline + projection language. Live: <a href="https://kasandzz.github.io/kamg-client-reports/redstone/cold-email-strategy-2026-04-29.html" style="color:#38bdf8;">kasandzz.github.io/kamg-client-reports/redstone/cold-email-strategy-2026-04-29.html</a> -- ready to send Eric if he asks for the cold email plan today.</div></div>
+      <div class="concern-item"><div class="item-title">Daniel (Blogtrepreneur) AI partnership: cold</div><div class="item-detail">Apr 28: Daniel said "NDA wouldn't protect IP, can't share knowledge." Kas reply Apr 28 ("send whatever contract protects you") got no response. <strong>BUT:</strong> Daniel sent CPG affiliate tracking codes this morning (13:56Z) -- the working relationship is intact even if the AI side stalled.</div></div>
+    </div>
+  </div>
+
+  <!-- REDSTONE TAB (1pm) -->
+  <div class="section" id="redstone">
+    <div class="card">
+      <div class="card-title">Redstone -- Eric &amp; Kas Marketing Review</div>
+      <div class="card-subtitle">13:00-14:00 CDMX | Eric Millinger (sole client attendee) | Format: website plan presentation + Q&amp;A | Apr 19 LP feedback follow-through</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Canonical doc</div>
+      <div class="card-subtitle">Open this BEFORE the call. Both copies must load clean.</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Local:</strong> <a href="../../../03-Resources/output/redstone/redstone-website-plan-2026-04-30.html" style="color:#38bdf8;">redstone-website-plan-2026-04-30.html</a><div class="action-context">14 sections: exec summary, current state, gap vs Omnius/Fictiv/Xometry, ~150-URL sitemap, 13-section homepage wireframe, 10-section service LP template, geo LP variant, 30/60/90 phased build, 17 locked Eric rules, open decisions.</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Live URL (share with Eric):</strong> <a href="https://kasandzz.github.io/kamg-client-reports/redstone-website-plan-2026-04-30.html" style="color:#38bdf8;">kasandzz.github.io/kamg-client-reports/redstone-website-plan-2026-04-30.html</a></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">8 asks for Eric (from §13 of the plan doc)</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">1. Sitemap structure approved? (~150 URLs, 3 hubs)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">2. Homepage hero direction approved? (Mar 19 hero text + photo-right split)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">3. P0 list approved? (15 pages in 30 days)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">4. Industry verticals confirmed? (Auto / Aero / Defense / Medical -- or different mix)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">5. Halliburton case study -- confirm publication framing</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">6. Mexico facility city (Monterrey?)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">7. AS9100 status -- do we hold it, or only IATF 16949?</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">8. Materials handled per service (sheet metal alloys, sand-casting weight ceiling)</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Locked Eric rules (verify before any copy goes live)</div>
+      <div class="two-col">
+        <div>
+          <div class="insight-item"><div class="item-title">Language rules</div><div class="item-detail">"Parts" never "project". "ISO 9001" always (not generic "ISO-certified"). No "factories" / "marketplace" / "global network". Single-facility feel: "facility in Mexico" not "facilities".</div></div>
+          <div class="insight-item"><div class="item-title">Service rules</div><div class="item-detail">No "5-axis" on machining LPs. No Ohio / Seattle in copy. Tolerance ±0.001". Lead with Mexico, then U.S. account manager.</div></div>
+        </div>
+        <div>
+          <div class="insight-item"><div class="item-title">Trade / compliance</div><div class="item-detail">USMCA tariff-free + 6-8 wk faster on every Mexico page. IATF 16949 in body only, never in H1.</div></div>
+          <div class="insight-item"><div class="item-title">Design</div><div class="item-detail">Red #B21E24 for CTAs only.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pre-call checklist</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Open the doc locally + verify it loads clean</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Confirm shareable URL is live on github.io</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Pull current Redstone GSC + Google Ads snapshot (last 7 days) for the table-style update Eric expects</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Verify the 30-day performance clock status (started Apr 17 → ends ~May 17)</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Have Apr 19 19-item LP feedback list open in second tab -- Eric will check off implementation status</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Have Halliburton PDF accessible for "publish framing" question</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Apr 27 (Sun) invoice 003 paid -- do NOT volunteer, only acknowledge if Eric raises</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Talking points if Eric goes off-plan</div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Eric asks about quote DB</div>
+        <div class="talk-response">Live in BQ. 1,069 distinct quotes, 100% customer-resolved, dual-price columns now correctly captured (your Q#32934 + Q#32614 catches are fixed). Use <code>quote_v_headers_resolved</code> view for all queries -- 11PBH returns 13 line items across 6 quotes, pricing $47.97 → $62.32 with the 2026 tier shift to 2,016 qty.</div>
+      </div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Eric asks about cold email</div>
+        <div class="talk-response">Strategy doc is clean (timelines + projections stripped). Tracks A/B/C ready. Send the link only if he asks: kasandzz.github.io/kamg-client-reports/redstone/cold-email-strategy-2026-04-29.html. Do NOT promise launch dates.</div>
+      </div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Eric asks "what's next after the website plan"</div>
+        <div class="talk-response">Two parallel tracks: (1) Build P0 15 pages in next 30 days using locked structure; (2) Cold email Track A activates infrastructure-ready, no projection on first replies. Both feed the same MQL bucket so Eric sees one funnel.</div>
+      </div>
+      <div class="talk-card">
+        <div class="talk-trigger">Communication mode reminder</div>
+        <div class="talk-response">Slack only (WhatsApp deprecated Apr 17). Tables over visuals. No em-dashes. Engineer-to-engineer tone. Eric is AI-skeptical -- present data and decisions, not autonomy promises.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPG TAB (11am) -->
+  <div class="section" id="cpg">
+    <div class="card">
+      <div class="card-title">CPG -- Weekly Sales Development Review</div>
+      <div class="card-subtitle">11:00-12:00 CDMX | Krik (CEO) + Julieta (BDR) + Mora (Onboarding) + Stef (COO, optional) | Recurring weekly</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Account health: AMBER</div>
+      <div class="two-col">
+        <div class="insight-item"><div class="item-title">Recent context</div><div class="item-detail">Apr 28 Attio migration kicked off (Leo on 23-task plan). Apr 29 Attio backfill done -- 339 sales sheet rows reconciled, 0 errors. Apr 30 (today) tracking codes for CPG affiliate landed via Daniel.</div></div>
+        <div class="insight-item"><div class="item-title">Watch for</div><div class="item-detail">Krik is sales-focused / Excel-guy. He will want pipeline numbers, not process talk. Stef is overloaded -- if she joins, keep ops asks minimal.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What to bring to the call</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Attio status update</strong> -- 23-task plan with Leo. Yesterday's backfill completed: 69 deals patched with last_follow_up dates, 33 new disqualified companies + 30 people ingested. New <code>disqualification_reason</code> attribute live -- show Krik how to filter Companies → Disqualification Reason not empty.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Affiliate tracking codes received</strong> -- Daniel sent today (13:56Z). Confirm with team who's wiring them up and into which tracking surface (Instantly? G-suite? GA?).</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Cold email pipeline state</strong> -- last known: 17K sent/mo, 2.89% reply, 62 opps ($62K), 0.36% opp rate. International Stores = 63% volume / 84% of opps (concentration risk). 4 campaigns in Error state. Ask Steven for current week numbers if not in advance.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>Disqualified ingest implication</strong> -- per memory rule: <em>brands with their own affiliate program = SEGMENT, not disqualifier</em>. PRD wording was wrong on this. Worth raising with Krik if it surfaces, since 64 unmatched rows were ingested as disqualified.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Talking points</div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Krik asks about pipeline this week</div>
+        <div class="talk-response">Attio is now the source of truth -- pull live from there. Deal name = domain not brand (CPG convention). Last 7-day trend should come from Attio, not the sheet.</div>
+      </div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Stef asks about ops load</div>
+        <div class="talk-response">Confirm Attio migration is removing the manual-sheet maintenance load, not adding it. Leo's 23-task plan is on track per Apr 23 handoff.</div>
+      </div>
+      <div class="talk-card">
+        <div class="talk-trigger">If Julieta asks about affiliate program signal</div>
+        <div class="talk-response">Brands with their own affiliate program are a SEGMENT (not disqualifier) -- different sequence, different angle. PRD Section 4 wording needs a fix.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COD INTEL -->
+  <div class="section" id="cod">
+    <div class="data-banner" style="margin-bottom:20px;">
+      ⚠ COD BQ KPIs unavailable -- cloud collector did not run today (gcloud auth expired). Yesterday's snapshot below for orientation only.
+    </div>
+    <div class="card">
+      <div class="card-title">Last known (from 2026-04-29 morning intel)</div>
+      <div class="stat-grid">
+        <div class="stat-card red"><div class="stat-value">0.30x</div><div class="stat-label">MTD ROAS</div></div>
+        <div class="stat-card amber"><div class="stat-value">$186K</div><div class="stat-label">MTD spend</div></div>
+        <div class="stat-card amber"><div class="stat-value">$55.4K</div><div class="stat-label">MTD cash</div></div>
+        <div class="stat-card red"><div class="stat-value">$0/d</div><div class="stat-label">Last 3 days spend (paused?)</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Open COD threads (from yesterday's intel)</div>
+      <div class="concern-item"><div class="item-title">JIT webinar mobile CTA</div><div class="item-detail">Russ flagged broken. Matt fixed + posted Loom. Still needs Android + Instagram in-app browser verification before this is closed.</div></div>
+      <div class="win-item"><div class="item-title">Laura Riness enrolled $13.5K</div><div class="item-detail">Clarity pay (Matt Dakan) + Rebecca Pasko onboarded as new DFY client + Joseph Seagle set Thursday 3pm EDT.</div></div>
+      <div class="concern-item"><div class="item-title">Spend pause (last 3 days $0/day)</div><div class="item-detail">Investigate when bandwidth allows. Could be intentional (creative refresh) or a tracking break. Not blocking on today.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Refresh COD intel later</div>
+      <div class="insight-item"><div class="item-title">Run after Eric call</div><div class="item-detail">Run <code>gcloud auth login</code>, then re-trigger morningIntelCollector or query BQ directly. Get fresh ROAS + closer table + ad spend breakdown for the day.</div></div>
+    </div>
+  </div>
+
+  <!-- OVERNIGHT -->
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Email (last 24h, important / starred / unread)</div>
+      <div class="card-subtitle">15 threads. Top items:</div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">P0</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Daniel Hall (daniel@blogtrepreneur.co.uk) | 13:56 UTC today</div>
+          <div class="overnight-text"><strong>CPG Affiliate Partners Codes</strong> -- attached. Direct relevance to today's 11am CPG call. Wire the codes in OR confirm who's owning that.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">P0</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Namecheap | 15:29 UTC today</div>
+          <div class="overnight-text"><strong>joshbonham.com expires in 24 hours</strong>. Decide: renew or let lapse. If keeping, renew before tomorrow.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">P1</span>
+        <div class="overnight-body">
+          <div class="overnight-source">1Password | 15:34 UTC today</div>
+          <div class="overnight-text"><strong>Price increase notice</strong> on Teams Starter Pack. Read terms when bandwidth allows -- not blocking.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">P1</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Daniel Hall (daniel@blogtrepreneur.co.uk) | Apr 28 thread</div>
+          <div class="overnight-text"><strong>Re: AI</strong> partnership. Daniel said NDA wouldn't protect IP. Kas replied "send whatever contract protects you" -- no response back yet. Holding pattern.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">P2</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Superhuman reminders | 14:00 UTC today</div>
+          <div class="overnight-text">3 self-sent reminders surfaced today: Chargeback Melanie, scrape Ryan Mathews YT strats, blocked Russ images, "resimplify email fixes for Russ then focus on one metric." Triage post-Eric call.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">P2</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Clutch.co | 13:40 UTC today</div>
+          <div class="overnight-text">Goji Labs review reminder -- still incomplete. CPG Clutch profile work in progress (~half drafted in kamg-ops).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Slack overnight</div>
+      <div class="data-banner" style="margin-bottom:0;">
+        Slack scan unavailable this run. Bot auth.test passes but channel history reads return <code>channel_not_found</code> -- bot scope drift or channel renames. Investigate after Eric call.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Today's must-do (priority order)</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>1. CPG call 11:00 CDMX</strong> -- prep tab loaded, Attio update + tracking codes ready.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>2. Pull Redstone GSC + Google Ads 7-day snapshot</strong> -- before 12:30 prep block. Eric expects table-style update.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>3. Verify Joseph Seagle Thursday 3pm EDT (= 1pm CDMX) doesn't collide with Eric call.</strong> If it does, reschedule Joseph BEFORE the Eric call.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>4. Eric call 13:00 CDMX</strong> -- redstone tab loaded, all locked rules + 8 asks ready.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><strong>5. Decide on joshbonham.com renewal</strong> -- expires in 24h.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Carry-forward (Leo + later)</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Send Leo the Redstone quote-resolver brief on Slack (kamg-ops/docs/redstone/quote-resolver-brief-leo.md)</div><span class="priority-badge priority-low">Leo</span></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Paste Eric's corrected 11PBH reply (dual-price table) to Slack DM -- chosen manual paste yesterday</div><span class="priority-badge priority-med">Today</span></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Drive file-ID backfill for 1,240 archive records missing source_file_url (Redstone)</div><span class="priority-badge priority-low">Backlog</span></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Set up recurring weekly re-run for quote extract + resolve + load (Redstone)</div><span class="priority-badge priority-low">Backlog</span></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Triage 4 Superhuman self-reminders that resurfaced today</div><span class="priority-badge priority-low">After Eric</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">System fixes (non-blocking)</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Run <code>gcloud auth login</code> -- restores cloud morning-intel JSON, BQ access for COD KPIs</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Investigate Slack bot scope -- channel_not_found on history reads, but auth.test ok</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Backup log not found -- Google Drive may not be mounted. Re-mount + verify daily backup ran.</div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text">Gmail + Calendar OAuth credentials still <code>invalid_client</code> in morningIntelCollector CF</div></div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data sources this run</div>
+      <table class="data-table">
+        <tr><th>Source</th><th>Status</th><th>Freshness</th></tr>
+        <tr><td>Calendar (k@kasandz.com)</td><td><span class="hl-green">live MCP</span></td><td>09:57 CDMX</td></tr>
+        <tr><td>Gmail (k@kasandz.com)</td><td><span class="hl-green">live MCP</span></td><td>09:57 CDMX</td></tr>
+        <tr><td>Slack Bot COD (auth.test)</td><td><span class="hl-green">PASS</span></td><td>09:57 CDMX</td></tr>
+        <tr><td>Slack channel history reads</td><td><span class="hl-rose">FAIL channel_not_found</span></td><td>--</td></tr>
+        <tr><td>GCS morning-intel-latest JSON</td><td><span class="hl-rose">unavailable (auth expired)</span></td><td>--</td></tr>
+        <tr><td>BigQuery COD KPIs</td><td><span class="hl-rose">unavailable (auth expired)</span></td><td>--</td></tr>
+        <tr><td>Knowledge Compiler</td><td><span class="hl-green">healthy</span></td><td>06:46 UTC = 1.2h ago</td></tr>
+        <tr><td>Agency Brain (PC-C)</td><td><span class="hl-amber">offline</span></td><td>--</td></tr>
+        <tr><td>kamg-ops collab pull</td><td><span class="hl-green">up to date</span></td><td>1 expired self-lock cleaned</td></tr>
+        <tr><td>Backup log</td><td><span class="hl-amber">not found</span></td><td>(Drive may not be mounted)</td></tr>
+        <tr><td>Daily note (yesterday)</td><td><span class="hl-green">read</span></td><td>2026-04-29</td></tr>
+        <tr><td>Memory: reference_cpg.md, reference_cod.md</td><td><span class="hl-green">read</span></td><td>active</td></tr>
+        <tr><td>Memory: project_redstone_quote_ingest.md</td><td><span class="hl-green">read</span></td><td>v3.3 state</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Skill health envelope</div>
+      <div class="card-subtitle">Heartbeat CLI not reachable from default path. Skill state file present at ~/.claude/memory/skill-state.json. No critical flags surfaced.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTHS Cold Email — Considerations & Brief for Vovik · 2026-04-30</title>
+<style>
+  :root {
+    --bg: #0a0d14;
+    --bg-2: #0f1320;
+    --panel: #131826;
+    --panel-2: #181d2c;
+    --line: #1f2740;
+    --line-2: #2a3450;
+    --ink: #e8ecf5;
+    --ink-2: #b8c0d4;
+    --mute: #7a8299;
+    --accent: #6ee7b7;
+    --accent-2: #38bdf8;
+    --warn: #facc15;
+    --bad: #f87171;
+    --good: #34d399;
+    --grad: linear-gradient(135deg, #6ee7b7 0%, #38bdf8 60%, #a78bfa 100%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { padding: 2.5rem 1.25rem 4rem; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  /* ---- Header ---- */
+  .hero { background: linear-gradient(135deg, #0f1320 0%, #131826 60%, #0f1320 100%); border: 1px solid var(--line); border-radius: 18px; padding: 2.25rem 2.25rem 2rem; position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; top: -120px; right: -120px; width: 380px; height: 380px; background: radial-gradient(circle, rgba(110,231,183,0.16), transparent 70%); }
+  .eyebrow { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.85rem; }
+  h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.18; max-width: 720px; }
+  h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .subtitle { color: var(--ink-2); margin-top: 0.65rem; font-size: 1rem; max-width: 720px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--mute); }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* ---- Stat strip ---- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin: 1.5rem 0 0; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; }
+  .stat .v { font-size: 1.5rem; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; }
+  .stat .l { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mute); margin-top: 0.25rem; }
+  .stat.win .v { color: var(--accent); }
+  .stat.warn .v { color: var(--warn); }
+  @media (max-width: 720px) { .stats { grid-template-columns: 1fr 1fr; } }
+
+  /* ---- TL;DR card ---- */
+  .tldr { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.4rem; margin-top: 1.75rem; }
+  .tldr h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.7rem; font-weight: 700; }
+  .tldr ul { list-style: none; padding: 0; }
+  .tldr li { padding: 0.45rem 0 0.45rem 1.5rem; position: relative; color: var(--ink-2); font-size: 0.94rem; }
+  .tldr li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .tldr li b { color: var(--ink); font-weight: 600; }
+
+  /* ---- Sections ---- */
+  section { margin-top: 2.25rem; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem 1.75rem 1.85rem; }
+  .sec-head { display: flex; align-items: center; gap: 0.85rem; padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+  .sec-num { background: var(--bg-2); border: 1px solid var(--line-2); width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 0.88rem; color: var(--accent-2); flex-shrink: 0; }
+  .sec-head h2 { font-size: 1.18rem; font-weight: 700; letter-spacing: -0.01em; }
+  .sec-head .tag { margin-left: auto; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mute); padding: 0.3rem 0.6rem; border: 1px solid var(--line-2); border-radius: 999px; }
+
+  h3 { font-size: 0.96rem; font-weight: 700; color: var(--ink); margin: 1.4rem 0 0.6rem; }
+  h3.first { margin-top: 0; }
+  h4 { font-size: 0.84rem; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.08em; margin: 1.1rem 0 0.4rem; }
+  p { color: var(--ink-2); font-size: 0.94rem; margin-bottom: 0.7rem; }
+  p b, li b { color: var(--ink); font-weight: 600; }
+  ul, ol { padding-left: 1.4rem; color: var(--ink-2); }
+  li { margin-bottom: 0.4rem; font-size: 0.93rem; }
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px dotted var(--line-2); }
+  a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  code { background: var(--bg-2); border: 1px solid var(--line); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); background: var(--bg-2); border-bottom: 1px solid var(--line-2); }
+  td { color: var(--ink-2); }
+  tr:hover td { background: var(--bg-2); }
+  td b { color: var(--ink); }
+
+  /* ---- Pills ---- */
+  .pill { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .pill.use { background: rgba(52,211,153,0.12); color: var(--good); border: 1px solid rgba(52,211,153,0.28); }
+  .pill.skip { background: rgba(248,113,113,0.1); color: var(--bad); border: 1px solid rgba(248,113,113,0.28); }
+  .pill.test { background: rgba(250,204,21,0.1); color: var(--warn); border: 1px solid rgba(250,204,21,0.28); }
+  .pill.now { background: rgba(56,189,248,0.1); color: var(--accent-2); border: 1px solid rgba(56,189,248,0.28); }
+
+  /* ---- Two-col layout ---- */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+  .card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; }
+  .card h4 { margin-top: 0; }
+  .card.do { border-left: 3px solid var(--good); }
+  .card.dont { border-left: 3px solid var(--bad); }
+
+  /* ---- Email mock ---- */
+  .mock { background: #ffffff; color: #1a1d28; border-radius: 10px; padding: 1.4rem 1.6rem; border: 1px solid var(--line-2); margin: 0.8rem 0; font-size: 0.92rem; }
+  .mock .from { font-size: 0.78rem; color: #5f6776; margin-bottom: 0.2rem; }
+  .mock .subj { font-weight: 700; margin-bottom: 0.9rem; color: #0c1020; }
+  .mock p { color: #1a1d28; margin-bottom: 0.6rem; }
+  .mock .sig-logos { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #e8ecf2; flex-wrap: wrap; }
+  .mock .sig-logos .lg { padding: 0.3rem 0.7rem; background: #f4f6fa; border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: #2a3142; letter-spacing: 0.04em; }
+  .mock .img-stub { background: linear-gradient(135deg, #1a1d28 0%, #2a3142 100%); color: #6ee7b7; height: 160px; display: grid; place-items: center; border-radius: 6px; margin: 0.5rem 0; font-family: monospace; font-size: 0.78rem; letter-spacing: 0.1em; }
+
+  /* ---- Callout ---- */
+  .callout { background: linear-gradient(135deg, rgba(110,231,183,0.05) 0%, rgba(56,189,248,0.05) 100%); border: 1px solid var(--line-2); border-left: 3px solid var(--accent-2); border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout .lab { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-2); font-weight: 700; margin-bottom: 0.3rem; }
+  .callout p { margin: 0; }
+
+  /* ---- Footer ---- */
+  footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); text-align: center; color: var(--mute); font-size: 0.82rem; }
+  footer p { color: var(--mute); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">LTHS Studio · Cold Email Brief · For Vovik</div>
+  <h1>Sharpening the program after the <span class="grad">Boris call</span>.</h1>
+  <p class="subtitle">A consolidated brief for Vovik covering targeting refinements, copy direction, the new "embed proof" approach for inboxes, lead-quality filters, and the funnel metrics Boris asked for. Pulled from the 04-29 strategy session and the last 8 days of campaign performance.</p>
+  <div class="meta-row">
+    <span><b>Prepared by</b> Kas Andz</span>
+    <span><b>For</b> Vovik Tsybulskyi</span>
+    <span><b>Source call</b> 2026-04-29 with Boris</span>
+    <span><b>Date</b> 2026-04-30</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat win"><div class="v">18+</div><div class="l">Positive replies in 8 days</div></div>
+    <div class="stat win"><div class="v">2 hr</div><div class="l">First reply on Apr 28 launch</div></div>
+    <div class="stat"><div class="v">2</div><div class="l">Live campaigns</div></div>
+    <div class="stat warn"><div class="v">4</div><div class="l">Funnel metrics Boris wants visible</div></div>
+  </div>
+</div>
+
+<div class="tldr">
+  <h2>What changes (TL;DR)</h2>
+  <ul>
+    <li><b>Targeting holds, expands.</b> Marketing agencies and multi-SKU FB advertisers stay. Single-product e-commerce is out as a lead source. Creators tier moves to test.</li>
+    <li><b>Real brand list locked.</b> Amazon MGM Studio, M&amp;Ms, GAP, EA Games (The Sims). McDonald's removed everywhere — it was never a real client and Boris flagged it.</li>
+    <li><b>Embed proof in the inbox.</b> Show, don't tell. Add an inline image (video still or short loop) on email #2, plus a brand-logo strip in signature from email #1.</li>
+    <li><b>Pre-forward qualifier.</b> Vovik filters replies into <code>multi-SKU / agency / FB advertiser</code> before forwarding. Single-product replies go to a hold list, not Boris's inbox.</li>
+    <li><b>Funnel visibility is the retention lever.</b> Boris's quiet question is "is this working." Sent → delivered → replied → booked → closed. Dashboard v1 next 1–2 weeks (Leo).</li>
+  </ul>
+</div>
+
+<!-- ============ SECTION 1: TARGETING ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">01</div>
+    <h2>Targeting · ICP refinement and active campaigns</h2>
+    <span class="tag">Highest leverage</span>
+  </div>
+
+  <h3 class="first">Active campaigns</h3>
+  <table>
+    <thead>
+      <tr><th>Campaign</th><th>Launched</th><th>Status</th><th>Read</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>AI video, Retail EU</b></td><td>2026-04-20</td><td><span class="pill use">Working</span></td><td>18+ documented positive replies in 8 days. Naritive, Karaz Linen, Plume (Sweden), Memory Lane Candle, Karakorum, Strapped E Liquid, Apple Pie (Italy), Yeppon (Italy), DeepSleep (Saudi), ShopQuick (UK), Air Bod, PostmanPooch.</td></tr>
+      <tr><td><b>Marketing Agencies / AI video</b></td><td>2026-04-28</td><td><span class="pill now">Live · early signal</span></td><td>First positive reply in 2 hours (Naritive, Alex Tsaperas). Push volume.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ICP — what to keep, expand, drop</h3>
+  <table>
+    <thead><tr><th style="width: 26%">Segment</th><th style="width: 18%">Status</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><b>Marketing &amp; performance agencies</b></td><td><span class="pill use">Keep + scale</span></td><td>Volume creative buyers. Boris asked for this on Apr 27. Already firing in 2h on Apr 28 launch.</td></tr>
+      <tr><td><b>Multi-SKU DTC brands running heavy FB ads</b></td><td><span class="pill use">Keep</span></td><td>High-volume creative demand. Recurring need, not a one-off. Boris's preferred fit.</td></tr>
+      <tr><td><b>Creator-economy brands &amp; UGC platforms</b></td><td><span class="pill test">Test next</span></td><td>Boris flagged on Apr 27. Hypothesis: creators with their own product lines need cinematic-grade brand moments.</td></tr>
+      <tr><td><b>Companies actively hiring VFX / 3D artists</b></td><td><span class="pill test">Re-test</span></td><td>Kas's Dec 2025 angle that was paused. Hiring signal = active need. Pull from job boards (LinkedIn, Workable).</td></tr>
+      <tr><td><b>Amazon-heavy multi-SKU brands</b></td><td><span class="pill test">Test (lower priority)</span></td><td>Amazon-agency intros (Tyler US + Canadian) still pending on Kas's side. Direct outreach to Amazon brands is a parallel path.</td></tr>
+      <tr><td><b>Single-product e-commerce</b></td><td><span class="pill skip">Drop</span></td><td>Boris's own framing: "they need one video and bye." Low LTV, churns immediately.</td></tr>
+      <tr><td><b>2D-only game studios</b></td><td><span class="pill skip">Skip</span></td><td>Locked in Mar 06 strategy call. 3D-only on the gaming track.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>List-build filters (pre-send)</h3>
+  <ul>
+    <li>Multi-SKU check: company sells <b>3+ distinct products / SKU lines</b>, or runs an agency model.</li>
+    <li>Ad activity check: visible Meta Ad Library presence in the last 30 days, OR agency case studies showing paid social work.</li>
+    <li>Geo: EU (working), UK, US, Canada, AU. Skip cold-email-saturated SaaS hubs unless multi-SKU.</li>
+    <li>Headcount: 10–250. Below 10 = no budget. Above 250 = procurement loop, low reply rate.</li>
+    <li>Exclusion: anything with "single product" in description, plus Amazon arbitrage / dropship signals.</li>
+  </ul>
+</section>
+
+<!-- ============ SECTION 2: COPY ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">02</div>
+    <h2>Copy · Brand list, positioning, voice</h2>
+    <span class="tag">Boris-approved</span>
+  </div>
+
+  <h3 class="first">Brand list — locked 2026-04-27</h3>
+  <p>Boris pushed back on McDonald's during the Apr 27 thread. It was never a real client. Use only the four below in copy, signature, and any decks Vovik builds for follow-up sequences.</p>
+  <table>
+    <thead><tr><th>Brand</th><th>Use as</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><b>Amazon MGM Studio</b></td><td>Lead-with credibility (entertainment / streaming proof)</td><td><span class="pill use">Active</span></td></tr>
+      <tr><td><b>M&amp;Ms</b></td><td>CPG / consumer brand proof</td><td><span class="pill use">Active</span></td></tr>
+      <tr><td><b>GAP</b></td><td>Retail / fashion proof</td><td><span class="pill use">Active</span></td></tr>
+      <tr><td><b>EA Games — The Sims</b></td><td>Gaming / cinematic trailer proof</td><td><span class="pill use">Active</span></td></tr>
+      <tr><td><b>McDonald's</b></td><td>—</td><td><span class="pill skip">Remove everywhere</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Positioning — Boris's exact framing</h3>
+  <div class="callout">
+    <div class="lab">From Nov 2025 campaign feedback</div>
+    <p>"They do not <b>need</b> us or anyone to make them CGI. Their real need is: save money, save time, keep quality, keep creative control, help with smaller tasks to finish marketing campaigns in time, and unload their team."</p>
+  </div>
+  <p>Lead with their pain, not LTHS capability. The agency or brand already knows what CGI / AI video is. The reply trigger is whether you've named the actual headache: timeline pressure, internal team overload, freelancer quality variance, agency pricing.</p>
+
+  <h3>Voice rules</h3>
+  <div class="two">
+    <div class="card do">
+      <h4>Do</h4>
+      <ul>
+        <li>Short. 50–75 words for email #1.</li>
+        <li>Lowercase, internal-feeling subject lines (2–4 words). Examples: <code>quick question</code>, <code>creative bandwidth</code>, <code>q3 video</code>.</li>
+        <li>One observation about them, one credibility line, one soft ask.</li>
+        <li>Contractions. "We've," "you're," "I'd."</li>
+        <li>Name AI explicitly when relevant — it's closing the deals right now.</li>
+        <li>Acknowledge they likely have an internal team or agency. Don't pretend they're starting from zero.</li>
+      </ul>
+    </div>
+    <div class="card dont">
+      <h4>Don't</h4>
+      <ul>
+        <li>Em dashes. Anywhere. They're an AI tell and Kas's house ban applies here too.</li>
+        <li>"I hope this email finds you well," "I came across your profile," "leverage," "synergy," "best-in-class."</li>
+        <li>Open with "My name is X and I work at Y."</li>
+        <li>Reference brands LTHS hasn't actually worked with. Brand list above is the ceiling.</li>
+        <li>Internal banter. The Apr 9 "lazy guy" line about prospects stays internal — never echo that energy in copy.</li>
+        <li>Pitch every service in one email. One angle per send.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Subject lines that have worked</h3>
+  <ul>
+    <li><code>quick question</code></li>
+    <li><code>video bandwidth</code></li>
+    <li><code>creative pipeline</code></li>
+    <li><code>ai video idea</code></li>
+    <li><code>{first name}, quick one</code> — only if data is verified</li>
+  </ul>
+
+  <h3>Three angles to rotate across email #1 sends</h3>
+  <ol>
+    <li><b>Capacity angle:</b> "Your team is already running. We add a lane for the heavy creative weeks without a long onboarding."</li>
+    <li><b>Speed angle:</b> "AI-assisted video means you ship the testing volume Meta needs, not the one hero we usually see from agencies."</li>
+    <li><b>Cost angle:</b> "Same studio quality without the studio rate card. Brands like {one of the four} run their cinematic work this way."</li>
+  </ol>
+</section>
+
+<!-- ============ SECTION 3: IMAGES IN INBOX ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">03</div>
+    <h2>Embed proof in the inbox · Images and signature logos</h2>
+    <span class="tag">New tactic</span>
+  </div>
+
+  <p>The strongest LTHS asset is the work itself. A frame from the M&amp;Ms or Sims spot lands harder than three sentences describing it. Goal: show prospects what they'll get without asking them to click anything.</p>
+
+  <h3 class="first">When to insert images</h3>
+  <table>
+    <thead><tr><th>Touch</th><th>Image use</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><b>Email #1 (cold)</b></td><td>No body image. <b>Logo strip in signature only.</b></td><td>Inline images in first sends hurt deliverability and trip "marketing email" filters. Signature strip is small, branded, low-risk.</td></tr>
+      <tr><td><b>Email #2 (follow-up, +3 days)</b></td><td>One inline image: video still or 3-frame mini-loop. ~600px wide.</td><td>By touch 2 the sender domain is no longer cold to that mailbox. Inline media has been received before. Now the visual proof works.</td></tr>
+      <tr><td><b>Email #3 (case-study angle)</b></td><td>Single still from one named brand spot. Caption: brand name + 1-line outcome.</td><td>Specificity beats variety. One image, one credit, one number.</td></tr>
+      <tr><td><b>Email #4 (breakup)</b></td><td>No image. Plain text.</td><td>Breakup is a tone shift. Strip the visuals to signal honesty.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Image specs</h3>
+  <ul>
+    <li><b>Format:</b> JPG or PNG. No animated GIF until we test deliverability impact. Animated GIF can also fail to render in Outlook desktop.</li>
+    <li><b>Width:</b> 600px max display, 1200px source for retina. Keep aspect 16:9 or square.</li>
+    <li><b>File size:</b> <b>under 100 KB</b> per image. Compress with Squoosh or ImageOptim before upload.</li>
+    <li><b>Hosting:</b> serve from a domain LTHS controls (CDN or lths.studio subdomain), not third-party image hosts. Reduces "spammy referrer" flags.</li>
+    <li><b>Alt text:</b> always set. <code>alt="LTHS x EA — The Sims cinematic frame"</code>. Accessibility plus a fallback when images are blocked.</li>
+    <li><b>One image per email.</b> Stacked images = newsletter pattern = deliverability hit.</li>
+  </ul>
+
+  <h3>Signature logo strip — first email and onward</h3>
+  <p>Small footer band under the signature with four locked brand names. Text-based mark, not raster logos, to avoid trademark friction and keep file weight zero.</p>
+  <div class="mock">
+    <div class="from">Boris Ryn · LTHS Studio · borisryn@lths.studio</div>
+    <div class="subj">creative bandwidth</div>
+    <p>Hey {first name},</p>
+    <p>Saw {observation about their current campaign / hiring / launch}. Most agencies we work with hit a wall around the third Meta test cycle — not enough creative variations, internal team underwater.</p>
+    <p>We run AI-assisted cinematic video for brands like Amazon MGM Studio and EA. Same studio output, faster pipeline. Worth a look?</p>
+    <p>Boris</p>
+    <div class="sig-logos">
+      <span class="lg">Amazon MGM Studio</span>
+      <span class="lg">M&amp;Ms</span>
+      <span class="lg">GAP</span>
+      <span class="lg">EA · The Sims</span>
+    </div>
+  </div>
+
+  <h3>Email #2 layout — one inline image</h3>
+  <div class="mock">
+    <div class="from">Boris Ryn · LTHS Studio</div>
+    <div class="subj">re: creative bandwidth</div>
+    <p>Quick follow-up — figured a frame says it faster than I can.</p>
+    <div class="img-stub">[ INLINE IMAGE · 600×340 · cinematic still, e.g. Sims spot frame ]</div>
+    <p>This is what we ship at agency-level cost, in roughly half the time of a traditional CGI house.</p>
+    <p>Worth 15 minutes?</p>
+    <p>Boris</p>
+  </div>
+
+  <h3>Personalized image variant (test, not default)</h3>
+  <p>Lemlist / Smartlead have a feature where the prospect's logo or name is overlaid onto a brand image. Useful for marketing-agency outreach because their team already sells visuals.</p>
+  <ul>
+    <li><b>Test cell:</b> 200 sends, marketing-agency segment only. Half with personalized image, half with static still.</li>
+    <li><b>Read after:</b> 7 days. Compare reply rate AND deliverability (inbox vs spam).</li>
+    <li><b>Kill criteria:</b> if personalized variant drops inbox rate below 90% — turn off, the static-image path stays.</li>
+  </ul>
+
+  <h3>Deliverability guardrails</h3>
+  <ul>
+    <li>Keep the text-to-image ratio <b>above 80% text</b> in any email that has an image.</li>
+    <li>One link per email. Boris's website only. No tracking-pixel-style image hosts.</li>
+    <li>Warm any new domain or mailbox <b>14+ days</b> before it sends an image-bearing email.</li>
+    <li>Run a Mail-Tester score before launching the image variant. Target 9.5+/10.</li>
+    <li>Watch the Apr 20 campaign's spam-folder rate in week 1 of the image rollout. Pause and revert if open rate drops more than 15% off baseline.</li>
+  </ul>
+</section>
+
+<!-- ============ SECTION 4: REPLY HANDLING ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">04</div>
+    <h2>Reply handling · Pre-forward filter and CC discipline</h2>
+    <span class="tag">Protect Boris's inbox</span>
+  </div>
+
+  <p>Boris's pushback in 2025 was that the "interested prospect" bot called too many soft "no" replies positive, and that low-LTV single-product replies clogged his decisioning time. The fix is a pre-forward filter on Vovik's side.</p>
+
+  <h3 class="first">Pre-forward decision tree</h3>
+  <table>
+    <thead><tr><th style="width: 38%">Reply pattern</th><th style="width: 22%">Forward?</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Multi-SKU brand · explicit interest · asks for portfolio / pricing / call</td><td><span class="pill use">Forward immediately</span></td><td>Boris + CC Vladislav</td></tr>
+      <tr><td>Marketing / performance agency · interested or curious</td><td><span class="pill use">Forward immediately</span></td><td>Boris + CC Vladislav</td></tr>
+      <tr><td>FB-advertiser brand · warm but not now · "keep on file"</td><td><span class="pill test">Forward, label "nurture"</span></td><td>Boris + Vladislav, plus Vovik nurture queue</td></tr>
+      <tr><td>Single-product e-commerce · interested</td><td><span class="pill skip">Hold</span></td><td>Vovik's hold folder. Quarterly digest to Boris, not 1:1 forwards.</td></tr>
+      <tr><td>Soft "no" / "not now" with no follow-up trigger</td><td><span class="pill skip">Hold</span></td><td>Hold for 90 days. Re-engage on a different angle.</td></tr>
+      <tr><td>Hard "no" / "remove me"</td><td><span class="pill skip">Suppress</span></td><td>Suppression list. Never re-import.</td></tr>
+      <tr><td>Off-fit (called out targeting accuracy, e.g. wrong industry)</td><td><span class="pill skip">Suppress + audit</span></td><td>Add to suppression. Flag the source list to Vovik so it stops generating mismatches.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Forwarding format (every fit reply)</h3>
+  <ul>
+    <li><b>Subject prefix Boris asked for:</b> use the prefix Boris pinned in the Slack channel so his Gmail filters route correctly. (Vovik confirmed Apr 27 that Vladislav is now CC'd on all forwards — keep that.)</li>
+    <li>Two-line summary above the original thread: <i>"Multi-SKU DTC, FB advertiser, asks for pricing. Reply suggested: confirm portfolio link + propose 15 min."</i></li>
+    <li>Tag the campaign source: <code>[AI video, Retail EU]</code> or <code>[Marketing Agencies]</code>. Helps Boris see which campaign is producing what.</li>
+  </ul>
+
+  <h3>Authenticity guardrail</h3>
+  <p>If a prospect asks "have you worked with X?" — never confirm a brand that's not on the locked list. Default reply: "Our public case studies are with Amazon MGM Studio, M&amp;Ms, GAP, and EA. Other work is under NDA — happy to walk you through on a call."</p>
+</section>
+
+<!-- ============ SECTION 5: REPORTING ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">05</div>
+    <h2>Reporting · Funnel metrics Boris asked for</h2>
+    <span class="tag">Retention lever</span>
+  </div>
+
+  <p>Boris's literal ask: "how many emails sent vs landed in my mailbox vs converted." His unsaid version: "I want to know this is working before I keep paying." Closing that visibility gap is the single biggest retention move on this account right now.</p>
+
+  <h3 class="first">Metrics for the dashboard v1 (Leo is building)</h3>
+  <table>
+    <thead><tr><th>Metric</th><th>Definition</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><b>Sent</b></td><td>Emails dispatched per campaign per day</td><td>Vovik's sender platform export (Smartlead / Instantly / Woodpecker)</td></tr>
+      <tr><td><b>Delivered (inbox-landed)</b></td><td>Sent minus bounces minus spam-folder estimate</td><td>Sender platform + sample inbox checks</td></tr>
+      <tr><td><b>Reply rate</b></td><td>Total replies / delivered. Split by sentiment.</td><td>Vovik labels every reply as positive / warm / negative / off-fit</td></tr>
+      <tr><td><b>Forwarded to Boris</b></td><td>Replies that passed the pre-forward filter (Section 4)</td><td>Vovik's forward log</td></tr>
+      <tr><td><b>Booked</b></td><td>Calls scheduled with Boris</td><td>Boris's calendar / Vladislav</td></tr>
+      <tr><td><b>Closed</b></td><td>Contracts signed, attributed back to source campaign</td><td>Boris confirms in Slack</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cadence Vovik should hit</h3>
+  <ul>
+    <li><b>Daily:</b> sender-platform export pushed to a shared sheet (or Vovik's existing dashboard) at end of day.</li>
+    <li><b>Weekly:</b> short Slack summary per active campaign — sends, delivered, replies (split), forwarded, off-fit count, top 3 prospects.</li>
+    <li><b>Per launch:</b> day-1 and day-3 deliverability check on any new campaign or new mailbox.</li>
+  </ul>
+
+  <h3>What this unblocks</h3>
+  <p>Once these numbers are visible to Boris, two things stop being friction: (1) the implicit anxiety about whether the spend is working, and (2) the ICP debate becomes data-led instead of opinion-led. Whichever vertical drives the highest forwarded-to-booked ratio wins the next budget cycle.</p>
+</section>
+
+<!-- ============ SECTION 6: NEXT ACTIONS ============ -->
+<section>
+  <div class="sec-head">
+    <div class="sec-num">06</div>
+    <h2>Next actions · This week</h2>
+    <span class="tag">Owner-tagged</span>
+  </div>
+
+  <table>
+    <thead><tr><th style="width: 6%">#</th><th>Action</th><th style="width: 18%">Owner</th><th style="width: 14%">Due</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Strip McDonald's from every active sequence, signature, and Notion campaign doc</td><td>Vovik</td><td>This week</td></tr>
+      <tr><td>2</td><td>Add the four-brand text logo strip to every active mailbox signature</td><td>Vovik</td><td>This week</td></tr>
+      <tr><td>3</td><td>Build email #2 image-variant template (single 600px still, &lt;100KB, alt text)</td><td>Vovik</td><td>This week</td></tr>
+      <tr><td>4</td><td>Mail-Tester score on image variant before send. Target 9.5+/10.</td><td>Vovik</td><td>Pre-launch gate</td></tr>
+      <tr><td>5</td><td>Set up the pre-forward filter (Section 4) and CC discipline (Vladislav on every fit reply)</td><td>Vovik</td><td>Immediate</td></tr>
+      <tr><td>6</td><td>Stand up the daily metric export to a shared sheet so Leo can pipe into the dashboard</td><td>Vovik</td><td>This week</td></tr>
+      <tr><td>7</td><td>Build the creators-niche test list (200 prospects, hypothesis check)</td><td>Vovik</td><td>Next 7 days</td></tr>
+      <tr><td>8</td><td>Spec the VFX-hiring trigger list (Kas's Dec 2025 angle, paused) and propose volume</td><td>Vovik + Kas</td><td>Discuss in next sync</td></tr>
+      <tr><td>9</td><td>Dashboard v1 (sent → closed) with the six metrics in Section 5</td><td>Leo</td><td>1–2 weeks</td></tr>
+      <tr><td>10</td><td>Re-ping Tyler (US Amazon agency) and Canadian Amazon agency intros</td><td>Kas</td><td>This week</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="lab">Open question for Vovik</div>
+    <p>Of the 18+ replies in the last 8 days, which 2–3 verticals feel like real long-term clients vs one-off jobs in your read? Boris is going to ask the same thing, and an early Vovik view will sharpen what we test next week.</p>
+  </div>
+</section>
+
+<footer>
+  <p>LTHS · Cold Email Considerations · Vovik Brief · 2026-04-30</p>
+  <p>Sources: 04-29 Boris call prep + post-call read · LTHS client intel index · Slack history (#client-lths-cold-email) · Cold outreach KB · Apr 27 brand-list correction</p>
+</footer>
+
+</div>
+</body>
+</html>

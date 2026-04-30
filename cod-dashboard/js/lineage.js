@@ -185,21 +185,12 @@ const Lineage = (() => {
         { name: 'Weekly Funnel', type: 'Chart', pipelines: ['funnel'], query: 'weekly', detail: 'Weekly tickets, attended, booked, enrolled per ISO week.' },
       ]
     },
-    'enrollment': {
-      title: 'Enrollment',
+    'revenue': {
+      title: 'Revenue & LTV',
       elements: [
         { name: 'Enrollments / Cash Collected / Avg Deal Size / Refund Rate / ROAS', type: 'KPI Strip', pipelines: ['stripe', 'meta'], query: 'default', detail: 'Enrollment = Stripe charges > $500. Cash = SUM(amount_captured). ROAS = cash / Meta spend.' },
         { name: 'Monthly Trend', type: 'Chart', pipelines: ['stripe'], query: 'monthly', detail: 'Monthly enrollment count and revenue from v_stripe_clean.' },
         { name: 'Pipeline Conversion', type: 'Panel', pipelines: ['funnel'], query: 'pipeline', detail: 'Total tickets to enrolled conversion rate from vw_workshop_funnel_pipeline.' },
-      ]
-    },
-    'calls': {
-      title: 'Bookings & Calls',
-      elements: [
-        { name: 'Bookings / Showed / No-Shows / Closed / Show Rate / Close Rate', type: 'KPI Strip', pipelines: ['sheets'], query: 'default', detail: 'From v_sheets_bookings_clean. No-show cost estimated at $877/call (ad spend / total calls).' },
-        { name: 'Per-Closer Stats', type: 'Table', pipelines: ['sheets'], query: 'closers', detail: 'Per team_member: total calls, showed, closed, close rate, no-shows from Google Sheet.' },
-        { name: 'Objection Analysis', type: 'Chart', pipelines: ['sheets'], query: 'objections', detail: 'Top 10 notes_status/disposition categories from non-closed, non-no-show calls.' },
-        { name: 'Monthly Trend', type: 'Chart', pipelines: ['sheets'], query: 'monthly', detail: 'Monthly call volume: total, no-shows, showed, closed.' },
       ]
     },
     'email-intel': {
@@ -216,14 +207,6 @@ const Lineage = (() => {
         { name: 'Funnel Stage Counts', type: 'Funnel', pipelines: ['funnel'], query: 'default', detail: 'Full pipeline: tickets > attended > VIP > booked > calls > enrolled. Boolean stage flags from vw_workshop_funnel_pipeline.' },
       ]
     },
-    'behavioral': {
-      title: 'Behavioral',
-      elements: [
-        { name: 'Event Summary', type: 'KPI Strip', pipelines: ['posthog'], query: 'default', detail: 'Total events, unique users, pageviews, rage clicks from posthog_events.' },
-        { name: 'Speed to Action', type: 'Chart', pipelines: ['funnel'], query: 'speedToAction', detail: 'Hours from ticket purchase to booking per contact, flagged by enrollment and VIP status.' },
-        { name: 'Purchase Heatmap', type: 'Chart', pipelines: ['funnel'], query: 'dayofweek', detail: 'Ticket purchase day-of-week and hour distribution with enrolled overlay.' },
-      ]
-    },
     'live-feed': {
       title: 'Live Feed',
       elements: [
@@ -235,13 +218,6 @@ const Lineage = (() => {
       elements: [
         { name: 'Per-Closer Performance', type: 'Table', pipelines: ['sheets'], query: 'default', detail: 'Per team_member: total calls, showed, closed, no-shows, close rate, show rate from v_sheets_bookings_clean.' },
         { name: 'Monthly Trend', type: 'Table', pipelines: ['sheets'], query: 'monthly', detail: 'Monthly per-closer: calls, closed, close rate.' },
-      ]
-    },
-    'churn': {
-      title: 'Churn & Payments',
-      elements: [
-        { name: 'Payment Health KPIs', type: 'KPI Strip', pipelines: ['stripe'], query: 'default', detail: 'From stripe_transactions: success/failure rates, collected, refunded, active subscribers.' },
-        { name: 'Monthly Payment Trend', type: 'Chart', pipelines: ['stripe'], query: 'monthly', detail: 'Monthly successful, failed, refunded, collected from stripe_transactions.' },
       ]
     },
     'geo-intel': {
@@ -258,48 +234,10 @@ const Lineage = (() => {
         { name: 'Segment Breakdown', type: 'Chart', pipelines: ['master'], query: 'N/A (client-side)', detail: 'Auto-derived segments from master_customers: customer, enrolled, vip_attendee, workshop_attendee, applicant, registrant, lead.' },
       ]
     },
-    'hyros': {
-      title: 'Hyros Attribution',
-      elements: [
-        { name: 'Attribution KPIs', type: 'KPI Strip', pipelines: ['hyros'], query: 'default', detail: 'Total sales, revenue, avg revenue, total/unique leads, GHL lead match rate.' },
-        { name: 'Revenue by Source', type: 'Table', pipelines: ['hyros'], query: 'sources / sourcesAttrib', detail: 'First/last/scientific attribution: sales count, revenue, ticket/enrollment split, AOV, refunds by source.' },
-        { name: 'Sales Hierarchy', type: 'Drill-down', pipelines: ['hyros', 'meta'], query: 'salesHierarchy', detail: 'Campaign > Adset > Ad tree joined to Meta ad names. Supports attribution model toggle.' },
-        { name: 'Daily Sales', type: 'Chart', pipelines: ['hyros'], query: 'daily + dailySplit', detail: 'Daily sales count, revenue, AOV + ticket vs enrollment revenue split.' },
-        { name: 'URL Performance', type: 'Table', pipelines: ['hyros'], query: 'urls', detail: 'Source URL lead-to-conversion: total leads, converted, CVR, revenue, AOV.' },
-      ]
-    },
-    'worklists': {
-      title: 'Worklists',
-      elements: [
-        { name: 'No-Show Recovery', type: 'Table', pipelines: ['sheets'], query: 'noShowRecovery', detail: '30-day no-shows with closer and days-since for recovery outreach.' },
-        { name: 'VIP Non-Bookers', type: 'Table', pipelines: ['funnel'], query: 'vipNonBookers', detail: 'VIPs who bought but never booked a call (60 days). Activation targets.' },
-        { name: 'Follow-Up Pipeline', type: 'Table', pipelines: ['sheets'], query: 'followUps', detail: 'Non-closed, non-no-show calls from 30 days for follow-up.' },
-      ]
-    },
-    'leaks': {
-      title: 'Leaks',
-      elements: [
-        { name: 'Revenue Leak Summary', type: 'KPI Strip', pipelines: ['sheets', 'funnel', 'meta', 'stripe'], query: 'default', detail: 'No-show cost ($877/call), VIP non-bookers, wasted spend (zero-conversion), refunds. Total leaked amount.' },
-      ]
-    },
-    'opportunities': {
-      title: 'Opportunities',
-      elements: [
-        { name: 'Pipeline Opportunities', type: 'KPI Strip', pipelines: ['funnel'], query: 'default', detail: 'VIP non-booker count, close/booking rates, projected revenue if VIPs convert.' },
-        { name: 'Closer Equalization', type: 'Table', pipelines: ['sheets'], query: 'closers', detail: 'Per-closer close rates for identifying coaching opportunities.' },
-        { name: 'Day Optimization', type: 'Chart', pipelines: ['sheets'], query: 'dayofweek', detail: 'Close rate by day of week for scheduling optimization.' },
-      ]
-    },
     'experiments': {
       title: 'Experiments',
       elements: [
         { name: 'Experiment Registry', type: 'Table', pipelines: [], query: 'default', detail: 'Placeholder -- experiment_registry table not yet created. Returns zeroes.' },
-      ]
-    },
-    'wistia': {
-      title: 'Wistia',
-      elements: [
-        { name: 'Video Analytics', type: 'Various', pipelines: [], query: 'N/A', detail: 'Wistia integration pending. Will track workshop replay watch time, engagement, and drop-off points.' },
       ]
     },
     'journey-stage': {

@@ -1,7 +1,6 @@
 /* ============================================
    Revenue & LTV -- processor breakdown, LTV cohorts,
    closer concentration, churn absorption
-   Rebuilt from enrollment.js for Phase 01-02
    ============================================ */
 
 App.registerPage('revenue', async (container) => {

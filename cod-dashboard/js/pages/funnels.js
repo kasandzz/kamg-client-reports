@@ -936,6 +936,178 @@ App.registerPage('funnels', async (container) => {
     }
 
     /* =========================================================
+       Russ Daily Operations -- Cohort Table + Recovery Worklists
+       ========================================================= */
+    .russ-section-banner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      margin: var(--space-2) 0 var(--space-4);
+      background: linear-gradient(90deg, rgba(124,58,237,0.10) 0%, rgba(124,58,237,0.02) 100%);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: var(--radius-md);
+    }
+    .russ-section-banner__pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-primary-bright);
+      padding: 2px 8px;
+      background: rgba(124,58,237,0.15);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-sm);
+    }
+    .russ-section-banner__title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .russ-section-banner__sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-left: auto;
+    }
+    .cohort-table .show-rate-pill,
+    .cohort-table .close-rate-pill,
+    .cohort-table .booking-rate-pill {
+      display: inline-block;
+      min-width: 48px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .pill-green  { background: var(--status-up-bg);   color: var(--status-up); }
+    .pill-yellow { background: var(--status-warning-bg); color: var(--status-warning); }
+    .pill-red    { background: var(--status-down-bg); color: var(--status-down); }
+    .pill-neutral{ background: var(--status-neutral-bg); color: var(--text-secondary); }
+
+    .split-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .worklist-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color var(--transition-fast);
+    }
+    .worklist-card:hover { border-color: var(--border-hover); }
+    .worklist-card__head {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .worklist-card__title {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+    }
+    .worklist-card__sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .worklist-card__count {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-primary-bright);
+      padding: 4px 10px;
+      background: rgba(124,58,237,0.10);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-full);
+    }
+    .worklist-body {
+      max-height: 460px;
+      overflow-y: auto;
+    }
+    .worklist-body::-webkit-scrollbar { width: 6px; }
+    .worklist-body::-webkit-scrollbar-track { background: transparent; }
+    .worklist-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
+    .worklist-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-2) var(--space-3);
+      align-items: center;
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .worklist-row:last-child { border-bottom: 0; }
+    .worklist-row:hover { background: rgba(124,58,237,0.03); }
+    .worklist-row__name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .worklist-row__meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      grid-column: 1 / 2;
+    }
+    .worklist-row__days {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+    }
+    .worklist-row__contacts {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+    .worklist-contact-btn {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      padding: 3px 8px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .worklist-contact-btn:hover {
+      color: var(--accent-primary-bright);
+      border-color: var(--border-accent);
+      background: var(--accent-primary-ghost);
+    }
+    .worklist-empty {
+      padding: var(--space-8);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .worklist-loading {
+      padding: var(--space-6);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    /* =========================================================
        Responsive
        ========================================================= */
     @media (max-width: 768px) {
@@ -943,6 +1115,9 @@ App.registerPage('funnels', async (container) => {
       .ws-page-header { flex-direction: column; align-items: flex-start; }
       .kpi-grid { grid-template-columns: 1fr; }
       .split-row { grid-template-columns: 1fr; }
+      .split-row-2 { grid-template-columns: 1fr; }
+      .russ-section-banner { flex-wrap: wrap; }
+      .russ-section-banner__sub { margin-left: 0; width: 100%; }
     }
 
     /* Date picker CSS now in shared components.css */
@@ -1025,6 +1200,72 @@ App.registerPage('funnels', async (container) => {
       </div>
     </div>
     <div id="sankeyContainer" style="width:100%;overflow-x:auto;"></div>
+  </div>
+
+  <!-- ====== 4c. RUSS DAILY OPERATIONS -- Cohort Table + Worklists ====== -->
+  <div class="russ-section-banner">
+    <span class="russ-section-banner__pill">Russ Daily</span>
+    <span class="russ-section-banner__title">Recovery Operations</span>
+    <span class="russ-section-banner__sub">Weekly cohort performance + actionable recovery worklists</span>
+  </div>
+
+  <!-- Weekly Cohort Table -->
+  <div class="table-card" id="weeklyCohortCard">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-5) 0;">
+      <div>
+        <div class="table-card__title" style="margin:0;padding:0">Weekly Cohort Performance</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Per workshop session: full pipeline from ticket to enrollment.</div>
+      </div>
+      <div style="font-size:10px;font-family:var(--font-mono);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">funnel-27 / weekly</div>
+    </div>
+    <div class="data-table-wrap" style="padding:var(--space-3) 0 var(--space-2);">
+      <table class="data-table cohort-table" id="weeklyCohortTable">
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th style="text-align:right">Tickets</th>
+            <th style="text-align:right">VIP</th>
+            <th style="text-align:right">Attended</th>
+            <th style="text-align:center">Show%</th>
+            <th style="text-align:right">Booked</th>
+            <th style="text-align:right">Showed</th>
+            <th style="text-align:right">Enrolled</th>
+            <th style="text-align:center">Close%</th>
+            <th style="text-align:right">Cash</th>
+            <th style="text-align:right">Contract</th>
+          </tr>
+        </thead>
+        <tbody id="weeklyCohortBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recovery Worklists -->
+  <div class="split-row-2">
+    <div class="worklist-card" id="noShowRecoveryCard">
+      <div class="worklist-card__head">
+        <div>
+          <div class="worklist-card__title">No-Show Recovery</div>
+          <div class="worklist-card__sub">Booked sales calls that didn't attend &middot; last 30 days</div>
+        </div>
+        <span class="worklist-card__count" id="noShowRecoveryCount">--</span>
+      </div>
+      <div class="worklist-body" id="noShowRecoveryBody">
+        <div class="worklist-loading">Loading recovery list...</div>
+      </div>
+    </div>
+    <div class="worklist-card" id="vipNonBookersCard">
+      <div class="worklist-card__head">
+        <div>
+          <div class="worklist-card__title">VIP Non-Bookers</div>
+          <div class="worklist-card__sub">VIP ticket purchased, never booked a call &middot; last 60 days</div>
+        </div>
+        <span class="worklist-card__count" id="vipNonBookersCount">--</span>
+      </div>
+      <div class="worklist-body" id="vipNonBookersBody">
+        <div class="worklist-loading">Loading VIP list...</div>
+      </div>
+    </div>
   </div>
 
   <!-- ====== 5 & 6. Completion Breakdown + Day/Time Heatmap ====== -->
@@ -2903,6 +3144,182 @@ async function renderSankey() {
   document.getElementById('sankeyCompactCheck').onchange = function() { renderSankey(); };
 }
 
+// ============================================================
+// Russ Daily Operations -- Cohort Table + Recovery Worklists
+// ============================================================
+
+function _cohortRatePill(value, target, warn, inverted) {
+  if (value == null || isNaN(value)) return '<span class="show-rate-pill pill-neutral">--</span>';
+  var label = (+value).toFixed(1) + '%';
+  var cls = 'pill-neutral';
+  if (target != null) {
+    if (inverted) {
+      cls = value <= target ? 'pill-green' : value <= warn ? 'pill-yellow' : 'pill-red';
+    } else {
+      cls = value >= target ? 'pill-green' : value >= warn ? 'pill-yellow' : 'pill-red';
+    }
+  }
+  return '<span class="show-rate-pill ' + cls + '">' + label + '</span>';
+}
+
+function _unwrapBqValue(v) {
+  if (v == null) return null;
+  if (typeof v === 'object' && 'value' in v) return v.value;
+  return v;
+}
+
+function _formatWeekLabel(weekStr) {
+  var raw = _unwrapBqValue(weekStr);
+  if (!raw) return '--';
+  var d = new Date(raw);
+  if (isNaN(d.getTime())) return String(raw);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return 'Wk of ' + months[d.getUTCMonth()] + ' ' + d.getUTCDate();
+}
+
+function _formatMoney(n) {
+  if (n == null || isNaN(n)) return '$0';
+  var v = Math.round(+n);
+  if (v >= 1000) return '$' + (v / 1000).toFixed(v >= 10000 ? 0 : 1) + 'k';
+  return '$' + v.toLocaleString();
+}
+
+function _formatNum(n) {
+  if (n == null || isNaN(n)) return '0';
+  return Math.round(+n).toLocaleString();
+}
+
+async function renderWeeklyCohort() {
+  var tbody = document.getElementById('weeklyCohortBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:var(--space-4);color:var(--text-muted);font-size:11px;">Loading cohort data...</td></tr>';
+  try {
+    var rows = await API.query('funnel-27', 'weekly', { days: 84 });
+    if (!rows || !rows.length) {
+      tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:var(--space-6);color:var(--text-muted);font-size:11px;">No cohort data available.</td></tr>';
+      return;
+    }
+    rows.forEach(function(r) { r._weekRaw = _unwrapBqValue(r.week); });
+    rows.sort(function(a, b) { return (a._weekRaw < b._weekRaw ? 1 : -1); });
+    var html = '';
+    rows.forEach(function(r) {
+      var showRate = _cohortRatePill(r.show_rate, 65, 60, false);
+      var closeRate = _cohortRatePill(r.close_rate, 30, 20, false);
+      html += '<tr>'
+        + '<td class="mono" style="color:var(--text-secondary);">' + _formatWeekLabel(r.week) + '</td>'
+        + '<td style="text-align:right">' + _formatNum(r.tickets) + '</td>'
+        + '<td style="text-align:right;color:var(--accent-gold);">' + _formatNum(r.vip) + '</td>'
+        + '<td style="text-align:right">' + _formatNum(r.attended) + '</td>'
+        + '<td style="text-align:center">' + showRate + '</td>'
+        + '<td style="text-align:right">' + _formatNum(r.booked) + '</td>'
+        + '<td style="text-align:right">' + _formatNum(r.showed) + '</td>'
+        + '<td style="text-align:right;color:var(--status-up);">' + _formatNum(r.enrolled) + '</td>'
+        + '<td style="text-align:center">' + closeRate + '</td>'
+        + '<td style="text-align:right;color:var(--status-up);font-weight:600">' + _formatMoney(r.cash) + '</td>'
+        + '<td style="text-align:right">' + _formatMoney(r.contract) + '</td>'
+        + '</tr>';
+    });
+    tbody.innerHTML = html;
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:var(--space-4);color:var(--status-down);font-size:11px;">Failed to load: ' + (e && e.message || 'unknown error') + '</td></tr>';
+  }
+}
+
+function _daysPill(days) {
+  var n = +days || 0;
+  var cls = 'pill-neutral';
+  if (n <= 3) cls = 'pill-green';
+  else if (n <= 7) cls = 'pill-yellow';
+  else cls = 'pill-red';
+  return '<span class="worklist-row__days ' + cls + '">' + n + 'd ago</span>';
+}
+
+function _safeText(v) {
+  if (v == null) return '';
+  return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function _phoneHref(phone) {
+  if (!phone) return '';
+  var clean = String(phone).replace(/[^\d+]/g, '');
+  return clean ? 'tel:' + clean : '';
+}
+
+async function renderNoShowRecovery() {
+  var body = document.getElementById('noShowRecoveryBody');
+  var countEl = document.getElementById('noShowRecoveryCount');
+  if (!body) return;
+  try {
+    var rows = await API.query('worklists', 'noShowRecovery', {});
+    if (!rows || !rows.length) {
+      body.innerHTML = '<div class="worklist-empty">No no-shows in last 30 days. Nice.</div>';
+      if (countEl) countEl.textContent = '0';
+      return;
+    }
+    if (countEl) countEl.textContent = rows.length;
+    var html = '';
+    rows.forEach(function(r) {
+      var name = _safeText(r.name) || '(no name)';
+      var email = _safeText(r.email);
+      var phoneRaw = r.phone ? String(r.phone) : '';
+      var phoneHref = _phoneHref(phoneRaw);
+      var closer = _safeText(r.closer) || '--';
+      var days = _daysPill(r.days_since);
+      html += '<div class="worklist-row">'
+        + '<div class="worklist-row__name">' + name + '</div>'
+        + days
+        + '<div class="worklist-row__meta">' + closer + ' &middot; ' + (r.call_date ? _safeText(r.call_date) : '--') + '</div>'
+        + '<div class="worklist-row__contacts">'
+        + (email ? '<a class="worklist-contact-btn" href="mailto:' + email + '" title="' + email + '">&#9993; ' + email + '</a>' : '')
+        + (phoneHref ? '<a class="worklist-contact-btn" href="' + phoneHref + '">&#9742; ' + _safeText(phoneRaw) + '</a>' : '')
+        + '</div>'
+        + '</div>';
+    });
+    body.innerHTML = html;
+  } catch (e) {
+    body.innerHTML = '<div class="worklist-empty" style="color:var(--status-down)">Failed to load: ' + _safeText(e && e.message || 'unknown') + '</div>';
+    if (countEl) countEl.textContent = '!';
+  }
+}
+
+async function renderVipNonBookers() {
+  var body = document.getElementById('vipNonBookersBody');
+  var countEl = document.getElementById('vipNonBookersCount');
+  if (!body) return;
+  try {
+    var rows = await API.query('worklists', 'vipNonBookers', {});
+    if (!rows || !rows.length) {
+      body.innerHTML = '<div class="worklist-empty">All VIPs have booked. Nice.</div>';
+      if (countEl) countEl.textContent = '0';
+      return;
+    }
+    if (countEl) countEl.textContent = rows.length;
+    var html = '';
+    rows.forEach(function(r) {
+      var name = _safeText(r.name) || '(no name)';
+      var email = _safeText(r.email);
+      var phoneRaw = r.phone ? String(r.phone) : '';
+      var phoneHref = _phoneHref(phoneRaw);
+      var ticketRaw = _unwrapBqValue(r.ticket_purchased_at);
+      var ticketDate = ticketRaw ? _safeText(String(ticketRaw).slice(0, 10)) : '--';
+      var days = _daysPill(r.days_since_ticket);
+      html += '<div class="worklist-row">'
+        + '<div class="worklist-row__name">' + name + '</div>'
+        + days
+        + '<div class="worklist-row__meta">VIP ticket &middot; ' + ticketDate + '</div>'
+        + '<div class="worklist-row__contacts">'
+        + (email ? '<a class="worklist-contact-btn" href="mailto:' + email + '" title="' + email + '">&#9993; ' + email + '</a>' : '')
+        + (phoneHref ? '<a class="worklist-contact-btn" href="' + phoneHref + '">&#9742; ' + _safeText(phoneRaw) + '</a>' : '')
+        + '</div>'
+        + '</div>';
+    });
+    body.innerHTML = html;
+  } catch (e) {
+    body.innerHTML = '<div class="worklist-empty" style="color:var(--status-down)">Failed to load: ' + _safeText(e && e.message || 'unknown') + '</div>';
+    if (countEl) countEl.textContent = '!';
+  }
+}
+
 // ---- Render All ----
 // ---- Render: Sales Dynamic (Revenue + Ad Spend) ----
 async function renderSalesDynamic() {
@@ -3011,6 +3428,10 @@ async function renderAll(days) {
   await renderTicketHeatmap();
   await renderSalesDynamic();
   await renderSankey();
+  // Russ Daily Operations -- runs in parallel, doesn't block downstream renders
+  renderWeeklyCohort();
+  renderNoShowRecovery();
+  renderVipNonBookers();
   await renderBookingTable(days);
 
   // Dispatch custom event

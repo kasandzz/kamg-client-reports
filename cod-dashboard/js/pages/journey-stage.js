@@ -89,8 +89,8 @@ for (let s = 1; s <= 12; s++) {
           </div>
           <h2 style="margin:4px 0 0; font-size:22px; font-weight:700; color:var(--text-primary, #e2e8f0);">${cfg.title}</h2>
         </div>
-        <a href="#" onclick="App.navigate('journey-map'); return false;" style="font-size:12px; color:var(--text-secondary, #94a3b8); text-decoration:none; white-space:nowrap; padding:6px 12px; border:1px solid rgba(255,255,255,0.1); border-radius:6px; hover:color:#fff;">
-          &#8592; Journey Map
+        <a href="#" onclick="App.navigate('journey-explorer'); return false;" style="font-size:12px; color:var(--text-secondary, #94a3b8); text-decoration:none; white-space:nowrap; padding:6px 12px; border:1px solid rgba(255,255,255,0.1); border-radius:6px; hover:color:#fff;">
+          &#8592; Journey Explorer
         </a>
       `;
       container.appendChild(header);
@@ -346,8 +346,8 @@ function _renderStageNav(container, stageNum) {
   const backBtn = document.createElement('button');
   backBtn.className = 'btn btn-ghost';
   backBtn.style.cssText = 'padding:8px 16px; font-size:13px; cursor:pointer;';
-  backBtn.innerHTML = '&#128506; Journey Map';
-  backBtn.addEventListener('click', () => App.navigate('journey-map'));
+  backBtn.innerHTML = '&#128506; Journey Explorer';
+  backBtn.addEventListener('click', () => App.navigate('journey-explorer'));
 
   const nextBtn = document.createElement('button');
   if (stageNum < 12) {

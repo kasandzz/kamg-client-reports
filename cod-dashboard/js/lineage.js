@@ -210,8 +210,8 @@ const Lineage = (() => {
         { name: 'Subject Line Performance', type: 'Table', pipelines: ['sendgrid'], query: 'subjects', detail: 'Top 20 subjects ranked by open rate with sent, opened, clicked counts.' },
       ]
     },
-    'journey-map': {
-      title: 'Journey Map',
+    'journey-explorer': {
+      title: 'Journey Explorer',
       elements: [
         { name: 'Funnel Stage Counts', type: 'Funnel', pipelines: ['funnel'], query: 'default', detail: 'Full pipeline: tickets > attended > VIP > booked > calls > enrolled. Boolean stage flags from vw_workshop_funnel_pipeline.' },
       ]

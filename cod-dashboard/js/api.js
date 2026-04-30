@@ -21,7 +21,7 @@ const API = (() => {
     'revenue':              ['stripe_transactions', 'meta_ad_performance', 'hyros_sales'],
     'sales-team':           ['sheets_bookings'],
     'calls':                ['sheets_bookings'],
-    'journey-map':          ['mat_pipeline'],
+    'journey-explorer':     ['mat_pipeline'],
     'funnels':              ['mat_pipeline'],
     'funnel-27':            ['mat_pipeline', 'meta_ad_performance', 'stripe_transactions'],
     'landing-pages':        ['posthog_events'],
@@ -37,6 +37,7 @@ const API = (() => {
     'experiments':          ['posthog_events'],
     'retargeting':          ['meta_ad_performance', 'posthog_events'],
     'competitors':          ['meta_ad_performance'],
+    'attribution':          [],
     'worklists':            ['ghl_contacts', 'sheets_bookings'],
     'ma-funnel':            ['mat_pipeline', 'stripe_transactions'],
   };

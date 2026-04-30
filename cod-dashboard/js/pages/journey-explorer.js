@@ -3,7 +3,7 @@
    Full customer journey from Ad Exposure to Advocacy
    ============================================ */
 
-App.registerPage('journey-map', async (container) => {
+App.registerPage('journey-explorer', async (container) => {
   const days = Filters.getDays();
 
   let raw;

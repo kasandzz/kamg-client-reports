@@ -28,7 +28,7 @@ const Shell = (() => {
     ]},
     { section: 'INTELLIGENCE', items: [
       { page: 'segments',         icon: '&#128202;', label: 'Segments' },
-      { page: 'journey-explorer', icon: '&#128279;', label: 'Journey Explorer', dimmed: true },
+      { page: 'journey-explorer', icon: '&#128279;', label: 'Journey Explorer' },
     ]},
     { section: 'OPERATIONS', items: [
       { page: 'live-feed',   icon: '&#9889;',   label: 'Live Feed' },

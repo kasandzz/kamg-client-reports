@@ -2902,7 +2902,11 @@ var JOURNEY_STAGES = [
   { num: 5, name: 'Call Booked',         color: '#34d399', field: 'booked',           tracking: 'full' },
   { num: 6, name: 'Sales Call',          color: '#10b981', field: 'showed',           tracking: 'full' },
   { num: 7, name: 'Enrolled',            color: '#a855f7', field: 'enrolled',         tracking: 'full',
-    sublabel: function(d) { return d.avg_deal_value ? '$' + Math.round(d.avg_deal_value).toLocaleString() + ' avg deal' : null; } }
+    sublabel: function(d) { return d.avg_deal_value ? '$' + Math.round(d.avg_deal_value).toLocaleString() + ' avg deal' : null; } },
+  { num: 8,  name: 'Onboarding',           color: '#f97316', field: null, tracking: 'missing' },
+  { num: 9,  name: 'Lions Pride',          color: '#ef4444', field: null, tracking: 'missing' },
+  { num: 10, name: 'Millionaires Alliance', color: '#ec4899', field: null, tracking: 'missing' },
+  { num: 11, name: 'Advocacy',             color: '#d946ef', field: null, tracking: 'missing' }
 ];
 
 // CVR-to-next-stage thresholds tuned to COD funnel-27 reality (per source field)

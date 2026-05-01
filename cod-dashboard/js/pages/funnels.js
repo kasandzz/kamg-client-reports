@@ -2884,46 +2884,53 @@ async function renderF27Metrics() {
 }
 
 // ---- Render: Customer Journey Stages (data-driven from funnel-27) ----
-// 7-stage horizontal card flow: Page Visits -> Tickets -> VIP -> Workshop -> Booked -> Showed -> Enrolled
-// Same journey steps as the prior Sankey, just rendered as clickable cards instead of an SVG flow diagram.
+// 7-stage horizontal card flow with Stripe-cross-referenced ticket counts:
+//   Tickets -> VIP @ Checkout ($54) -> VIP Post-Purchase (2x $27) -> Workshop -> Booked -> Showed -> Enrolled
+// Each card has a color-coded conversion bar to the next stage.
 
 var JOURNEY_STAGES = [
-  { num: 1, name: 'Page Visits',      color: '#6366f1', field: 'page_visits', tracking: 'partial' },
-  { num: 2, name: 'Ticket Purchase',  color: '#3b82f6', field: 'tickets',     tracking: 'full',
+  { num: 1, name: 'Ticket Purchase',     color: '#3b82f6', field: 'tickets',          tracking: 'full',
     sublabel: function(d) { return d.ticket_revenue ? '$' + Math.round(d.ticket_revenue).toLocaleString() + ' rev' : null; } },
-  { num: 3, name: 'VIP Upsell',       color: '#facc15', field: 'vip',         tracking: 'full',
-    sublabel: function(d) { return d.vip_revenue ? '$' + Math.round(d.vip_revenue).toLocaleString() + ' rev' : null; } },
-  { num: 4, name: 'Workshop Attended',color: '#22d3ee', field: 'attended',    tracking: 'partial' },
-  { num: 5, name: 'Call Booked',      color: '#34d399', field: 'booked',      tracking: 'full' },
-  { num: 6, name: 'Sales Call',       color: '#10b981', field: 'showed',      tracking: 'full' },
-  { num: 7, name: 'Enrolled',         color: '#a855f7', field: 'enrolled',    tracking: 'full',
+  { num: 2, name: 'VIP @ Checkout',      color: '#facc15', field: 'vip_checkout',     tracking: 'full',
+    sublabel: function(d) { return d.vip_revenue ? '$' + Math.round(d.vip_revenue).toLocaleString() + ' from $54' : null; } },
+  { num: 3, name: 'VIP Post-Purchase',   color: '#f59e0b', field: 'vip_postpurchase', tracking: 'full',
+    sublabel: function(d) {
+      var pp = (d.vip_postpurchase || 0) * 27;
+      return pp > 0 ? '$' + pp.toLocaleString() + ' from 2x $27' : null;
+    } },
+  { num: 4, name: 'Workshop Attended',   color: '#22d3ee', field: 'attended',         tracking: 'partial' },
+  { num: 5, name: 'Call Booked',         color: '#34d399', field: 'booked',           tracking: 'full' },
+  { num: 6, name: 'Sales Call',          color: '#10b981', field: 'showed',           tracking: 'full' },
+  { num: 7, name: 'Enrolled',            color: '#a855f7', field: 'enrolled',         tracking: 'full',
     sublabel: function(d) { return d.avg_deal_value ? '$' + Math.round(d.avg_deal_value).toLocaleString() + ' avg deal' : null; } }
 ];
 
-// CVR thresholds tuned to COD funnel-27 reality (per stage)
+// CVR-to-next-stage thresholds tuned to COD funnel-27 reality (per source field)
 var JOURNEY_CVR_THRESHOLDS = {
-  page_visits: { good: 5,  warn: 2  }, // Reg CVR
-  tickets:     { good: 35, warn: 20 }, // VIP attach
-  attended:    { good: 50, warn: 30 }, // Booking rate
-  booked:      { good: 70, warn: 50 }, // Call show
-  showed:      { good: 20, warn: 10 }  // Close rate
+  tickets:          { good: 50, warn: 30 }, // Tickets -> VIP @ Checkout (% who took $54 checkbox)
+  vip_checkout:     { good: 25, warn: 15 }, // VIP @ Checkout -> VIP Post-Purchase (% of tickets who took 2x $27 instead)
+  vip_postpurchase: { good: 60, warn: 40 }, // VIP combined -> Workshop Attended (show rate)
+  attended:         { good: 50, warn: 30 }, // Workshop -> Booked
+  booked:           { good: 70, warn: 50 }, // Booked -> Showed
+  showed:           { good: 20, warn: 10 }  // Showed -> Enrolled
 };
 
 function _journeyCvrFor(field, d) {
-  var pv = d.page_visits || 0;
   var tickets = d.tickets || 0;
-  var vip = d.vip || 0;
+  var vipCk   = d.vip_checkout || 0;
+  var vipPp   = d.vip_postpurchase || 0;
   var attended = d.attended || 0;
   var booked = d.booked || 0;
   var showed = d.showed || 0;
   var enrolled = d.enrolled || 0;
   switch (field) {
-    case 'page_visits': return { label: 'Reg CVR',      value: pv       > 0 ? (tickets  / pv)       * 100 : null };
-    case 'tickets':     return { label: 'VIP Attach',   value: tickets  > 0 ? (vip      / tickets)  * 100 : null };
-    case 'attended':    return { label: 'Booking Rate', value: attended > 0 ? (booked   / attended) * 100 : null };
-    case 'booked':      return { label: 'Call Show',    value: booked   > 0 ? (showed   / booked)   * 100 : null };
-    case 'showed':      return { label: 'Close Rate',   value: showed   > 0 ? (enrolled / showed)   * 100 : null };
-    default:            return { label: null, value: null };
+    case 'tickets':          return { label: 'VIP @ Checkout %',  value: tickets > 0 ? (vipCk / tickets) * 100 : null };
+    case 'vip_checkout':     return { label: 'Post-Purchase VIP %', value: tickets > 0 ? (vipPp / tickets) * 100 : null };
+    case 'vip_postpurchase': return { label: 'Show Rate',         value: tickets > 0 ? (attended / tickets) * 100 : null };
+    case 'attended':         return { label: 'Booking Rate',      value: attended > 0 ? (booked / attended) * 100 : null };
+    case 'booked':           return { label: 'Call Show',         value: booked > 0 ? (showed / booked) * 100 : null };
+    case 'showed':           return { label: 'Close Rate',        value: showed > 0 ? (enrolled / showed) * 100 : null };
+    default:                 return { label: null, value: null };
   }
 }
 
@@ -2944,9 +2951,9 @@ function _journeyBadge(tracking) {
 
 function _journeyFallback() {
   return {
-    page_visits: 6840, tickets: 452, vip: 175, attended: 264,
-    booked: 121, showed: 97, enrolled: 16,
-    ad_spend: 21600, ticket_revenue: 12204, vip_revenue: 9450, avg_deal_value: 4981
+    tickets: 126, vip_checkout: 66, vip_postpurchase: 27,
+    attended: 70, booked: 56, showed: 5, enrolled: 0,
+    ad_spend: 21600, ticket_revenue: 1782, vip_revenue: 3564, avg_deal_value: 0
   };
 }
 
@@ -2990,11 +2997,16 @@ async function renderJourneyStages() {
     }
     rowHtml += '</div>';
     if (cvr.label && cvr.value !== null) {
+      // Cap visualized fill at 100% but show actual value in label
+      var barPct = Math.min(Math.max(cvr.value, 0), 100);
+      var trackBg = 'rgba(255,255,255,0.06)';
       rowHtml += '<div style="margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">';
-      rowHtml +=   '<div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">' + cvr.label + '</div>';
-      rowHtml +=   '<div style="display:flex;align-items:center;gap:5px;margin-top:3px">';
-      rowHtml +=     '<span style="font-size:16px;font-weight:700;color:' + trafficColor + '">' + (cvr.value).toFixed(1) + '%</span>';
-      rowHtml +=     '<span style="font-size:12px;color:' + trafficColor + '">&#9679;</span>';
+      rowHtml +=   '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">';
+      rowHtml +=     '<span style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">' + cvr.label + '</span>';
+      rowHtml +=     '<span style="font-size:13px;font-weight:700;color:' + trafficColor + '">' + (cvr.value).toFixed(1) + '%</span>';
+      rowHtml +=   '</div>';
+      rowHtml +=   '<div style="height:6px;background:' + trackBg + ';border-radius:3px;overflow:hidden">';
+      rowHtml +=     '<div style="height:100%;width:' + barPct + '%;background:' + trafficColor + ';border-radius:3px;transition:width .3s"></div>';
       rowHtml +=   '</div>';
       rowHtml += '</div>';
     } else {

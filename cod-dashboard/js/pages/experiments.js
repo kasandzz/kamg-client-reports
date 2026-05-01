@@ -127,97 +127,31 @@ App.registerPage('experiments', async (container) => {
   }
 
   // ---- Planned Tests Tracker ----
-  const PLANNED_TESTS = [
-    { name: 'Reg Page Redesign ($27)',       priority: 'P0' },
-    { name: 'VIP Upsell Price Point',        priority: 'P0' },
-    { name: 'Workshop Show Rate Nudges',     priority: 'P0' },
-    { name: 'No-Show Recovery Email',        priority: 'P1' },
-    { name: 'Same-Day Booking Incentive',    priority: 'P1' },
-    { name: 'Black Text vs Video Ads',       priority: 'P1' },
-    { name: 'Email Subject Line A/B',        priority: 'P1' },
-    { name: 'Call Scheduling Time Slots',    priority: 'P1' },
-    { name: 'VIP Friday Format',             priority: 'P2' },
-    { name: 'Closer Script Variants',        priority: 'P2' },
-    { name: 'Follow-Up Sequence Timing',     priority: 'P2' },
-    { name: 'Mobile vs Desktop LP',          priority: 'P2' },
-    { name: 'CTA Button Copy Variants',      priority: 'P2' },
-    { name: 'Workshop Replay Offer Test',    priority: 'P2' },
-    { name: 'Pre-Call SMS Reminder',         priority: 'P1' },
-    { name: 'Urgency vs Scarcity Frame',     priority: 'P1' },
-    { name: 'Video Thumbnail Variants',      priority: 'P2' },
-    { name: 'Social Proof Placement',        priority: 'P2' },
-    { name: 'Application Form Length',       priority: 'P2' },
-    { name: 'Offer Stack Ordering',          priority: 'P2' },
-    { name: 'Closer Assignment Routing',     priority: 'P1' },
-    { name: 'Post-Call Follow-Up Timing',    priority: 'P2' },
-    { name: 'Thank You Page Upsell',         priority: 'P2' },
-    { name: 'Workshop Day/Time Variants',    priority: 'P2' },
-  ];
-
-  const PRIORITY_COLORS = {
-    P0: 'var(--color-red,   #ef4444)',
-    P1: 'var(--color-amber, #f59e0b)',
-    P2: 'var(--color-muted, #6b7280)',
-  };
-
+  // Backed by experiment_registry BQ table. Currently empty -- UI shows empty-state.
+  // Populating the table will surface tests here automatically (no code change required).
   const plannedCard = document.createElement('div');
   plannedCard.className = 'card';
   plannedCard.style.cssText = 'padding:24px;margin-top:16px';
 
-  const plannedHeader = document.createElement('div');
-  plannedHeader.style.cssText = 'display:flex;align-items:baseline;gap:12px;margin-bottom:16px';
-  plannedHeader.innerHTML = `
-    <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Planned Tests</div>
-    <div style="font-size:12px;color:var(--text-muted)">${PLANNED_TESTS.length} queued</div>
-  `;
-  plannedCard.appendChild(plannedHeader);
-
-  const grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px';
-
-  PLANNED_TESTS.forEach(test => {
-    const card = document.createElement('div');
-    card.style.cssText = `
-      background:var(--bg-secondary);
-      border:1px solid var(--border-subtle);
+  plannedCard.innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Planned Tests</div>
+      <div style="font-size:12px;color:var(--text-muted)">Awaiting registry</div>
+    </div>
+    <div style="
+      border:2px dashed var(--border-subtle);
       border-radius:8px;
-      padding:12px 14px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    `;
-
-    const priorityColor = PRIORITY_COLORS[test.priority] || PRIORITY_COLORS.P2;
-
-    card.innerHTML = `
-      <div style="font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.4">${test.name}</div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <span style="
-          font-size:10px;
-          font-weight:700;
-          color:var(--bg-primary,#0f172a);
-          background:${priorityColor};
-          border-radius:4px;
-          padding:2px 6px;
-          letter-spacing:.04em;
-        ">${test.priority}</span>
-        <span style="
-          font-size:10px;
-          font-weight:600;
-          color:var(--text-muted);
-          background:var(--bg-primary);
-          border:1px solid var(--border-subtle);
-          border-radius:4px;
-          padding:2px 6px;
-          letter-spacing:.04em;
-        ">Planned</span>
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-
-  plannedCard.appendChild(grid);
+      padding:32px 24px;
+      text-align:center;
+      color:var(--text-muted);
+      font-size:13px;
+      line-height:1.6;
+    ">
+      <div style="font-size:24px;margin-bottom:10px;opacity:0.5">&#129514;</div>
+      <div style="color:var(--text-secondary);margin-bottom:6px">No tests in the registry yet.</div>
+      <div style="font-size:11px">Add rows to <code style="font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.04);padding:1px 6px;border-radius:3px">cod_warehouse.experiment_registry</code> with <code style="font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.04);padding:1px 6px;border-radius:3px">status='planned'</code> and they will appear here.</div>
+    </div>
+  `;
   container.appendChild(plannedCard);
 
   // ---- Test Velocity Chart Placeholder ----

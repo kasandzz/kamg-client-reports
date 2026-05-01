@@ -8,7 +8,7 @@ App.registerPage('journey-explorer', async (container) => {
 
   let raw;
   try {
-    raw = await API.query('journey-map', 'default', { days });
+    raw = await API.query('journey-explorer', 'default', { days });
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Journey Map: ${err.message}</p></div>`;
     return;

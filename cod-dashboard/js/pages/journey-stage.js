@@ -14,8 +14,8 @@ const STAGE_CONFIG = {
   7:  { title: 'Sales Call',     color: '#84cc16', icon: '&#129309;', chartType: 'hbar',   labelField: 'closer', valueField: 'close_rate', valueLabel: 'Close Rate %' },
   8:  { title: 'Enrollment',     color: '#eab308', icon: '&#127891;', chartType: 'bar',    xField: 'month',  yField: 'enrollments', yLabel: 'Enrollments' },
   9:  { title: 'Onboarding',     color: '#f97316', icon: '&#128203;', chartType: 'none' },
-  10: { title: 'Delivery',       color: '#ef4444', icon: '&#128230;', chartType: 'none' },
-  11: { title: 'Retention',      color: '#ec4899', icon: '&#128260;', chartType: 'none' },
+  10: { title: 'Lions Pride',          color: '#ef4444', icon: '&#129409;', chartType: 'none' },
+  11: { title: 'Millionaires Alliance', color: '#ec4899', icon: '&#128081;', chartType: 'none' },
   12: { title: 'Advocacy',       color: '#a855f7', icon: '&#128227;', chartType: 'none' },
 };
 

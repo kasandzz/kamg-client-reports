@@ -28,8 +28,8 @@ App.registerPage('journey-explorer', async (container) => {
     { num: 7,  name: 'Sales Call',     color: '#84cc16', field: 'calls_done', tracking: 'full'     },
     { num: 8,  name: 'Enrollment',     color: '#eab308', field: 'enrolled',   tracking: 'full'     },
     { num: 9,  name: 'Onboarding',     color: '#f97316', field: null,         tracking: 'missing'  },
-    { num: 10, name: 'Delivery',       color: '#ef4444', field: null,         tracking: 'missing'  },
-    { num: 11, name: 'Retention',      color: '#ec4899', field: null,         tracking: 'missing'  },
+    { num: 10, name: 'Lions Pride',          color: '#ef4444', field: null,         tracking: 'missing'  },
+    { num: 11, name: 'Millionaires Alliance', color: '#ec4899', field: null,         tracking: 'missing'  },
     { num: 12, name: 'Advocacy',       color: '#a855f7', field: null,         tracking: 'missing'  },
   ];
 
@@ -319,7 +319,7 @@ App.registerPage('journey-explorer', async (container) => {
       <div>
         <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Post-Enrollment Tracking Gap (Stages 9-12)</div>
         <p style="font-size:13px;color:${Theme.COLORS.textMuted};line-height:1.6;margin:0">
-          Onboarding, Delivery, Retention, and Advocacy data is not yet flowing into BigQuery.
+          Onboarding, Lions Pride, Millionaires Alliance, and Advocacy data is not yet flowing into BigQuery.
           These stages represent the post-sale customer lifecycle -- critical for LTV and churn analysis.
           PostHog identification (Rehan) and GHL tagging are the primary data sources needed to close this gap.
         </p>
@@ -340,8 +340,8 @@ const _STAGE_DEFS = {
   7:  { title: 'Sales Call',      color: '#84cc16', icon: '&#129309;' },
   8:  { title: 'Enrollment',      color: '#eab308', icon: '&#127891;' },
   9:  { title: 'Onboarding',      color: '#f97316', icon: '&#128203;' },
-  10: { title: 'Delivery',        color: '#ef4444', icon: '&#128230;' },
-  11: { title: 'Retention',       color: '#ec4899', icon: '&#128260;' },
+  10: { title: 'Lions Pride',          color: '#ef4444', icon: '&#129409;' },
+  11: { title: 'Millionaires Alliance', color: '#ec4899', icon: '&#128081;' },
   12: { title: 'Advocacy',        color: '#a855f7', icon: '&#128227;' },
 };
 

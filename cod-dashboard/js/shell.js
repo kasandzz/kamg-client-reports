@@ -18,12 +18,12 @@ const Shell = (() => {
       { page: 'ads-meta',    icon: '&#128227;', label: 'Meta Ads' },
       { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads' },
       { page: 'cold-email',  icon: '&#9993;&#65039;', label: 'Cold Email' },
-      { page: 'attribution', icon: '&#128200;', label: 'Attribution', dimmed: true },
+      { page: 'attribution', icon: '&#128200;', label: 'Attribution' },
     ]},
     { section: 'CONVERSION', items: [
       { page: 'funnels',     icon: '&#127744;', label: '$27 Funnel' },
       { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
-      { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team', dimmed: true },
+      { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team' },
       { page: 'experiments', icon: '&#129514;', label: 'Experiments', dimmed: true },
     ]},
     { section: 'INTELLIGENCE', items: [

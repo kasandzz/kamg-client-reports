@@ -677,26 +677,43 @@ App.registerPage('funnels', async (container) => {
       text-align: right;
       flex-shrink: 0;
     }
-    /* Sankey styles moved to Components.renderSankey (components.js) */
-    #sankeyControls {
+    /* Customer Journey Stages -- horizontal scroll cards */
+    #journeyStagesContainer .stage-row {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 0;
+      min-width: max-content;
+      padding: 16px 4px;
     }
-    #sankeyControls label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: var(--text-secondary);
+    #journeyStagesContainer .stage-card {
+      width: 158px;
+      min-width: 158px;
+      min-height: 210px;
+      background: var(--bg-card, #0b1220);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 14px 12px 12px;
       cursor: pointer;
-      user-select: none;
+      transition: opacity .15s, border-color .15s, transform .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      flex-shrink: 0;
     }
-    #sankeyControls input[type="checkbox"] {
-      accent-color: var(--accent-purple);
-      width: 14px;
-      height: 14px;
+    #journeyStagesContainer .stage-card:hover {
+      transform: translateY(-2px);
+    }
+    #journeyStagesContainer .stage-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      min-width: 20px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      opacity: 0.5;
     }
     .watch-time-table-wrap { overflow-x: auto; }
     .watch-time-table {
@@ -1188,18 +1205,26 @@ App.registerPage('funnels', async (container) => {
     <div class="funnel-legend" id="showRateLegend"></div>
   </div>
 
-  <!-- ====== 4b. Customer Journey Sankey ====== -->
-  <div class="chart-card" id="sankeyCard">
+  <!-- ====== 4b. Customer Journey Stages ====== -->
+  <div class="chart-card" id="journeyStagesCard">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
       <div>
-        <div class="chart-card__title" style="margin:0">Customer Journey Flow</div>
-        <div style="font-size:11px;color:#475569;margin-top:2px;">Every stage from ad click to enrollment. Width = volume at each transition.</div>
+        <div class="chart-card__title" style="margin:0">Customer Journey Stages</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Click any stage to drill into detail. Arrows show conversion to next stage.</div>
       </div>
-      <div id="sankeyControls">
-        <label><input type="checkbox" id="sankeyCompactCheck"> Compact</label>
+      <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:var(--text-secondary)">
+        <span style="display:inline-flex;align-items:center;gap:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>Full
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#eab308;display:inline-block"></span>Partial
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:4px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;border:1px dashed #ef4444;display:inline-block"></span>Missing
+        </span>
       </div>
     </div>
-    <div id="sankeyContainer" style="width:100%;overflow-x:auto;"></div>
+    <div id="journeyStagesContainer" style="width:100%;overflow-x:auto;padding-bottom:8px;"></div>
   </div>
 
   <!-- ====== 4c. RUSS DAILY OPERATIONS -- Cohort Table + Worklists ====== -->
@@ -2858,16 +2883,33 @@ async function renderF27Metrics() {
   grid.innerHTML = html;
 }
 
-// ---- Render: Customer Journey Sankey (data-driven from funnel-27) ----
-var activeSankeyView = 'all';
+// ---- Render: Customer Journey Stages (data-driven from funnel-27) ----
+// 7-stage horizontal card flow: Page Visits -> Tickets -> VIP -> Workshop -> Booked -> Showed -> Enrolled
+// Same journey steps as the prior Sankey, just rendered as clickable cards instead of an SVG flow diagram.
 
-// Sankey is now fully data-driven -- no more hardcoded SANKEY_DATA.
-// Builds node/link structure dynamically from API.query('funnel-27', 'sankey', { days }).
-// Falls back to a minimal placeholder if query fails.
+var JOURNEY_STAGES = [
+  { num: 1, name: 'Page Visits',      color: '#6366f1', field: 'page_visits', tracking: 'partial' },
+  { num: 2, name: 'Ticket Purchase',  color: '#3b82f6', field: 'tickets',     tracking: 'full',
+    sublabel: function(d) { return d.ticket_revenue ? '$' + Math.round(d.ticket_revenue).toLocaleString() + ' rev' : null; } },
+  { num: 3, name: 'VIP Upsell',       color: '#facc15', field: 'vip',         tracking: 'full',
+    sublabel: function(d) { return d.vip_revenue ? '$' + Math.round(d.vip_revenue).toLocaleString() + ' rev' : null; } },
+  { num: 4, name: 'Workshop Attended',color: '#22d3ee', field: 'attended',    tracking: 'partial' },
+  { num: 5, name: 'Call Booked',      color: '#34d399', field: 'booked',      tracking: 'full' },
+  { num: 6, name: 'Sales Call',       color: '#10b981', field: 'showed',      tracking: 'full' },
+  { num: 7, name: 'Enrolled',         color: '#a855f7', field: 'enrolled',    tracking: 'full',
+    sublabel: function(d) { return d.avg_deal_value ? '$' + Math.round(d.avg_deal_value).toLocaleString() + ' avg deal' : null; } }
+];
 
-// Build sankey node/link data from funnel-27 API response
-function buildSankeyFromData(d) {
-  // d is a single row from funnel-27:sankey
+// CVR thresholds tuned to COD funnel-27 reality (per stage)
+var JOURNEY_CVR_THRESHOLDS = {
+  page_visits: { good: 5,  warn: 2  }, // Reg CVR
+  tickets:     { good: 35, warn: 20 }, // VIP attach
+  attended:    { good: 50, warn: 30 }, // Booking rate
+  booked:      { good: 70, warn: 50 }, // Call show
+  showed:      { good: 20, warn: 10 }  // Close rate
+};
+
+function _journeyCvrFor(field, d) {
   var pv = d.page_visits || 0;
   var tickets = d.tickets || 0;
   var vip = d.vip || 0;
@@ -2875,274 +2917,100 @@ function buildSankeyFromData(d) {
   var booked = d.booked || 0;
   var showed = d.showed || 0;
   var enrolled = d.enrolled || 0;
-  var noShowWorkshop = d.no_show_workshop || 0;
-  var noBook = d.no_book || 0;
-  var noShowCall = d.no_show_call || 0;
-  var noClose = d.no_close || 0;
-  var adSpend = d.ad_spend || 0;
-  var ticketRev = d.ticket_revenue || 0;
-  var vipRev = d.vip_revenue || 0;
-  var avgDeal = d.avg_deal_value || 0;
-  var nonVip = tickets - vip;
+  switch (field) {
+    case 'page_visits': return { label: 'Reg CVR',      value: pv       > 0 ? (tickets  / pv)       * 100 : null };
+    case 'tickets':     return { label: 'VIP Attach',   value: tickets  > 0 ? (vip      / tickets)  * 100 : null };
+    case 'attended':    return { label: 'Booking Rate', value: attended > 0 ? (booked   / attended) * 100 : null };
+    case 'booked':      return { label: 'Call Show',    value: booked   > 0 ? (showed   / booked)   * 100 : null };
+    case 'showed':      return { label: 'Close Rate',   value: showed   > 0 ? (enrolled / showed)   * 100 : null };
+    default:            return { label: null, value: null };
+  }
+}
 
-  // Registration-to-ticket drop (page visits that didn't purchase)
-  var regDrop = Math.max(0, pv - tickets);
+function _journeyTrafficColor(field, value) {
+  if (value === null || value === undefined) return '#64748b';
+  var t = JOURNEY_CVR_THRESHOLDS[field];
+  if (!t) return '#64748b';
+  if (value >= t.good) return '#22c55e';
+  if (value >= t.warn) return '#eab308';
+  return '#ef4444';
+}
 
+function _journeyBadge(tracking) {
+  if (tracking === 'full')    return { bg: 'rgba(34,197,94,0.12)',  color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)',  label: 'Full' };
+  if (tracking === 'partial') return { bg: 'rgba(234,179,8,0.12)',  color: '#eab308', border: '1px solid rgba(234,179,8,0.3)',  label: 'Partial' };
+  return                            { bg: 'rgba(239,68,68,0.08)',  color: '#ef4444', border: '1px dashed rgba(239,68,68,0.4)', label: 'Missing' };
+}
+
+function _journeyFallback() {
   return {
-    nodes: [
-      { id: 'page_visits',  label: 'Page Visits',        value: pv,             color: '#6366f1',  col: 0, row: 0, dollar: '$' + Math.round(adSpend).toLocaleString() + ' ad spend' },
-      { id: 'reg_drop',     label: 'Did Not Purchase',   value: regDrop,        color: '#ef4444',  col: 0, row: 1 },
-      { id: 'tickets',      label: 'Ticket Purchases',   value: tickets,        color: '#818cf8',  col: 1, row: 0, dollar: '$' + Math.round(ticketRev).toLocaleString() },
-      { id: 'vip',          label: 'VIP Upgrades',       value: vip,            color: '#facc15',  col: 1, row: 1, dollar: '$' + Math.round(vipRev).toLocaleString() },
-      { id: 'non_vip',      label: 'Standard Tickets',   value: nonVip,         color: '#94a3b8',  col: 1, row: 2 },
-      { id: 'attended',     label: 'Workshop Attended',  value: attended,       color: '#22d3ee',  col: 2, row: 0 },
-      { id: 'no_show',      label: 'No-Show',            value: noShowWorkshop, color: '#ef4444',  col: 2, row: 1 },
-      { id: 'booked',       label: 'Call Booked',        value: booked,         color: '#34d399',  col: 3, row: 0 },
-      { id: 'no_book',      label: 'Did Not Book',       value: noBook,         color: '#f59e0b',  col: 3, row: 1 },
-      { id: 'showed',       label: 'Call Attended',      value: showed,         color: '#10b981',  col: 4, row: 0 },
-      { id: 'no_show_call', label: 'Call No-Show',       value: noShowCall,     color: '#ef4444',  col: 4, row: 1 },
-      { id: 'enrolled',     label: 'Enrolled',           value: enrolled,       color: '#a855f7',  col: 5, row: 0, dollar: avgDeal > 0 ? ('$' + Math.round(avgDeal).toLocaleString() + ' avg deal') : '' },
-      { id: 'no_close',     label: 'Did Not Close',      value: noClose,        color: '#f59e0b',  col: 5, row: 1 }
-    ],
-    links: [
-      // Page visits -> purchased / dropped
-      { from: 'page_visits', to: 'tickets',    value: tickets },
-      { from: 'page_visits', to: 'reg_drop',   value: regDrop },
-      // Tickets -> VIP / Standard
-      { from: 'tickets',     to: 'vip',        value: vip },
-      { from: 'tickets',     to: 'non_vip',    value: nonVip },
-      // VIP + Standard -> Attended / No-show
-      { from: 'vip',         to: 'attended',    value: Math.round(vip * (attended / Math.max(tickets, 1))) },
-      { from: 'non_vip',     to: 'attended',    value: Math.round(nonVip * (attended / Math.max(tickets, 1))) },
-      { from: 'vip',         to: 'no_show',     value: Math.round(vip * (noShowWorkshop / Math.max(tickets, 1))) },
-      { from: 'non_vip',     to: 'no_show',     value: Math.round(nonVip * (noShowWorkshop / Math.max(tickets, 1))) },
-      // Attended -> Booked / Not booked
-      { from: 'attended',    to: 'booked',      value: booked },
-      { from: 'attended',    to: 'no_book',     value: noBook },
-      // Booked -> Showed / No-show call
-      { from: 'booked',      to: 'showed',      value: showed },
-      { from: 'booked',      to: 'no_show_call',value: noShowCall },
-      // Showed -> Enrolled / Not closed
-      { from: 'showed',      to: 'enrolled',    value: enrolled },
-      { from: 'showed',      to: 'no_close',    value: noClose }
-    ]
+    page_visits: 6840, tickets: 452, vip: 175, attended: 264,
+    booked: 121, showed: 97, enrolled: 16,
+    ad_spend: 21600, ticket_revenue: 12204, vip_revenue: 9450, avg_deal_value: 4981
   };
 }
 
-// Fallback data when API unavailable
-function getSankeyFallback() {
-  return buildSankeyFromData({
-    page_visits: 6840, tickets: 452, vip: 175, attended: 264,
-    booked: 121, showed: 97, enrolled: 16,
-    no_show_workshop: 188, no_book: 143, no_show_call: 24, no_close: 81,
-    ad_spend: 21600, ticket_revenue: 12204, vip_revenue: 9450, avg_deal_value: 4981
-  });
-}
-
-async function renderSankey() {
-  var sankeyData;
-
-  // Fetch real data from funnel-27 sankey endpoint
+async function renderJourneyStages() {
+  var d;
   try {
     var sk = await API.query('funnel-27', 'sankey', { days: currentDays });
-    if (sk && sk.length > 0) {
-      sankeyData = buildSankeyFromData(sk[0]);
+    if (sk && sk.length > 0) d = sk[0];
+  } catch(e) { /* fall through */ }
+  if (!d) d = _journeyFallback();
+
+  var container = document.getElementById('journeyStagesContainer');
+  if (!container) return;
+
+  var rowHtml = '<div class="stage-row">';
+
+  JOURNEY_STAGES.forEach(function(stage, idx) {
+    var vol = stage.field ? (d[stage.field] || 0) : null;
+    var subText = (stage.sublabel ? stage.sublabel(d) : null);
+    var cvr = _journeyCvrFor(stage.field, d);
+    var trafficColor = _journeyTrafficColor(stage.field, cvr.value);
+    var badge = _journeyBadge(stage.tracking);
+
+    var volStr = vol !== null ? Number(vol).toLocaleString() : '--';
+    var periodStr = vol !== null ? ('last ' + currentDays + 'd') : 'no data';
+    var volColor = vol !== null && vol > 0 ? 'var(--text-primary)' : 'var(--text-muted)';
+
+    var cardStyle = 'border-top:3px solid ' + stage.color + ';';
+
+    rowHtml += '<div class="stage-card" style="' + cardStyle + '" data-stage="' + stage.num + '" onmouseenter="this.style.borderColor=\'' + stage.color + '\'" onmouseleave="this.style.borderColor=\'\'">';
+    rowHtml += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">';
+    rowHtml +=   '<span style="font-size:10px;font-weight:700;color:' + stage.color + ';text-transform:uppercase;letter-spacing:.06em">Stage ' + stage.num + '</span>';
+    rowHtml +=   '<span style="font-size:11px;padding:2px 7px;border-radius:10px;background:' + badge.bg + ';color:' + badge.color + ';border:' + badge.border + ';font-weight:500">' + badge.label + '</span>';
+    rowHtml += '</div>';
+    rowHtml += '<div style="font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.3">' + stage.name + '</div>';
+    rowHtml += '<div style="margin-top:auto">';
+    rowHtml +=   '<div style="font-size:22px;font-weight:700;color:' + volColor + ';letter-spacing:-.5px">' + volStr + '</div>';
+    rowHtml +=   '<div style="font-size:10px;color:var(--text-muted);margin-top:1px">' + periodStr + '</div>';
+    if (subText) {
+      rowHtml += '<div style="font-size:10px;color:#22c55e;margin-top:2px;font-weight:600">' + subText + '</div>';
     }
-  } catch(e) { /* fall through to fallback */ }
-
-  if (!sankeyData) {
-    sankeyData = getSankeyFallback();
-  }
-
-  var compact = document.getElementById('sankeyCompactCheck').checked;
-
-  // Drop-off node ids for styling (red/amber links, smaller cards)
-  var dropoffIds = { reg_drop: 1, no_show: 1, no_book: 1, no_show_call: 1, no_close: 1 };
-
-  // Build node map by id
-  var nodeMap = {};
-  sankeyData.nodes.forEach(function(n) { nodeMap[n.id] = n; });
-
-  // Filter nodes in compact mode (hide drop-off nodes)
-  var nodes = sankeyData.nodes.filter(function(n) {
-    if (compact && dropoffIds[n.id]) return false;
-    return true;
-  });
-
-  // Filter links to match visible nodes
-  var nodeIds = {};
-  nodes.forEach(function(n) { nodeIds[n.id] = true; });
-  var links = sankeyData.links.filter(function(l) {
-    return nodeIds[l.from] && nodeIds[l.to] && l.value > 0;
-  });
-
-  var container = document.getElementById('sankeyContainer');
-  var W = Math.max(container.offsetWidth, 900);
-
-  // Group nodes by column
-  var colGroups = {};
-  var maxCol = 0;
-  nodes.forEach(function(n) {
-    if (!colGroups[n.col]) colGroups[n.col] = [];
-    colGroups[n.col].push(n);
-    if (n.col > maxCol) maxCol = n.col;
-  });
-
-  // Layout params
-  var nodeW = 150;
-  var nodeH = 60;
-  var smallW = 120;
-  var smallH = 46;
-  var rowGap = compact ? 56 : 68;
-  var padX = 30;
-  var padY = 20;
-  var centerX = W / 2;
-
-  // Position each node
-  var positions = {};
-  var currentY = padY;
-  var firstVal = nodes.length > 0 ? nodes[0].value : 1;
-
-  for (var c = 0; c <= maxCol; c++) {
-    var group = colGroups[c];
-    if (!group) continue;
-
-    var main = [];
-    var left = [];
-    var right = [];
-    group.forEach(function(n) {
-      if (dropoffIds[n.id]) { left.push(n); }
-      else if (n.row > 0 && !dropoffIds[n.id] && group.length > 1) { right.push(n); }
-      else { main.push(n); }
-    });
-
-    if (main.length > 1 && left.length === 0 && right.length === 0) {
-      for (var mi = 1; mi < main.length; mi++) right.push(main[mi]);
-      main = [main[0]];
+    rowHtml += '</div>';
+    if (cvr.label && cvr.value !== null) {
+      rowHtml += '<div style="margin-top:4px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">';
+      rowHtml +=   '<div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">' + cvr.label + '</div>';
+      rowHtml +=   '<div style="display:flex;align-items:center;gap:5px;margin-top:3px">';
+      rowHtml +=     '<span style="font-size:16px;font-weight:700;color:' + trafficColor + '">' + (cvr.value).toFixed(1) + '%</span>';
+      rowHtml +=     '<span style="font-size:12px;color:' + trafficColor + '">&#9679;</span>';
+      rowHtml +=   '</div>';
+      rowHtml += '</div>';
+    } else {
+      rowHtml += '<div style="height:44px"></div>';
     }
+    rowHtml += '</div>';
 
-    var rowH = Math.max(
-      main.length * (nodeH + 8),
-      left.length * (smallH + 8),
-      right.length * (smallH + 8)
-    );
-
-    main.forEach(function(n, i) {
-      positions[n.id] = { x: centerX - nodeW / 2, y: currentY + i * (nodeH + 8), w: nodeW, h: nodeH };
-    });
-
-    left.forEach(function(n, i) {
-      positions[n.id] = { x: centerX - nodeW / 2 - smallW - 70, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
-    });
-
-    right.forEach(function(n, i) {
-      positions[n.id] = { x: centerX + nodeW / 2 + 70, y: currentY + i * (smallH + 8), w: smallW, h: smallH };
-    });
-
-    currentY += rowH + rowGap;
-  }
-
-  var H = currentY + padY;
-
-  // Build SVG
-  var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
-
-  // Gradients for links
-  links.forEach(function(link, i) {
-    var fromNode = nodeMap[link.from];
-    var toNode = nodeMap[link.to];
-    if (!fromNode || !toNode) return;
-    var isLeak = dropoffIds[link.to];
-    svg += '<linearGradient id="skg' + i + '" x1="0" x2="0" y1="0" y2="1">' +
-      '<stop offset="0%" stop-color="' + (isLeak ? '#ef4444' : fromNode.color) + '" stop-opacity="' + (isLeak ? '0.5' : '0.55') + '"/>' +
-      '<stop offset="100%" stop-color="' + (isLeak ? '#ef4444' : toNode.color) + '" stop-opacity="' + (isLeak ? '0.3' : '0.55') + '"/>' +
-      '</linearGradient>';
-  });
-
-  // Glow filters
-  nodes.forEach(function(node, idx) {
-    svg += '<filter id="skglow' + idx + '" x="-25%" y="-25%" width="150%" height="150%">' +
-      '<feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="' + node.color + '" flood-opacity="0.3"/></filter>';
-  });
-  svg += '</defs>';
-
-  // Draw flow ribbons
-  var maxVal = firstVal || 1;
-  var maxRibbon = 32;
-
-  links.forEach(function(link, i) {
-    var fp = positions[link.from];
-    var tp = positions[link.to];
-    if (!fp || !tp) return;
-
-    var ribbonW = Math.max(3, (link.value / maxVal) * maxRibbon);
-    var isLeak = dropoffIds[link.to];
-
-    var x1 = fp.x + fp.w / 2;
-    var y1 = fp.y + fp.h;
-    var x2 = tp.x + tp.w / 2;
-    var y2 = tp.y;
-
-    var dy = (y2 - y1);
-    var cy1 = y1 + dy * 0.35;
-    var cy2 = y1 + dy * 0.65;
-
-    svg += '<path class="sankey-link' + (isLeak ? ' is-dropoff' : '') + '" d="' +
-      'M' + (x1 - ribbonW / 2) + ',' + y1 +
-      ' C' + (x1 - ribbonW / 2) + ',' + cy1 + ' ' + (x2 - ribbonW / 2) + ',' + cy2 + ' ' + (x2 - ribbonW / 2) + ',' + y2 +
-      ' L' + (x2 + ribbonW / 2) + ',' + y2 +
-      ' C' + (x2 + ribbonW / 2) + ',' + cy2 + ' ' + (x1 + ribbonW / 2) + ',' + cy1 + ' ' + (x1 + ribbonW / 2) + ',' + y1 +
-      ' Z" fill="url(#skg' + i + ')" />';
-
-    // Leak amount annotation on drop-off links
-    if (isLeak && link.value > 0) {
-      var midX = (x1 + x2) / 2;
-      var midY = (y1 + y2) / 2;
-      var leakPct = firstVal > 0 ? (link.value / firstVal * 100).toFixed(1) : '0';
-      svg += '<text x="' + midX + '" y="' + (midY - 4) + '" text-anchor="middle" fill="#ef4444" font-size="9" font-weight="600" opacity="0.8">' +
-        '-' + link.value.toLocaleString() + ' (' + leakPct + '%)</text>';
+    if (idx < JOURNEY_STAGES.length - 1) {
+      rowHtml += '<div class="stage-arrow">&#10142;</div>';
     }
   });
 
-  // Draw node cards
-  nodes.forEach(function(node, idx) {
-    var p = positions[node.id];
-    if (!p) return;
-    var isSmall = dropoffIds[node.id] || p.w < nodeW;
-    var pct = (node.value / firstVal * 100);
-    var pctStr = pct >= 1 ? pct.toFixed(1) : pct.toFixed(2);
-    var isLeak = dropoffIds[node.id];
-
-    svg += '<g class="sankey-node-card' + (isLeak ? ' is-dropoff' : '') + '">';
-    // Glow bg
-    svg += '<rect class="node-bg" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="6" fill="' + node.color + '" filter="url(#skglow' + idx + ')" opacity="0.12"/>';
-    // Border
-    svg += '<rect class="node-border" x="' + p.x + '" y="' + p.y + '" width="' + p.w + '" height="' + p.h + '" rx="6" fill="none" stroke="' + node.color + '" stroke-opacity="0.45" stroke-width="1.5"/>';
-    // Value
-    var valY = isSmall ? p.y + p.h * 0.4 : p.y + p.h * 0.35;
-    svg += '<text class="node-value" x="' + (p.x + p.w / 2) + '" y="' + valY + '" text-anchor="middle" fill="#f1f5f9" font-size="' + (isSmall ? '13' : '16') + '" font-weight="700">' + node.value.toLocaleString() + '</text>';
-    // Label
-    var lblY = isSmall ? p.y + p.h * 0.7 : p.y + p.h * 0.58;
-    svg += '<text class="node-label" x="' + (p.x + p.w / 2) + '" y="' + lblY + '" text-anchor="middle" fill="' + (isLeak ? '#ef4444' : '#7c8da4') + '" font-size="' + (isSmall ? '9' : '10') + '" font-weight="500">' + node.label + '</text>';
-    // Percentage of top-of-funnel
-    if (node.id !== nodes[0].id) {
-      var pctY = isSmall ? p.y + p.h * 0.9 : p.y + p.h * 0.78;
-      svg += '<text class="node-pct" x="' + (p.x + p.w / 2) + '" y="' + pctY + '" text-anchor="middle" fill="' + node.color + '" font-size="9" opacity="0.7">' + pctStr + '% of top</text>';
-    }
-    // Dollar annotation if present
-    if (node.dollar) {
-      var dolY = p.y + p.h + 13;
-      svg += '<text x="' + (p.x + p.w / 2) + '" y="' + dolY + '" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="600">' + node.dollar + '</text>';
-    }
-    svg += '</g>';
-  });
-
-  svg += '</svg>';
-  container.innerHTML = svg;
-
-  // Wire toggles (compact only -- removed VIP/All toggle since data is API-driven)
-  document.getElementById('sankeyCompactCheck').onchange = function() { renderSankey(); };
+  rowHtml += '</div>';
+  container.innerHTML = rowHtml;
 }
+
 
 // ============================================================
 // Russ Daily Operations -- Cohort Table + Recovery Worklists
@@ -3427,7 +3295,7 @@ async function renderAll(days) {
   await renderHeatmap();
   await renderTicketHeatmap();
   await renderSalesDynamic();
-  await renderSankey();
+  await renderJourneyStages();
   // Russ Daily Operations -- runs in parallel, doesn't block downstream renders
   renderWeeklyCohort();
   renderNoShowRecovery();

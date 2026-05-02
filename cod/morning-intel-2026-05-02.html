@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-05-02</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:24px; padding:24px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .header .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:600; margin-left:8px; }
+  .badge-warn { background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+  .badge-info { background:rgba(59,130,246,.15); color:#3b82f6; border:1px solid rgba(59,130,246,.3); }
+
+  .health-panel { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.4); border-left:4px solid #f59e0b; border-radius:8px; padding:14px 18px; margin-bottom:20px; }
+  .health-panel h3 { font-size:13px; color:#f59e0b; font-weight:600; margin-bottom:8px; }
+  .health-panel ul { list-style:none; padding:0; }
+  .health-panel li { font-size:11px; color:#cbd5e1; padding:3px 0; }
+  .health-panel li::before { content:'⚠ '; color:#f59e0b; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:20px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:18px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:12px; }
+
+  .schedule-item { display:flex; gap:14px; padding:12px; background:#111827; border:1px solid #1e293b; border-radius:10px; margin-bottom:8px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:64px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:3px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-personal { background:rgba(236,72,153,.15); color:#ec4899; }
+  .tag-travel { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-routine { background:rgba(100,116,139,.15); color:#94a3b8; }
+
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:flex-start; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  .empty-state { padding:24px; text-align:center; color:#64748b; font-size:12px; background:#111827; border:1px dashed #1e293b; border-radius:10px; }
+
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Saturday, May 2, 2026 · Acapulco · Wedding day <span class="badge badge-info">SYNC-ONLY MODE</span> <span class="badge badge-warn">LOCAL FALLBACK</span></div>
+    <div class="meta">Generated 15:55 CDMX · Late-start catch-up · Wedding ceremony in 35 min</div>
+  </div>
+
+  <div class="health-panel">
+    <h3>Skill Health · 3 advisories</h3>
+    <ul>
+      <li><strong>Backup stale</strong> -- last PersonalOS backup 2026-04-29 (3 days old, 5.15 GB). Backup may not be running on this trip laptop.</li>
+      <li><strong>Knowledge Compiler stale</strong> -- last run 2026-04-30 23:30 UTC (~46h ago). Missed today's compaction window.</li>
+      <li><strong>gcloud auth expired</strong> -- cloud morning-intel JSON unreachable. Dashboard built from local-fallback path. Run <code>gcloud auth login</code> when back at desk.</li>
+    </ul>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- My Day -->
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Schedule -- remainder of today</div>
+      <div class="card-subtitle">All times America/Mexico_City. Wedding day, no client work.</div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">15:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-personal">PERSONAL</span>Light snack at hotel + final check</div>
+          <div class="schedule-prep">Torre Blanca Diamante Verde · Avocado toast / fruit / room service. Wedding will serve dinner by 5-6pm.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">16:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-travel">TRAVEL</span>Drive to wedding</div>
+          <div class="schedule-prep">East along coast from Diamante · 30 min buffer to ceremony.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">16:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-personal">WEDDING</span>Aranza's cousin's wedding</div>
+          <div class="schedule-prep">East coast, Acapulco · Ceremony at 16:30, open block until 23:30. Dinner served by venue 17:00-18:00.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">20:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-routine">ROUTINE</span>Relax (recurring)</div>
+          <div class="schedule-prep">Likely overlapping with wedding -- ignore.</div>
+        </div>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title"><span class="schedule-tag tag-routine">ROUTINE</span>Go To Bed (recurring)</div>
+          <div class="schedule-prep">Likely overlapping with wedding -- ignore.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Already done today</div>
+      <div class="card-subtitle">From earlier session this morning.</div>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:6px 0; font-size:12px;">✓ Acapulco itinerary HTML built + published (EN/ES toggle, mobile breakpoints)</li>
+        <li style="padding:6px 0; font-size:12px;">✓ 28 Google Calendar events synced across Sat-Mon</li>
+        <li style="padding:6px 0; font-size:12px;">✓ Restaurant verification post-Otis: Baikal closed, Zibu/Saffron/Tabachín verified, Mizumi temp-combined with Carnivore</li>
+        <li style="padding:6px 0; font-size:12px;">✓ Sunday day-shape locked: couples breakfast → Aranza-pick morning → family pool → sunset dinner</li>
+        <li style="padding:6px 0; font-size:12px;">✓ Memories saved: <span class="hl">feedback_gcal_mcp_update_no_timezone</span>, <span class="hl">reference_personal_html_publish_path</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COD Intel -->
+  <div class="section" id="cod">
+    <div class="card">
+      <div class="card-title">COD Intel · weekend</div>
+      <div class="card-subtitle">Saturday -- COD does not operate, no Slack activity, no BQ pull this run.</div>
+      <div class="empty-state">
+        <strong style="color:#f59e0b;">⚠ BQ unavailable</strong><br>
+        gcloud auth token expired and you're traveling -- skipping cloud collector. No KPIs, no closer table, no funnel, no ad spend pull this run.<br>
+        <span style="color:#94a3b8; margin-top:8px; display:inline-block;">Re-run morning fresh on Tuesday after returning from Acapulco.</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">COD Slack -- last 12h</div>
+      <div class="card-subtitle">All 7 monitored channels: 0 messages. Quiet weekend.</div>
+    </div>
+  </div>
+
+  <!-- Overnight -->
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Email -- last 24h</div>
+      <div class="card-subtitle">5 unread threads · 0 client-critical · 1 admin item to handle next week</div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">ADMIN</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Gmail · American Express KYC · self-forwarded for tracking</div>
+          <div class="overnight-text"><strong>AmEx Business Account verification</strong> -- need to provide additional info on KAMG account (CL012J4XZ0). Not urgent today, handle on return.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Gmail · Plane.so</div>
+          <div class="overnight-text"><strong>Plane Business trial expires in 2 days.</strong> Decide whether to upgrade or drop -- you've been on the trial through migration off Huly.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Gmail · Gumtree, Vivino · marketing</div>
+          <div class="overnight-text">2 marketing emails -- no action.</div>
+        </div>
+      </div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">IGNORED</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Gmail · russ@mail.clientsondemand.live</div>
+          <div class="overnight-text">GHL workflow error notification (filtered per <span class="hl">feedback_ignore_ghl_workflow_errors</span>).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Slack -- last 12h (COD)</div>
+      <div class="card-subtitle">7 channels monitored, 0 messages. Saturday quiet.</div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Carry-forwards from yesterday's note</div>
+      <div class="card-subtitle">Trip-related items still open. Most can be done today at the wedding or tonight.</div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Lock Sunday sunset dinner reservation</strong>
+          <div class="action-context">Phone Zibu (+52 744 433 3058) or Saffron or Tabachín (+52 744 293 9112) for Sun 7pm party of 2. Pick one and book.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Confirm Mizumi for Monday 7pm</strong>
+          <div class="action-context">Call Banyan Tree resort +52 744 469 1000 -- verify combined-with-Carnivore status and decide go/pivot.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Confirm hotel non-guest family access policy</strong>
+          <div class="action-context">Front desk question for Sunday family pool day -- check before Aranza's family arrives.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Confirm Sunday couples morning activity</strong>
+          <div class="action-context">Aranza picks: spa / Pie de la Cuesta / brunch / Old Acapulco. Decide tonight or Sunday morning.</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-text">
+          <strong>Send Spanish thank-you to Aranza's parents</strong>
+          <div class="action-context">Drafts removed from public HTML. Use earlier Claude session templates if needed -- not urgent today.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Defer until Tuesday (back from Acapulco)</div>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:6px 0; font-size:12px;">→ Run <code>gcloud auth login</code>, re-run /morning fresh</li>
+        <li style="padding:6px 0; font-size:12px;">→ Re-run /compound to catch up Knowledge Compiler (~46h gap)</li>
+        <li style="padding:6px 0; font-size:12px;">→ AmEx Business KYC: provide additional info (ref CL012J4XZ0)</li>
+        <li style="padding:6px 0; font-size:12px;">→ Plane.so: decide upgrade vs drop before trial ends</li>
+        <li style="padding:6px 0; font-size:12px;">→ Verify PersonalOS backup is running (3 days stale -- may be trip-laptop issue)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Sources -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data sources & freshness</div>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:6px 0; font-size:12px;">📅 Calendar: <span class="hl">cloud-live</span> · MCP gcal_list_events · 7 events fetched</li>
+        <li style="padding:6px 0; font-size:12px;">📧 Gmail: <span class="hl">cloud-live</span> · MCP search_threads · 5 threads in last 24h</li>
+        <li style="padding:6px 0; font-size:12px;">💬 Slack (COD): <span class="hl">cloud-live</span> · curl Bot API · 7 channels, 0 msgs in 12h</li>
+        <li style="padding:6px 0; font-size:12px;">📊 BigQuery: <span class="hl-amber">unavailable</span> · gcloud auth expired</li>
+        <li style="padding:6px 0; font-size:12px;">🤖 Agency Brain: <span class="hl-amber">offline</span> · PC-C unreachable from Acapulco (expected)</li>
+        <li style="padding:6px 0; font-size:12px;">🔄 kamg-ops: <span class="hl">in sync</span> · git pull clean</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Errors / advisories</div>
+      <ul style="list-style:none; padding:0;">
+        <li style="padding:6px 0; font-size:12px;">⚠ GCS cloud morning-intel JSON not fetched (auth)</li>
+        <li style="padding:6px 0; font-size:12px;">⚠ Knowledge Compiler last run 2026-04-30 23:30 UTC</li>
+        <li style="padding:6px 0; font-size:12px;">⚠ PersonalOS backup last 2026-04-29 (3 days)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Acapulco Eats — Curated dining guide · May 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#13161b; --panel-2:#181c22; --line:#252a31;
+    --ink:#e8ebf0; --ink-2:#a0a8b4; --ink-3:#6b7480;
+    --accent:#7ee787; --warn:#f0b85a; --bad:#f06b5a; --gold:#f5c451; --lux:#c9a66b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:80px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:var(--ink);text-decoration:none}
+
+  /* language visibility */
+  body[data-lang="en"] .lang-es{display:none}
+  body[data-lang="es"] .lang-en{display:none}
+
+  /* topbar / menu */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,13,16,.85);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+  .topbar-inner{max-width:1280px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-.01em;flex-shrink:0}
+  .brand em{font-style:italic;color:var(--ink-2)}
+  .nav-links{display:flex;gap:4px;flex:1;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-2);white-space:nowrap;transition:all .15s}
+  .nav-links a:hover{color:var(--ink);background:var(--panel)}
+  .lang-toggle{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;flex-shrink:0}
+  .lang-toggle button{background:transparent;border:0;color:var(--ink-3);padding:6px 12px;font:600 11px 'Inter',sans-serif;letter-spacing:.08em;border-radius:999px;cursor:pointer;transition:all .15s}
+  .lang-toggle button.active{background:var(--ink);color:#0b0d10}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:32px 20px 80px}
+
+  /* hero */
+  .hero{padding:24px 0 32px;border-bottom:1px solid var(--line);margin-bottom:32px}
+  .eyebrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--ink-3);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(36px,5.5vw,60px);line-height:1.02;margin:0 0 14px;letter-spacing:-.015em}
+  h1 em{font-style:italic;color:var(--ink-2)}
+  .sub{color:var(--ink-2);font-size:16px;max-width:760px;line-height:1.55;margin:0 0 18px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:var(--panel);border:1px solid var(--line);color:var(--ink-2)}
+  .chip .pulse{width:7px;height:7px;border-radius:50%}
+  .pulse.open{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .pulse.warn{background:var(--warn);box-shadow:0 0 10px var(--warn)}
+  .pulse.lux{background:var(--lux);box-shadow:0 0 10px var(--lux)}
+
+  /* section */
+  section.cat{margin-bottom:48px}
+  .cat-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;gap:14px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .cat-head h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(26px,3.6vw,38px);margin:0;letter-spacing:-.01em}
+  .cat-head .cat-meta{color:var(--ink-3);font-size:13px;letter-spacing:.04em}
+  .cat-head .cat-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink-2);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:transform .15s ease,border-color .15s ease}
+  .card:hover{transform:translateY(-2px);border-color:#3a414b}
+  .card.lux{border-color:#3d3320;box-shadow:0 0 0 1px rgba(201,166,107,.12) inset}
+
+  .card-head{padding:18px 20px 14px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .name{font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .area{color:var(--ink-3);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .status{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid transparent}
+  .status.open{color:var(--accent);background:rgba(126,231,135,.08);border-color:rgba(126,231,135,.25)}
+  .status.warn{color:var(--warn);background:rgba(240,184,90,.08);border-color:rgba(240,184,90,.25)}
+  .status.lux{color:var(--lux);background:rgba(201,166,107,.08);border-color:rgba(201,166,107,.25)}
+  .status.dinner{color:#9bb5ff;background:rgba(155,181,255,.08);border-color:rgba(155,181,255,.25)}
+
+  .ratings{display:flex;gap:14px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+  .rate{display:flex;flex-direction:column;gap:2px}
+  .rate .src{font-size:10px;color:var(--ink-3);letter-spacing:.14em;text-transform:uppercase}
+  .rate .val{display:flex;align-items:baseline;gap:6px;font-weight:700}
+  .rate .val .num{font-size:18px;color:var(--gold)}
+  .rate .val .out{font-size:11px;color:var(--ink-3)}
+  .rate .ct{font-size:11px;color:var(--ink-3)}
+
+  .map{aspect-ratio:16/10;background:#0a0c10;border-bottom:1px solid var(--line);position:relative}
+  .map iframe{width:100%;height:100%;border:0;filter:invert(.92) hue-rotate(180deg) saturate(.6) brightness(.95)}
+
+  .meta{padding:16px 20px;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--ink-2)}
+  .meta .line{display:flex;gap:10px;align-items:flex-start}
+  .meta .ico{width:18px;flex:0 0 18px;color:var(--ink-3);font-size:13px;padding-top:1px}
+  .meta strong{color:var(--ink);font-weight:600}
+
+  .why{padding:13px 20px;background:rgba(126,231,135,.04);border-top:1px solid var(--line);font-size:13px;color:var(--ink-2);line-height:1.5}
+  .why.lux-why{background:rgba(201,166,107,.05)}
+  .why strong{color:var(--accent)}
+  .why.lux-why strong{color:var(--lux)}
+
+  .actions{display:flex;gap:8px;padding:14px 20px 18px;border-top:1px solid var(--line);background:var(--panel-2);flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--ink);transition:all .15s;cursor:pointer}
+  .btn:hover{border-color:#3a414b;background:#1d2128}
+  .btn.primary{background:var(--ink);color:#0b0d10;border-color:var(--ink)}
+  .btn.primary:hover{background:#fff}
+
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media (max-width:760px){
+    .topbar-inner{padding:10px 14px;gap:10px}
+    .brand{font-size:18px}
+    .nav-links a{padding:7px 10px;font-size:12px}
+    .lang-toggle button{padding:5px 9px;font-size:10px}
+  }
+  @media (max-width:560px){
+    .wrap{padding:20px 14px 60px}
+    .grid{grid-template-columns:1fr;gap:14px}
+  }
+</style>
+</head>
+<body data-lang="en">
+
+<!-- TOP NAV -->
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">Acapulco <em>Eats</em></div>
+    <div class="nav-links">
+      <a href="#brunch"><span class="lang-en">Brunch</span><span class="lang-es">Brunch</span></a>
+      <a href="#escenica"><span class="lang-en">Escénica</span><span class="lang-es">Escénica</span></a>
+      <a href="#las-brisas"><span class="lang-en">Las Brisas</span><span class="lang-es">Las Brisas</span></a>
+      <a href="#punta-diamante"><span class="lang-en">Punta Diamante</span><span class="lang-es">Punta Diamante</span></a>
+      <a href="#hotel-fine"><span class="lang-en">Resort Fine</span><span class="lang-es">Resort Fine</span></a>
+      <a href="#seafood-diamante"><span class="lang-en">Seafood Diamante</span><span class="lang-es">Mariscos Diamante</span></a>
+      <a href="#barra-vieja"><span class="lang-en">Barra Vieja · Pie de la Cuesta</span><span class="lang-es">Barra Vieja · Pie de la Cuesta</span></a>
+    </div>
+    <div class="lang-toggle">
+      <button class="active" data-lang-set="en">EN</button>
+      <button data-lang-set="es">ES MX</button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow"><span class="dot"></span>
+      <span class="lang-en">Curated · Acapulco · May 2026 · Torreblanca-friendly drives</span>
+      <span class="lang-es">Curado · Acapulco · Mayo 2026 · A distancia desde Torreblanca</span>
+    </div>
+    <h1>
+      <span class="lang-en">Acapulco at its <em>finest.</em></span>
+      <span class="lang-es">Acapulco en su <em>mejor versión.</em></span>
+    </h1>
+    <p class="sub">
+      <span class="lang-en">Hand-picked top spots — fine dining, iconic cliffside terraces, beach mariscos, and the two brunch institutions worth the drive. Each card has live ratings, embedded map, drive time from Torreblanca, and a one-tap navigate. Closed and forgettable spots removed.</span>
+      <span class="lang-es">Lo mejor seleccionado — alta cocina, terrazas icónicas en acantilado, mariscos de playa, y las dos instituciones de brunch que valen el viaje. Cada tarjeta tiene calificaciones en vivo, mapa integrado, tiempo de manejo desde Torreblanca, y navegación de un toque. Lugares cerrados u olvidables eliminados.</span>
+    </p>
+    <div class="legend">
+      <span class="chip"><span class="pulse open"></span><span class="lang-en">Open now</span><span class="lang-es">Abierto</span></span>
+      <span class="chip"><span class="pulse warn"></span><span class="lang-en">Lunch/dinner only</span><span class="lang-es">Solo comida/cena</span></span>
+      <span class="chip"><span class="pulse lux"></span><span class="lang-en">Reservation recommended</span><span class="lang-es">Se recomienda reservar</span></span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════ BRUNCH ════════════════════════════════ -->
+  <section id="brunch" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Brunch — the two worth the drive</span><span class="lang-es">Brunch — los dos que valen el viaje</span></h2>
+      <span class="cat-tag"><span class="lang-en">Morning · 8 AM – 2 PM</span><span class="lang-es">Mañana · 8 AM – 2 PM</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Costa Azul · Costera</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Open</span><span class="lang-es">Abierto</span></span></div>
+          <div class="row"><span class="name">Yoyas Restaurante Panadería</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src">Tripadvisor</span><span class="val"><span class="num">4.8</span><span class="out">/ 5</span></span><span class="ct">#14 / 399</span></div>
+          <div class="rate"><span class="src">Rest. Guru</span><span class="val"><span class="num">4.6</span><span class="out">/ 5</span></span><span class="ct">536 <span class="lang-en">reviews</span><span class="lang-es">reseñas</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Yoyas+Restaurante+Panaderia+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span><span class="lang-en"><strong>All-day</strong> · breakfast → dinner</span><span class="lang-es"><strong>Todo el día</strong> · desayuno → cena</span></span></div>
+          <div class="line"><span class="ico">📍</span><span>Av. Costera Miguel Alemán 3007, Plaza Embarcadero</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~25–35 min from Torreblanca</span><span class="lang-es">~25–35 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍳</span><span><span class="lang-en">Chilaquiles verdes, eggs Benedict on croissants, artisan bakery</span><span class="lang-es">Chilaquiles verdes, huevos Benedict en croissant, panadería artesanal</span></span></div>
+        </div>
+        <div class="why lux-why"><strong><span class="lang-en">Why it wins:</span><span class="lang-es">Por qué gana:</span></strong>
+          <span class="lang-en"> Highest-rated breakfast in Acapulco, 20+ year institution.</span>
+          <span class="lang-es"> El desayuno mejor calificado en Acapulco, institución de 20+ años.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Yoyas+Restaurante+Panaderia+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.tripadvisor.com/Restaurant_Review-g150787-d23767138-Reviews-Yoyas_Restaurante_Panaderia-Acapulco_Pacific_Coast.html" target="_blank"><span class="lang-en">Photos</span><span class="lang-es">Fotos</span></a>
+          <a class="btn" href="https://www.instagram.com/yoyasmx/" target="_blank">Instagram</a>
+          <a class="btn" href="tel:+527441490878"><span class="lang-en">Call</span><span class="lang-es">Llamar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Costa Azul · Costera</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Open</span><span class="lang-es">Abierto</span></span></div>
+          <div class="row"><span class="name">Tertulia</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Brunch</span></span><span class="ct"><span class="lang-en">10+ year icon</span><span class="lang-es">ícono 10+ años</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Hours</span><span class="lang-es">Horario</span></span><span class="val"><span class="num">8–14h</span></span><span class="ct"><span class="lang-en">daily</span><span class="lang-es">diario</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Tertulia+Acapulco+Costa+Azul&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span>Mon–Sun · <strong>8 AM – 2 PM</strong></span></div>
+          <div class="line"><span class="ico">📍</span><span>Horacio Nelson 59, Fracc. Costa Azul</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~25–35 min from Torreblanca</span><span class="lang-es">~25–35 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍳</span><span><span class="lang-en">Pan francés Tertulia, chilaquiles con mole, modern patio</span><span class="lang-es">Pan francés Tertulia, chilaquiles con mole, patio moderno</span></span></div>
+        </div>
+        <div class="why"><strong><span class="lang-en">Why pick this:</span><span class="lang-es">Por qué elegirlo:</span></strong>
+          <span class="lang-en"> Best food after Yoyas. Sit-down brunch destination feel.</span>
+          <span class="lang-es"> La mejor comida después de Yoyas. Ambiente de brunch destino.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Tertulia+Acapulco+Costa+Azul" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.tripadvisor.com/Restaurant_Review-g150787-d23643954-Reviews-Tertulia-Acapulco_Pacific_Coast.html" target="_blank"><span class="lang-en">Photos</span><span class="lang-es">Fotos</span></a>
+          <a class="btn" href="https://www.instagram.com/tertulia.mx/" target="_blank">Instagram</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ ESCÉNICA ════════════════════════════════ -->
+  <section id="escenica" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Escénica — cliffside icons</span><span class="lang-es">Escénica — íconos en acantilado</span></h2>
+      <span class="cat-tag"><span class="lang-en">Sunset · dinner · view</span><span class="lang-es">Atardecer · cena · vista</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Escénica · Puerto Marqués</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Dinner 5 PM</span><span class="lang-es">Cena 5 PM</span></span></div>
+          <div class="row"><span class="name">Zibu</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Cuisine</span><span class="lang-es">Cocina</span></span><span class="val"><span class="num">Thai-Mex</span></span><span class="ct">Eduardo Palazuelos</span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Cliff</span></span><span class="ct"><span class="lang-en">over Puerto Marqués bay</span><span class="lang-es">sobre bahía Puerto Marqués</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Zibu+Acapulco+Escenica&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span>Mon–Sun · <strong>5:00 PM – 11:30 PM</strong></span></div>
+          <div class="line"><span class="ico">📍</span><span>Av. Escénica S/N, Fracc. Glomar</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~12–18 min from Torreblanca</span><span class="lang-es">~12–18 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍽️</span><span><span class="lang-en">Thai-Mexican fusion in palapa pavilion atop the cliff</span><span class="lang-es">Fusión tailandesa-mexicana en palapa sobre el acantilado</span></span></div>
+        </div>
+        <div class="why lux-why"><strong><span class="lang-en">Reservation:</span><span class="lang-es">Reserva:</span></strong>
+          <span class="lang-en"> Book ahead, especially weekends. The view alone is worth the trip.</span>
+          <span class="lang-es"> Reserva con anticipación, sobre todo fines de semana. La vista vale el viaje.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Zibu+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.opentable.com/r/zibu" target="_blank"><span class="lang-en">Reserve</span><span class="lang-es">Reservar</span></a>
+          <a class="btn" href="https://linktr.ee/zibuacapulco" target="_blank">Linktree</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Escénica · 1968</span><span class="status warn"><span class="pulse warn"></span><span class="lang-en">Lunch 1 PM</span><span class="lang-es">Comida 1 PM</span></span></div>
+          <div class="row"><span class="name">Sirocco</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src">Rest. Guru</span><span class="val"><span class="num">4.2</span><span class="out">/ 5</span></span><span class="ct">2,812 <span class="lang-en">reviews</span><span class="lang-es">reseñas</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Specialty</span><span class="lang-es">Especialidad</span></span><span class="val"><span class="num">Paella</span></span><span class="ct"><span class="lang-en">Spanish · seafood since 1968</span><span class="lang-es">Española · mariscos desde 1968</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Sirocco+Acapulco+Escenica&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span>Mon–Sun · <strong>1:00 PM – 11:00 PM</strong></span></div>
+          <div class="line"><span class="ico">📍</span><span>Av. Escénica 120 (next to Camino Real)</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~15–20 min from Torreblanca</span><span class="lang-es">~15–20 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍽️</span><span><span class="lang-en">Authentic paella, classic Acapulco institution</span><span class="lang-es">Paella auténtica, institución clásica de Acapulco</span></span></div>
+        </div>
+        <div class="why"><strong><span class="lang-en">Why pick this:</span><span class="lang-es">Por qué elegirlo:</span></strong>
+          <span class="lang-en"> Tradition + reliability. Old-school Acapulco glamour, paellas done right.</span>
+          <span class="lang-es"> Tradición + confiabilidad. Glamour clásico de Acapulco, paellas bien hechas.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Sirocco+Acapulco+Escenica+120" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.sirocco.com.mx/" target="_blank"><span class="lang-en">Site</span><span class="lang-es">Sitio</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Escénica · Italian</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Verify hours</span><span class="lang-es">Confirmar horario</span></span></div>
+          <div class="row"><span class="name">Becco al Mare</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src">OpenTable</span><span class="val"><span class="num">4.2</span><span class="out">/ 5</span></span><span class="ct">182 diners</span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Press</span><span class="lang-es">Prensa</span></span><span class="val"><span class="num">NYT</span></span><span class="ct"><span class="lang-en">recommended</span><span class="lang-es">recomendado</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Becco+Al+Mare+Acapulco+Escenica&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Av. Escénica 14</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~15 min from Torreblanca</span><span class="lang-es">~15 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍝</span><span><span class="lang-en">Modern Italian, seafood-focused, bay view, extensive wine list</span><span class="lang-es">Italiana moderna, mariscos, vista a la bahía, carta de vinos amplia</span></span></div>
+          <div class="line"><span class="ico">⚠️</span><span><span class="lang-en">Status varies by source — call before booking</span><span class="lang-es">Estatus varía según la fuente — llama antes de reservar</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Becco+Al+Mare+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.opentable.com/r/becco-al-mare" target="_blank"><span class="lang-en">Reserve</span><span class="lang-es">Reservar</span></a>
+          <a class="btn" href="http://www.beccoalmare.com/" target="_blank"><span class="lang-en">Site</span><span class="lang-es">Sitio</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Acapulco Tradicional</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Dinner</span><span class="lang-es">Cena</span></span></div>
+          <div class="row"><span class="name">Tabachín del Puerto</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Mex Fine</span></span><span class="ct"><span class="lang-en">contemporary Mexican</span><span class="lang-es">mexicana contemporánea</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Status</span><span class="lang-es">Estatus</span></span><span class="val"><span class="num" style="color:var(--accent)">Open</span></span><span class="ct"><span class="lang-en">verified post-Otis</span><span class="lang-es">verificado post-Otis</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Tabachin+del+Puerto+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Acapulco Tradicional zone</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~30–40 min from Torreblanca</span><span class="lang-es">~30–40 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍽️</span><span><span class="lang-en">Filete Napoleón, crème brûlée standout</span><span class="lang-es">Filete Napoleón, crème brûlée destacada</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Tabachin+del+Puerto+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.tripadvisor.com/Restaurant_Review-g150787-d1068179-Reviews-Restaurante_Tabachin-Acapulco_Pacific_Coast.html" target="_blank"><span class="lang-en">Reviews</span><span class="lang-es">Reseñas</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ LAS BRISAS ════════════════════════════════ -->
+  <section id="las-brisas" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Las Brisas — pink-jeep luxury</span><span class="lang-es">Las Brisas — lujo de los jeeps rosas</span></h2>
+      <span class="cat-tag"><span class="lang-en">Hotel resort · Italian · seafood</span><span class="lang-es">Resort · italiana · mariscos</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Las Brisas · Italian</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Dinner</span><span class="lang-es">Cena</span></span></div>
+          <div class="row"><span class="name">Bellavista · Las Brisas</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Bay view</span></span><span class="ct"><span class="lang-en">crescent design</span><span class="lang-es">diseño de media luna</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Tier</span><span class="lang-es">Nivel</span></span><span class="val"><span class="num">Top</span></span><span class="ct"><span class="lang-en">most awarded</span><span class="lang-es">de los más premiados</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Hotel+Las+Brisas+Acapulco+Bellavista&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Hotel Las Brisas Acapulco, Carretera Escénica 5255</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~15–20 min from Torreblanca</span><span class="lang-es">~15–20 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍽️</span><span><span class="lang-en">Semi-open crescent, panoramic bay, fine dining classics</span><span class="lang-es">Media luna semi-abierta, vista panorámica, clásicos de alta cocina</span></span></div>
+        </div>
+        <div class="why lux-why"><strong><span class="lang-en">Iconic:</span><span class="lang-es">Icónico:</span></strong>
+          <span class="lang-en"> One of Mexico's most awarded restaurants. Sunset is mandatory.</span>
+          <span class="lang-es"> Uno de los restaurantes más premiados de México. El atardecer es obligatorio.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Hotel+Las+Brisas+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.brisas.com.mx/lasbrisasacapulco/" target="_blank"><span class="lang-en">Hotel site</span><span class="lang-es">Sitio del hotel</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Las Brisas · Italian farm-to-table</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Dinner</span><span class="lang-es">Cena</span></span></div>
+          <div class="row"><span class="name">La Vista · Las Brisas</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Cellar</span><span class="lang-es">Bodega</span></span><span class="val"><span class="num">Best</span></span><span class="ct"><span class="lang-en">most extensive in town</span><span class="lang-es">la más amplia de la ciudad</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Al fresco</span></span><span class="ct"><span class="lang-en">bay view terrace</span><span class="lang-es">terraza con vista a la bahía</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=La+Vista+Las+Brisas+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Hotel Las Brisas Acapulco</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~15–20 min from Torreblanca</span><span class="lang-es">~15–20 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍝</span><span><span class="lang-en">Grilled rib-eye with rosemary, sea bass orange-lime, lobster tagliolini</span><span class="lang-es">Rib-eye al romero, robalo naranja-limón, tagliolini de langosta</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Hotel+Las+Brisas+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Las Brisas · Seafood raw bar</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Lunch · dinner</span><span class="lang-es">Comida · cena</span></span></div>
+          <div class="row"><span class="name">Bora Bora · Las Brisas</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Raw bar</span></span><span class="ct"><span class="lang-en">oysters · clams · ceviches</span><span class="lang-es">ostras · almejas · ceviches</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Cuisine</span><span class="lang-es">Cocina</span></span><span class="val"><span class="num">Pacific</span></span><span class="ct"><span class="lang-en">Mexican + world</span><span class="lang-es">Mexicana + mundo</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Bora+Bora+Las+Brisas+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Las Brisas Acapulco zone</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~15–20 min from Torreblanca</span><span class="lang-es">~15–20 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🦐</span><span><span class="lang-en">Upscale seafood, gourmet tacos, raw bar</span><span class="lang-es">Mariscos de alta cocina, tacos gourmet, barra cruda</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Bora+Bora+Las+Brisas+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ PUNTA DIAMANTE ════════════════════════════════ -->
+  <section id="punta-diamante" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Punta Diamante — Banyan Tree trio</span><span class="lang-es">Punta Diamante — trío Banyan Tree</span></h2>
+      <span class="cat-tag"><span class="lang-en">~10–15 min from Torreblanca</span><span class="lang-es">~10–15 min desde Torreblanca</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Banyan Tree · Thai</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">All day</span><span class="lang-es">Todo el día</span></span></div>
+          <div class="row"><span class="name">Saffron · Banyan Tree</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src">Hotel</span><span class="val"><span class="num">5★</span></span><span class="ct">Banyan Tree</span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Cliff</span></span><span class="ct"><span class="lang-en">sunset spot</span><span class="lang-es">spot de atardecer</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Banyan+Tree+Cabo+Marques+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span><strong>Breakfast 7:30–12 · Lunch 12–18 · Dinner 18–23</strong></span></div>
+          <div class="line"><span class="ico">📍</span><span>Blvd. Cabo Marqués Lote 1, Punta Diamante</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~10–15 min from Torreblanca</span><span class="lang-es">~10–15 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">👔</span><span><span class="lang-en">Elegant casual evenings</span><span class="lang-es">Elegante casual de noche</span></span></div>
+        </div>
+        <div class="why lux-why"><strong><span class="lang-en">Why pick this:</span><span class="lang-es">Por qué elegirlo:</span></strong>
+          <span class="lang-en"> Authentic Thai on a cliff. Sunset dinner here is unbeatable.</span>
+          <span class="lang-es"> Tailandesa auténtica en un acantilado. La cena al atardecer es insuperable.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Banyan+Tree+Cabo+Marques+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.opentable.com/r/saffron-at-banyan-tree-acapulco" target="_blank"><span class="lang-en">Reserve</span><span class="lang-es">Reservar</span></a>
+          <a class="btn" href="https://www.banyantree.com/mexico/cabo-marques/dining" target="_blank"><span class="lang-en">Site</span><span class="lang-es">Sitio</span></a>
+        </div>
+      </article>
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Banyan Tree · Italian</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">All day</span><span class="lang-es">Todo el día</span></span></div>
+          <div class="row"><span class="name">Cello · Banyan Tree</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Cuisine</span><span class="lang-es">Cocina</span></span><span class="val"><span class="num">Italian</span></span><span class="ct"><span class="lang-en">authentic flavors</span><span class="lang-es">sabores auténticos</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Hours</span><span class="lang-es">Horario</span></span><span class="val"><span class="num">All day</span></span><span class="ct">B · L · D</span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Cello+Banyan+Tree+Cabo+Marques&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">⏰</span><span>Breakfast 7:30–12 · Lunch 12–18 · Dinner 18–23</span></div>
+          <div class="line"><span class="ico">📍</span><span>Banyan Tree Cabo Marqués, Punta Diamante</span></div>
+          <div class="line"><span class="ico">🍝</span><span><span class="lang-en">Refined Italian, international breakfast spread</span><span class="lang-es">Italiana refinada, desayuno internacional amplio</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Banyan+Tree+Cabo+Marques+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.opentable.com/r/cello-at-banyan-tree-acapulco-2" target="_blank"><span class="lang-en">Reserve</span><span class="lang-es">Reservar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Banyan Tree · Grill + sea</span><span class="status warn"><span class="pulse warn"></span><span class="lang-en">Lunch · dinner</span><span class="lang-es">Comida · cena</span></span></div>
+          <div class="row"><span class="name">Las Rocas · Banyan Tree</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Grill</span></span><span class="ct"><span class="lang-en">seafood + meats</span><span class="lang-es">mariscos + carnes</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Coast</span></span><span class="ct"><span class="lang-en">resort casual</span><span class="lang-es">resort casual</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Las+Rocas+Banyan+Tree+Cabo+Marques&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Banyan Tree Cabo Marqués, Punta Diamante</span></div>
+          <div class="line"><span class="ico">🍖</span><span><span class="lang-en">Fresh seafood and seasonal meats grilled to perfection</span><span class="lang-es">Mariscos frescos y carnes de temporada al grill</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Banyan+Tree+Cabo+Marques+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.banyantree.com/mexico/cabo-marques/dining" target="_blank"><span class="lang-en">Site</span><span class="lang-es">Sitio</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ HOTEL FINE ════════════════════════════════ -->
+  <section id="hotel-fine" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Resort fine dining</span><span class="lang-es">Alta cocina de resort</span></h2>
+      <span class="cat-tag"><span class="lang-en">Mediterranean · Pacific bay views</span><span class="lang-es">Mediterránea · vistas al Pacífico</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Beach · Mediterranean</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Dinner</span><span class="lang-es">Cena</span></span></div>
+          <div class="row"><span class="name">Praya</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Med</span></span><span class="ct"><span class="lang-en">avant-garde + DJ</span><span class="lang-es">vanguardia + DJ</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">View</span><span class="lang-es">Vista</span></span><span class="val"><span class="num">Bay</span></span><span class="ct"><span class="lang-en">tropical beach vibes</span><span class="lang-es">vibe tropical de playa</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Praya+Restaurante+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Acapulco Bay, beachfront</span></div>
+          <div class="line"><span class="ico">🍸</span><span><span class="lang-en">Signature mixology, vibrant DJ sets, fine dining</span><span class="lang-es">Mixología de autor, DJ sets vibrantes, alta cocina</span></span></div>
+        </div>
+        <div class="why lux-why"><strong><span class="lang-en">Vibe:</span><span class="lang-es">Vibe:</span></strong>
+          <span class="lang-en"> Date-night energy. Order the cocktails, stay for the view.</span>
+          <span class="lang-es"> Energía de date night. Pide los cocteles, quédate por la vista.</span>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Praya+Restaurante+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+          <a class="btn" href="https://www.prayarestaurante.com/" target="_blank"><span class="lang-en">Site</span><span class="lang-es">Sitio</span></a>
+        </div>
+      </article>
+
+      <article class="card lux">
+        <div class="card-head">
+          <div class="row"><span class="area">Encanto · Pichilingue</span><span class="status dinner"><span class="pulse lux"></span><span class="lang-en">Reservation</span><span class="lang-es">Reservación</span></span></div>
+          <div class="row"><span class="name">Origen · Hotel Encanto</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src">Hotel</span><span class="val"><span class="num">5★</span></span><span class="ct">Encanto Acapulco</span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Tier</span><span class="lang-es">Nivel</span></span><span class="val"><span class="num">Lux</span></span><span class="ct"><span class="lang-en">most extravagant</span><span class="lang-es">de los más extravagantes</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Hotel+Encanto+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Hotel Encanto Acapulco, Pichilingue</span></div>
+          <div class="line"><span class="ico">🌊</span><span><span class="lang-en">Overlooks the Pacific, design-led property</span><span class="lang-es">Vista al Pacífico, propiedad arquitectónica</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Hotel+Encanto+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ SEAFOOD DIAMANTE ════════════════════════════════ -->
+  <section id="seafood-diamante" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Seafood — Playa Diamante</span><span class="lang-es">Mariscos — Playa Diamante</span></h2>
+      <span class="cat-tag"><span class="lang-en">Casual upscale · ocean view</span><span class="lang-es">Casual elevado · vista al mar</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Playa Diamante</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Lunch</span><span class="lang-es">Comida</span></span></div>
+          <div class="row"><span class="name">Buzos Diamante</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Mariscos</span></span><span class="ct"><span class="lang-en">fresh + ocean view</span><span class="lang-es">frescos + vista al mar</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Buzos+Diamante+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Playa Diamante, beachfront</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~10 min from Torreblanca</span><span class="lang-es">~10 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🦞</span><span><span class="lang-en">Fresh seafood, breathtaking ocean views</span><span class="lang-es">Mariscos frescos, vistas espectaculares al mar</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Buzos+Diamante+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Punta Diamante</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Lunch</span><span class="lang-es">Comida</span></span></div>
+          <div class="row"><span class="name">Enramada Martha</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Style</span><span class="lang-es">Estilo</span></span><span class="val"><span class="num">Authentic</span></span><span class="ct"><span class="lang-en">local seafood</span><span class="lang-es">mariscos locales</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Enramada+Martha+Punta+Diamante+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Punta Diamante</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~10–15 min from Torreblanca</span><span class="lang-es">~10–15 min desde Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🐟</span><span><span class="lang-en">Authentic seafood, fresh flavors, breathtaking views</span><span class="lang-es">Mariscos auténticos, sabores frescos, vistas espectaculares</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Enramada+Martha+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ BARRA VIEJA ════════════════════════════════ -->
+  <section id="barra-vieja" class="cat">
+    <div class="cat-head">
+      <h2><span class="lang-en">Barra Vieja & Pie de la Cuesta — beach mariscos drives</span><span class="lang-es">Barra Vieja y Pie de la Cuesta — viajes a mariscos de playa</span></h2>
+      <span class="cat-tag"><span class="lang-en">Day trip · pescado a la talla</span><span class="lang-es">Día de viaje · pescado a la talla</span></span>
+    </div>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Barra Vieja · 30+ years</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Lunch</span><span class="lang-es">Comida</span></span></div>
+          <div class="row"><span class="name">Juana la Cubana</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Specialty</span><span class="lang-es">Especialidad</span></span><span class="val"><span class="num">Talla</span></span><span class="ct"><span class="lang-en">pescado a la talla</span><span class="lang-es">pescado a la talla</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Years</span><span class="lang-es">Años</span></span><span class="val"><span class="num">30+</span></span><span class="ct"><span class="lang-en">classic</span><span class="lang-es">clásico</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Juana+la+Cubana+Barra+Vieja+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Barra Vieja, Acapulco</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~25–35 min east of Torreblanca</span><span class="lang-es">~25–35 min al este de Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🐟</span><span><span class="lang-en">Pescado a la talla, camarones al mojo, camarones a la diabla</span><span class="lang-es">Pescado a la talla, camarones al mojo, camarones a la diabla</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Juana+La+Cubana+Barra+Vieja+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Barra Vieja · Wood-fired</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Lunch</span><span class="lang-es">Comida</span></span></div>
+          <div class="row"><span class="name">La Barra 520</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Specialty</span><span class="lang-es">Especialidad</span></span><span class="val"><span class="num">Wood-fire</span></span><span class="ct"><span class="lang-en">huachinango</span><span class="lang-es">huachinango</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=La+Barra+520+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Barra Vieja</span></div>
+          <div class="line"><span class="ico">🍴</span><span><span class="lang-en">Traditional Guerrero, wood-fired huachinango with guajillo</span><span class="lang-es">Cocina tradicional guerrerense, huachinango al horno de leña con guajillo</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=La+Barra+520+Barra+Vieja+Acapulco" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <div class="row"><span class="area">Pie de la Cuesta · Lagoon</span><span class="status open"><span class="pulse open"></span><span class="lang-en">Lunch</span><span class="lang-es">Comida</span></span></div>
+          <div class="row"><span class="name">Sandunga Laguna</span></div>
+        </div>
+        <div class="ratings">
+          <div class="rate"><span class="src"><span class="lang-en">Cuisine</span><span class="lang-es">Cocina</span></span><span class="val"><span class="num">Gro+Oax</span></span><span class="ct"><span class="lang-en">coastal regional</span><span class="lang-es">regional costera</span></span></div>
+          <div class="rate"><span class="src"><span class="lang-en">Setting</span><span class="lang-es">Ambiente</span></span><span class="val"><span class="num">Lagoon</span></span><span class="ct"><span class="lang-en">live music Thurs</span><span class="lang-es">música en vivo jueves</span></span></div>
+        </div>
+        <div class="map"><iframe loading="lazy" src="https://maps.google.com/maps?q=Sandunga+Laguna+Pie+de+la+Cuesta+Acapulco&output=embed"></iframe></div>
+        <div class="meta">
+          <div class="line"><span class="ico">📍</span><span>Pie de la Cuesta lagoon side</span></div>
+          <div class="line"><span class="ico">🚗</span><span><span class="lang-en">~50–60 min west of Torreblanca</span><span class="lang-es">~50–60 min al oeste de Torreblanca</span></span></div>
+          <div class="line"><span class="ico">🍲</span><span><span class="lang-en">Guerrero + Oaxaca cuisine, traditional pozole Thursdays</span><span class="lang-es">Cocina de Guerrero + Oaxaca, pozole tradicional los jueves</span></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Sandunga+Laguna+Pie+de+la+Cuesta" target="_blank"><span class="lang-en">Navigate</span><span class="lang-es">Navegar</span></a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <span class="lang-en">Sources: TripAdvisor · Restaurant Guru · OpenTable · Google Maps · Banyan Tree · Las Brisas · official sites · Time Out · Fodor's. Curated May 3, 2026.</span>
+      <span class="lang-es">Fuentes: TripAdvisor · Restaurant Guru · OpenTable · Google Maps · Banyan Tree · Las Brisas · sitios oficiales · Time Out · Fodor's. Curado 3 de mayo, 2026.</span>
+    </div>
+    <div>
+      <span class="lang-en">Built for Kas · Torreblanca, Acapulco</span>
+      <span class="lang-es">Hecho para Kas · Torreblanca, Acapulco</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.lang-toggle button');
+  const body = document.body;
+  function setLang(lang){
+    body.dataset.lang = lang;
+    document.documentElement.lang = lang === 'es' ? 'es-MX' : 'en';
+    buttons.forEach(b => b.classList.toggle('active', b.dataset.langSet === lang));
+    try { localStorage.setItem('aca-lang', lang); } catch(e){}
+  }
+  buttons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.langSet)));
+  try {
+    const saved = localStorage.getItem('aca-lang');
+    if (saved) setLang(saved);
+  } catch(e){}
+</script>
+
+</body>
+</html>

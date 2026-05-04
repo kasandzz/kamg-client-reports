@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-05-04</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* -- Reset -- */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* -- Header -- */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+
+  /* -- Tabs -- */
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* -- Cards -- */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  /* -- Stat Grid -- */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  /* -- Sparkline -- */
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* -- List Items -- */
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  /* -- Schedule -- */
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:70px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-aoc { background:rgba(236,72,153,.15); color:#ec4899; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+
+  /* -- Overnight -- */
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+
+  /* -- Action Items -- */
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  /* -- Tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  /* -- Funnel -- */
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  /* -- Talking Points -- */
+  .talk-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .talk-trigger { font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px; }
+  .talk-response { font-size:11px; color:#e2e8f0; }
+  .talk-data { font-size:10px; color:#64748b; margin-top:6px; }
+
+  /* -- Russ Intel -- */
+  .russ-decision { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(139,92,246,.08); border-left:3px solid #8b5cf6; }
+  .russ-question { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .russ-date { font-size:10px; color:#64748b; }
+  .russ-source { font-size:9px; color:#64748b; margin-left:8px; }
+
+  /* -- Utility -- */
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Monday, May 4, 2026 · Acapulco departure day · COD Huddle 10:00 CDMX</div>
+    <div class="meta">Generated 2026-05-04 15:34:24 UTC | Data as of Calendar/Email LIVE · COD KPIs 5d stale (cloud) · Backup CRITICAL</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    
+    
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <div class="section active" id="myday">
+<div class="card">
+  <div class="card-title">Today — Monday, May 4, 2026</div>
+  <div class="card-subtitle">Last day in Acapulco · Overnight travel back to CDMX tonight · COD Huddle at 10:00</div>
+  <div class="stat-grid">
+    <div class="stat-card amber"><div class="stat-value">8</div><div class="stat-label">Upcoming events</div></div>
+    <div class="stat-card red"><div class="stat-value">2</div><div class="stat-label">Open verifications<br/>(Mizumi, Sirocco)</div></div>
+    <div class="stat-card green"><div class="stat-value">1</div><div class="stat-label">Client meeting<br/>(COD Huddle)</div></div>
+    <div class="stat-card amber"><div class="stat-value">5d</div><div class="stat-label">Backup stale<br/>(critical)</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Schedule</div>
+  <div class="card-subtitle">Times in CDMX (UTC-6) · Acapulco day, depart tonight</div>
+  
+    <div class="schedule-item" style="opacity:0.4;">
+      <div class="schedule-time">07:45</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Morning Focus Block ☕ <span style="color:#64748b;font-size:10px;">(passed)</span></div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:0.4;">
+      <div class="schedule-time">08:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Russ Call Block (prep window) <span style="color:#64748b;font-size:10px;">(passed)</span></div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="opacity:0.4;">
+      <div class="schedule-time">06:30 CDMX</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Daily Check In (Russ + Akari + Pedro) <span style="color:#64748b;font-size:10px;">(passed)</span></div>
+        <div class="schedule-prep">Already passed -- ET 08:30</div>
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">10:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Monday Morning Team Huddle (COD all-company)</div>
+        <div class="schedule-prep">Zoom · Russ Ruffino + entire COD team · 30 min</div>
+        <div class="schedule-prep"><a href="https://russruffino.zoom.us/j/86430751313" style="color:#3b82f6;">https://russruffino.zoom.us/j/86430751313</a></div>
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">14:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Drive back to hotel (travel)</div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">15:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Pack + spa/pool + couples time @ Torre Blanca</div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">17:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Sunset cocktails @ Sirocco / Baikal terrace</div>
+        <div class="schedule-prep">NOTE: Baikal verified PERMANENTLY CLOSED (2023 Otis hurricane). Sirocco still open -- confirm before going.</div>
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">18:30</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Drive to Mizumi (Mundo Imperial)</div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">19:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Mizumi early-dinner w/ Aranza</div>
+        <div class="schedule-prep">NOTE: Mizumi reportedly closed/operating with Carnivore (per 05-02 verification). Call resort +52 744 469 1000 today to verify.</div>
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">21:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Check out + load car @ Torre Blanca</div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="schedule-item" style="">
+      <div class="schedule-time">22:00</div>
+      <div class="schedule-body">
+        <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Depart Acapulco (overnight travel back to CDMX)</div>
+        
+        
+      </div>
+    </div>
+  
+</div>
+
+<div class="card">
+  <div class="card-title">Focus Statement</div>
+  <div class="card-subtitle">What would make today a success</div>
+  <div class="insight-item">
+    <div class="item-title">Land COD Huddle clean → travel efficiently → arrive home tonight without dinner-reservation chaos</div>
+    <div class="item-detail">Two real risks: (1) Mizumi may not be operating today — verify by phone before 18:30 drive. (2) Backup + cloud intel both stale since 04-29 — fix on first morning back at desk.</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Carrying Forward (from 2026-05-02)</div>
+  
+    <div class="action-item">
+      <div class="action-check"></div>
+      <div class="action-text">Lock sunset/dinner reservation in Acapulco — call Mizumi at +52 744 469 1000 to verify they are open today (post-Otis 2023 verification flagged them as combined with Carnivore)<br/><span class="action-context">From 2026-05-02 daily note · time-sensitive: 19:00 reservation</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check"></div>
+      <div class="action-text">Verify Sirocco/Baikal status before sunset block (17:00) — Baikal permanently closed per Restaurant Guru<br/><span class="action-context">From 2026-05-02 daily note</span></div>
+    </div>
+  
+</div>
+</div>
+  <div class="section" id="cod">
+<div class="card" style="background:rgba(245,158,11,0.08); border-color:#f59e0b;">
+  <div class="card-title" style="color:#f59e0b;">⚠ BQ snapshot is 5 days stale</div>
+  <div class="card-subtitle">Cloud Function last successful run: 2026-04-29 11:00 UTC. Errors logged: <code style="background:#0a0e17;padding:2px 6px;border-radius:3px;">Gmail: invalid_client</code>, <code style="background:#0a0e17;padding:2px 6px;border-radius:3px;">Calendar: invalid_client</code>. Restart CF + reauth OAuth after returning to desk.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">COD Period Snapshot — 2026-04-01 to 2026-04-29</div>
+  <div class="stat-grid">
+    <div class="stat-card amber"><div class="stat-value">$55,422</div><div class="stat-label">Gross revenue</div></div>
+    <div class="stat-card amber"><div class="stat-value">$186,475</div><div class="stat-label">Total spend</div></div>
+    <div class="stat-card red"><div class="stat-value">0.30x</div><div class="stat-label">ROAS (period)</div></div>
+    <div class="stat-card green"><div class="stat-value">10</div><div class="stat-label">Enrollments</div></div>
+    <div class="stat-card amber"><div class="stat-value">$39,000</div><div class="stat-label">Enrollment $</div></div>
+    <div class="stat-card green"><div class="stat-value">$15,428</div><div class="stat-label">Ticket $</div></div>
+    <div class="stat-card green"><div class="stat-value">$994.00</div><div class="stat-label">VIP $</div></div>
+    <div class="stat-card amber"><div class="stat-value">6.4%</div><div class="stat-label">VIP take rate</div></div>
+  </div>
+  <div class="card-subtitle" style="margin-top:8px;">ROAS at <span class="hl-amber">0.30x</span> for the period. Spend $186K → revenue $55K. CAC math is upside down. Note: total_calls = 0, closer_performance = empty — Hyros booking pipeline likely not feeding into BQ this period.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">7-day cash + spend trend</div>
+  <table class="data-table">
+    <thead><tr><th>Date</th><th>Cash</th><th>Spend</th><th>ROAS</th><th>Enroll</th></tr></thead>
+    <tbody>
+      
+        <tr>
+          <td>2026-04-22</td>
+          <td>$8,753</td>
+          <td>$9,728</td>
+          <td>0.90x</td>
+          <td>1</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-23</td>
+          <td>$594.00</td>
+          <td>$7,359</td>
+          <td>0.08x</td>
+          <td>0</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-24</td>
+          <td>$2,513</td>
+          <td>$6,335</td>
+          <td>0.40x</td>
+          <td>1</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-25</td>
+          <td>$572.00</td>
+          <td>$4,940</td>
+          <td>0.12x</td>
+          <td>0</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-26</td>
+          <td>$216.00</td>
+          <td>$0.00</td>
+          <td>—</td>
+          <td>0</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-27</td>
+          <td>$1,172</td>
+          <td>$0.00</td>
+          <td>—</td>
+          <td>0</td>
+        </tr>
+      
+        <tr>
+          <td>2026-04-28</td>
+          <td>$486.00</td>
+          <td>$0.00</td>
+          <td>—</td>
+          <td>0</td>
+        </tr>
+      
+    </tbody>
+  </table>
+  <div class="card-subtitle" style="margin-top:8px;">04-26 + 04-27 had $0 spend recorded (likely BQ ingestion gap, not actual zero spend). Cash dribbled in those days = stub bookings.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Top ad-spend campaigns (period)</div>
+  <table class="data-table">
+    <thead><tr><th>Campaign</th><th>Spend</th><th>CTR</th><th>CPM</th></tr></thead>
+    <tbody>
+      
+        <tr>
+          <td style="max-width:500px;">Paid Workshop - ABO (Cold) - Industry Adsets - Winning</td>
+          <td>$120,679</td>
+          <td>7.2%</td>
+          <td>$74</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">Paid Workshop - CBO | Licensed Therapists Counselors (LMFT, LCSW, LPC) Winning Ads+Aud</td>
+          <td>$33,413</td>
+          <td>6.2%</td>
+          <td>$89</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">MA Funnel Application | ABO - Millionaire Alliance Mastermind - Application</td>
+          <td>$10,570</td>
+          <td>4.9%</td>
+          <td>$249</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">Paid Workshop - CBO - FB | Coaches Consultants and Experts - Winning Ads - 2</td>
+          <td>$7,485</td>
+          <td>2.7%</td>
+          <td>$207</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">Retargeting - VSL Book Call (COD#5) - 3</td>
+          <td>$4,963</td>
+          <td>2.6%</td>
+          <td>$230</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">Paid Workshop - CBO | Attorneys Lawyers - Winning Ads+Aud</td>
+          <td>$3,123</td>
+          <td>9.2%</td>
+          <td>$20</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">[TOF - COLD] Authority Reels – All Exclusions</td>
+          <td>$2,142</td>
+          <td>0.5%</td>
+          <td>$10</td>
+        </tr>
+      
+        <tr>
+          <td style="max-width:500px;">Paid Workshop - CBO | Coaches Consultants and Experts - Old Winning Ads - 3</td>
+          <td>$2,000</td>
+          <td>3.0%</td>
+          <td>$220</td>
+        </tr>
+      
+    </tbody>
+  </table>
+  <div class="card-subtitle" style="margin-top:8px;">Industry-Adsets-Winning still leads spend at $120K. Therapist CBO sub-campaign $33K (CTR 6.2%, slightly stronger than the cold ABO at 7.2% but lower volume). Millionaire Alliance application campaign $10K with $248 CPM — premium audience, expected.</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Funnel snapshot (period)</div>
+  <table class="data-table">
+    <tr><td>Leads</td><td>466</td></tr>
+    <tr><td>Applied</td><td>145 <span style="color:#94a3b8;">(31.1%)</span></td></tr>
+    <tr><td>Booked</td><td>0 <span style="color:#ef4444;">⚠ 0 booked</span></td></tr>
+    <tr><td>Showed</td><td>0</td></tr>
+    <tr><td>Enrolled</td><td>10</td></tr>
+  </table>
+  <div class="card-subtitle" style="margin-top:8px;">"Booked = 0" is a data feed issue, not reality. The Hyros → BQ booking sync was likely interrupted or never connected for this period.</div>
+</div>
+</div>
+  
+  
+  <div class="section" id="overnight">
+<div class="card">
+  <div class="card-title">Email Overnight (last 24h)</div>
+  <div class="card-subtitle">Fresh from Gmail MCP · 9 threads</div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-high">HIGH</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>reminder@superhuman.com</strong></div>
+        <div class="overnight-text"><strong>Re: Resimplify email fixes for Russ, then focus on one metric at a time</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Snoozed self-reminder firing now — Russ email fixes + simplify reporting/tracking</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-med">MED</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>reminder@superhuman.com</strong></div>
+        <div class="overnight-text"><strong>Re: Email. Blocked Russ images</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Snoozed self-reminder — fix blocked images in Russ emails</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-med">MED</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>reminder@superhuman.com</strong></div>
+        <div class="overnight-text"><strong>Re: Chargeback Melanie</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Snoozed self-reminder — Melanie chargeback follow-up</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>reminder@superhuman.com</strong></div>
+        <div class="overnight-text"><strong>Re: Scrape this guys YT and check strats</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Self-reminder — review Ryan Mathews YT channel for strategy ideas</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-med">MED</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>no-reply@fathom.video</strong></div>
+        <div class="overnight-text"><strong>Recap for &quot;Impromptu Zoom Meeting&quot;</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">New Fathom recap from impromptu COD meeting (Matt + team) — review for action items</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-high">HIGH</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>invoices@pandadoc.com</strong></div>
+        <div class="overnight-text"><strong>Update payment method to reactivate</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">PandaDoc account DEACTIVATED — payment method failing. Fix today if you still use PandaDoc.</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>renewals@namecheap.com</strong></div>
+        <div class="overnight-text"><strong>joshbonham.com has expired</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Domain expired — decide reactivate or let drop (joshbonham, not core)</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>daniel@blogtrepreneur.co.uk</strong></div>
+        <div class="overnight-text"><strong>Re: Paused campaigns? (already replied 05-02)</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Daniel followed up on Redstone search-pause; already replied Sat with Eric context</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Email · <strong>russ@mail.clientsondemand.live</strong></div>
+        <div class="overnight-text"><strong>Workflow Error Detected (filtered)</strong></div>
+        <div class="overnight-text" style="color:#94a3b8;">Standard GHL workflow error noise — per memory rule, filtered</div>
+      </div>
+    </div>
+  
+</div>
+
+<div class="card">
+  <div class="card-title">COD Slack Activity (cloud snapshot, stale)</div>
+  <div class="card-subtitle">From 2026-04-29 cloud JSON · 10 messages · refresh after restart</div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #marketing-optimization · <strong>Matt</strong></div>
+        <div class="overnight-text">For the First Attribute and Last Attribution fields these come directly from UTMs that GHL processes. The data is pushed to that Reporting Workbook at multiple points. (There are multiple sheets inside the workbook.) So some is via Form Submissions, Purchases, Booked Calls etc. I</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>Matt</strong></div>
+        <div class="overnight-text">Weird one that as it looks like it's behind a bar that isn't there on many devices. I've stuck the CTA to the bottom using a more robust method now.
+
+All the click actions have worked for me correctly on all tests so not sure what's happening there. Does anyone have an Android mo</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #sales-fun · <strong>franzi</strong></div>
+        <div class="overnight-text">&lt;@U8V881XGA&gt;</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #sales-team-help · <strong>unknown</strong></div>
+        <div class="overnight-text">A new *COD w/ DFY* client has been kicked off and is ready to onboard!
+&amp;gt;*Client*: &lt;https://app.ontraport.com/#!/contact/edit&amp;amp;id=495137|Laura Riness&gt; | &lt;mailto:laura.riness@outlook.com|laura.riness@outlook.com&gt; | 495137
+&amp;gt;*Enrollment Coach*: Matt Dakan
+&amp;gt;*Business Coach</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #sales-fun · <strong>Kas</strong></div>
+        <div class="overnight-text">fist bump</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>russruffino</strong></div>
+        <div class="overnight-text"></div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>russruffino</strong></div>
+        <div class="overnight-text">May need to move it up</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>russruffino</strong></div>
+        <div class="overnight-text">Also CTA is below the fold on mobile</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>russruffino</strong></div>
+        <div class="overnight-text">Please check out</div>
+      </div>
+    </div>
+  
+    <div class="overnight-item">
+      <span class="priority-badge priority-low">LOW</span>
+      <div class="overnight-body">
+        <div class="overnight-source">Slack #tech-titans · <strong>russruffino</strong></div>
+        <div class="overnight-text">Mike Buontempo messaged me to say that CTA on JIT webinar is broken. Then he clicked again and it worked</div>
+      </div>
+    </div>
+  
+</div>
+</div>
+  <div class="section" id="actions">
+<div class="card">
+  <div class="card-title">Today's Actions — priority order</div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#ef4444;"></div>
+      <div class="action-text"><span class="priority-badge priority-high" style="margin-right:8px;">HIGH</span>Verify Mizumi open today (call resort +52 744 469 1000) — risk: 19:00 reservation may not be valid post-Otis<br/><span class="action-context">Today 19:00 dinner block</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#ef4444;"></div>
+      <div class="action-text"><span class="priority-badge priority-high" style="margin-right:8px;">HIGH</span>Show up to COD Monday Huddle 10:00 CDMX (camera-ready, recap weekend)<br/><span class="action-context">30 min · all-company · Russ leading</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#ef4444;"></div>
+      <div class="action-text"><span class="priority-badge priority-high" style="margin-right:8px;">HIGH</span>Check PandaDoc payment method — account deactivated. Decide: reactivate or retire if unused<br/><span class="action-context">Email from invoices@pandadoc.com</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#f59e0b;"></div>
+      <div class="action-text"><span class="priority-badge priority-med" style="margin-right:8px;">MED</span>Pack everything before lunch so 21:00 check-out is bag-grab + bill only<br/><span class="action-context">Travel anchor — overnight return to CDMX</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#f59e0b;"></div>
+      <div class="action-text"><span class="priority-badge priority-med" style="margin-right:8px;">MED</span>Restart morning-intel CF — cloud JSON last successful run was 2026-04-29 (Gmail + Calendar invalid_client errors)<br/><span class="action-context">Stale cloud intel since travel started; review CF logs after return</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#f59e0b;"></div>
+      <div class="action-text"><span class="priority-badge priority-med" style="margin-right:8px;">MED</span>Backup not running on PC — last backup 2026-04-29 (5d stale, CRITICAL). Trigger PersonalOS Daily Backup after return to desk<br/><span class="action-context">Backup health CRITICAL</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#f59e0b;"></div>
+      <div class="action-text"><span class="priority-badge priority-med" style="margin-right:8px;">MED</span>Review Russ email fixes (snoozed reminder firing today) — simplify reporting/tracking, focus on one metric<br/><span class="action-context">Self-snoozed from 2026-04-28</span></div>
+    </div>
+  
+    <div class="action-item">
+      <div class="action-check" style="border-color:#3b82f6;"></div>
+      <div class="action-text"><span class="priority-badge priority-low" style="margin-right:8px;">LOW</span>Watch new Fathom recap &quot;Impromptu Zoom Meeting&quot; for action items (Matt + team)<br/><span class="action-context">New transcript today</span></div>
+    </div>
+  
+</div>
+</div>
+  <div class="section" id="sources">
+<div class="card">
+  <div class="card-title">Data Sources & Freshness</div>
+  <table class="data-table">
+    <thead><tr><th>Source</th><th>Status</th><th>Last update</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Cloud JSON (morning-intel CF)</td><td><span class="hl-amber">STALE</span></td><td>2026-04-29 11:00 UTC</td><td>Errors: Gmail/Calendar invalid_client. Restart CF + reauth OAuth.</td></tr>
+      <tr><td>Calendar (k@kasandz.com)</td><td><span class="hl-green">FRESH</span></td><td>2026-05-04T15:34:24.403Z</td><td>Live MCP fetch · Acapulco trip events</td></tr>
+      <tr><td>Calendar (kas@russruffino.com)</td><td><span class="hl-green">FRESH</span></td><td>2026-05-04T15:34:24.403Z</td><td>Live MCP fetch · COD Huddle 10:00 + Daily Check-in (passed)</td></tr>
+      <tr><td>Gmail (last 24h)</td><td><span class="hl-green">FRESH</span></td><td>2026-05-04T15:34:24.403Z</td><td>Live MCP fetch · 9 curated threads</td></tr>
+      <tr><td>Slack COD (4 channels member of)</td><td><span class="hl-amber">PARTIAL</span></td><td>last 60h</td><td>Bot member of: full-team-chat, sales-fun, sales-team-help, bot_calendar_appointments. Most recent activity = automated ping bots only.</td></tr>
+      <tr><td>BigQuery COD KPIs</td><td><span class="hl-amber">STALE</span></td><td>2026-04-29 (period 04-01 to 04-29)</td><td>5d stale — refresh after CF restart</td></tr>
+      <tr><td>Knowledge Compiler</td><td><span class="hl-green">HEALTHY</span></td><td>2026-05-04 14:37 UTC</td><td>75 runs · last status: success</td></tr>
+      <tr><td>Agency Brain (PC-C)</td><td><span class="hl-amber">OFFLINE</span></td><td>n/a</td><td>192.168.100.20:8080 unreachable · non-blocking</td></tr>
+      <tr><td>Backup (PersonalOS)</td><td><span class="hl-amber">CRITICAL</span></td><td>2026-04-29 08:41</td><td>5d stale · trigger after return</td></tr>
+    </tbody>
+  </table>
+  <div class="card-subtitle" style="margin-top:12px;">DATA_SOURCE flag: <strong style="color:#f59e0b;">local-fallback</strong> — cloud JSON >6h stale, calendar/email rebuilt from fresh MCP, COD KPIs reused from cloud as snapshot.</div>
+</div>
+</div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

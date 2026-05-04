@@ -594,7 +594,7 @@
       </div>
       <div class="kpi">
         <div class="num gold">16</div>
-        <div class="label">Cloud functions running across COD + CPG. 10 are COD-warehouse. Two are HTTP webhooks (Plane, Attio router). The rest are scheduled.</div>
+        <div class="label">COD-warehouse cloud functions on a 6-hour cadence, plus the morning intel collector. Each one owns one source platform.</div>
       </div>
       <div class="kpi">
         <div class="num green">~70</div>
@@ -869,7 +869,7 @@
           <div class="head-meta"><strong>1 view</strong>manual + view normalize</div>
         </div>
         <p class="desc">
-          Pipeline sheet bookings flow in via the existing CPG-style sync pattern. Call dates
+          Pipeline sheet bookings flow in via the standard sync pattern. Call dates
           arrive as messy strings ("Tuesday, March 4, 2025 2:00 PM") and get normalized through
           <code>v_fact_bookings_clean</code> into proper TIMESTAMPs for downstream joins.
         </p>
@@ -1588,7 +1588,7 @@
           <tr>
             <td><strong>Multi-Client BQ Architecture</strong></td>
             <td><span class="badge b-live">SHIPPED</span></td>
-            <td>Own GCP project per client (cod_warehouse, cpg, etc.) — no shared tables. COD is the template.</td>
+            <td>Dedicated GCP project and dataset for COD. No shared tables, no cross-tenant joins.</td>
           </tr>
           <tr>
             <td><strong>Hyros Integration PRD</strong></td>

@@ -1309,6 +1309,9 @@ App.registerPage('funnels', async (container) => {
     </div>
     <div class="chart-card" style="margin-bottom: 0;">
       <div class="chart-card__title">Day / Time Show Rate Heatmap</div>
+      <div id="heatmapBanner" style="display:none;padding:8px 10px;margin-bottom:8px;background:rgba(148,163,184,0.08);border-left:2px solid #64748b;color:#94a3b8;font-size:11px;line-height:1.4;border-radius:3px;">
+        Session-level data pending workshop session metadata table. Showing reference shape only. Real per-time-slot show rates require linking each attendee to a session start time, which is not yet in the warehouse.
+      </div>
       <div class="heatmap-grid" id="heatmapGrid"></div>
       <div class="heatmap-legend">
         <span class="heatmap-legend__label">52%</span>
@@ -1358,6 +1361,9 @@ App.registerPage('funnels', async (container) => {
         <button class="completion-toggle__btn" data-grain="month">Month</button>
       </div>
     </div>
+    <div id="sessionGrainBanner" style="display:none;padding:8px 10px;margin-bottom:8px;background:rgba(148,163,184,0.08);border-left:2px solid #64748b;color:#94a3b8;font-size:11px;line-height:1.4;border-radius:3px;">
+      Per-session breakdown pending workshop session metadata table. Switch to Day, Week, or Month for live BigQuery counts. Session view shows reference shape only.
+    </div>
     <div class="data-table-wrap">
       <table class="data-table" id="bookingTable">
         <thead>
@@ -1395,10 +1401,28 @@ App.registerPage('funnels', async (container) => {
   // ---- Initialize page logic ----
   (function() {
 // ============================================================================
-// TODO: Replace MOCK_DATA with API.query('workshop-performance', 'default', {days})
-// API URL: us-central1-green-segment-491604-j8.cloudfunctions.net/codDashboard
-// Params: ?page=workshop-performance&query=default&days=30
-// Auth: cod_auth localStorage key
+// Live data wiring -- vw_workshop_funnel_pipeline (cod_warehouse)
+// API: us-central1-green-segment-491604-j8.cloudfunctions.net/codDashboard
+//
+// WIRED to live BQ:
+//   - ytd                  (renderYTD)
+//   - funnelDaily          (renderAll -> currentRows / previousRows)
+//   - showRateTrend        (renderShowRateTrend)
+//   - watchTime            (renderCompletionBreakdown)
+//   - heatmapTickets       (renderTicketHeatmap)
+//   - salesDynamic         (renderSalesDynamic)
+//   - dailyVelocity        (renderBookingTable, grain='day')
+//   - weeklyVelocity       (renderBookingTable, grain='week')
+//   - dayofweek            (renderJourneyStages)
+//
+// STILL MOCK (warehouse blocker, not a wiring issue):
+//   - MOCK_DATA.session_data       (per-session rows)
+//   - MOCK_DATA.heatmap_data       (Day x Time-slot show-rate heatmap)
+//   - MOCK_DATA.prev_daily_show_rates (no clean prev-period dim today)
+//
+// Blocker: workshop session metadata (start time, time-slot like 9am/4pm/7pm)
+// is not in cod_warehouse. Until a sessions table is added, the show-rate
+// heatmap and per-session table fall back to reference shape with banner.
 // ============================================================================
 
 // ---- Chart.js color constants ----
@@ -2222,6 +2246,7 @@ async function renderCompletionBreakdown(cur, prev) {
 async function renderHeatmap() {
   // Try fetching real heatmap data from BQ
   var heatData = MOCK_DATA.heatmap_data;
+  var usingLiveData = false;
   try {
     var hmData = await API.query('workshop', 'heatmapShowRate', { days: currentDays });
     if (hmData && hmData.length > 0) {
@@ -2232,9 +2257,16 @@ async function renderHeatmap() {
         if (!bqHeat[r.time_slot]) bqHeat[r.time_slot] = {};
         bqHeat[r.time_slot][day] = Math.round(r.show_rate);
       });
-      if (Object.keys(bqHeat).length > 0) heatData = bqHeat;
+      if (Object.keys(bqHeat).length > 0) {
+        heatData = bqHeat;
+        usingLiveData = true;
+      }
     }
   } catch(e) { /* keep mock fallback */ }
+
+  // Show empty-state banner when no live session-time data is available
+  var banner = document.getElementById('heatmapBanner');
+  if (banner) banner.style.display = usingLiveData ? 'none' : 'block';
 
   var grid = document.getElementById('heatmapGrid');
   var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -2466,6 +2498,10 @@ async function renderBookingTable(days) {
   // Subtitle update
   var subtitles = { session: 'Per-Session Metrics', day: 'Daily Aggregates', week: 'Weekly Aggregates', month: 'Monthly Aggregates' };
   document.getElementById('tableTitle').innerHTML = 'Ticket Sales Velocity &amp; Journey -- ' + subtitles[grain];
+
+  // Session grain has no live source -- show empty-state banner
+  var sgBanner = document.getElementById('sessionGrainBanner');
+  if (sgBanner) sgBanner.style.display = grain === 'session' ? 'block' : 'none';
 
   if (grain === 'day') {
     // Try BQ dailyVelocity first

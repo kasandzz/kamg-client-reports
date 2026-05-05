@@ -264,29 +264,37 @@
   <div class="section" id="cod">
     <div class="card">
       <div class="card-title">May MTD KPIs (BQ — period 2026-05-01 → 2026-05-05)</div>
-      <div class="card-subtitle">Cloud Function pulled fresh from cod_warehouse @ 11:00 UTC today</div>
+      <div class="card-subtitle">CF re-triggered after view fix · generated 2026-05-05 19:54 UTC</div>
 
       <div class="stat-grid">
         <div class="stat-card red">
-          <div class="stat-value">$4,267</div>
+          <div class="stat-value">$5,361</div>
           <div class="stat-label">Gross Revenue MTD</div>
         </div>
         <div class="stat-card red">
-          <div class="stat-value">0.66</div>
+          <div class="stat-value">0.82</div>
           <div class="stat-label">ROAS (UNPROFITABLE)</div>
-          <div class="stat-delta down">-34% vs 1.0 breakeven</div>
+          <div class="stat-delta down">-18% vs 1.0 breakeven</div>
         </div>
         <div class="stat-card amber">
           <div class="stat-value">$6,512</div>
           <div class="stat-label">Total Ad Spend MTD</div>
         </div>
         <div class="stat-card red">
-          <div class="stat-value">1</div>
+          <div class="stat-value">2</div>
           <div class="stat-label">Enrollments MTD</div>
         </div>
+        <div class="stat-card green">
+          <div class="stat-value">97.9%</div>
+          <div class="stat-label">Show Rate (47/48)</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">0%</div>
+          <div class="stat-label">Close Rate (status field issue)</div>
+        </div>
         <div class="stat-card amber">
-          <div class="stat-value">$1,000</div>
-          <div class="stat-label">AOV (low — ticket only)</div>
+          <div class="stat-value">$899</div>
+          <div class="stat-label">AOV (workshop-tier)</div>
         </div>
         <div class="stat-card amber">
           <div class="stat-value">17.9%</div>
@@ -295,31 +303,43 @@
       </div>
 
       <div class="concern-item">
-        <div class="item-title">ROAS 0.66 = losing $0.34 per $1 spend</div>
-        <div class="item-detail">5 days, 1 enrollment, $4,267 in. AOV $1,000 = 1 enrollment at workshop ticket level only — no high-ticket close yet this month. Need either price-point lift or enrollment count to climb fast.</div>
+        <div class="item-title">ROAS 0.82 = losing $0.18 per $1 spend</div>
+        <div class="item-detail">5 days, 2 enrollments. AOV $899 = workshop tickets only — no high-ticket BQ-attributed close yet this month. Need price-point lift or enrollment count to climb.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Close rate 0% — but Slack EOD reported 2 closes yesterday ($15k + $13.5k AUD)</div>
+        <div class="item-detail">Bookings table <code>status</code> field is not getting flipped to 'enrolled'/'closed'/'sold' when reps close — those events sit only in EOD freeform notes. Status enrichment downstream is incomplete. The 2 enrollments in Stripe (BQ) are real ($1,810 May 2 cash includes one of them), but they aren't joined back to bookings.status, so close_rate computes 0/47.</div>
       </div>
       <div class="insight-item">
-        <div class="item-title">7-day trend pattern: weekend pause + cash without spend</div>
-        <div class="item-detail">Apr 28: $7,019 spend → $486 cash. May 1: $6,512 spend → $405 cash. <strong>May 2-4: $0 spend → $1,810 / $799 / $1,145 cash</strong> (ad-pause cash from prior conversions). Single May enrollment landed May 2.</div>
+        <div class="item-title">Show rate 97.9% (47/48) is exceptional</div>
+        <div class="item-detail">1 no-show out of 48 booked May calls. Closer effort is healthy on attendance — gap is in conversion not show-up.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">7-day trend: weekend pause + cash without spend</div>
+        <div class="item-detail">Apr 28: $7,019 spend → $486 cash. May 1: $6,512 spend → $405 cash. <strong>May 2-4: $0 spend → $1,810 / $799 / $1,145 cash</strong> (ad-pause cash from prior conversions). One May enrollment landed May 2.</div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Funnel — May MTD</div>
-      <div class="card-subtitle">145 leads → 24 applied → 0 booked → 0 showed → 1 enrolled</div>
+      <div class="card-subtitle">171 leads → 25 applied → 48 booked → 47 showed → 2 enrolled</div>
       <table class="data-table">
         <thead><tr><th>Stage</th><th>Count</th><th>Conversion from prior</th><th>Note</th></tr></thead>
         <tbody>
-          <tr><td>Leads</td><td>145</td><td>—</td><td>From v_sheets_leads_clean</td></tr>
-          <tr><td>Applied</td><td>24</td><td>16.6%</td><td>Below COD historical 25-30%</td></tr>
-          <tr><td>Booked</td><td>0</td><td>0%</td><td><span class="hl-rose">⚠ Likely sheets-bookings sync stale — Slack EOD shows 7 new bookings yesterday</span></td></tr>
-          <tr><td>Showed</td><td>0</td><td>—</td><td>Same — bookings table not populated</td></tr>
-          <tr><td>Enrolled</td><td>1</td><td>—</td><td>From v_stripe_clean (amount &gt; $500)</td></tr>
+          <tr><td>Leads</td><td>171</td><td>—</td><td>From v_sheets_leads_clean</td></tr>
+          <tr><td>Applied</td><td>25</td><td>14.6%</td><td>Below COD historical 25-30%</td></tr>
+          <tr><td>Booked</td><td>48</td><td><span class="hl-amber">192%</span></td><td>192% from applied means many book without applying — application sheet likely incomplete or different funnel</td></tr>
+          <tr><td>Showed</td><td>47</td><td>97.9%</td><td><span class="hl-green">Excellent</span></td></tr>
+          <tr><td>Enrolled</td><td>2</td><td>4.3%</td><td>From v_stripe_clean (amount &gt; $500). Slack EOD reported 2 closes — Stripe matches.</td></tr>
         </tbody>
       </table>
-      <div class="concern-item" style="margin-top:12px;">
-        <div class="item-title">Data integrity flag: bookings table stale</div>
-        <div class="item-detail"><strong>Diagnosed:</strong> <code>v_sheets_bookings_clean</code> has 1,387 total rows but <code>MAX(SAFE_CAST(call_date AS DATE))</code> returns NULL — every row's call_date fails to cast. Likely the source sheet changed call_date column format (string format, header rename, or schema drift). The view is structurally fine but the cast to DATE is silently dropping every row, so MTD filters all return 0. Fix: inspect raw sheet, repair the column type or the view's CAST/PARSE_DATE logic.</div>
+      <div class="win-item" style="margin-top:12px;">
+        <div class="item-title">FIXED in this session: v_sheets_bookings_clean call_date cast</div>
+        <div class="item-detail"><code>call_date</code> stored as long-form strings ("Friday, May 2, 2026 11:00 AM"). View now exposes <code>call_date_parsed AS DATE</code> via <code>SAFE.PARSE_DATETIME('%A, %B %e, %Y %l:%M %p', call_date)</code>. CF code patched to use it (5 sites in lib/bigquery.js), redeployed, re-triggered. All booking/closer/funnel data now flowing. Next 5am scheduler run will use the fixed code automatically.</div>
+      </div>
+      <div class="concern-item" style="margin-top:8px;">
+        <div class="item-title">Lead-to-applied conversion 14.6% (vs historical 25-30%)</div>
+        <div class="item-detail">171 leads → only 25 applied. Either application step has friction OR the leads source-set this month is lower-intent. Worth a Pedro/Akari inspection of recent JIT registration page changes (Pedro just shipped split test).</div>
       </div>
     </div>
 
@@ -360,9 +380,21 @@
         <div class="item-title">Pattern: spend M-Th, pause F-Sun</div>
         <div class="item-detail">All ad spend concentrated weekdays (~$6k/day). Weekend cash flowing from previous weekday-conversion pipeline. Daily ROAS 0.06-0.07 weekdays = lossy short-window attribution; long-window will look better.</div>
       </div>
-      <div class="concern-item" style="margin-top:8px;">
-        <div class="item-title">Closer performance table empty</div>
-        <div class="item-detail"><code>cod_kpis.closer_performance: []</code> — same root cause as funnel bookings issue. Investigate sheets-bookings ETL.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Closer performance — May MTD</div>
+      <table class="data-table">
+        <thead><tr><th>Closer</th><th>Calls</th><th>Showed</th><th>Closed (BQ)</th><th>Show rate</th><th>Close rate (BQ)</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Matt Dakan</td><td>24</td><td>23</td><td>0</td><td>96%</td><td>0%</td><td>Slack EOD: closed Kalan Hall $13.5k AUD yesterday — bookings.status not flipped</td></tr>
+          <tr><td>Dorian Matney</td><td>23</td><td>23</td><td>0</td><td>100%</td><td>0%</td><td>Slack EOD: closed AbdulRasheed Muhammad $15k yesterday — bookings.status not flipped</td></tr>
+          <tr><td>Colby Mann</td><td>1</td><td>1</td><td>0</td><td>100%</td><td>0%</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <div class="concern-item" style="margin-top:12px;">
+        <div class="item-title">Bookings.status enrichment broken — closes not attributed in BQ</div>
+        <div class="item-detail">Both Matt D and Dorian closed deals yesterday per Slack EOD ($28.5k+ combined) but the bookings sheet status field still shows pre-call status. Stripe captures revenue (2 enrollments / $5,361 MTD) but doesn't link back to the booking row, so closer close-rate computes as 0/showed. <strong>Next ETL fix:</strong> either auto-update bookings.status from Stripe joins, or update reps' SOP to flip status post-call.</div>
       </div>
     </div>
 

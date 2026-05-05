@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redstone Status Update, May 5, 2026</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: var(--rs-bg);
+    color: var(--rs-fg);
+    font-family: var(--rs-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 96px;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid var(--rs-border);
+    margin-bottom: 32px; font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+  }
+  .topbar .brand {
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .topbar .brand span { color: var(--rs-red); }
+
+  .hero { margin-bottom: 48px; }
+  .hero .eyebrow {
+    font-size: var(--rs-text-sm); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium); margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 40px; line-height: 1.08;
+    letter-spacing: var(--rs-tracking-tightest);
+    font-weight: var(--rs-weight-regular); margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+  }
+
+  /* KPI strip */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rs-border);
+    margin-bottom: 48px;
+  }
+  .kpi {
+    padding: 20px 18px;
+    border-right: 1px solid var(--rs-border);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi .label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-size: 26px; line-height: 1.05;
+    letter-spacing: var(--rs-tracking-tight);
+    font-weight: var(--rs-weight-regular);
+    color: var(--rs-fg); margin-bottom: 4px;
+  }
+  .kpi .value.red { color: var(--rs-red); }
+  .kpi .delta {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: var(--rs-text-3xl); line-height: 1.2;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--rs-border);
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  section h2 .count {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light); letter-spacing: 0;
+  }
+
+  /* Status list */
+  ul.items { list-style: none; padding: 0; margin: 0; }
+  ul.items li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rs-border);
+    display: grid; grid-template-columns: 110px 1fr;
+    gap: 20px; align-items: baseline;
+  }
+  ul.items li:last-child { border-bottom: none; }
+
+  .tag {
+    font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; font-weight: var(--rs-weight-medium);
+    padding: 4px 8px; border: 1px solid var(--rs-border-strong);
+    color: var(--rs-fg-secondary); display: inline-block;
+    white-space: nowrap; width: fit-content;
+  }
+  .tag.done     { color: rgb(46, 132, 84); border-color: rgb(46, 132, 84); }
+  .tag.live     { color: var(--rs-red); border-color: var(--rs-red); }
+  .tag.building { color: rgb(200, 120, 20); border-color: rgb(200, 120, 20); }
+  .tag.next     { color: var(--rs-ink); border-color: var(--rs-ink); }
+  .tag.new      { color: rgb(60, 80, 180); border-color: rgb(60, 80, 180); }
+  .tag.wait     { color: var(--rs-fog); border-color: var(--rs-fog); }
+  .tag.paused   { color: rgb(120, 120, 120); border-color: rgb(120, 120, 120); }
+
+  .item-body .title {
+    font-size: var(--rs-text-md);
+    font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 4px; line-height: 1.35;
+  }
+  .item-body .meta {
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-secondary);
+    line-height: 1.5;
+    font-weight: var(--rs-weight-light);
+  }
+  .item-body .meta a {
+    color: var(--rs-red); text-decoration: none;
+    border-bottom: 1px solid rgba(178, 30, 36, 0.3);
+  }
+  .item-body .meta a:hover { border-bottom-color: var(--rs-red); }
+  .item-body .meta strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+
+  /* Timeline / phase table */
+  table.phase {
+    width: 100%; border-collapse: collapse;
+    font-size: var(--rs-text-sm);
+  }
+  table.phase thead th {
+    text-align: left; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rs-border-strong);
+  }
+  table.phase tbody td {
+    padding: 14px 12px 14px 0;
+    border-bottom: 1px solid var(--rs-border);
+    vertical-align: top; line-height: 1.5;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  table.phase tbody td:first-child {
+    width: 100px; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium);
+    font-variant-numeric: tabular-nums;
+  }
+  table.phase tbody td:nth-child(2) {
+    width: 140px;
+    color: var(--rs-fg);
+    font-weight: var(--rs-weight-medium);
+  }
+
+  .links {
+    background: var(--rs-off-white);
+    border: 1px solid var(--rs-border);
+    padding: 24px;
+  }
+  .links h3 {
+    font-size: var(--rs-text-md);
+    font-weight: var(--rs-weight-medium);
+    color: var(--rs-fg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 16px 0;
+  }
+  .links ul {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px 32px;
+  }
+  .links ul li { font-size: var(--rs-text-sm); line-height: 1.6; }
+  .links ul li .lbl {
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  .links ul li a { color: var(--rs-red); text-decoration: none; }
+  .links ul li a:hover { text-decoration: underline; }
+
+  .foot {
+    margin-top: 64px; padding-top: 24px;
+    border-top: 1px solid var(--rs-border);
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 16px 80px; }
+    .hero h1 { font-size: 30px; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi { border-right: none; border-bottom: 1px solid var(--rs-border); }
+    .kpi:nth-child(2) { border-right: none; }
+    .kpi:nth-last-child(-n+2) { border-bottom: none; }
+    ul.items li { grid-template-columns: 1fr; gap: 8px; }
+    .links ul { grid-template-columns: 1fr; }
+    table.phase tbody td:first-child,
+    table.phase tbody td:nth-child(2) { width: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">Redstone <span>Status</span></div>
+    <div>May 5, 2026 &nbsp;&middot;&nbsp; For Eric Millinger</div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Weekly Update &middot; Cycle 2</div>
+    <h1>Website rebuild starts this Thursday. Everything else is sequenced around it.</h1>
+    <p class="sub">PostHog is now capturing real prospect behavior on every landing page. Quote DB is live with 100% customer match. The week ahead is locked: Jack delivers the keyword foundation Tuesday, we converge Wednesday, you sign off Thursday, and the build kicks off Friday.</p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="label">Quotes resolved</div>
+      <div class="value red">1,069</div>
+      <div class="delta">100% customer match, live in BigQuery</div>
+    </div>
+    <div class="kpi">
+      <div class="label">LPs instrumented</div>
+      <div class="value">23 / 23</div>
+      <div class="delta">PostHog heatmaps, recordings, 5 events to BQ</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Website kick-off</div>
+      <div class="value">Thu May 7</div>
+      <div class="delta">3-way review with Jack on the call</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Hosting deadline</div>
+      <div class="value">May 13</div>
+      <div class="delta">Migration off hosting.com before $600 renewal</div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       1. THIS WEEK
+       ========================================================= -->
+  <section>
+    <h2>This Week <span class="count">May 5 to May 8</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag next">TUE</span>
+        <div class="item-body">
+          <div class="title">Jack delivers full keyword universe + sitemap recommendation</div>
+          <div class="meta">
+            ~30 to 60 keywords with intent classification, plus a yes / no read on whether to add Xometry-style Learning + Tools sections. We agreed on Friday that Jack runs the SEO architecture, so this is the foundation everything else gets built on.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">WED</span>
+        <div class="item-body">
+          <div class="title">Jack and Kas converge on the sitemap</div>
+          <div class="meta">
+            Internal sync to pressure-test Jack's keyword logic, reconcile against current LP performance data, and bring one aligned recommendation to your Thursday review. No surprises in front of you.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">THU</span>
+        <div class="item-body">
+          <div class="title">3-way review: you, Jack, Kas</div>
+          <div class="meta">
+            13:00 CDMX. The agenda is short: approve the keyword universe, approve the sitemap, unlock the build. Once you sign off, we start scaffolding Friday.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag next">FRI</span>
+        <div class="item-body">
+          <div class="title">First weekly report in the format you asked for</div>
+          <div class="meta">
+            Deliverables table plus weekly keyword ranking summary, per your Apr 30 ask. This becomes the standing weekly artifact for the next 4 to 5 weeks.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       2. RECENTLY SHIPPED
+       ========================================================= -->
+  <section>
+    <h2>Recently Shipped <span class="count">last 10 days</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag live">LIVE</span>
+        <div class="item-body">
+          <div class="title">PostHog instrumentation across all 23 landing pages</div>
+          <div class="meta">
+            Heatmaps, session recordings, and 5 high-signal events (form-start, scroll-depth milestones, CTA clicks, exit) flowing into BigQuery via webhook. We can now watch actual prospect behavior on every page and inform A/B decisions with data, not guesses.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag live">LIVE</span>
+        <div class="item-body">
+          <div class="title">Quote Database v3.3: 1,069 quotes resolved at 100% customer match</div>
+          <div class="meta">
+            Full archive ingested. 1,335 PDFs scoped, 1,069 quotes resolved with 100% customer-name accuracy. You tested it live with the 11PBH query, caught the dual-price edge case, and we shipped the fix the same day. Setup package for your machine is ready when you want to install.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Lead-notification email pipeline rebuilt</div>
+          <div class="meta">
+            You flagged on Apr 28 that you had not received lead notifications for 5 days. Auth issue identified, fixed, and verified end-to-end on May 5. Notifications will land in your inbox on every qualified lead going forward.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Cold email v4 copy + 6-track Apollo lists ready for your sign-off</div>
+          <div class="meta">
+            6 messaging tracks (A through F), 3-touch sequence (Day 0, 3, 8), Mexico excluded, sender = Alec. 17 strategic decisions reviewed and resolved internally. 7 are picked, 8 have a recommended option waiting for your call, 2 need your input. The pack is in the Cold Email folder in Drive. We can walk it Thursday or you can pick async.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Jack onboarded as Redstone SEO lead</div>
+          <div class="meta">
+            Outrider Digital scoped, access to GSC and GA4 granted, kickoff brief delivered Apr 30. Per your direction, Jack has decision-making authority on sitemap and keyword strategy, with us building against his recommendations.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Search ads paused</div>
+          <div class="meta">
+            Per your Apr 30 instruction. Will resume once the new website is live and the Jack keyword research informs new ad targeting. Saves spend during a window when conversion attribution would be muddied by the rebuild.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Anthropic API key wired into Lead Qualification Agent</div>
+          <div class="meta">
+            You delivered the key Apr 28. LQA Phase 1 build unblocked.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag done">DONE</span>
+        <div class="item-body">
+          <div class="title">Competitive teardown: Fictiv + Xometry</div>
+          <div class="meta">
+            Detailed Google Ads + LP analysis of both top competitors. Informs the keyword strategy Jack is finalizing this week and what we differentiate on in the rebuild.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       3. NEXT 4-5 WEEKS: WEBSITE REBUILD
+       ========================================================= -->
+  <section>
+    <h2>Next 4-5 Weeks: Website Rebuild <span class="count">target launch mid-June</span></h2>
+    <p class="sub" style="font-size: var(--rs-text-sm); color: var(--rs-fg-secondary); margin-bottom: 20px; font-weight: var(--rs-weight-light); line-height: 1.55;">
+      Stack is locked: Astro + Vercel + PostHog + Lighthouse CI. This is the same setup we already use for live performance and accessibility scoring. Phase plan below. Each phase has a clear handoff so you know what to expect and when.
+    </p>
+    <table class="phase">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Window</th>
+          <th>What gets built</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Phase 1</td>
+          <td>May 5 to May 7</td>
+          <td><strong style="color: var(--rs-fg); font-weight: var(--rs-weight-medium);">Convergence.</strong> Jack delivers keyword universe and sitemap. Internal sync. Your Thursday review unlocks the build.</td>
+        </tr>
+        <tr>
+          <td>Phase 2</td>
+          <td>May 8 to May 13</td>
+          <td><strong style="color: var(--rs-fg); font-weight: var(--rs-weight-medium);">Foundation.</strong> Astro project scaffolded, brand tokens locked, design system imported, content collections wired, hosting migration off hosting.com before the May 13 renewal.</td>
+        </tr>
+        <tr>
+          <td>Phase 3</td>
+          <td>May 14 to May 27</td>
+          <td><strong style="color: var(--rs-fg); font-weight: var(--rs-weight-medium);">Build.</strong> Service pages, geo pages, Learning + Tools sections (per Jack's recommendation), homepage rebuild, copy ported from approved LPs and refined against the locked keyword universe.</td>
+        </tr>
+        <tr>
+          <td>Phase 4</td>
+          <td>May 28 to Jun 3</td>
+          <td><strong style="color: var(--rs-fg); font-weight: var(--rs-weight-medium);">Polish + SEO.</strong> Internal linking, schema markup, Lighthouse CI gate at 90+ on every page, accessibility audit, PostHog re-instrumentation against new structure.</td>
+        </tr>
+        <tr>
+          <td>Phase 5</td>
+          <td>Jun 4 to Jun 10</td>
+          <td><strong style="color: var(--rs-fg); font-weight: var(--rs-weight-medium);">Launch + cutover.</strong> DKIM finalized, lead-capture migrated, 301 redirects from old URLs, search ads relaunched against the new keyword foundation. Soft launch first, full cutover after a stability window.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- =========================================================
+       4. CURRENTLY BUILDING
+       ========================================================= -->
+  <section>
+    <h2>Currently Building <span class="count">in flight, parallel to website</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Lead Qualification Agent Phase 1</div>
+          <div class="meta">
+            Two-gate model: MQL (replied or booked) and SQL (committed quote engagement). Backtest dashboard already published. Production deployment ships once Anthropic key tests confirm clean behavior.
+            <a href="https://kasandzz.github.io/kamg-client-reports/redstone/lead-qualification-agent-prd.html" target="_blank">PRD &rarr;</a>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Cold email Bison-to-HubSpot reply pipeline</div>
+          <div class="meta">
+            When a prospect replies, the system classifies the reply (interested / not now / unsubscribe / out of office) and writes a Lead record into HubSpot with the classification attached. Pattern already shipped on a sister account, ready to clone here once we lock the sending domain.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Recurring weekly quote-extract pipeline</div>
+          <div class="meta">
+            Cloud Scheduler &rarr; extraction function &rarr; Drive &rarr; BigQuery &rarr; Slack notification. Runs unattended every week so the quote dataset stays current without manual pulls.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag building">BUILDING</span>
+        <div class="item-body">
+          <div class="title">Drive file-ID backfill on 1,240 archive records</div>
+          <div class="meta">
+            Adds a stable Drive link to every historical quote so you can click straight from the BigQuery row to the PDF.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       5. WAITING ON YOU
+       ========================================================= -->
+  <section>
+    <h2>Open With You <span class="count">decisions / replies</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Speed Virtual referral concept</div>
+          <div class="meta">
+            You sent the deck May 1 and asked us to find more design consultancies like them. Coming back to you Friday with a shortlist and a recommended next step (research-only this cycle, expansion after launch).
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Hosting.com mystery invoice</div>
+          <div class="meta">
+            Support ticket open with hosting.com to identify what the charge is for. Once we know, we cancel or migrate. Either way, you are off hosting.com before the May 13 renewal hits.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Aug 2025 SEO baseline question</div>
+          <div class="meta">
+            Structured reply landing Friday. Short version: the rankings collapse predates our engagement, the new keyword universe Jack is delivering Tuesday gives us the recovery path, and the rebuild is the lever. Full diagnostic with data in the Friday note.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Cold email picks (8 recommended + 2 blocked decisions)</div>
+          <div class="meta">
+            17-decision pack in Drive. We can walk it on Thursday or you can pick async. Either way, no email goes out until you sign off.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag wait">WAITING</span>
+        <div class="item-body">
+          <div class="title">Quote DB install on your machine</div>
+          <div class="meta">
+            15 minutes, package is staged. Ping when you have the time and we walk it. After that, plain-English quote queries from your terminal.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       6. PAUSED / DEFERRED
+       ========================================================= -->
+  <section>
+    <h2>Paused / Deferred <span class="count">resuming after launch</span></h2>
+    <ul class="items">
+
+      <li>
+        <span class="tag paused">PAUSED</span>
+        <div class="item-body">
+          <div class="title">Search ad campaigns</div>
+          <div class="meta">
+            Paused per your Apr 30 instruction. Resuming after launch with the new keyword universe and updated LP destinations.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag paused">DEFERRED</span>
+        <div class="item-body">
+          <div class="title">Phone routing test (press 1 routes to Alec)</div>
+          <div class="meta">
+            Deferred until post-launch so we are not changing infrastructure during the migration window.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag paused">DEFERRED</span>
+        <div class="item-body">
+          <div class="title">Service-specific decks</div>
+          <div class="meta">
+            General deck first, service-specific variants once the website rebuild is closer to launch and the new positioning is locked.
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <span class="tag paused">DEFERRED</span>
+        <div class="item-body">
+          <div class="title">Speed Virtual referral expansion</div>
+          <div class="meta">
+            Research-only this cycle (shortlist landing Friday). No outreach or partnership exec until website is live and we have a stable conversion surface to send referrals to.
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </section>
+
+  <!-- =========================================================
+       7. LINKS
+       ========================================================= -->
+  <section class="links">
+    <h3>Quick Links</h3>
+    <ul>
+      <li><span class="lbl">Apr 30 Call Report:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-call-report-2026-04-30.html" target="_blank">eric-call-report-2026-04-30</a></li>
+      <li><span class="lbl">Jack Onboarding Brief:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/jack-onboarding-brief-2026-04-30.html" target="_blank">jack-onboarding-brief-2026-04-30</a></li>
+      <li><span class="lbl">Cold Email Strategy:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/cold-email-strategy-2026-04-29.html" target="_blank">cold-email-strategy-2026-04-29</a></li>
+      <li><span class="lbl">LQA PRD:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/lead-qualification-agent-prd.html" target="_blank">lead-qualification-agent-prd</a></li>
+      <li><span class="lbl">Quote DB Setup Guide:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-bq-setup-guide.html" target="_blank">eric-bq-setup-guide</a></li>
+      <li><span class="lbl">Cycle 1 Recap:</span> <a href="https://kasandzz.github.io/kamg-client-reports/redstone/eric-cycle-1-recap-2026-04-27.html" target="_blank">eric-cycle-1-recap-2026-04-27</a></li>
+      <li><span class="lbl">Lead Tracker:</span> <a href="https://theredstonemanufacturing.com/leads.html" target="_blank">theredstonemanufacturing.com/leads</a></li>
+      <li><span class="lbl">Live LPs:</span> <a href="https://theredstonemanufacturing.com" target="_blank">theredstonemanufacturing.com</a></li>
+    </ul>
+  </section>
+
+  <div class="foot">
+    Eric, the next 4 to 5 weeks are the highest-leverage window we have had since starting. Pausing search ads, focusing the team on the rebuild, and letting Jack drive the keyword foundation are the right moves. Thursday's call locks it in. Anything async you want to flag before then, just send.
+    <br/><br/>
+    Prepared by Kas. May 5, 2026.
+  </div>
+
+</div>
+</body>
+</html>

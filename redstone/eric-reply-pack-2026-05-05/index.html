@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eric Reply Pack &mdash; 2026-05-05 &mdash; Internal Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0B1220;
+  --bg-2:#0F172A;
+  --surface:#111B2E;
+  --surface-2:#172238;
+  --border:#1E2A44;
+  --border-2:#293654;
+  --text:#E6ECF6;
+  --text-2:#B7C2D6;
+  --text-3:#8794AE;
+  --muted:#5C6985;
+  --gold:#D4AF6A;
+  --gold-soft:#B8945A;
+  --gold-faint:rgba(212,175,106,0.12);
+  --red:#E5484D;
+  --red-soft:#9B1F23;
+  --amber:#F5A524;
+  --amber-soft:#8A5A0F;
+  --slate:#5A7DA8;
+  --green:#22C55E;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;-webkit-font-smoothing:antialiased}
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh;max-width:1480px;margin:0 auto}
+aside.toc{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:32px 26px;background:var(--bg-2)}
+main{padding:48px 56px 96px;max-width:1100px}
+
+aside .brand{font-size:0.7em;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+aside .brand-sub{font-size:0.78em;color:var(--text-3);margin-bottom:32px;line-height:1.4}
+aside h4{font-size:0.66em;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin:24px 0 10px}
+aside ul{list-style:none;margin:0;padding:0}
+aside li{margin:0 0 4px;font-size:0.84em}
+aside a{color:var(--text-2);text-decoration:none;display:block;padding:6px 10px;border-left:2px solid transparent;border-radius:0 4px 4px 0;transition:all 0.15s}
+aside a:hover{color:var(--gold);background:var(--gold-faint);border-left-color:var(--gold)}
+aside a .num{font-family:'JetBrains Mono',monospace;color:var(--muted);margin-right:8px;font-size:0.9em}
+aside .legend{margin-top:28px;font-size:0.74em;color:var(--text-3)}
+aside .legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+aside .legend .dot-p0{background:var(--red)}
+aside .legend .dot-p1{background:var(--gold)}
+aside .legend .dot-p2{background:var(--slate)}
+aside .legend .row{margin:4px 0}
+
+h1{font-size:2.4em;font-weight:800;letter-spacing:-0.025em;line-height:1.05;color:var(--text)}
+h2{font-size:1.5em;font-weight:700;letter-spacing:-0.012em;color:var(--text);margin-bottom:18px}
+h3{font-size:1.08em;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:-0.005em}
+h4{font-size:0.78em;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3);margin-bottom:10px}
+p{color:var(--text-2);margin-bottom:12px}
+
+.eyebrow{font-size:0.72em;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.lede{font-size:1.02em;color:var(--text-2);max-width:780px;margin-bottom:24px}
+
+/* hero kpis */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:24px 0 12px}
+.kpi{padding:22px 22px;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);position:relative;overflow:hidden}
+.kpi:before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
+.kpi .num{font-family:'Manrope',sans-serif;font-size:2.6em;font-weight:800;line-height:1;letter-spacing:-0.03em;color:var(--text)}
+.kpi .lbl{font-size:0.7em;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-3);margin-top:8px}
+.kpi.kpi-red:before{background:var(--red)}
+.kpi.kpi-amber:before{background:var(--amber)}
+
+/* p0 strip */
+.p0-strip{margin:32px 0;padding:18px 22px;border:1px solid var(--red-soft);background:linear-gradient(90deg,rgba(229,72,77,0.08) 0%,transparent 100%);border-left:4px solid var(--red);display:flex;gap:16px;align-items:flex-start}
+.p0-strip .badge{flex:0 0 auto;background:var(--red);color:#fff;font-size:0.7em;font-weight:700;padding:5px 10px;letter-spacing:0.1em;text-transform:uppercase;font-family:'Manrope',sans-serif}
+.p0-strip .copy{flex:1}
+.p0-strip strong{color:var(--text)}
+.p0-strip a{color:var(--gold);text-decoration:none;border-bottom:1px solid var(--gold-soft)}
+
+/* draft card */
+section.draft{margin:36px 0 0;padding:0;border:1px solid var(--border);background:var(--surface);scroll-margin-top:18px}
+section.draft.p0{border-left:4px solid var(--red)}
+section.draft.p1{border-left:4px solid var(--gold)}
+section.draft.p2{border-left:4px solid var(--slate)}
+.draft-head{padding:22px 26px 16px;border-bottom:1px solid var(--border)}
+.draft-head .meta-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+.tag{display:inline-block;padding:3px 9px;font-size:0.66em;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-radius:2px}
+.tag-p0{background:var(--red);color:#fff}
+.tag-p1{background:var(--gold);color:#1A1208}
+.tag-p2{background:var(--slate);color:#fff}
+.tag-channel{background:var(--surface-2);color:var(--text-3);border:1px solid var(--border-2)}
+.tag-when{background:transparent;color:var(--gold);border:1px solid var(--gold-soft)}
+.draft-head h2{margin:0;font-size:1.35em}
+.draft-head .sub{font-size:0.85em;color:var(--text-3);margin-top:4px}
+
+.draft-body{padding:22px 26px}
+.draft-body h4{margin-top:18px}
+.draft-body h4:first-child{margin-top:0}
+
+.eric-quote{border-left:3px solid var(--gold-soft);background:rgba(212,175,106,0.05);padding:14px 18px;margin:8px 0 18px;font-size:0.92em;color:var(--text-2);line-height:1.55}
+.eric-quote .who{display:block;font-size:0.7em;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;font-weight:700}
+.eric-quote em.bump{color:var(--amber);font-style:normal;font-weight:600}
+
+pre.draft-body-pre{background:#0A0F1C;border:1px solid var(--border);padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:0.86em;line-height:1.65;color:var(--text);white-space:pre-wrap;word-wrap:break-word;margin:8px 0 16px;position:relative;overflow-x:auto}
+pre.draft-body-pre:before{content:"COPY-PASTE READY";position:absolute;top:-1px;right:0;background:var(--gold);color:#1A1208;font-family:'Manrope',sans-serif;font-size:0.62em;font-weight:700;padding:3px 10px;letter-spacing:0.1em}
+
+details.notes{margin:8px 0 0;border:1px solid var(--border);background:var(--bg-2)}
+details.notes summary{cursor:pointer;padding:12px 18px;font-size:0.82em;font-weight:600;color:var(--text-2);user-select:none;list-style:none}
+details.notes summary::-webkit-details-marker{display:none}
+details.notes summary:before{content:"+";color:var(--gold);font-weight:700;margin-right:10px;display:inline-block;width:14px}
+details.notes[open] summary:before{content:"\2212"}
+details.notes summary:hover{color:var(--gold)}
+details.notes .notes-body{padding:8px 18px 16px;font-size:0.88em;color:var(--text-2);border-top:1px solid var(--border)}
+details.notes .notes-body p{margin-bottom:10px}
+details.notes .notes-body ul{margin:6px 0 10px 22px}
+details.notes .notes-body li{margin-bottom:4px;color:var(--text-2);font-size:0.95em}
+
+.send-row{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.send-link{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;background:var(--gold);color:#1A1208;font-size:0.78em;font-weight:700;text-decoration:none;letter-spacing:0.04em;border-radius:2px;text-transform:uppercase;transition:background 0.15s}
+.send-link:hover{background:var(--gold-soft);color:#fff}
+.send-link.secondary{background:transparent;color:var(--gold);border:1px solid var(--gold-soft)}
+.send-link.secondary:hover{background:var(--gold-faint);color:var(--gold)}
+.send-meta{font-size:0.78em;color:var(--text-3);font-family:'JetBrains Mono',monospace}
+
+/* nitpicks table */
+.nitpicks{margin:48px 0 0}
+table{width:100%;border-collapse:collapse;font-size:0.86em;margin:14px 0 0}
+th,td{text-align:left;padding:11px 14px;border:1px solid var(--border);vertical-align:top;color:var(--text-2)}
+th{background:var(--surface);font-weight:700;font-size:0.7em;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3)}
+td.col-status{font-weight:600}
+td.col-status.open{color:var(--amber)}
+
+/* send order */
+.send-order{margin:48px 0 0;padding:24px 26px;border:1px solid var(--border);background:var(--surface)}
+.send-order ol{margin:14px 0 0 22px}
+.send-order li{margin:8px 0;color:var(--text-2);font-size:0.92em}
+.send-order li strong{color:var(--text)}
+.send-order .when-now{color:var(--red);font-weight:700}
+.send-order .when-today{color:var(--gold);font-weight:700}
+.send-order .when-later{color:var(--slate);font-weight:600}
+
+/* footer */
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--border);font-size:0.82em;color:var(--text-3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+footer code{font-family:'JetBrains Mono',monospace;color:var(--text-2);background:var(--bg-2);padding:1px 6px;border:1px solid var(--border);border-radius:2px}
+
+/* responsive */
+@media (max-width:1080px){
+  .layout{grid-template-columns:1fr}
+  aside.toc{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  main{padding:32px 24px 64px}
+  .kpis{grid-template-columns:1fr}
+  .kpi .num{font-size:2.2em}
+  h1{font-size:1.8em}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="toc">
+<div class="brand">Reply Pack &mdash; Internal</div>
+<div class="brand-sub">Eric Millinger / Redstone<br>2026-05-05 / 9 drafts staged</div>
+
+<h4>Drafts</h4>
+<ul>
+<li><a href="#draft-1"><span class="num">01</span>Cold Email Update <span style="color:var(--red)">&bull;</span></a></li>
+<li><a href="#draft-2"><span class="num">02</span>CRO Challenge <span style="color:var(--red)">&bull;</span></a></li>
+<li><a href="#draft-3"><span class="num">03</span>Daniel Intro Email <span style="color:var(--red)">&bull;</span></a></li>
+<li><a href="#draft-4"><span class="num">04</span>Backup + Rollback Verdict</a></li>
+<li><a href="#draft-5"><span class="num">05</span>Hosting Migration Plan</a></li>
+<li><a href="#draft-6"><span class="num">06</span>Hosting.com Invoice Closure</a></li>
+<li><a href="#draft-7"><span class="num">07</span>Speed Virtual Discovery</a></li>
+<li><a href="#draft-8"><span class="num">08</span>Deliverables Table Update</a></li>
+<li><a href="#draft-9"><span class="num">09</span>CTA Cleanup (conditional)</a></li>
+</ul>
+
+<h4>Reference</h4>
+<ul>
+<li><a href="#nitpicks"><span class="num">10</span>Homepage Nitpicks Status</a></li>
+<li><a href="#send-order"><span class="num">11</span>Suggested Send Order</a></li>
+</ul>
+
+<div class="legend">
+<div class="row"><span class="dot dot-p0"></span> P0 &mdash; send today, hot</div>
+<div class="row"><span class="dot dot-p1"></span> P1 &mdash; send today, lower heat</div>
+<div class="row"><span class="dot dot-p2"></span> P2 &mdash; this week</div>
+</div>
+</aside>
+
+<main>
+
+<div class="eyebrow">Internal &mdash; Reply Pack</div>
+<h1>Eric Millinger Reply Pack <span style="color:var(--gold);font-weight:600;font-size:0.55em;display:block;margin-top:8px;letter-spacing:-0.005em">Nine drafts. Copy, review, send.</span></h1>
+<p class="lede">Status as of 2026-05-05 morning, CDMX. All 9 outstanding asks from Eric across Slack and Gmail (window 2026-04-28 to today), with copy-paste-ready response drafts. Em-dash banned in draft bodies. No fabricated metrics. Substantive, table-aware, AI-skeptical tone per Eric's documented preferences.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="num">9</div><div class="lbl">Outstanding asks</div></div>
+  <div class="kpi kpi-red"><div class="num">6</div><div class="lbl">Send today</div></div>
+  <div class="kpi kpi-amber"><div class="num">3</div><div class="lbl">This week</div></div>
+</div>
+
+<div class="p0-strip">
+<div class="badge">P0 NOW</div>
+<div class="copy">
+<strong>Three drafts are time-critical.</strong> Eric explicitly bumped the cold email request twice in 24h ("Please send over today"), challenged the CRO logic on the homepage CTA swap, and is overdue on the Daniel intro that was committed on the Apr 30 call. Send <a href="#draft-1">Draft 01</a>, <a href="#draft-2">Draft 02</a>, and <a href="#draft-3">Draft 03</a> first, in that order.
+</div>
+</div>
+
+<!-- DRAFT 1 -->
+<section class="draft p0" id="draft-1">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p0">P0</span>
+<span class="tag tag-channel">Slack thread reply</span>
+<span class="tag tag-when">Send now</span>
+</div>
+<h2>01 &mdash; Cold Email Update</h2>
+<div class="sub">#redstone-marketing &nbsp;&middot;&nbsp; thread <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">1777991447.032349</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Eric's ask (verbatim)</h4>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-05-05 08:30 CST</span>
+Can you send me an update on the cold email campaign results so far? @Kas
+</div>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-05-05 11:58 CST <em class="bump">(BUMP)</em></span>
+Please send over today
+</div>
+
+<h4>Draft response</h4>
+<pre class="draft-body-pre">Hey Eric, full status before EOD today.
+
+Quick recap of where we are vs. where we'll be once your template approval comes through:
+
+Infrastructure (live, warmed since Apr 1):
+- 5 sending domains, 15 inboxes
+- Lemlist warmup running continuously, current deliverability around 85% to 90%
+- Apollo list segmentation prepared (verticals + seniority filters applied)
+
+Sends so far: zero. The strategy doc you approved May 3 is locked, but per your note that day ("the strategy looks fine, i would just like to see the email templates being used for each before they go out"), we held the launch for your template review.
+
+What you'll get today:
+1. The full email template pack (3 sequence variants, segment-specific copy) for your approval
+2. The Apollo list snapshot (~ count by segment, with description-field exclusions applied)
+3. The launch plan: domains, daily volume per inbox, ramp schedule
+
+Once you approve templates, we launch within 24h. We'll measure reply rate, qualified-reply rate, and meetings booked weekly, included in your deliverables table.
+
+Templates incoming in a follow-up here in the next few hours.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works against Eric's priors:</p>
+<ul>
+<li>Anchors to Eric's own May 3 message verbatim, so he sees the gate is his, not ours.</li>
+<li>No outcome projections. We commit to measurement (reply rate, qualified-reply rate, meetings) without forecasting numbers, per the rule against projections on unproven channels.</li>
+<li>Names the deliverable he gets today and the timeline post-approval. Engineer brain wants concrete next-step + owner + when.</li>
+<li>Avoids "results" framing for the campaign itself because there are none yet. Reframes the answer as "status of the gated launch" which is the truthful read.</li>
+</ul>
+<p><strong>Pre-send check:</strong> the templates package itself needs to land in the same channel within hours. If templates aren't ready, this draft becomes a credibility hit. Confirm template status before sending.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="https://kasandz.slack.com/archives/C0ASTGHQD9A/p1777991447032349" target="_blank" rel="noopener">Open Slack thread</a>
+<span class="send-meta">thread_ts 1777991447.032349</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 2 -->
+<section class="draft p0" id="draft-2">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p0">P0</span>
+<span class="tag tag-channel">Slack thread reply</span>
+<span class="tag tag-when">Send within the hour</span>
+</div>
+<h2>02 &mdash; CRO Challenge on Homepage CTA</h2>
+<div class="sub">#redstone-marketing &nbsp;&middot;&nbsp; thread <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">1777915556.966709</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Eric's challenge (verbatim)</h4>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-05-05 11:58 CST</span>
+How do you know it's optimized for CRO if we don't have any conversions?
+</div>
+
+<h4>Draft response</h4>
+<pre class="draft-body-pre">Fair pushback, and you're right that "optimized for CRO" was the wrong framing on my part. Let me restate what's actually true.
+
+The "Request a Quote" change came from B2B manufacturing CTA pattern research, not from a Redstone-specific test. The reasoning was that "Request a Quote" is a more specific next-step (single action, lower ambiguity) and tends to outperform softer phrasing like "Talk to an Engineer" in similar industrial buyer flows. That's a hypothesis grounded in convention, not a verified Redstone result.
+
+You know your buyer better than any benchmark does. If "Talk to an Engineer" matches the conversation you want quotes from, let's go with it. Two paths, your call:
+
+1. Revert to "Talk to an Engineer" now. Cleanest. Aligned with your prior signal.
+2. Keep "Request a Quote" for now, and once we have enough form submissions to measure (call it 50 to 100 minimum), A/B test the two and let the data settle it.
+
+I'd default to option 1 unless you want to leave it running.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works against Eric's priors:</p>
+<ul>
+<li>Concedes the linguistic overreach immediately. Eric is an engineer, AI-skeptical, KPI-driven. Defending "optimized" without conversion data would erode credibility.</li>
+<li>Names the actual epistemic basis (pattern research, not measured Redstone outcome). Honest framing earns more trust than a defended position.</li>
+<li>Two clean paths with a recommended default, in his preferred decision style.</li>
+<li>The 50 to 100 form-submission threshold is a generic statistical floor for visible effect size detection, not a fabricated benchmark. Safe to state.</li>
+</ul>
+<p><strong>If Eric replies "let's revert":</strong> Draft 09 below is the conditional follow-up. If he replies "keep it and test," we tee up an A/B with a documented hypothesis and stop date.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="https://kasandz.slack.com/archives/C0ASTGHQD9A/p1777915556966709" target="_blank" rel="noopener">Open Slack thread</a>
+<span class="send-meta">thread_ts 1777915556.966709</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 3 -->
+<section class="draft p0" id="draft-3">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p0">P0</span>
+<span class="tag tag-channel">Email (new thread)</span>
+<span class="tag tag-when">Send today, before EOD</span>
+</div>
+<h2>03 &mdash; Daniel Intro Email (AdWords)</h2>
+<div class="sub">To: Daniel (Eric's AdWords contact) &nbsp;&middot;&nbsp; CC: Eric Millinger &nbsp;&middot;&nbsp; New thread</div>
+</div>
+<div class="draft-body">
+
+<h4>Context</h4>
+<p>Per Apr 30 call (verbatim Fathom segment 00:14:09): "Daniel is the main decision maker on strategy. If you want, I'm happy to talk with him. Yeah, I'm more than happy to get an email intro going just so there's a line of communication." Search ads paused 04-30, location and remarketing kept running. The intro is 5 days overdue.</p>
+
+<h4>Subject line</h4>
+<pre class="draft-body-pre">Intro: Eric Millinger (Redstone) &lt;&gt; Daniel, AdWords strategy alignment</pre>
+
+<h4>Draft body</h4>
+<pre class="draft-body-pre">Hi Daniel,
+
+Quick intro by request from Eric. Eric is President at Redstone Manufacturing and oversees marketing strategy on his end; you're the decision-maker on AdWords. Given the campaign decisions we landed on April 30, it makes sense to put you two in direct communication.
+
+Where things stand on the campaigns as of April 30:
+
+Search campaigns: paused. The trigger was concern around close-variant matching pulling unintended terms. Eric wants to be confident any spend is going to high-intent queries only before we resume.
+
+Location campaigns: running.
+Remarketing: running.
+
+Open question for the three of us:
+- What does an intent-only configuration look like (exact match only, negative keyword sweep, query-mining cadence) before we turn search back on?
+- Anything you want to flag from the historical performance that informs how we re-enter?
+
+Eric, Daniel can walk us through his read on the account when convenient. Happy to set a 30-minute call any time this week or next.
+
+Cheers,
+Kas</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Per Eric's roster note, "Daniel" is Eric's own AdWords guy. He stays in the draft (slug-grep exception).</li>
+<li>Frames the pause as a campaign decision Eric and we landed on together, not as a unilateral move. Daniel needs to feel addressed, not corrected.</li>
+<li>Two open questions are scoped narrowly enough that Daniel can reply with substance, not just acknowledgement.</li>
+<li>"Cheers, Kas" is intentional. Daniel hasn't met Kas; cold-warmth signature works better than overly familiar or overly stiff.</li>
+</ul>
+<p><strong>Before sending:</strong> confirm Daniel's email with Eric in Slack (one-line ping is fine: "what's Daniel's email so I can fire the intro?"). Or pull from prior Eric forwards if it's there. Don't guess.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="mailto:?subject=Intro%3A%20Eric%20Millinger%20(Redstone)%20%3C%3E%20Daniel%2C%20AdWords%20strategy%20alignment&cc=eric%40redstonemanufacturing.com">Open mailto draft</a>
+<span class="send-meta">CC: eric@redstonemanufacturing.com</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 4 -->
+<section class="draft p1" id="draft-4">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p1">P1</span>
+<span class="tag tag-channel">Slack reply</span>
+<span class="tag tag-when">Send today, after backup confirmed</span>
+</div>
+<h2>04 &mdash; Backup Status + Aug 2025 Rollback Verdict</h2>
+<div class="sub">#redstone-marketing &nbsp;&middot;&nbsp; reply to top-level <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">1777590924.754379</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Eric's panic message (verbatim)</h4>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-04-30 14:19 CST</span>
+Important idea (lightbulb)<br>Is it possible to reset my website to August 2025? It seems like we crashed our SEO after that @Kas
+</div>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-04-30 17:15 CST (follow-up)</span>
+@Kas Can we save this in case the new website with Jack doesn't work, I'll want to revert to this
+</div>
+
+<h4>Draft response</h4>
+<pre class="draft-body-pre">Quick verdict on the rollback question, then a path forward.
+
+Aug 2025 backup: not available. The hosting account only retains backups from Mar 31, 2026. The site backend has a separate snapshot from Nov 7, 2025. We have nothing earlier than that on the infrastructure we control.
+
+Why we're not recommending a rollback to Nov 7, 2025 even though it exists:
+- Six months of homepage and SEO fixes would be lost with no clean way to re-apply them.
+- Jack's read (per his email Friday) is that the new site will rank faster than incremental edits to the existing one. Within a week or two of launch you should see movement; if not, that's a deeper algorithmic signal he'd diagnose directly.
+
+Path that addresses your underlying concern (lose nothing, optionality intact):
+1. We snapshot the current homepage to Drive this week so you have a full restore point if Jack's site underperforms.
+2. Jack's keyword research lands May 6 to 7 (he joins the Thursday call).
+3. We launch new pages on the new sitemap once you and he sign off.
+4. If rankings haven't improved within his stated window after launch, we have the snapshot ready to re-deploy.
+
+Confirming Drive snapshot status today and will send the link when it's there.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Direct verdict in line one ("Aug 2025: not available"). Eric was promised a structured reply since 04-30. He gets the verdict first, the explanation second.</li>
+<li>Numbered path of 4 steps reads like a runbook, which is his preferred shape.</li>
+<li>References Jack's actual email language (week-or-two visibility window) so Eric sees the new-site path is his, not ours.</li>
+<li>The closing commits to a Drive link delivery today, which closes the loop he opened on 04-30 17:15.</li>
+</ul>
+<p><strong>Pre-send check:</strong> confirm with the dev team that the Drive snapshot is in fact captured (or in motion today). If it isn't yet, this line becomes a promise we haven't kept. Either confirm or change the closing to a specific deadline ("by tomorrow EOD").</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="https://kasandz.slack.com/archives/C0ASTGHQD9A/p1777590924754379" target="_blank" rel="noopener">Open Slack thread</a>
+<span class="send-meta">thread_ts 1777590924.754379</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 5 -->
+<section class="draft p1" id="draft-5">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p1">P1</span>
+<span class="tag tag-channel">Slack DM or email</span>
+<span class="tag tag-when">Send tomorrow</span>
+</div>
+<h2>05 &mdash; Hosting Migration Plan</h2>
+<div class="sub">DM <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">D0ATUEBLZB4</code> or email &nbsp;&middot;&nbsp; ahead of May 13 invoice</div>
+</div>
+<div class="draft-body">
+
+<h4>Context</h4>
+<p>From Apr 30 call action item #5: research hosting options, recommend the path forward, send migration steps before May 13 ($600 invoice on existing provider). Eric explicitly asked to be walked through the Astro management workflow before any cutover, since he wants control without dev dependency.</p>
+
+<h4>Draft message</h4>
+<pre class="draft-body-pre">Hosting migration plan ahead of the May 13 invoice on the existing provider.
+
+Recommendation: skip the SiteGround interim and go straight from current hosting to Vercel. Reasons:
+
+1. Vercel is the right long-term home for the Astro stack you control via Claude AI. Adding SiteGround in the middle is a temporary stop that we'd have to migrate off of within the same month.
+2. Vercel deploy from the Astro repo is a pull, not a manual upload. Edits push live in seconds, no FTP, no plugin dance.
+3. Cost: free tier covers your traffic. Upgrade later only if needed.
+
+Sequence (24h end-to-end once you greenlight):
+
+Day 0 (your go-signal):
+- Full Drive snapshot of current site (already in motion as the rollback safety net you asked about)
+- DNS preparation: pull current records (A, MX, TXT, CNAME) into a checklist so nothing breaks
+- Vercel project provisioned, custom domain attached, SSL cert issued
+
+Day 0 + 12h:
+- Walk you through the Astro management workflow on a screen-share before we cut over (you said you want control without dev dependency, this is how it'll feel day-to-day)
+
+Day 0 + 24h:
+- DNS cutover (A record + www CNAME swap)
+- Email DNS untouched, no service interruption
+- Verify form submissions, contact pages, redirects post-cutover
+
+When works for the screen-share? Anytime Tuesday afternoon or Wednesday before noon. The May 13 invoice gives us comfortable runway, but I'd rather complete cutover by May 9 to leave a margin.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Recommendation first, reasoning second. Engineer-brain shape.</li>
+<li>Three numbered reasons against the SiteGround interim, in case Eric remembers the original plan involved it. Pre-emptive justification.</li>
+<li>The 24h sequence is broken into Day 0 / +12h / +24h slots so Eric can see exactly where the screen-share fits.</li>
+<li>"Email DNS untouched" is the kind of risk-mitigation note Eric notices and trusts. He had email auth pain on 04-30 to 05-01.</li>
+<li>Closing offers two narrow time windows. Less choice fatigue than "when works for you?".</li>
+</ul>
+<p><strong>Pre-send check:</strong> confirm Vercel project is provisioned-or-can-be-provisioned-quickly. The 24h timeline only holds if the prep work has happened. Otherwise pad the windows.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="https://kasandz.slack.com/archives/D0ATUEBLZB4" target="_blank" rel="noopener">Open Slack DM</a>
+<a class="send-link secondary" href="mailto:eric@redstonemanufacturing.com?subject=Hosting%20migration%20plan%20%E2%80%94%20ahead%20of%20May%2013">Open email draft</a>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 6 -->
+<section class="draft p1" id="draft-6">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p1">P1</span>
+<span class="tag tag-channel">Email reply</span>
+<span class="tag tag-when">Send today</span>
+</div>
+<h2>06 &mdash; Hosting.com $629.99 Invoice Closure</h2>
+<div class="sub">Thread: "Fwd: A new invoice is available in your account" &nbsp;&middot;&nbsp; threadId <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">19dde53babcd554f</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Context</h4>
+<p>Eric forwarded the hosting.com invoice on 04-30 06:18, asking if it's our team. Initial reply was "not us." Eric hasn't been closed-loop yet on what to actually do (cancel? ignore? overlap with current hosting?). Auto-charge is May 10, before the May 13 cutover deadline.</p>
+
+<h4>Draft reply</h4>
+<pre class="draft-body-pre">Eric,
+
+Followed up on the hosting.com invoice. It's not from our team and it isn't tied to anything we're running for you. The $629.99 / 3-year prepay covers redstonemanufacturing.com hosting on their "Plus" plan, billed by the same parent company that owns your current provider chain (hosting.com is part of the A2 Hosting family).
+
+Recommendation: cancel before the May 10 auto-charge. Two reasons:
+
+1. We're moving you to Vercel before May 13 (separate plan landing in your inbox shortly). You won't need a parallel hosting.com account.
+2. Three-year prepay locks you into infrastructure you're actively migrating off of.
+
+To cancel: log into hosting.com with the credentials on the invoice, or reply to A-INV-1064247 from your hosting account email and request cancellation before the auto-charge date. If you'd like, I can draft the cancellation reply for you to forward.
+
+Confirming you'd like that draft.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Verdict in line one (not our team, not tied to us). Closes Eric's original question.</li>
+<li>Names the parent-company link (hosting.com / A2 Hosting family) so Eric understands why the invoice exists in his name. Without that context, the situation reads as random.</li>
+<li>Two-reason recommendation with explicit dates. Auto-charge May 10, migration May 13, three-year prepay. The numbers do the persuading.</li>
+<li>Closing offers to draft the cancellation reply as an opt-in, not a default. Respects his preference for autonomy.</li>
+</ul>
+<p><strong>Connects to:</strong> Draft 05 (hosting migration). Send these in close succession so Eric reads them as one decision flow.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="mailto:eric@redstonemanufacturing.com?subject=Re%3A%20Fwd%3A%20A%20new%20invoice%20is%20available%20in%20your%20account">Open email reply</a>
+<span class="send-meta">threadId 19dde53babcd554f</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 7 -->
+<section class="draft p2" id="draft-7">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p2">P2</span>
+<span class="tag tag-channel">Email reply</span>
+<span class="tag tag-when">Send Tue or Wed</span>
+</div>
+<h2>07 &mdash; Speed Virtual Referral Discovery Plan</h2>
+<div class="sub">Thread: "Find Other Connected Device Design Consultancies" &nbsp;&middot;&nbsp; threadId <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">19de39c19032c78d</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Eric's ask (verbatim)</h4>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-05-01 06:55 CST</span>
+Hi Kas, I was contacted by Speed Virtual, a design house for connected devices. He is proposed a referral commission to bring us customers and I think it's a good idea. Can you find more companies like them? See attached slide deck and website here&nbsp;&nbsp; www.speedvirtualpd.com
+</div>
+
+<h4>Draft reply</h4>
+<pre class="draft-body-pre">Eric,
+
+Got it. Good signal that the inbound came from a design house already in your buyer's path.
+
+Plan to surface comparable firms:
+
+1. Map the niche: connected-device / IoT / consumer electronics product design consultancies that take projects from concept to manufacturing-ready (Speed Virtual's positioning).
+2. Source list: filter Apollo + Crunchbase + Clutch + LinkedIn for "product design consultancy" with connected-devices / IoT specialization, US and EU. Cross-reference with firms who post case studies that include casting, CNC machining, or sheet metal work as production steps (your service overlap).
+3. Filter to ~25 to 40 high-fit candidates. Return as a table with firm, headcount, geo, lead designer / partner contact, and a one-line fit rationale.
+4. You pick 5 to 10 to approach with the same referral commission structure they offered, and we run a short outbound sequence (or you reach directly, your call).
+
+Timeline: list back to you by end of next week. If you want it faster (priority bump), I can compress to Friday this week and lighten one of the SEO pages in flight.
+
+Want the list scoped tighter to a specific vertical (medical devices, wearables, industrial IoT, etc.) or broad sweep first?</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Validates the inbound signal first. Eric likes it when his read on a thing gets confirmed before the response.</li>
+<li>Four numbered steps, each with named sources (Apollo, Crunchbase, Clutch, LinkedIn). Not vague.</li>
+<li>Output shape committed (table with named columns). Eric's documented preference is tables for review.</li>
+<li>Prioritization choice surfaced explicitly. He can compress the timeline if he wants, with the explicit tradeoff (one SEO page slips). Engineer-brain decision shape.</li>
+<li>Closing question is binary-ish ("scope tight or broad?"), not open-ended.</li>
+</ul>
+<p><strong>Pre-send check:</strong> confirm we have Apollo + Crunchbase + Clutch access this week. If not, change source list.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="mailto:eric@redstonemanufacturing.com?subject=Re%3A%20Find%20Other%20Connected%20Device%20Design%20Consultancies">Open email reply</a>
+<span class="send-meta">threadId 19de39c19032c78d</span>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 8 -->
+<section class="draft p2" id="draft-8">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p2">P2</span>
+<span class="tag tag-channel">Slack DM reply</span>
+<span class="tag tag-when">Send Tue or Wed</span>
+</div>
+<h2>08 &mdash; Deliverables Table Format Update</h2>
+<div class="sub">DM <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">D0ATUEBLZB4</code></div>
+</div>
+<div class="draft-body">
+
+<h4>Eric's ask (verbatim)</h4>
+<div class="eric-quote">
+<span class="who">Eric &mdash; 2026-05-02 10:26 CST (DM)</span>
+Hey, can you add delivery dates to the deliverables table we review weekly?
+</div>
+
+<h4>Draft reply</h4>
+<pre class="draft-body-pre">On it. The next weekly table (sending Thursday this week to keep our cadence) will have:
+
+Columns: Deliverable | Owner | Status | Delivery date (target) | Notes
+Plus a separate block for: weekly keyword rankings summary (top 10 tracked terms, week-over-week movement)
+
+If there are other columns you want pinned (cost, channel, KPI), say the word and I'll add them before Thursday.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Three lines. Eric asked a small question; he gets a small answer.</li>
+<li>Confirms the column set explicitly so he can object before Thursday rather than after.</li>
+<li>The keyword rankings summary block is pulled forward from his Apr 29 email to Jack and Kas, where he asked for "all deliverables and status of each, as well as a summary monitoring keyword rankings on a weekly basis." Tying the two asks together in one table avoids a future "you didn't include X" moment.</li>
+<li>Closing invites column additions. Cheap signal of partnership without diluting the format.</li>
+</ul>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link" href="https://kasandz.slack.com/archives/D0ATUEBLZB4" target="_blank" rel="noopener">Open Slack DM</a>
+</div>
+</div>
+</section>
+
+<!-- DRAFT 9 -->
+<section class="draft p2" id="draft-9">
+<div class="draft-head">
+<div class="meta-row">
+<span class="tag tag-p2">P2</span>
+<span class="tag tag-channel">Slack thread reply (continuation of Draft 02)</span>
+<span class="tag tag-when">Conditional &mdash; only if Eric picks option 1</span>
+</div>
+<h2>09 &mdash; CTA Cleanup (conditional follow-up)</h2>
+<div class="sub">#redstone-marketing &nbsp;&middot;&nbsp; same thread as Draft 02 &nbsp;&middot;&nbsp; <code style="font-family:'JetBrains Mono',monospace;font-size:0.92em">1777915556.966709</code></div>
+</div>
+<div class="draft-body">
+
+<h4>When to use this</h4>
+<p>If Eric replies to Draft 02 picking option 1 (revert to "Talk to an Engineer"), this is the same-day confirm-and-ship reply. If he picks option 2 (keep "Request a Quote" and A/B test), draft a different reply that tees up the test plan.</p>
+
+<h4>Draft response (conditional)</h4>
+<pre class="draft-body-pre">Got it. Reverting to "Talk to an Engineer" across homepage and downstream pages. Live by EOD tomorrow. Will confirm here when shipped.</pre>
+
+<details class="notes">
+<summary>Strategic notes</summary>
+<div class="notes-body">
+<p>Why this draft works:</p>
+<ul>
+<li>Three lines. Closes the loop without re-litigating.</li>
+<li>"Across homepage and downstream pages" is the load-bearing phrase, because the CTA appears on multiple pages and missing one is the kind of detail Eric would catch on Friday review.</li>
+<li>"Live by EOD tomorrow" is a concrete commit. "Will confirm here when shipped" closes the thread the way he expects.</li>
+</ul>
+<p><strong>If Eric picks option 2 instead:</strong> separate draft is needed (test plan with documented hypothesis, sample-size threshold, and decision date). Don't ship this one.</p>
+</div>
+</details>
+
+<div class="send-row">
+<a class="send-link secondary" href="https://kasandz.slack.com/archives/C0ASTGHQD9A/p1777915556966709" target="_blank" rel="noopener">Same Slack thread as Draft 02</a>
+</div>
+</div>
+</section>
+
+<!-- HOMEPAGE NITPICKS -->
+<section id="nitpicks" class="nitpicks">
+<h2>10 &mdash; Homepage Nitpicks Status</h2>
+<p style="font-size:0.92em;color:var(--text-3)">Open issues Eric raised between 2026-04-30 and 2026-05-04 that aren't covered by the 9 drafts above. These are owned by the dev team and should be tracked in the weekly deliverables table starting Thursday (per Draft 08).</p>
+<table>
+<thead>
+<tr>
+<th style="width:42%">Issue</th>
+<th style="width:14%">Eric posted</th>
+<th style="width:14%">Status</th>
+<th style="width:30%">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>ISO logos as images (not text), real logos</td><td>2026-05-01</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Header formatting (commas / breaks / wording)</td><td>2026-04-30</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>CNC India page background image</td><td>2026-04-30</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Footer phone number removal</td><td>2026-05-04</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Footer sales@ email removal</td><td>2026-05-04</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Hero text on smaller screens</td><td>2026-04-30</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Flag covering video</td><td>2026-04-30</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+<tr><td>Menu bug at small viewport</td><td>2026-04-30</td><td class="col-status open">Open</td><td>Dev team</td></tr>
+</tbody>
+</table>
+</section>
+
+<!-- SEND ORDER -->
+<section id="send-order" class="send-order">
+<h2>11 &mdash; Suggested Send Order</h2>
+<ol>
+<li><span class="when-now">Send NOW.</span> <strong>Draft 01 (Cold Email Update)</strong>. Eric is waiting today; he bumped twice in 24h.</li>
+<li><span class="when-now">Send within the hour.</span> <strong>Draft 02 (CRO Challenge)</strong>. Same urgency. Don't let it sit overnight.</li>
+<li><span class="when-today">Send today.</span> <strong>Draft 04 (Backup verdict)</strong>. After confirming Drive snapshot status with the dev team.</li>
+<li><span class="when-today">Send today, before EOD.</span> <strong>Draft 03 (Daniel intro)</strong>. Five days overdue from the Apr 30 call commit.</li>
+<li><span class="when-today">Send today.</span> <strong>Draft 06 (hosting.com closure)</strong>. Simple closure; pairs with Draft 05.</li>
+<li><span class="when-later">Send tomorrow.</span> <strong>Draft 05 (Hosting migration)</strong>. With confirmed timeline once the Vercel prep is verified.</li>
+<li><span class="when-later">Send Tue or Wed.</span> <strong>Drafts 07 (Speed Virtual) and 08 (Deliverables table)</strong>. Lower heat; bundled into normal cadence.</li>
+<li><span class="when-later">Conditional.</span> <strong>Draft 09 (CTA cleanup)</strong>. Only ships if Eric replies to Draft 02 picking option 1.</li>
+</ol>
+</section>
+
+<footer>
+<div>Last updated 2026-05-05 by Kas</div>
+<div>Source corpus: <code>kamg-ops/client-intel/redstone/eric-comms-pull-2026-05-05.md</code></div>
+</footer>
+
+</main>
+</div>
+</body>
+</html>

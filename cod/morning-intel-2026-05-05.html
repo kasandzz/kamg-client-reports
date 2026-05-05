@@ -105,20 +105,23 @@
   <div class="header">
     <h1>KasOS Morning Intelligence</h1>
     <div class="subtitle">2026-05-05 · Tuesday · Afternoon catch-up (12:56 CDMX)</div>
-    <div class="meta">Generated 2026-05-05 13:00 CDMX | Data source: <span class="hl-amber">local-fallback</span> (gcloud auth expired — cloud collector unreachable)</div>
-    <div class="health-badge health-amber">Skill Health: warnings | heartbeat unavailable, backup 6d stale, brain offline</div>
+    <div class="meta">Generated 2026-05-05 13:00 CDMX | Data source: <span class="hl-green">cloud (BQ + Slack)</span> + local sync fallback for Calendar/Gmail (CF OAuth invalid_client) | Cloud generated 2026-05-05 11:00 UTC (3h ago)</div>
+    <div class="health-badge health-amber">Skill Health: warnings | CF OAuth broken (Gmail+Calendar), backup 6d stale, brain offline, heartbeat skill missing</div>
   </div>
 
   <div class="skill-health-panel">
-    <div class="skill-health-title">Infrastructure flags (3)</div>
+    <div class="skill-health-title">Infrastructure flags (4)</div>
+    <div class="skill-issue">
+      <strong>morning-intel CF — Calendar/Gmail OAuth broken:</strong> Cloud Function 5am scheduler ran successfully today (BQ + Slack populated, $4,267 MTD revenue captured). But <code>errors: ["Calendar: invalid_client", "Gmail: invalid_client"]</code> — the CF's OAuth client credentials have died. Rotate the Gmail/Calendar OAuth secret in <code>green-segment-491604-j8</code> Secret Manager (cf-credentials).
+    </div>
     <div class="skill-issue">
       <strong>backup-cron:</strong> Last PersonalOS Daily Backup ran 2026-04-29 (6 days ago). Threshold 3d = CRITICAL. Manual backup recommended.
     </div>
     <div class="skill-issue">
-      <strong>gcloud-auth:</strong> Both user + ADC tokens expired (Reauthentication failed). BQ-write syncs (sheets/hyros/instantly) skipped. Morning-intel cloud JSON unreachable. Run <code>gcloud auth login</code>.
+      <strong>agency-brain:</strong> http://192.168.100.20:8080/status unreachable. PC-C may be offline. Compiler ingest bridge inactive (non-blocking — Brain not always running).
     </div>
     <div class="skill-issue">
-      <strong>agency-brain:</strong> http://192.168.100.20:8080/status unreachable. PC-C may be offline. Compiler ingest bridge inactive (non-blocking — Brain not always running).
+      <strong>heartbeat skill missing:</strong> <code>.claude/skills/heartbeat/scripts/cli.mjs</code> not present. Phase 2.0 gate skipped. Skill never installed or directory deleted.
     </div>
   </div>
 
@@ -259,8 +262,108 @@
   </div>
 
   <div class="section" id="cod">
-    <div class="amber-banner">
-      ⚠ <strong>BQ unavailable</strong> — gcloud auth expired (Reauthentication failed). Cloud collector did not populate <code>cod_kpis</code>. ROAS, enrollments, ad-spend, funnel, closer-performance hidden until <code>gcloud auth login</code> runs and the 5am scheduler re-fires.
+    <div class="card">
+      <div class="card-title">May MTD KPIs (BQ — period 2026-05-01 → 2026-05-05)</div>
+      <div class="card-subtitle">Cloud Function pulled fresh from cod_warehouse @ 11:00 UTC today</div>
+
+      <div class="stat-grid">
+        <div class="stat-card red">
+          <div class="stat-value">$4,267</div>
+          <div class="stat-label">Gross Revenue MTD</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">0.66</div>
+          <div class="stat-label">ROAS (UNPROFITABLE)</div>
+          <div class="stat-delta down">-34% vs 1.0 breakeven</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value">$6,512</div>
+          <div class="stat-label">Total Ad Spend MTD</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Enrollments MTD</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value">$1,000</div>
+          <div class="stat-label">AOV (low — ticket only)</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value">17.9%</div>
+          <div class="stat-label">VIP take-rate proxy</div>
+        </div>
+      </div>
+
+      <div class="concern-item">
+        <div class="item-title">ROAS 0.66 = losing $0.34 per $1 spend</div>
+        <div class="item-detail">5 days, 1 enrollment, $4,267 in. AOV $1,000 = 1 enrollment at workshop ticket level only — no high-ticket close yet this month. Need either price-point lift or enrollment count to climb fast.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">7-day trend pattern: weekend pause + cash without spend</div>
+        <div class="item-detail">Apr 28: $7,019 spend → $486 cash. May 1: $6,512 spend → $405 cash. <strong>May 2-4: $0 spend → $1,810 / $799 / $1,145 cash</strong> (ad-pause cash from prior conversions). Single May enrollment landed May 2.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Funnel — May MTD</div>
+      <div class="card-subtitle">145 leads → 24 applied → 0 booked → 0 showed → 1 enrolled</div>
+      <table class="data-table">
+        <thead><tr><th>Stage</th><th>Count</th><th>Conversion from prior</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Leads</td><td>145</td><td>—</td><td>From v_sheets_leads_clean</td></tr>
+          <tr><td>Applied</td><td>24</td><td>16.6%</td><td>Below COD historical 25-30%</td></tr>
+          <tr><td>Booked</td><td>0</td><td>0%</td><td><span class="hl-rose">⚠ Likely sheets-bookings sync stale — Slack EOD shows 7 new bookings yesterday</span></td></tr>
+          <tr><td>Showed</td><td>0</td><td>—</td><td>Same — bookings table not populated</td></tr>
+          <tr><td>Enrolled</td><td>1</td><td>—</td><td>From v_stripe_clean (amount &gt; $500)</td></tr>
+        </tbody>
+      </table>
+      <div class="concern-item" style="margin-top:12px;">
+        <div class="item-title">Data integrity flag: bookings table stale</div>
+        <div class="item-detail"><strong>Diagnosed:</strong> <code>v_sheets_bookings_clean</code> has 1,387 total rows but <code>MAX(SAFE_CAST(call_date AS DATE))</code> returns NULL — every row's call_date fails to cast. Likely the source sheet changed call_date column format (string format, header rename, or schema drift). The view is structurally fine but the cast to DATE is silently dropping every row, so MTD filters all return 0. Fix: inspect raw sheet, repair the column type or the view's CAST/PARSE_DATE logic.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad spend breakdown — May MTD ($6,512 total across 6 campaigns)</div>
+      <table class="data-table">
+        <thead><tr><th>Campaign</th><th>Spend</th><th>Impr</th><th>Clicks</th><th>CPM</th><th>CTR</th></tr></thead>
+        <tbody>
+          <tr><td>Paid Workshop ABO Cold — Industry Adsets — <span class="hl-amber">Winning</span></td><td>$4,860</td><td>59,575</td><td>2,354</td><td>$81.58</td><td>3.95%</td></tr>
+          <tr><td>JIT Russ Italy Ads — Lead</td><td>$827</td><td>9,455</td><td>347</td><td>$87.52</td><td>3.67%</td></tr>
+          <tr><td>MA Funnel Application ABO</td><td>$406</td><td>2,406</td><td>132</td><td>$168.92</td><td>5.49%</td></tr>
+          <tr><td>JIT Russ Italy Ads (no purpose tag)</td><td>$340</td><td>2,332</td><td>86</td><td>$145.91</td><td>3.69%</td></tr>
+          <tr><td>TOF Cold — Authority Reels (All Excl)</td><td>$46</td><td>4,807</td><td>22</td><td>$9.55</td><td>0.46%</td></tr>
+          <tr><td>RETARGET — Authority Reels (Buyers + Bookers)</td><td>$31</td><td>2,963</td><td>25</td><td>$10.59</td><td>0.84%</td></tr>
+        </tbody>
+      </table>
+      <div class="insight-item" style="margin-top:12px;">
+        <div class="item-title">75% of spend in Industry Adsets ABO</div>
+        <div class="item-detail">$4,860 of $6,512 (74.6%) in single ABO campaign at $81 CPM, 3.95% CTR. MA Funnel highest CTR (5.49%) but tiny budget ($406). JIT Russ Italy spending $1,167 combined at solid CPMs.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">7-day trend (Apr 28 → May 4)</div>
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Cash</th><th>Spend</th><th>Daily ROAS</th><th>Enrollments</th></tr></thead>
+        <tbody>
+          <tr><td>2026-04-28 Mon</td><td>$486</td><td>$7,019</td><td>0.07</td><td>0</td></tr>
+          <tr><td>2026-04-29 Tue</td><td>$351</td><td>$5,969</td><td>0.06</td><td>0</td></tr>
+          <tr><td>2026-04-30 Wed</td><td>$367</td><td>$5,306</td><td>0.07</td><td>0</td></tr>
+          <tr><td>2026-05-01 Thu</td><td>$405</td><td>$6,512</td><td>0.06</td><td>0</td></tr>
+          <tr><td>2026-05-02 Fri</td><td>$1,810</td><td>$0</td><td>—</td><td><span class="hl-green">1</span></td></tr>
+          <tr><td>2026-05-03 Sat</td><td>$799</td><td>$0</td><td>—</td><td>0</td></tr>
+          <tr><td>2026-05-04 Sun</td><td>$1,145</td><td>$0</td><td>—</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <div class="insight-item" style="margin-top:12px;">
+        <div class="item-title">Pattern: spend M-Th, pause F-Sun</div>
+        <div class="item-detail">All ad spend concentrated weekdays (~$6k/day). Weekend cash flowing from previous weekday-conversion pipeline. Daily ROAS 0.06-0.07 weekdays = lossy short-window attribution; long-window will look better.</div>
+      </div>
+      <div class="concern-item" style="margin-top:8px;">
+        <div class="item-title">Closer performance table empty</div>
+        <div class="item-detail"><code>cod_kpis.closer_performance: []</code> — same root cause as funnel bookings issue. Investigate sheets-bookings ETL.</div>
+      </div>
     </div>
 
     <div class="card">
@@ -517,8 +620,15 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div>
-          <div class="action-text"><strong>Run <code>gcloud auth login</code></strong> to restore BQ + cloud morning-intel collector</div>
-          <div class="action-context">All 3 BQ-write syncs (sheets/hyros/instantly) skipped today; cloud cod_kpis unreachable</div>
+          <div class="action-text"><strong>Fix v_sheets_bookings_clean call_date cast</strong> — 1,387 rows but MAX(SAFE_CAST(call_date AS DATE)) is NULL</div>
+          <div class="action-context">Root cause of funnel zeros + closer_performance empty. Source sheet column likely changed format. Fix the view's CAST/PARSE_DATE.</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Rotate CF OAuth credentials</strong> — Calendar + Gmail returning invalid_client in morningIntelCollector</div>
+          <div class="action-context">CF runs at 5am CDMX daily; BQ + Slack work, but Gmail+Calendar fields stay empty until OAuth rotated</div>
         </div>
       </div>
       <div class="action-item">
@@ -533,6 +643,13 @@
         <div>
           <div class="action-text"><strong>Invite COD bot</strong> to #client-lths-cold-email (channel_not_found), #seo-clients, #seo, #general (kasandz workspace)</div>
           <div class="action-context">4 channels currently uncoverable by sync</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text">No warehouse migration impact today</div>
+          <div class="action-context">Verified <code>cod_warehouse</code> is still the live source. <code>kamg_cod</code> dataset exists but is empty (placeholder for planned multi-client architecture). Stripe data is fresh as of 12:37 CDMX today.</div>
         </div>
       </div>
     </div>
@@ -560,16 +677,13 @@
             <td>Fathom recaps</td><td><span class="hl-amber">degraded</span></td><td>—</td><td>MCP tools not loading; 2 recaps surfaced via email instead</td>
           </tr>
           <tr>
-            <td>BQ — sync-sheets</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
+            <td>BQ — cod_warehouse (via CF)</td><td><span class="hl-green">live</span></td><td>$4,267 MTD / 6 ad campaigns</td><td>green-segment-491604-j8.cod_warehouse — fresh today via morningIntelCollector</td>
           </tr>
           <tr>
-            <td>BQ — sync-hyros</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
+            <td>Cloud morning-intel JSON (GCS)</td><td><span class="hl-green">fresh</span></td><td>generated 11:00 UTC today</td><td>BQ + Slack populated, Gmail/Calendar empty (CF OAuth invalid_client)</td>
           </tr>
           <tr>
-            <td>BQ — sync-instantly</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
-          </tr>
-          <tr>
-            <td>Cloud morning-intel JSON (GCS)</td><td><span class="hl-rose">unreachable</span></td><td>—</td><td>gcloud auth expired — local-fallback path used</td>
+            <td>BQ — sheets bookings table</td><td><span class="hl-rose">stale/broken</span></td><td>0 rows MTD</td><td>Funnel booked/showed = 0 but Slack confirms 7 bookings + 2 closes yesterday — investigate ETL</td>
           </tr>
           <tr>
             <td>@claude_sync</td><td><span class="hl-green">clean</span></td><td>0 captures</td><td>No tags in 24h window</td>
@@ -591,9 +705,18 @@
     </div>
 
     <div class="card">
-      <div class="card-title">Data architecture note</div>
+      <div class="card-title">Data architecture note (rebuild after gcloud auth restored)</div>
       <div class="insight-item">
-        <div class="item-detail">Per skill v4.1.0 cloud-primary trust model, the 5am morningIntelCollector Cloud Function should populate <code>gs://kamg-morning-intel/morning-intel-latest-2026-05-05.json</code> with calendar + Gmail + COD Slack + BQ KPIs. With gcloud auth dead, dashboard fell back to local sync outputs. Once auth is restored, the next /morning will read the cloud JSON directly and surface full COD KPI grid (ROAS, enrollments, ad-spend, funnel, closer-performance).</div>
+        <div class="item-title">CF status: BQ + Slack working, Gmail + Calendar broken</div>
+        <div class="item-detail">The morningIntelCollector Cloud Function ran successfully at 11:00 UTC today. BQ pulled fresh COD data from <code>green-segment-491604-j8.cod_warehouse</code> ($4,267 MTD across 6 ad campaigns). Slack pulled 7 messages from #brickellads-pedro + #cod-new-sales-eod + others. <strong>Gmail and Calendar both returned <code>invalid_client</code></strong> — the CF's OAuth client credentials expired. Calendar/Email sections in this dashboard come from local sync outputs (Google Calendar MCP + Gmail MCP via Kas's user OAuth, which works fine).</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Next step: rotate CF OAuth credentials</div>
+        <div class="item-detail">Re-run the OAuth flow for the CF's service account or re-authorise the OAuth client in Cloud Console. Once fixed, <code>cod_kpis</code>, <code>calendar.events</code>, AND <code>email_overnight</code> will all populate from a single cloud source instead of the current hybrid local/cloud blend.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Dashboard is genuinely cloud-enriched (v2)</div>
+        <div class="item-detail">First run at 12:56 used full local-fallback (gcloud was dead). After Kas re-authed gcloud, this rebuild pulled the fresh cloud BQ data and Slack overnight. Calendar and Email remain local because of the CF OAuth issue.</div>
       </div>
     </div>
   </div>

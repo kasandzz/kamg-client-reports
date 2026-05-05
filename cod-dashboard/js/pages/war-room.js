@@ -46,7 +46,8 @@ async function renderWarRoom(container) {
   }
 
   // ---- Fetch all data in parallel ----
-  let defaultData, dailyRevenueData, stalenessData, leakData, closersData;
+  let defaultData, dailyRevenueData, stalenessData, leakData, closersData,
+      dailyRevStackData, weeklyDailyData;
 
   try {
     const results = await Promise.allSettled([
@@ -55,6 +56,8 @@ async function renderWarRoom(container) {
       API.query('war-room', 'staleness', {}),
       API.query('war-room', 'leakDetection', { days }),
       API.query('war-room', 'closers', { days }),
+      API.query('war-room', 'dailyRevenueStack', { days: 14 }),
+      API.query('war-room', 'weeklyDailyBreakdown', {}),
     ]);
 
     defaultData = results[0].status === 'fulfilled' ? results[0].value : [];
@@ -62,6 +65,8 @@ async function renderWarRoom(container) {
     stalenessData = results[2].status === 'fulfilled' ? results[2].value : [];
     leakData = results[3].status === 'fulfilled' ? results[3].value : [];
     closersData = results[4].status === 'fulfilled' ? results[4].value : [];
+    dailyRevStackData = results[5].status === 'fulfilled' ? results[5].value : [];
+    weeklyDailyData = results[6].status === 'fulfilled' ? results[6].value : [];
   } catch (err) {
     container.innerHTML = '<div class="card" style="padding:24px"><p class="text-muted">Failed to load War Room: ' + err.message + '</p></div>';
     return;
@@ -162,6 +167,156 @@ async function renderWarRoom(container) {
       Components.renderSparkline(sparkId, sparkData);
     });
   }
+
+  // ================================================================
+  // SECTION 2b: Daily Revenue Stack (Wave 1.3) -- last 14d, 3 segments
+  // ================================================================
+  var stackCard = _card('Daily Revenue Stack', { padding: '20px 24px 24px' });
+  var stackSub = document.createElement('div');
+  stackSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
+  stackSub.textContent = 'Tickets, VIP, and high-ticket enrollments per day, last 14 days.';
+  stackCard.appendChild(stackSub);
+
+  var stackCanvasId = 'war-stack-' + Date.now();
+  var stackCanvasWrap = document.createElement('div');
+  stackCanvasWrap.style.cssText = 'position:relative;height:240px';
+  stackCanvasWrap.innerHTML = '<canvas id="' + stackCanvasId + '"></canvas>';
+  stackCard.appendChild(stackCanvasWrap);
+  container.appendChild(stackCard);
+
+  if (dailyRevStackData && dailyRevStackData.length > 0) {
+    requestAnimationFrame(function () {
+      var ctx = document.getElementById(stackCanvasId);
+      if (!ctx || typeof Chart === 'undefined') return;
+      if (ctx._chartInstance) ctx._chartInstance.destroy();
+
+      var labels = dailyRevStackData.map(function (r) {
+        var d = r.date && r.date.value ? r.date.value : r.date;
+        if (!d) return '';
+        var parts = String(d).split('-');
+        return parts.length >= 3 ? (parts[1] + '/' + parts[2]) : String(d);
+      });
+      var ticketArr = dailyRevStackData.map(function (r) { return Number(r.ticket_revenue || 0); });
+      var vipArr = dailyRevStackData.map(function (r) { return Number(r.vip_revenue || 0); });
+      var htArr = dailyRevStackData.map(function (r) { return Number(r.high_ticket_revenue || 0); });
+
+      var COLORS = Theme.COLORS;
+      ctx._chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Tickets', data: ticketArr, backgroundColor: COLORS.accentCyan || '#06b6d4', borderRadius: 2, stack: 'rev' },
+            { label: 'VIP', data: vipArr, backgroundColor: '#a855f7', borderRadius: 2, stack: 'rev' },
+            { label: 'High-Ticket', data: htArr, backgroundColor: COLORS.success || '#22c55e', borderRadius: 2, stack: 'rev' },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'bottom', labels: { color: COLORS.textMuted, font: { size: 10 }, boxWidth: 12, padding: 12 } },
+            tooltip: {
+              callbacks: {
+                label: function (c) {
+                  return c.dataset.label + ': $' + Number(c.raw).toLocaleString();
+                },
+                footer: function (items) {
+                  var total = items.reduce(function (s, i) { return s + Number(i.raw || 0); }, 0);
+                  return 'Total: $' + total.toLocaleString();
+                },
+              },
+            },
+          },
+          scales: {
+            x: { stacked: true, grid: { color: COLORS.gridLine || 'rgba(255,255,255,0.05)' }, ticks: { color: COLORS.textMuted, font: { size: 10 } } },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              grid: { color: COLORS.gridLine || 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: COLORS.textMuted,
+                font: { size: 10 },
+                callback: function (v) { return '$' + (v >= 1000 ? Math.round(v / 1000) + 'k' : v); },
+              },
+            },
+          },
+        },
+      });
+    });
+  } else {
+    var noStack = document.createElement('p');
+    noStack.className = 'text-muted';
+    noStack.style.cssText = 'font-size:13px;padding:16px';
+    noStack.textContent = 'No revenue data for the last 14 days.';
+    stackCard.appendChild(noStack);
+  }
+
+  // ================================================================
+  // SECTION 2c: This Week's Daily Table (Wave 1.3) -- Mon-Sun
+  // ================================================================
+  var weekCard = _card("This Week's Daily", { padding: '20px 24px 24px' });
+  var weekSub = document.createElement('div');
+  weekSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
+  weekSub.textContent = 'Mon to Sun current week. Tickets and VIP from Stripe; calls + enrollments from workshop pipeline.';
+  weekCard.appendChild(weekSub);
+
+  if (weeklyDailyData && weeklyDailyData.length > 0) {
+    var tableWrap = document.createElement('div');
+    tableWrap.style.cssText = 'overflow-x:auto';
+
+    var dowNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var rowsHtml = weeklyDailyData.map(function (r) {
+      var d = r.date && r.date.value ? r.date.value : r.date;
+      var dateStr = String(d || '');
+      var dow = '';
+      if (dateStr) {
+        var dt = new Date(dateStr + 'T00:00:00');
+        if (!isNaN(dt.getTime())) dow = dowNames[dt.getDay()];
+      }
+      var isToday = dateStr === new Date().toISOString().slice(0, 10);
+      var rowStyle = isToday ? 'background:rgba(6,182,212,0.06)' : '';
+      var dateLabel = dow ? (dow + ' ' + dateStr.slice(5)) : dateStr;
+      return [
+        '<tr style="' + rowStyle + '">',
+        '  <td style="padding:8px 10px;color:' + Theme.COLORS.textPrimary + ';font-weight:' + (isToday ? '700' : '500') + '">' + _escText(dateLabel) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.tickets || 0).toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:#a855f7">' + Number(r.vip || 0).toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.calls_booked || 0).toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.calls_showed || 0).toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.success + ';font-weight:600">' + Number(r.enrollments || 0).toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';font-weight:600">' + Theme.formatValue(Number(r.gross_revenue || 0), 'money') + '</td>',
+        '</tr>',
+      ].join('');
+    }).join('');
+
+    tableWrap.innerHTML = [
+      '<table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Manrope,sans-serif">',
+      '  <thead>',
+      '    <tr style="border-bottom:1px solid ' + (Theme.COLORS.gridLine || 'rgba(255,255,255,0.08)') + '">',
+      '      <th style="padding:10px;text-align:left;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Date</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Tickets</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">VIP</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Calls Booked</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Calls Showed</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Enrollments</th>',
+      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Gross Rev</th>',
+      '    </tr>',
+      '  </thead>',
+      '  <tbody>' + rowsHtml + '</tbody>',
+      '</table>',
+    ].join('');
+
+    weekCard.appendChild(tableWrap);
+  } else {
+    var noWeek = document.createElement('p');
+    noWeek.className = 'text-muted';
+    noWeek.style.cssText = 'font-size:13px;padding:16px';
+    noWeek.textContent = 'No weekly data available yet.';
+    weekCard.appendChild(noWeek);
+  }
+  container.appendChild(weekCard);
 
   // ================================================================
   // SECTION 3: KPI Strip (WAR-07)
@@ -317,16 +472,19 @@ async function renderWarRoom(container) {
   ].join('');
   funnelRow.appendChild(funnelCard27);
 
-  // MA/VSL Funnel card (placeholder)
+  // MA/VSL Funnel card -- links to ma-funnel page
   var funnelCardMA = document.createElement('a');
   funnelCardMA.href = '#ma-funnel';
   funnelCardMA.className = 'card';
-  funnelCardMA.style.cssText = 'padding:24px;flex:1;min-width:280px;text-decoration:none;color:inherit;cursor:pointer;opacity:0.5';
+  funnelCardMA.style.cssText = 'padding:24px;flex:1;min-width:280px;text-decoration:none;color:inherit;cursor:pointer;transition:border-color 0.15s';
+  funnelCardMA.setAttribute('role', 'link');
 
   funnelCardMA.innerHTML = [
     '<div style="font-size:13px;font-weight:700;color:' + Theme.COLORS.textPrimary + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">MA/VSL Funnel</div>',
-    '<div style="font-size:14px;color:' + Theme.COLORS.textMuted + '">Coming in Phase 4</div>',
-    '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:8px">View funnel &rarr;</div>',
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">',
+    '  <span style="font-size:14px;color:' + Theme.COLORS.textSecondary + '">Millionaires Alliance + VSL pipeline</span>',
+    '</div>',
+    '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:8px">View MA/VSL funnel &rarr;</div>',
   ].join('');
   funnelRow.appendChild(funnelCardMA);
 

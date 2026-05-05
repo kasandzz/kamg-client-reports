@@ -26,16 +26,17 @@ App.registerPage('ads-google', async (container) => {
   } catch (_) {}
 
   // ---- Parallel data fetch ----
-  let kpis, campaigns, keywords, youtube, crossPlatform, daily;
+  let kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages;
 
   try {
-    [kpis, campaigns, keywords, youtube, crossPlatform, daily] = await Promise.all([
+    [kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages] = await Promise.all([
       API.query('google-ads', 'default',       { days }),
       API.query('google-ads', 'campaigns',     { days }),
       API.query('google-ads', 'keywords',      { days }),
       API.query('google-ads', 'youtube',       { days }).catch(() => null),
       API.query('google-ads', 'crossPlatform', { days }).catch(() => null),
       API.query('google-ads', 'daily',         { days }),
+      API.query('google-ads', 'landingPages',  { days }).catch(() => null),
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Google Ads: ${err.message}</p></div>`;
@@ -67,6 +68,9 @@ App.registerPage('ads-google', async (container) => {
 
   // ---- Keyword Performance Table ----
   try { _renderKeywordTable(container, keywords || []); } catch (e) { console.warn('Keyword table error:', e); }
+
+  // ---- Landing Page Performance Table ----
+  try { _renderLandingPageTable(container, landingPages || []); } catch (e) { console.warn('LP table error:', e); }
 
   // ---- YouTube Performance ----
   try { _renderYouTubePanel(container, youtube); } catch (e) { console.warn('YouTube error:', e); }
@@ -291,6 +295,120 @@ function _renderKeywordTable(container, keywords) {
     </tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+
+  container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Landing Page Performance Table (GA4 paid Google traffic)
+// ---------------------------------------------------------------------------
+
+function _renderLandingPageTable(container, lps) {
+  const card = _googleCard('Landing Page Performance (Paid Google Traffic)');
+
+  const note = document.createElement('div');
+  note.style.cssText = `font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:12px;padding:8px 10px;border-left:2px solid ${Theme.COLORS.textMuted};background:rgba(255,255,255,0.02)`;
+  note.innerHTML = `Source: <code style="font-family:'JetBrains Mono',monospace;color:${Theme.COLORS.textSecondary}">ga4_landing_pages</code> filtered to medium=cpc, source=google. $27 sales / CAC by LP not yet shown -- requires LP-to-Stripe attribution bridge.`;
+  card.appendChild(note);
+
+  if (!lps || lps.length === 0) {
+    const empty = document.createElement('p');
+    empty.style.cssText = `color:${Theme.COLORS.textMuted};font-size:13px`;
+    empty.textContent = 'No landing page data available for paid Google traffic.';
+    card.appendChild(empty);
+    container.appendChild(card);
+    return;
+  }
+
+  const totalConv = lps.reduce((s, r) => s + (+r.conversions || 0), 0);
+  const conversionsAllZero = totalConv === 0;
+
+  const thStyle = `padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,0.08);white-space:nowrap;cursor:pointer;user-select:none`;
+  const tdStyle = `padding:10px 12px;font-size:13px;color:${Theme.COLORS.textPrimary};border-bottom:1px solid rgba(255,255,255,0.04);white-space:nowrap;font-family:'JetBrains Mono',monospace`;
+
+  const sorted = [...lps].sort((a, b) => (+b.sessions || 0) - (+a.sessions || 0));
+
+  const rows = sorted.map(r => {
+    const lp = (r.landing_page || '--').replace(/</g, '&lt;');
+    const lpDisplay = lp.length > 60 ? lp.slice(0, 57) + '...' : lp;
+    const cr = +(r.cr_pct || 0);
+    const crColor = cr >= 5 ? Theme.COLORS.success : cr >= 1 ? Theme.COLORS.warning : Theme.COLORS.textMuted;
+    const br = +(r.bounce_rate || 0) * 100;
+    const er = +(r.engagement_rate || 0) * 100;
+    return `<tr>
+      <td style="${tdStyle};font-family:Inter,sans-serif;font-weight:500;max-width:320px;overflow:hidden;text-overflow:ellipsis" title="${lp}">${lpDisplay}</td>
+      <td style="${tdStyle}">${Theme.num(+r.sessions || 0)}</td>
+      <td style="${tdStyle}">${Theme.num(+r.users || 0)}</td>
+      <td style="${tdStyle}">${Theme.num(+r.conversions || 0)}</td>
+      <td style="${tdStyle};font-weight:600;color:${crColor}">${cr.toFixed(2)}%</td>
+      <td style="${tdStyle}">${br.toFixed(1)}%</td>
+      <td style="${tdStyle}">${er.toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  const headerHtml = `<thead><tr>
+    <th style="${thStyle}" data-sort="landing_page">Landing Page</th>
+    <th style="${thStyle}" data-sort="sessions">Sessions</th>
+    <th style="${thStyle}" data-sort="users">Users</th>
+    <th style="${thStyle}" data-sort="conversions">Conv.</th>
+    <th style="${thStyle}" data-sort="cr_pct">CR %</th>
+    <th style="${thStyle}" data-sort="bounce_rate">Bounce %</th>
+    <th style="${thStyle}" data-sort="engagement_rate">Engagement %</th>
+  </tr></thead>`;
+
+  const tableWrap = document.createElement('div');
+  tableWrap.style.cssText = 'overflow-x:auto';
+  tableWrap.innerHTML = `<table style="width:100%;border-collapse:collapse">${headerHtml}<tbody>${rows}</tbody></table>`;
+  card.appendChild(tableWrap);
+
+  if (conversionsAllZero) {
+    const warn = document.createElement('div');
+    warn.style.cssText = `margin-top:12px;font-size:11px;color:${Theme.COLORS.warning};padding:8px 10px;border-left:2px solid ${Theme.COLORS.warning};background:rgba(245,158,11,0.06)`;
+    warn.innerHTML = 'Heads up: GA4 conversions are 0 across all LPs in the selected window. Likely a GA4 conversion-event tagging gap (Google Ads conversion may not be configured to fire GA4 events). The session and engagement numbers are still accurate.';
+    card.appendChild(warn);
+  }
+
+  // Sortable: click any column header to sort by that field
+  const thEls = tableWrap.querySelectorAll('th[data-sort]');
+  let sortField = 'sessions';
+  let sortDir = 'desc';
+  thEls.forEach(th => {
+    th.addEventListener('click', () => {
+      const field = th.dataset.sort;
+      if (field === sortField) {
+        sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        sortField = field;
+        sortDir = 'desc';
+      }
+      const reSorted = [...lps].sort((a, b) => {
+        const av = field === 'landing_page' ? (a[field] || '') : +a[field] || 0;
+        const bv = field === 'landing_page' ? (b[field] || '') : +b[field] || 0;
+        if (typeof av === 'string') {
+          return sortDir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+        }
+        return sortDir === 'desc' ? bv - av : av - bv;
+      });
+      const newRows = reSorted.map(r => {
+        const lp = (r.landing_page || '--').replace(/</g, '&lt;');
+        const lpDisplay = lp.length > 60 ? lp.slice(0, 57) + '...' : lp;
+        const cr = +(r.cr_pct || 0);
+        const crColor = cr >= 5 ? Theme.COLORS.success : cr >= 1 ? Theme.COLORS.warning : Theme.COLORS.textMuted;
+        const br = +(r.bounce_rate || 0) * 100;
+        const er = +(r.engagement_rate || 0) * 100;
+        return `<tr>
+          <td style="${tdStyle};font-family:Inter,sans-serif;font-weight:500;max-width:320px;overflow:hidden;text-overflow:ellipsis" title="${lp}">${lpDisplay}</td>
+          <td style="${tdStyle}">${Theme.num(+r.sessions || 0)}</td>
+          <td style="${tdStyle}">${Theme.num(+r.users || 0)}</td>
+          <td style="${tdStyle}">${Theme.num(+r.conversions || 0)}</td>
+          <td style="${tdStyle};font-weight:600;color:${crColor}">${cr.toFixed(2)}%</td>
+          <td style="${tdStyle}">${br.toFixed(1)}%</td>
+          <td style="${tdStyle}">${er.toFixed(1)}%</td>
+        </tr>`;
+      }).join('');
+      tableWrap.querySelector('tbody').innerHTML = newRows;
+    });
+  });
 
   container.appendChild(card);
 }

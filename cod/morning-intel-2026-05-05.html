@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-05-05</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { display:inline-block; margin-top:10px; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:600; }
+  .health-amber { background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
+  .health-green { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+  .health-red { background:rgba(239,68,68,.15); color:#ef4444; border:1px solid rgba(239,68,68,.3); }
+
+  .skill-health-panel { background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.3); border-radius:12px; padding:16px 20px; margin-bottom:24px; }
+  .skill-health-panel.red { background:rgba(239,68,68,.06); border-color:rgba(239,68,68,.3); }
+  .skill-health-title { font-weight:700; font-size:13px; color:#f59e0b; margin-bottom:10px; }
+  .skill-health-panel.red .skill-health-title { color:#ef4444; }
+  .skill-issue { padding:8px 12px; background:rgba(0,0,0,.2); border-left:3px solid #f59e0b; border-radius:6px; margin-bottom:6px; font-size:11px; }
+  .skill-issue.red { border-left-color:#ef4444; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-card.blue::before { background:#3b82f6; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-item.past { opacity:.4; }
+  .schedule-item.now { border-color:#3b82f6; box-shadow:0 0 0 1px rgba(59,130,246,.3); }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:80px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-redstone { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-routine { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .tag-now { background:rgba(16,185,129,.2); color:#10b981; }
+
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:flex-start; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:flex-start; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; margin-top:2px; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; margin-top:2px; }
+
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; vertical-align:top; }
+
+  .amber-banner { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; color:#f59e0b; font-size:12px; }
+  .red-banner { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:14px 18px; margin-bottom:16px; color:#ef4444; font-size:12px; }
+
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">2026-05-05 · Tuesday · Afternoon catch-up (12:56 CDMX)</div>
+    <div class="meta">Generated 2026-05-05 13:00 CDMX | Data source: <span class="hl-amber">local-fallback</span> (gcloud auth expired — cloud collector unreachable)</div>
+    <div class="health-badge health-amber">Skill Health: warnings | heartbeat unavailable, backup 6d stale, brain offline</div>
+  </div>
+
+  <div class="skill-health-panel">
+    <div class="skill-health-title">Infrastructure flags (3)</div>
+    <div class="skill-issue">
+      <strong>backup-cron:</strong> Last PersonalOS Daily Backup ran 2026-04-29 (6 days ago). Threshold 3d = CRITICAL. Manual backup recommended.
+    </div>
+    <div class="skill-issue">
+      <strong>gcloud-auth:</strong> Both user + ADC tokens expired (Reauthentication failed). BQ-write syncs (sheets/hyros/instantly) skipped. Morning-intel cloud JSON unreachable. Run <code>gcloud auth login</code>.
+    </div>
+    <div class="skill-issue">
+      <strong>agency-brain:</strong> http://192.168.100.20:8080/status unreachable. PC-C may be offline. Compiler ingest bridge inactive (non-blocking — Brain not always running).
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('redstone')">Redstone</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight (5 urgent)</div>
+    <div class="tab" onclick="showTab('actions')">Actions (11)</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <div class="section active" id="myday">
+    <div class="card">
+      <div class="card-title">Focus for Today</div>
+      <div class="card-subtitle">Afternoon catch-up — morning meetings already past</div>
+      <div class="insight-item">
+        <div class="item-title">Primary: Russ work block (3 hrs back-to-back)</div>
+        <div class="item-detail">13:30 LP Event Page Whipup → 14:00 LP Event SMS/Email Test → 14:30 COD Recording &gt; Split Test → 15:00 Russ COD Emails. This is the big block of the day.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Decision needed: Eric Redstone weekly report format</div>
+        <div class="item-detail">Eric requested deliverables table + KW rankings (email 2026-04-30). Draft sitting in Gmail. Send before 5/7 marketing review.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Cross-channel signal: JIT registration optimisation</div>
+        <div class="item-detail">Russ wants 20% reg rate. Pedro shipped split test live (codworkshop.com/mc, PostHog "JIT - h1 change"). Income-claim copy review pending — must check vs new FTC rule from Russ 5/4.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule</div>
+      <div class="card-subtitle">All-day: Aranza Loco week | Akari Unavailable - Jackson Home All Day</div>
+
+      <div class="schedule-item past">
+        <div class="schedule-time">06:45–08:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Morning routine (Exercise → Shower → Focus block)</div>
+          <span class="schedule-tag tag-routine">routine</span>
+        </div>
+      </div>
+      <div class="schedule-item past">
+        <div class="schedule-time">08:30–08:45</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Daily Check In (Russ team)</div>
+          <span class="schedule-tag tag-cod">COD</span>
+        </div>
+      </div>
+      <div class="schedule-item past">
+        <div class="schedule-time">08:30–10:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ Call Block</div>
+          <span class="schedule-tag tag-cod">COD</span>
+        </div>
+      </div>
+      <div class="schedule-item now">
+        <div class="schedule-time">12:30–13:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Kas / Austin — Recruiting Platform <span class="schedule-tag tag-now">IN PROGRESS</span></div>
+          <span class="schedule-tag tag-internal">internal</span>
+          <div class="schedule-prep">Note already created: 07-Meetings/2026-05-05-kas-austin-recruiting-platform.md</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">13:30–14:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ LP Event Page Whipup</div>
+          <span class="schedule-tag tag-cod">COD</span>
+          <div class="schedule-prep">Build/refine LP event page. Sequenced into Russ work block.</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">14:00–14:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">LP Event SMS &amp; Emails Test</div>
+          <span class="schedule-tag tag-cod">COD</span>
+          <div class="schedule-prep">Test workflows around LP page launch.</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">14:30–15:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">COD Recording &gt; Split Test</div>
+          <span class="schedule-tag tag-cod">COD</span>
+          <div class="schedule-prep">Tied to Pedro's JIT split test — measure recording cadence vs reg-rate.</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">15:00–15:30</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Russ COD Emails</div>
+          <span class="schedule-tag tag-cod">COD</span>
+          <div class="schedule-prep">Permanent rule: re-read COD email copy quality stack BEFORE drafting (memory).</div>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">20:00–22:00</div>
+        <div class="schedule-body">
+          <div class="schedule-title">Relax</div>
+          <span class="schedule-tag tag-routine">routine</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Week Ahead — Standout Items</div>
+      <div class="two-col">
+        <div>
+          <div class="insight-item">
+            <div class="item-title">Wed 11:30 — LTHS Strategy Session</div>
+            <div class="item-detail">Already prepped (call-prep notes exist 2026-04-29).</div>
+          </div>
+          <div class="insight-item">
+            <div class="item-title">Thu 11:00 — CPG Weekly Sales Review</div>
+            <div class="item-detail">Recurring; no prep manifest yet.</div>
+          </div>
+          <div class="insight-item">
+            <div class="item-title">Thu 13:00 — Eric/Kas Marketing Review (Redstone)</div>
+            <div class="item-detail">Project status reply for Russ Wynn must land BEFORE this call.</div>
+          </div>
+        </div>
+        <div>
+          <div class="insight-item">
+            <div class="item-title">Wed 09:00 — Power VS Force Drop In</div>
+            <div class="item-detail">Personal/Aranza-related.</div>
+          </div>
+          <div class="insight-item">
+            <div class="item-title">Fri — Russ Payday + Akari unavailable 11–15</div>
+            <div class="item-detail">Plan COD email work to land before Akari off-hours.</div>
+          </div>
+          <div class="insight-item">
+            <div class="item-title">Sat — Aranza Mum + Meroma reservation</div>
+            <div class="item-detail">Personal event; non-work.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cod">
+    <div class="amber-banner">
+      ⚠ <strong>BQ unavailable</strong> — gcloud auth expired (Reauthentication failed). Cloud collector did not populate <code>cod_kpis</code>. ROAS, enrollments, ad-spend, funnel, closer-performance hidden until <code>gcloud auth login</code> runs and the 5am scheduler re-fires.
+    </div>
+
+    <div class="card">
+      <div class="card-title">Live signals from Slack overnight</div>
+      <div class="card-subtitle">62 messages across 8 COD channels — qualitative intel only (no BQ)</div>
+
+      <div class="win-item">
+        <div class="item-title">Sales: 2 closes, 3 sets booked</div>
+        <div class="item-detail">Dorian closed Abdul Rasheed Muhammad <span class="hl-green">$15,000</span>. Matt Dakan closed Kalan Hall <span class="hl-green">$13,500 AUD</span>. Sets: Justin Lafleur (5/6), Annie Mogush (5/11), Elizabeth Kriek (5/5). Both reps producing.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">Calendar bookings: 7 new + 3 reschedules in 24h</div>
+        <div class="item-detail">Sara Saba, Sandy Quast, Elizabeth Kriek, Darren James, Annie Mogush (cold email), Jon Hanson, Jalinia Logan. Reps: Matt D 5, Dorian 4.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Decision logged: Registration tagging bug remediated</div>
+        <div class="item-detail">Matt Freeman patched historical reporting retroactively. Sales attribution should now be cleaner going forward.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Russ priority: JIT registration rate → 20% target</div>
+        <div class="item-detail">Posted in #brickellads tagging Matt F + Pedro. Pedro live-shipped split test (codworkshop.com/mc, PostHog "JIT - h1 change"). 14:30 split-test review block on calendar today.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Income-claim copy review needed</div>
+        <div class="item-detail">Pedro asked Russ/Akari for input on coaches/consultants angle + therapist angle ("better results for patients"). Must check against Russ FTC rule (5/4): "sell for $X" / "normalize $X" = ❌; "worth/priced at $X" / "build $X program" / "price at $X" = ✅. Akari also flagged "launchingoon" typo to fix.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Post-enrollment SMS automation request (Jayne)</div>
+        <div class="item-detail">In #tech-titans: Jayne wants the post-enrollment text automation re-instituted; needs feasibility from Ryan/Matt F on texting from GHL. Spec the message + delay then ship.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pedro's marketing-optimisation move</div>
+      <div class="insight-item">
+        <div class="item-title">All enrollment transcripts → Google Sheet → copy LLMs</div>
+        <div class="item-detail">Pedro aggregated transcripts to feed copy LLMs and is deploying enrollment-ICP copy in new workshop ads. Aligns with the Brickell ICP research vault (5 niche copy vaults at 03-Resources/cod/icp-research/).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="redstone">
+    <div class="card">
+      <div class="card-title">Redstone — Project Status Reply Critical Path</div>
+      <div class="card-subtitle">5/7 Eric review — Russ Wynn requested total updates BEFORE that call</div>
+
+      <div class="concern-item">
+        <div class="item-title">URGENT: Compile total project status reply for Russ Wynn</div>
+        <div class="item-detail">Source: #x-redstone-internal. Russ Wynn asked "What's total project updates here". Leo + Rehan posted partial updates already (see below). Synthesize into one consolidated reply BEFORE Thursday 13:00 Eric review.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Rehan progress (homepage live + form fixed)</div>
+        <div class="item-detail">Posted 11:30: Homepage pushed live. Awaiting form approval for contact page. New header/footer sitewide. Email deliverability fixed.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Leo progress (list + copy in flight)</div>
+        <div class="item-detail">Posted 12:43: List built and enriching for personalisation. Copy 1st draft in Docs needs PRD/goal review. Cleaning list per campaign.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Eric weekly report format decision</div>
+        <div class="item-detail">Email Eric (2026-04-30) requesting deliverables table + KW rankings format. Draft already in Gmail — review and send. Aligns with table format preference (memory: feedback_eric_redstone_comms.md).</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Leo's copy draft review (vault gate)</div>
+        <div class="item-detail">Review against PRD + campaign goals before greenlighting. Leo flagged the draft needs goal review.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="overnight">
+    <div class="card">
+      <div class="card-title">Urgent — needs response (5)</div>
+      <div class="card-subtitle">Slack 24h lookback + Email overnight, sorted by priority</div>
+
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #brickellads · Russ</div>
+          <div class="overnight-text"><strong>JIT registration rate to 20%</strong> — tagged Matt F + Pedro. Pedro already shipped split test. Track reg-rate, coordinate with Pedro on funnel fixes.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #brickellads · Pedro</div>
+          <div class="overnight-text"><strong>Income-claim copy review</strong> + "launchingoon" typo. Coach/consultant + therapist angles. Validate against Russ FTC rule (5/4).</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #tech-titans · Jayne</div>
+          <div class="overnight-text"><strong>Post-enrollment SMS automation</strong> spec needed. Confirm GHL texting feasibility with Ryan/Matt F. Define message + delay.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #outbound-cod · franzi</div>
+          <div class="overnight-text"><strong>Bison inboxes disconnecting</strong> — missing Cara Pagan + Russ replies. Vovik/Vasyl reconnect. Kas already proposed GHL smart-list workaround for positive replies.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-high">HIGH</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #x-redstone-internal · Russ Wynn</div>
+          <div class="overnight-text"><strong>"Total project updates here?"</strong> — must reply BEFORE 5/7 Eric marketing review. Compile from Leo + Rehan posts.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">SOON</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email · Eric Millinger (Redstone)</div>
+          <div class="overnight-text"><strong>Confirm weekly report format</strong>: deliverables table + KW rankings. Draft already in Gmail.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-med">SOON</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email · Peter Wokes (new lead)</div>
+          <div class="overnight-text"><strong>Replied with availability</strong> — qualifying questions draft ready in Gmail before scheduling Calendly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Wins overnight</div>
+      <div class="win-item">
+        <div class="item-title">$28.5k+ closed (Dorian + Matt D)</div>
+        <div class="item-detail">Dorian $15k AbdulRasheed Muhammad. Matt D $13.5k AUD Kalan Hall.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">7 new bookings + 3 reschedules</div>
+        <div class="item-detail">Calendar bot: Annie Mogush from cold email — Outbound channel paying off.</div>
+      </div>
+      <div class="win-item">
+        <div class="item-title">Rehan: Redstone homepage live + email deliverability fixed</div>
+        <div class="item-detail">Two unblockers in one push.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Lower priority overnight (FYI)</div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email · Klaviyo Partner</div>
+          <div class="overnight-text">Payout dispute — Kas already replied 18:12. Awaiting their response. Follow up EOW if silent.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Slack #cod-new-sales-eod · Dorian</div>
+          <div class="overnight-text">David Wright FU2 — insurance-clawback drama, payroll lag, 2 therapists lost, packed graduation schedule.</div>
+        </div>
+      </div>
+      <div class="overnight-item">
+        <span class="priority-badge priority-low">FYI</span>
+        <div class="overnight-body">
+          <div class="overnight-source">Email · 12 newsletter/automated</div>
+          <div class="overnight-text">AmEx OTP, EA Accountancy, Plane permissions update, Skool, Ahrefs reports, OpenRouter sub-processor change, Pearlfinders, Nusii, PandaDoc view notice, etc. All filtered as no-action.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Action items extracted (11)</div>
+      <div class="card-subtitle">Sorted by priority + time-sensitivity</div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Review Pedro's income-claim copy (coaches/consultants/therapist) vs Russ FTC rule 5/4</div>
+          <div class="action-context">Source: slack #brickellads — needed before next workshop ad batch ships</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Fix "launchingoon" typo on JIT page</div>
+          <div class="action-context">Source: slack #brickellads (Akari) — quick win, ship today</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Track JIT registration rate to 20% target (instrument PostHog)</div>
+          <div class="action-context">Source: slack #brickellads (Russ) — coordinate with Pedro on h1 split test</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Spec + ship post-enrollment SMS automation (text from GHL) per Jayne</div>
+          <div class="action-context">Source: slack #tech-titans — confirm Ryan/Matt F GHL texting capability first</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Vovik/Vasyl reconnect Bison inboxes (multiple disconnects)</div>
+          <div class="action-context">Source: slack #outbound-cod (franzi) — affecting Cara Pagan + Russ reply visibility</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>COD:</strong> Build GHL smart-list flow for positive cold-email replies</div>
+          <div class="action-context">Source: slack #outbound-cod — Kas's proposal to Vovik, follow through</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Redstone:</strong> Compile total project status reply for Russ Wynn BEFORE 5/7 Eric review</div>
+          <div class="action-context">Source: slack #x-redstone-internal — Leo + Rehan posts ready to consolidate</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Redstone:</strong> Send first weekly report w/ deliverables table + KW ranking table — EOW</div>
+          <div class="action-context">Source: email Eric 2026-04-30 — draft already in Gmail</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Redstone:</strong> Review Leo's copy 1st draft against PRD + goals</div>
+          <div class="action-context">Source: slack #x-redstone-internal — Leo flagged draft needs goal review</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>New Lead:</strong> Send Calendly to Peter Wokes if qualified after his reply</div>
+          <div class="action-context">Source: email 2026-05-05 — qualifying-questions draft ready</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Klaviyo:</strong> Follow up if no response by EOW on partner payout dispute</div>
+          <div class="action-context">Source: email 2026-05-05 — already pushed back</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Infrastructure follow-ups</div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Run <code>gcloud auth login</code></strong> to restore BQ + cloud morning-intel collector</div>
+          <div class="action-context">All 3 BQ-write syncs (sheets/hyros/instantly) skipped today; cloud cod_kpis unreachable</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Run PersonalOS Daily Backup</strong> manually (last 2026-04-29, 6 days stale)</div>
+          <div class="action-context">Backup-cron last entry exceeds 3d CRITICAL threshold</div>
+        </div>
+      </div>
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div>
+          <div class="action-text"><strong>Invite COD bot</strong> to #client-lths-cold-email (channel_not_found), #seo-clients, #seo, #general (kasandz workspace)</div>
+          <div class="action-context">4 channels currently uncoverable by sync</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data freshness + source provenance</div>
+      <table class="data-table">
+        <thead><tr><th>Source</th><th>Status</th><th>Items</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Calendar (Google)</td><td><span class="hl-green">live</span></td><td>75 events synced</td><td>4 calendars; today + 7d ahead</td>
+          </tr>
+          <tr>
+            <td>Email (Gmail)</td><td><span class="hl-green">live</span></td><td>~30 threads scanned</td><td>2 drafts created (Redstone, Peter Wokes); GHL workflow errors filtered</td>
+          </tr>
+          <tr>
+            <td>Slack — COD bot</td><td><span class="hl-green">live</span></td><td>49 msgs / 8 channels</td><td>0 DMs in 24h</td>
+          </tr>
+          <tr>
+            <td>Slack — kasandz bot</td><td><span class="hl-amber">partial</span></td><td>18 msgs / 2 channels</td><td>4 channels needs invite</td>
+          </tr>
+          <tr>
+            <td>Fathom recaps</td><td><span class="hl-amber">degraded</span></td><td>—</td><td>MCP tools not loading; 2 recaps surfaced via email instead</td>
+          </tr>
+          <tr>
+            <td>BQ — sync-sheets</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
+          </tr>
+          <tr>
+            <td>BQ — sync-hyros</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
+          </tr>
+          <tr>
+            <td>BQ — sync-instantly</td><td><span class="hl-rose">skipped</span></td><td>—</td><td>gcloud auth expired</td>
+          </tr>
+          <tr>
+            <td>Cloud morning-intel JSON (GCS)</td><td><span class="hl-rose">unreachable</span></td><td>—</td><td>gcloud auth expired — local-fallback path used</td>
+          </tr>
+          <tr>
+            <td>@claude_sync</td><td><span class="hl-green">clean</span></td><td>0 captures</td><td>No tags in 24h window</td>
+          </tr>
+          <tr>
+            <td>Heartbeat skill</td><td><span class="hl-amber">missing</span></td><td>—</td><td>cli.mjs not present at .claude/skills/heartbeat/scripts/</td>
+          </tr>
+          <tr>
+            <td>Knowledge Compiler</td><td><span class="hl-amber">stale (12h57m)</span></td><td>last_run_status=no-op</td><td>Just past 12h threshold; no diff to compile (healthy intent)</td>
+          </tr>
+          <tr>
+            <td>Agency Brain (PC-C)</td><td><span class="hl-amber">offline</span></td><td>—</td><td>192.168.100.20:8080 unreachable; Brain not always running</td>
+          </tr>
+          <tr>
+            <td>Cache Health</td><td>80/100 WATCH</td><td>92% hit ratio</td><td>$562 saved last 24h; patch N/A on native installer</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Data architecture note</div>
+      <div class="insight-item">
+        <div class="item-detail">Per skill v4.1.0 cloud-primary trust model, the 5am morningIntelCollector Cloud Function should populate <code>gs://kamg-morning-intel/morning-intel-latest-2026-05-05.json</code> with calendar + Gmail + COD Slack + BQ KPIs. With gcloud auth dead, dashboard fell back to local sync outputs. Once auth is restored, the next /morning will read the cloud JSON directly and surface full COD KPI grid (ROAS, enrollments, ad-spend, funnel, closer-performance).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

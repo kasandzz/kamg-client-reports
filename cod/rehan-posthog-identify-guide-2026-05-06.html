@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostHog identify() — ELI5 Guide for Rehan</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0f; color: #e0e0e0; line-height: 1.6; }
+  .container { max-width: 880px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  h1 { font-size: 30px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.02em; }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 8px; }
+  .meta { color: #6b7280; font-size: 12px; margin-bottom: 32px; display:flex; gap: 14px; flex-wrap: wrap; }
+  .meta span { padding: 3px 10px; background: #14141c; border: 1px solid #1e1e2e; border-radius: 6px; }
+
+  h2 { font-size: 20px; color: #fff; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #1a1a2e; }
+  h2 .num { color: #c8a96e; font-weight: 400; margin-right: 10px; font-size: 16px; }
+  h3 { font-size: 15px; color: #fff; margin: 18px 0 8px; }
+
+  .tldr {
+    background: linear-gradient(135deg, #0d2818 0%, #0a1a0d 100%);
+    border: 1px solid #166534; border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 24px;
+  }
+  .tldr h3 { color: #4ade80; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; margin: 0 0 10px; }
+  .tldr p { color: #d1fae5; font-size: 14px; line-height: 1.7; }
+  .tldr p strong { color: #fff; }
+
+  .step-card {
+    background: #111118; border: 1px solid #1e1e2e; border-radius: 10px;
+    padding: 22px 26px; margin-bottom: 16px;
+  }
+  .step-num {
+    display: inline-block; background: #1e293b; color: #93c5fd; font-size: 11px;
+    font-weight: 700; padding: 3px 10px; border-radius: 5px; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .step-num.critical { background: #3b1111; color: #fca5a5; }
+  .step-num.optional { background: #14141c; color: #6b7280; }
+
+  p { color: #bbb; font-size: 14px; margin-bottom: 12px; }
+  p strong { color: #fff; }
+  p.muted { color: #888; font-size: 13px; }
+
+  ul, ol { color: #bbb; font-size: 14px; padding-left: 22px; margin-bottom: 12px; }
+  ul li, ol li { margin-bottom: 6px; }
+  ul li strong, ol li strong { color: #fff; }
+
+  .code-block {
+    background: #0f1117; border: 1px solid #1e293b; border-radius: 6px;
+    padding: 14px 16px; margin: 10px 0 14px; font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 12.5px; color: #93c5fd; line-height: 1.65; overflow-x: auto;
+    white-space: pre; tab-size: 2;
+  }
+  .code-block .comment { color: #6b7280; }
+  .code-block .string { color: #86efac; }
+  .code-block .keyword { color: #c4b5fd; }
+  .code-block .fn { color: #fbbf24; }
+
+  .before-after {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px;
+  }
+  @media (max-width: 600px) { .before-after { grid-template-columns: 1fr; } }
+  .ba-box { padding: 14px 16px; border-radius: 8px; font-size: 13px; line-height: 1.6; }
+  .ba-before { background: #1a0a0a; border: 1px solid #7f1d1d; }
+  .ba-after { background: #0a1a0d; border: 1px solid #166534; }
+  .ba-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 700; margin-bottom: 6px;
+  }
+  .ba-before .ba-label { color: #f87171; }
+  .ba-after .ba-label { color: #4ade80; }
+  .ba-before .ba-content { color: #fca5a5; }
+  .ba-after .ba-content { color: #86efac; }
+
+  .where-box {
+    background: #14141c; border-left: 3px solid #c8a96e; border-radius: 0 6px 6px 0;
+    padding: 12px 16px; margin: 10px 0 14px;
+  }
+  .where-box strong { color: #c8a96e; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; }
+  .where-box p { font-size: 13px; color: #d4d4d4; margin-bottom: 0; margin-top: 4px; }
+
+  .url-list { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 6px; padding: 12px 16px; margin: 10px 0 14px; }
+  .url-list .url-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .url-list .url-row:not(:last-child) { border-bottom: 1px solid #1e1e2e; }
+  .url-list .url-path { color: #93c5fd; }
+  .url-list .url-count { color: #6b7280; }
+
+  .check-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 14px; background: #0d0d14; border: 1px solid #1e1e2e;
+    border-radius: 6px; margin-bottom: 8px;
+  }
+  .check-icon { color: #4ade80; font-weight: 700; flex-shrink: 0; }
+  .check-item p { margin: 0; color: #d4d4d4; font-size: 13px; }
+
+  .warn {
+    background: #1a1008; border: 1px solid #92400e; border-radius: 8px;
+    padding: 14px 18px; margin: 16px 0;
+  }
+  .warn h4 { color: #fbbf24; font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 6px; }
+  .warn p { color: #fde68a; font-size: 13px; margin: 0; }
+
+  .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e1e2e; color: #6b7280; font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>PostHog identify() — ELI5 Guide</h1>
+  <p class="subtitle">For Rehan — unblocks MA/VSL Play Rate + Engagement metrics on the COD dashboard</p>
+  <div class="meta">
+    <span>Owner: Rehan</span>
+    <span>Effort: ~30 min</span>
+    <span>Priority: P0</span>
+    <span>Date: 2026-05-06</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TL;DR -->
+  <!-- ========================================== -->
+  <div class="tldr">
+    <h3>TL;DR</h3>
+    <p>
+      The COD dashboard's <strong>MA/VSL Funnel page</strong> currently shows "Pending PostHog" where Play Rate and Engagement should be.
+      That's because PostHog tracks every video event, but it can't tie those events to a specific person — so we can't say "this person watched 90% of the VSL and then enrolled."
+      You need to add <strong>one line of code</strong> on the MA/VSL pages: <code>posthog.identify(email)</code> — the moment we know the visitor's email.
+      Once that's live, the dashboard gauges flip from grey "Pending" to live numbers.
+    </p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Section 1: What's broken -->
+  <!-- ========================================== -->
+  <h2><span class="num">01</span>What's broken right now</h2>
+
+  <p>Look at the MA/VSL Funnel page on the dashboard. Two cards say <em>"Pending PostHog"</em>:</p>
+
+  <div class="before-after">
+    <div class="ba-box ba-before">
+      <div class="ba-label">Currently shows</div>
+      <div class="ba-content">
+        <strong style="color:#fff">Play Rate</strong><br>
+        Pending PostHog<br>
+        <span style="opacity:0.7">Proxy: 4,744 attended</span>
+      </div>
+    </div>
+    <div class="ba-box ba-after">
+      <div class="ba-label">Should show</div>
+      <div class="ba-content">
+        <strong style="color:#fff">Play Rate</strong><br>
+        72.4%<br>
+        <span style="opacity:0.7">3,435 of 4,744 actually played the video</span>
+      </div>
+    </div>
+  </div>
+
+  <p>The data is <em>already</em> in PostHog — every play, pause, scroll, and exit is being captured. But every event is tagged to an anonymous browser ID like <code style="color:#fbbf24">019de1df-f1e5-7c18-b5e9</code> instead of the visitor's email. So when we try to join PostHog video events with Hyros sales (which are keyed by email), nothing matches.</p>
+
+  <div class="warn">
+    <h4>Why this matters</h4>
+    <p>Russ asked for Play Rate + Engagement Rate on the MA/VSL page as part of his official KPI list. Right now those are the only two metrics on that page that aren't live. Fixing identify() unblocks them in one shot.</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Section 2: What identify() does -->
+  <!-- ========================================== -->
+  <h2><span class="num">02</span>What identify() actually does — in 3 sentences</h2>
+
+  <ol>
+    <li><strong>Before identify()</strong>: PostHog gives every browser a random anonymous ID (like a temporary cookie). Every event from that browser is tagged with that anonymous ID.</li>
+    <li><strong>You call <code>posthog.identify('jane@example.com')</code></strong>: PostHog now knows "this anonymous ID is actually jane@example.com." It rewrites all the anonymous events that happened earlier in this session as belonging to jane@example.com, and tags every future event with jane@example.com.</li>
+    <li><strong>After identify()</strong>: Now PostHog video events join cleanly with Hyros sales (both keyed on email). The dashboard query finishes, the Play Rate + Engagement gauges fill in.</li>
+  </ol>
+
+  <!-- ========================================== -->
+  <!-- Section 3: Where to add the code -->
+  <!-- ========================================== -->
+  <h2><span class="num">03</span>Where to add the line</h2>
+
+  <p>The MA/VSL funnel has these page paths in PostHog (last 30 days, real traffic):</p>
+
+  <div class="url-list">
+    <div class="url-row"><span class="url-path">/maf</span><span class="url-count">116,697 pageviews</span></div>
+    <div class="url-row"><span class="url-path">/maf-thanks</span><span class="url-count">6,667 pageviews</span></div>
+    <div class="url-row"><span class="url-path">/hto-apply</span><span class="url-count">1,284 pageviews</span></div>
+    <div class="url-row"><span class="url-path">/unbreakable-event-ma</span><span class="url-count">225 pageviews</span></div>
+    <div class="url-row"><span class="url-path">/unbreakable-signup-ma</span><span class="url-count">74 pageviews</span></div>
+  </div>
+
+  <p>Add identify() on <strong>every page where the email is known</strong>. That means:</p>
+
+  <div class="step-card">
+    <div class="step-num critical">Page A · maf-thanks (registration confirmation)</div>
+    <h3>The "Thanks for Registering" page</h3>
+    <p>This page renders <em>after</em> someone fills in their email on the MA/VSL signup form. The email is in the URL or in a server-rendered hidden field. <strong>This is the highest-leverage page to add identify().</strong></p>
+    <div class="where-box">
+      <strong>Find the email here</strong>
+      <p>Either a URL parameter like <code>?email=jane@example.com</code>, a server-rendered <code>&lt;input type="hidden" id="user-email" value="..."&gt;</code>, or a global JS variable. Whichever the form already uses.</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">Page B · maf (the VSL itself, when returning visitor)</div>
+    <h3>The VSL page — only if visitor is already a registered lead</h3>
+    <p>If GHL passes the email back via URL param when emailing the visitor a "watch the VSL" link, identify() should fire on page load too. Same code as Page A.</p>
+  </div>
+
+  <div class="step-card">
+    <div class="step-num">Page C · hto-apply (the application form page)</div>
+    <h3>The application form — fire identify() the moment they type their email</h3>
+    <p>If the application form has an email field, fire identify() on field <code>blur</code> (not on full submit) so we capture even abandoned applications.</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Section 4: The actual code -->
+  <!-- ========================================== -->
+  <h2><span class="num">04</span>The actual code</h2>
+
+  <h3>Option A — email already in URL or hidden field (simplest)</h3>
+  <p>Drop this in a <code>&lt;script&gt;</code> tag at the bottom of <code>/maf-thanks</code>:</p>
+
+  <div class="code-block">
+<span class="comment">// Wait for PostHog to be loaded (it's already on the page).</span>
+<span class="comment">// Then identify the visitor by email.</span>
+<span class="keyword">if</span> (<span class="keyword">window</span>.posthog) {
+  <span class="comment">// Pull email from wherever the form puts it.</span>
+  <span class="comment">// Pick whichever ONE applies to this page:</span>
+  <span class="keyword">const</span> email =
+    <span class="keyword">new</span> URLSearchParams(window.location.search).get(<span class="string">'email'</span>) ||
+    document.querySelector(<span class="string">'#user-email'</span>)?.value ||
+    <span class="keyword">window</span>.userEmail ||
+    <span class="keyword">null</span>;
+
+  <span class="keyword">if</span> (email <span class="keyword">&amp;&amp;</span> email.includes(<span class="string">'@'</span>)) {
+    posthog.<span class="fn">identify</span>(email.toLowerCase().trim(), {
+      email: email.toLowerCase().trim(),
+      <span class="comment">// Optional: any other known traits</span>
+      first_seen_page: window.location.pathname,
+    });
+  }
+}</div>
+
+  <h3>Option B — fire on form blur (for application form)</h3>
+
+  <div class="code-block">
+<span class="keyword">const</span> emailField = document.querySelector(<span class="string">'input[name="email"]'</span>);
+<span class="keyword">if</span> (emailField) {
+  emailField.<span class="fn">addEventListener</span>(<span class="string">'blur'</span>, () =&gt; {
+    <span class="keyword">const</span> email = emailField.value.<span class="fn">trim</span>().<span class="fn">toLowerCase</span>();
+    <span class="keyword">if</span> (email <span class="keyword">&amp;&amp;</span> email.<span class="fn">includes</span>(<span class="string">'@'</span>) <span class="keyword">&amp;&amp;</span> window.posthog) {
+      posthog.<span class="fn">identify</span>(email, { email });
+    }
+  });
+}</div>
+
+  <div class="warn">
+    <h4>3 things to NOT do</h4>
+    <p>
+      <strong>1. Do not</strong> call identify() before PostHog is loaded — guard with <code>if (window.posthog)</code>.<br>
+      <strong>2. Do not</strong> identify() with anything other than email lowercased + trimmed (or the joins will miss).<br>
+      <strong>3. Do not</strong> identify() on every keystroke — only on blur or after the email is confirmed.
+    </p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Section 5: How to test it -->
+  <!-- ========================================== -->
+  <h2><span class="num">05</span>How to verify it works (5 min)</h2>
+
+  <div class="check-item">
+    <div class="check-icon">✓</div>
+    <p><strong>Open the page in an incognito window.</strong> Triggers a fresh anonymous session.</p>
+  </div>
+
+  <div class="check-item">
+    <div class="check-icon">✓</div>
+    <p><strong>Open DevTools → Network tab → filter by "i.posthog.com".</strong> You should see a request fire when identify() runs.</p>
+  </div>
+
+  <div class="check-item">
+    <div class="check-icon">✓</div>
+    <p><strong>In the Network request payload, confirm <code>"distinct_id": "your-test-email@example.com"</code></strong> — not an anonymous UUID.</p>
+  </div>
+
+  <div class="check-item">
+    <div class="check-icon">✓</div>
+    <p><strong>Open PostHog → Activity → search for your test email.</strong> You should see your session attached to that email, not to an anonymous ID.</p>
+  </div>
+
+  <div class="check-item">
+    <div class="check-icon">✓</div>
+    <p><strong>Wait 6 hours, then open the COD dashboard MA/VSL Funnel page.</strong> Play Rate + Engagement gauges should now show numbers (not "Pending PostHog"). The 6h delay is the BigQuery sync window — events take that long to flow into the warehouse.</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- Section 6: What you don't need to worry about -->
+  <!-- ========================================== -->
+  <h2><span class="num">06</span>What you do NOT have to do</h2>
+
+  <ul>
+    <li><strong>Do not</strong> change the PostHog initialization code — PostHog is already on the page and capturing events. You're only adding identify() <em>after</em> it loads.</li>
+    <li><strong>Do not</strong> change anything in BigQuery, the warehouse, or the dashboard. Once identify() fires correctly, the existing pipeline picks it up automatically.</li>
+    <li><strong>Do not</strong> identify() server-side. PostHog identify() is browser-side. Server-side identify is a different API and not what we need here.</li>
+    <li><strong>Do not</strong> retroactively backfill old anonymous sessions — PostHog handles that automatically when identify() fires for the first time in a session.</li>
+  </ul>
+
+  <!-- ========================================== -->
+  <!-- Section 7: When you're done -->
+  <!-- ========================================== -->
+  <h2><span class="num">07</span>When you're done — ping Kas with</h2>
+
+  <ol>
+    <li>Which pages got identify() (URLs).</li>
+    <li>One screenshot of DevTools Network tab showing the identify() call going out with email as distinct_id.</li>
+    <li>One screenshot of PostHog Activity showing your test session attached to your email.</li>
+  </ol>
+
+  <p>That's it. The dashboard auto-fills from there.</p>
+
+  <div class="footer">
+    Generated for Rehan · 2026-05-06 · Question? DM Kas on Slack.
+  </div>
+
+</div>
+</body>
+</html>

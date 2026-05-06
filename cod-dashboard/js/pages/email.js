@@ -35,12 +35,13 @@ App.registerPage('email-intel', async (container) => {
   const _eiQueryErrors = {};
 
   const results = await Promise.allSettled([
-    API.query('email', 'default',  { days }),
-    API.query('email', 'daily',    { days }),
-    API.query('email', 'subjects', { days }),
+    API.query('email', 'default',         { days }),
+    API.query('email', 'daily',           { days }),
+    API.query('email', 'subjects',        { days }),
+    API.query('email', 'mailboxProvider', { days }),
   ]);
 
-  const queryNames = ['default', 'daily', 'subjects'];
+  const queryNames = ['default', 'daily', 'subjects', 'mailboxProvider'];
   const extract = (idx) => {
     if (results[idx].status === 'fulfilled') return results[idx].value;
     _eiQueryErrors[queryNames[idx]] = results[idx].reason?.message || 'Query failed';
@@ -50,6 +51,7 @@ App.registerPage('email-intel', async (container) => {
   const kpiRows = extract(0);
   const dailyRows = extract(1);
   const subjectRows = extract(2);
+  const providerRows = extract(3);
 
   const kpi = (kpiRows && kpiRows.length > 0) ? kpiRows[0] : {};
   container.innerHTML = '';
@@ -423,6 +425,152 @@ App.registerPage('email-intel', async (container) => {
     </div>
   `;
   grid.appendChild(gapCard);
+
+  // ---- Section: Mailbox Provider Deliverability (EMAIL-04) ----
+  // Source: cod_warehouse.sendgrid_mailbox_provider_stats (5M+ rows)
+  const providerSectionHeader = document.createElement('div');
+  providerSectionHeader.style.cssText = 'margin:32px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap';
+  providerSectionHeader.innerHTML = `
+    <div>
+      <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Mailbox Provider Deliverability</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Per-provider delivery, open, click, bounce + spam rates. Highlights inbox-placement issues by destination ESP.</div>
+    </div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: sendgrid_mailbox_provider_stats
+    </div>
+  `;
+  container.appendChild(providerSectionHeader);
+
+  const providerErr = _eiErrorCard('Mailbox provider stats', 'mailboxProvider');
+  if (providerErr) {
+    container.appendChild(providerErr);
+  } else if (!providerRows || providerRows.length === 0) {
+    container.appendChild(_eiEmptyState('mailbox provider'));
+  } else {
+    const providerGrid = document.createElement('div');
+    providerGrid.className = 'ei-chart-grid';
+    providerGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px';
+    container.appendChild(providerGrid);
+
+    // Chart A: Volume Donut (delivered share by provider)
+    const donutCard = document.createElement('div');
+    donutCard.className = 'card';
+    donutCard.style.cssText = 'padding:20px';
+    donutCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Delivered Share by Provider</div>`;
+
+    const donutDivId = 'email-provider-donut';
+    const donutDiv = document.createElement('div');
+    donutDiv.id = donutDivId;
+    donutDiv.style.height = '320px';
+    donutCard.appendChild(donutDiv);
+    providerGrid.appendChild(donutCard);
+
+    const donutLabels = providerRows.map(r => r.provider);
+    const donutValues = providerRows.map(r => Number(r.delivered) || 0);
+    const palette = [
+      Theme.FUNNEL.blue, Theme.FUNNEL.purple, Theme.FUNNEL.green,
+      Theme.FUNNEL.amber, Theme.FUNNEL.red, Theme.FUNNEL.cyan,
+      '#ec4899', '#a855f7', '#14b8a6', '#84cc16',
+      '#f97316', '#06b6d4', '#eab308', '#ef4444', '#6366f1'
+    ];
+
+    Plotly.newPlot(
+      donutDivId,
+      [{
+        type: 'pie',
+        hole: 0.55,
+        labels: donutLabels,
+        values: donutValues,
+        marker: { colors: palette.slice(0, donutLabels.length) },
+        textinfo: 'label+percent',
+        textposition: 'outside',
+        hovertemplate: '<b>%{label}</b><br>Delivered: %{value:,}<br>Share: %{percent}<extra></extra>',
+      }],
+      {
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 20, b: 20, l: 20, r: 20 },
+        showlegend: false,
+      },
+      Theme.PLOTLY_CONFIG
+    );
+
+    // Chart B: Per-Provider Rates Table
+    const tableCard = document.createElement('div');
+    tableCard.className = 'card';
+    tableCard.style.cssText = 'padding:20px;overflow-x:auto';
+    tableCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Provider Rates (delivery / open / click / bounce / spam)</div>`;
+
+    function _emailColorRate(value, type) {
+      if (value == null || isNaN(value)) return Theme.COLORS.textMuted;
+      const v = Number(value);
+      if (type === 'delivery') {
+        if (v >= 95) return '#22c55e';
+        if (v >= 90) return '#eab308';
+        return '#ef4444';
+      }
+      if (type === 'open') {
+        if (v >= 30) return '#22c55e';
+        if (v >= 20) return '#eab308';
+        return Theme.COLORS.textSecondary;
+      }
+      if (type === 'click') {
+        if (v >= 2) return '#22c55e';
+        if (v >= 1) return '#eab308';
+        return Theme.COLORS.textSecondary;
+      }
+      if (type === 'bounce') {
+        if (v >= 2) return '#ef4444';
+        if (v >= 1) return '#eab308';
+        return '#22c55e';
+      }
+      if (type === 'spam') {
+        if (v >= 0.1) return '#ef4444';
+        if (v >= 0.05) return '#eab308';
+        return '#22c55e';
+      }
+      return Theme.COLORS.textPrimary;
+    }
+    function _emailFmtPct(v) {
+      return v == null || isNaN(v) ? '–' : Number(v).toFixed(1) + '%';
+    }
+    function _emailFmtNum(v) {
+      return v == null ? '0' : Number(v).toLocaleString();
+    }
+
+    const headers = ['Provider', 'Delivered', 'Delivery %', 'Open %', 'Click %', 'Bounce %', 'Spam %'];
+    let tableHtml = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+            ${headers.map(h => `<th style="text-align:${h === 'Provider' ? 'left' : 'right'};padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    providerRows.forEach((r, i) => {
+      const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+      tableHtml += `
+        <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+          <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500">${_esc(r.provider)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${_emailFmtNum(r.delivered)}</td>
+          <td style="padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums;color:${_emailColorRate(r.delivery_rate, 'delivery')};font-weight:600">${_emailFmtPct(r.delivery_rate)}</td>
+          <td style="padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums;color:${_emailColorRate(r.open_rate, 'open')}">${_emailFmtPct(r.open_rate)}</td>
+          <td style="padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums;color:${_emailColorRate(r.click_rate, 'click')}">${_emailFmtPct(r.click_rate)}</td>
+          <td style="padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums;color:${_emailColorRate(r.bounce_rate, 'bounce')}">${_emailFmtPct(r.bounce_rate)}</td>
+          <td style="padding:8px 10px;text-align:right;font-variant-numeric:tabular-nums;color:${_emailColorRate(r.spam_rate, 'spam')}">${_emailFmtPct(r.spam_rate)}</td>
+        </tr>
+      `;
+    });
+    tableHtml += '</tbody></table>';
+    tableCard.innerHTML += tableHtml;
+    providerGrid.appendChild(tableCard);
+  }
 });
+
+function _esc(str) {
+  const el = document.createElement('span');
+  el.textContent = str || '';
+  return el.innerHTML;
+}
 
 App.onFilterChange(() => App.navigate('email-intel'));

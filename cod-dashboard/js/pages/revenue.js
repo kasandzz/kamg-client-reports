@@ -7,10 +7,10 @@ App.registerPage('revenue', async (container) => {
   const days = Filters.getDays();
 
   // ---- Fetch all data in parallel ----
-  let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn;
+  let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent;
 
   try {
-    [kpi, monthly, pipeline, processors, ltvCohorts, closers, churn] = await Promise.all([
+    [kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent] = await Promise.all([
       API.query('enrollment', 'default', { days }),
       API.query('enrollment', 'monthly', { days: 365 }),
       API.query('enrollment', 'pipeline', { days }),
@@ -18,6 +18,7 @@ App.registerPage('revenue', async (container) => {
       API.query('enrollment', 'ltvCohorts', { months: 12 }),
       API.query('enrollment', 'jodiConcentration', { days }),
       API.query('enrollment', 'churnAbsorption'),
+      API.query('enrollment', 'recentEnrollments', { limit: 20 }),
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Revenue & LTV: ${err.message}</p></div>`;
@@ -604,6 +605,82 @@ App.registerPage('revenue', async (container) => {
       },
     },
   });
+
+  // ======================================================
+  // SECTION: Recent Enrollments (last 20)
+  // ======================================================
+  const recentSection = document.createElement('div');
+  recentSection.style.cssText = 'margin-top:24px';
+  container.appendChild(recentSection);
+
+  const recentHeader = document.createElement('div');
+  recentHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px';
+  recentHeader.innerHTML = `
+    <div>
+      <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Recent Enrollments</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Last 20 high-ticket transactions ($100+) across all processors. Live from Stripe.</div>
+    </div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: v_stripe_clean
+    </div>
+  `;
+  recentSection.appendChild(recentHeader);
+
+  const recentCard = document.createElement('div');
+  recentCard.className = 'card';
+  recentCard.style.cssText = 'padding:0;overflow-x:auto';
+  recentSection.appendChild(recentCard);
+
+  if (!recent || recent.length === 0) {
+    recentCard.style.padding = '24px';
+    recentCard.innerHTML = '<div class="text-muted" style="text-align:center">No recent enrollments in the selected window.</div>';
+  } else {
+    function _processorBadge(p) {
+      const colors = {
+        'Stripe':       { bg: 'rgba(99,102,241,0.15)', fg: '#818cf8' },
+        'Authorize.net':{ bg: 'rgba(34,197,94,0.15)',  fg: '#4ade80' },
+        'PayPal':       { bg: 'rgba(6,182,212,0.15)',  fg: '#22d3ee' },
+        'Fanbasis':     { bg: 'rgba(245,158,11,0.15)', fg: '#fbbf24' }
+      };
+      const c = colors[p] || { bg: 'rgba(255,255,255,0.06)', fg: Theme.COLORS.textMuted };
+      return `<span style="background:${c.bg};color:${c.fg};padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">${_esc(p)}</span>`;
+    }
+
+    let html = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">When (CDMX)</th>
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Customer</th>
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Email</th>
+            <th style="text-align:right;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Amount</th>
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Processor</th>
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Card / Country</th>
+            <th style="text-align:left;padding:10px 12px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    recent.forEach((r, i) => {
+      const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+      const cardBrand = r.card_brand && r.card_brand !== 'n/a' ? r.card_brand.toUpperCase() : '';
+      const country = r.country && r.country !== 'n/a' ? r.country : '';
+      const cardCountry = [cardBrand, country].filter(Boolean).join(' · ') || '–';
+      html += `
+        <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+          <td style="padding:10px 12px;color:${Theme.COLORS.textSecondary};white-space:nowrap;font-variant-numeric:tabular-nums">${_esc(r.enrolled_at_cdmx)}</td>
+          <td style="padding:10px 12px;color:${Theme.COLORS.textPrimary};font-weight:500">${_esc(r.customer_name)}</td>
+          <td style="padding:10px 12px;color:${Theme.COLORS.textSecondary};font-family:JetBrains Mono,monospace;font-size:11px">${_esc(r.email)}</td>
+          <td style="padding:10px 12px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(Number(r.amount) || 0)}</td>
+          <td style="padding:10px 12px">${_processorBadge(r.processor)}</td>
+          <td style="padding:10px 12px;color:${Theme.COLORS.textMuted};font-size:11px">${_esc(cardCountry)}</td>
+          <td style="padding:10px 12px;color:${Theme.COLORS.textSecondary};font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.description)}">${_esc(r.description || '')}</td>
+        </tr>
+      `;
+    });
+    html += '</tbody></table>';
+    recentCard.innerHTML = html;
+  }
 });
 
 App.onFilterChange(() => App.navigate('revenue'));

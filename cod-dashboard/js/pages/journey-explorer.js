@@ -6,9 +6,19 @@
 App.registerPage('journey-explorer', async (container) => {
   const days = Filters.getDays();
 
-  let raw;
+  let raw, sankeyRows, speedRows, cohortRows;
+  const _jeErrors = {};
   try {
-    raw = await API.query('journey-explorer', 'default', { days });
+    const settled = await Promise.allSettled([
+      API.query('journey-explorer', 'default',        { days }),
+      API.query('journey-explorer', 'sankey',         { days }),
+      API.query('journey-explorer', 'speedToClose',   { days: Math.max(days, 180) }),
+      API.query('journey-explorer', 'cohortVelocity', { weeks: 12 }),
+    ]);
+    raw         = settled[0].status === 'fulfilled' ? settled[0].value : (_jeErrors.default = settled[0].reason?.message, null);
+    sankeyRows  = settled[1].status === 'fulfilled' ? settled[1].value : (_jeErrors.sankey = settled[1].reason?.message, null);
+    speedRows   = settled[2].status === 'fulfilled' ? settled[2].value : (_jeErrors.speed = settled[2].reason?.message, null);
+    cohortRows  = settled[3].status === 'fulfilled' ? settled[3].value : (_jeErrors.cohort = settled[3].reason?.message, null);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Journey Map: ${err.message}</p></div>`;
     return;
@@ -309,6 +319,343 @@ App.registerPage('journey-explorer', async (container) => {
   stageDetailSection.style.cssText = 'margin-top:16px';
   container.appendChild(stageDetailSection);
 
+  // ===================================================================
+  // SECTION: Sankey Journey Flow
+  // Source: bridge_customer_journey
+  // ===================================================================
+  const sankeyHeader = document.createElement('div');
+  sankeyHeader.style.cssText = 'margin:24px 0 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px';
+  sankeyHeader.innerHTML = `
+    <div>
+      <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Sankey Journey Flow</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">End-to-end flow from first-touch platform through every stage. Drop-offs visible as branching weight.</div>
+    </div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: bridge_customer_journey
+    </div>
+  `;
+  container.appendChild(sankeyHeader);
+
+  const sankeyCard = document.createElement('div');
+  sankeyCard.className = 'card';
+  sankeyCard.style.cssText = 'padding:20px';
+  container.appendChild(sankeyCard);
+
+  if (_jeErrors.sankey) {
+    sankeyCard.innerHTML = `<div class="text-muted" style="text-align:center;padding:24px">Sankey unavailable: ${_jeErrors.sankey}</div>`;
+  } else if (!sankeyRows || sankeyRows.length === 0) {
+    sankeyCard.innerHTML = '<div class="text-muted" style="text-align:center;padding:24px">No journey flow data in selected window.</div>';
+  } else {
+    const sankeyDivId = 'journey-sankey-flow';
+    const sankeyDiv = document.createElement('div');
+    sankeyDiv.id = sankeyDivId;
+    sankeyDiv.style.cssText = 'height:480px;width:100%';
+    sankeyCard.appendChild(sankeyDiv);
+
+    const _nodeColors = {
+      'Lead':                 '#6366f1',
+      'Ticket':               '#3b82f6',
+      'Lost: No Ticket':      '#ef4444',
+      'Attended':             '#06b6d4',
+      'No Show':              '#ef4444',
+      'Booked':               '#22c55e',
+      'No Booking':           '#ef4444',
+      'Showed':               '#84cc16',
+      'Call No Show':         '#ef4444',
+      'Enrolled':             '#eab308',
+      'Lost: Did Not Close':  '#ef4444',
+    };
+    const _platformColors = {
+      'facebook':  '#1877f2',
+      'google':    '#4285f4',
+      'youtube':   '#ff0000',
+      'tiktok':    '#69c9d0',
+      'general':   '#a855f7',
+      'unknown':   '#6b7280',
+      'automatic': '#14b8a6',
+    };
+
+    const nodeSet = new Set();
+    sankeyRows.forEach(r => {
+      nodeSet.add(r.from_node);
+      nodeSet.add(r.to_node);
+    });
+    const nodes = Array.from(nodeSet);
+    const nodeIdx = Object.fromEntries(nodes.map((n, i) => [n, i]));
+    const nodeColors = nodes.map(n => _nodeColors[n] || _platformColors[n] || '#6366f1');
+
+    Plotly.newPlot(
+      sankeyDivId,
+      [{
+        type: 'sankey',
+        orientation: 'h',
+        node: {
+          pad: 14,
+          thickness: 18,
+          line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
+          label: nodes,
+          color: nodeColors,
+        },
+        link: {
+          source: sankeyRows.map(r => nodeIdx[r.from_node]),
+          target: sankeyRows.map(r => nodeIdx[r.to_node]),
+          value:  sankeyRows.map(r => Number(r.value) || 0),
+          color: sankeyRows.map(r =>
+            r.to_node && r.to_node.startsWith('Lost') ? 'rgba(239,68,68,0.20)'
+            : r.to_node === 'No Show' || r.to_node === 'Call No Show' || r.to_node === 'No Booking' ? 'rgba(239,68,68,0.18)'
+            : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
+            : 'rgba(99,102,241,0.18)'
+          ),
+        },
+      }],
+      {
+        ...Theme.PLOTLY_LAYOUT,
+        font: { family: 'Manrope, sans-serif', size: 11, color: Theme.COLORS.textPrimary },
+        margin: { t: 10, b: 10, l: 10, r: 10 },
+      },
+      Theme.PLOTLY_CONFIG
+    );
+  }
+
+  // ===================================================================
+  // SECTION: Speed-to-Close Histogram + Cohort Velocity (2-col grid)
+  // ===================================================================
+  const splitGrid = document.createElement('div');
+  splitGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';
+  container.appendChild(splitGrid);
+
+  // ---- Speed-to-Close Histogram ----
+  const speedCard = document.createElement('div');
+  speedCard.className = 'card';
+  speedCard.style.cssText = 'padding:20px';
+  speedCard.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Speed-to-Close Histogram</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Days from first-touch to enrollment. Tail = nurture-driven closes.</div>
+      </div>
+    </div>
+  `;
+  splitGrid.appendChild(speedCard);
+
+  if (_jeErrors.speed || !speedRows || speedRows.length === 0) {
+    speedCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">${_jeErrors.speed || 'No close-velocity data.'}</div>`;
+  } else {
+    const speedDivId = 'journey-speed-histogram';
+    const speedDiv = document.createElement('div');
+    speedDiv.id = speedDivId;
+    speedDiv.style.cssText = 'height:340px;width:100%';
+    speedCard.appendChild(speedDiv);
+
+    Plotly.newPlot(
+      speedDivId,
+      [{
+        type: 'bar',
+        x: speedRows.map(r => r.bucket),
+        y: speedRows.map(r => Number(r.enrollments) || 0),
+        text: speedRows.map(r => {
+          const cash = Number(r.cash) || 0;
+          return cash > 0 ? Theme.money(cash) : '';
+        }),
+        textposition: 'outside',
+        marker: {
+          color: speedRows.map(r => {
+            if (r.bucket === 'Unknown') return '#6b7280';
+            const ord = Number(r.ord);
+            if (ord <= 1) return '#22c55e';
+            if (ord <= 3) return '#06b6d4';
+            if (ord <= 5) return '#eab308';
+            return '#ef4444';
+          }),
+        },
+        hovertemplate: '<b>%{x}</b><br>%{y} enrollments<extra></extra>',
+      }],
+      {
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 20, b: 60, l: 50, r: 20 },
+        xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickangle: -30 },
+        yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Enrollments' },
+      },
+      Theme.PLOTLY_CONFIG
+    );
+  }
+
+  // ---- Cohort Velocity Table ----
+  const cohortCard = document.createElement('div');
+  cohortCard.className = 'card';
+  cohortCard.style.cssText = 'padding:20px;overflow-x:auto';
+  cohortCard.innerHTML = `
+    <div style="margin-bottom:8px">
+      <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Cohort Velocity (Weekly)</div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Week-of-first-touch cohorts. Compare CVR + close speed across cohorts.</div>
+    </div>
+  `;
+  splitGrid.appendChild(cohortCard);
+
+  if (_jeErrors.cohort || !cohortRows || cohortRows.length === 0) {
+    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">${_jeErrors.cohort || 'No cohort data.'}</div>`;
+  } else {
+    let html = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+            <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Week</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Cohort</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Tickets</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Booked</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Enrolled</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">CVR</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Avg Days</th>
+            <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Cash</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    cohortRows.forEach((r, i) => {
+      const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+      const cvr = Number(r.overall_cvr_pct) || 0;
+      const cvrColor = cvr >= 5 ? Theme.COLORS.success : cvr >= 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+      const week = (r.cohort_week && (r.cohort_week.value || r.cohort_week)) || '';
+      html += `
+        <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+          <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500">${_esc(String(week).slice(0,10))}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.cohort_size) || 0)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.tickets) || 0)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.booked) || 0)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.num(Number(r.enrolled) || 0)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${cvrColor};font-weight:600;font-variant-numeric:tabular-nums">${cvr.toFixed(2)}%</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${r.avg_days_to_close != null ? Number(r.avg_days_to_close).toFixed(1) : '–'}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-variant-numeric:tabular-nums">${Theme.money(Number(r.cohort_cash) || 0)}</td>
+        </tr>
+      `;
+    });
+    html += '</tbody></table>';
+    cohortCard.innerHTML += html;
+  }
+
+  // ===================================================================
+  // SECTION: Individual Lookup
+  // Source: bridge_customer_journey by email substring
+  // ===================================================================
+  const lookupHeader = document.createElement('div');
+  lookupHeader.style.cssText = 'margin:24px 0 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px';
+  lookupHeader.innerHTML = `
+    <div>
+      <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Individual Lookup</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Search any contact's full journey by email. Returns up to 25 most recent matches.</div>
+    </div>
+  `;
+  container.appendChild(lookupHeader);
+
+  const lookupCard = document.createElement('div');
+  lookupCard.className = 'card';
+  lookupCard.style.cssText = 'padding:20px';
+  container.appendChild(lookupCard);
+
+  const lookupForm = document.createElement('div');
+  lookupForm.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+  lookupForm.innerHTML = `
+    <input id="je-lookup-input" type="text" placeholder="Search by email (e.g. gmail.com or jane@example)" style="flex:1;min-width:240px;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:${Theme.COLORS.textPrimary};font-family:inherit;font-size:13px" />
+    <button id="je-lookup-btn" style="padding:10px 18px;background:${Theme.COLORS.accent};border:none;border-radius:8px;color:#fff;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Search</button>
+    <span id="je-lookup-status" style="font-size:11px;color:${Theme.COLORS.textMuted};margin-left:4px"></span>
+  `;
+  lookupCard.appendChild(lookupForm);
+
+  const lookupResults = document.createElement('div');
+  lookupResults.id = 'je-lookup-results';
+  lookupResults.style.cssText = 'margin-top:16px';
+  lookupCard.appendChild(lookupResults);
+
+  function _yn(v) { return v ? '✓' : '–'; }
+  function _fmtTs(t) {
+    if (!t) return '–';
+    const v = t.value || t;
+    return String(v).replace('T', ' ').slice(0, 16);
+  }
+
+  async function _runLookup() {
+    const input = document.getElementById('je-lookup-input');
+    const status = document.getElementById('je-lookup-status');
+    const results = document.getElementById('je-lookup-results');
+    const q = (input.value || '').trim();
+    if (q.length < 3) {
+      status.textContent = 'Min 3 characters.';
+      status.style.color = '#eab308';
+      return;
+    }
+    status.textContent = 'Searching…';
+    status.style.color = Theme.COLORS.textMuted;
+    results.innerHTML = '';
+
+    let rows;
+    try {
+      rows = await API.query('journey-explorer', 'individualLookup', { q });
+    } catch (err) {
+      status.textContent = 'Error: ' + err.message;
+      status.style.color = '#ef4444';
+      return;
+    }
+
+    if (!rows || rows.length === 0) {
+      status.textContent = 'No matches';
+      status.style.color = Theme.COLORS.textMuted;
+      results.innerHTML = '<div class="text-muted" style="text-align:center;padding:24px">No journey data for that email.</div>';
+      return;
+    }
+
+    status.textContent = `${rows.length} match${rows.length === 1 ? '' : 'es'}`;
+    status.style.color = '#22c55e';
+
+    let html = `
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+              <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Email</th>
+              <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Source</th>
+              <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">First Touch</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Lead</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Ticket</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Attended</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Booked</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Showed</th>
+              <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Enrolled</th>
+              <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Cash</th>
+              <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Days</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    rows.forEach((r, i) => {
+      const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+      const enrolled = r.enrolled === true || r.enrolled === 'true';
+      html += `
+        <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+          <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500;font-family:JetBrains Mono,monospace;font-size:11px">${_esc(r.email || '')}</td>
+          <td style="padding:8px 10px;color:${Theme.COLORS.textSecondary};font-size:11px">${_esc(r.first_touch_platform || '–')}</td>
+          <td style="padding:8px 10px;color:${Theme.COLORS.textMuted};font-size:11px">${_fmtTs(r.first_touch_date)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${r.lead_created ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.lead_created)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${r.ticket_purchased ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.ticket_purchased)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${r.workshop_attended ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.workshop_attended)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${r.call_booked ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.call_booked)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${r.call_showed ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.call_showed)}</td>
+          <td style="padding:8px 10px;text-align:center;color:${enrolled ? '#eab308' : Theme.COLORS.textMuted};font-weight:${enrolled ? '700' : '400'}">${enrolled ? '★' : '–'}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-variant-numeric:tabular-nums">${Theme.money(Number(r.total_cash) || 0)}</td>
+          <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${r.days_lead_to_sale != null ? r.days_lead_to_sale : '–'}</td>
+        </tr>
+      `;
+    });
+    html += '</tbody></table></div>';
+    results.innerHTML = html;
+  }
+
+  setTimeout(() => {
+    const btn = document.getElementById('je-lookup-btn');
+    const input = document.getElementById('je-lookup-input');
+    if (btn) btn.addEventListener('click', _runLookup);
+    if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') _runLookup(); });
+  }, 0);
+
   // ---- Data gap callout ----
   const gapCard = document.createElement('div');
   gapCard.className = 'card';
@@ -328,6 +675,13 @@ App.registerPage('journey-explorer', async (container) => {
   `;
   container.appendChild(gapCard);
 });
+
+// HTML-escape helper used by the Cohort Velocity table + Individual Lookup search.
+function _esc(str) {
+  const el = document.createElement('span');
+  el.textContent = str == null ? '' : String(str);
+  return el.innerHTML;
+}
 
 // ---- Stage Detail inline renderer ----
 const _STAGE_DEFS = {

@@ -10,6 +10,7 @@ App.registerPage('ads-meta', async (container) => {
 
   let kpis, campaigns, adsets, daily, unitEconData, dailyCompare;
   let stalenessData, retargetingData, wastedSpendData, creativeFatigueData;
+  let sourceAttrData, ageGenderData, deviceData, scatterData;
 
   // Staleness check first
   try {
@@ -21,15 +22,23 @@ App.registerPage('ads-meta', async (container) => {
   } catch (_) {}
 
   try {
-    [kpis, campaigns, adsets, daily, unitEconData, retargetingData, wastedSpendData, creativeFatigueData] = await Promise.all([
-      API.query('ads-meta', 'default',         { days }),
-      API.query('ads-meta', 'campaigns',       { days }),
-      API.query('ads-meta', 'adsets',          { days }),
-      API.query('ads-meta', 'daily',           { days }),
-      API.query('ads-meta', 'unitEcon',        { days }).catch(() => null),
-      API.query('ads-meta', 'retargeting',     { days }).catch(() => null),
-      API.query('ads-meta', 'wastedSpend',     { days }).catch(() => null),
-      API.query('ads-meta', 'creativeFatigue', { days: 14 }).catch(() => null),
+    [
+      kpis, campaigns, adsets, daily, unitEconData, retargetingData,
+      wastedSpendData, creativeFatigueData,
+      sourceAttrData, ageGenderData, deviceData, scatterData
+    ] = await Promise.all([
+      API.query('ads-meta', 'default',              { days }),
+      API.query('ads-meta', 'campaigns',            { days }),
+      API.query('ads-meta', 'adsets',               { days }),
+      API.query('ads-meta', 'daily',                { days }),
+      API.query('ads-meta', 'unitEcon',             { days }).catch(() => null),
+      API.query('ads-meta', 'retargeting',          { days }).catch(() => null),
+      API.query('ads-meta', 'wastedSpend',          { days }).catch(() => null),
+      API.query('ads-meta', 'creativeFatigue',      { days: 14 }).catch(() => null),
+      API.query('ads-meta', 'sourceAttribution').catch(() => null),
+      API.query('ads-meta', 'demographicsAgeGender',{ days }).catch(() => null),
+      API.query('ads-meta', 'demographicsDevice',   { days }).catch(() => null),
+      API.query('ads-meta', 'scatterAdSets',        { days }).catch(() => null),
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Ads (Meta): ${err.message}</p></div>`;
@@ -166,11 +175,14 @@ App.registerPage('ads-meta', async (container) => {
   // ---- Creative Fatigue Indicators (AMETA-06) ----
   try { _renderCreativeFatigue(container, creativeFatigueData); } catch (e) { console.warn('Creative fatigue error:', e); }
 
-  // ---- Source Attribution (deferred) ----
-  _renderDeferredPlaceholder(container, 'Source Attribution', 'Source attribution requires Hyros API integration. Coming in Attribution page (Phase 3).');
+  // ---- Source Attribution (LIVE: mv_attribution_comparison + meta_ad_performance) ----
+  try { _renderSourceAttribution(container, sourceAttrData); } catch (e) { console.warn('Source attribution error:', e); }
 
-  // ---- Demographic Intelligence (deferred) ----
-  _renderDeferredPlaceholder(container, 'Demographic Intelligence', 'Demographic intelligence requires Meta API demographic breakdowns. Deferred to v2 (ENH-02).');
+  // ---- Demographic Intelligence (LIVE: meta_demographics_*) ----
+  try { _renderDemographics(container, ageGenderData, deviceData); } catch (e) { console.warn('Demographics error:', e); }
+
+  // ---- Spend x ROAS Scatter (LIVE: meta_ad_performance per ad-set) ----
+  try { _renderSpendRoasScatter(container, scatterData); } catch (e) { console.warn('Scatter error:', e); }
 });
 
 // ---------------------------------------------------------------------------
@@ -805,5 +817,311 @@ function _renderDeferredPlaceholder(container, title, message) {
   card.style.marginTop = '16px';
   card.innerHTML += `<p style="color:${Theme.COLORS.textMuted};font-size:13px;font-style:italic">${message}</p>`;
   container.appendChild(card);
+}
+
+// ---------------------------------------------------------------------------
+// Source Attribution (LIVE)
+// Source: cod_warehouse.mv_attribution_comparison (Hyros) + meta_ad_performance
+// ---------------------------------------------------------------------------
+
+function _esc(s) {
+  const el = document.createElement('span');
+  el.textContent = s == null ? '' : String(s);
+  return el.innerHTML;
+}
+
+function _renderSourceAttribution(container, data) {
+  if (!data || data.length === 0) {
+    _renderDeferredPlaceholder(container, 'Source Attribution', 'No Hyros-attributed Meta sources in the current window.');
+    return;
+  }
+
+  const card = _metaCard('Source Attribution');
+  card.style.marginTop = '16px';
+  card.style.gridColumn = '1 / -1';
+  container.appendChild(card);
+
+  const headerRow = document.createElement('div');
+  headerRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px';
+  headerRow.innerHTML = `
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted};max-width:560px">Top sources by Hyros-attributed revenue. Spend joined from <code>meta_ad_performance.campaign_name</code> (365d). Empty spend = source ran outside that window.</div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: mv_attribution_comparison
+    </div>
+  `;
+  card.appendChild(headerRow);
+
+  const tableWrap = document.createElement('div');
+  tableWrap.style.cssText = 'overflow-x:auto;margin-top:8px';
+  card.appendChild(tableWrap);
+
+  let html = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+          <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Source / Campaign</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Spend</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Leads</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Conversions</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Hyros Revenue</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">CAC</th>
+          <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">ROAS</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  data.forEach((r, i) => {
+    const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+    const roas = Number(r.roas) || 0;
+    const roasColor = roas >= 3 ? Theme.COLORS.success : roas >= 1 ? Theme.COLORS.warning : roas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+    const spend = Number(r.spend) || 0;
+    const cac = Number(r.cac) || 0;
+    html += `
+      <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+        <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.source || '')}">${_esc(r.source || '')}</td>
+        <td style="padding:8px 10px;text-align:right;color:${spend > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${spend > 0 ? Theme.money(spend) : '–'}</td>
+        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.leads) || 0)}</td>
+        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.conversions) || 0)}</td>
+        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(Number(r.revenue) || 0)}</td>
+        <td style="padding:8px 10px;text-align:right;color:${cac > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${cac > 0 ? Theme.money(cac) : '–'}</td>
+        <td style="padding:8px 10px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roas > 0 ? roas.toFixed(2) + 'x' : '–'}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table>';
+  tableWrap.innerHTML = html;
+}
+
+// ---------------------------------------------------------------------------
+// Demographic Intelligence (LIVE)
+// Source: cod_warehouse.meta_demographics_age_gender + meta_demographics_device
+// ---------------------------------------------------------------------------
+
+function _renderDemographics(container, ageGenderData, deviceData) {
+  const hasAge = ageGenderData && ageGenderData.length > 0;
+  const hasDevice = deviceData && deviceData.length > 0;
+
+  if (!hasAge && !hasDevice) {
+    _renderDeferredPlaceholder(container, 'Demographic Intelligence', 'No demographic breakdown data available for the current window.');
+    return;
+  }
+
+  const sectionHeader = document.createElement('div');
+  sectionHeader.style.cssText = 'margin:24px 0 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px';
+  sectionHeader.innerHTML = `
+    <div>
+      <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Demographic Intelligence</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Age × gender heatmap + device split. Sourced from Meta breakdown API.</div>
+    </div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: meta_demographics_*
+    </div>
+  `;
+  container.appendChild(sectionHeader);
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px';
+  container.appendChild(grid);
+
+  // ----- Card 1: Age × Gender heatmap (Plotly heatmap, ROAS color)
+  const ageCard = _metaCard('Age × Gender · ROAS Heatmap');
+  ageCard.style.marginTop = '0';
+  grid.appendChild(ageCard);
+
+  if (!hasAge) {
+    ageCard.innerHTML += `<p style="color:${Theme.COLORS.textMuted};font-size:12px;padding:8px">No age/gender data available.</p>`;
+  } else {
+    const ageBuckets = Array.from(new Set(ageGenderData.map(r => r.age))).sort();
+    const genders = Array.from(new Set(ageGenderData.map(r => r.gender))).sort();
+    const lookup = {};
+    ageGenderData.forEach(r => {
+      lookup[r.age + '|' + r.gender] = r;
+    });
+
+    const z = genders.map(g => ageBuckets.map(a => {
+      const cell = lookup[a + '|' + g];
+      return cell ? Number(cell.roas) || 0 : null;
+    }));
+    const text = genders.map(g => ageBuckets.map(a => {
+      const cell = lookup[a + '|' + g];
+      if (!cell) return '';
+      return `Spend: ${Theme.money(cell.spend)}<br>Revenue: ${Theme.money(cell.revenue)}<br>ROAS: ${(Number(cell.roas) || 0).toFixed(2)}x<br>Conversions: ${cell.purchases}`;
+    }));
+
+    const heatDivId = 'meta-age-gender-heatmap';
+    const heatDiv = document.createElement('div');
+    heatDiv.id = heatDivId;
+    heatDiv.style.cssText = 'height:280px;width:100%';
+    ageCard.appendChild(heatDiv);
+
+    Plotly.newPlot(
+      heatDivId,
+      [{
+        type: 'heatmap',
+        x: ageBuckets,
+        y: genders,
+        z,
+        text,
+        hoverinfo: 'text',
+        colorscale: [
+          [0, '#7f1d1d'], [0.25, '#ef4444'], [0.5, '#eab308'], [0.75, '#22c55e'], [1, '#10b981']
+        ],
+        zmin: 0, zmax: 3,
+        colorbar: { title: { text: 'ROAS', font: { size: 10, color: Theme.COLORS.textMuted } }, tickfont: { size: 9, color: Theme.COLORS.textMuted } },
+      }],
+      {
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 10, b: 50, l: 70, r: 30 },
+        xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, title: 'Age' },
+        yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Gender' },
+      },
+      Theme.PLOTLY_CONFIG
+    );
+  }
+
+  // ----- Card 2: Device Split donut + table
+  const deviceCard = _metaCard('Device Split');
+  deviceCard.style.marginTop = '0';
+  grid.appendChild(deviceCard);
+
+  if (!hasDevice) {
+    deviceCard.innerHTML += `<p style="color:${Theme.COLORS.textMuted};font-size:12px;padding:8px">No device data available.</p>`;
+  } else {
+    const deviceDivId = 'meta-device-donut';
+    const deviceDiv = document.createElement('div');
+    deviceDiv.id = deviceDivId;
+    deviceDiv.style.cssText = 'height:200px;width:100%';
+    deviceCard.appendChild(deviceDiv);
+
+    const palette = ['#3b82f6', '#a855f7', '#06b6d4', '#6b7280', '#22c55e', '#eab308'];
+    Plotly.newPlot(
+      deviceDivId,
+      [{
+        type: 'pie',
+        hole: 0.55,
+        labels: deviceData.map(r => r.device_platform),
+        values: deviceData.map(r => Number(r.spend) || 0),
+        marker: { colors: palette.slice(0, deviceData.length) },
+        textinfo: 'label+percent',
+        textposition: 'outside',
+        hovertemplate: '<b>%{label}</b><br>Spend: $%{value:,.0f}<br>Share: %{percent}<extra></extra>',
+      }],
+      {
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 10, b: 10, l: 10, r: 10 },
+        showlegend: false,
+      },
+      Theme.PLOTLY_CONFIG
+    );
+
+    // Compact table below the donut
+    let dHtml = `
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.08)">
+            <th style="text-align:left;padding:6px 8px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:9px">Device</th>
+            <th style="text-align:right;padding:6px 8px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:9px">Spend</th>
+            <th style="text-align:right;padding:6px 8px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:9px">Conv</th>
+            <th style="text-align:right;padding:6px 8px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:9px">ROAS</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    deviceData.forEach(r => {
+      const roas = Number(r.roas) || 0;
+      const roasColor = roas >= 3 ? Theme.COLORS.success : roas >= 1 ? Theme.COLORS.warning : Theme.COLORS.danger;
+      dHtml += `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+          <td style="padding:6px 8px;color:${Theme.COLORS.textPrimary}">${_esc(r.device_platform)}</td>
+          <td style="padding:6px 8px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.money(Number(r.spend) || 0)}</td>
+          <td style="padding:6px 8px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.purchases) || 0)}</td>
+          <td style="padding:6px 8px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roas.toFixed(2)}x</td>
+        </tr>
+      `;
+    });
+    dHtml += '</tbody></table>';
+    deviceCard.innerHTML += dHtml;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Spend × ROAS Scatter (LIVE)
+// Source: cod_warehouse.meta_ad_performance per ad_set
+// ---------------------------------------------------------------------------
+
+function _renderSpendRoasScatter(container, data) {
+  if (!data || data.length === 0) {
+    return;
+  }
+
+  const sectionHeader = document.createElement('div');
+  sectionHeader.style.cssText = 'margin:24px 0 12px';
+  sectionHeader.innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Spend × ROAS Scatter</div>
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Each dot = one ad set (≥$50 spend). Top-right = high spend + high ROAS (scale these). Bottom-right = burning budget (kill or fix).</div>
+  `;
+  container.appendChild(sectionHeader);
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'padding:20px';
+  container.appendChild(card);
+
+  const divId = 'meta-spend-roas-scatter';
+  const div = document.createElement('div');
+  div.id = divId;
+  div.style.cssText = 'height:420px;width:100%';
+  card.appendChild(div);
+
+  const xs = data.map(r => Number(r.spend) || 0);
+  const ys = data.map(r => Number(r.roas) || 0);
+  const sizes = data.map(r => Math.max(8, Math.min(40, Math.sqrt(Number(r.spend) || 0) / 3)));
+  const colors = ys.map(y => y >= 3 ? '#22c55e' : y >= 1 ? '#eab308' : '#ef4444');
+  const labels = data.map(r => r.ad_set_name || '(unnamed)');
+  const hover = data.map(r => `<b>${(r.ad_set_name || '').replace(/[<>]/g, '')}</b><br>Campaign: ${(r.campaign_name || '').replace(/[<>]/g, '')}<br>Spend: ${Theme.money(Number(r.spend) || 0)}<br>Revenue: ${Theme.money(Number(r.revenue) || 0)}<br>ROAS: ${(Number(r.roas) || 0).toFixed(2)}x<br>Conversions: ${r.conversions}`);
+
+  Plotly.newPlot(
+    divId,
+    [{
+      type: 'scatter',
+      mode: 'markers',
+      x: xs,
+      y: ys,
+      text: labels,
+      hovertext: hover,
+      hoverinfo: 'text',
+      marker: {
+        size: sizes,
+        color: colors,
+        line: { color: 'rgba(255,255,255,0.2)', width: 0.5 },
+        opacity: 0.75,
+      },
+    }],
+    {
+      ...Theme.PLOTLY_LAYOUT,
+      margin: { t: 30, b: 60, l: 60, r: 30 },
+      xaxis: {
+        ...Theme.PLOTLY_LAYOUT.xaxis,
+        type: 'log',
+        title: 'Spend (log scale, $)',
+        tickformat: '$,.0f',
+      },
+      yaxis: {
+        ...Theme.PLOTLY_LAYOUT.yaxis,
+        title: 'ROAS (x)',
+        zeroline: true,
+        zerolinecolor: 'rgba(255,255,255,0.15)',
+      },
+      shapes: [
+        { type: 'line', x0: Math.min(...xs), x1: Math.max(...xs), y0: 1, y1: 1, line: { color: 'rgba(234,179,8,0.4)', width: 1, dash: 'dot' } },
+        { type: 'line', x0: Math.min(...xs), x1: Math.max(...xs), y0: 3, y1: 3, line: { color: 'rgba(34,197,94,0.4)', width: 1, dash: 'dot' } },
+      ],
+      annotations: [
+        { x: Math.max(...xs), y: 1, text: 'Break-even (1x)', showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { size: 10, color: '#eab308' } },
+        { x: Math.max(...xs), y: 3, text: 'Target (3x)', showarrow: false, xanchor: 'right', yanchor: 'bottom', font: { size: 10, color: '#22c55e' } },
+      ],
+    },
+    Theme.PLOTLY_CONFIG
+  );
 }
 

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redstone SEO Research, Eric Brief, May 7, 2026</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: var(--rs-bg);
+    color: var(--rs-fg);
+    font-family: var(--rs-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 96px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid var(--rs-border);
+    margin-bottom: 32px; font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+  }
+  .topbar .brand {
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .topbar .brand span { color: var(--rs-red); }
+
+  .hero { margin-bottom: 48px; }
+  .hero .eyebrow {
+    font-size: var(--rs-text-sm); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium); margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 44px; line-height: 1.06;
+    letter-spacing: var(--rs-tracking-tightest);
+    font-weight: var(--rs-weight-regular); margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    max-width: 780px;
+  }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rs-border);
+    margin-bottom: 48px;
+  }
+  .kpi {
+    padding: 22px 20px;
+    border-right: 1px solid var(--rs-border);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi .label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-size: 28px; line-height: 1.05;
+    letter-spacing: var(--rs-tracking-tight);
+    font-weight: var(--rs-weight-regular);
+    color: var(--rs-fg); margin-bottom: 4px;
+  }
+  .kpi .value.red { color: var(--rs-red); }
+  .kpi .delta {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+
+  section { margin-bottom: 56px; }
+  section h2 {
+    font-size: var(--rs-text-4xl); line-height: 1.15;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 8px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--rs-border);
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  section h2 .count {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light); letter-spacing: 0;
+  }
+  section .lede {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    margin-bottom: 24px; max-width: 780px;
+  }
+
+  /* Tables, the workhorse */
+  table.rs {
+    width: 100%; border-collapse: collapse;
+    font-size: var(--rs-text-sm);
+    background: var(--rs-bg);
+  }
+  table.rs th, table.rs td {
+    padding: 12px 14px; border-bottom: 1px solid var(--rs-border);
+    text-align: left; vertical-align: top; line-height: 1.45;
+  }
+  table.rs th {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    border-bottom: 1px solid var(--rs-border-strong);
+    background: var(--rs-bg-alt);
+  }
+  table.rs td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.rs tbody tr:hover { background: var(--rs-bg-alt); }
+  table.rs td strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+
+  /* Decision cards, the headline section */
+  .decisions {
+    display: grid; grid-template-columns: 1fr; gap: 0;
+    border: 1px solid var(--rs-border-strong);
+    margin-bottom: 16px;
+  }
+  .decision {
+    padding: 24px; border-bottom: 1px solid var(--rs-border);
+    display: grid; grid-template-columns: 60px 1fr 200px;
+    gap: 24px; align-items: start;
+  }
+  .decision:last-child { border-bottom: none; }
+  .decision .num {
+    font-size: 36px; line-height: 0.9;
+    color: var(--rs-red); font-weight: var(--rs-weight-light);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .decision .body .q {
+    font-size: var(--rs-text-md); color: var(--rs-fg);
+    font-weight: var(--rs-weight-medium); margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .decision .body .ctx {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+  }
+  .decision .meta {
+    font-size: var(--rs-text-xs);
+    color: var(--rs-fg-tertiary);
+    line-height: 1.5;
+  }
+  .decision .meta strong { color: var(--rs-fg); display: block; margin-bottom: 4px; font-weight: var(--rs-weight-medium); }
+  .decision .meta .impact-high { color: var(--rs-red); }
+  .decision .meta .impact-med { color: rgb(200, 120, 20); }
+
+  /* Opportunity cards */
+  .opps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-bottom: 16px;
+  }
+  .opp {
+    border: 1px solid var(--rs-border);
+    padding: 22px 20px;
+    background: var(--rs-bg);
+  }
+  .opp .tag {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--rs-red); font-weight: var(--rs-weight-medium);
+    margin-bottom: 12px;
+  }
+  .opp .h {
+    font-size: var(--rs-text-2xl); line-height: 1.2;
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    margin-bottom: 8px; letter-spacing: var(--rs-tracking-tight);
+  }
+  .opp .num {
+    font-size: 28px; color: var(--rs-fg); font-weight: var(--rs-weight-regular);
+    margin-bottom: 4px; letter-spacing: var(--rs-tracking-tight);
+  }
+  .opp .num span {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light); margin-left: 6px;
+  }
+  .opp .desc {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    margin-top: 12px;
+  }
+
+  /* Phase strip */
+  .phase-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--rs-border);
+    margin-bottom: 16px;
+  }
+  .phase {
+    padding: 20px; border-right: 1px solid var(--rs-border);
+  }
+  .phase:last-child { border-right: none; }
+  .phase .label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-red); font-weight: var(--rs-weight-medium);
+    margin-bottom: 6px;
+  }
+  .phase .days {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    margin-bottom: 12px; font-weight: var(--rs-weight-light);
+  }
+  .phase .pages {
+    font-size: 32px; color: var(--rs-fg);
+    font-weight: var(--rs-weight-regular); letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 4px;
+  }
+  .phase .pages span { font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary); margin-left: 4px; }
+  .phase .focus {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    margin-top: 8px;
+  }
+
+  /* Sitemap tree */
+  .tree {
+    background: var(--rs-bg-alt);
+    border: 1px solid var(--rs-border);
+    padding: 24px;
+    font-family: var(--rs-font-mono);
+    font-size: 13px; line-height: 1.7;
+    color: var(--rs-fg);
+    overflow-x: auto;
+  }
+  .tree .node-h { color: var(--rs-red); font-weight: var(--rs-weight-medium); }
+  .tree .node-c { color: var(--rs-fog); }
+  .tree .node-n { color: rgb(46, 132, 84); }
+
+  /* Tag pills inline */
+  .pill {
+    display: inline-block; font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border: 1px solid var(--rs-border-strong);
+    color: var(--rs-fg-secondary);
+    margin-left: 6px; vertical-align: middle;
+    border-radius: var(--rs-radius-xs);
+    font-weight: var(--rs-weight-medium);
+  }
+  .pill.p0 { color: var(--rs-red); border-color: var(--rs-red); }
+  .pill.p1 { color: rgb(200, 120, 20); border-color: rgb(200, 120, 20); }
+  .pill.p2 { color: rgb(60, 80, 180); border-color: rgb(60, 80, 180); }
+  .pill.kd0 { color: rgb(46, 132, 84); border-color: rgb(46, 132, 84); }
+
+  .footer {
+    margin-top: 64px; padding-top: 24px;
+    border-top: 1px solid var(--rs-border);
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    line-height: 1.6;
+  }
+  .footer a { color: var(--rs-red); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  .callout {
+    border-left: 3px solid var(--rs-red);
+    background: var(--rs-bg-alt);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: var(--rs-text-sm);
+    line-height: 1.55;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  .callout strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+
+  @media (max-width: 860px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi:nth-child(2n) { border-right: none; }
+    .opps { grid-template-columns: 1fr; }
+    .phase-strip { grid-template-columns: 1fr; }
+    .phase { border-right: none; border-bottom: 1px solid var(--rs-border); }
+    .phase:last-child { border-bottom: none; }
+    .decision { grid-template-columns: 40px 1fr; }
+    .decision .meta { grid-column: 1 / -1; padding-left: 64px; }
+    .hero h1 { font-size: 32px; }
+    body { padding: 24px 16px 64px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand">Redstone <span>×</span> KAMG</div>
+  <div>SEO Research Brief · Prepared for May 7, 2026 Eric Sync</div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Outrider Digital · SEO Foundation</div>
+  <h1>Jack's keyword research, sitemap, and 90-day build plan</h1>
+  <p class="sub">
+    Jack pulled 90 keywords across seven service categories, mapped them to a 71-page sitemap,
+    and phased a 90-day build. This brief surfaces what you need to decide on Thursday,
+    where the unfair advantages are, and the assumptions Jack made that we should pressure-test before sign-off.
+  </p>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="label">Target Keywords</div>
+    <div class="value">90</div>
+    <div class="delta">7 service categories + geo + industry</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Monthly Search Volume</div>
+    <div class="value red">47,990</div>
+    <div class="delta">US, addressable across 90 KWs</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Pages In Build</div>
+    <div class="value">71</div>
+    <div class="delta">25 P0 · 40 P1 · 6 P2</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Days To Launch</div>
+    <div class="value">90</div>
+    <div class="delta">From sign-off, mid-June target</div>
+  </div>
+</div>
+
+<section>
+  <h2>Five decisions for Thursday <span class="count">Eric must approve before Friday build start</span></h2>
+  <p class="lede">
+    Jack's plan locks in the moment you sign off the sitemap. These five questions are the only places
+    where his recommendations carry an open dependency on you. Everything else, he can run.
+  </p>
+
+  <div class="decisions">
+
+    <div class="decision">
+      <div class="num">01</div>
+      <div class="body">
+        <div class="q">Sitemap approval: 71 pages over 90 days. Anything you want removed or deferred?</div>
+        <div class="ctx">
+          25 P0 (geo + homepage), 40 P1 (service hubs, material spokes, comparison content), 6 P2 (HVAC, prototype, conditional industries).
+          Sign-off here is the gate, every other workstream waits on this.
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Impact</strong>
+        <span class="impact-high">Critical, blocks build start</span><br>
+        Decide: in this meeting<br>
+        Default if no objection: ship as scoped
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="num">02</div>
+      <div class="body">
+        <div class="q">Automotive industry page: do you hold IATF 16949 certification?</div>
+        <div class="ctx">
+          "Automotive manufacturing" is 18,100 monthly searches, the largest industry keyword.
+          Jack's rule, build the page only if the cert is real. Without it, the page reads as a credibility risk on a high-stakes term.
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Impact</strong>
+        <span class="impact-high">High, P2 page</span><br>
+        Decide: by Day -2<br>
+        If no: skip, keep CNC + die-cast hubs serving auto
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="num">03</div>
+      <div class="body">
+        <div class="q">Aerospace industry page: do you hold AS9100 or have documented aerospace customer work?</div>
+        <div class="ctx">
+          "Aerospace machining" is 880 vol with KD 0, a free top-rank if we can credibly claim it.
+          Same rule, no cert and no documented client work means we skip the page.
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Impact</strong>
+        <span class="impact-high">High, rare KD 0 win</span><br>
+        Decide: by Day -2<br>
+        If no: skip the page
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="num">04</div>
+      <div class="body">
+        <div class="q">Mexico hub anchor: lead with "foundries in mexico" or "manufacturing in mexico"?</div>
+        <div class="ctx">
+          Foundries: 20 vol, CPC $21.09, KD 3, narrow but high-intent. Manufacturing: 390 vol, KD 21, broader umbrella.
+          Jack defaults to foundries, you may want manufacturing for breadth.
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Impact</strong>
+        <span class="impact-med">Medium, H1 framing</span><br>
+        Decide: by Day 1<br>
+        Default: foundries (narrower, higher intent)
+      </div>
+    </div>
+
+    <div class="decision">
+      <div class="num">05</div>
+      <div class="body">
+        <div class="q">AI Overview strategy: build comparison content + FAQ schema, skip pure how-to. Agree?</div>
+        <div class="ctx">
+          39% of target keywords show AI Overviews. Pure informational pages get cannibalized by Google's answer box.
+          Jack's plan, attack with comparison pages (forged vs cast, casting vs machining) and FAQ schema for citation.
+        </div>
+      </div>
+      <div class="meta">
+        <strong>Impact</strong>
+        <span class="impact-med">Medium, content posture</span><br>
+        Decide: by Day -2<br>
+        Default: agree, comparison-first
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>Three unfair advantages worth front-running</h2>
+  <p class="lede">
+    These are the highest-leverage opportunities in the keyword set. Each is either uncontested,
+    a Xometry blind spot, or a low-difficulty term where Redstone has standing intent.
+  </p>
+
+  <div class="opps">
+
+    <div class="opp">
+      <div class="tag">Geographic moat</div>
+      <div class="h">Mexico nearshoring</div>
+      <div class="num">$21.09<span>avg CPC</span></div>
+      <div class="num">5 pages<span>Mexico geo silo</span></div>
+      <p class="desc">
+        Uncontested by Xometry, Fictiv, Protolabs. Highest commercial value in the entire keyword set.
+        USMCA tariff-free angle plus 6-8 week lead time advantage vs China is the wedge.
+        Mexico facility must be staffed and operational, this is assumption #2 we need to confirm.
+      </p>
+    </div>
+
+    <div class="opp">
+      <div class="tag">Easy commercial win</div>
+      <div class="h">Steel fabrication</div>
+      <div class="num">9,900<span>monthly vol</span></div>
+      <div class="num">KD 17<span>winnable</span></div>
+      <p class="desc">
+        Highest-volume commercial keyword that Redstone is not yet ranking for.
+        Combined with stainless steel fabrication (1,300 vol, KD 31) this becomes the second-largest commercial cluster.
+        New service hub page, P1 priority.
+      </p>
+    </div>
+
+    <div class="opp">
+      <div class="tag">AI defense</div>
+      <div class="h">Comparison + FAQ schema</div>
+      <div class="num">11<span>resource pages</span></div>
+      <div class="num">2,990<span>monthly vol</span></div>
+      <p class="desc">
+        Comparison pages (forged vs cast, sg iron vs cast iron, casting vs machining) earn citations
+        in AI Overviews instead of getting cannibalized. Xometry has a Learning Hub but lacks decision-support depth.
+        Lowest CPCs, but they drive qualified buyers down to service pages.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>90-day build phasing</h2>
+  <p class="lede">
+    Phase 0 lands geography first, the lowest-difficulty terms with standing GSC ranks already on page 2-5.
+    Phase 1 is the core service taxonomy and resource library. Phase 2 closes specialty pages and conditional industries.
+  </p>
+
+  <div class="phase-strip">
+
+    <div class="phase">
+      <div class="label">Phase 0</div>
+      <div class="days">Days 1-30</div>
+      <div class="pages">25<span>pages</span></div>
+      <p class="focus">
+        Homepage rebuild, all 4 geo hubs (Mexico, India, China, Brazil), 16 geo-service pages.
+        Lowest KDs in the set (0-21). Brazil sand casting already ranks #1, India foundry already #3.
+      </p>
+    </div>
+
+    <div class="phase">
+      <div class="label">Phase 1</div>
+      <div class="days">Days 31-60</div>
+      <div class="pages">40<span>pages</span></div>
+      <p class="focus">
+        Seven service hubs, eight material spokes, eleven comparison pages, prototype pages, utility pages
+        (about, contact, quote, Halliburton case study). Existing material guides preserved via 301.
+      </p>
+    </div>
+
+    <div class="phase">
+      <div class="label">Phase 2</div>
+      <div class="days">Days 61-90</div>
+      <div class="pages">6<span>pages</span></div>
+      <p class="focus">
+        HVAC sheet metal, prototype sheet metal, plus the two conditional industry pages (automotive, aerospace)
+        if certs land. If they don't, skip the page, do not fake it.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>Sitemap, hybrid hub structure</h2>
+  <p class="lede">
+    Services are the primary hub, materials sit as spokes underneath. Geography gets its own silo
+    because the search intent there is geo-first ("die casting mexico"), not service-first.
+    Industries stay lightweight unless certs back them.
+  </p>
+
+<div class="tree">
+<span class="node-h">SERVICES</span> <span class="node-c">(7 hubs, 17 spokes)</span>
+├── /services/die-casting/ <span class="pill p1">P1</span>
+│   ├── aluminum, zinc, high-pressure, hot-chamber
+│   ├── cold-chamber <span class="pill kd0">KD 1, NEW</span>
+│   ├── aluminum-prototypes <span class="pill kd0">NEW</span>
+│   └── prototype-zinc <span class="pill kd0">KD 0, NEW</span>
+├── /services/cnc-machining/ <span class="pill p1">P1</span>
+│   ├── aluminum <span class="pill kd0">KD 0, NEW</span>
+│   └── precision <span class="pill p1">NEW, 1,600 vol</span>
+├── /services/sheet-metal-fabrication/ <span class="pill p1">P1</span>
+│   ├── hvac <span class="pill p2">P2, KD 6</span>
+│   └── prototype <span class="pill p2">P2, $19.59 CPC</span>
+├── /services/investment-casting/ <span class="pill p1">P1</span>
+│   ├── stainless-steel <span class="pill p1">NEW, 320 vol</span>
+│   └── prototype <span class="pill p1">NEW</span>
+├── /services/sand-casting/ <span class="pill p1">P1</span>
+├── /services/metal-injection-molding/ <span class="pill p2">P2</span>
+├── /services/plastic-injection-molding/ <span class="pill p2">P2</span>
+├── /services/stainless-steel-fabrication/ <span class="pill p1">NEW, 1,300 vol</span>
+├── /services/cast-iron-castings/ <span class="pill p1">NEW, 590 vol</span>
+└── /services/grey-iron-casting/ <span class="pill p1">NEW, 880 vol</span>
+
+<span class="node-h">GEOGRAPHY</span> <span class="node-c">(4 hubs, 18 spokes)</span>
+├── /mexico/ <span class="pill p0">P0, USMCA wedge</span>
+│   └── die-casting, cnc, sheet-metal, plastic, sand-casting
+├── /india/ <span class="pill p0">P0, ranks #3.3</span>
+│   └── die-casting, investment, sand, MIM, cnc
+├── /china/ <span class="pill p0">P0, ranks #3.7</span>
+│   └── die-casting, investment, sand, MIM, plastic, cnc, sheet, aluminum-die <span class="pill kd0">NEW</span>
+└── /brazil/ <span class="pill p0">P0, ranks #1 sand-casting</span>
+    └── die-casting, sand-casting
+
+<span class="node-h">RESOURCES</span> <span class="node-c">(11 comparison + existing material library)</span>
+├── /resources/material-guides/ <span class="pill">PRESERVE, ~2K sessions/mo</span>
+└── 11 NEW comparison pages: forged-vs-cast (1,600 vol), sg-iron-vs-cast (880 vol), casting-vs-machining, etc.
+
+<span class="node-h">INDUSTRIES</span> <span class="node-c">(2 conditional)</span>
+├── /industries/automotive/ <span class="pill p2">CONDITIONAL on IATF 16949</span>
+└── /industries/aerospace/ <span class="pill p2">CONDITIONAL on AS9100, KD 0!</span>
+
+<span class="node-h">UTILITY</span>
+├── /about/, /contact/, /quote/ (multi-step + CAD upload)
+└── /case-studies/halliburton/ <span class="pill">$1.2M proof point</span>
+</div>
+
+</section>
+
+<section>
+  <h2>Top opportunity keywords <span class="count">15 highest-leverage terms from the 90</span></h2>
+  <p class="lede">
+    Sorted by a mix of difficulty and commercial intent. KD 0 means we can rank within weeks once the page is live.
+    CPC is Google Ads cost-per-click, a clean proxy for buyer intent.
+  </p>
+  <table class="rs">
+    <thead>
+      <tr>
+        <th>Keyword</th>
+        <th class="num">Vol</th>
+        <th class="num">KD</th>
+        <th class="num">CPC</th>
+        <th>Why it matters</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>steel fabrication</strong></td><td class="num">9,900</td><td class="num">17</td><td class="num">$3.22</td><td>Biggest easy commercial win in set, not yet ranking</td></tr>
+      <tr><td><strong>aerospace machining</strong></td><td class="num">880</td><td class="num">0</td><td class="num">n/a</td><td>Free ranking if AS9100 supports the page</td></tr>
+      <tr><td><strong>foundry in india</strong></td><td class="num">20</td><td class="num">19</td><td class="num">$36.59</td><td>Already at position 3.3, lock the rank</td></tr>
+      <tr><td><strong>brazil sand casting</strong></td><td class="num">0</td><td class="num">3</td><td class="num">n/a</td><td>Already ranks #1, just needs the page</td></tr>
+      <tr><td><strong>cold chamber die casting</strong></td><td class="num">170</td><td class="num">1</td><td class="num">n/a</td><td>KD 1 means immediate rank, new page</td></tr>
+      <tr><td><strong>aluminum cnc machining</strong></td><td class="num">390</td><td class="num">0</td><td class="num">$1.88</td><td>KD 0 quick win, new spoke</td></tr>
+      <tr><td><strong>sg iron vs cast iron</strong></td><td class="num">880</td><td class="num">1</td><td class="num">$0.08</td><td>Easy comparison page, drives traffic to cast iron</td></tr>
+      <tr><td><strong>forged vs cast</strong></td><td class="num">1,600</td><td class="num">n/a</td><td class="num">$0.18</td><td>Highest-volume comparison content opportunity</td></tr>
+      <tr><td><strong>precision cnc machining</strong></td><td class="num">1,600</td><td class="num">18</td><td class="num">$5.39</td><td>Premium positioning, tolerances at +/- 0.001"</td></tr>
+      <tr><td><strong>stainless steel investment casting</strong></td><td class="num">320</td><td class="num">16</td><td class="num">$4.12</td><td>Material spoke, P1 promotion from P2</td></tr>
+      <tr><td><strong>foundries in mexico</strong></td><td class="num">20</td><td class="num">3</td><td class="num">$4.13</td><td>Mexico anchor, candidate H1</td></tr>
+      <tr><td><strong>sheet metal prototype fabrication</strong></td><td class="num">260</td><td class="num">26</td><td class="num">$19.59</td><td>Highest CPC in sheet metal, new P2 page</td></tr>
+      <tr><td><strong>hot chamber die casting</strong></td><td class="num">170</td><td class="num">9</td><td class="num">$142.79</td><td>Extreme CPC signal, niche but extremely commercial</td></tr>
+      <tr><td><strong>grey iron casting</strong></td><td class="num">880</td><td class="num">13</td><td class="num">$2.85</td><td>New service page, ties cast-iron cluster together</td></tr>
+      <tr><td><strong>cnc machining services china</strong></td><td class="num">320</td><td class="num">7</td><td class="num">n/a</td><td>Highest-volume China keyword, with tariff angle</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Where Xometry beats us, where they don't</h2>
+  <p class="lede">
+    Xometry ranks for 46 of our 90 target keywords at an average position of 8.3. They dominate "services" terms
+    and broad generalist queries. They are weakest exactly where Redstone is strongest, geography and material specificity.
+  </p>
+  <table class="rs">
+    <thead>
+      <tr>
+        <th>Competitor</th>
+        <th class="num">KWs ranked</th>
+        <th class="num">Avg pos</th>
+        <th>Strength</th>
+        <th>Where we win</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>xometry.com</strong></td><td class="num">46</td><td class="num">8.3</td><td>Generalist authority on "services" terms</td><td>Mexico, niche materials, comparison depth</td></tr>
+      <tr><td><strong>protolabs.com</strong></td><td class="num">18</td><td class="num">7.9</td><td>CNC + injection molding, US-only</td><td>Foundry / casting services, geo</td></tr>
+      <tr><td><strong>fictiv.com</strong></td><td class="num">21</td><td class="num">19.0</td><td>CNC + materials</td><td>Casting services, geo, prototype</td></tr>
+      <tr><td><strong>pcbway.com</strong></td><td class="num">15</td><td class="num">9.7</td><td>Strong on "cnc machining services"</td><td>All non-CNC, all geo, all materials</td></tr>
+      <tr><td><strong>thomasnet.com</strong></td><td class="num">22</td><td class="num">38.5</td><td>Directory breadth</td><td>Everywhere, weak organic positions</td></tr>
+      <tr><td><strong>tfgusa.com</strong></td><td class="num">20</td><td class="num">19.7</td><td>US foundry network</td><td>Off-shore + Mexico, comparison content</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Eight assumptions Jack made <span class="count">flag any that are wrong, plan adjusts</span></h2>
+  <div class="callout">
+    <strong>Why this matters.</strong>
+    The plan only holds if these are true. If any are aspirational rather than real,
+    the page strategy needs to flex. This is the most important section to walk through with Jack live.
+  </div>
+  <table class="rs">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Assumption</th>
+        <th>If false</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">1</td><td><strong>Existing material guides drive ~2K organic sessions/mo</strong> and will be 301'd to /resources/material-guides/, not killed.</td><td>Critical, traffic loss risk. Audit before migration.</td></tr>
+      <tr><td class="num">2</td><td><strong>Mexico facility is staffed + operational</strong> with documented capacity for die casting, CNC, foundry.</td><td>Mexico hub messaging changes from "our facility" to "partner network". Conversion impact.</td></tr>
+      <tr><td class="num">3</td><td><strong>India + China have a real QC oversight model</strong> (on-site inspections, audits).</td><td>Geo pages get caveat language or get delayed until model is documented.</td></tr>
+      <tr><td class="num">4</td><td><strong>Multi-step quote form is feasible</strong> with CAD upload, volume filter, tariff-inclusive estimates.</td><td>Simplify to single-step or email-based RFQ. Conversion impact.</td></tr>
+      <tr><td class="num">5</td><td><strong>No regulatory or export-control constraints</strong> on materials or processes we list.</td><td>Specific service or geo pages need caveats.</td></tr>
+      <tr><td class="num">6</td><td><strong>Halliburton case study has client permission</strong> for public disclosure ($1.2M, 50 foundries).</td><td>Substitute with another case study or use anonymized testimonials.</td></tr>
+      <tr><td class="num">7</td><td><strong>Domain authority is strong enough</strong> to push high-KD terms (cnc machining services KD 63, steel fabrication KD 58) to top 10 within 6-12 months.</td><td>Extend timeline expectations, focus harder on KD 0-30 terms in P0/P1.</td></tr>
+      <tr><td class="num">8</td><td><strong>AI Overview presence is verified</strong> on the 35 keywords flagged, as of May 6.</td><td>Comparison/FAQ strategy may shift if Google's AI Overview rollout changes.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Recommended next steps after Thursday</h2>
+  <table class="rs">
+    <thead>
+      <tr>
+        <th>When</th>
+        <th>Action</th>
+        <th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Thu May 7</strong></td><td>Lock the 5 decisions. Sign off the 71-page sitemap.</td><td>Eric, in meeting</td></tr>
+      <tr><td><strong>Fri May 8</strong></td><td>Confirm IATF 16949 + AS9100 status. Confirm Halliburton case study release. Audit material-guide URLs for redirect mapping.</td><td>Eric + Kas</td></tr>
+      <tr><td><strong>Fri May 8</strong></td><td>P0 build kicks off in Astro starter. Homepage + Mexico hub first.</td><td>Kas + dev team</td></tr>
+      <tr><td><strong>Mon May 12</strong></td><td>Hosting migration scoped, $600 hosting.com cutoff is May 13.</td><td>Rehan</td></tr>
+      <tr><td><strong>By Day 30</strong></td><td>All 25 P0 pages live, geography indexed, GSC submitted.</td><td>Build team</td></tr>
+      <tr><td><strong>By Day 60</strong></td><td>Service hubs + 11 comparison pages + utility pages live.</td><td>Build team</td></tr>
+      <tr><td><strong>Mid-June</strong></td><td>71-page site fully live, search ads relaunched against new structure.</td><td>Build team</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="footer">
+  <p>
+    <strong>Source:</strong> Jack Outrider, Outrider Digital, full research at
+    <a href="https://teamoutriderdigital.github.io/redstone-seo-research/v2.html">teamoutriderdigital.github.io/redstone-seo-research/v2</a>
+    (May 6, 2026).
+    <br>
+    <strong>Stack:</strong> Astro + Vercel + PostHog + Lighthouse CI, locked since 2026-04-24. Component library at kamg-astro-starter.
+    <br>
+    <strong>Companion doc:</strong> Internal build PRD at kamg-ops/docs/redstone/website-rebuild/prd-2026-05-07.html
+  </p>
+</div>
+
+</div>
+</body>
+</html>

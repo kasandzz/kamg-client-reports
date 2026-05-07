@@ -211,109 +211,142 @@
     margin-top: 8px;
   }
 
-  /* Sitemap, hub-card grid */
-  .sitemap-summary {
-    display: grid; grid-template-columns: repeat(4, 1fr);
+  /* Sitemap, editorial index pattern */
+  .sm-legend {
+    display: flex; flex-wrap: wrap; gap: 14px 28px;
+    padding: 14px 18px;
     border: 1px solid var(--rs-border);
-    margin-bottom: 16px;
+    background: var(--rs-bg-alt);
+    margin-bottom: 28px;
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+    line-height: 1.4;
   }
-  .sitemap-summary .cell {
-    padding: 16px 18px; border-right: 1px solid var(--rs-border);
+  .sm-legend .lg-item {
+    display: flex; align-items: center; gap: 8px;
   }
-  .sitemap-summary .cell:last-child { border-right: none; }
-  .sitemap-summary .cell .lab {
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
-    margin-bottom: 6px;
+  .sm-legend .lg-item strong {
+    color: var(--rs-fg); font-weight: var(--rs-weight-medium);
   }
-  .sitemap-summary .cell .val {
-    font-size: var(--rs-text-2xl); line-height: 1.1;
-    font-weight: var(--rs-weight-regular);
-    color: var(--rs-fg); letter-spacing: var(--rs-tracking-tight);
-  }
-  .sitemap-summary .cell .val.red { color: var(--rs-red); }
 
-  .sitemap-grid {
-    display: grid; grid-template-columns: repeat(12, 1fr);
-    gap: 16px;
+  .sm-band {
+    border-top: 1px solid var(--rs-border-strong);
+    padding: 24px 0 4px;
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    column-gap: 28px;
+    margin-bottom: 0;
   }
-  .hub {
-    border: 1px solid var(--rs-border);
-    background: var(--rs-bg);
-    padding: 22px 22px 8px;
-    display: flex; flex-direction: column;
+  .sm-band:last-of-type { border-bottom: 1px solid var(--rs-border-strong); padding-bottom: 28px; }
+
+  .sm-band .band-numeral {
+    font-family: var(--rs-font-display, var(--rs-font-body));
+    font-size: 64px; line-height: 0.9;
+    color: var(--rs-red);
+    font-weight: var(--rs-weight-light);
+    letter-spacing: var(--rs-tracking-tight);
   }
-  .hub.span-12 { grid-column: span 12; }
-  .hub.span-6 { grid-column: span 6; }
-  .hub-head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    gap: 16px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--rs-border);
-    margin-bottom: 14px;
+  .sm-band .band-meta {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    margin-top: 10px; line-height: 1.5;
   }
-  .hub-head .title {
-    font-size: var(--rs-text-2xl); line-height: 1.2;
+  .sm-band .band-meta .sep { color: var(--rs-border-strong); margin: 0 4px; }
+
+  .sm-band .band-body { padding-top: 4px; }
+  .sm-band .band-title {
+    font-size: var(--rs-text-3xl, 28px);
+    line-height: 1.05;
     font-weight: var(--rs-weight-medium);
     letter-spacing: var(--rs-tracking-tight);
     color: var(--rs-fg);
+    margin-bottom: 6px;
   }
-  .hub-head .meta {
-    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
-    text-align: right; white-space: nowrap;
-  }
-  .hub-note {
-    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
-    line-height: 1.5; font-weight: var(--rs-weight-light);
-    margin: -6px 0 14px;
-  }
-  .hub-cols {
-    display: grid; grid-template-columns: 1fr 1fr;
-    column-gap: 28px; row-gap: 0;
-  }
-  .hub-cols.one { grid-template-columns: 1fr; }
-
-  .route {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--rs-line);
+  .sm-band .band-note {
     font-size: var(--rs-text-sm);
-    line-height: 1.4;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+    line-height: 1.55;
+    margin-bottom: 18px;
+    max-width: 720px;
   }
-  .route:last-child { border-bottom: none; }
-  .route .path {
+
+  /* TOC entries with dotted leader and right annotation */
+  .toc-list { margin: 0; padding: 0; list-style: none; }
+  .toc-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    column-gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--rs-line);
+  }
+  .toc-row:last-child { border-bottom: none; }
+
+  .toc-row .lhs {
+    display: flex; align-items: baseline; gap: 10px;
+    min-width: 0;
+  }
+  .toc-row .path {
     font-family: var(--rs-font-mono);
     color: var(--rs-fg);
     font-weight: var(--rs-weight-medium);
-    font-size: 13px;
-    flex: 1; min-width: 0;
+    font-size: 13.5px;
     overflow-wrap: anywhere;
   }
-  .route .pills { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+  .toc-row .leader {
+    flex: 1;
+    border-bottom: 1px dotted var(--rs-border-strong);
+    transform: translateY(-3px);
+    min-width: 24px;
+  }
+  .toc-row .rhs {
+    display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end;
+    align-items: baseline;
+    text-align: right;
+  }
 
-  .spokes {
-    padding: 6px 0 10px 14px;
+  /* Spokes nested under a route */
+  .toc-spokes {
+    list-style: none;
+    margin: 4px 0 6px 0;
+    padding: 6px 0 8px 18px;
     border-left: 1px solid var(--rs-border);
-    margin: 0 0 4px 8px;
+  }
+  .toc-spokes .toc-row {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--rs-line);
+  }
+  .toc-spokes .toc-row:last-child { border-bottom: none; }
+  .toc-spokes .path {
+    font-family: var(--rs-font-mono);
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-regular);
+    font-size: 12.5px;
+  }
+  .toc-spokes .leader {
+    border-bottom-color: var(--rs-border);
+  }
+
+  /* Compact inline spoke list when no per-spoke pills are needed */
+  .toc-inline-spokes {
+    margin: -4px 0 4px 0;
+    padding: 8px 0 10px 18px;
+    border-left: 1px solid var(--rs-border);
     font-family: var(--rs-font-mono);
     font-size: 12px;
-    line-height: 1.65;
+    line-height: 1.7;
     color: var(--rs-fg-secondary);
     font-weight: var(--rs-weight-light);
   }
-  .spokes .spoke {
-    display: flex; align-items: baseline; gap: 8px;
-    padding: 2px 0;
-  }
-  .spokes .spoke .sname {
-    color: var(--rs-fg-secondary);
-    flex: 1; min-width: 0;
-    overflow-wrap: anywhere;
-  }
-  .spokes.inline {
-    padding: 4px 0 12px 14px;
-    color: var(--rs-fg-secondary);
+  .toc-inline-spokes .lab {
+    font-family: var(--rs-font-body);
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    margin-right: 8px;
   }
 
   /* Tag pills */
@@ -368,16 +401,29 @@
     .hero h1 { font-size: 32px; }
     body { padding: 24px 16px 64px; }
 
-    .sitemap-summary { grid-template-columns: repeat(2, 1fr); }
-    .sitemap-summary .cell { border-right: none; border-bottom: 1px solid var(--rs-border); }
-    .sitemap-summary .cell:nth-child(2n) { border-right: none; }
-    .sitemap-summary .cell:nth-last-child(-n+2) { border-bottom: none; }
-    .hub.span-6, .hub.span-12 { grid-column: span 12; }
-    .hub-cols { grid-template-columns: 1fr; column-gap: 0; }
-    .hub-head { flex-direction: column; align-items: flex-start; gap: 4px; }
-    .hub-head .meta { text-align: left; }
-    .route { flex-wrap: wrap; }
-    .route .pills { justify-content: flex-start; }
+    .sm-band {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      padding: 20px 0 4px;
+    }
+    .sm-band .band-numeral { font-size: 48px; }
+    .sm-band .band-meta { margin-top: 4px; margin-bottom: 14px; }
+    .sm-band .band-title { font-size: 24px; }
+
+    .toc-row {
+      grid-template-columns: 1fr;
+      row-gap: 6px;
+      padding: 10px 0;
+    }
+    .toc-row .leader { display: none; }
+    .toc-row .rhs {
+      justify-content: flex-start;
+      text-align: left;
+    }
+    .toc-spokes { padding-left: 12px; }
+    .toc-inline-spokes { padding-left: 12px; }
+
+    .sm-legend { gap: 8px 18px; padding: 12px 14px; }
   }
 </style>
 </head>
@@ -610,231 +656,321 @@
 </section>
 
 <section>
-  <h2>Sitemap, hybrid hub structure</h2>
+  <h2>Sitemap, hybrid hub structure <span class="count">71 pages, 5 hubs, indexed by priority</span></h2>
   <p class="lede">
     Services are the primary hub, materials sit as spokes underneath. Geography gets its own silo
     because the search intent there is geo-first ("die casting mexico"), not service-first.
-    Industries stay lightweight unless certs back them.
+    Industries stay lightweight unless certs back them. Read this index top to bottom, every page is on this page.
   </p>
 
-<div class="sitemap-summary">
-  <div class="cell">
-    <div class="lab">Total pages</div>
-    <div class="val">71</div>
+  <div class="sm-legend">
+    <div class="lg-item"><span class="pill p0">P0</span><strong>25 pages</strong> ship Days 1-30</div>
+    <div class="lg-item"><span class="pill p1">P1</span><strong>40 pages</strong> ship Days 31-60</div>
+    <div class="lg-item"><span class="pill p2">P2</span><strong>6 pages</strong> ship Days 61-90</div>
+    <div class="lg-item"><span class="pill new">NEW</span>page does not exist today</div>
+    <div class="lg-item"><span class="pill kd">KD 0</span>winnable in weeks</div>
   </div>
-  <div class="cell">
-    <div class="lab">P0 priority</div>
-    <div class="val red">25</div>
-  </div>
-  <div class="cell">
-    <div class="lab">P1 priority</div>
-    <div class="val">40</div>
-  </div>
-  <div class="cell">
-    <div class="lab">P2 priority</div>
-    <div class="val">6</div>
-  </div>
-</div>
 
-<div class="sitemap-grid">
-
-  <div class="hub span-12">
-    <div class="hub-head">
-      <div class="title">Services</div>
-      <div class="meta">Primary hub · 10 hubs · 17 spokes</div>
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">01</div>
+      <div class="band-meta">Geography <span class="sep">/</span> 4 hubs <span class="sep">/</span> 18 spokes <span class="sep">/</span> all P0</div>
     </div>
-    <p class="hub-note">Service taxonomy is the spine. Materials sit as spokes underneath each service hub. P1 across the board, P2 for niche or low-volume.</p>
-    <div class="hub-cols">
+    <div class="band-body">
+      <div class="band-title">Geography</div>
+      <p class="band-note">Geo silo, all P0. Search intent here is region-first, not service-first. Lowest KDs in the set, three of four already rank on page 1-5 of Google.</p>
 
-      <div>
-        <div class="route">
-          <span class="path">/services/die-casting/</span>
-          <span class="pills"><span class="pill p1">P1</span></span>
-        </div>
-        <div class="spokes">
-          <div class="spoke"><span class="sname">aluminum-die-casting, zinc-die-casting, high-pressure-die-casting, hot-chamber-die-casting</span></div>
-          <div class="spoke"><span class="sname">cold-chamber-die-casting</span><span class="pill new">NEW</span><span class="pill kd">KD 1</span></div>
-          <div class="spoke"><span class="sname">high-pressure-zinc</span><span class="pill new">NEW</span></div>
-          <div class="spoke"><span class="sname">aluminum-prototypes</span><span class="pill new">NEW</span></div>
-          <div class="spoke"><span class="sname">prototype-zinc</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
-        </div>
+      <ul class="toc-list">
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill note">USMCA wedge</span><span class="pill note">CPC $21.09</span></div>
+        </li>
+        <li><div class="toc-inline-spokes"><span class="lab">Spokes (5)</span>die-casting, cnc-machining, sheet-metal-fabrication, plastic-injection-molding, sand-casting</div></li>
 
-        <div class="route">
-          <span class="path">/services/cnc-machining/</span>
-          <span class="pills"><span class="pill p1">P1</span></span>
-        </div>
-        <div class="spokes">
-          <div class="spoke"><span class="sname">aluminum</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
-          <div class="spoke"><span class="sname">precision</span><span class="pill new">NEW</span><span class="pill note">1,600 vol</span></div>
-        </div>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill note">ranks #3.3</span></div>
+        </li>
+        <li><div class="toc-inline-spokes"><span class="lab">Spokes (5)</span>die-casting, investment-casting, sand-casting, metal-injection-molding-mim, cnc-machining</div></li>
 
-        <div class="route">
-          <span class="path">/services/sheet-metal-fabrication/</span>
-          <span class="pills"><span class="pill p1">P1</span></span>
-        </div>
-        <div class="spokes">
-          <div class="spoke"><span class="sname">hvac</span><span class="pill p2">P2</span><span class="pill kd">KD 6</span></div>
-          <div class="spoke"><span class="sname">prototype</span><span class="pill p2">P2</span><span class="pill note">$19.59 CPC</span></div>
-        </div>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill note">ranks #3.7</span></div>
+        </li>
+        <li><div class="toc-inline-spokes"><span class="lab">Spokes (8)</span>die-casting, investment-casting, sand-casting, metal-injection-molding, plastic-injection-molding, cnc-machining, sheet-metal, aluminum-die-casting (NEW)</div></li>
 
-        <div class="route">
-          <span class="path">/services/investment-casting/</span>
-          <span class="pills"><span class="pill p1">P1</span></span>
-        </div>
-        <div class="spokes">
-          <div class="spoke"><span class="sname">stainless-steel</span><span class="pill new">NEW</span><span class="pill note">320 vol</span></div>
-          <div class="spoke"><span class="sname">prototype</span><span class="pill new">NEW</span></div>
-        </div>
-
-        <div class="route">
-          <span class="path">/services/sand-casting/</span>
-          <span class="pills"><span class="pill p1">P1</span></span>
-        </div>
-      </div>
-
-      <div>
-        <div class="route">
-          <span class="path">/services/metal-injection-molding/</span>
-          <span class="pills"><span class="pill p2">P2</span></span>
-        </div>
-        <div class="route">
-          <span class="path">/services/plastic-injection-molding/</span>
-          <span class="pills"><span class="pill p2">P2</span></span>
-        </div>
-        <div class="route">
-          <span class="path">/services/stainless-steel-fabrication/</span>
-          <span class="pills"><span class="pill new">NEW</span><span class="pill note">1,300 vol</span></span>
-        </div>
-        <div class="route">
-          <span class="path">/services/cast-iron-castings/</span>
-          <span class="pills"><span class="pill new">NEW</span><span class="pill note">590 vol</span></span>
-        </div>
-        <div class="route">
-          <span class="path">/services/grey-iron-casting/</span>
-          <span class="pills"><span class="pill new">NEW</span><span class="pill note">880 vol</span></span>
-        </div>
-        <div class="route">
-          <span class="path">/services/aluminum-casting/prototype/</span>
-          <span class="pills"><span class="pill new">NEW</span></span>
-        </div>
-      </div>
-
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/brazil/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill note">ranks #1 sand-casting</span></div>
+        </li>
+        <li><div class="toc-inline-spokes"><span class="lab">Spokes (2)</span>die-casting, sand-casting</div></li>
+      </ul>
     </div>
   </div>
 
-  <div class="hub span-6">
-    <div class="hub-head">
-      <div class="title">Geography</div>
-      <div class="meta">4 region hubs · 18 spokes</div>
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">02</div>
+      <div class="band-meta">Services <span class="sep">/</span> 11 hubs <span class="sep">/</span> 17 spokes <span class="sep">/</span> primary spine</div>
     </div>
-    <p class="hub-note">Geo silo, all P0. Search intent here is region-first ("die casting mexico"), not service-first.</p>
+    <div class="band-body">
+      <div class="band-title">Services</div>
+      <p class="band-note">Service taxonomy is the spine. Materials sit as spokes underneath each service hub. P1 across the board, P2 for niche or low-volume. Six of these hubs do not exist today.</p>
 
-    <div class="route">
-      <span class="path">/mexico/</span>
-      <span class="pills"><span class="pill p0">P0</span><span class="pill note">USMCA wedge, CPC $21.09</span></span>
-    </div>
-    <div class="spokes inline">die-casting, cnc-machining, sheet-metal-fabrication, plastic-injection-molding, sand-casting</div>
+      <ul class="toc-list">
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li>
+          <ul class="toc-spokes">
+            <li class="toc-row">
+              <div class="lhs"><span class="path">aluminum-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">zinc-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">high-pressure-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">hot-chamber-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">cold-chamber-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span><span class="pill kd">KD 1</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">high-pressure-zinc</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">aluminum-prototypes</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">prototype-zinc</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
+            </li>
+          </ul>
+        </li>
 
-    <div class="route">
-      <span class="path">/india/</span>
-      <span class="pills"><span class="pill p0">P0</span><span class="pill note">ranks #3.3</span></span>
-    </div>
-    <div class="spokes inline">die-casting, investment-casting, sand-casting, metal-injection-molding-mim, cnc-machining</div>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cnc-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li>
+          <ul class="toc-spokes">
+            <li class="toc-row">
+              <div class="lhs"><span class="path">aluminum</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">precision</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span><span class="pill note">1,600 vol</span></div>
+            </li>
+          </ul>
+        </li>
 
-    <div class="route">
-      <span class="path">/china/</span>
-      <span class="pills"><span class="pill p0">P0</span><span class="pill note">ranks #3.7</span></span>
-    </div>
-    <div class="spokes inline">die-casting, investment-casting, sand-casting, metal-injection-molding, plastic-injection-molding, cnc-machining, sheet-metal, aluminum-die-casting (NEW)</div>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/sheet-metal-fabrication/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li>
+          <ul class="toc-spokes">
+            <li class="toc-row">
+              <div class="lhs"><span class="path">hvac</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill p2">P2</span><span class="pill kd">KD 6</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">prototype</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill p2">P2</span><span class="pill note">$19.59 CPC</span></div>
+            </li>
+          </ul>
+        </li>
 
-    <div class="route">
-      <span class="path">/brazil/</span>
-      <span class="pills"><span class="pill p0">P0</span><span class="pill note">ranks #1 sand-casting</span></span>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/investment-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li>
+          <ul class="toc-spokes">
+            <li class="toc-row">
+              <div class="lhs"><span class="path">stainless-steel</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span><span class="pill note">320 vol</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">prototype</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill new">NEW</span></div>
+            </li>
+          </ul>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/metal-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/plastic-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/stainless-steel-fabrication/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill new">NEW</span><span class="pill note">1,300 vol</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cast-iron-castings/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill new">NEW</span><span class="pill note">590 vol</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/grey-iron-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill new">NEW</span><span class="pill note">880 vol</span></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/aluminum-casting/prototype/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill new">NEW</span></div>
+        </li>
+      </ul>
     </div>
-    <div class="spokes inline">die-casting, sand-casting</div>
   </div>
 
-  <div class="hub span-6">
-    <div class="hub-head">
-      <div class="title">Resources</div>
-      <div class="meta">11 new + existing library</div>
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">03</div>
+      <div class="band-meta">Resources <span class="sep">/</span> 1 hub <span class="sep">/</span> 11 new comparisons <span class="sep">/</span> AI defense</div>
     </div>
-    <p class="hub-note">Comparison content is the AI Overview defense. Existing material library is preserved via 301, do not kill the ~2K sessions/mo.</p>
+    <div class="band-body">
+      <div class="band-title">Resources</div>
+      <p class="band-note">Comparison content is the AI Overview defense. Existing material library is preserved via 301, do not kill the ~2K sessions/mo. Three of these hit KD 0-1, free wins.</p>
 
-    <div class="route">
-      <span class="path">/resources/material-guides/</span>
-      <span class="pills"><span class="pill note">PRESERVE</span><span class="pill note">~2K sessions/mo</span></span>
-    </div>
-    <div class="spokes inline">301 redirect existing slugs into this hub</div>
+      <ul class="toc-list">
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/material-guides/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill note">PRESERVE</span><span class="pill note">~2K sessions/mo</span></div>
+        </li>
+        <li><div class="toc-inline-spokes"><span class="lab">Action</span>301 redirect existing slugs into this hub, audit before migration</div></li>
 
-    <div class="route">
-      <span class="path">/resources/ (11 comparison pages)</span>
-      <span class="pills"><span class="pill new">NEW</span></span>
-    </div>
-    <div class="spokes">
-      <div class="spoke"><span class="sname">forged-vs-cast</span><span class="pill note">1,600 vol</span></div>
-      <div class="spoke"><span class="sname">sg-iron-vs-cast-iron</span><span class="pill note">880 vol</span><span class="pill kd">KD 1</span></div>
-      <div class="spoke"><span class="sname">gray-iron-vs-ductile-iron</span></div>
-      <div class="spoke"><span class="sname">ductile-iron-vs-carbon-steel</span></div>
-      <div class="spoke"><span class="sname">casting-vs-machining</span></div>
-      <div class="spoke"><span class="sname">malleable-iron-vs-cast-iron</span><span class="pill kd">KD 0</span></div>
-      <div class="spoke"><span class="sname">sand-casting-cost</span><span class="pill kd">KD 0</span></div>
-      <div class="spoke"><span class="sname">die-cast-zinc-corrosion</span></div>
-      <div class="spoke"><span class="sname">advantages-of-zinc-die-casting</span></div>
-      <div class="spoke"><span class="sname">investment-casting-advantages-disadvantages</span></div>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/ comparison cluster</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill new">NEW</span><span class="pill note">11 pages</span></div>
+        </li>
+        <li>
+          <ul class="toc-spokes">
+            <li class="toc-row">
+              <div class="lhs"><span class="path">forged-vs-cast</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill note">1,600 vol</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">sg-iron-vs-cast-iron</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill note">880 vol</span><span class="pill kd">KD 1</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">gray-iron-vs-ductile-iron</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">ductile-iron-vs-carbon-steel</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">casting-vs-machining</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">malleable-iron-vs-cast-iron</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill kd">KD 0</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">sand-casting-cost</span><span class="leader"></span></div>
+              <div class="rhs"><span class="pill kd">KD 0</span></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">die-cast-zinc-corrosion</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">advantages-of-zinc-die-casting</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+            <li class="toc-row">
+              <div class="lhs"><span class="path">investment-casting-advantages-disadvantages</span><span class="leader"></span></div>
+              <div class="rhs"></div>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   </div>
 
-  <div class="hub span-6">
-    <div class="hub-head">
-      <div class="title">Industries</div>
-      <div class="meta">2 conditional pages</div>
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">04</div>
+      <div class="band-meta">Industries <span class="sep">/</span> 2 conditional <span class="sep">/</span> certs gate the build</div>
     </div>
-    <p class="hub-note">Both pages ship only if certifications are real. Without the certs, the page reads as a credibility risk on a high-stakes term.</p>
+    <div class="band-body">
+      <div class="band-title">Industries</div>
+      <p class="band-note">Both pages ship only if certifications are real. Without the certs, the page reads as a credibility risk on a high-stakes term.</p>
 
-    <div class="route">
-      <span class="path">/industries/automotive/</span>
-      <span class="pills"><span class="pill p2">P2</span><span class="pill note">CONDITIONAL on IATF 16949</span></span>
-    </div>
-    <div class="spokes inline">18,100 vol, largest industry keyword</div>
-
-    <div class="route">
-      <span class="path">/industries/aerospace/</span>
-      <span class="pills"><span class="pill p2">P2</span><span class="pill note">CONDITIONAL on AS9100</span></span>
-    </div>
-    <div class="spokes inline">9,900 vol, KD 0, free top-rank if claimable</div>
-  </div>
-
-  <div class="hub span-6">
-    <div class="hub-head">
-      <div class="title">Utility</div>
-      <div class="meta">Site-wide pages</div>
-    </div>
-    <p class="hub-note">Standard site infrastructure plus the Halliburton case study, Redstone's strongest single proof point.</p>
-
-    <div class="route">
-      <span class="path">/</span>
-      <span class="pills"><span class="pill note">homepage rebuild</span></span>
-    </div>
-    <div class="route">
-      <span class="path">/about/</span>
-      <span class="pills"></span>
-    </div>
-    <div class="route">
-      <span class="path">/contact/</span>
-      <span class="pills"></span>
-    </div>
-    <div class="route">
-      <span class="path">/quote/</span>
-      <span class="pills"><span class="pill note">multi-step + CAD upload</span></span>
-    </div>
-    <div class="route">
-      <span class="path">/case-studies/halliburton/</span>
-      <span class="pills"><span class="pill note">$1.2M proof point</span></span>
+      <ul class="toc-list">
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/industries/automotive/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill note">CONDITIONAL on IATF 16949</span><span class="pill note">18,100 vol</span></div>
+        </li>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/industries/aerospace/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill note">CONDITIONAL on AS9100</span><span class="pill kd">KD 0</span><span class="pill note">9,900 vol</span></div>
+        </li>
+      </ul>
     </div>
   </div>
 
-</div>
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">05</div>
+      <div class="band-meta">Utility <span class="sep">/</span> 5 site-wide pages</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Utility</div>
+      <p class="band-note">Standard site infrastructure plus the Halliburton case study, Redstone's strongest single proof point.</p>
+
+      <ul class="toc-list">
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill note">homepage rebuild</span></div>
+        </li>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/about/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/contact/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span></div>
+        </li>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/quote/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill note">multi-step + CAD upload</span></div>
+        </li>
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/case-studies/halliburton/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill note">$1.2M proof point</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
 
 </section>
 

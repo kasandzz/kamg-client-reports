@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>KasOS Morning Intel -- 2026-05-07</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0e17;color:#e2e8f0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6}
+  .container{max-width:1200px;margin:0 auto;padding:20px}
+  .header{text-align:center;padding:24px 0 20px;border-bottom:1px solid #1e293b;margin-bottom:24px}
+  .header h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+  .header .subtitle{color:#94a3b8;font-size:12px}
+  .header .meta{color:#64748b;font-size:11px;margin-top:6px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;margin:0 4px}
+  .badge-warn{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+  .badge-ok{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+  .badge-red{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+  .section{margin-bottom:28px}
+  .section-title{font-size:14px;font-weight:600;color:#e2e8f0;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:8px}
+  .section-title .count{font-size:10px;color:#64748b;font-weight:400}
+  .card{background:#111827;border:1px solid #1e293b;border-radius:10px;padding:14px;margin-bottom:10px}
+  .card-title{font-weight:600;font-size:13px;margin-bottom:4px}
+  .card-detail{font-size:11px;color:#94a3b8}
+  .card-red{border-left:3px solid #ef4444;background:rgba(239,68,68,.05)}
+  .card-amber{border-left:3px solid #f59e0b;background:rgba(245,158,11,.05)}
+  .card-blue{border-left:3px solid #3b82f6;background:rgba(59,130,246,.05)}
+  .card-green{border-left:3px solid #10b981;background:rgba(16,185,129,.05)}
+  .schedule-item{display:flex;gap:14px;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;margin-bottom:8px;align-items:flex-start}
+  .schedule-time{font-size:12px;font-weight:700;color:#3b82f6;min-width:90px;white-space:nowrap}
+  .schedule-time.past{color:#475569;text-decoration:line-through}
+  .schedule-time.now{color:#10b981}
+  .schedule-time.upcoming{color:#f59e0b}
+  .schedule-body{flex:1}
+  .schedule-title{font-weight:600;font-size:12px;margin-bottom:3px}
+  .schedule-detail{font-size:10px;color:#94a3b8}
+  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;margin-right:4px}
+  .tag-cod{background:rgba(139,92,246,.15);color:#8b5cf6}
+  .tag-cpg{background:rgba(6,182,212,.15);color:#06b6d4}
+  .tag-redstone{background:rgba(220,38,38,.15);color:#dc2626}
+  .tag-lths{background:rgba(168,85,247,.15);color:#a855f7}
+  .tag-internal{background:rgba(59,130,246,.15);color:#3b82f6}
+  .tag-personal{background:rgba(100,116,139,.15);color:#94a3b8}
+  .tag-attorney{background:rgba(245,158,11,.2);color:#f59e0b}
+  .conflict{background:rgba(239,68,68,.12);border:1px solid #ef4444;border-radius:8px;padding:10px;margin-bottom:10px}
+  .conflict-title{font-size:11px;font-weight:700;color:#ef4444;margin-bottom:4px}
+  .priority-block{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(245,158,11,.1));border:1px solid #ef4444;border-radius:12px;padding:18px;margin-bottom:18px}
+  .priority-block .label{font-size:10px;color:#ef4444;font-weight:700;letter-spacing:1px;margin-bottom:4px}
+  .priority-block .title{font-size:18px;font-weight:700;margin-bottom:8px}
+  .priority-block .countdown{font-size:24px;color:#f59e0b;font-weight:700;margin-bottom:12px}
+  .priority-block ul{list-style:none;padding:0}
+  .priority-block li{padding:6px 0;font-size:12px;color:#cbd5e1}
+  .priority-block li::before{content:"-> ";color:#3b82f6}
+  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}
+  a{color:#3b82f6;text-decoration:none}
+  a:hover{text-decoration:underline}
+  ul{padding-left:18px}
+  li{margin-bottom:5px;font-size:12px}
+  .footer{text-align:center;color:#475569;font-size:10px;margin-top:32px;padding-top:18px;border-top:1px solid #1e293b}
+  @media(max-width:600px){.container{padding:14px}.schedule-item{flex-direction:column;gap:6px}.schedule-time{min-width:auto}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>KasOS Morning Intel</h1>
+  <div class="subtitle">Thursday 2026-05-07 -- Afternoon catch-up (started 13:01 CDMX)</div>
+  <div class="meta">
+    <span class="badge badge-ok">Skill Health: OK</span>
+    <span class="badge badge-warn">Data: local-fallback (gcloud expired)</span>
+    <span class="badge badge-warn">Mode: catch-up</span>
+  </div>
+</div>
+
+<!-- PRIORITY BLOCK: Eric meeting in 30 min -->
+<div class="priority-block">
+  <div class="label">P0 -- IN 29 MINUTES</div>
+  <div class="title">Eric &amp; Kas Marketing Review (with Jack Squire)</div>
+  <div class="countdown">13:30-14:30 CDMX -- Zoom 81987273489 (passcode 564782)</div>
+  <ul>
+    <li><strong>NEW since yesterday:</strong> Eric emailed twice this morning re: status update</li>
+    <li>Email 1 (12:09 CDMX): "Can you please include cost per qualified lead as we discussed? That's one of the main metrics I'll be using to evaluate performance."</li>
+    <li>Email 2 (12:10 CDMX): "Also, the status update you sent says the email campaign is live. Is that correct?"</li>
+    <li>You replied at 12:57 CDMX correcting the live-status confusion. CPQL still owed.</li>
+    <li><strong>Today's primary deliverable:</strong> Walk Eric through SEO research summary + lock 5 decisions (sitemap, IATF 16949, AS9100, Mexico anchor, AI Override strategy)</li>
+    <li>Brief link: <a href="https://kasandzz.github.io/kamg-client-reports/redstone/seo-research-summary-2026-05-07.html">seo-research-summary-2026-05-07.html</a></li>
+    <li>Site rebuild PRD ready (kamg-ops/docs/redstone/website-rebuild/prd-2026-05-07.html). P0 build kicks off Friday May 8 if signed off. Hosting cutover deadline May 13.</li>
+    <li>Tracker v2 dummy preview at theredstonemanufacturing.com/tracker-v2.html -- you owe Leo a green-light decision today</li>
+    <li>Cold email v4 + 17 decisions still in Eric's court -- be ready for questions</li>
+  </ul>
+</div>
+
+<!-- CONFLICT WARNING -->
+<div class="conflict">
+  <div class="conflict-title">CALENDAR CONFLICT</div>
+  <div style="font-size:11px;color:#cbd5e1">Jeff n Kas (14:00-14:30) overlaps Eric Marketing Review (13:30-14:30). Suggest moving Jeff to after the Eric call (4-min buffer at 14:30).</div>
+</div>
+
+<!-- HEALTH FLAGS -->
+<div class="section">
+  <div class="section-title">Health Flags <span class="count">5 issues</span></div>
+  <div class="card card-red">
+    <div class="card-title">CRITICAL: Backup 8 days stale</div>
+    <div class="card-detail">Last successful backup: 2026-04-29 (5,150 MB). Run PersonalOS Daily Backup ASAP -- carried forward from yesterday's flags.</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">WARNING: gcloud auth expired</div>
+    <div class="card-detail">BQ + GCS access blocked. Cloud morning-intel CF ran but couldn't be fetched. Run: <code>gcloud auth login</code></div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">WARNING: Agency Brain offline</div>
+    <div class="card-detail">PC-C 192.168.100.20:8080 unreachable. Compiler ingest bridge inactive (non-blocking).</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">WARNING: kamg-ops -- expired lock cleared</div>
+    <div class="card-detail">Cleared expired lock on client-intel/cod/franzi-method-sop.md (2026-05-06 19:08 lease). Pushed cleanup commit a6cfb4cf.</div>
+  </div>
+  <div class="card card-blue">
+    <div class="card-title">OK: Knowledge compiler healthy -- last run 2026-05-07 00:00 UTC (~13h ago, success)</div>
+    <div class="card-detail">81 total runs, 80 notes created, 25 decisions captured, 239 connections.</div>
+  </div>
+</div>
+
+<!-- TODAY'S SCHEDULE -->
+<div class="section">
+  <div class="section-title">Today's Schedule -- Thursday May 7 <span class="count">21 events</span></div>
+
+  <div class="schedule-item">
+    <div class="schedule-time past">06:45-08:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title">Morning routine block (exercise + shower + focus + Leo planning + Russ block)</div>
+      <div class="schedule-detail">All complete</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time past">10:30-11:00</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-lths">LTHS</span>LTHS Strategy Session (Boris, Vladislav, Vovik)</div>
+      <div class="schedule-detail">Done. Fathom recap: SOP for booking rate implementation discussed.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time past">11:00-12:00</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-cpg">CPG</span>Weekly Sales Development Review (Krik, Julieta, Mora, Stef)</div>
+      <div class="schedule-detail">Done. Fathom recap: Krik GoDaddy email setup frustration.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time past">12:00-12:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-internal">INTERNAL</span>Attio Completion Plan (Leo)</div>
+      <div class="schedule-detail">Done.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time now">13:00-13:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-redstone">REDSTONE</span>Eric Siteplan Prep (running now)</div>
+      <div class="schedule-detail">Brief is ready. Last polish before Eric joins.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item" style="border-color:#ef4444;background:rgba(239,68,68,.05)">
+    <div class="schedule-time upcoming">13:30-14:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-redstone">REDSTONE</span>Eric &amp; Kas Marketing Review (Eric Millinger, Jack Squire) -- P0</div>
+      <div class="schedule-detail">Zoom 81987273489 / pw 564782. Both attendees accepted today.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item" style="border-color:#f59e0b">
+    <div class="schedule-time upcoming">14:00-14:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-personal">EXT</span>Jeff n Kas (Jeff Jacobs, trivreats.com) -- CONFLICT</div>
+      <div class="schedule-detail">Overlaps Eric meeting. Move to 14:30 or 15:45.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time upcoming">14:30-15:00</div>
+    <div class="schedule-body">
+      <div class="schedule-title">Eat</div>
+      <div class="schedule-detail">Personal block.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time upcoming">15:00-15:30</div>
+    <div class="schedule-body">
+      <div class="schedule-title">Walk</div>
+      <div class="schedule-detail">Personal block.</div>
+    </div>
+  </div>
+
+  <div class="schedule-item" style="border-color:#f59e0b;background:rgba(245,158,11,.05)">
+    <div class="schedule-time upcoming">15:30-15:45</div>
+    <div class="schedule-body">
+      <div class="schedule-title"><span class="tag tag-attorney">RESIDENCY</span>Legal Expertise Attorney Update</div>
+      <div class="schedule-detail">Permanent residency case sync (new lawyer engaged via Sam Apr 23).</div>
+    </div>
+  </div>
+
+  <div class="schedule-item">
+    <div class="schedule-time upcoming">20:00 onwards</div>
+    <div class="schedule-body">
+      <div class="schedule-title">Relax + Bed</div>
+      <div class="schedule-detail">"Aranza Loco week" (May 2-8) -- evening protected.</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2">
+<!-- OVERNIGHT INTEL -->
+<div class="section">
+  <div class="section-title">Overnight Intel <span class="count">since 2026-05-06 ~20:00</span></div>
+
+  <div class="card card-red">
+    <div class="card-title">Eric Millinger -- 2 emails on status update (P0)</div>
+    <div class="card-detail">
+      <strong>1.</strong> "Can you please include cost per qualified lead as we discussed?" (12:09 CDMX)<br>
+      <strong>2.</strong> "Also, the status update you sent says the email campaign is live. Is that correct?" (12:10 CDMX)<br>
+      <em>You replied 12:57 clarifying emails not live until 100% approved. CPQL metric still owed in next update.</em>
+    </div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">Leo -- Redstone list quality audit shipped (DM 12:43 CST)</div>
+    <div class="card-detail">
+      <a href="https://leo26850.github.io/redstone-reports/list-quality-audit-2026-05-07.html">list-quality-audit-2026-05-07.html</a><br>
+      Earlier 09:28 DM: drafted Eric note re: list-building approach pivot ("parts per industry"). Leo wants to share before Eric meeting.
+    </div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">Russ -- COD Unbreakable: "The reason it's not 100 seats" (07:07 CDMX)</div>
+    <div class="card-detail">Justification email for 10-seat cap. No action -- read-only intel for the LP rebuild.</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">Fathom recaps</div>
+    <div class="card-detail">
+      LTHS: Kas prepared SOP for booking rate / reply-and-book prospects, can feed AI<br>
+      CPG: Krik GoDaddy email setup frustration (auto-format issue)
+    </div>
+  </div>
+
+  <div class="card card-amber">
+    <div class="card-title">Klaviyo Partner Portal -- account locked</div>
+    <div class="card-detail">Password reset failed (too many login attempts). They confirmed ~$3K accrued payouts -- waiting on payout criteria clarification.</div>
+  </div>
+</div>
+
+<!-- CARRY-FORWARDS -->
+<div class="section">
+  <div class="section-title">Carrying Forward <span class="count">from 2026-05-06</span></div>
+
+  <div class="card card-amber">
+    <div class="card-title">5 Gmail drafts -- still in Drafts</div>
+    <div class="card-detail">Daniel x2 (Redstone handoff + 50/50 partnership), Eric (design houses shortlist EOW), Temitope (Leke v2 re-pitch), Conal (overdue intro). All await Kas review/send.</div>
+  </div>
+
+  <div class="card card-amber">
+    <div class="card-title">Redstone Russ Wynn status reply (ahead of 5/7 Eric review)</div>
+    <div class="card-detail">Was on yesterday's list -- check before today's meeting.</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">Tracker v2 commits (7c5c900, f6b9a12) on HOLD</div>
+    <div class="card-detail">Need to review dummy-data preview at theredstonemanufacturing.com/tracker-v2.html and green-light push to Leo.</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">COD nurture sequences block (yesterday's afternoon plan)</div>
+    <div class="card-detail">Yesterday's afternoon block was used for COD dashboard finish + Eric brief instead. Reschedule.</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">Rehan PostHog identify() guide -- pending response</div>
+    <div class="card-detail">Once Rehan ships, MA/VSL Play Rate + Engagement gauges go live (closes the last open dashboard item, 98 -> 100%).</div>
+  </div>
+
+  <div class="card card-blue">
+    <div class="card-title">CPG Leo unblock list -- Slack DMs to Krik + Vovik on hold</div>
+    <div class="card-detail">Awaiting Kas decision on whether to draft (Krik bundle + Vovik Bison creds nudge).</div>
+  </div>
+</div>
+</div>
+
+<!-- ACTION QUEUE -->
+<div class="section">
+  <div class="section-title">Action Queue (priority order)</div>
+  <div class="card card-red">
+    <div class="card-title">P0 -- BEFORE 13:30 (29 min): Final prep for Eric meeting</div>
+    <div class="card-detail">Open SEO brief + PRD + Leo's list audit. Have CPQL answer ready. Have stance on Leo's "parts per industry" pivot ready.</div>
+  </div>
+  <div class="card card-red">
+    <div class="card-title">P0 -- AT 13:30: Move Jeff Jacobs meeting to 14:30 or later</div>
+    <div class="card-detail">14:00 conflict with Eric. Send a one-line apology + reschedule.</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">P1 -- POST-ERIC: Reply to Eric on CPQL inclusion in updates</div>
+    <div class="card-detail">Update status report template to include CPQL going forward. Confirm via reply.</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">P1 -- TODAY: Run PersonalOS Daily Backup</div>
+    <div class="card-detail">8 days stale. Critical infrastructure debt.</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">P1 -- TODAY: gcloud auth login</div>
+    <div class="card-detail">Restores BQ + GCS + cloud morning-intel auto-fetch.</div>
+  </div>
+  <div class="card card-amber">
+    <div class="card-title">P2 -- TODAY: Decide on Leo's list-building pivot before sharing with Eric</div>
+    <div class="card-detail">Leo drafted Eric note 09:28 CST proposing "parts per industry" segmentation -- review before he sends.</div>
+  </div>
+  <div class="card card-blue">
+    <div class="card-title">P2 -- TODAY: Walk Tracker v2 dummy preview, green-light Leo's commit push</div>
+    <div class="card-detail">theredstonemanufacturing.com/tracker-v2.html</div>
+  </div>
+  <div class="card card-blue">
+    <div class="card-title">P2 -- THIS WEEK: Eric design houses shortlist (EOW commitment)</div>
+    <div class="card-detail">Speed Virtual-style consultancies, U.S. focused. Draft committed by EOW.</div>
+  </div>
+  <div class="card card-blue">
+    <div class="card-title">P2 -- TODAY: Send/discard 5 Gmail drafts</div>
+    <div class="card-detail">Daniel x2, Eric, Temitope, Conal -- review queue.</div>
+  </div>
+  <div class="card card-blue">
+    <div class="card-title">P3 -- TODAY: Attorney update at 15:30 (residency case)</div>
+    <div class="card-detail">15-min sync. New lawyer engaged Apr 23 via Sam, pursuing permanent.</div>
+  </div>
+</div>
+
+<!-- DATA SOURCES -->
+<div class="section">
+  <div class="section-title">Data Sources</div>
+  <div class="card">
+    <div class="card-detail" style="font-size:11px">
+      <strong>Calendar:</strong> Google Calendar MCP (k@kasandz.com primary) -- 21 events fetched live<br>
+      <strong>Email:</strong> Gmail MCP (newer_than:1d, important+unread+starred) -- 26 threads<br>
+      <strong>Slack:</strong> Slack MCP search (after:2026-05-06) -- 3 messages from Leo<br>
+      <strong>Cloud morning-intel:</strong> Skipped -- gcloud auth expired (CF likely ran 5am CDMX, not fetched)<br>
+      <strong>Daily note source:</strong> 05-Daily/2026-05-06.md (yesterday's full session log)<br>
+      <strong>Heartbeat:</strong> 2 healthy, 0 warning, 0 critical -- no skill issues<br>
+      <strong>Compiler state:</strong> last_run 2026-05-07T00:00:00Z success<br>
+      <strong>Backup log:</strong> last entry 2026-04-29 (8 days)<br>
+      <strong>Generated:</strong> 2026-05-07T13:01 CDMX (afternoon catch-up mode)
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  KasOS Morning Intel -- generated 2026-05-07 13:01 CDMX -- afternoon catch-up<br>
+  Path: 03-Resources/output/cod/morning-intel-2026-05-07.html
+</div>
+
+</div>
+</body>
+</html>

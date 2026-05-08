@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-05-08</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  .header { text-align:center; margin-bottom:24px; padding:32px 0 24px; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .health-badge { display:inline-block; margin-top:10px; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:600; }
+  .health-ok { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+
+  .stale-banner { background:linear-gradient(90deg, rgba(245,158,11,.15), rgba(245,158,11,.05)); border:1px solid rgba(245,158,11,.4); border-left:4px solid #f59e0b; border-radius:8px; padding:12px 16px; margin-bottom:16px; }
+  .stale-banner .stale-title { font-size:12px; font-weight:700; color:#f59e0b; margin-bottom:4px; }
+  .stale-banner .stale-text { font-size:11px; color:#fbbf24; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-card.blue::before { background:#3b82f6; }
+  .stat-value { font-size:22px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:70px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-redstone { background:rgba(244,114,182,.15); color:#f472b6; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-lths { background:rgba(132,204,22,.15); color:#84cc16; }
+  .tag-leke { background:rgba(251,146,60,.15); color:#fb923c; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+  .tag-personal { background:rgba(148,163,184,.15); color:#94a3b8; }
+
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; color:#0a0e17; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  .source-row { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-bottom:1px solid #1e293b; font-size:11px; }
+  .source-row:last-child { border-bottom:none; }
+  .source-status { padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; }
+  .status-fresh { background:rgba(16,185,129,.15); color:#10b981; }
+  .status-stale { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .status-error { background:rgba(239,68,68,.15); color:#ef4444; }
+  .status-fallback { background:rgba(245,158,11,.2); color:#f59e0b; border:1px dashed rgba(245,158,11,.5); }
+
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } .schedule-item { flex-direction:column; gap:6px; } .schedule-time { min-width:auto; } }
+  .muted { color:#64748b; font-size:11px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Friday, May 08, 2026 -- CDMX</div>
+    <div class="meta">Generated 2026-05-08 11:14 CST | Data source: <span class="hl-amber">local-fallback</span></div>
+    <div class="health-badge health-ok">Skill Health: OK</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    <div class="tab" onclick="showTab('redstone')">Redstone</div>
+    <div class="tab" onclick="showTab('cpg')">CPG</div>
+    <div class="tab" onclick="showTab('lths')">LTHS</div>
+    <div class="tab" onclick="showTab('leke')">Leke</div>
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <!-- MY DAY -->
+  <div class="section active" id="myday">
+    <div class="stat-grid">
+      <div class="stat-card blue"><div class="stat-value">29</div><div class="stat-label">Events Today</div></div>
+      <div class="stat-card amber"><div class="stat-value">3</div><div class="stat-label">Needs-Reply Emails</div></div>
+      <div class="stat-card red"><div class="stat-value">4</div><div class="stat-label">Urgent Slack</div></div>
+      <div class="stat-card green"><div class="stat-value">52</div><div class="stat-label">Fathom Actions</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Top Priorities Today</div>
+      <div class="card-subtitle">Built from yesterday's Fathom action items + carry-forwards</div>
+      <div class="concern-item">
+        <div class="item-title">Redstone sitemap due 10:30 -- Mostafa blocking</div>
+        <div class="item-detail">Eric expects sitemap email + wireframes; Jack handed off keyword research yesterday. Mostafa needs unblock signal before 10:30.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">CPG weekly sales review -- 7 emails to send today</div>
+        <div class="item-detail">Salt boss, Sugar Plum, Miracle Noodle, Bromaltis, Niamachi, Happy People, BDBC -- all need calendar links or decline messages from yesterday's review call.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">LTHS lead-gen pivot -- target larger firms + content creators</div>
+        <div class="item-detail">Boris call yesterday: rework lead-gen targeting, send images/storyboards, require call for video, reword 'free sample'.</div>
+      </div>
+      <div class="concern-item">
+        <div class="item-title">Leke -- Laolu reply needed today</div>
+        <div class="item-detail">Pushback drafted yesterday on AI-audit callout; Rehan tracking verification ask staged. Reply window closes EOD.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">COD -- Akari workshop bookings at 11% (normal 25%+)</div>
+        <div class="item-detail">From yesterday's impromptu Zoom: 8 action items from Russ on workshop framing, DM ad scripts, Revio setup, JIT H1 experiment in Postdoc.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Schedule</div>
+      <div class="card-subtitle">29 events on calendar -- detail pull blocked by OAuth (see Sources)</div>
+      <div class="muted">Calendar fetch failed (invalid_client); rebuild OAuth on next session. Key carry-forwards from Fathom + daily note inserted above as priority items.</div>
+    </div>
+  </div>
+
+  <!-- COD INTEL -->
+  <div class="section" id="cod">
+    <div class="stale-banner">
+      <div class="stale-title">STALE DATA WARNING</div>
+      <div class="stale-text">Cloud CF stuck on 2026-04-29 due to OAuth invalid_client; numbers shown are 9 days old. Treat as directional baseline, not current state. Refresh path: rebuild Calendar/Gmail OAuth, then re-run morningIntelCollector.</div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card green"><div class="stat-value">$13,993</div><div class="stat-label">Gross Revenue (period)</div></div>
+      <div class="stat-card amber"><div class="stat-value">0.46</div><div class="stat-label">ROAS</div></div>
+      <div class="stat-card blue"><div class="stat-value">5</div><div class="stat-label">Enrollments</div></div>
+      <div class="stat-card green"><div class="stat-value">98.6%</div><div class="stat-label">Show Rate</div></div>
+      <div class="stat-card red"><div class="stat-value">0%</div><div class="stat-label">Close Rate</div></div>
+      <div class="stat-card amber"><div class="stat-value">$30,563</div><div class="stat-label">Total Spend</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">7-Day Trend</div>
+      <div class="card-subtitle">Cash + Spend (5/1 - 5/7) -- as of stale snapshot</div>
+      <div style="display:flex; gap:24px; align-items:center; margin-top:8px;">
+        <div>
+          <div class="muted">Cash</div>
+          <svg class="sparkline" width="220" height="50" viewBox="0 0 220 50">
+            <polyline stroke="#10b981" points="0,42 36,32 73,38 110,35 146,33 183,5 220,28"/>
+          </svg>
+        </div>
+        <div>
+          <div class="muted">Spend</div>
+          <svg class="sparkline" width="220" height="50" viewBox="0 0 220 50">
+            <polyline stroke="#ef4444" points="0,18 36,8 73,0 110,12 146,50 183,50 220,50"/>
+          </svg>
+        </div>
+        <div>
+          <div class="muted">ROAS</div>
+          <svg class="sparkline" width="220" height="50" viewBox="0 0 220 50">
+            <polyline stroke="#3b82f6" points="0,45 36,30 73,42 110,38 146,5 183,5 220,5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:8px;">Spend dropped to $0 from 5/5-5/7 in snapshot -- likely Hyros/Meta sync gap, not actual pause.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Closer Performance</div>
+      <table class="data-table">
+        <thead><tr><th>Closer</th><th>Calls</th><th>Showed</th><th>Show Rate</th><th>Closed</th><th>Close Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Dorian Matney</td><td>35</td><td>35</td><td>100.0%</td><td>0</td><td><span class="hl-amber">0.0%</span></td></tr>
+          <tr><td>Matt Dakan</td><td>33</td><td>32</td><td>97.0%</td><td>0</td><td><span class="hl-amber">0.0%</span></td></tr>
+          <tr><td>Colby Mann</td><td>1</td><td>1</td><td>100.0%</td><td>0</td><td><span class="hl-amber">0.0%</span></td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px;">0% close rate across 69 calls is anomalous -- likely Hyros enrollment-attribution lag, not actual zero closes (5 enrollments recorded).</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad Spend Breakdown</div>
+      <table class="data-table">
+        <thead><tr><th>Campaign</th><th>Spend</th><th>Impr.</th><th>Clicks</th><th>CPM</th><th>CTR</th></tr></thead>
+        <tbody>
+          <tr><td>Paid Workshop ABO Cold Industry (Winning)</td><td>$24,124</td><td>306,236</td><td>29,842</td><td>$78.78</td><td>9.74%</td></tr>
+          <tr><td>JIT April Russ Italy - Lead</td><td>$4,193</td><td>48,603</td><td>1,883</td><td>$86.26</td><td>3.87%</td></tr>
+          <tr><td>MA Funnel Application ABO</td><td>$1,077</td><td>7,509</td><td>439</td><td>$143.48</td><td>5.85%</td></tr>
+          <tr><td>JIT Russ Italy - Schedule</td><td>$531</td><td>3,945</td><td>107</td><td>$134.54</td><td>2.71%</td></tr>
+          <tr><td>JIT Russ Italy</td><td>$340</td><td>2,332</td><td>86</td><td>$145.91</td><td>3.69%</td></tr>
+          <tr><td>TOF Cold Authority Reels</td><td>$177</td><td>18,008</td><td>70</td><td>$9.83</td><td>0.39%</td></tr>
+          <tr><td>Retarget Authority Reels</td><td>$120</td><td>11,082</td><td>85</td><td>$10.86</td><td>0.77%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Funnel Health</div>
+      <div class="funnel-row"><div class="funnel-label">Leads</div><div class="funnel-bar" style="width:100%; background:#3b82f6;">260</div></div>
+      <div class="funnel-row"><div class="funnel-label">Applied</div><div class="funnel-bar" style="width:13%; background:#8b5cf6;">34</div><div class="funnel-pct">13.1%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Booked</div><div class="funnel-bar" style="width:27%; background:#06b6d4;">69</div><div class="funnel-pct">applied to booked 2.0x</div></div>
+      <div class="funnel-row"><div class="funnel-label">Showed</div><div class="funnel-bar" style="width:26%; background:#10b981;">68</div><div class="funnel-pct">98.6%</div></div>
+      <div class="funnel-row"><div class="funnel-label">Enrolled</div><div class="funnel-bar" style="width:2%; background:#ec4899;">5</div><div class="funnel-pct">7.4% showed to enrolled</div></div>
+    </div>
+  </div>
+
+  <!-- REDSTONE -->
+  <div class="section" id="redstone">
+    <div class="card">
+      <div class="card-title">Redstone -- Friday Critical Path</div>
+      <div class="card-subtitle">Sitemap due 10:30 | Mostafa blocking | Eric review pending</div>
+      <div class="concern-item">
+        <div class="item-title">Sitemap email to Eric -- 10:30 deadline</div>
+        <div class="item-detail">Per Tue/Wed Eric review schedule. Jack proposed sitemap; Eric delegated decision. Mostafa is the critical path bottleneck.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Wireframes -- schedule 30-min Tue/Wed review</div>
+        <div class="item-detail">From 2026-05-07 Eric/Kas marketing review.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Brazil pages decision pending</div>
+        <div class="item-detail">If remove, implement 301s. Tied to location-page copy (US mfr + overseas facilities) Jack draft.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">SEO research doc + sitemap to Eric</div>
+        <div class="item-detail">Email post-call notes re: keyword/sitemap. Mic mono fix from Tue's call still open.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPG -->
+  <div class="section" id="cpg">
+    <div class="card">
+      <div class="card-title">CPG -- Sales Development Aftermath</div>
+      <div class="card-subtitle">19 action items from yesterday's weekly review (5/7 56-min call)</div>
+      <div class="concern-item">
+        <div class="item-title">7 prospect emails to send today (calendar links)</div>
+        <div class="item-detail">Salt boss, Sugar Plum, Miracle Noodle (Jonathan), Bromaltis (CPA/KPIs), Niamachi (decline -- low payout), Happy People, BDBC (request brand list/payouts/networks).</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">2 calls to schedule</div>
+        <div class="item-detail">Dream True (Jack) re: setup fee, propose $1-2k. Fitness Avenue (Justin) re: CPA.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">5 internal infra items</div>
+        <div class="item-detail">Connect SimilarWeb/SEMrush paid APIs to Atio w/ Leo. Verify Atio call recording w/ Julieta. Schedule Clutch review practice w/ Krik. Draft Riverside setup guide. Email Krik Clutch link + guide.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Reactivation list -- start personalized outreach</div>
+        <div class="item-detail">Process OOO replies (verify LinkedIn, follow up in 2 weeks). Follow up all leads tagged by Steph in HotHawk/Atio. Request Clutch admin access from Steph.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Krik GoDaddy email format struggle (intel)</div>
+        <div class="item-detail">GoDaddy auto-formats emails causing deliverability issues. Worth a separate diagnostic if Krik flags again.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LTHS -->
+  <div class="section" id="lths">
+    <div class="card">
+      <div class="card-title">LTHS -- Lead-Gen Pivot (Boris 2026-05-07)</div>
+      <div class="card-subtitle">3 actions from yesterday's strategy session</div>
+      <div class="concern-item">
+        <div class="item-title">Update lead-gen targeting</div>
+        <div class="item-detail">Target larger firms + content creators. Send images/storyboards. Require call for video. Reword 'free sample'.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Past-leads reactivation</div>
+        <div class="item-detail">Scrape email/Slack for past leads. Build scored list. Reactivate via Claude.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Send Fathom meeting notes to Boris</div>
+        <div class="item-detail">Ship today via Fathom share link.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">SOP -- human-readable reply/booking doc prepped</div>
+        <div class="item-detail">From yesterday's session: Kas already drafted SOP for replying + booking prospects. Confirm Boris reviewed.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEKE -->
+  <div class="section" id="leke">
+    <div class="card">
+      <div class="card-title">Leke Services -- Reply Window Today</div>
+      <div class="card-subtitle">Pushback drafted yesterday | Rehan tracking verification staged</div>
+      <div class="concern-item">
+        <div class="item-title">Laolu reply -- send today</div>
+        <div class="item-detail">Pushback on AI-audit callout was drafted yesterday with supporting data. Reply EOD before Laolu unilaterally changes anything per pattern.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Rehan tracking verification</div>
+        <div class="item-detail">API-upload tracking workaround (Inactive UI by design) verification ask is staged. Confirm Rehan got the brief.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Daniel Ads context</div>
+        <div class="item-detail">Daniel runs Ads -- not in scope of today's reply. Standard fleet electrification cadence.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERNIGHT -->
+  <div class="section" id="overnight">
+    <div class="stat-grid">
+      <div class="stat-card red"><div class="stat-value">4</div><div class="stat-label">Urgent Slack</div></div>
+      <div class="stat-card amber"><div class="stat-value">74</div><div class="stat-label">Slack Messages</div></div>
+      <div class="stat-card amber"><div class="stat-value">3</div><div class="stat-label">Needs-Reply Email</div></div>
+      <div class="stat-card blue"><div class="stat-value">6</div><div class="stat-label">Email Threads</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Overnight Digest</div>
+      <div class="card-subtitle">Slack + Email -- detail pull blocked by OAuth (see Sources). Counts from sync agents.</div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack -- 4 urgent threads</div>
+          <div class="overnight-text">Detail unavailable in this fallback render. Threads tagged urgent by sync-slack agent require manual scan in Slack until sync detail is re-persisted to daily note.</div>
+        </div>
+        <div class="priority-badge priority-high">URGENT</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack -- 70 non-urgent</div>
+          <div class="overnight-text">Bulk volume across COD + client channels. Run /sync slack on demand for full context.</div>
+        </div>
+        <div class="priority-badge priority-low">BULK</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Email -- 3 needs-reply</div>
+          <div class="overnight-text">Detail unavailable in this fallback render. See Gmail directly until sync detail is re-persisted.</div>
+        </div>
+        <div class="priority-badge priority-high">REPLY</div>
+      </div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Email -- 3 informational</div>
+          <div class="overnight-text">FYI threads. Triage at end of day.</div>
+        </div>
+        <div class="priority-badge priority-low">FYI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="section" id="actions">
+    <div class="card">
+      <div class="card-title">Top 10 Action Items</div>
+      <div class="card-subtitle">Selected from 52 Fathom actions + 4 urgent Slack + 3 needs-reply emails</div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">REDSTONE</span> Email Eric SEO research doc + sitemap (10:30 hard deadline)<div class="action-context">fathom 2026-05-07 -- Mostafa blocking</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-amber">LEKE</span> Send Laolu pushback reply + Rehan tracking verification ask<div class="action-context">drafted 2026-05-07 -- EOD reply window</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl">CPG</span> Send 7 prospect emails (Salt, Sugar Plum, Miracle Noodle, Bromaltis, Niamachi, Happy People, BDBC)<div class="action-context">fathom 2026-05-07 -- weekly review</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl">LTHS</span> Update lead-gen: target larger firms, send storyboards, reword 'free sample'<div class="action-context">fathom 2026-05-07 -- Boris session</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">COD</span> Send 5-email workshop plan to Russ (then Russ word-smith)<div class="action-context">fathom 2026-05-08 impromptu Zoom</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">COD</span> Pitch same-day bookings on VIP call + post onboarding SOP in sales chat<div class="action-context">fathom 2026-05-08</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">COD</span> Update therapist + attorney workshop pages (outcomes-first, headline 'legal expertise')<div class="action-context">fathom 2026-05-07</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">COD</span> Verify LP event payments; resolve Mary + Jesse duplicates<div class="action-context">fathom 2026-05-07</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl-rose">COD</span> Build cold email reply agent MVP in our cloud; scrape GHL inbox for training<div class="action-context">fathom 2026-05-07</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div class="action-text"><span class="hl">CPG</span> Connect SimilarWeb/SEMrush paid APIs to Atio w/ Leo<div class="action-context">fathom 2026-05-07</div></div></div>
+      <div class="muted" style="margin-top:12px;">Remaining 42 Fathom actions in daily note 2026-05-08.md. 4 urgent Slack threads + 3 needs-reply emails require direct Slack/Gmail scan until OAuth restored.</div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="section" id="sources">
+    <div class="card">
+      <div class="card-title">Data Sources</div>
+      <div class="card-subtitle"><span class="source-status status-fallback">DATA_SOURCE = local-fallback</span></div>
+      <div class="source-row"><div>Calendar (Google)</div><div class="source-status status-error">ERROR -- invalid_client</div></div>
+      <div class="source-row"><div>Gmail</div><div class="source-status status-error">ERROR -- invalid_client</div></div>
+      <div class="source-row"><div>COD KPIs (BigQuery via cloud blob)</div><div class="source-status status-stale">STALE -- 2026-04-29 (9 days)</div></div>
+      <div class="source-row"><div>Slack sync</div><div class="source-status status-fresh">SYNCED -- 74 msgs / 4 urgent</div></div>
+      <div class="source-row"><div>Email sync</div><div class="source-status status-fresh">SYNCED -- 6 threads / 3 needs-reply</div></div>
+      <div class="source-row"><div>Fathom sync</div><div class="source-status status-fresh">SYNCED -- 6 meetings / 52 actions</div></div>
+      <div class="source-row"><div>Calendar sync</div><div class="source-status status-fresh">SYNCED -- 29 events</div></div>
+      <div class="source-row"><div>Skill heartbeat</div><div class="source-status status-fresh">OK -- no failures</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active Errors</div>
+      <div class="concern-item">
+        <div class="item-title">OAuth invalid_client (Google)</div>
+        <div class="item-detail">Calendar + Gmail API rejecting cloud function credentials. Cloud blob (morning-intel-cloud.json) frozen on 2026-04-29. Fix path: rebuild OAuth client in GCP project + re-deploy collector CF.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">Daily note sync gap</div>
+        <div class="item-detail">2026-05-08.md only persisted Fathom section; Schedule, Email, Slack detail not written. Sync agents need to flush all four sections to daily note (not just Fathom).</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Freshness</div>
+      <div class="muted">Generated 2026-05-08 11:14 CST | Cloud blob age 9d | Local syncs &lt; 1h | Skill heartbeat current</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === "showTab('" + id + "')") t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

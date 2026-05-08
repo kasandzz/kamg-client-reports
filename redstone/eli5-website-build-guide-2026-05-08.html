@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redstone Website Build, ELI5 Wireframe Brief, May 8, 2026</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: var(--rs-bg);
+    color: var(--rs-fg);
+    font-family: var(--rs-font-body);
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 24px 96px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid var(--rs-border);
+    margin-bottom: 32px; font-size: var(--rs-text-sm);
+    color: var(--rs-fg-tertiary);
+  }
+  .topbar .brand {
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .topbar .brand span { color: var(--rs-red); }
+
+  .hero { margin-bottom: 48px; }
+  .hero .eyebrow {
+    font-size: var(--rs-text-sm); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium); margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 44px; line-height: 1.06;
+    letter-spacing: var(--rs-tracking-tightest);
+    font-weight: var(--rs-weight-regular); margin-bottom: 16px;
+  }
+  .hero .sub {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    max-width: 780px;
+  }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rs-border);
+    margin-bottom: 48px;
+  }
+  .kpi {
+    padding: 22px 20px;
+    border-right: 1px solid var(--rs-border);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi .label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-size: 28px; line-height: 1.05;
+    letter-spacing: var(--rs-tracking-tight);
+    font-weight: var(--rs-weight-regular);
+    color: var(--rs-fg); margin-bottom: 4px;
+  }
+  .kpi .value.red { color: var(--rs-red); }
+  .kpi .delta {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+
+  section { margin-bottom: 56px; }
+  section h2 {
+    font-size: var(--rs-text-4xl); line-height: 1.15;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    margin-bottom: 8px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--rs-border);
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  section h2 .count {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-light); letter-spacing: 0;
+  }
+  section .lede {
+    font-size: var(--rs-text-md); color: var(--rs-fg-secondary);
+    line-height: 1.55; font-weight: var(--rs-weight-light);
+    margin-bottom: 24px; max-width: 780px;
+  }
+
+  /* TOC nav */
+  .nav {
+    border: 1px solid var(--rs-border);
+    background: var(--rs-bg-alt);
+    padding: 14px 18px;
+    margin-bottom: 48px;
+    font-size: var(--rs-text-sm);
+    line-height: 1.7;
+    color: var(--rs-fg-secondary);
+  }
+  .nav strong { color: var(--rs-fg); display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: var(--rs-weight-medium); }
+  .nav a {
+    color: var(--rs-fg-secondary); text-decoration: none;
+    margin-right: 18px; border-bottom: 1px dotted var(--rs-border-strong);
+    padding-bottom: 1px;
+  }
+  .nav a:hover { color: var(--rs-red); border-bottom-color: var(--rs-red); }
+
+  /* Voice cheat-sheet */
+  .voice-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    border: 1px solid var(--rs-border);
+    margin-bottom: 16px;
+  }
+  .voice-col {
+    padding: 22px 22px;
+    border-right: 1px solid var(--rs-border);
+  }
+  .voice-col:last-child { border-right: none; }
+  .voice-col h4 {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-red); font-weight: var(--rs-weight-medium);
+    margin: 0 0 12px 0;
+  }
+  .voice-col ul {
+    margin: 0; padding-left: 18px;
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    line-height: 1.6; font-weight: var(--rs-weight-light);
+  }
+  .voice-col ul li { margin-bottom: 6px; }
+  .voice-col ul li strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+  .voice-col code {
+    font-family: var(--rs-font-mono); font-size: 12px;
+    color: var(--rs-fg);
+    background: var(--rs-bg);
+    padding: 1px 5px; border: 1px solid var(--rs-border);
+    border-radius: var(--rs-radius-xs);
+  }
+
+  /* Mandate strip */
+  .mandate {
+    border: 1px solid var(--rs-red);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    background: var(--rs-bg);
+  }
+  .mandate .lab {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--rs-red); font-weight: var(--rs-weight-medium);
+    margin-bottom: 8px;
+  }
+  .mandate .body {
+    font-size: var(--rs-text-md); color: var(--rs-fg);
+    font-weight: var(--rs-weight-medium);
+    line-height: 1.5;
+  }
+  .mandate .body span { color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-light); margin-left: 6px; font-size: var(--rs-text-sm); }
+
+  /* Template cards */
+  .tpls {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    margin-bottom: 16px;
+  }
+  .tpl {
+    border: 1px solid var(--rs-border);
+    padding: 22px 22px;
+    background: var(--rs-bg);
+  }
+  .tpl .num {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--rs-red); font-weight: var(--rs-weight-medium);
+    margin-bottom: 10px;
+  }
+  .tpl h3 {
+    font-size: var(--rs-text-2xl); line-height: 1.2;
+    font-weight: var(--rs-weight-medium); color: var(--rs-fg);
+    margin: 0 0 8px 0;
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .tpl .eli5 {
+    font-size: var(--rs-text-sm); color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light); line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .tpl .eli5 strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+  .tpl ul {
+    margin: 0; padding-left: 18px;
+    font-size: 12px; color: var(--rs-fg-secondary);
+    line-height: 1.6; font-weight: var(--rs-weight-light);
+  }
+  .tpl ul li { margin-bottom: 4px; }
+  .tpl .meta {
+    border-top: 1px dotted var(--rs-border-strong);
+    margin-top: 14px; padding-top: 10px;
+    font-size: 11px; color: var(--rs-fg-tertiary);
+    font-family: var(--rs-font-mono);
+    letter-spacing: 0.02em;
+  }
+
+  /* Sitemap, editorial index pattern (matches Eric brief) */
+  .sm-legend {
+    display: flex; flex-wrap: wrap; gap: 14px 28px;
+    padding: 14px 18px;
+    border: 1px solid var(--rs-border);
+    background: var(--rs-bg-alt);
+    margin-bottom: 28px;
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+    line-height: 1.4;
+  }
+  .sm-legend .lg-item {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sm-legend .lg-item strong {
+    color: var(--rs-fg); font-weight: var(--rs-weight-medium);
+  }
+
+  .sm-band {
+    border-top: 1px solid var(--rs-border-strong);
+    padding: 24px 0 4px;
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    column-gap: 28px;
+    margin-bottom: 0;
+  }
+  .sm-band:last-of-type { border-bottom: 1px solid var(--rs-border-strong); padding-bottom: 28px; }
+
+  .sm-band .band-numeral {
+    font-family: var(--rs-font-display, var(--rs-font-body));
+    font-size: 64px; line-height: 0.9;
+    color: var(--rs-red);
+    font-weight: var(--rs-weight-light);
+    letter-spacing: var(--rs-tracking-tight);
+  }
+  .sm-band .band-meta {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+    margin-top: 10px; line-height: 1.5;
+  }
+  .sm-band .band-meta .sep { color: var(--rs-border-strong); margin: 0 4px; }
+
+  .sm-band .band-body { padding-top: 4px; }
+  .sm-band .band-title {
+    font-size: var(--rs-text-3xl, 28px);
+    line-height: 1.05;
+    font-weight: var(--rs-weight-medium);
+    letter-spacing: var(--rs-tracking-tight);
+    color: var(--rs-fg);
+    margin-bottom: 6px;
+  }
+  .sm-band .band-note {
+    font-size: var(--rs-text-sm);
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+    line-height: 1.55;
+    margin-bottom: 18px;
+    max-width: 720px;
+  }
+
+  /* TOC entries with dotted leader and right annotation */
+  .toc-list { margin: 0; padding: 0; list-style: none; }
+  .toc-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    column-gap: 14px;
+    padding: 11px 0 6px;
+    border-bottom: 1px solid var(--rs-line);
+  }
+  .toc-row:last-child { border-bottom: none; }
+
+  .toc-row .lhs {
+    display: flex; align-items: baseline; gap: 10px;
+    min-width: 0;
+  }
+  .toc-row .path {
+    font-family: var(--rs-font-mono);
+    color: var(--rs-fg);
+    font-weight: var(--rs-weight-medium);
+    font-size: 13.5px;
+    overflow-wrap: anywhere;
+  }
+  .toc-row .leader {
+    flex: 1;
+    border-bottom: 1px dotted var(--rs-border-strong);
+    transform: translateY(-3px);
+    min-width: 24px;
+  }
+  .toc-row .rhs {
+    display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end;
+    align-items: baseline;
+    text-align: right;
+  }
+
+  /* ELI5 detail block under each page */
+  .eli5-block {
+    padding: 4px 0 14px 0;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+    border-bottom: 1px solid var(--rs-line);
+  }
+  .eli5-block .row {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    column-gap: 12px;
+    padding: 3px 0;
+    align-items: baseline;
+  }
+  .eli5-block .row .key {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rs-fg-tertiary);
+    font-weight: var(--rs-weight-medium);
+  }
+  .eli5-block .row .val {
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  .eli5-block .row .val strong {
+    color: var(--rs-fg); font-weight: var(--rs-weight-medium);
+  }
+  .eli5-block .row .val em {
+    font-style: normal; color: var(--rs-red);
+    font-weight: var(--rs-weight-medium);
+  }
+  .eli5-block .row .val code {
+    font-family: var(--rs-font-mono); font-size: 11px;
+    background: var(--rs-bg-alt); padding: 1px 4px;
+    border: 1px solid var(--rs-border); border-radius: var(--rs-radius-xs);
+    color: var(--rs-fg);
+  }
+
+  /* Tag pills */
+  .pill {
+    display: inline-block; font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border: 1px solid var(--rs-border-strong);
+    color: var(--rs-fg-secondary);
+    vertical-align: middle;
+    border-radius: var(--rs-radius-xs);
+    font-weight: var(--rs-weight-medium);
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .pill.p0 { color: var(--rs-red); border-color: var(--rs-red); }
+  .pill.p1 { color: rgb(200, 120, 20); border-color: rgb(200, 120, 20); }
+  .pill.p2 { color: rgb(60, 80, 180); border-color: rgb(60, 80, 180); }
+  .pill.new { color: rgb(46, 132, 84); border-color: rgb(46, 132, 84); }
+  .pill.kd { color: var(--rs-fg); border-color: var(--rs-fg); background: var(--rs-bg-alt); }
+  .pill.note { color: var(--rs-fg-tertiary); border-color: var(--rs-border-strong); }
+  .pill.tpl { color: var(--rs-red); border-color: var(--rs-red); background: var(--rs-bg-alt); }
+
+  /* Tables */
+  table.rs {
+    width: 100%; border-collapse: collapse;
+    font-size: var(--rs-text-sm);
+    background: var(--rs-bg);
+  }
+  table.rs th, table.rs td {
+    padding: 12px 14px; border-bottom: 1px solid var(--rs-border);
+    text-align: left; vertical-align: top; line-height: 1.45;
+  }
+  table.rs th {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rs-fg-tertiary); font-weight: var(--rs-weight-medium);
+    border-bottom: 1px solid var(--rs-border-strong);
+    background: var(--rs-bg-alt);
+  }
+  table.rs td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.rs tbody tr:hover { background: var(--rs-bg-alt); }
+  table.rs td strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+  table.rs code {
+    font-family: var(--rs-font-mono); font-size: 12px;
+    color: var(--rs-fg);
+  }
+
+  .callout {
+    border-left: 3px solid var(--rs-red);
+    background: var(--rs-bg-alt);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: var(--rs-text-sm);
+    line-height: 1.55;
+    color: var(--rs-fg-secondary);
+    font-weight: var(--rs-weight-light);
+  }
+  .callout strong { color: var(--rs-fg); font-weight: var(--rs-weight-medium); }
+
+  .footer {
+    margin-top: 64px; padding-top: 24px;
+    border-top: 1px solid var(--rs-border);
+    font-size: var(--rs-text-sm); color: var(--rs-fg-tertiary);
+    line-height: 1.6;
+  }
+  .footer a { color: var(--rs-red); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 860px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kpi:nth-child(2n) { border-right: none; }
+    .voice-grid { grid-template-columns: 1fr; }
+    .voice-col { border-right: none; border-bottom: 1px solid var(--rs-border); }
+    .voice-col:last-child { border-bottom: none; }
+    .tpls { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+    body { padding: 24px 16px 64px; }
+
+    .sm-band {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      padding: 20px 0 4px;
+    }
+    .sm-band .band-numeral { font-size: 48px; }
+    .sm-band .band-meta { margin-top: 4px; margin-bottom: 14px; }
+    .sm-band .band-title { font-size: 24px; }
+
+    .toc-row {
+      grid-template-columns: 1fr;
+      row-gap: 6px;
+      padding: 10px 0 6px;
+    }
+    .toc-row .leader { display: none; }
+    .toc-row .rhs {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .eli5-block .row {
+      grid-template-columns: 1fr;
+      row-gap: 1px;
+      padding: 4px 0;
+    }
+
+    .sm-legend { gap: 8px 18px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand">Redstone <span>×</span> KAMG · Outrider</div>
+  <div>ELI5 Wireframe Brief · For build &amp; design team · May 8, 2026</div>
+</div>
+
+<div class="hero">
+  <div class="eyebrow">Build kickoff document</div>
+  <h1>The plain-English guide to every page in the Redstone rebuild</h1>
+  <p class="sub">
+    Eric signed off the sitemap on May 7. Wireframes start now. This is the single source of truth for
+    the design and build team: what each page is for, who is searching for it, what Eric wants on it,
+    what the headline must say, and which words you cannot use anywhere on the site. Read top to bottom once,
+    then use the sitemap as your work queue.
+  </p>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="label">Pages to wireframe</div>
+    <div class="value">71</div>
+    <div class="delta">25 P0 · 40 P1 · 6 P2</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Page templates</div>
+    <div class="value red">6</div>
+    <div class="delta">Cover all 71 pages</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Days to launch</div>
+    <div class="value">90</div>
+    <div class="delta">Mid-June target</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Stack locked</div>
+    <div class="value">Astro</div>
+    <div class="delta">+ Vercel + PostHog + LH CI</div>
+  </div>
+</div>
+
+<div class="nav">
+  <strong>Jump to</strong>
+  <a href="#how">How to use this</a>
+  <a href="#voice">Eric's voice rules</a>
+  <a href="#mandates">Above-fold mandates</a>
+  <a href="#templates">6 page templates</a>
+  <a href="#sitemap">Full sitemap</a>
+  <a href="#quote">Quote form spec</a>
+  <a href="#schema">Schema &amp; tracking</a>
+  <a href="#sprint">Sprint plan</a>
+  <a href="#open">Open questions</a>
+</div>
+
+<section id="how">
+  <h2>How to use this guide <span class="count">read order matters</span></h2>
+  <p class="lede">
+    The team using this brief: KAMG (Kas, Leo, Rehan), Outrider (Jack and team), and the design/wireframe lead.
+    Goal of this document: get every wireframe drafted from the same understanding of intent, voice, and Eric's rules.
+  </p>
+  <ol style="font-size: var(--rs-text-sm); color: var(--rs-fg-secondary); line-height: 1.7; font-weight: var(--rs-weight-light); padding-left: 20px; margin: 0;">
+    <li><strong>Read Eric's voice rules and the above-fold mandate first.</strong> These bind every page. If a wireframe violates them, the wireframe is wrong, not the rule.</li>
+    <li><strong>Match the page to one of 6 templates.</strong> Every page in the sitemap is tagged with a template number. Pull the template spec, then layer the page-specific notes.</li>
+    <li><strong>Read the page-level ELI5 + Eric notes.</strong> Tells you who the user is, what they came to do, and which language Eric will or will not approve.</li>
+    <li><strong>Check the wireframe hint.</strong> Section order, above-fold mandates, CTA progression. Treat as the skeleton, not the design.</li>
+    <li><strong>If anything in this brief conflicts with Jack's research</strong> (linked at the bottom), surface it before wireframing. We resolved the conflicts we caught, but new ones will appear during build.</li>
+  </ol>
+</section>
+
+<section id="voice">
+  <h2>Eric's voice rules <span class="count">always-on, every page, no exceptions</span></h2>
+  <p class="lede">
+    Eric is an engineer. He evaluates copy the way an engineer reads a spec sheet: numbers before adjectives,
+    proof before claim, certs before story. This voice profile was extracted from the April 9 Fathom call where
+    he approved or rejected every line on the homepage live. Treat it as a hard contract.
+  </p>
+
+  <div class="voice-grid">
+    <div class="voice-col">
+      <h4>Tone DOs</h4>
+      <ul>
+        <li><strong>Engineer to engineer.</strong> Short sentences. One idea per line. Average 12-16 words.</li>
+        <li><strong>Lead with a number or a cert.</strong> ISO 9001, IATF 16949, since 2018, 2,000+ programs, 4-8 wk, ±0.0005".</li>
+        <li><strong>Spec first, claim second.</strong> "ISO-certified facilities. Done." beats "World-class quality."</li>
+        <li><strong>Cautiously under-promised.</strong> Say 20%, not 30%. Say "consistently short," not "industry-leading."</li>
+        <li><strong>City-specific.</strong> "Monterrey" beats "Mexico." "São Paulo" beats "Brazil." "Shanghai" beats "Asia."</li>
+        <li><strong>Progressive CTA ladder, top to bottom:</strong> <code>Request Quote</code> → <code>Start My Project</code> → <code>Move Into Production</code>.</li>
+      </ul>
+    </div>
+    <div class="voice-col">
+      <h4>Tone DON'Ts</h4>
+      <ul>
+        <li><strong>No superlatives.</strong> world-class, best-in-class, premier, industry-leading. Eric will reject on sight.</li>
+        <li><strong>No "Global."</strong> Eric struck this from the homepage personally.</li>
+        <li><strong>No "Factories."</strong> Use Supplier, Manufacturer, Foundry. Eric: "I don't want to seem like a sourcing company."</li>
+        <li><strong>No "Precision Engineering."</strong> Eric: "we don't do engineering."</li>
+        <li><strong>No tariff-led headlines.</strong> Eric said "No" to leading with tariff angle. Tariff-inclusive estimates as a trust block deeper down is fine.</li>
+        <li><strong>No "Build it" as a CTA.</strong> Eric: "people don't build with our parts, they start production."</li>
+        <li><strong>No infographics, no spirals, no "flashy" treatments.</strong> Tables and grid only.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Banned phrases hard list.</strong> Hardcoded. Treat as build-blockers if any wireframe copy lands on these words:
+    <code>Global</code> · <code>Factory</code> / <code>Factories</code> · <code>Precision Engineering</code> ·
+    <code>Seattle</code> (we are Ohio-HQ'd) · <code>nearshore</code> / <code>nearshoring</code> ·
+    <code>made in USA CNC</code> · <code>US-based die casting</code> · <code>domestic manufacturer</code> ·
+    <code>middleman</code> · <code>marketplace</code> · <code>international factories</code> · <code>sourcing company</code> ·
+    <code>Build it</code> (CTA) · <code>Talk to a mechanical engineer</code> (deep-page CTA) ·
+    <code>world-class</code> · <code>best-in-class</code> · <code>premier</code> · <code>industry-leading</code>.
+  </div>
+
+  <div class="callout">
+    <strong>Approved hook (use everywhere we need a one-liner):</strong>
+    "The trustworthiness of an American company with the pricing from overseas." Rachel Gill drafted, Eric approved.
+    Anchor hook for hero pull-quote, email P.S., meta description, social cards.
+  </div>
+</section>
+
+<section id="mandates">
+  <h2>Above-fold mandate <span class="count">every landing page · non-negotiable</span></h2>
+  <p class="lede">
+    Daniel Hall set this in the LP strategy brief, Eric ratified it on the homepage v1.2 build.
+    Every above-the-fold view on every commercial page must contain these three elements, in this rough order.
+  </p>
+
+  <div class="mandate">
+    <div class="lab">Mandate 1 · Trust bar</div>
+    <div class="body">ISO 9001 · IATF 16949 Certified Foundries Only <span>placed between hero and logo strip</span></div>
+  </div>
+  <div class="mandate">
+    <div class="lab">Mandate 2 · Tenure stat</div>
+    <div class="body">Helping Companies Since 2018 · 2,000+ programs shipped <span>in the trust bar or hero stat strip</span></div>
+  </div>
+  <div class="mandate">
+    <div class="lab">Mandate 3 · Geo + single point of contact</div>
+    <div class="body">Manufacturing facilities across the U.S., Mexico, and Asia. One U.S. point of contact. <span>hero sub or facilities lede, Eric's verbatim approved phrasing</span></div>
+  </div>
+  <div class="mandate">
+    <div class="lab">Mandate 4 · H1 mirrors search intent</div>
+    <div class="body">Every page H1 mirrors the target keyword exactly (Daniel Hall mandate) <span>example: /mexico/cnc-machining/ → "CNC Machining in Mexico"</span></div>
+  </div>
+</section>
+
+<section id="templates">
+  <h2>The 6 page templates <span class="count">cover all 71 pages</span></h2>
+  <p class="lede">
+    Six reusable templates power the entire site. Every page in the sitemap below is tagged with a template number.
+    Wireframe each template once, then populate per-page content. Build time goes from 71 unique designs to 6 templates + 71 fills.
+  </p>
+
+  <div class="tpls">
+
+    <div class="tpl">
+      <div class="num">Template 01</div>
+      <h3>Homepage</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> The shop window. A buyer who has never heard of Redstone lands here, and in 5 seconds
+        decides whether we are credible enough to ask for a quote. Goal is to convert "ad click" or "branded search"
+        into "quote request."
+      </p>
+      <ul>
+        <li>Hero: H1 = "Custom Metal Fabrication" (or Eric-approved variant), sub = approved geo + POC line</li>
+        <li>Trust bar: ISO + IATF + Since 2018 + 2,000+ programs</li>
+        <li>Customer logo strip (whitelisted: CIRCOR, Honda, MIT, MEYER, Mahindra, Amazon, GameStop)</li>
+        <li>4 capability cards (die casting, CNC, sheet metal, Mexico) with spec tables, not adjectives</li>
+        <li>Halliburton case study pull-quote ($1.2M savings, 50 foundries evaluated)</li>
+        <li>Process strip: Same-day feasibility → 4-8 wk lead → 2-wk expedite</li>
+        <li>Sticky quote CTA, footer with all 4 country addresses (Cam's SEO intent)</li>
+      </ul>
+      <div class="meta">Used by: 1 page · /</div>
+    </div>
+
+    <div class="tpl">
+      <div class="num">Template 02</div>
+      <h3>Geography hub</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> A buyer who already knows they want manufacturing in a specific country (Mexico, India,
+        China, Brazil) lands here. The page proves we have a real operation in that country, then routes them to the
+        specific service they need.
+      </p>
+      <ul>
+        <li>Hero: H1 = "[Service] in [Country]" or "[Country] Foundries" depending on anchor keyword</li>
+        <li>Country-specific city anchor: Monterrey, Mumbai, Shanghai, São Paulo</li>
+        <li>Trust bar (always-on)</li>
+        <li>Country differentiator block: Mexico = USMCA + lead time; India = scale + cost; China = QC oversight; Brazil = sand-casting depth</li>
+        <li>5-8 spoke service cards linking to /[country]/[service]/ pages</li>
+        <li>Case study or proof point if available</li>
+        <li>Quote form embed</li>
+      </ul>
+      <div class="meta">Used by: 4 pages · /mexico/, /india/, /china/, /brazil/</div>
+    </div>
+
+    <div class="tpl">
+      <div class="num">Template 03</div>
+      <h3>Geography spoke (geo + service)</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> The most specific buyer. They typed "die casting Mexico" or "cnc machining india." They
+        already know what process and where. The page must answer: yes we do that there, here is the proof, here is the
+        quote form. Highest commercial intent in the entire site.
+      </p>
+      <ul>
+        <li>Hero: H1 mirrors keyword exactly ("Die Casting in Mexico" not "Mexico's Premier Die Casting")</li>
+        <li>Trust bar (always-on)</li>
+        <li>Country + service capability table: tolerances, materials, volume, lead time</li>
+        <li>Country-specific advantage: Mexico = nearshore cost + USMCA; China = QC + tariff context (not headline); India = scale; Brazil = sand-casting heritage</li>
+        <li>FAQ schema block (3-5 Q&amp;A) for AI Overview citation</li>
+        <li>Quote form embed with CAD upload</li>
+        <li>Cross-link to parent geo hub + service hub</li>
+      </ul>
+      <div class="meta">Used by: 18 pages · all /[country]/[service]/</div>
+    </div>
+
+    <div class="tpl">
+      <div class="num">Template 04</div>
+      <h3>Service hub</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> The buyer knows they need die casting, or CNC, or sheet metal, but not yet which material
+        or geography. The page is a category landing: it covers the service end-to-end, then sends them deeper to a
+        material or country spoke. Commercial intent, RFQ-driven.
+      </p>
+      <ul>
+        <li>Hero: H1 = "[Service] Services" matching ad-group intent</li>
+        <li>Trust bar (always-on)</li>
+        <li>Process explainer (4-6 steps) with numbers (lead time, tolerance, capacity)</li>
+        <li>Material spoke grid (links to /services/[service]/[material]/ pages)</li>
+        <li>FAQ schema block (5-8 Q&amp;A) for AI Overview citation</li>
+        <li>Halliburton or relevant case study pull-quote</li>
+        <li>Quote form embed</li>
+      </ul>
+      <div class="meta">Used by: 11 pages · /services/[service]/</div>
+    </div>
+
+    <div class="tpl">
+      <div class="num">Template 05</div>
+      <h3>Service spoke (material or process variant)</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> The narrowest service search. "Aluminum die casting." "High pressure die casting." "Cold chamber
+        die casting." Buyer knows the exact spec they need. Page proves we run that material or process at production volume.
+      </p>
+      <ul>
+        <li>Hero: H1 mirrors keyword exactly</li>
+        <li>Trust bar (always-on)</li>
+        <li>Material or process spec table: alloys supported, tolerance ranges, finish options, MOQ, lead time</li>
+        <li>Use cases: 3-5 industry applications with part type examples</li>
+        <li>FAQ schema (3-5 Q&amp;A)</li>
+        <li>Cross-link to parent service hub + relevant comparison page (e.g., aluminum-vs-zinc)</li>
+        <li>Quote form embed</li>
+      </ul>
+      <div class="meta">Used by: 17 pages · /services/[service]/[material]/</div>
+    </div>
+
+    <div class="tpl">
+      <div class="num">Template 06</div>
+      <h3>Resource (comparison or guide)</h3>
+      <p class="eli5">
+        <strong>ELI5:</strong> The buyer has not yet decided. They are searching "forged vs cast" or "sg iron vs cast iron"
+        because they are spec'ing a part. Page job is to be the trusted decision-support resource Google cites in AI Overviews,
+        then quietly route the reader down to the relevant service page. Top-of-funnel education that earns commercial intent.
+      </p>
+      <ul>
+        <li>Hero: H1 mirrors comparison keyword exactly ("Forged vs Cast" not "Which Process Is Right")</li>
+        <li>TL;DR table: 3-5 row at-a-glance comparison (cost, strength, lead time, finish, MOQ)</li>
+        <li>Decision guide: when to choose A, when to choose B, with use case examples</li>
+        <li>FAQ schema block (5-8 Q&amp;A) — primary AI Overview defense</li>
+        <li>Cost/tradeoff drivers explained inline (no calculator unless we build one)</li>
+        <li>Routes to relevant service hub + spoke at bottom (not in hero)</li>
+        <li>Quote form embed at footer only (informational intent, do not interrupt early)</li>
+      </ul>
+      <div class="meta">Used by: 21 pages · /resources/* + comparison cluster</div>
+    </div>
+
+  </div>
+
+  <div class="callout">
+    <strong>Conditional 7th template, only if certs land.</strong>
+    Industry pages (/industries/automotive/, /industries/aerospace/) take a hybrid Template 04 + 06 layout: hero mirrors industry keyword,
+    cert badge prominent in trust bar, regulated-program proof points, 3-5 part type examples, FAQ schema, quote form. Build only if Eric confirms IATF 16949 and AS9100.
+  </div>
+</section>
+
+<section id="sitemap">
+  <h2>Sitemap with ELI5 per page <span class="count">71 pages, 5 hubs, indexed by priority</span></h2>
+  <p class="lede">
+    Same structure Eric signed off on May 7. Services are the primary spine, materials sit as spokes underneath.
+    Geography is its own silo because the search intent there is geo-first ("die casting mexico"), not service-first.
+    Industries stay lightweight unless certs back them. Each page row carries a one-line ELI5, the search intent,
+    Eric's specific notes, and a wireframe hint for the design team.
+  </p>
+
+  <div class="sm-legend">
+    <div class="lg-item"><span class="pill p0">P0</span><strong>25 pages</strong> ship Days 1-30</div>
+    <div class="lg-item"><span class="pill p1">P1</span><strong>40 pages</strong> ship Days 31-60</div>
+    <div class="lg-item"><span class="pill p2">P2</span><strong>6 pages</strong> ship Days 61-90</div>
+    <div class="lg-item"><span class="pill new">NEW</span>page does not exist today</div>
+    <div class="lg-item"><span class="pill kd">KD 0</span>winnable in weeks</div>
+    <div class="lg-item"><span class="pill tpl">T0X</span>page template number</div>
+  </div>
+
+  <!-- BAND 01 — GEOGRAPHY -->
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">01</div>
+      <div class="band-meta">Geography <span class="sep">/</span> 4 hubs <span class="sep">/</span> 18 spokes <span class="sep">/</span> all P0</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Geography</div>
+      <p class="band-note">Geo silo, all P0. Search intent here is region-first, not service-first. Lowest KDs in the set, three of four already rank on page 1-5. Mexico is the moat ($21.09 CPC, uncontested). Eric requires city specificity in copy: Monterrey, Mumbai, Shanghai, São Paulo, never just the country alone.</p>
+
+      <ul class="toc-list">
+
+        <!-- /mexico/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T02</span><span class="pill note">USMCA wedge</span><span class="pill note">CPC $21.09</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">A buyer is looking for a manufacturer in Mexico because they want to escape China tariffs without the cost of US production. This page proves we have a real Monterrey operation and routes them to a service.</div></div>
+          <div class="row"><div class="key">Intent</div><div class="val">Commercial · target keyword <code>foundries in mexico</code> (20 vol, KD 3, $21.09 CPC) — Eric's anchor decision pending, default is "foundries"</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>BANNED:</em> "nearshore" / "nearshoring" — use "Mexico manufacturing" or "Monterrey production". <em>BANNED:</em> tariff angle as headline. <em>USE:</em> Monterrey city anchor, USMCA-compliant phrasing, ISO + IATF cert badges.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Hero H1 = "Foundries in Mexico" or "Manufacturing in Mexico" (Eric pick) · Trust bar always-on · Monterrey facility hero image · 5 service spoke cards (die-casting, cnc-machining, sheet-metal-fabrication, plastic-injection-molding, sand-casting) · Quote form embed.</div></div>
+        </div></li>
+
+        <!-- /india/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T02</span><span class="pill note">ranks #3.3</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">A buyer is sourcing from India for cost and scale. Already ranks page 1 — we are protecting and consolidating that ranking, not starting from scratch.</div></div>
+          <div class="row"><div class="key">Intent</div><div class="val">Commercial · target keyword <code>foundry in india</code> (20 vol, KD 19, $36.59 CPC) — already at GSC position 3.3</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>USE:</em> Mumbai city anchor, India casting tradition framing, QC oversight model proof. Confirm QC oversight model is documented before publish (assumption #3 in Jack's research).</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Hero H1 = "Foundries in India" · Trust bar · Mumbai facility image · 5 spokes (die-casting, investment-casting, sand-casting, mim, cnc-machining) · QC oversight callout block · Quote form.</div></div>
+        </div></li>
+
+        <!-- /china/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T02</span><span class="pill note">ranks #3.7</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">A buyer who is currently sourcing from China and wants to either stay (with better QC) or hedge (with our Mexico/India options). Page must respect the China sourcing reality without leading with tariff fear.</div></div>
+          <div class="row"><div class="key">Intent</div><div class="val">Navigational + Commercial · target keyword <code>china foundry</code> (20 vol, KD 37, $1.86 CPC) — already at GSC position 3.7</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>BANNED:</em> tariff-led headline. Section 301 tariff context is OK as a trust block deeper down. <em>USE:</em> Shanghai city anchor, QC oversight model (on-site inspections, audits), Mexico-as-alternative cross-link.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Hero H1 = "Foundries in China" · Trust bar · Shanghai facility image · 8 spokes (die-casting, investment-casting, sand-casting, mim, plastic-injection-molding, cnc-machining, sheet-metal, aluminum-die-casting NEW) · QC oversight + Section 301 advisory block · Quote form.</div></div>
+        </div></li>
+
+        <!-- /brazil/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/brazil/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T02</span><span class="pill note">ranks #1 sand-casting</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Smallest geo footprint, but Redstone already ranks #1 for "Brazil sand casting." Page exists to lock that ranking and complete the global footprint story for credibility.</div></div>
+          <div class="row"><div class="key">Intent</div><div class="val">Informational · target keyword <code>brazil foundry</code> (20 vol, KD 0)</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>USE:</em> São Paulo city anchor, sand-casting depth as the wedge, auto industry signal. Lighter-weight page is fine, do not over-build.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Hero H1 = "Foundries in Brazil" · Trust bar · São Paulo facility image · 2 spokes (die-casting, sand-casting) · "#1 ranked for sand casting" social proof · Quote form.</div></div>
+        </div></li>
+
+        <!-- /mexico/[service]/ pages -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">30 vol, KD 0, $3.99</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Buyer wants to die cast in Mexico specifically. Highest commercial intent on the site. Direct ad destination.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Mirror H1 to ad-group exactly. Aluminum die casting is 95% of Mexico die-cast leads — surface aluminum prominently. Lead-time advantage vs China = the wedge.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec, Mexico variant. Capability table, USMCA + lead-time block, FAQ schema, Quote form.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/cnc-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">70 vol, KD 7, $9.40</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Strongest Mexico service keyword. Buyer wants CNC near the US, not in China.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>BANNED:</em> bare "CNC Machining" as keyword anchor — use qualified variants (CNC Manufacturing, Custom CNC). Mirror H1 to ad-group.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec. ±0.0005" tolerance callout, 5-axis capability, Monterrey lead-time table.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/sheet-metal-fabrication/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">40 vol, KD 5, $5.49</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Sheet metal is a smaller cluster but Mexico is the only competitive geo. Buyer wants a China alternative for fabrication.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Position as China alternative for sheet metal fabrication. Reference SendCutSend dominates US, we offer Mexico cost.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec. Material list (steel, aluminum, stainless), gauge range, finishing options.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/plastic-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">70 vol, KD 12, $7.17</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Growing nearshoring category. Plastic parts buyers leaving China for Mexico for IP and lead time.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Volume floor matters here ($50K min order). Surface MOQ on page to qualify.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec. Material list (ABS, PC, PP, nylon, glass-filled), tonnage range, mold options.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/mexico/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">20 vol, KD 0, $3.49</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Completes Mexico service coverage. Low volume, KD 0 = free top rank.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec. Lighter weight, focus on alloy support and casting size envelope.</div></div>
+        </li>
+
+        <!-- /india/[service]/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">40 vol, KD 26</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">India die-casting buyer. Currently buried at GSC position 84 — opportunity is there but KD 26 means more on-page work.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03 spec, India variant. Alloys + tonnage + cost-per-part vs. China comparison sub-block.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/investment-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">India has deep investment casting tradition. KD 0 = immediate rank. Free win.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Lead with India investment casting heritage, alloy range, lost-wax process explainer.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill kd">KD 0</span><span class="pill note">GSC #41</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 + already at GSC position 41 = a quick lift gets us page 1. Low effort, real leads.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Iron and steel emphasis, casting size + weight envelope, foundry capability.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/metal-injection-molding-mim/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill kd">KD 0</span><span class="pill note">GSC #20</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">India MIM is niche but high-CPC ($14+). KD 0 means we can grab page 1 fast.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. MIM process explainer, complex part geometry use cases, MOQ guidance.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/india/cnc-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">30 vol, KD 6, $6.32</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">GSC position 29.5 today. Push to page 1 with proper hub-spoke linking + tighter on-page.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>BANNED:</em> "CNC India" exactly — use "CNC Machining in India" instead.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. India scale + cost positioning, tolerance + 5-axis capability.</div></div>
+        </li>
+
+        <!-- /china/[service]/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">140 vol, KD 13, $24.43</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Highest-CPC China keyword in the set ($24.43). Buyer is shopping seriously for China die casting at scale.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>USE:</em> QC oversight angle (on-site inspections, audits) heavily. Eric specifically rejects "tariff" lead-with framing.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Heavy QC + statistical process control proof. Aluminum die casting cross-link.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/investment-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">40 vol, KD 11, $14.12</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">GSC position 39 today. KD 11 winnable. Tariff-advisory positioning helps without leading with tariffs.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Stainless + steel alloys, lost-wax process, tolerance band.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 free win. Use page to position Mexico as alternative if buyer is hedging.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Heavier iron / steel casting, large-part capability, Mexico alternative cross-link.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/metal-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Tariff-exposed category — buyers actively shopping for hedge. KD 0 = quick rank.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Small part complexity, MOQ + lead time table.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/sheet-metal/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">30 vol, KD 37, $30.68</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">$30.68 CPC = HIGHEST in the entire dataset. Tariff-exposed buyer, very high commercial intent.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Section 301 advisory deeper on page is fine. Do not put tariff in H1.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Heavy on QC oversight, gauges supported, Mexico alternative cross-link.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/cnc-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">320 vol, KD 7, $10.14</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Highest-volume China geo keyword in entire set (320 vol). KD 7 = quick win.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. 5-axis capability, tolerance, QC oversight model.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/plastic-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">50 vol, KD 56</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">High KD (56) but tariff-exposed category. Use page to position Mexico as nearshoring alternative.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Mexico nearshoring callout block, IP protection comparison.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/china/aluminum-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill new">NEW</span><span class="pill note">40 vol, KD 5</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Material-specific China page. KD 5 = winnable. QC vs Mexico comparison block.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Aluminum alloys, die-cast tolerance, China-vs-Mexico table.</div></div>
+        </li>
+
+        <!-- /brazil/[service]/ -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/brazil/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">KD 4</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Vol 0 but auto industry signal. Page exists for footprint completeness + auto buyers researching Brazil.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Lighter weight. São Paulo facility, aluminum + zinc, auto industry use case.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/brazil/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T03</span><span class="pill note">already #1 SERP</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Redstone already ranks #1. Page must EXIST to lock the rank. Highest priority Brazil page.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T03. Iron casting depth, weight envelope, auto industry case studies.</div></div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- BAND 02 — SERVICES -->
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">02</div>
+      <div class="band-meta">Services <span class="sep">/</span> 11 hubs <span class="sep">/</span> 17 spokes <span class="sep">/</span> primary spine</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Services</div>
+      <p class="band-note">Service taxonomy is the spine. Materials sit as spokes underneath each service hub. P1 across the board, P2 for niche or low-volume. Six of these hubs do not exist today. Service-level pages are the conversion engine — every spoke routes back here, every geo page links here.</p>
+
+      <ul class="toc-list">
+
+        <!-- DIE CASTING HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill note">4,400 vol, KD 40</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Core service hub. Buyer knows they need die casting but not yet which alloy or geography. Routes to material spokes (aluminum, zinc, hot/cold chamber) and geo spokes (Mexico, China).</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Aluminum die casting is 95% of leads — surface aluminum first in the spoke grid. Xometry currently ranks #1 here, our wedge is direct manufacturer + Mexico nearshore (without using "nearshore" word).</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Process explainer (cold vs hot chamber), 6-spoke material grid, Halliburton case study, FAQ schema (5-8 Q&amp;A), quote form.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/aluminum-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill note">880 vol, KD 33</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Highest-volume material spoke. 95% of die-cast leads are aluminum.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Surface aluminum alloy support (A380, A383, ADC12), tooling lead time, Mexico USMCA tariff-free angle.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Alloy support table, tolerance band, finishing options, MOQ.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/zinc-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill note">390 vol, KD 23</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cluster total 500 vol with "services" variant. KD 23 = winnable. Buyer wants thin-wall, high-precision parts.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Zinc alloys (Zamak 3, 5, 7), corrosion behavior, tolerance precision, finishing.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/high-pressure-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill note">320 vol, KD 19</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Eric explicitly named this as a key spec. Buyer is sourcing for high-volume aluminum or zinc parts at production scale.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. HPDC machine tonnage, alloy compatibility, tooling lead time, large-part capability.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/hot-chamber-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill note">170 vol, KD 9, $142.79</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">EXTREME CPC ($142.79) — niche but extremely commercial. Process variant page, keep separate from cold-chamber.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Hot-chamber process, zinc/magnesium/lead alloy support, cycle time, MOQ.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/cold-chamber-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill kd">KD 1</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 1 = immediate rank. Process comparison page. Aluminum + magnesium fit.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Cold-chamber process, aluminum alloy support, comparison to hot-chamber sub-block.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/high-pressure-zinc/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Process + material bridge. Reinforces topical authority on zinc + HPDC.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Zinc HPDC process, Zamak alloys, thin-wall capability.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/aluminum-prototypes/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill note">CPC $19.73</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Pre-production buyer evaluating before committing tooling. High-CPC = strong RFQ signal.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>FLAG:</em> Eric's brand voice bans "prototype" / "prototyping" in commercial / paid context (volume floor $50K). Jack's research includes prototype pages for organic SEO. Recommend keeping these as organic-only doorway pages, never as paid LP destinations. Confirm with Eric before publish.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Tooling-light prototype process, aluminum alloys, route-to-production language (avoid "prototype" verb in CTAs).</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/die-casting/prototype-zinc/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 free win. Same prototype-flag concern as aluminum-prototypes.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Light page. Zinc prototype process, evaluation-to-production cross-link.</div></div>
+        </li>
+
+        <!-- CNC HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cnc-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill note">4,400 vol, KD 63</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Highest-volume service in entire dataset. KD 63 is hard but essential — CNC is the entry-point service for many buyers. Cluster of 7,400 vol across variants.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val"><em>BANNED:</em> bare "CNC Machining" anchor — must qualify (Custom CNC, CNC Manufacturing, Precision CNC). Surface ±0.0005" tolerance prominently. Volume floor $50K+ on page.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. 5-axis capability, tolerance band, material grid, FAQ schema, Halliburton case study, quote form.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cnc-machining/aluminum/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span><span class="pill note">1,000 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 + 1,000 monthly volume = highest-leverage CNC spoke in the entire set. Free top-rank, real demand.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Aluminum alloy support (6061, 7075), 5-axis tolerance, finishing options.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cnc-machining/precision/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill note">1,600 vol, KD 18</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Premium positioning page. Buyer needs tight tolerance — differentiates from commodity CNC.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Lead with ±0.0005" tolerance number. Tolerance is the proof.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Tolerance table by material, QC inspection process, capability matrix.</div></div>
+        </li>
+
+        <!-- SHEET METAL HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/sheet-metal-fabrication/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill note">1,000 vol, KD 25</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cluster 3,600 vol. SendCutSend dominates US, our wedge is offshore production at lower cost.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Material list (steel, stainless, aluminum), gauge range, fabrication process (cut/bend/weld/finish), HVAC + prototype spoke cross-links.</div></div>
+        </li>
+
+        <!-- INVESTMENT CASTING HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/investment-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill note">2,900 vol, KD 31</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cluster 3,700 vol. Less crowded than die casting online. Wikipedia ranks #1 here, our wedge is commercial RFQ depth.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Lost-wax process explainer, alloy + finish range, tolerance band, stainless spoke cross-link.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/investment-casting/stainless-steel/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill note">320 vol, KD 16</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Material spoke, KD 16 winnable. Higher-value RFQ buyer.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Stainless grades (304, 316, 17-4PH), tolerance, finish options.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/investment-casting/prototype/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill note">110 vol, KD 3, CPC $9.96</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Rapid casting evaluation page. Same prototype-flag concern — keep organic, not paid.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Rapid-tooling process, alloy options, lead time advantage.</div></div>
+        </li>
+
+        <!-- SAND CASTING HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/sand-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill note">3,600 vol, KD 44</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cluster 4,070 vol. "Services" + "foundry" variants are easier than head term.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Sand-casting process, alloy + size envelope (large parts capability), foundry depth.</div></div>
+        </li>
+
+        <!-- STAINLESS HUB -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/stainless-steel-fabrication/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span><span class="pill note">2,400 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 + 2,400 vol = 2nd-largest free win on the entire site. Higher-value buyer than carbon steel.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Stainless grades, fabrication processes, finish options, investment-casting cross-link.</div></div>
+        </li>
+
+        <!-- INJECTION MOLDING -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/metal-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill tpl">T04</span><span class="pill note">1,600 vol, KD 22, $14.15</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cluster 1,920 vol. CPC $14.15 = very high commercial signal. Niche = faster ranking.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. MIM process, complex part geometry use cases, MOQ + tooling cost guidance.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/plastic-injection-molding/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill tpl">T04</span><span class="pill note">5,400 vol, KD 49</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">2nd highest service volume cluster (7,300). KD 49 hard but Mexico nearshore is the wedge.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Material list (ABS, PC, PP, nylon), tonnage range, mold options, Mexico cross-link.</div></div>
+        </li>
+
+        <!-- IRON SERVICES -->
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/cast-iron-castings/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill new">NEW</span><span class="pill note">110 vol, KD 20, $4.03</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Material expansion beyond aluminum/zinc/stainless. Anchors the iron comparison cluster.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Iron grades (gray, ductile, malleable), foundry capability, weight envelope.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/grey-iron-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04</span><span class="pill new">NEW</span><span class="pill note">880 vol, KD 13, $2.85</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">880 vol + KD 13 = real winnable demand. Anchors gray-vs-ductile comparison.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T04. Grey iron applications, machinability, damping, cost positioning.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/services/aluminum-casting/prototype/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T05</span><span class="pill new">NEW</span><span class="pill note">CPC $19.73</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Rapid aluminum casting evaluation. Same prototype-flag — keep organic only.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T05. Rapid-tooling process, route-to-production CTA language.</div></div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- BAND 03 — RESOURCES -->
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">03</div>
+      <div class="band-meta">Resources <span class="sep">/</span> 1 hub <span class="sep">/</span> 11 new comparisons <span class="sep">/</span> AI defense</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Resources</div>
+      <p class="band-note">Comparison content is the AI Overview defense. 39% of target keywords show AI Overviews — pure how-to gets cannibalized, comparison and decision-support content earns citations. Existing material library is preserved via 301 (do not kill the ~2K sessions/mo). Three of these hit KD 0-1, free wins.</p>
+
+      <ul class="toc-list">
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/material-guides/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill note">PRESERVE ~2K sessions/mo</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Existing st37, ss400, adc12 pages drive ~2,000 organic sessions per month. They survive the rebuild via 301s — do not kill, do not redesign aggressively. Eric quote: "our entire SEO just died" referring to past content losses.</div></div>
+          <div class="row"><div class="key">Action</div><div class="val">Audit existing slugs, map every URL, 301 to /resources/material-guides/[slug]/. Run audit BEFORE migration to confirm session count.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Hub index page T06. Material grouping, search/filter, link out to each guide. Preserve URL structure for redirected pages.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/forged-vs-cast/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill note">880 vol, KD 18</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Highest-volume comparison page in the set. Buyer is spec'ing a part and choosing process. Send them down to /services/sand-casting/ or /services/cnc-machining/.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. TL;DR table (cost, strength, lead time), use case examples, decision guide, FAQ schema, route to service hubs at footer.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/sg-iron-vs-cast-iron/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill kd">KD 1</span><span class="pill note">210 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 1 = immediate rank. Builds iron topical authority and links to /services/cast-iron-castings/.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Property comparison (strength, ductility, cost), application use cases.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/gray-iron-vs-ductile-iron/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill note">170 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Strength + machinability + damping comparison. Routes to grey-iron service page.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Property table, application examples, cost considerations.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/ductile-iron-vs-carbon-steel/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill note">90 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cast vs fabricated material decision. Routes to iron AND steel pages.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Process + material crossover comparison.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/casting-vs-machining/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill note">70 vol, KD 14</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Bridges Redstone's two core capabilities. Cast + machine workflow page.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Process comparison, hybrid workflow examples (cast then machine), volume + tolerance tradeoffs.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/malleable-iron-vs-cast-iron/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 quick win. Routes to cast iron services.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Property table, application use cases.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/sand-casting-cost/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill kd">KD 0</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Cost driver explainer (tooling, material, volume, finish, freight). High commercial intent — they want a quote next.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06 + quote-form prominent. Cost driver table, then route to /quote/.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/die-cast-zinc-corrosion/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Corrosion risk + coatings + environments. Routes to zinc die casting service.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Environment table, coating options (chromate, paint, e-coat).</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/advantages-of-zinc-die-casting/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Precision, strength, thin walls, finish, tooling, corrosion advantages. Top-of-funnel buyer education.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Advantage list with proof points, route to zinc-die-casting service.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/resources/investment-casting-advantages-disadvantages/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06</span><span class="pill new">NEW</span><span class="pill kd">KD 1</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Tolerance + finish + tooling cost + lead time vs sand or machining. KD 1 quick win.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T06. Pro/con table, when-to-use guidance, route to investment-casting service.</div></div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- BAND 04 — INDUSTRIES -->
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">04</div>
+      <div class="band-meta">Industries <span class="sep">/</span> 2 conditional <span class="sep">/</span> certs gate the build</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Industries</div>
+      <p class="band-note">Both pages ship only if certifications are real. Without the certs, the page reads as a credibility risk on a high-stakes term. Industry pages take a hybrid Template 04 + 06 layout. Eric is verifying cert status this week.</p>
+
+      <ul class="toc-list">
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/industries/automotive/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill tpl">T04+T06</span><span class="pill note">CONDITIONAL on IATF 16949</span><span class="pill note">18,100 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Largest industry keyword in the entire dataset (18,100 vol). Auto buyers need IATF 16949 cert proof to consider us. No cert = no page (Jack's rule, Eric's call).</div></div>
+          <div class="row"><div class="key">Wireframe (if greenlit)</div><div class="val">Hero with IATF cert badge prominent · Trust bar · Auto-specific use cases (powertrain, chassis, interior trim) · Mexico USMCA + lead-time block · FAQ schema · Quote form.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/industries/aerospace/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p2">P2</span><span class="pill tpl">T04+T06</span><span class="pill note">CONDITIONAL on AS9100</span><span class="pill kd">KD 0</span><span class="pill note">9,900 vol</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">KD 0 on "aerospace machining" = free top rank IF we can credibly claim aerospace work. Without AS9100 or documented client work, skip the page.</div></div>
+          <div class="row"><div class="key">Wireframe (if greenlit)</div><div class="val">Hero with AS9100 cert badge or named aerospace client · Trust bar · Aerospace-specific tolerance + traceability proof · FAQ schema · Quote form.</div></div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+  <!-- BAND 05 — UTILITY -->
+  <div class="sm-band">
+    <div>
+      <div class="band-numeral">05</div>
+      <div class="band-meta">Utility <span class="sep">/</span> 5 site-wide pages</div>
+    </div>
+    <div class="band-body">
+      <div class="band-title">Utility</div>
+      <p class="band-note">Standard site infrastructure plus the Halliburton case study, Redstone's strongest single proof point.</p>
+
+      <ul class="toc-list">
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p0">P0</span><span class="pill tpl">T01</span><span class="pill note">homepage rebuild</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">The shop window. Already partly approved (v1.2 live on staging). Final rebuild lands on Astro with Eric's approved hook, ISO trust bar, single U.S. point of contact phrasing.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Approved hook is hero: "The trustworthiness of an American company with the pricing from overseas." Cam (previous SEO) was specific about listing China + Mexico + India + Brazil facility addresses in footer for local-business signal — preserve.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">T01 spec. Use the v1.2 layout as starting reference, rebuild in Astro with Lighthouse CI gates.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/about/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04-lite</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">E-E-A-T page. Buyer wants to verify Redstone is real. Since 2018, named operations leads, facility photos, certifications.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Story → tenure (since 2018) → cert badges → facility photos → leadership headshots + bios → quote form.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/contact/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T04-lite</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Phone visible. Light design refresh from current. Single U.S. point of contact emphasized.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Phone + email + form · Office addresses (US HQ, Monterrey, Mumbai, Shanghai, São Paulo) · Map (optional).</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/quote/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">custom</span><span class="pill note">multi-step + CAD upload</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">The conversion endpoint. Multi-step form. Already designed (kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html) — port to Astro with CAD upload + tariff-inclusive estimate logic.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Phone field NOT required (biggest dropoff). Process list approved. Region list approved. NDA note removed. Volume filter $50K+. Subtitles minimal.</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">See "Quote form spec" section below for full field list and step-by-step.</div></div>
+        </li>
+
+        <li class="toc-row">
+          <div class="lhs"><span class="path">/case-studies/halliburton/</span><span class="leader"></span></div>
+          <div class="rhs"><span class="pill p1">P1</span><span class="pill tpl">T06-variant</span><span class="pill note">$1.2M proof point</span></div>
+        </li>
+        <li><div class="eli5-block">
+          <div class="row"><div class="key">ELI5</div><div class="val">Single strongest social proof in the entire site. $1.2M savings, 50 foundries evaluated. Pull-quote it on every relevant service page, but it gets its own deep page here.</div></div>
+          <div class="row"><div class="key">Eric notes</div><div class="val">Confirm Halliburton has client permission for public disclosure (Jack's assumption #6). If not, anonymize as "global oilfield services leader."</div></div>
+          <div class="row"><div class="key">Wireframe</div><div class="val">Case study layout. Problem → Process → Result table → Pull quote → Related services cross-link → Quote form.</div></div>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<section id="quote">
+  <h2>Quote form spec <span class="count">conversion endpoint, every page routes here</span></h2>
+  <p class="lede">
+    Multi-step form. Approved by Eric April 10 with 14-point edit list. Final spec below. Already mocked at
+    kasandzz.github.io/kamg-client-reports/redstone/quote-form-demo.html — port to Astro on rebuild.
+  </p>
+  <table class="rs">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th>Fields</th>
+        <th>Eric rule</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1 · Process</strong></td>
+        <td>Die casting · CNC machining · Sheet metal · Investment casting · Sand casting · MIM · Plastic injection · Other</td>
+        <td>Process list approved Apr 10. Add new processes only with Eric sign-off.</td>
+      </tr>
+      <tr>
+        <td><strong>2 · Material</strong></td>
+        <td>Aluminum · Zinc · Steel · Stainless · Iron (gray, ductile, malleable) · Plastic · Other</td>
+        <td>Material list inferred from service spokes — confirm with Eric before launch.</td>
+      </tr>
+      <tr>
+        <td><strong>3 · Volume</strong></td>
+        <td>Annual volume range: 1-1K · 1K-10K · 10K-100K · 100K+</td>
+        <td>$50K minimum order — surface this somewhere on form. Volume filter qualifies.</td>
+      </tr>
+      <tr>
+        <td><strong>4 · Region preference</strong></td>
+        <td>U.S. HQ · Mexico (Monterrey) · India (Mumbai) · China (Shanghai) · Brazil (São Paulo) · Best for project</td>
+        <td>City names approved Apr 10. "Best for project" routes to internal triage.</td>
+      </tr>
+      <tr>
+        <td><strong>5 · CAD upload</strong></td>
+        <td>STEP, IGES, STL, DWG, PDF — multi-file</td>
+        <td>NDA note removed per Eric Apr 10. File types approved.</td>
+      </tr>
+      <tr>
+        <td><strong>6 · Contact</strong></td>
+        <td>Name, email (required), company, phone (NOT required)</td>
+        <td><em>Phone field NOT required</em> — Eric agreed Apr 10, biggest form dropoff.</td>
+      </tr>
+      <tr>
+        <td><strong>7 · Confirmation</strong></td>
+        <td>"Engineer reviews within 1 business day" REMOVED — sets wrong expectation per Rachel Apr 9</td>
+        <td>Use "We'll respond shortly" or similar. Do NOT promise specific timing.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="schema">
+  <h2>Schema.org &amp; tracking <span class="count">build into every template</span></h2>
+  <table class="rs">
+    <thead>
+      <tr><th>Element</th><th>Where</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Organization JSON-LD</strong></td><td>Site-wide layout</td><td>Brand entity, facility addresses, ISO + IATF cert references</td></tr>
+      <tr><td><strong>FAQPage JSON-LD</strong></td><td>Every service hub, spoke, comparison page</td><td>AI Overview citation defense — primary anti-cannibalization tactic</td></tr>
+      <tr><td><strong>Product / Service JSON-LD</strong></td><td>Service hub + spoke pages</td><td>Surface capability tables to Google + AI search</td></tr>
+      <tr><td><strong>BreadcrumbList</strong></td><td>All non-homepage pages</td><td>Hub-spoke structure visible to search engines</td></tr>
+      <tr><td><strong>LocalBusiness</strong></td><td>Geo hubs (Mexico, India, China, Brazil)</td><td>Cam's local-business signal preserved</td></tr>
+      <tr><td><strong>PostHog identify()</strong></td><td>Quote form submission + page view</td><td>Conversion tracking, session recording, funnel analytics</td></tr>
+      <tr><td><strong>GA4 events</strong></td><td>Form start, step advance, submission, CAD upload</td><td>Standard GA4 conversion tracking, GTM-managed</td></tr>
+      <tr><td><strong>Google Ads conversion import</strong></td><td>Form submission only</td><td>Bid optimization on quote requests, not form starts</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="sprint">
+  <h2>Sprint plan <span class="count">90 days, 3 phases</span></h2>
+  <table class="rs">
+    <thead>
+      <tr><th>Window</th><th>Scope</th><th>Owner</th><th>Gate</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>This week (May 8-12)</strong></td><td>Wireframe Templates 01-06. Confirm IATF + AS9100 cert status with Eric. Audit material-guide URLs for redirect mapping. Confirm Halliburton public-disclosure permission.</td><td>Design lead + Eric</td><td>Wireframes shared in Figma</td></tr>
+      <tr><td><strong>Days 1-30 (Phase 0)</strong></td><td>25 P0 pages live: homepage + 4 geo hubs + 18 geo spokes. Lighthouse CI gates active. GSC submitted.</td><td>Build team (KAMG + Outrider)</td><td>LCP &lt;2.5s, INP &lt;200ms, CLS &lt;0.1</td></tr>
+      <tr><td><strong>Days 31-60 (Phase 1)</strong></td><td>40 P1 pages: 7 service hubs, 8 material spokes, 11 comparison pages, utility pages, Halliburton case study.</td><td>Build team</td><td>Existing material guides 301'd, traffic preserved</td></tr>
+      <tr><td><strong>Days 61-90 (Phase 2)</strong></td><td>6 P2 pages: HVAC + prototype sheet metal + 2 conditional industries (if certs land) + MIM + plastic injection.</td><td>Build team</td><td>Industry pages skipped if certs not confirmed</td></tr>
+      <tr><td><strong>Mid-June</strong></td><td>71-page site fully live. Search ads relaunched against new structure. Quote form active across all pages.</td><td>Kas + Daniel</td><td>End-to-end conversion path tested</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="open">
+  <h2>Open questions to resolve before wireframes ship</h2>
+  <div class="callout">
+    <strong>Why these matter.</strong>
+    These are the only items where Jack's research, Eric's brand voice rules, or operational reality have unresolved conflicts.
+    Each one needs a yes-or-no from Eric or Jack before the relevant wireframes can be finalized.
+  </div>
+  <table class="rs">
+    <thead>
+      <tr><th>#</th><th>Question</th><th>Owner</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">1</td><td><strong>Prototype-page conflict.</strong> Eric's brand voice bans "prototype" in commercial contexts ($50K floor). Jack's sitemap includes 5 prototype pages for organic SEO. Recommendation: build them as organic doorway pages only, never as paid LP destinations, with route-to-production CTA language. <em>Confirm with Eric.</em></td><td>Eric</td></tr>
+      <tr><td class="num">2</td><td><strong>Mexico anchor keyword.</strong> "Foundries in mexico" (20 vol, $21.09 CPC, KD 3) vs "manufacturing in mexico" (390 vol, KD 21). Jack defaults to foundries. <em>Eric's call on Mexico hub H1.</em></td><td>Eric</td></tr>
+      <tr><td class="num">3</td><td><strong>IATF 16949 status.</strong> Build /industries/automotive/ only if cert confirmed. <em>Eric confirms by Day -2.</em></td><td>Eric</td></tr>
+      <tr><td class="num">4</td><td><strong>AS9100 status or documented aerospace work.</strong> Build /industries/aerospace/ only if cert or client work confirmed. <em>Eric confirms by Day -2.</em></td><td>Eric</td></tr>
+      <tr><td class="num">5</td><td><strong>Halliburton client permission.</strong> Confirm public disclosure of $1.2M case is OK with Halliburton. If not, anonymize.</td><td>Eric</td></tr>
+      <tr><td class="num">6</td><td><strong>Material guide URL audit.</strong> Confirm existing st37 / ss400 / adc12 page URLs and ~2K sessions/mo before migration. 301 mapping must be ready Day 0.</td><td>Outrider + Kas</td></tr>
+      <tr><td class="num">7</td><td><strong>Mexico facility verification.</strong> Confirm Monterrey is staffed and operational for die casting, CNC, foundry. Affects "our facility" vs "partner network" framing on Mexico pages.</td><td>Eric</td></tr>
+      <tr><td class="num">8</td><td><strong>Quote form region triage.</strong> When buyer selects "Best for project," what is the internal routing rule? Eric or Rachel needs to define.</td><td>Eric / Rachel</td></tr>
+      <tr><td class="num">9</td><td><strong>Material spoke list for quote form.</strong> Material list inferred from service taxonomy, but not yet Eric-approved.</td><td>Eric</td></tr>
+      <tr><td class="num">10</td><td><strong>Aerospace + automotive cert badge artwork.</strong> If certs land, need official cert images + IDs for trust bars.</td><td>Eric</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="footer">
+  <p>
+    <strong>Source documents:</strong>
+    Jack Outrider research at <a href="https://teamoutriderdigital.github.io/redstone-seo-research/v2.html">teamoutriderdigital.github.io/redstone-seo-research/v2</a>.
+    Eric brief at <a href="https://kasandzz.github.io/kamg-client-reports/redstone/seo-research-summary-2026-05-07.html">kasandzz.github.io/kamg-client-reports/redstone/seo-research-summary-2026-05-07</a>.
+    Internal build PRD at kamg-ops/docs/redstone/website-rebuild/prd-2026-05-07.html.
+    <br>
+    <strong>Brand voice contract:</strong> kamg-ops/docs/redstone/brand-voice.md (extracted from Eric Fathom Apr 9 + approved homepage v1.2).
+    <br>
+    <strong>Positioning:</strong> kamg-ops/docs/redstone/positioning.md (Dunford-style ICP + banned phrases + Daniel mandate).
+    <br>
+    <strong>Stack:</strong> Astro + Vercel + PostHog + Lighthouse CI, locked since 2026-04-24. Component library at kamg-astro-starter.
+    <br>
+    <strong>Owner:</strong> Kas Andz (KAMG) · <strong>Build lead:</strong> TBD · <strong>SEO lead:</strong> Jack Squire (Outrider Digital) · <strong>Design hand-off:</strong> wireframes start week of May 8.
+  </p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>KAMG Astro + Vercel Stack — Full Setup Guide for Leo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0a0a0f;
+  --bg2:#10101a;
+  --bg3:#161622;
+  --panel:#13131e;
+  --line:#23233a;
+  --line2:#2d2d47;
+  --text:#e8e8f0;
+  --muted:#9090a8;
+  --dim:#6a6a85;
+  --violet:#8b5cf6;
+  --violet-d:#7c3aed;
+  --violet-l:#a78bfa;
+  --cyan:#22d3ee;
+  --cyan-d:#0891b2;
+  --green:#10b981;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --gold:#c8a96e;
+  --font-body:'Inter',system-ui,-apple-system,sans-serif;
+  --font-display:'Space Grotesk','Inter',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.4);
+  --shadow-glow:0 0 0 1px rgba(139,92,246,.25),0 8px 32px rgba(139,92,246,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(1200px 800px at 80% -10%,rgba(139,92,246,.08),transparent 60%),radial-gradient(900px 600px at -10% 110%,rgba(34,211,238,.06),transparent 60%),var(--bg)}
+a{color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(34,211,238,.3);transition:.2s}
+a:hover{color:var(--violet-l);border-bottom-color:var(--violet-l)}
+code{font-family:var(--font-mono);background:var(--bg3);color:var(--cyan);padding:2px 7px;border-radius:4px;font-size:.88em;border:1px solid var(--line)}
+pre{background:#08080d;border:1px solid var(--line);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--font-mono);font-size:13px;line-height:1.6;margin:14px 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+pre code{background:none;border:none;padding:0;color:#d4d4e0;font-size:13px}
+pre .k{color:#c084fc}
+pre .s{color:#86efac}
+pre .c{color:#6a6a85;font-style:italic}
+pre .v{color:#7dd3fc}
+pre .f{color:#fbbf24}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.hero{padding:72px 0 56px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(139,92,246,.05),transparent 50%);pointer-events:none}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;position:relative}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);color:var(--violet-l);border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
+.tag.cyan{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.3);color:var(--cyan)}
+.tag.gold{background:rgba(200,169,110,.1);border-color:rgba(200,169,110,.3);color:var(--gold)}
+.tag.green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green)}
+.tag.amber{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--amber)}
+.tag.red{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--red)}
+h1{font-family:var(--font-display);font-size:clamp(32px,4.5vw,52px);font-weight:700;letter-spacing:-.02em;line-height:1.05;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#a78bfa 50%,#22d3ee 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;position:relative}
+.lede{font-size:19px;color:var(--muted);max-width:880px;line-height:1.55;position:relative}
+.meta{margin-top:32px;display:flex;flex-wrap:wrap;gap:24px;font-size:13px;color:var(--dim);font-family:var(--font-mono)}
+.meta strong{color:var(--text);font-weight:500}
+nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin:48px 0;position:relative}
+nav.toc:before{content:"CONTENTS";position:absolute;top:-9px;left:24px;background:var(--bg);padding:0 12px;font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.18em;color:var(--violet-l)}
+nav.toc ol{list-style:none;counter-reset:toc;display:grid;grid-template-columns:1fr 1fr;gap:8px 32px}
+@media (max-width:720px){nav.toc ol{grid-template-columns:1fr}}
+nav.toc li{counter-increment:toc;padding:6px 0;border-bottom:1px dashed var(--line)}
+nav.toc li:before{content:counter(toc,decimal-leading-zero)" — ";color:var(--violet-l);font-family:var(--font-mono);font-size:12px;font-weight:600}
+nav.toc a{color:var(--text);border:none;font-size:14px}
+nav.toc a:hover{color:var(--cyan)}
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:none}
+.section-num{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.18em;color:var(--violet-l);margin-bottom:8px;text-transform:uppercase}
+h2{font-family:var(--font-display);font-size:clamp(26px,3.2vw,36px);font-weight:700;letter-spacing:-.015em;margin-bottom:14px;color:var(--text)}
+h3{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text);margin:32px 0 12px;letter-spacing:-.005em}
+h4{font-family:var(--font-display);font-size:15px;font-weight:600;color:var(--violet-l);margin:20px 0 8px;text-transform:uppercase;letter-spacing:.06em}
+p{margin:12px 0;color:var(--text)}
+.section-lede{font-size:17px;color:var(--muted);margin-bottom:24px;max-width:820px}
+ul,ol{margin:14px 0 14px 22px;color:var(--text)}
+li{margin:6px 0}
+li::marker{color:var(--violet-l)}
+strong{color:#fff;font-weight:600}
+em{color:var(--cyan);font-style:normal;font-family:var(--font-mono);font-size:.94em}
+.callout{background:linear-gradient(180deg,rgba(139,92,246,.08),rgba(139,92,246,.03));border:1px solid rgba(139,92,246,.25);border-left:3px solid var(--violet);border-radius:10px;padding:18px 22px;margin:22px 0}
+.callout h4{margin-top:0;color:var(--violet-l)}
+.callout.cyan{background:linear-gradient(180deg,rgba(34,211,238,.08),rgba(34,211,238,.03));border-color:rgba(34,211,238,.25);border-left-color:var(--cyan)}
+.callout.cyan h4{color:var(--cyan)}
+.callout.amber{background:linear-gradient(180deg,rgba(245,158,11,.08),rgba(245,158,11,.03));border-color:rgba(245,158,11,.25);border-left-color:var(--amber)}
+.callout.amber h4{color:var(--amber)}
+.callout.green{background:linear-gradient(180deg,rgba(16,185,129,.08),rgba(16,185,129,.03));border-color:rgba(16,185,129,.25);border-left-color:var(--green)}
+.callout.green h4{color:var(--green)}
+.callout.red{background:linear-gradient(180deg,rgba(239,68,68,.08),rgba(239,68,68,.03));border-color:rgba(239,68,68,.25);border-left-color:var(--red)}
+.callout.red h4{color:var(--red)}
+.grid{display:grid;gap:16px;margin:22px 0}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:860px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;transition:.2s}
+.card:hover{border-color:var(--line2);transform:translateY(-1px)}
+.card h4{margin-top:0;font-size:13px}
+.card .v{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--text);margin:6px 0;letter-spacing:-.01em}
+.card .v.cyan{color:var(--cyan)}
+.card .v.violet{color:var(--violet-l)}
+.card .v.green{color:var(--green)}
+.card .v.amber{color:var(--amber)}
+.card p{font-size:13px;color:var(--muted);margin:4px 0 0}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;background:var(--panel);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+th{background:var(--bg3);text-align:left;padding:12px 16px;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--violet-l);text-transform:uppercase;border-bottom:1px solid var(--line2)}
+td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(139,92,246,.03)}
+td code{font-size:12px}
+.kbd{display:inline-block;padding:2px 8px;background:var(--bg3);border:1px solid var(--line2);border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--cyan);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.checklist{list-style:none;margin-left:0}
+.checklist li{padding-left:30px;position:relative;margin:10px 0}
+.checklist li:before{content:"✓";position:absolute;left:0;top:1px;width:20px;height:20px;background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3);border-radius:4px;font-family:var(--font-mono);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.checklist.x li:before{content:"×";background:rgba(239,68,68,.15);color:var(--red);border-color:rgba(239,68,68,.3)}
+.flow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:24px 0;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.flow .step{flex:1;min-width:160px;padding:14px 16px;background:var(--bg3);border:1px solid var(--line);border-radius:8px;text-align:center}
+.flow .step .n{font-family:var(--font-mono);font-size:10px;color:var(--violet-l);font-weight:600;letter-spacing:.1em;display:block;margin-bottom:4px}
+.flow .step .l{font-size:13px;color:var(--text);font-weight:500}
+.flow .arrow{color:var(--violet-l);font-size:18px}
+@media (max-width:720px){.flow{flex-direction:column}.flow .arrow{transform:rotate(90deg)}}
+.bigstat{display:flex;align-items:baseline;gap:14px;margin:28px 0;padding:24px 28px;background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(34,211,238,.04));border:1px solid rgba(139,92,246,.2);border-radius:14px}
+.bigstat .num{font-family:var(--font-display);font-size:56px;font-weight:700;line-height:1;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.bigstat .label{font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent);margin:36px 0}
+footer{padding:48px 0;text-align:center;color:var(--dim);font-size:13px;font-family:var(--font-mono)}
+footer a{color:var(--violet-l)}
+hr{border:none;border-top:1px dashed var(--line);margin:24px 0}
+.pillz{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pill{padding:3px 10px;font-family:var(--font-mono);font-size:11px;background:var(--bg3);color:var(--muted);border:1px solid var(--line);border-radius:999px}
+.pill.in{background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.3)}
+.pill.out{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.3)}
+.tree{font-family:var(--font-mono);font-size:13px;line-height:1.7;background:#08080d;border:1px solid var(--line);border-radius:10px;padding:20px;color:#d4d4e0;overflow-x:auto;white-space:pre}
+.label-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.label-row .lbl{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:4px;min-width:60px;text-align:center}
+.lbl.do{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.lbl.dont{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.lbl.maybe{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="tag-row">
+    <span class="tag">INTERNAL · KAMG TEAM</span>
+    <span class="tag cyan">FROM KAS → LEO</span>
+    <span class="tag gold">REDSTONE BUILD CONTEXT</span>
+    <span class="tag green">STACK LOCKED 2026-04-24</span>
+  </div>
+  <h1>The KAMG Astro + Vercel Stack</h1>
+  <p class="lede">A complete setup, install, and operating guide for every KAMG client microsite — including the Redstone rebuild. Same tools, same install order, same conventions. Read once, never re-decide.</p>
+  <div class="meta">
+    <div><strong>Audience:</strong> Leo</div>
+    <div><strong>Author:</strong> Kas</div>
+    <div><strong>Status:</strong> Locked stack</div>
+    <div><strong>Date:</strong> 2026-05-08</div>
+    <div><strong>Starter repo:</strong> <a href="https://github.com/kasandzz/kamg-astro-starter">kasandzz/kamg-astro-starter</a></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#tldr">TL;DR — what to install, in order</a></li>
+    <li><a href="#why">Why this stack (and what we explicitly rejected)</a></li>
+    <li><a href="#prereqs">Prerequisites — your machine</a></li>
+    <li><a href="#starter">The starter repo — clone and run</a></li>
+    <li><a href="#anatomy">Astro anatomy — pages, components, layouts</a></li>
+    <li><a href="#styling">Styling — Tailwind v4, design tokens, theme-factory</a></li>
+    <li><a href="#library">Component library — 3,008 components catalog</a></li>
+    <li><a href="#posthog">PostHog — analytics, A/B, flags, replay, surveys</a></li>
+    <li><a href="#lhci">Lighthouse CI — performance gate in GitHub Actions</a></li>
+    <li><a href="#vercel">Vercel deploy — preview URLs and prod</a></li>
+    <li><a href="#per-client">Per-client structure — kamg-ops/sites/&lt;slug&gt;/</a></li>
+    <li><a href="#two-remote">The two-remote model</a></li>
+    <li><a href="#cms">CMS / backend decision tree</a></li>
+    <li><a href="#redstone">Redstone-specific decisions</a></li>
+    <li><a href="#rules">KAMG rules for client work</a></li>
+    <li><a href="#cheatsheet">Daily commands cheatsheet</a></li>
+    <li><a href="#deviate">When to deviate from the stack</a></li>
+    <li><a href="#help">Stuck? Where to ask</a></li>
+  </ol>
+</nav>
+
+<section id="tldr">
+<div class="section-num">01</div>
+<h2>TL;DR — what to install, in order</h2>
+<p class="section-lede">If you do nothing else in this doc, do these eight steps on your machine. Everything below is the why and the how.</p>
+
+<div class="flow">
+  <div class="step"><span class="n">01</span><span class="l">Node 22.12+</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">02</span><span class="l">pnpm or npm</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">03</span><span class="l">gh CLI + auth</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">04</span><span class="l">Vercel CLI + auth</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">05</span><span class="l">Clone starter</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">06</span><span class="l">npm install</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">07</span><span class="l">npm run dev</span></div>
+  <span class="arrow">→</span>
+  <div class="step"><span class="n">08</span><span class="l">Read /library</span></div>
+</div>
+
+<pre><code><span class="c"># 01 — Node 22.12+ (the starter requires this)</span>
+<span class="c"># Install via nvm or fnm, do NOT use the system Node</span>
+nvm install 22 && nvm use 22
+node --version  <span class="c"># should print v22.12.x or higher</span>
+
+<span class="c"># 02 — package manager</span>
+npm install -g pnpm   <span class="c"># preferred</span>
+<span class="c"># OR just use the npm that ships with node</span>
+
+<span class="c"># 03 — GitHub CLI</span>
+<span class="c"># macOS:</span>  brew install gh
+<span class="c"># Win:</span>    winget install GitHub.cli
+gh auth login
+
+<span class="c"># 04 — Vercel CLI</span>
+npm install -g vercel
+vercel login
+
+<span class="c"># 05 — clone the starter</span>
+git clone https://github.com/kasandzz/kamg-astro-starter.git
+cd kamg-astro-starter
+
+<span class="c"># 06 — install</span>
+npm install
+
+<span class="c"># 07 — run dev</span>
+npm run dev
+<span class="c"># → http://localhost:4321</span>
+
+<span class="c"># 08 — open the component library route</span>
+<span class="c"># → http://localhost:4321/library</span></code></pre>
+
+<div class="callout cyan">
+  <h4>What you don't have to install yourself</h4>
+  <p>PostHog, Lighthouse CI, Vercel adapter, Tailwind, MDX — every client site adds these via <code>astro add</code> or a copy-paste from a previous site. The starter is intentionally minimal. We bolt on per project, not into the starter.</p>
+</div>
+</section>
+
+<section id="why">
+<div class="section-num">02</div>
+<h2>Why this stack (and what we explicitly rejected)</h2>
+<p class="section-lede">This was locked on 2026-04-24 to stop re-evaluating per client. The decisions below are not preferences — they are constraints. Don't re-litigate without bringing me in.</p>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h4>FRAMEWORK</h4>
+    <div class="v cyan">Astro</div>
+    <p>Static-first, component reuse, team-friendly diffs, zero JS by default. Wins on Core Web Vitals which matters for ad Quality Score.</p>
+    <div class="pillz"><span class="pill in">Astro 6.1+</span><span class="pill out">Next.js</span><span class="pill out">Remix</span><span class="pill out">Gatsby</span></div>
+  </div>
+  <div class="card">
+    <h4>HOSTING</h4>
+    <div class="v cyan">Vercel</div>
+    <p>Preview URL per PR, auto-deploy from GitHub, custom domains, edge caching. Free tier covers most client sites.</p>
+    <div class="pillz"><span class="pill in">Vercel</span><span class="pill in">Netlify (fallback)</span><span class="pill out">AWS Amplify</span></div>
+  </div>
+  <div class="card">
+    <h4>ANALYTICS + EXPERIMENTS</h4>
+    <div class="v violet">PostHog (one vendor)</div>
+    <p>Events, A/B tests, feature flags, session replay, heatmaps, surveys. Same SDK, same dashboard, no five-vendor sprawl.</p>
+    <div class="pillz"><span class="pill in">PostHog</span><span class="pill out">GrowthBook</span><span class="pill out">Hotjar</span><span class="pill out">Clarity</span><span class="pill out">Mixpanel</span></div>
+  </div>
+  <div class="card">
+    <h4>PERF GATE</h4>
+    <div class="v green">Lighthouse CI</div>
+    <p>GitHub Actions runs Lighthouse against the Vercel preview URL and blocks PRs that regress Core Web Vitals.</p>
+    <div class="pillz"><span class="pill in">Lighthouse CI</span><span class="pill out">SpeedCurve</span><span class="pill out">Calibre</span></div>
+  </div>
+  <div class="card">
+    <h4>STYLING</h4>
+    <div class="v amber">Tailwind v4 + tokens</div>
+    <p>CSS variables in <code>tokens.css</code>, Tailwind utilities for layout, scoped <code>&lt;style&gt;</code> blocks for component-specific.</p>
+    <div class="pillz"><span class="pill in">Tailwind v4</span><span class="pill in">CSS variables</span><span class="pill out">styled-components</span><span class="pill out">SCSS</span></div>
+  </div>
+  <div class="card">
+    <h4>CMS (DEFAULT)</h4>
+    <div class="v">None (file-based)</div>
+    <p>Astro content collections in <code>src/content/</code>. We edit via Slack request loop. Add Sanity only when client wants self-edit.</p>
+    <div class="pillz"><span class="pill in">Astro content</span><span class="pill in">Sanity (on demand)</span><span class="pill out">Payload</span><span class="pill out">Decap</span><span class="pill out">Strapi</span></div>
+  </div>
+</div>
+
+<div class="callout amber">
+  <h4>Why we said no to GrowthBook, Clarity, Hotjar</h4>
+  <p>PostHog already does what they do. Five vendors means five SDKs, five dashboards, five contracts. PostHog is one SDK with feature flags, A/B, replay, heatmaps, surveys all in the same product. We pay for it once.</p>
+</div>
+
+<div class="callout amber">
+  <h4>Why not Next.js</h4>
+  <p>Next is great when you need server components, ISR, or a full app. Marketing microsites don't. Astro outputs static HTML with islands of interactivity only where we need them. Faster builds, faster pages, cheaper hosting, smaller cognitive load.</p>
+</div>
+</section>
+
+<section id="prereqs">
+<div class="section-num">03</div>
+<h2>Prerequisites — your machine</h2>
+<p class="section-lede">Get these in place before cloning anything. Mismatch on Node version is the #1 reason a teammate's checkout breaks.</p>
+
+<table>
+  <tr><th>Tool</th><th>Version</th><th>Why</th><th>Install</th></tr>
+  <tr><td><strong>Node.js</strong></td><td>≥ 22.12</td><td>Astro 6 requires it; package.json enforces it</td><td><code>nvm install 22</code> or fnm</td></tr>
+  <tr><td><strong>npm</strong></td><td>ships with Node</td><td>The starter uses npm scripts</td><td>—</td></tr>
+  <tr><td><strong>pnpm</strong> (optional)</td><td>≥ 9</td><td>Faster installs, fewer disk dupes; my preference</td><td><code>npm i -g pnpm</code></td></tr>
+  <tr><td><strong>git</strong></td><td>any modern</td><td>Two-remote model needs a working git</td><td>brew/winget</td></tr>
+  <tr><td><strong>gh CLI</strong></td><td>latest</td><td>Create client repos, manage PRs, check Actions</td><td><code>brew install gh</code> / winget</td></tr>
+  <tr><td><strong>Vercel CLI</strong></td><td>latest</td><td>Link repos, trigger prod deploys, pull env vars</td><td><code>npm i -g vercel</code></td></tr>
+  <tr><td><strong>VS Code</strong></td><td>any</td><td>Astro extension is excellent</td><td>Install "Astro" extension</td></tr>
+</table>
+
+<h3>Auth setup</h3>
+<pre><code><span class="c"># GitHub — needed for cloning, pushing, gh PR commands</span>
+gh auth login
+gh auth status
+
+<span class="c"># Vercel — needed for vercel link, vercel env pull, vercel --prod</span>
+vercel login
+<span class="c"># It opens a browser. Use the kamg/kasandzz Vercel team.</span>
+
+<span class="c"># Verify both</span>
+gh repo list kasandzz --limit 5
+vercel teams ls</code></pre>
+
+<div class="callout">
+  <h4>Get me to grant you access</h4>
+  <p>You need: (1) write to <code>kasandzz/kamg-astro-starter</code>, (2) member of the Vercel team that owns client projects, (3) PostHog org member with project access, (4) read on <code>kamg-ops</code>. DM me on Slack and I'll add you to whatever's missing.</p>
+</div>
+</section>
+
+<section id="starter">
+<div class="section-num">04</div>
+<h2>The starter repo — clone and run</h2>
+<p class="section-lede">Repo: <a href="https://github.com/kasandzz/kamg-astro-starter">kasandzz/kamg-astro-starter</a>. This is the blueprint. We never edit it for client work — we use the <code>/new-client-site &lt;slug&gt;</code> slash command (or copy it manually) into <code>kamg-ops/sites/&lt;slug&gt;/astro-project/</code>.</p>
+
+<h3>What's in the starter today</h3>
+<pre><code><span class="c"># package.json (current)</span>
+{
+  <span class="v">"name"</span>: <span class="s">"kamg-astro-starter"</span>,
+  <span class="v">"engines"</span>: { <span class="v">"node"</span>: <span class="s">"&gt;=22.12.0"</span> },
+  <span class="v">"scripts"</span>: {
+    <span class="v">"dev"</span>: <span class="s">"astro dev"</span>,
+    <span class="v">"build"</span>: <span class="s">"astro build"</span>,
+    <span class="v">"preview"</span>: <span class="s">"astro preview"</span>,
+    <span class="v">"library:catalog"</span>: <span class="s">"node scripts/build-catalog.mjs"</span>,
+    <span class="v">"library:sync"</span>:    <span class="s">"node scripts/sync-figma-images.mjs"</span>,
+    <span class="v">"library:refresh"</span>: <span class="s">"npm run library:sync &amp;&amp; npm run library:catalog"</span>
+  },
+  <span class="v">"dependencies"</span>: { <span class="v">"astro"</span>: <span class="s">"^6.1.9"</span> },
+  <span class="v">"devDependencies"</span>: { <span class="v">"playwright"</span>: <span class="s">"^1.59.1"</span> }
+}</code></pre>
+
+<h3>Project tree</h3>
+<div class="tree">kamg-astro-starter/
+├── public/                  static assets (favicons, OG images, fonts)
+├── src/
+│   ├── components/          reusable .astro components (Hero, CTA, Footer)
+│   ├── data/
+│   │   ├── component-catalog.json       3,008-component catalog (gitignored, regenerate)
+│   │   └── external-libs.json           edit to add code libraries
+│   ├── layouts/             page shells (BaseLayout.astro)
+│   ├── pages/
+│   │   ├── index.astro                  → /
+│   │   └── library/                     → /library/* — the 3,008-component browser
+│   ├── content/             MDX/MD copy collections
+│   └── styles/
+│       ├── tokens.css       brand tokens (override per client)
+│       └── global.css
+├── scripts/
+│   ├── build-catalog.mjs    rebuilds component-catalog.json
+│   ├── sync-figma-images.mjs symlinks Figma exports
+│   └── screenshot.mjs       Playwright visual proof
+├── astro.config.mjs
+├── LEO-GUIDE.md             ← the original guide I wrote you, still good
+├── LIBRARY-GUIDE.md         ← how the library route works
+├── README.md
+└── package.json</div>
+
+<h3>Run it</h3>
+<pre><code>git clone https://github.com/kasandzz/kamg-astro-starter.git
+cd kamg-astro-starter
+npm install
+npm run dev
+<span class="c"># → http://localhost:4321 — sample home</span>
+<span class="c"># → http://localhost:4321/library — the component catalog</span></code></pre>
+
+<div class="callout green">
+  <h4>The starter is intentionally lean</h4>
+  <p>Just Astro + Playwright + the library catalog scripts. Per-client we bolt on Tailwind, MDX, sitemap, PostHog, Vercel adapter, etc. via <code>astro add</code>. Don't add bloat to the starter — keep it as a base.</p>
+</div>
+</section>
+
+<section id="anatomy">
+<div class="section-num">05</div>
+<h2>Astro anatomy — pages, components, layouts</h2>
+<p class="section-lede">Three concepts. That's the whole framework for our purposes. If you know JSX/Vue/Svelte you'll feel home in 20 minutes.</p>
+
+<h3>Pages = routes</h3>
+<p>Anything in <code>src/pages/</code> becomes a route, file-based.</p>
+<table>
+  <tr><th>File</th><th>Route</th></tr>
+  <tr><td><code>src/pages/index.astro</code></td><td><code>/</code></td></tr>
+  <tr><td><code>src/pages/about.astro</code></td><td><code>/about</code></td></tr>
+  <tr><td><code>src/pages/services/ductwork.astro</code></td><td><code>/services/ductwork</code></td></tr>
+  <tr><td><code>src/pages/blog/[slug].astro</code></td><td><code>/blog/:slug</code> (dynamic)</td></tr>
+</table>
+
+<h3>Components = .astro files</h3>
+<pre><code><span class="c">// src/components/CTA.astro</span>
+---
+<span class="k">interface</span> Props {
+  headline: <span class="v">string</span>;
+  buttonText: <span class="v">string</span>;
+  href: <span class="v">string</span>;
+}
+<span class="k">const</span> { headline, buttonText, href } = Astro.props;
+---
+
+&lt;<span class="f">section</span> <span class="v">class</span>=<span class="s">"cta"</span>&gt;
+  &lt;<span class="f">h2</span>&gt;{headline}&lt;/<span class="f">h2</span>&gt;
+  &lt;<span class="f">a</span> <span class="v">href</span>={href} <span class="v">class</span>=<span class="s">"btn"</span>&gt;{buttonText}&lt;/<span class="f">a</span>&gt;
+&lt;/<span class="f">section</span>&gt;
+
+&lt;<span class="f">style</span>&gt;
+  .cta { padding: 4rem 2rem; text-align: center; background: var(--color-bg-emphasis); }
+  .btn { background: var(--color-cta); color: white; padding: 1rem 2rem; border-radius: 8px; }
+&lt;/<span class="f">style</span>&gt;</code></pre>
+
+<h3>Use a component in a page</h3>
+<pre><code>---
+<span class="k">import</span> CTA <span class="k">from</span> <span class="s">'../components/CTA.astro'</span>;
+<span class="k">import</span> BaseLayout <span class="k">from</span> <span class="s">'../layouts/BaseLayout.astro'</span>;
+---
+
+&lt;<span class="f">BaseLayout</span> <span class="v">title</span>=<span class="s">"Redstone — Manufacturing"</span>&gt;
+  &lt;<span class="f">CTA</span>
+    <span class="v">headline</span>=<span class="s">"Get a quote in 24 hours"</span>
+    <span class="v">buttonText</span>=<span class="s">"Request quote"</span>
+    <span class="v">href</span>=<span class="s">"/contact"</span>
+  /&gt;
+&lt;/<span class="f">BaseLayout</span>&gt;</code></pre>
+
+<h3>Layouts = page shells</h3>
+<pre><code><span class="c">// src/layouts/BaseLayout.astro</span>
+---
+<span class="k">interface</span> Props { title: <span class="v">string</span>; description?: <span class="v">string</span>; }
+<span class="k">const</span> { title, description } = Astro.props;
+---
+&lt;!doctype <span class="f">html</span>&gt;
+&lt;<span class="f">html</span> <span class="v">lang</span>=<span class="s">"en"</span>&gt;
+  &lt;<span class="f">head</span>&gt;
+    &lt;<span class="f">meta</span> <span class="v">charset</span>=<span class="s">"utf-8"</span> /&gt;
+    &lt;<span class="f">meta</span> <span class="v">name</span>=<span class="s">"viewport"</span> <span class="v">content</span>=<span class="s">"width=device-width"</span> /&gt;
+    &lt;<span class="f">title</span>&gt;{title}&lt;/<span class="f">title</span>&gt;
+    &lt;<span class="f">link</span> <span class="v">rel</span>=<span class="s">"stylesheet"</span> <span class="v">href</span>=<span class="s">"/styles/global.css"</span> /&gt;
+  &lt;/<span class="f">head</span>&gt;
+  &lt;<span class="f">body</span>&gt;
+    &lt;<span class="f">slot</span> /&gt;  <span class="c">&lt;!-- page content injects here --&gt;</span>
+  &lt;/<span class="f">body</span>&gt;
+&lt;/<span class="f">html</span>&gt;</code></pre>
+
+<h3>Content collections (copy-heavy pages)</h3>
+<p>When a page has a lot of text that a copywriter needs to edit without touching layout, use a content collection. Markdown frontmatter + body, type-checked at build time.</p>
+
+<pre><code><span class="c">// src/content/services/ductwork.md</span>
+---
+title: <span class="s">"Custom ductwork fabrication"</span>
+hero_headline: <span class="s">"Engineered ductwork in 5 days"</span>
+hero_subhead: <span class="s">"..."</span>
+cta_text: <span class="s">"Request a quote"</span>
+seo_description: <span class="s">"..."</span>
+---
+
+## Capabilities
+
+Long-form copy here that I/Akari can edit without breaking the layout.</code></pre>
+
+<div class="callout cyan">
+  <h4>This is our file-based CMS</h4>
+  <p>Astro content collections + git = a CMS that costs nothing, has no admin UI to maintain, and gives us version control for free. For Redstone we use this exclusively. See section 13 for when to add Sanity instead.</p>
+</div>
+</section>
+
+<section id="styling">
+<div class="section-num">06</div>
+<h2>Styling — Tailwind v4, design tokens, theme-factory</h2>
+<p class="section-lede">Three layers. CSS variables for brand identity, Tailwind for layout/spacing, scoped <code>&lt;style&gt;</code> for component-specific.</p>
+
+<h3>1. Brand tokens (per client)</h3>
+<p>Generated by my <code>theme-factory</code> skill. Each client has a theme file. The factory emits a <code>tokens.css</code> for Astro projects:</p>
+
+<pre><code><span class="c"># Generate tokens.css for Redstone (run once per client)</span>
+node ~/.claude/skills/theme-factory/bin/theme-factory.mjs redstone \
+  --format astro \
+  --out ./src/styles/tokens.css
+
+<span class="c"># Outputs :root { --color-*, --font-* } variables</span></code></pre>
+
+<p>Resulting file:</p>
+<pre><code><span class="c">/* src/styles/tokens.css — Redstone Industrial */</span>
+:root {
+  --color-bg: #ffffff;
+  --color-text: #0a0a0a;
+  --color-accent: #B21E24;        <span class="c">/* Redstone red */</span>
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+
+  --font-sans: <span class="s">'Inter'</span>, system-ui, sans-serif;
+  --font-display: <span class="s">'Inter'</span>, system-ui, sans-serif;
+
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 8rem;
+}</code></pre>
+
+<p>Import once in <code>BaseLayout.astro</code> and every component can use <code>var(--color-accent)</code>.</p>
+
+<h3>2. Tailwind v4 (layout/spacing)</h3>
+<pre><code><span class="c"># add Tailwind to a client project</span>
+cd kamg-ops/sites/redstone/astro-project
+npx astro add tailwind</code></pre>
+
+<p>Use Tailwind utilities for layout. Reach for tokens for color/font:</p>
+<pre><code>&lt;<span class="f">section</span> <span class="v">class</span>=<span class="s">"py-24 px-6 max-w-6xl mx-auto"</span>&gt;
+  &lt;<span class="f">h2</span> <span class="v">class</span>=<span class="s">"text-4xl font-bold mb-6"</span> <span class="v">style</span>=<span class="s">"color: var(--color-accent)"</span>&gt;
+    Engineered ductwork
+  &lt;/<span class="f">h2</span>&gt;
+&lt;/<span class="f">section</span>&gt;</code></pre>
+
+<h3>3. Scoped &lt;style&gt; blocks (component-specific)</h3>
+<p>Astro auto-scopes any <code>&lt;style&gt;</code> inside a <code>.astro</code> file — no class collisions across components.</p>
+
+<div class="callout">
+  <h4>Per-client theme aliases</h4>
+  <p>The theme-factory has aliases: <code>cod</code> → cod-dark, <code>redstone</code> → redstone-industrial, <code>cpg</code> → cpg-affiliate, <code>pizza-forno</code>, <code>amna-khan</code>, <code>lths</code>, <code>hague-timbecon</code>, <code>kamg</code> → kamg-agency. Just pass the slug.</p>
+</div>
+</section>
+
+<section id="library">
+<div class="section-num">07</div>
+<h2>Component library — 3,008 components catalog</h2>
+<p class="section-lede">Before generating any hero, CTA, pricing card, or footer from scratch — query the catalog. This is non-negotiable. We have 3,008 production-grade components already on disk.</p>
+
+<div class="bigstat">
+  <div class="num">3,008</div>
+  <div class="label">components<br/>across 18 sources<br/>and 163 categories</div>
+</div>
+
+<h3>What's in it</h3>
+<table>
+  <tr><th>Source</th><th>Type</th><th>Count</th><th>Best for</th></tr>
+  <tr><td><strong>Relume Figma Kit v2.8</strong></td><td>Figma exports</td><td>1,599</td><td>Production-grade Tailwind LP sections (hero, cta, features, footers, pricing, faq)</td></tr>
+  <tr><td><strong>KAMG UX Kit</strong></td><td>Figma exports</td><td>1,117</td><td>Agency-branded buttons, nav, typography, spacing</td></tr>
+  <tr><td><strong>shadcn/ui</strong></td><td>React (MIT)</td><td>49</td><td>Forms, modals, data tables, dialogs</td></tr>
+  <tr><td><strong>Aceternity UI</strong></td><td>React</td><td>49</td><td>Animation-heavy heroes, gradient backgrounds</td></tr>
+  <tr><td><strong>Magic UI</strong></td><td>React (MIT)</td><td>60</td><td>Animated marketing components</td></tr>
+  <tr><td><strong>React Bits</strong></td><td>React (MIT)</td><td>70</td><td>Three.js + GSAP one-off hero pieces</td></tr>
+  <tr><td><strong>Tailwind UI</strong></td><td>HTML+Tailwind (paid)</td><td>—</td><td>Static drop-ins, marketing sections</td></tr>
+  <tr><td><strong>HyperUI</strong></td><td>HTML+Tailwind (MIT)</td><td>—</td><td>Free static drop-ins</td></tr>
+  <tr><td><strong>daisyUI</strong></td><td>Tailwind plugin (MIT)</td><td>42</td><td>Themable apps with semantic class names</td></tr>
+  <tr><td><strong>Live Figma files</strong></td><td>via Figma MCP</td><td>9 files</td><td>Brand-locked sections (COD, B2BLabs, KAMG Team Library)</td></tr>
+</table>
+
+<h3>How to use it</h3>
+<pre><code><span class="c"># 1. browse visually in dev</span>
+npm run dev
+<span class="c"># → http://localhost:4321/library — index by source type</span>
+<span class="c"># → http://localhost:4321/library/relume/hero — grid of 90+ hero variations</span>
+<span class="c"># → click a component → detail view with Figma node ID + Claude prompt</span></code></pre>
+
+<pre><code><span class="c">// 2. query programmatically in code</span>
+<span class="k">import</span> catalog <span class="k">from</span> <span class="s">'~/data/component-catalog.json'</span>;
+<span class="k">const</span> heroes = catalog.components.filter(c =&gt; c.category === <span class="s">'hero'</span>);
+<span class="k">const</span> ctas   = catalog.components.filter(c =&gt; c.category === <span class="s">'cta'</span>);</code></pre>
+
+<h3>For Figma-sourced components</h3>
+<p>The detail page gives you a file_key + a ready-to-paste prompt. Feed it into the <code>figma-implement-design</code> skill / <code>mcp__figma__get_design_context</code> with the file_key + node ID, and it generates the Astro source.</p>
+
+<h3>Refresh commands</h3>
+<pre><code>cd kamg-astro-starter
+npm run library:refresh    <span class="c"># sync new Figma exports + rebuild catalog</span>
+npm run library:catalog    <span class="c"># rebuild JSON only</span>
+npm run library:sync       <span class="c"># copy/hardlink images only</span></code></pre>
+
+<div class="callout red">
+  <h4>Rule: query the catalog FIRST</h4>
+  <p>Before generating any LP, hero, CTA, pricing card, footer, or section from scratch — you must check the library. Generating from scratch when 3,008 components already exist is wasted work. This is a hard rule on my side; bringing it to the team.</p>
+</div>
+</section>
+
+<section id="posthog">
+<div class="section-num">08</div>
+<h2>PostHog — analytics, A/B, flags, replay, surveys</h2>
+<p class="section-lede">One vendor for all of it. Same SDK, same dashboard. We rejected GrowthBook (PostHog has feature flags + A/B), Hotjar/Clarity (PostHog has session replay + heatmaps), and standalone survey tools (PostHog has surveys).</p>
+
+<h3>Install in a client site</h3>
+<pre><code>cd kamg-ops/sites/&lt;slug&gt;/astro-project
+npm install posthog-js</code></pre>
+
+<p>Init in <code>BaseLayout.astro</code>:</p>
+<pre><code>---
+<span class="k">const</span> POSTHOG_KEY = <span class="s">"phc_xxxx_client_specific_key"</span>;
+<span class="k">const</span> POSTHOG_HOST = <span class="s">"https://us.i.posthog.com"</span>;
+---
+
+&lt;<span class="f">script</span> <span class="v">define:vars</span>={{ POSTHOG_KEY, POSTHOG_HOST }}&gt;
+  <span class="k">import</span>(<span class="s">'posthog-js'</span>).then(({ <span class="k">default</span>: posthog }) =&gt; {
+    posthog.init(POSTHOG_KEY, {
+      api_host: POSTHOG_HOST,
+      person_profiles: <span class="s">'identified_only'</span>,
+      capture_pageview: <span class="k">true</span>,
+      capture_pageleave: <span class="k">true</span>,
+      session_recording: { maskAllInputs: <span class="k">true</span> }
+    });
+  });
+&lt;/<span class="f">script</span>&gt;</code></pre>
+
+<h3>Features to enable per project</h3>
+<table>
+  <tr><th>Feature</th><th>Use for</th><th>Setup</th></tr>
+  <tr><td><strong>Pageviews + custom events</strong></td><td>Conversion tracking, funnel analysis</td><td>Auto on init; <code>posthog.capture('cta_click', {...})</code> for custom</td></tr>
+  <tr><td><strong>A/B Experiments</strong></td><td>Replaces COD-style manual URL splits</td><td>Create experiment in PostHog UI; gate variants with <code>posthog.getFeatureFlag('exp-name')</code></td></tr>
+  <tr><td><strong>Feature flags</strong></td><td>Gradual rollouts, kill-switch without redeploy</td><td>Flags UI; query with <code>posthog.isFeatureEnabled('flag-name')</code></td></tr>
+  <tr><td><strong>Session replay</strong></td><td>Watch real users hit conversion friction</td><td>Toggle in project settings; honor consent</td></tr>
+  <tr><td><strong>Heatmaps</strong></td><td>Click/scroll heat per page</td><td>Toolbar enables, no code</td></tr>
+  <tr><td><strong>Surveys</strong></td><td>NPS, intent, post-conversion qualification</td><td>Surveys UI; targets via flag</td></tr>
+</table>
+
+<div class="callout cyan">
+  <h4>Already paid for — turn it on</h4>
+  <p>We're already paying for PostHog. Session replay and heatmaps are toggles, no extra cost. Always enable them on a new client site unless the client legal-blocks recording.</p>
+</div>
+
+<h3>A/B example — Redstone hero variant</h3>
+<pre><code>---
+<span class="c">// src/pages/index.astro</span>
+<span class="k">const</span> postHogScript = `
+  <span class="k">import</span>(<span class="s">'posthog-js'</span>).then(({ <span class="k">default</span>: posthog }) =&gt; {
+    posthog.onFeatureFlags(() =&gt; {
+      <span class="k">const</span> variant = posthog.getFeatureFlag(<span class="s">'redstone-hero-test'</span>);
+      <span class="k">if</span> (variant === <span class="s">'b'</span>) {
+        document.querySelector(<span class="s">'.hero-headline'</span>).textContent =
+          <span class="s">'Custom ductwork in 5 days, not 5 weeks'</span>;
+      }
+    });
+  });
+`;
+---
+&lt;<span class="f">script</span> <span class="v">set:html</span>={postHogScript} /&gt;</code></pre>
+</section>
+
+<section id="lhci">
+<div class="section-num">09</div>
+<h2>Lighthouse CI — performance gate in GitHub Actions</h2>
+<p class="section-lede">Blocks PRs that regress Core Web Vitals. We're running paid traffic to client sites — Quality Score gets crushed if LCP slides past 2.5s.</p>
+
+<h3>Workflow file</h3>
+<pre><code><span class="c"># .github/workflows/lighthouse.yml</span>
+name: Lighthouse CI
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - name: Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}</code></pre>
+
+<h3>Config — what we enforce</h3>
+<pre><code><span class="c">// lighthouserc.cjs</span>
+module.exports = {
+  ci: {
+    collect: { staticDistDir: <span class="s">'./dist'</span>, numberOfRuns: 3 },
+    assert: {
+      assertions: {
+        <span class="s">'categories:performance'</span>:    [<span class="s">'error'</span>, { minScore: 0.90 }],
+        <span class="s">'categories:accessibility'</span>:  [<span class="s">'error'</span>, { minScore: 0.95 }],
+        <span class="s">'categories:best-practices'</span>: [<span class="s">'error'</span>, { minScore: 0.95 }],
+        <span class="s">'categories:seo'</span>:            [<span class="s">'error'</span>, { minScore: 0.95 }],
+        <span class="s">'largest-contentful-paint'</span>:  [<span class="s">'error'</span>, { maxNumericValue: 2500 }],
+        <span class="s">'cumulative-layout-shift'</span>:   [<span class="s">'error'</span>, { maxNumericValue: 0.1 }]
+      }
+    }
+  }
+};</code></pre>
+
+<div class="callout amber">
+  <h4>If LHCI fails the PR — investigate, don't bypass</h4>
+  <p>It's there for a reason. The most common cause is an unoptimized hero image. Use <code>&lt;Image&gt;</code> from <code>astro:assets</code> with explicit width/height + format=avif, and 95% of LHCI failures go away.</p>
+</div>
+</section>
+
+<section id="vercel">
+<div class="section-num">10</div>
+<h2>Vercel deploy — preview URLs and prod</h2>
+<p class="section-lede">One-time link, then every push gets a preview URL automatically. Custom domain attaches in dashboard.</p>
+
+<h3>Initial wiring (per client repo)</h3>
+<pre><code>cd kamg-ops/sites/&lt;slug&gt;/astro-project
+
+<span class="c"># 1. log in if you haven't already</span>
+vercel login
+
+<span class="c"># 2. link this directory to a Vercel project</span>
+vercel link
+<span class="c"># Choose the team (kamg / kasandzz), then "Link to existing"</span>
+<span class="c"># or create new with the slug as the project name.</span>
+
+<span class="c"># 3. pull env vars (POSTHOG_KEY, etc.) into .env.local</span>
+vercel env pull .env.local
+
+<span class="c"># 4. deploy preview manually (optional — every git push does it auto)</span>
+vercel
+
+<span class="c"># 5. deploy to prod</span>
+vercel --prod</code></pre>
+
+<h3>What every PR gets</h3>
+<ul>
+  <li>A unique preview URL like <code>redstone-git-feature-quote-form-kamg.vercel.app</code></li>
+  <li>Automatic Lighthouse run against that URL (via the workflow above)</li>
+  <li>A status check on the PR that links to both</li>
+</ul>
+
+<h3>Custom domain</h3>
+<ol>
+  <li>Vercel dashboard → project → Settings → Domains</li>
+  <li>Add the apex (<code>redstonemfg.com</code>) and <code>www</code></li>
+  <li>Add the DNS records Vercel gives you on the registrar (Cloudflare/GoDaddy/whoever the client uses)</li>
+  <li>Wait for SSL cert (usually 30–90 seconds)</li>
+</ol>
+
+<div class="callout">
+  <h4>Env vars live in Vercel, not in git</h4>
+  <p>Never commit a <code>.env</code> file. Set vars in Vercel dashboard → Project → Settings → Environment Variables. Pull locally with <code>vercel env pull</code>. We have a separate set per environment (development/preview/production).</p>
+</div>
+</section>
+
+<section id="per-client">
+<div class="section-num">11</div>
+<h2>Per-client structure — kamg-ops/sites/&lt;slug&gt;/</h2>
+<p class="section-lede">Every client site lives at a predictable path. Same shape every time. Don't put client Astro projects in <code>~/Documents/sites/</code>, in KasOS, or anywhere else.</p>
+
+<div class="tree">kamg-ops/sites/&lt;slug&gt;/
+├── astro-project/          ← living Astro source (also has its own client remote)
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── astro.config.mjs
+│   └── .git/               ← only if you add the client remote here
+├── client-config.json      ← slug, theme, github_repo, vercel_project_id, domain, ghl_pages
+├── ghl-pages/              ← flat HTML outputs for clients who paste into GHL
+├── runs/                   ← lp-audit-rebuild runs scoped to this client
+└── README.md</div>
+
+<h3>client-config.json shape</h3>
+<pre><code>{
+  <span class="v">"slug"</span>: <span class="s">"redstone"</span>,
+  <span class="v">"theme"</span>: <span class="s">"redstone-industrial"</span>,
+  <span class="v">"github_repo"</span>: <span class="s">"kasandzz/redstone-site"</span>,
+  <span class="v">"vercel_project_id"</span>: <span class="s">"prj_xxxx"</span>,
+  <span class="v">"vercel_team"</span>: <span class="s">"kamg"</span>,
+  <span class="v">"domain"</span>: <span class="s">"redstonemfg.com"</span>,
+  <span class="v">"www_domain"</span>: <span class="s">"www.redstonemfg.com"</span>,
+  <span class="v">"posthog_project_id"</span>: <span class="s">"xxxx"</span>,
+  <span class="v">"ghl_pages"</span>: []
+}</code></pre>
+
+<h3>What goes where</h3>
+<table>
+  <tr><th>Artifact</th><th>Path</th></tr>
+  <tr><td>Astro source</td><td><code>kamg-ops/sites/&lt;slug&gt;/astro-project/</code></td></tr>
+  <tr><td>LP audit runs</td><td><code>kamg-ops/sites/&lt;slug&gt;/runs/&lt;run_id&gt;/</code></td></tr>
+  <tr><td>GHL flat-HTML outputs</td><td><code>kamg-ops/sites/&lt;slug&gt;/ghl-pages/</code></td></tr>
+  <tr><td>Reports / dashboards</td><td><code>kamg-ops/output/&lt;slug&gt;/</code></td></tr>
+  <tr><td>Client intel</td><td><code>kamg-ops/client-intel/&lt;slug&gt;/</code></td></tr>
+  <tr><td>Brand themes</td><td><code>~/.claude/skills/theme-factory/themes/&lt;slug&gt;/</code></td></tr>
+</table>
+
+<h3>Scaffold a new client (one command)</h3>
+<pre><code><span class="c"># From a Claude Code session in kamg-ops</span>
+/new-client-site redstone
+
+<span class="c"># Writes client-config.json, copies the starter, sets remotes,</span>
+<span class="c"># runs theme-factory for the slug, wires Vercel link.</span></code></pre>
+</section>
+
+<section id="two-remote">
+<div class="section-num">12</div>
+<h2>The two-remote model</h2>
+<p class="section-lede">Each client site has two git remotes. Sounds weird, works clean. Solves a real conflict between team visibility and client ownership.</p>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h4>REMOTE 1 — kamg-ops</h4>
+    <p>Tracks the parent <code>sites/&lt;slug&gt;/</code> dir as part of the shared kamg-ops monorepo. Team can see everyone's client work in one place. Where audit runs and configs live.</p>
+    <pre><code>cd kamg-ops
+git add sites/redstone
+git commit -m <span class="s">"redstone: hero copy update"</span>
+git push origin master</code></pre>
+  </div>
+  <div class="card">
+    <h4>REMOTE 2 — client</h4>
+    <p>Inside <code>astro-project/</code> only. Points at the client's own GitHub repo (e.g. <code>kasandzz/redstone-site</code>). This is what Vercel deploys from. Client owns this repo, can be transferred to them later.</p>
+    <pre><code>cd kamg-ops/sites/redstone/astro-project
+git push client main
+<span class="c"># → triggers Vercel deploy</span></code></pre>
+  </div>
+</div>
+
+<h3>Why this shape</h3>
+<ul>
+  <li><strong>kamg-ops is for shared work surfaces</strong> — sites belong with output/, client-intel/, docs/.</li>
+  <li><strong>Each Astro project still gets its own client GitHub repo</strong> — so the client can own their site source, and Vercel has a clean repo to deploy from.</li>
+  <li><strong>Two remotes avoid choosing</strong> between team visibility and client ownership.</li>
+</ul>
+
+<h3>Push pattern (memorize this)</h3>
+<pre><code><span class="c"># after editing files in astro-project/</span>
+
+<span class="c"># 1. push to client repo → triggers Vercel deploy</span>
+cd kamg-ops/sites/redstone/astro-project
+git add .
+git commit -m <span class="s">"feat: services page hero copy"</span>
+git push client main
+
+<span class="c"># 2. push to kamg-ops → team can see the change in monorepo</span>
+cd ../../../..
+git add sites/redstone
+git commit -m <span class="s">"redstone: services page hero copy"</span>
+git push origin master</code></pre>
+
+<div class="callout amber">
+  <h4>If you forget step 2, the team won't see it</h4>
+  <p>Vercel deploys from the client remote, but our monorepo only updates if you also commit at the kamg-ops level. Always do both. I'll add a git hook eventually that does step 2 automatically — for now, manual.</p>
+</div>
+</section>
+
+<section id="cms">
+<div class="section-num">13</div>
+<h2>CMS / backend decision tree</h2>
+<p class="section-lede">Default: no CMS. Astro content collections + Slack request loop covers 80% of clients. The other 20% gets one of two upgrades, never more.</p>
+
+<h3>The decision tree</h3>
+<table>
+  <tr><th>Client situation</th><th>Choice</th><th>Reason</th></tr>
+  <tr><td>Standard service-page site, &lt;10 edits/week</td><td><strong>Astro only (file-based)</strong></td><td>Fastest, $0/mo, no infra</td></tr>
+  <tr><td>Client wants to self-edit copy without Slack-ing me</td><td><strong>Add Sanity</strong></td><td>Free tier covers most cases, hosted, Astro-compatible</td></tr>
+  <tr><td>Project crosses into app territory: auth, dashboards, member portal, e-commerce, custom workflows</td><td><strong>Add Payload</strong></td><td>Full backend, but breaks the locked stack — last resort</td></tr>
+  <tr><td>Client on WordPress/Webflow and won't migrate</td><td><strong>Hand-build in their platform</strong></td><td>Don't fight existing CMS</td></tr>
+  <tr><td>One-off HTML artifact (single email LP, single report)</td><td><strong>Raw HTML, skip Astro</strong></td><td>Overkill to scaffold for one file</td></tr>
+  <tr><td>GHL-hosted page</td><td><strong>Raw HTML only</strong></td><td>GHL won't run Astro build output</td></tr>
+</table>
+
+<h3>Why Sanity over Payload as the CMS choice</h3>
+<div class="grid cols-2">
+  <div class="card">
+    <h4 style="color:var(--green)">SANITY (preferred)</h4>
+    <ul>
+      <li>Free tier covers a typical KAMG site ($0/mo)</li>
+      <li>Hosted — no infra ops</li>
+      <li>Compatible with locked Astro+Vercel stack</li>
+      <li>Real-time collaborative editing</li>
+      <li>Image CDN included</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4 style="color:var(--amber)">PAYLOAD (last resort)</h4>
+    <ul>
+      <li>Requires DB + Node server = breaks locked stack</li>
+      <li>Self-host or pay Payload Cloud</li>
+      <li>Right answer ONLY when project = app, not site</li>
+      <li>Stronger when you need: auth, RBAC, admin dashboards, e-commerce</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout red">
+  <h4>Never Decap CMS</h4>
+  <p>Volunteer-maintained, stability risk for client work. We rejected it.</p>
+</div>
+
+<h3>Backend considerations — when we go beyond static</h3>
+<table>
+  <tr><th>Need</th><th>Add</th></tr>
+  <tr><td>Form submissions → email</td><td>Vercel Form Functions or Formspree</td></tr>
+  <tr><td>Form submissions → CRM</td><td>Vercel Edge Function → Attio/HubSpot/GHL API</td></tr>
+  <tr><td>Bookings / calendar</td><td>Embed (Calendly/Cal.com) — never build</td></tr>
+  <tr><td>Auth + portal</td><td>Clerk or Supabase Auth (only if project requires)</td></tr>
+  <tr><td>DB for dynamic content</td><td>Supabase or Vercel Postgres</td></tr>
+  <tr><td>Search</td><td>Algolia or Pagefind (static-friendly)</td></tr>
+  <tr><td>Email automation</td><td>Resend (transactional) + client's existing tool</td></tr>
+</table>
+
+<div class="callout cyan">
+  <h4>Upsides of staying static + thin-backend</h4>
+  <ol>
+    <li><strong>Cost:</strong> $0/mo for hosting on most client sites.</li>
+    <li><strong>Speed:</strong> CDN-served HTML beats any rendered framework.</li>
+    <li><strong>Reliability:</strong> No DB, no auth server, no scheduled jobs to break.</li>
+    <li><strong>Security:</strong> No surface area beyond static + a couple of edge functions.</li>
+    <li><strong>Portability:</strong> Client repo is just files — easy to hand off if they leave.</li>
+    <li><strong>Speed of iteration:</strong> Edit Markdown, push, deploy in 30 seconds.</li>
+  </ol>
+</div>
+</section>
+
+<section id="redstone">
+<div class="section-num">14</div>
+<h2>Redstone-specific decisions</h2>
+<p class="section-lede">What's locked for the Redstone build, why, and what to revisit later.</p>
+
+<table>
+  <tr><th>Decision</th><th>Choice</th><th>Date / Why</th></tr>
+  <tr><td><strong>CMS</strong></td><td>Astro only — no Payload, no Sanity</td><td>2026-05-06. Neither Eric nor Jack has asked to self-edit. Slack edit loop is faster than CMS overhead at current edit volume. Payload specifically is overkill for a 30–100 page service site. Content collections in Phase 2 = the file-based CMS.</td></tr>
+  <tr><td><strong>Theme</strong></td><td>redstone-industrial (default) + redstone-dark for hero bands</td><td>Swiss/Bauhaus, data-dense, zero ornamentation. White + red accent. Inter. Tables only, no infographics.</td></tr>
+  <tr><td><strong>Framework</strong></td><td>Astro 6 + Tailwind v4</td><td>Locked KAMG stack, no exceptions for this build.</td></tr>
+  <tr><td><strong>Hosting</strong></td><td>Vercel</td><td>Already on Vercel before the rebuild. Domain attached.</td></tr>
+  <tr><td><strong>Analytics</strong></td><td>PostHog (new project)</td><td>Spin up a fresh PostHog project for redstone, separate from COD/CPG.</td></tr>
+  <tr><td><strong>Forms</strong></td><td>Vercel Edge Function → ?</td><td>TBD — Eric needs to confirm whether quote requests land in email, HubSpot, or a sheet. Default to email + sheet until he tells us.</td></tr>
+  <tr><td><strong>SEO vendor</strong></td><td>Jack at Outrider Digital</td><td>Eric delegated sitemap decision to Jack 2026-04-30. Jack is on the email thread, loop him before structural decisions.</td></tr>
+</table>
+
+<h3>Revisit triggers</h3>
+<p>Re-open the CMS decision only if any of:</p>
+<ol>
+  <li>Eric explicitly asks to self-edit content</li>
+  <li>Edit volume sustained &gt;10/week (multiple weeks running)</li>
+  <li>New feature requires auth or gated content</li>
+</ol>
+<p>If revisited, <strong>Sanity is the answer, not Payload</strong> — covered by Sanity's free tier at expected volume.</p>
+
+<div class="callout">
+  <h4>Decision logs</h4>
+  <p>CMS research: <code>KasOS/11-Notes/cms-options-for-kamg-client-sites-2026-05-06.md</code><br/>Decision log: <code>kamg-ops/docs/redstone/cms-decision-2026-05-06.md</code><br/>If Jack pushes back on the no-CMS choice, point him at these.</p>
+</div>
+</section>
+
+<section id="rules">
+<div class="section-num">15</div>
+<h2>KAMG rules for client work</h2>
+<p class="section-lede">Non-negotiable on any client-facing build. These are the rules I will reject your PR over.</p>
+
+<div class="grid cols-2">
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Use design tokens</strong></div>
+    <p>Always reach for <code>var(--color-*)</code>, <code>var(--font-*)</code>, <code>var(--space-*)</code>. Never hardcode <code>#B21E24</code> or <code>16px</code>.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Componentize anything that appears 2+ times</strong></div>
+    <p>Same nav on 12 pages? It's a component. Same CTA on 6 pages? Component. The cost of inlining is high once we need to update copy.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Mobile-first</strong></div>
+    <p>90%+ of paid traffic is mobile. Design at 375px first, then scale up. Test every PR on a phone before merging.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Preview every PR on mobile</strong></div>
+    <p>Open the Vercel preview URL on your actual phone, not just dev tools. Catches things devtools misses (touch targets, real font rendering).</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Use the component library</strong></div>
+    <p>Before generating any LP/hero/CTA/section: query <code>component-catalog.json</code> or visit <code>/library</code>. Skip this step and you're costing us time.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl do">DO</span><strong>Copy in .md, layout in .astro</strong></div>
+    <p>Don't mix. Markdown is for content writers, Astro is for structure. They evolve at different speeds.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Use em dashes in client copy</strong></div>
+    <p>AI-tell. Use commas, colons, or periods. Yes I know I use them in this doc — internal docs are exempt. Client-facing is not.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Fabricate testimonials or stats</strong></div>
+    <p>Use only what the client has approved in writing. Inline testimonial quotes are tacky anyway — use pattern-based social proof.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Ship without Lighthouse passing</strong></div>
+    <p>The CI gate exists for a reason. If LCP is over 2.5s, fix the image — don't merge around it.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Commit env vars or API keys</strong></div>
+    <p>Vercel env vars only. Even .env.local — gitignored, never push.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Add a vendor without checking with me</strong></div>
+    <p>Stack is locked. We don't add Hotjar/Clarity/GrowthBook/Mixpanel on top of PostHog. If you think we genuinely need a new vendor, DM me first.</p>
+  </div>
+  <div class="card">
+    <div class="label-row"><span class="lbl dont">DON'T</span><strong>Edit the starter for client work</strong></div>
+    <p>The starter is a base. Clients get a copy. Don't push client-specific changes back into the starter.</p>
+  </div>
+</div>
+
+<div class="callout red" style="margin-top:30px">
+  <h4>FTC compliance (any COD-adjacent work)</h4>
+  <p>If you ever do work that touches COD or any client where we make income claims: earnings disclaimers required, no testimonial fabrication, no fake scarcity (<em>"Only 12 spots"</em> ❌, <em>"Limited space"</em> ✅). Income-claim phrasing rules: <em>"sell for $X"</em> / <em>"normalize $X"</em> = ❌; <em>"worth $X"</em> / <em>"build $X program"</em> / <em>"price at $X"</em> = ✅. Different ruleset for Redstone (B2B manufacturing) — looser, but still no fabricated stats.</p>
+</div>
+</section>
+
+<section id="cheatsheet">
+<div class="section-num">16</div>
+<h2>Daily commands cheatsheet</h2>
+<p class="section-lede">Pin this somewhere. The five commands you'll run 30 times a day.</p>
+
+<table>
+  <tr><th>Want to...</th><th>Run</th></tr>
+  <tr><td>Start dev server</td><td><code>npm run dev</code></td></tr>
+  <tr><td>Build for prod (preview locally)</td><td><code>npm run build &amp;&amp; npm run preview</code></td></tr>
+  <tr><td>Refresh component catalog</td><td><code>npm run library:refresh</code></td></tr>
+  <tr><td>Add an Astro integration</td><td><code>npx astro add &lt;name&gt;</code> (e.g. <code>tailwind</code>, <code>mdx</code>, <code>sitemap</code>, <code>vercel</code>)</td></tr>
+  <tr><td>Pull Vercel env vars locally</td><td><code>vercel env pull .env.local</code></td></tr>
+  <tr><td>Deploy preview manually</td><td><code>vercel</code></td></tr>
+  <tr><td>Deploy to prod</td><td><code>vercel --prod</code></td></tr>
+  <tr><td>Generate brand tokens for a client</td><td><code>node ~/.claude/skills/theme-factory/bin/theme-factory.mjs &lt;slug&gt; --format astro --out ./src/styles/tokens.css</code></td></tr>
+  <tr><td>Push to client repo (triggers Vercel)</td><td><code>git push client main</code> (from inside <code>astro-project/</code>)</td></tr>
+  <tr><td>Push to kamg-ops monorepo</td><td><code>cd ../../../.. &amp;&amp; git add sites/&lt;slug&gt; &amp;&amp; git commit &amp;&amp; git push origin master</code></td></tr>
+  <tr><td>Open a PR</td><td><code>gh pr create --fill</code></td></tr>
+  <tr><td>Watch the GH Actions on a PR</td><td><code>gh pr checks --watch</code></td></tr>
+</table>
+
+<h3>Common Astro integrations</h3>
+<pre><code>npx astro add tailwind     <span class="c"># utility CSS</span>
+npx astro add mdx          <span class="c"># Markdown + JSX in content</span>
+npx astro add sitemap      <span class="c"># auto sitemap.xml generation</span>
+npx astro add vercel       <span class="c"># Vercel adapter (only needed for SSR routes)</span>
+npx astro add react        <span class="c"># React islands (for shadcn/ui components)</span>
+npx astro add svelte       <span class="c"># Svelte islands</span>
+npx astro add partytown    <span class="c"># offload third-party scripts (PostHog, GA, etc.)</span></code></pre>
+</section>
+
+<section id="deviate">
+<div class="section-num">17</div>
+<h2>When to deviate from the stack</h2>
+<p class="section-lede">There are exactly four legitimate reasons to skip Astro+Vercel+PostHog. Anything else, use the stack.</p>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h4 style="color:var(--amber)">1. CLIENT IS ON WORDPRESS/WEBFLOW</h4>
+    <p>And won't migrate. Hand-build in their platform. Don't fight an existing CMS that the client is committed to.</p>
+  </div>
+  <div class="card">
+    <h4 style="color:var(--amber)">2. ONE-OFF HTML ARTIFACT</h4>
+    <p>Single report, single email LP, single thank-you page. Raw HTML, skip the Astro scaffold. Overkill to spin up a project for one file.</p>
+  </div>
+  <div class="card">
+    <h4 style="color:var(--amber)">3. GHL-HOSTED PAGE</h4>
+    <p>GoHighLevel won't run Astro's build output. Hand-write HTML for anything going into GHL. We do this often for COD niche LPs.</p>
+  </div>
+  <div class="card">
+    <h4 style="color:var(--amber)">4. APP-TIER PROJECT</h4>
+    <p>Auth, member portal, dashboards, custom workflows. Astro is static-first; if you need a real app, pair with Payload or build separately. Talk to me first.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <h4>If you think you have a 5th reason</h4>
+  <p>You probably don't. DM me before deviating. The whole point of locking the stack was to stop re-evaluating per client.</p>
+</div>
+</section>
+
+<section id="help">
+<div class="section-num">18</div>
+<h2>Stuck? Where to ask</h2>
+<p class="section-lede">In order of usefulness.</p>
+
+<ul class="checklist">
+  <li><strong>Astro docs:</strong> <a href="https://docs.astro.build">docs.astro.build</a> — search-first, exhaustive, current. Use this before Stack Overflow.</li>
+  <li><strong>The starter's LEO-GUIDE.md and LIBRARY-GUIDE.md:</strong> in <code>kamg-astro-starter/</code> at the repo root. The LEO-GUIDE I wrote you in April still applies; this doc is the deeper version.</li>
+  <li><strong>An existing client site:</strong> CPG is at <code>kamg-ops/sites/cpg/lp-google-ads/</code>. It's not the full Astro project (it's a flat HTML LP), but the brand token pattern is real.</li>
+  <li><strong>Slack DM me:</strong> for anything non-obvious, especially the two-remote model and Vercel wiring on the first client.</li>
+  <li><strong>Vercel docs:</strong> <a href="https://vercel.com/docs">vercel.com/docs</a> — clear, current.</li>
+  <li><strong>PostHog docs:</strong> <a href="https://posthog.com/docs">posthog.com/docs</a> — has Astro-specific setup pages.</li>
+</ul>
+
+<div class="divider"></div>
+
+<h3>What I expect from you on the Redstone build</h3>
+<ul>
+  <li>Get the stack installed end-to-end this week (Node 22, gh, Vercel CLI, clone the starter, run dev).</li>
+  <li>Open <code>/library</code> in dev and explore at least 5 categories — get a feel for what's available before we need it.</li>
+  <li>Read the LEO-GUIDE.md in the starter repo. This doc covers what's not in there.</li>
+  <li>DM me when you've done all three. We'll pair on the first Redstone PR together.</li>
+</ul>
+</section>
+
+<footer>
+  <p><strong>KAMG Astro + Vercel Stack — Full Setup Guide</strong></p>
+  <p>For Leo · From Kas · Generated 2026-05-08</p>
+  <p>Internal team document · Not for client distribution</p>
+</footer>
+
+</div>
+</body>
+</html>

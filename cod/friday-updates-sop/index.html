@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friday Updates SOP — Clients on Demand</title>
+<meta name="description" content="The Weekly Synchronization System. Company-wide project review cadence for Clients on Demand.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111116;
+  --bg3: #18181f;
+  --card: #1a1a22;
+  --card-h: #1f1f28;
+  --border: rgba(200,169,110,0.12);
+  --border-h: rgba(200,169,110,0.28);
+  --gold: #c8a96e;
+  --gold-bright: #d4b878;
+  --gold-dim: rgba(200,169,110,0.08);
+  --text: #f0ede8;
+  --text2: #9a968e;
+  --text3: #5a574f;
+  --green: #4ade80;
+  --red: #f87171;
+  --amber: #fbbf24;
+  --teal: #2dd4bf;
+  --grey: #6b7280;
+  --font: 'Outfit', system-ui, -apple-system, sans-serif;
+  --display: 'Cormorant Garamond', Georgia, serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+/* Layout */
+.container { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+.container-wide { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  padding: 100px 0 60px;
+  background: linear-gradient(135deg, var(--bg) 0%, #0f0f18 50%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.hero-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: var(--display); font-size: clamp(38px, 6vw, 68px); font-weight: 600;
+  line-height: 1.05; margin-bottom: 16px; letter-spacing: -0.5px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; font-weight: 500; }
+.hero-tag {
+  font-family: var(--display); font-size: clamp(20px, 2.5vw, 28px); font-style: italic;
+  color: var(--text2); margin-bottom: 32px; font-weight: 400;
+}
+.hero-sub { font-size: 16px; color: var(--text2); max-width: 640px; margin: 0 auto 44px; line-height: 1.7; }
+.hero-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px; max-width: 760px; margin: 0 auto;
+}
+.hero-meta-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 12px; text-align: center;
+}
+.hero-meta-item strong {
+  display: block; font-family: var(--display); font-size: 28px; font-weight: 700; color: var(--gold);
+  margin-bottom: 4px;
+}
+.hero-meta-item span { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; }
+
+/* Frontmatter strip */
+.frontmatter {
+  background: var(--bg2); border-bottom: 1px solid var(--border); padding: 18px 0;
+}
+.frontmatter-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;
+  font-size: 12px; color: var(--text3);
+}
+.frontmatter-item strong { display: block; color: var(--text2); font-weight: 600; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; font-size: 10px; }
+.frontmatter-item span { color: var(--text); font-size: 13px; }
+
+/* Sticky TOC */
+.toc-bar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,10,15,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 12px 0;
+}
+.toc-list {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.toc-list::-webkit-scrollbar { height: 4px; }
+.toc-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.toc-list a {
+  white-space: nowrap; font-size: 12px; padding: 8px 14px; border-radius: 100px;
+  color: var(--text2); text-decoration: none; transition: all 0.2s; font-weight: 500;
+  border: 1px solid transparent;
+}
+.toc-list a:hover { color: var(--gold); border-color: var(--border); background: var(--gold-dim); }
+
+/* Section */
+section { padding: 70px 0; }
+section:nth-of-type(even) { background: var(--bg2); }
+
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--display); font-size: clamp(30px, 4.5vw, 48px); font-weight: 600;
+  line-height: 1.15; margin-bottom: 14px; letter-spacing: -0.5px;
+}
+.section-title em { color: var(--gold); font-style: italic; }
+.section-lede {
+  font-size: 17px; color: var(--text2); margin-bottom: 36px; line-height: 1.7; max-width: 720px;
+}
+
+/* Body content */
+.body p { font-size: 16px; color: var(--text); margin-bottom: 18px; line-height: 1.75; }
+.body p strong { color: var(--gold); font-weight: 600; }
+.body h3 {
+  font-family: var(--display); font-size: 26px; font-weight: 600; color: var(--text);
+  margin-top: 40px; margin-bottom: 16px; line-height: 1.3;
+}
+.body h4 {
+  font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--gold); margin-top: 28px; margin-bottom: 12px;
+}
+.body ul, .body ol { margin: 0 0 20px 24px; }
+.body li { font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.7; }
+.body li strong { color: var(--gold); font-weight: 600; }
+.body em { color: var(--text2); font-style: italic; }
+
+/* Callout box */
+.callout {
+  background: linear-gradient(135deg, var(--gold-dim) 0%, transparent 100%);
+  border: 1px solid var(--border-h); border-left: 4px solid var(--gold);
+  border-radius: 8px; padding: 24px 28px; margin: 28px 0;
+}
+.callout-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.callout p { margin-bottom: 0; font-size: 15px; line-height: 1.7; }
+
+/* Script block (for templates / quoted updates) */
+.script {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+  padding: 22px 26px; margin: 18px 0; font-style: italic;
+  color: var(--text); border-left: 3px solid var(--gold);
+}
+.script::before {
+  content: '"'; font-family: var(--display); font-size: 32px; color: var(--gold);
+  float: left; line-height: 0.6; margin-right: 8px;
+}
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 22px 0; }
+table {
+  width: 100%; border-collapse: collapse; background: var(--card);
+  border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+  font-size: 14px;
+}
+th {
+  background: var(--bg3); color: var(--gold); font-weight: 600; text-align: left;
+  padding: 14px 16px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 14px 16px; color: var(--text); border-bottom: 1px solid var(--border);
+  vertical-align: top; line-height: 1.6;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--card-h); }
+td strong { color: var(--gold); font-weight: 600; }
+
+/* Compare boxes (correct vs incorrect) */
+.compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0;
+}
+.compare-item {
+  padding: 18px 20px; border-radius: 10px; font-size: 14px;
+  border: 1px solid; line-height: 1.65;
+}
+.compare-bad { background: rgba(248,113,113,0.06); border-color: rgba(248,113,113,0.2); color: var(--text); }
+.compare-bad::before { content: '✕ Vague'; display: block; font-weight: 700; color: var(--red); margin-bottom: 8px; font-size: 12px; letter-spacing: 1px; }
+.compare-good { background: rgba(74,222,128,0.06); border-color: rgba(74,222,128,0.2); color: var(--text); }
+.compare-good::before { content: '✓ Specific'; display: block; font-weight: 700; color: var(--green); margin-bottom: 8px; font-size: 12px; letter-spacing: 1px; }
+@media (max-width: 640px) { .compare { grid-template-columns: 1fr; } }
+
+/* Block cards (5-block template) */
+.blocks-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px; margin: 28px 0;
+}
+.block-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; transition: all 0.3s;
+}
+.block-card:hover { border-color: var(--border-h); transform: translateY(-2px); }
+.block-num {
+  display: inline-block; font-family: var(--display); font-size: 14px; font-weight: 700;
+  color: var(--gold); border: 1px solid var(--gold); padding: 2px 10px; border-radius: 100px;
+  margin-bottom: 14px; letter-spacing: 1px;
+}
+.block-card h4 {
+  font-family: var(--display); font-size: 22px; font-weight: 600; color: var(--text);
+  margin: 0 0 4px 0; text-transform: none; letter-spacing: 0;
+}
+.block-card .time {
+  font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+}
+.block-card p { font-size: 14px; color: var(--text2); line-height: 1.6; margin: 0; }
+
+/* Failure mode cards */
+.fail-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px; margin: 24px 0;
+}
+.fail-card {
+  background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--red);
+  border-radius: 8px; padding: 20px;
+}
+.fail-card h4 {
+  font-size: 14px; color: var(--red); font-weight: 600; margin: 0 0 6px 0;
+  text-transform: none; letter-spacing: 0;
+}
+.fail-card .cost { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.fail-card .fix { font-size: 13px; color: var(--text); }
+.fail-card .fix strong { color: var(--green); }
+
+/* Cadence schedule */
+.cadence {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin: 28px 0;
+}
+.cadence-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px; position: relative;
+}
+.cadence-day {
+  font-family: var(--display); font-size: 32px; font-weight: 700; color: var(--gold);
+  line-height: 1; margin-bottom: 4px;
+}
+.cadence-when { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+.cadence-card h4 { font-size: 14px; color: var(--text); font-weight: 600; margin: 0 0 8px 0; text-transform: none; letter-spacing: 0; }
+.cadence-card p { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.55; }
+
+/* Color protocol pills */
+.colors-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0; }
+.color-pill {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 100px; padding: 10px 18px 10px 12px; font-size: 13px;
+}
+.color-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+.color-pill strong { font-weight: 600; color: var(--text); }
+.color-pill em { color: var(--text2); font-style: normal; margin-left: 4px; }
+
+/* Quick reference cards */
+.qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 28px; }
+.qr-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px;
+}
+.qr-card h4 {
+  font-family: var(--display); font-size: 20px; font-weight: 600; color: var(--gold);
+  margin: 0 0 14px 0; text-transform: none; letter-spacing: 0;
+}
+.qr-card ul { margin: 0 0 0 20px; }
+.qr-card li { font-size: 14px; color: var(--text); margin-bottom: 8px; line-height: 1.55; }
+.qr-card .timecue { color: var(--gold); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-top: 12px; margin-bottom: 6px; }
+.qr-card .timecue:first-child { margin-top: 0; }
+
+/* Escalation timeline */
+.escalation {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 24px 0;
+  position: relative;
+}
+.escalation::before {
+  content: ''; position: absolute; top: 24px; left: 12%; right: 12%; height: 1px;
+  background: linear-gradient(to right, var(--green), var(--amber), var(--red)); z-index: 0;
+}
+.esc-step {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; text-align: center; position: relative; z-index: 1;
+}
+.esc-num {
+  display: inline-block; width: 36px; height: 36px; border-radius: 50%;
+  font-family: var(--display); font-weight: 700; font-size: 16px;
+  background: var(--bg); border: 2px solid; line-height: 32px; margin-bottom: 12px;
+}
+.esc-step:nth-child(1) .esc-num { color: var(--green); border-color: var(--green); }
+.esc-step:nth-child(2) .esc-num { color: var(--amber); border-color: var(--amber); }
+.esc-step:nth-child(3) .esc-num { color: var(--red); border-color: var(--red); }
+.esc-step h4 { font-size: 13px; font-weight: 600; color: var(--text); margin: 0 0 6px 0; text-transform: none; letter-spacing: 0; }
+.esc-step p { font-size: 12px; color: var(--text2); margin: 0; line-height: 1.5; }
+@media (max-width: 700px) { .escalation { grid-template-columns: 1fr; } .escalation::before { display: none; } }
+
+/* Source quote */
+.source-quote {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 12px;
+  padding: 28px 32px; margin: 32px 0;
+}
+.source-quote-label { font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.source-quote blockquote { font-family: var(--display); font-size: 22px; font-style: italic; color: var(--text); line-height: 1.5; border-left: 3px solid var(--gold); padding-left: 20px; margin-bottom: 12px; }
+.source-quote cite { font-size: 13px; color: var(--text2); font-style: normal; }
+.source-quote cite strong { color: var(--gold); font-weight: 600; }
+
+/* Footer */
+.footer { padding: 60px 0 80px; border-top: 1px solid var(--border); background: var(--bg); text-align: center; }
+.footer-tag { font-family: var(--display); font-size: 22px; font-style: italic; color: var(--text2); margin-bottom: 8px; }
+.footer-meta { font-size: 12px; color: var(--text3); }
+.footer-meta a { color: var(--gold); text-decoration: none; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  section { padding: 50px 0; }
+  .body h3 { font-size: 22px; }
+  .escalation::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-label">Clients on Demand · Operating SOP · v1.0</div>
+    <h1>Friday <em>Updates</em> SOP</h1>
+    <div class="hero-tag">The Weekly Synchronization System</div>
+    <p class="hero-sub">Company-wide project review cadence. Asana as source of truth. The week is not over until Friday's update is posted, and the next week doesn't start Monday — it starts Friday afternoon when the plan is locked.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><strong>12</strong><span>Parts</span></div>
+      <div class="hero-meta-item"><strong>5</strong><span>Block Template</span></div>
+      <div class="hero-meta-item"><strong>60min</strong><span>Meeting Cap</span></div>
+      <div class="hero-meta-item"><strong>3-Strike</strong><span>Blocker Escalation</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- FRONTMATTER -->
+<div class="frontmatter">
+  <div class="container">
+    <div class="frontmatter-grid">
+      <div class="frontmatter-item"><strong>Client</strong><span>Clients on Demand</span></div>
+      <div class="frontmatter-item"><strong>Source</strong><span>Russ Ruffino + Kas Andz</span></div>
+      <div class="frontmatter-item"><strong>Confirmed</strong><span>2026-05-07 (Zoom 47:23–48:36)</span></div>
+      <div class="frontmatter-item"><strong>Last Updated</strong><span>2026-05-11</span></div>
+      <div class="frontmatter-item"><strong>Audience</strong><span>Every project owner at COD</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOC -->
+<nav class="toc-bar">
+  <div class="container-wide">
+    <div class="toc-list">
+      <a href="#philosophy">Philosophy</a>
+      <a href="#part1">1 · Mindset</a>
+      <a href="#part2">2 · Why Friday</a>
+      <a href="#part3">3 · Asana = Truth</a>
+      <a href="#part4">4 · Pre-Meeting Prep</a>
+      <a href="#part5">5 · Five-Block Template</a>
+      <a href="#part6">6 · Run of Show</a>
+      <a href="#part7">7 · Status Conventions</a>
+      <a href="#part8">8 · Accountability</a>
+      <a href="#part9">9 · Blockers</a>
+      <a href="#part10">10 · Tuesday KPIs</a>
+      <a href="#part11">11 · Failure Modes</a>
+      <a href="#part12">12 · Etiquette</a>
+      <a href="#quickref">Quick Reference</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="container">
+    <div class="section-label">The Philosophy · Read This First</div>
+    <h2 class="section-title">This is <em>not</em> a status meeting.</h2>
+    <p class="section-lede">Status meetings are where momentum goes to die. The reason this system works is because it forces every owner in the company to actually look at what they shipped this week, what they're shipping next week, and what's blocking them — and to say it out loud in front of the people who can help or hold them accountable.</p>
+
+    <div class="body">
+      <p>80% of the value comes from the prep, not the meeting. The meeting is just the moment we all sync.</p>
+      <p>We were spinning too many plates. Everyone was busy. Nobody was sure what anyone else was doing. Things were falling through the cracks not because people weren't working hard, but because there was no rhythm — no point in the week where the company stopped, looked up, and said "okay, here's where we are."</p>
+      <p>The Friday Update fixes that. One time per week, every project owner reports against the same template, the team aligns, blockers get unblocked on the call, and we walk into the weekend knowing exactly what we're hitting Monday morning.</p>
+
+      <div class="callout">
+        <div class="callout-label">The Core Mindset</div>
+        <p>The week is not over until Friday's update is posted. The next week doesn't start Monday — it starts Friday afternoon when the plan is locked.</p>
+      </div>
+
+      <div class="source-quote">
+        <div class="source-quote-label">Origin · 2026-05-07 Impromptu Zoom</div>
+        <blockquote>I think the way that we ought to do it is Friday, we just review tasks and projects that are in motion, get status updates from everybody, figure out who owns what. And then Monday mornings, we should go over stats, cost per booked call, whatever, blah, blah, blah.</blockquote>
+        <cite><strong>Russell Ruffino</strong> · 48:15 confirming the cadence proposed at 47:23</cite>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 1 -->
+<section id="part1">
+  <div class="container">
+    <div class="section-label">Part 1</div>
+    <h2 class="section-title">The <em>Mindset</em> & Readiness</h2>
+    <p class="section-lede">Before you show up to Friday Updates, you internalize these principles.</p>
+
+    <div class="body">
+      <p><strong>Own your projects like they're your business.</strong> You are not "assigned tasks." You are the CEO of every project you own. That means you know its status, you know what's blocking it, you know who you need to unblock it, and you walk into Friday with a clear answer to "where is this?" If you have to look at your Asana for the first time in the meeting, you've already failed the prep.</p>
+
+      <p><strong>Update Asana before the meeting, not during it.</strong> Asana is the source of truth. The Friday Update is a review of what's already in Asana, not the place to retroactively log work. If a task isn't in Asana by Thursday end-of-day, it didn't happen as far as the team is concerned. This is how we build a real operating system instead of a verbal handoff culture.</p>
+
+      <p><strong>Be brutally honest about status.</strong> No spin. No "almost done." No "I'll have it Monday" when you mean "I'll have it next Friday." The number one killer of weekly cadence is owners who soft-status to look good in the meeting and then quietly slip. Say the real status. Say the real blocker. Say the real deadline. The team can help you only if you tell the truth.</p>
+
+      <p><strong>Bring a plan, not problems.</strong> A blocker without a proposed unblock is a complaint. A blocker with "I need 10 minutes with Matt to decide X" is a leadership move. Walk into Friday with proposed solutions to your own blockers and ask for the specific help you need. Don't dump.</p>
+
+      <p><strong>Show up to other people's updates.</strong> You are not in the meeting only for your slot. You are there because what someone else owns probably touches what you own. When a project gets reviewed that isn't yours, listen — you might catch a dependency nobody flagged. The strongest teams cross-help in the meeting itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 2 -->
+<section id="part2">
+  <div class="container">
+    <div class="section-label">Part 2</div>
+    <h2 class="section-title">Why <em>Friday</em>, Not Monday</h2>
+    <p class="section-lede">Most companies do weekly updates on Monday. We do them Friday. There's a reason.</p>
+
+    <div class="body">
+      <p><strong>Friday updates close the week with truth.</strong> Monday updates are aspirational — everyone talks about what they're "going to do this week." That's planning, not reporting. Friday forces a real accounting of what actually happened in the last five days. Did you ship it or didn't you? No fudging it because Monday is so far away nobody remembers.</p>
+
+      <p><strong>Friday updates lock the next week before the weekend.</strong> Once we leave the Friday call, the plan for the upcoming week is set. That means Saturday and Sunday you can actually relax — or get ahead — because you know exactly what Monday looks like. There's no "I'll figure out my week on Monday morning." Monday morning is execution time, not planning time.</p>
+
+      <p><strong>Monday is for KPIs, Friday is for projects.</strong> This is the split. Friday we review what's in motion — projects, tasks, deliverables, deadlines, blockers. Tuesday morning we review numbers — cost per booked call, show rate, close rate, revenue, ad spend, pipeline. Different cadences, different brains, different meetings. Mixing them kills both.</p>
+
+      <p><strong>Weekend buffer for word-smithing.</strong> If the Friday update surfaces something Russ needs to wordsmith, copy that needs review, or a decision that needs sleeping on — the weekend gives space for that. By Monday, the cleaned-up version is back in the team's hands ready to ship.</p>
+
+      <h4>The Cadence</h4>
+      <div class="cadence">
+        <div class="cadence-card">
+          <div class="cadence-day">Fri</div>
+          <div class="cadence-when">Weekly · AM</div>
+          <h4>Project Updates</h4>
+          <p>Projects, tasks, owners, deadlines, blockers. Locks next week's plan.</p>
+        </div>
+        <div class="cadence-card">
+          <div class="cadence-day">Tue</div>
+          <div class="cadence-when">Weekly · AM</div>
+          <h4>KPI Review</h4>
+          <p>Cost per booked call, show rate, close rate, revenue, spend, conversion.</p>
+        </div>
+        <div class="cadence-card">
+          <div class="cadence-day">M–F</div>
+          <div class="cadence-when">Daily · AM</div>
+          <h4>Daily Check-In</h4>
+          <p>Tactical, what's happening today, blockers needing same-day help.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 3 -->
+<section id="part3">
+  <div class="container">
+    <div class="section-label">Part 3</div>
+    <h2 class="section-title">The Asana <em>Source-of-Truth</em> Rule</h2>
+    <p class="section-lede">If the project isn't in Asana, it doesn't exist. This is non-negotiable.</p>
+
+    <div class="body">
+      <h4>Every Active Project Must Have</h4>
+      <ul>
+        <li>A clear owner (one person — not two, not a team)</li>
+        <li>A current status (red / yellow / green or equivalent)</li>
+        <li>A target ship date (or explicit "no fixed date — exploratory")</li>
+        <li>Sub-tasks for any work older than 48 hours</li>
+        <li>Notes section updated within the last 7 days</li>
+      </ul>
+
+      <p><strong>Why this matters:</strong> In the Friday Update, we are not going to ask "what are you working on?" — we already know. We are going to ask "what's the status of [the project you own that's in Asana]?" If your project isn't in Asana, it can't be reviewed, which means it can't get unblocked, which means it dies in the dark.</p>
+
+      <div class="callout">
+        <div class="callout-label">The Thursday EOD Lock</div>
+        <p>By Thursday 5pm Pacific, every project owner has updated their Asana entries to reflect reality. This is the homework. The Friday meeting reads from Thursday's snapshot.</p>
+      </div>
+
+      <h3>The Asana Color Protocol</h3>
+      <p>Colors mean something. Use them precisely.</p>
+
+      <div class="colors-grid">
+        <div class="color-pill"><span class="color-dot" style="background:#4ade80"></span><strong>Green</strong><em>· On track, no help needed</em></div>
+        <div class="color-pill"><span class="color-dot" style="background:#fbbf24"></span><strong>Yellow</strong><em>· At risk, may need help</em></div>
+        <div class="color-pill"><span class="color-dot" style="background:#f87171"></span><strong>Red</strong><em>· Blocked or off-track</em></div>
+        <div class="color-pill"><span class="color-dot" style="background:#6b7280"></span><strong>Grey</strong><em>· Backlog, not active</em></div>
+        <div class="color-pill"><span class="color-dot" style="background:#c8a96e"></span><strong>Done</strong><em>· Shipped</em></div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">The Yellow Rule</div>
+        <p>A project cannot stay yellow for two consecutive Fridays. It either gets resolved back to green or it escalates to red. Yellow is a temporary state, not a permanent one.</p>
+      </div>
+
+      <h3>Task Status Conventions</h3>
+      <p>Within each project, every task gets one of these statuses:</p>
+      <ul>
+        <li><strong>Not Started</strong> — work hasn't begun</li>
+        <li><strong>In Progress</strong> — actively being worked</li>
+        <li><strong>Waiting On [Name]</strong> — handed off to someone else; specify who</li>
+        <li><strong>Blocked</strong> — can't proceed without external input; specify what</li>
+        <li><strong>Done</strong> — completed and verified by owner</li>
+      </ul>
+      <p><em>"Waiting On" and "Blocked" are different.</em> "Waiting On" means someone else owns the next move. "Blocked" means nobody owns the next move and we need to assign it in Friday's meeting.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 4 -->
+<section id="part4">
+  <div class="container">
+    <div class="section-label">Part 4</div>
+    <h2 class="section-title">The <em>Pre-Meeting</em> Homework</h2>
+    <p class="section-lede">Every owner does this on Thursday afternoon. No exceptions.</p>
+
+    <div class="body">
+      <h3>The Five-Question Prep Checklist</h3>
+      <p>Before Friday's meeting, every owner answers these five questions in Asana, in their project's notes section:</p>
+
+      <ol>
+        <li><strong>What shipped this week?</strong> Specific deliverables — be concrete. <em>"Therapist workshop page outcomes-first rewrite — live as of Wed."</em></li>
+        <li><strong>What's in motion right now?</strong> Active work-in-progress with current status.</li>
+        <li><strong>What's the plan for next week?</strong> Specific deliverables you're committing to.</li>
+        <li><strong>What deadlines are coming up?</strong> Anything due in the next 14 days — internal or external.</li>
+        <li><strong>What's blocking you?</strong> Be specific about who or what you need.</li>
+      </ol>
+
+      <div class="callout">
+        <div class="callout-label">The Standard</div>
+        <p>If someone reads your Asana notes cold on Friday morning, they should be able to fully understand the state of your project in under 60 seconds. If your update requires explanation in the meeting, your written prep was incomplete.</p>
+      </div>
+
+      <h3>The "Specific or Don't Say It" Rule</h3>
+      <p>Vagueness is the enemy of weekly cadence.</p>
+
+      <div class="compare">
+        <div class="compare-item compare-bad">"Working on the LP rebuild."</div>
+        <div class="compare-item compare-good">"Therapist LP rebuild — outcomes block live, pain-point block removed, FAQ section in draft, expecting full ship by Tuesday EOD. Need Akari review on FAQ copy before push."</div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-item compare-bad">"Ads are going."</div>
+        <div class="compare-item compare-good">"Three new image ads launched Wed for therapist audience — CPM $42, CTR 1.8%, currently 4 calls booked at $310 CPBC. Killing the worst performer Friday, replacing with new angle Monday."</div>
+      </div>
+
+      <div class="compare">
+        <div class="compare-item compare-bad">"I'll send it next week."</div>
+        <div class="compare-item compare-good">"Workshop email sequence v2 — sending draft to Russ for word-smith Monday morning; expect approved version live in automation by Wednesday."</div>
+      </div>
+
+      <p><em>Specificity is respect. It saves everyone else time.</em></p>
+
+      <h3>The Deadline Declaration</h3>
+      <p>For every commitment you make in Friday Updates, you state:</p>
+      <ul>
+        <li><strong>What:</strong> The specific deliverable</li>
+        <li><strong>When:</strong> A date, not "next week" — Tuesday, Wednesday, Thursday, etc.</li>
+        <li><strong>Done means:</strong> What "shipped" looks like (live in GHL, in the team channel, in client's inbox, etc.)</li>
+      </ul>
+      <p>If you can't state all three, you don't have a commitment — you have an intention. Intentions don't go on the board. Commitments do.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 5 -->
+<section id="part5">
+  <div class="container">
+    <div class="section-label">Part 5</div>
+    <h2 class="section-title">The <em>Five-Block</em> Template</h2>
+    <p class="section-lede">Every owner reports in this exact order in the meeting. No deviation, no preamble, no warm-up.</p>
+
+    <div class="body">
+      <div class="blocks-grid">
+        <div class="block-card">
+          <div class="block-num">Block 1</div>
+          <h4>Shipped This Week</h4>
+          <div class="time">60 seconds max</div>
+          <p>What did you actually finish this week? Specific deliverables, in plain language. If it's not live, it didn't ship — it's still in motion.</p>
+        </div>
+        <div class="block-card">
+          <div class="block-num">Block 2</div>
+          <h4>In Motion</h4>
+          <div class="time">90 seconds max</div>
+          <p>What's actively being worked on right now? Where is each piece sitting? When does it ship?</p>
+        </div>
+        <div class="block-card">
+          <div class="block-num">Block 3</div>
+          <h4>Next Week's Plan</h4>
+          <div class="time">60 seconds max</div>
+          <p>2–4 specific deliverables for next Friday. No more. Seven means you're lying to yourself or you don't have priorities.</p>
+        </div>
+        <div class="block-card">
+          <div class="block-num">Block 4</div>
+          <h4>Deadlines · 14 Days</h4>
+          <div class="time">30 seconds max</div>
+          <p>Date-locked items. Client commitments, vendor deadlines, event dates, payment due dates.</p>
+        </div>
+        <div class="block-card">
+          <div class="block-num">Block 5</div>
+          <h4>Blockers + Help</h4>
+          <div class="time">60 seconds max</div>
+          <p>What's stopping you, and what specifically do you need? Name names. Name decisions. Name the help.</p>
+        </div>
+      </div>
+
+      <h3>Block 1 · Shipped This Week — Example</h3>
+      <div class="script">This week I shipped: (1) Therapist workshop page outcomes-first rewrite, live Wednesday. (2) New attorney workshop headline test, live Thursday. (3) Cleaned up the BigQuery validation checks for the dashboard MVP — Leo and I confirmed the data pipes are healthy. That's the win column.</div>
+
+      <h3>Block 2 · In Motion — Example</h3>
+      <div class="script">In motion: (1) Cold email reply agent MVP — drafted Wednesday, training data scraped from GHL Thursday, expect first end-to-end test Monday. (2) Workshop/VIP email sequence v2 — draft sent to Russ for word-smith Friday morning, expecting reviewed version back Saturday. (3) Reactivation list for historical CPG leads — Krik building the list, I'll write the outreach sequence once I have it.</div>
+
+      <h3>Block 3 · Next Week's Plan — Example</h3>
+      <div class="script">Next week I'm shipping: (1) Cold email reply agent MVP end-to-end working in our cloud — Tuesday. (2) Therapist LP A/B test for the new FAQ block — live Wednesday. (3) GHL post-enrollment SMS automation spec written up for Ryan and Matt F — Thursday.</div>
+
+      <h3>Block 4 · Deadlines — Example</h3>
+      <div class="script">Deadlines: Eric expects Redstone weekly report EOD today. Lion's Pride event May 22 — promo emails need to go live by May 15. Volvic invoice resubmission due Monday.</div>
+
+      <h3>Block 5 · Blockers — Example</h3>
+      <div class="script">Blockers: (1) Waiting on Matt F's call on whether we extend post-enrollment automation through GHL or pipe it through a separate Twilio integration — need 10 minutes with him this week. (2) Akari needs to greenlight the therapist FAQ copy before I push — flagging for her in the meeting now. (3) Need Russ to confirm if we're pulling Theo Ritter from the financing list before Friday's EOD report.</div>
+
+      <div class="callout">
+        <div class="callout-label">Time Math</div>
+        <p>Total max per person: 4–5 minutes. With 8 owners, that's 35 minutes of structured update + 15 minutes of cross-team discussion + 10 minutes of next-week alignment = <strong>60-minute meeting cap.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 6 -->
+<section id="part6">
+  <div class="container">
+    <div class="section-label">Part 6</div>
+    <h2 class="section-title">The Meeting Itself · <em>Run of Show</em></h2>
+    <p class="section-lede">This is how the meeting runs, every Friday, without deviation.</p>
+
+    <div class="body">
+      <h3>Pre-Meeting · Thursday 5pm Pacific</h3>
+      <ul>
+        <li>Every owner has updated Asana per Part 4</li>
+        <li>Meeting host (rotates monthly) confirms all updates are in</li>
+        <li>Any owner who hasn't updated gets a Slack nudge — your absence shows up in the meeting whether you do or don't</li>
+      </ul>
+
+      <h3>Meeting Opening · 5 minutes</h3>
+      <p><strong>Host opens with:</strong></p>
+      <div class="script">Alright — Friday Updates. Let's lock the week. We're going in this order: [list owners and projects]. Quick rules — five blocks per person, four minutes each, blockers go in the parking lot if they need more than 60 seconds of discussion, we hit the cross-team chat at the end.</div>
+      <p>No small talk. No "how was everyone's week." If someone wants to chat, that's before or after the meeting. The clock starts.</p>
+
+      <h3>Owner Round Robin · 35–45 minutes</h3>
+      <p>Each owner runs the five-block template. Host watches the clock — when someone's running long, gentle prompt: <em>"Park that one — let's come back at the end."</em></p>
+      <p><strong>The cardinal rule:</strong> When someone else is updating, you are listening. Not in Slack, not on email. If you catch a dependency, flag it ("Hold on — that intersects with the GHL automation I'm building"). If you don't catch anything, you're silent until your turn.</p>
+
+      <h3>Parking Lot Resolution · 10–15 minutes</h3>
+      <p>Host pulls the parked items and assigns them to the right pair or trio for after-meeting resolution.</p>
+      <div class="script">Matt F and Kas — sync today at 2pm on the GHL/Twilio decision. Akari and Pedro — sync Monday on the therapist FAQ copy. Done. Moving on.</div>
+      <p>This is where the meeting earns its keep. Blockers that lived in DMs and email threads for a week get resolved in 90 seconds because the right people are on the same call.</p>
+
+      <h3>Next-Week Lock · 5 minutes</h3>
+      <p>Host summarizes:</p>
+      <ul>
+        <li><strong>Top three company-wide priorities for next week</strong> (not 12 — three)</li>
+        <li><strong>Critical deadlines</strong> to flag for the team</li>
+        <li><strong>Who's pairing with whom</strong> on blockers</li>
+        <li><strong>What's at risk</strong> going into Monday</li>
+      </ul>
+      <p>Everyone leaves the meeting with crystal clarity on what next week looks like and what their first move is Monday morning.</p>
+
+      <h3>Meeting Close</h3>
+      <p><strong>Host closes with:</strong></p>
+      <div class="script">We're locked. Asana reflects what we just said. Everyone updates their entries by 6pm today if there's any change. See you Tuesday for stats.</div>
+      <p>That's it. No goodbye round, no "anything else?" Done.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 7 -->
+<section id="part7">
+  <div class="container">
+    <div class="section-label">Part 7</div>
+    <h2 class="section-title">Project <em>Status</em> Conventions</h2>
+    <p class="section-lede">How projects get talked about. Consistent vocabulary across the company.</p>
+
+    <div class="body">
+      <h3>The Status Sentence Format</h3>
+      <p>Every project gets described in this format when called on:</p>
+      <div class="script">[Project Name] — [Color/Status]. Last week: [what shipped]. This week: [what's in motion]. Next week: [what ships]. Blocker: [what's in the way, or 'none'].</div>
+      <p>Practice this until it's reflexive. Six seconds to deliver. Anyone on the team should be able to do this for any project they own without preparation.</p>
+
+      <h3>The "Define Done" Rule</h3>
+      <p>When committing to a deliverable, you must define what "done" means. Vague "done" is the silent killer of weekly accountability.</p>
+
+      <h4>Examples of Well-Defined Done</h4>
+      <ul>
+        <li>"Therapist LP rebuild done = new version live at codworkshop.com/mc-therapist, GA4 confirms event firing, Slack screenshot posted in #brickellads"</li>
+        <li>"Cold email reply agent MVP done = end-to-end working in our cloud, processes 10 test inbound emails correctly, Russ has tested it himself"</li>
+        <li>"Workshop email sequence v2 done = all 5 emails live in GHL automation, first send fired, Akari has eyes-on confirmation"</li>
+      </ul>
+
+      <h4>Examples of Poorly-Defined Done</h4>
+      <ul>
+        <li>"Pretty much there"</li>
+        <li>"Just polishing"</li>
+        <li>"Should be good by next week"</li>
+      </ul>
+
+      <p><em>If you can't define done, you can't ship.</em></p>
+
+      <h3>One Throat to Choke</h3>
+      <p>Every project has exactly one owner. Not two co-owners. Not a team. One person whose name is in the Asana owner field and who reports on it Friday.</p>
+      <p>You can have helpers. You can have collaborators. You can have approvers. But the owner is one person. That person is responsible for the project's status, the project's deadlines, and the project's eventual shipping. If they need help, they ask. They do not get to point at "we" when something slips.</p>
+
+      <div class="callout">
+        <div class="callout-label">Co-Leadership Edge Case</div>
+        <p>If a project genuinely needs co-leadership, split it into two projects with two owners and one explicit handoff point.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 8 -->
+<section id="part8">
+  <div class="container">
+    <div class="section-label">Part 8</div>
+    <h2 class="section-title">Owner <em>Accountability</em></h2>
+    <p class="section-lede">The Friday Update is where soft expectations become hard accountability.</p>
+
+    <div class="body">
+      <h3>Commitment Made, Commitment Tracked</h3>
+      <p>When you commit to a deliverable in Friday Updates, it goes into Asana as a task with:</p>
+      <ul>
+        <li><strong>Owner:</strong> you</li>
+        <li><strong>Due date:</strong> the specific date you said</li>
+        <li><strong>Done definition:</strong> what you said done looks like</li>
+      </ul>
+      <p>Next Friday, the host pulls last week's commitments and you report against them. Shipped? Slipped? What happened?</p>
+      <p>This isn't about punishment. It's about pattern recognition. Are you a person who consistently delivers what you commit to? Or are you a person who consistently overcommits and slips? Both are data the team needs.</p>
+
+      <h3>Slip Once → Diagnose. Slip Twice → Restructure.</h3>
+      <p>If you slip a deliverable once, no blame. We diagnose: was the scope wrong? Was the deadline wrong? Was something blocking you that we didn't know about? Lessons learned.</p>
+      <p>If you slip the same deliverable twice in a row, we restructure. The work moves to a different owner, or it gets broken into smaller pieces with a smaller scope, or it gets killed because we admit it wasn't actually a priority.</p>
+      <p>What we do not do: pretend it's still happening for a third week in a row. <em>Three weeks of slip on the same project is operational rot, and rot spreads.</em></p>
+
+      <div class="callout">
+        <div class="callout-label">The Public Commitment Effect</div>
+        <p>Saying "I will ship X by Wednesday" in front of eight teammates lifts your delivery rate. Private commitments hit 60% completion. Public commitments hit 94%. Use this dynamic on yourself deliberately — name the date, name the deliverable, in front of the room.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 9 -->
+<section id="part9">
+  <div class="container">
+    <div class="section-label">Part 9</div>
+    <h2 class="section-title">Handling <em>Blockers</em> & Escalation</h2>
+    <p class="section-lede">The meeting is the unblock factory. Use it.</p>
+
+    <div class="body">
+      <h3>The Three Blocker Categories</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Looks Like</th><th>Resolution Path</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Decision Blocker</strong></td><td>Waiting on someone to make a call. <em>"Need Russ to greenlight the new headline."</em></td><td>Resolve in the meeting if possible, otherwise schedule a 10-minute sync that day.</td></tr>
+            <tr><td><strong>Resource Blocker</strong></td><td>Need access, tools, money, or hands. <em>"Need API access to Asana to wire up the cold email agent."</em></td><td>Assign someone to make it happen this week.</td></tr>
+            <tr><td><strong>Knowledge Blocker</strong></td><td>Don't know how to do the next step. <em>"I don't know how to set up the Twilio webhook."</em></td><td>Pair with someone who does, or budget time to learn it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><em>Each blocker type has a different resolution path. Naming the type makes the path obvious.</em></p>
+
+      <h3>The Escalation Ladder</h3>
+      <p>If a blocker survives three Friday Updates without resolution, it escalates.</p>
+
+      <div class="escalation">
+        <div class="esc-step">
+          <div class="esc-num">1</div>
+          <h4>Friday 1</h4>
+          <p>Surfaced. Owner assigned. Help requested.</p>
+        </div>
+        <div class="esc-step">
+          <div class="esc-num">2</div>
+          <h4>Friday 2</h4>
+          <p>Still blocked. Reassigned or scoped down.</p>
+        </div>
+        <div class="esc-step">
+          <div class="esc-num">3</div>
+          <h4>Friday 3</h4>
+          <p>Russ steps in. Kill, pivot, or hard external deadline.</p>
+        </div>
+      </div>
+
+      <p>A blocker is not allowed to live as "still blocked" for four consecutive Fridays. That's the team failing the project. Kill it, fix it, or change owners.</p>
+
+      <h3>Blockers That Are Actually Decisions</h3>
+      <p>Sometimes "I'm blocked" really means "I don't want to make the call." The meeting catches this. If someone says they're blocked on a decision they're empowered to make themselves, the host calls it: <em>"That's not a blocker — that's a call you can make. Make it by Monday."</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 10 -->
+<section id="part10">
+  <div class="container">
+    <div class="section-label">Part 10</div>
+    <h2 class="section-title">The Tuesday <em>KPI</em> Counterpart</h2>
+    <p class="section-lede">Friday is for projects. Tuesday is for numbers. They are different meetings on different days with different rules.</p>
+
+    <div class="body">
+      <p>This SOP governs Friday. The Tuesday KPI Review has its own SOP, but the high-level split is:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Meeting</th><th>Cadence</th><th>Focus</th><th>Output</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Friday Updates</strong></td><td>Weekly · Fri AM</td><td>Projects, tasks, owners, deadlines, blockers</td><td>Next week's plan locked</td></tr>
+            <tr><td><strong>Tuesday KPIs</strong></td><td>Weekly · Tue AM</td><td>Cost per booked call, show rate, close rate, revenue, spend, conversion</td><td>Tactical adjustments to ad spend, funnel mechanics, sales staffing</td></tr>
+            <tr><td><strong>Daily Check-In</strong></td><td>Daily · Mon–Fri AM</td><td>Same-day blockers, in-the-moment escalations</td><td>Unblocks before the day starts</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>The reason for the split:</strong> project review requires patience and detail. KPI review requires speed and pattern recognition. Mixing them means projects get rushed and numbers get glossed. Keep them separate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PART 11 -->
+<section id="part11">
+  <div class="container">
+    <div class="section-label">Part 11</div>
+    <h2 class="section-title"><em>Failure Modes</em> to Avoid</h2>
+    <p class="section-lede">These are the patterns that kill weekly cadence. Know them. Don't do them.</p>
+
+    <div class="body">
+      <div class="fail-grid">
+        <div class="fail-card">
+          <h4>1. The Pre-Meeting Update Skip</h4>
+          <div class="cost">Owner shows up Friday without Asana updated; uses meeting time to retroactively log work.</div>
+          <div class="fix"><strong>Fix:</strong> Owner does prep before Friday or they get skipped in the round-robin and update on their own time after.</div>
+        </div>
+        <div class="fail-card">
+          <h4>2. The Soft Status</h4>
+          <div class="cost">"Almost done." "Just polishing." "Should ship next week." These are not statuses — they are evasions.</div>
+          <div class="fix"><strong>Fix:</strong> Define done. Name the date. If you can't, the project is in trouble and we need to talk about it.</div>
+        </div>
+        <div class="fail-card">
+          <h4>3. The 12-Minute Monologue</h4>
+          <div class="cost">One owner monologues through their entire week instead of running the five-block template.</div>
+          <div class="fix"><strong>Fix:</strong> Host enforces the time box. At 4 minutes, you're done — anything else goes in the parking lot.</div>
+        </div>
+        <div class="fail-card">
+          <h4>4. The Silent Listener</h4>
+          <div class="cost">Someone goes quiet during others' updates, misses a dependency that affects their own work, finds out Tuesday.</div>
+          <div class="fix"><strong>Fix:</strong> Attendance means attention. If you can't be present, send your update in writing and skip the call.</div>
+        </div>
+        <div class="fail-card">
+          <h4>5. The Recurring Yellow</h4>
+          <div class="cost">A project sits at yellow for three Fridays in a row. Nobody resolves it back to green or escalates to red.</div>
+          <div class="fix"><strong>Fix:</strong> No yellow lasts two Fridays. Resolve it or escalate it.</div>
+        </div>
+        <div class="fail-card">
+          <h4>6. The Phantom Project</h4>
+          <div class="cost">A project gets reported on every Friday but never has a concrete ship date and never seems to move.</div>
+          <div class="fix"><strong>Fix:</strong> Force a real ship date or kill the project. The team's energy is not infinite.</div>
+        </div>
+        <div class="fail-card">
+          <h4>7. The Cross-Talk Spiral</h4>
+          <div class="cost">Two owners debate an overlapping dependency for 15 minutes while six other people sit there.</div>
+          <div class="fix"><strong>Fix:</strong> Park it. Sync after the meeting. The rest of the team doesn't need to watch you negotiate.</div>
+        </div>
+        <div class="fail-card">
+          <h4>8. The Strategy Drift</h4>
+          <div class="cost">Someone starts proposing a new big initiative in Friday Updates.</div>
+          <div class="fix"><strong>Fix:</strong> Strategy conversations happen in dedicated strategy sessions, not here. Friday is for what already exists.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PART 12 -->
+<section id="part12">
+  <div class="container">
+    <div class="section-label">Part 12</div>
+    <h2 class="section-title">Friday Update <em>Etiquette</em></h2>
+    <p class="section-lede">The unwritten rules that make the meeting actually work.</p>
+
+    <div class="body">
+      <ul>
+        <li><strong>Be on the call on time.</strong> If you're late, you don't get to update first when you arrive. You go to the back of the queue.</li>
+        <li><strong>Cameras on.</strong> Video changes the energy. We're a remote team — body language is the only signal we have. Don't audio-only into a weekly company-wide call.</li>
+        <li><strong>No multitasking visible.</strong> If you need to handle something during the meeting, step off mute and say so. <em>"Sorry team, I've got a client fire — going off video for two minutes."</em> Honest interruption beats silent absence.</li>
+        <li><strong>Name names, not roles.</strong> "Akari needs to greenlight the FAQ copy" beats "we need someone on the copy side to approve it." Specificity routes faster.</li>
+        <li><strong>Celebrate publicly.</strong> When someone ships something big, the team acknowledges it. Quick. Specific. Not a five-minute roast. Just "Nice work on the therapist LP — that was a hard one." Then move on.</li>
+        <li><strong>Handle conflict offline.</strong> If someone's late on something you're depending on, do not call them out in the meeting. Sync after. The meeting is for status, not for accountability theater.</li>
+        <li><strong>Take notes in your own doc.</strong> The host or scribe captures decisions and assignments. Everyone else takes their own notes for their own action items. Don't expect the host to spoon-feed you what you committed to.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK REFERENCE -->
+<section id="quickref">
+  <div class="container-wide">
+    <div class="section-label">Quick Reference</div>
+    <h2 class="section-title">Print This. <em>Pin This.</em></h2>
+    <p class="section-lede">The core mechanics on one screen. Built for the night before, the morning of, and the moment you forget.</p>
+
+    <div class="qr-grid">
+      <div class="qr-card">
+        <h4>Weekly Playbook</h4>
+        <span class="timecue">Wednesday</span>
+        <ul><li>Start refining your project notes in Asana</li></ul>
+        <span class="timecue">Thursday by 5pm PT</span>
+        <ul>
+          <li>All Asana entries reflect actual current state</li>
+          <li>Five-question prep answered in notes</li>
+          <li>Next week's deliverables scoped + dated</li>
+        </ul>
+        <span class="timecue">Friday 9–10am PT</span>
+        <ul>
+          <li>On time. Cameras on. Attention.</li>
+          <li>Run your five-block template when called</li>
+          <li>Commit to dated deliverables</li>
+        </ul>
+        <span class="timecue">Friday by 6pm PT</span>
+        <ul><li>Asana reflects everything decided</li><li>Sync calendars set for blockers</li></ul>
+        <span class="timecue">Monday AM</span>
+        <ul><li>Execute. No re-planning.</li></ul>
+      </div>
+
+      <div class="qr-card">
+        <h4>The Five-Block Template</h4>
+        <span class="timecue">Block 1 · Shipped</span>
+        <ul><li>"This week I shipped: (1)... (2)... (3)..."</li></ul>
+        <span class="timecue">Block 2 · In Motion</span>
+        <ul><li>"Currently: (1) [project] — [status] — [next step] — [expected ship]..."</li></ul>
+        <span class="timecue">Block 3 · Next Week</span>
+        <ul><li>"Next week I'm shipping: (1) [deliverable] by [date]..."</li></ul>
+        <span class="timecue">Block 4 · Deadlines · 14 Days</span>
+        <ul><li>"Deadlines: [commitment] — [date]..."</li></ul>
+        <span class="timecue">Block 5 · Blockers</span>
+        <ul><li>"Need [help] from [person] by [date]..."</li></ul>
+      </div>
+
+      <div class="qr-card">
+        <h4>Status Sentence</h4>
+        <span class="timecue">Use Every Time You're Called On</span>
+        <ul>
+          <li><em>"[Project] — [🟢/🟡/🔴]. Last week: [shipped]. This week: [in motion]. Next week: [ships]. Blocker: [or 'none']."</em></li>
+        </ul>
+        <span class="timecue">Asana Color Protocol</span>
+        <ul>
+          <li>🟢 Green — On track</li>
+          <li>🟡 Yellow — At risk (max 2 consecutive Fridays)</li>
+          <li>🔴 Red — Blocked, meeting priority</li>
+          <li>⚪ Grey — Backlog, not active</li>
+          <li>✅ Done — Shipped</li>
+        </ul>
+      </div>
+
+      <div class="qr-card">
+        <h4>Three Blocker Types</h4>
+        <span class="timecue">Decision Blocker</span>
+        <ul><li>Waiting on a yes/no → 10-min sync this week</li></ul>
+        <span class="timecue">Resource Blocker</span>
+        <ul><li>Need access/tools/money/hands → assigned in meeting</li></ul>
+        <span class="timecue">Knowledge Blocker</span>
+        <ul><li>Don't know how → pair up or budget learning time</li></ul>
+        <span class="timecue">Escalation Ladder</span>
+        <ul>
+          <li><strong>Fri 1:</strong> Surfaced, owner assigned</li>
+          <li><strong>Fri 2:</strong> Reassigned or scoped down</li>
+          <li><strong>Fri 3:</strong> Russ — kill, pivot, or hard deadline</li>
+        </ul>
+      </div>
+
+      <div class="qr-card">
+        <h4>Define Done</h4>
+        <p style="font-size:14px;color:var(--text2);margin:0 0 12px;">Every commitment includes:</p>
+        <ul>
+          <li><strong>What:</strong> Specific deliverable</li>
+          <li><strong>When:</strong> A date (not "next week")</li>
+          <li><strong>Done means:</strong> What "shipped" looks like</li>
+        </ul>
+        <p style="font-size:13px;color:var(--text2);margin-top:14px;font-style:italic;">If you can't state all three, it's not a commitment — it's an intention.</p>
+      </div>
+
+      <div class="qr-card">
+        <h4>Meeting KPIs</h4>
+        <ul>
+          <li><strong>100%</strong> · Owners with Asana updated by Thu 5pm</li>
+          <li><strong>60min</strong> · Average meeting cap</li>
+          <li><strong>80%+</strong> · Committed deliverables shipped on time</li>
+          <li><strong>50%+</strong> · Blockers resolved in-meeting</li>
+          <li><strong>Zero</strong> · Recurring yellow projects (3+ wks)</li>
+          <li><strong>Zero</strong> · Recurring slipped commitments (2+ wks)</li>
+        </ul>
+        <p style="font-size:12px;color:var(--text3);margin-top:14px;font-style:italic;">If we can't hit these, the meeting isn't serving the company.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-tag">"The week is not over until Friday's update is posted."</div>
+    <div class="footer-meta">
+      Living document · Last updated 2026-05-11 · Companion docs to follow:<br>
+      Tuesday KPI Review SOP · Daily Check-In SOP · Asana Operating Conventions
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

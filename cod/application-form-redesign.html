@@ -4,12 +4,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Clients on Demand - Application</title>
+<!--
+  CUTOVER NOTES FOR REHAN (when dropping into GHL Funnel Builder):
+  1. Create these 5 custom fields in GHL -> Settings -> Custom Fields BEFORE publishing:
+       professional_category   single line text
+       professional_role       single line text
+       what_you_help_with      multi line text
+       decision_style          dropdown (solo | spouse | business-partner)
+       sms_consent             checkbox
+  2. Drop this whole HTML block into Funnel Builder -> Custom Code on /application
+  3. Build a native GHL <form> below this code, styled display:none. Match input names to the
+     ones in <form id="ghl-hidden-form"> at the bottom of this file. Replace this placeholder
+     form with GHL's native form (keep the same input name attributes).
+  4. In the hidden GHL form's "On Submit" -> Redirect URL, paste:
+       https://app.clientsondemand.app/widget/bookings/breakthrough-call
+         ?first_name={{contact.first_name}}
+         &last_name={{contact.last_name}}
+         &email={{contact.email}}
+         &phone={{contact.phone}}
+         &professional_role={{contact.professional_role}}
+         &what_you_help_with={{contact.what_you_help_with}}
+         &decision_style={{contact.decision_style}}
+  5. Hidden GHL form actions:
+        - Add tag: application-submitted-v2
+        - Add tag: step:applied
+        - Pipeline: move to "Applied - Awaiting Booking"
+  6. Verify PostHog snippet is on the page. Events fire as cod_application_step_{1..4}_complete
+     and cod_application_submit. Add Hyros script too (per Rehan's tracking audit).
+  7. Full cutover - this REPLACES the legacy GHL multi-step form. Do NOT publish until QA
+     checklist in /output/cod/application-page-test-eli5-rehan.html passes.
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- TrustBox script -->
-<script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
-<!-- End TrustBox script -->
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -26,8 +53,8 @@
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
-    --border-default: rgba(255,255,255,0.09);
-    --border-hover: rgba(255,255,255,0.14);
+    --border-default: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
     --radius-card: 14px;
     --radius-btn: 8px;
     --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -103,145 +130,6 @@
     letter-spacing: 0.08em;
     text-transform: lowercase;
     font-size: 14px;
-  }
-
-  /* Booking-for chip (shown only on calendar step) */
-  .booking-chip {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px 10px 12px;
-    background: rgba(200,169,110,0.06);
-    border: 1px solid var(--accent-gold-border);
-    border-radius: 100px;
-    margin-bottom: 18px;
-    transform: translateY(-8px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .booking-chip.visible {
-    display: inline-flex;
-    transform: translateY(0);
-    opacity: 1;
-  }
-  .booking-chip-avatar {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
-    color: var(--bg-base);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 12px;
-    flex-shrink: 0;
-  }
-  .booking-chip-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    line-height: 1.2;
-  }
-  .booking-chip-text {
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-  }
-  .booking-chip-text strong {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-  .booking-chip-sub {
-    font-size: 0.66rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-  }
-  .booking-chip-sub svg { width: 9px; height: 9px; stroke: var(--accent-gold); fill: none; stroke-width: 3; }
-
-  /* Trust row (above-the-fold social proof) */
-  .trust-row {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 22px;
-    padding: 0 8px;
-    text-align: center;
-    opacity: 0;
-    animation: fadeDown 0.6s ease 0.05s forwards;
-  }
-  .trust-stars {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    font-weight: 400;
-  }
-  .trust-stars-glyphs {
-    color: var(--accent-gold);
-    letter-spacing: 1px;
-    font-size: 0.85rem;
-  }
-  .trust-meta {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    letter-spacing: 0.02em;
-    line-height: 1.5;
-    max-width: 380px;
-  }
-
-  /* Trustpilot widget wrapper */
-  .trustpilot-wrap {
-    width: 100%;
-    max-width: 480px;
-    margin: 28px auto 0;
-    padding: 0 4px;
-  }
-
-  /* FTC footer (compliance) */
-  .ftc-footer {
-    margin-top: 40px;
-    padding: 18px 12px 0;
-    text-align: center;
-    max-width: 540px;
-    border-top: 1px solid var(--border-default);
-  }
-  .ftc-text {
-    font-size: 0.66rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    line-height: 1.6;
-    letter-spacing: 0.01em;
-  }
-  .ftc-text a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    margin: 0 4px;
-  }
-  .ftc-text a:hover { color: var(--accent-gold); }
-  .ftc-divider { color: var(--text-muted); opacity: 0.5; margin: 0 2px; }
-
-  /* Phone optional microcopy */
-  .field-optional {
-    font-size: 0.66rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    margin-left: 6px;
-    text-transform: lowercase;
-    letter-spacing: 0;
-  }
-  .field-microcopy {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    margin-top: 4px;
-    padding-left: 4px;
-    font-style: italic;
   }
 
   /* Header */
@@ -345,7 +233,7 @@
     font-style: italic;
   }
 
-  /* === CATEGORY CARDS === */
+  /* === CATEGORY CARDS (bigger, bolder) === */
   .category-card {
     display: flex;
     align-items: center;
@@ -398,7 +286,7 @@
   }
   .category-card:hover .cat-arrow { transform: translateX(3px); color: var(--accent-gold); }
 
-  /* === SUB-OPTION CARDS === */
+  /* === SUB-OPTION CARDS (standard size) === */
   .card-option {
     display: flex;
     align-items: center;
@@ -466,7 +354,7 @@
   }
   .card-check svg { width: 12px; height: 12px; stroke: var(--bg-base); stroke-width: 3; fill: none; }
 
-  /* Back link */
+  /* Back link (inline, minimal) */
   .back-link {
     display: inline-flex;
     align-items: center;
@@ -566,23 +454,13 @@
   .field-input::placeholder { color: var(--text-muted); font-weight: 300; }
 
   /* SMS consent */
-  .consent-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-top: 12px;
-    padding: 10px 4px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background 0.2s ease;
-  }
-  .consent-row:hover { background: rgba(255,255,255,0.02); }
+  .consent-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; padding: 0 4px; }
   .consent-check {
     appearance: none;
     -webkit-appearance: none;
-    width: 24px; height: 24px; min-width: 24px;
+    width: 20px; height: 20px; min-width: 20px;
     border: 1px solid var(--border-hover);
-    border-radius: 6px;
+    border-radius: 5px;
     background: var(--bg-card);
     cursor: pointer;
     position: relative;
@@ -593,241 +471,13 @@
   .consent-check:checked::after {
     content: '';
     position: absolute;
-    top: 4px; left: 8px;
-    width: 6px; height: 11px;
+    top: 3px; left: 6px;
+    width: 5px; height: 9px;
     border: solid var(--bg-base);
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
   .consent-text { font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; font-weight: 300; }
-  .consent-text a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 2px; }
-  .consent-text a:hover { color: var(--accent-gold); }
-
-  /* === STEP 5: CALENDAR PICKER === */
-  .month-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-    padding: 0 2px;
-  }
-  .month-nav-title {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-  .month-nav-controls { display: flex; gap: 6px; }
-  .month-nav-btn {
-    width: 40px; height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-card);
-    border: 1px solid var(--border-default);
-    border-radius: 10px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-  }
-  .month-nav-btn::before {
-    content: '';
-    position: absolute;
-    inset: -6px;
-  }
-  .month-nav-btn:hover:not(:disabled) { background: var(--bg-card-hover); border-color: var(--border-hover); color: var(--text-primary); }
-  .month-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  .month-nav-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-  .section-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    padding: 0 2px;
-  }
-  .section-label-text {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .timezone-tag {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 300;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .timezone-tag svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-  .date-strip {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 4px 2px 12px;
-    margin-bottom: 24px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .date-strip::-webkit-scrollbar { display: none; }
-
-  .date-card {
-    flex: 0 0 auto;
-    width: 64px;
-    padding: 12px 8px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-card);
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    scroll-snap-align: start;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-  }
-  .date-card:hover:not(.disabled) {
-    background: var(--bg-card-hover);
-    border-color: var(--border-hover);
-    transform: translateY(-2px);
-  }
-  .date-card:active:not(.disabled) { transform: scale(0.97); }
-  .date-card.selected {
-    background: var(--bg-card-selected);
-    border-color: var(--accent-gold-border);
-    box-shadow: 0 0 24px var(--accent-gold-glow);
-  }
-  .date-card.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .date-card.today::after {
-    content: '';
-    position: absolute;
-    bottom: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--accent-gold);
-  }
-  .date-card-day {
-    font-size: 0.66rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .date-card.selected .date-card-day { color: var(--accent-gold); }
-  .date-card-num {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1;
-  }
-  .date-card.disabled .date-card-num { color: var(--text-muted); }
-
-  .time-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .time-slot {
-    padding: 14px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-  .time-slot:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-hover);
-    transform: translateY(-1px);
-  }
-  .time-slot:active { transform: scale(0.98); }
-  .time-slot.selected {
-    background: var(--bg-card-selected);
-    border-color: var(--accent-gold-border);
-    box-shadow: 0 0 24px var(--accent-gold-glow);
-  }
-  .time-slot-time {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-  .time-slot.selected .time-slot-time { color: var(--accent-gold); }
-  .time-slot-meridiem {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-weight: 400;
-    margin-left: 2px;
-  }
-  .time-slot.selected .time-slot-meridiem { color: var(--accent-gold); opacity: 0.8; }
-  .time-slot.loading {
-    background: linear-gradient(90deg, var(--bg-card) 0%, var(--bg-card-hover) 50%, var(--bg-card) 100%);
-    background-size: 200% 100%;
-    animation: shimmer-bg 1.5s ease-in-out infinite;
-    pointer-events: none;
-    color: transparent;
-  }
-
-  .no-slots {
-    padding: 40px 20px;
-    text-align: center;
-    background: var(--bg-card);
-    border: 1px dashed var(--border-default);
-    border-radius: var(--radius-card);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 300;
-    margin-bottom: 24px;
-    grid-column: 1 / -1;
-  }
-
-  .summary-card {
-    padding: 18px 20px;
-    background: linear-gradient(135deg, rgba(200,169,110,0.08), rgba(200,169,110,0.02));
-    border: 1px solid var(--accent-gold-border);
-    border-radius: var(--radius-card);
-    margin-bottom: 16px;
-    display: none;
-    animation: slideUp 0.3s ease;
-  }
-  .summary-card.visible { display: block; }
-  .summary-label {
-    font-size: 0.68rem;
-    color: var(--accent-gold);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-  .summary-time {
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-  .summary-meta {
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    font-weight: 300;
-  }
 
   /* Nav row */
   .nav-row {
@@ -862,9 +512,9 @@
     justify-content: center;
     gap: 8px;
     padding: 14px 28px;
-    background: transparent;
-    color: var(--accent-gold);
-    border: 1px solid var(--accent-gold-border);
+    background: rgba(255,255,255,0.06);
+    color: var(--text-primary);
+    border: 1px solid var(--border-hover);
     border-radius: var(--radius-btn);
     font-family: var(--font-body);
     font-size: 0.88rem;
@@ -874,12 +524,7 @@
     -webkit-tap-highlight-color: transparent;
     margin-left: auto;
   }
-  .btn-next:hover {
-    background: var(--accent-gold-glow);
-    border-color: var(--accent-gold);
-    color: var(--accent-gold-light);
-  }
-  .btn-next:active { transform: scale(0.98); }
+  .btn-next:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
   .btn-next svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
 
   .btn-submit {
@@ -913,9 +558,47 @@
     transform: translateX(-100%);
     animation: shimmer 3s ease-in-out infinite;
   }
-  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; background: rgba(255,255,255,0.06); color: var(--text-muted); }
-  .btn-submit:disabled::after { display: none; }
+  .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
   .btn-submit svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .btn-submit .btn-spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(10,10,12,0.3);
+    border-top-color: var(--bg-base);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  .btn-submit.loading .btn-label,
+  .btn-submit.loading .btn-arrow { display: none; }
+  .btn-submit.loading .btn-spinner { display: inline-block; }
+  .btn-submit.loading { cursor: wait; pointer-events: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Legal footer */
+  .legal-footer {
+    max-width: 480px;
+    margin: 40px auto 0;
+    padding: 24px 8px 16px;
+    border-top: 1px solid var(--border-default);
+    text-align: center;
+  }
+  .legal-disclaimer {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    font-weight: 300;
+    margin-bottom: 14px;
+  }
+  .legal-disclaimer strong { color: var(--text-secondary); font-weight: 500; }
+  .legal-links {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .legal-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+  .legal-links a:hover { color: var(--accent-gold); }
+  .legal-links span { margin: 0 8px; opacity: 0.5; }
+  .legal-copyright { font-size: 0.68rem; color: var(--text-muted); opacity: 0.7; }
 
   /* Success */
   .success-screen {
@@ -923,7 +606,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 18px;
+    gap: 16px;
     padding: 40px 20px;
     animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -938,130 +621,16 @@
     box-shadow: 0 0 40px var(--accent-gold-glow);
   }
   .success-icon svg { width: 32px; height: 32px; stroke: var(--bg-base); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-  .success-screen h2 { font-family: var(--font-display); font-size: 1.85rem; font-weight: 600; color: var(--text-primary); }
-  .success-screen .booked-time {
-    padding: 16px 24px;
-    background: var(--bg-card);
-    border: 1px solid var(--accent-gold-border);
-    border-radius: var(--radius-card);
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: var(--accent-gold);
-    margin-top: 4px;
-  }
-  .success-screen p { font-size: 0.9rem; color: var(--text-secondary); font-weight: 300; line-height: 1.6; max-width: 340px; }
-  .success-screen .check-email {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    margin-top: 4px;
-  }
-
-  /* Add-to-calendar buttons */
-  .calendar-add-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .calendar-add-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .calendar-add-btn:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--accent-gold-border);
-    color: var(--accent-gold);
-  }
-  .calendar-add-btn svg {
-    width: 14px; height: 14px;
-    fill: currentColor;
-  }
-
-  /* What to expect block */
-  .expect-block {
-    width: 100%;
-    max-width: 380px;
-    margin-top: 12px;
-    padding: 18px 20px;
-    background: var(--bg-card);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-card);
-    text-align: left;
-  }
-  .expect-title {
-    font-size: 0.7rem;
-    color: var(--accent-gold);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .expect-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .expect-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    font-weight: 300;
-  }
-  .expect-list li::before {
-    content: '';
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--accent-gold);
-    margin-top: 8px;
-    flex-shrink: 0;
-  }
-  .expect-list strong {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  /* Reschedule link */
-  .reschedule-link {
-    margin-top: 8px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 300;
-  }
-  .reschedule-link a {
-    color: var(--text-secondary);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    transition: color 0.2s ease;
-  }
-  .reschedule-link a:hover { color: var(--accent-gold); }
+  .success-screen h2 { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; }
+  .success-screen p { font-size: 0.9rem; color: var(--text-secondary); font-weight: 300; line-height: 1.6; max-width: 320px; }
 
   /* Animations */
   @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-40px); } }
   @keyframes slideInReverse { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   @keyframes shimmer { 0%, 100% { transform: translateX(-100%); } 50% { transform: translateX(100%); } }
-  @keyframes shimmer-bg { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
   /* Stagger */
   .step.active .card-option:nth-child(1), .step.active .category-card:nth-child(1) { animation-delay: 0ms; }
@@ -1082,8 +651,42 @@
   @media (min-width: 640px) {
     .app { padding: 48px 24px 60px; }
     .step { gap: 12px; }
-    .date-card { width: 70px; }
-    .time-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Keyboard focus rings (a11y) */
+  .card-option:focus-visible,
+  .category-card:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 3px;
+  }
+  .btn-back:focus-visible,
+  .btn-next:focus-visible,
+  .btn-submit:focus-visible,
+  .field-input:focus-visible,
+  .text-area-wrap textarea:focus-visible,
+  .consent-check:focus-visible,
+  .back-link:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+  }
+
+  /* Honor reduced-motion OS setting */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001s !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001s !important;
+      scroll-behavior: auto !important;
+    }
+    .step.active,
+    .step.slide-back,
+    .step.active .card-option,
+    .step.active .category-card {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .btn-submit::after { animation: none !important; }
   }
 </style>
 </head>
@@ -1097,35 +700,17 @@
     <div class="logo-text">CLIENTS <span>on</span> DEMAND</div>
   </div>
 
-  <!-- Booking-for chip (visible only on calendar step) -->
-  <div class="booking-chip" id="bookingChip">
-    <div class="booking-chip-avatar" id="chipAvatar">?</div>
-    <div class="booking-chip-text">Booking for <strong id="chipName">—</strong></div>
+  <div class="form-header">
+    <h1>Schedule Your <em>Breakthrough</em> Call</h1>
+    <p>A few quick questions so we can make the most of our time together.</p>
   </div>
 
-  <div class="form-header" id="formHeader">
-    <h1 id="headerTitle">Schedule Your <em>Breakthrough</em> Call</h1>
-    <p id="headerSub">A few quick questions so we can make the most of our time together.</p>
-  </div>
-
-  <!-- Trust row: social proof above the fold -->
-  <div class="trust-row" id="trustRow">
-    <div class="trust-stars">
-      <span class="trust-stars-glyphs">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
-      <span>Trusted by 3,000+ coaches, therapists &amp; consultants</span>
-    </div>
-    <div class="trust-meta">
-      Featured in Forbes, Inc., Entrepreneur.
-    </div>
-  </div>
-
-  <div class="step-indicator" id="stepIndicator">
+  <div class="step-indicator">
     <div class="step-dot active" data-dot="0"></div>
     <div class="step-dot" data-dot="1"></div>
     <div class="step-dot" data-dot="2"></div>
     <div class="step-dot" data-dot="3"></div>
-    <div class="step-dot" data-dot="4"></div>
-    <span class="step-count">1 of 5</span>
+    <span class="step-count">1 of 4</span>
   </div>
 
   <div class="form-container">
@@ -1237,9 +822,21 @@
         Legal, Finance & Education
       </div>
 
-      <div class="card-option" onclick="selectRole(this, 'Attorney / Financial Advisor')">
+      <div class="card-option" onclick="selectRole(this, 'Attorney')">
         <div class="card-icon">&#x2696;&#xFE0F;</div>
-        <div class="card-label">Attorney / Financial Advisor<small>Other licensed professional</small></div>
+        <div class="card-label">Attorney<small>Solo, partner, or in-house</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'Financial Advisor')">
+        <div class="card-icon">&#x1f4b0;</div>
+        <div class="card-label">Financial Advisor<small>RIA, CFP, wealth manager</small></div>
+        <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+
+      <div class="card-option" onclick="selectRole(this, 'CPA / Accountant')">
+        <div class="card-icon">&#x1f9fe;</div>
+        <div class="card-label">CPA / Accountant<small>Tax, audit, advisory</small></div>
         <div class="card-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
       </div>
 
@@ -1273,12 +870,13 @@
     <!-- ============ STEP 2: WHAT YOU HELP WITH ============ -->
     <div class="step" data-step="1">
       <div class="step-question">In 1-2 sentences, what do you help people with?</div>
-      <div class="step-hint">No perfect answer. Just be specific.</div>
+      <div class="step-hint">Be specific. Min 20 characters.</div>
 
       <div class="text-area-wrap">
-        <textarea id="helpText" placeholder="e.g. I help busy executives overcome burnout and build sustainable leadership habits..." maxlength="300" oninput="updateCharCount(this)"></textarea>
-        <div class="char-count" id="charCount">0 / 300</div>
+        <textarea id="helpText" placeholder="e.g. I help busy executives overcome burnout and build sustainable leadership habits..." maxlength="220" minlength="20" oninput="updateCharCount(this)"></textarea>
+        <div class="char-count" id="charCount">0 / 220</div>
       </div>
+      <div class="field-error" id="helpTextError" style="display:none;color:#ff6b6b;font-size:0.75rem;padding-left:4px;margin-top:-4px;">Add at least 20 characters so we can prep for your call.</div>
 
       <div class="nav-row">
         <button class="btn-back" onclick="goBack()">
@@ -1295,7 +893,7 @@
     <!-- ============ STEP 3: DECISION MAKER ============ -->
     <div class="step" data-step="2">
       <div class="step-question">When it comes to investing in your growth, which best describes you?</div>
-      <div class="step-hint">All answers are welcome &mdash; we'll tailor the conversation accordingly.</div>
+      <div class="step-hint">Helps us know who to include in the conversation.</div>
 
       <div class="card-option" onclick="selectDecision(this, 'I make these decisions on my own')">
         <div class="card-icon">&#x1f464;</div>
@@ -1322,8 +920,13 @@
       <div class="step-hint">We'll only reach out to confirm your time.</div>
 
       <div class="field-group">
-        <label class="field-label" for="fullName">Full Name</label>
-        <input class="field-input" type="text" id="fullName" placeholder="Your full name" autocomplete="name" required oninput="validateContactForm()">
+        <label class="field-label" for="firstName">First Name</label>
+        <input class="field-input" type="text" id="firstName" placeholder="First name" autocomplete="given-name" required oninput="validateContactForm()">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label" for="lastName">Last Name</label>
+        <input class="field-input" type="text" id="lastName" placeholder="Last name" autocomplete="family-name" required oninput="validateContactForm()">
       </div>
 
       <div class="field-group">
@@ -1332,15 +935,20 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="phone">Phone <span class="field-optional">(optional)</span></label>
-        <input class="field-input" type="tel" id="phone" placeholder="+1 (555) 123-4567" autocomplete="tel" inputmode="tel" oninput="formatPhone(this); validateContactForm()">
-        <div class="field-microcopy">We only call if your email bounces. No cold calls, ever.</div>
+        <label class="field-label" for="phone">Phone</label>
+        <input class="field-input" type="tel" id="phone" placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel" required oninput="formatPhone(this); validateContactForm()">
       </div>
 
-      <label class="consent-row" for="smsConsent">
+      <!-- Honeypot - bots fill this, humans don't see it -->
+      <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true">
+        <label for="website_url">Website (leave blank)</label>
+        <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="consent-row">
         <input type="checkbox" class="consent-check" id="smsConsent">
-        <span class="consent-text">By checking this box, I consent to receive SMS appointment reminders from Clients on Demand at the number provided. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to cancel, HELP for help. <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener">Terms</a>.</span>
-      </label>
+        <label class="consent-text" for="smsConsent">I agree to receive SMS notifications from Clients on Demand about my application and call. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to unsubscribe, HELP for help. See <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener" style="color:var(--accent-gold);">Privacy</a> &amp; <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener" style="color:var(--accent-gold);">Terms</a>.</label>
+      </div>
 
       <div class="nav-row">
         <button class="btn-back" onclick="goBack()">
@@ -1348,164 +956,184 @@
           Back
         </button>
         <button class="btn-submit" id="btn-submit" onclick="submitForm()" disabled>
-          See My Available Times
-          <svg viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+          <span class="btn-label">Schedule My Call</span>
+          <svg class="btn-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+          <span class="btn-spinner" aria-hidden="true"></span>
         </button>
       </div>
     </div>
 
-    <!-- ============ STEP 5: CALENDAR PICKER ============ -->
-    <div class="step" data-step="4">
-      <div class="month-nav">
-        <div class="month-nav-title" id="monthLabel">—</div>
-        <div class="month-nav-controls">
-          <button class="month-nav-btn" id="prevMonth" disabled aria-label="Previous">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <button class="month-nav-btn" id="nextMonth" aria-label="Next">
-            <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="section-label">
-        <span class="section-label-text">Select a Date</span>
-      </div>
-      <div class="date-strip" id="dateStrip"></div>
-
-      <div class="section-label">
-        <span class="section-label-text">Available Times</span>
-        <span class="timezone-tag">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="tzLabel">your local time</span>
-        </span>
-      </div>
-      <div class="time-grid" id="timeGrid"></div>
-
-      <div class="summary-card" id="summaryCard">
-        <div class="summary-label">Your Selected Time</div>
-        <div class="summary-time" id="summaryTime">—</div>
-        <div class="summary-meta" id="summaryMeta">—</div>
-      </div>
-
-      <div class="nav-row">
-        <button class="btn-back" onclick="goBack()">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Back
-        </button>
-        <button class="btn-submit" id="btn-confirm" onclick="confirmBooking()" disabled>
-          Lock In My Call
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- SUCCESS -->
+    <!-- SUCCESS (only shown if redirect fails) -->
     <div class="success-screen" id="success">
       <div class="success-icon">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2>You're Booked.</h2>
-      <div class="booked-time" id="bookedTime">&mdash;</div>
-
-      <div class="calendar-add-row">
-        <a href="#" class="calendar-add-btn" id="addGoogle" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          Google
-        </a>
-        <a href="#" class="calendar-add-btn" id="addApple" download="breakthrough-call.ics">
-          <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v16c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z"/></svg>
-          Apple / .ics
-        </a>
-        <a href="#" class="calendar-add-btn" id="addOutlook" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24"><path d="M21.5 6.5h-9v3h-1v-3h-9C1.67 6.5 1 7.17 1 8v8c0 .83.67 1.5 1.5 1.5h19c.83 0 1.5-.67 1.5-1.5V8c0-.83-.67-1.5-1.5-1.5z"/></svg>
-          Outlook
-        </a>
-      </div>
-
-      <div class="expect-block">
-        <div class="expect-title">What to expect</div>
-        <ul class="expect-list">
-          <li><strong>30 minutes, by Zoom.</strong> Link arrives in the calendar invite.</li>
-          <li><strong>No slide deck, no pitch.</strong> Just a real conversation about where you are and where you want to go.</li>
-          <li><strong>Come with questions.</strong> If we're not the right fit, we'll tell you.</li>
-        </ul>
-      </div>
-
-      <p>A calendar invite is on its way to <strong id="bookedEmail">&mdash;</strong>. We'll send reminders 24 hours and 1 hour before your call.</p>
-
-      <p class="reschedule-link">Need to change your time? <a href="#" id="rescheduleLink">Reschedule or cancel</a></p>
-
-      <p class="check-email">If you don't see the invite within 5 minutes, check spam or whitelist <em>booking@clientsondemand.com</em>.</p>
+      <h2>You're In.</h2>
+      <p>Loading your booking calendar... If this screen stays, <a href="https://app.clientsondemand.app/widget/bookings/breakthrough-call" style="color:var(--accent-gold);">click here to schedule</a>.</p>
     </div>
 
   </div>
 
-  <!-- Trustpilot widget — replace data-businessunit-id with COD's actual Business Unit ID -->
-  <div class="trustpilot-wrap">
-    <div class="trustpilot-widget"
-         data-locale="en-US"
-         data-template-id="53aa8807dec7e10d38f59f32"
-         data-businessunit-id="5b2050a59fda6800011ebf55"
-         data-style-height="150px"
-         data-style-width="100%"
-         data-theme="dark">
-      <a href="https://www.trustpilot.com/review/clientsondemand.com" target="_blank" rel="noopener">Trustpilot</a>
-    </div>
-  </div>
+  <!-- ============ HIDDEN GHL FORM (Rehan: replace this placeholder with GHL native form, keep input names) ============ -->
+  <form id="ghl-hidden-form" style="display:none;" aria-hidden="true" method="post" action="REPLACE_WITH_GHL_FORM_ENDPOINT">
+    <input type="text" name="first_name">
+    <input type="text" name="last_name">
+    <input type="email" name="email">
+    <input type="tel" name="phone">
+    <input type="text" name="professional_category">
+    <input type="text" name="professional_role">
+    <textarea name="what_you_help_with"></textarea>
+    <input type="text" name="decision_style">
+    <input type="checkbox" name="sms_consent">
+  </form>
 
-  <!-- FTC compliance footer (always visible) -->
-  <footer class="ftc-footer">
-    <p class="ftc-text">
-      <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+  <!-- ============ FTC + LEGAL FOOTER ============ -->
+  <footer class="legal-footer">
+    <p class="legal-disclaimer">
+      <strong>Results disclaimer:</strong> The results described are not typical. Outcomes depend on
+      effort, market conditions, and individual circumstances. Clients on Demand makes no guarantee
+      of income or specific results. By scheduling a call you confirm you understand this is an
+      educational program, not a get-rich-quick scheme.
     </p>
+    <p class="legal-links">
+      <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
+      <span aria-hidden="true">&middot;</span>
+      <a href="https://clientsondemand.com/terms" target="_blank" rel="noopener">Terms &amp; Conditions</a>
+      <span aria-hidden="true">&middot;</span>
+      <a href="https://clientsondemand.com/dmca" target="_blank" rel="noopener">DMCA</a>
+    </p>
+    <p class="legal-copyright">&copy; <span id="footer-year">2026</span> Clients on Demand. All rights reserved.</p>
   </footer>
 </div>
 
 <script>
   let currentStep = 0;
-  const totalSteps = 5;
-  const STORAGE_KEY = 'cod_application_v1';
-  const formData = { role: '', category: '', helpText: '', decisionMaker: '', name: '', email: '', phone: '', smsConsent: false, bookingDate: null, bookingTime: '' };
+  let isSubmitting = false;
+  const totalSteps = 4;
+  const AUTO_ADVANCE_MS = 700;
+  const CALENDAR_URL = 'https://app.clientsondemand.app/widget/bookings/breakthrough-call';
+  const formData = {
+    role: '', category: '', helpText: '', decisionMaker: '',
+    firstName: '', lastName: '', email: '', phone: '', smsConsent: false
+  };
 
-  // ---- SessionStorage persistence (P0: prevent data loss on refresh) ----
+  const DRAFT_KEY = 'cod_app_draft_v1';
+  const RENDER_TS = Date.now();
+  const MIN_HUMAN_SUBMIT_MS = 3000; // bots usually submit faster than this
 
-  function persistState() {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Footer year
+    const y = document.getElementById('footer-year');
+    if (y) y.textContent = new Date().getFullYear();
+
+    // A11y: make click-divs behave like buttons
+    document.querySelectorAll('.card-option, .category-card').forEach(el => {
+      if (!el.hasAttribute('role'))     el.setAttribute('role', 'button');
+      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (el.classList.contains('card-option') && !el.hasAttribute('aria-pressed')) {
+        el.setAttribute('aria-pressed', 'false');
+      }
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          el.click();
+        }
+      });
+    });
+
+    // A11y: back-link and step indicator
+    document.querySelectorAll('.back-link').forEach(el => {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+    const indicator = document.querySelector('.step-indicator');
+    if (indicator) {
+      indicator.setAttribute('role', 'progressbar');
+      indicator.setAttribute('aria-label', 'Application progress');
+      indicator.setAttribute('aria-valuemin', '1');
+      indicator.setAttribute('aria-valuemax', String(totalSteps));
+      indicator.setAttribute('aria-valuenow', '1');
+    }
+
+    // Restore draft from localStorage
+    restoreDraft();
+
+    // Auto-save draft on any text-input change
+    ['helpText', 'firstName', 'lastName', 'email', 'phone', 'customRoleInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', saveDraft);
+    });
+    const smsEl = document.getElementById('smsConsent');
+    if (smsEl) smsEl.addEventListener('change', saveDraft);
+  });
+
+  function saveDraft() {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
-        formData,
-        currentStep,
-        savedAt: Date.now()
-      }));
-    } catch (e) { /* storage full / blocked — silent fail */ }
+      const draft = {
+        ts: Date.now(),
+        role: formData.role,
+        category: formData.category,
+        decisionMaker: formData.decisionMaker,
+        helpText: document.getElementById('helpText')?.value || '',
+        firstName: document.getElementById('firstName')?.value || '',
+        lastName: document.getElementById('lastName')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        phone: document.getElementById('phone')?.value || '',
+        smsConsent: document.getElementById('smsConsent')?.checked || false
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch (e) { /* localStorage may be disabled */ }
   }
 
-  function restoreState() {
+  function restoreDraft() {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw);
-      // Only restore if saved within last 24h
-      if (Date.now() - saved.savedAt > 86400000) {
-        sessionStorage.removeItem(STORAGE_KEY);
+      const draft = JSON.parse(raw);
+      // Expire drafts older than 24h
+      if (!draft.ts || (Date.now() - draft.ts > 24 * 60 * 60 * 1000)) {
+        localStorage.removeItem(DRAFT_KEY);
         return;
       }
-      Object.assign(formData, saved.formData || {});
-      // Restore form fields if present
-      if (formData.helpText) {
-        const ta = document.getElementById('helpText');
-        if (ta) { ta.value = formData.helpText; updateCharCount(ta); }
-      }
-      if (formData.name) { const f = document.getElementById('fullName'); if (f) f.value = formData.name; }
-      if (formData.email) { const f = document.getElementById('email'); if (f) f.value = formData.email; }
-      if (formData.phone) { const f = document.getElementById('phone'); if (f) f.value = formData.phone; }
-      if (formData.smsConsent) { const f = document.getElementById('smsConsent'); if (f) f.checked = true; }
+      if (draft.helpText)  { const el = document.getElementById('helpText');  if (el) { el.value = draft.helpText; updateCharCount(el); } }
+      if (draft.firstName) { const el = document.getElementById('firstName'); if (el) el.value = draft.firstName; }
+      if (draft.lastName)  { const el = document.getElementById('lastName');  if (el) el.value = draft.lastName; }
+      if (draft.email)     { const el = document.getElementById('email');     if (el) el.value = draft.email; }
+      if (draft.phone)     { const el = document.getElementById('phone');     if (el) el.value = draft.phone; }
+      if (draft.smsConsent){ const el = document.getElementById('smsConsent'); if (el) el.checked = true; }
+      formData.role = draft.role || '';
+      formData.category = draft.category || '';
+      formData.decisionMaker = draft.decisionMaker || '';
       validateContactForm();
-    } catch (e) { /* corrupt storage — silent fail */ }
+    } catch (e) { /* invalid JSON or no localStorage */ }
   }
 
-  function clearState() {
-    try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  }
+
+  // ---- PostHog event helper (no-op if PostHog not loaded) ----
+  function track(event, props) {
+    try {
+      if (typeof posthog !== 'undefined' && posthog.capture) {
+        posthog.capture(event, props || {});
+      }
+    } catch (e) { /* swallow - tracking should never break the form */ }
+  }
+
+  // ---- Smooth recenter after any selection (defeats mobile reflow-disappear bug) ----
+  function recenterForm() {
+    const container = document.querySelector('.form-container');
+    if (!container) return;
+    setTimeout(() => {
+      const active = container.querySelector('.step.active');
+      if (active && active.scrollIntoView) {
+        active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 80);
   }
 
   // ---- Step 1: Category drill-down ----
@@ -1520,6 +1148,8 @@
 
     sub.style.display = 'flex';
     sub.classList.add('active');
+    recenterForm();
+    track('cod_application_category_selected', { category });
   }
 
   function showCustomRole() {
@@ -1533,6 +1163,7 @@
     sub.style.display = 'flex';
     sub.classList.add('active');
     setTimeout(() => document.getElementById('customRoleInput').focus(), 100);
+    track('cod_application_category_selected', { category: 'custom' });
   }
 
   function backToCategories() {
@@ -1548,22 +1179,26 @@
     cats.style.animation = 'none';
     cats.offsetHeight;
     cats.style.animation = 'slideInReverse 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+    recenterForm();
   }
 
   function selectRole(card, value) {
     const step = card.closest('.step');
-    step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+    step.querySelectorAll('.card-option').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-pressed', 'false');
+    });
     card.classList.add('selected');
+    card.setAttribute('aria-pressed', 'true');
     formData.role = value;
-    persistState();
+    saveDraft();
 
-    setTimeout(() => advanceFromStep1(), 400);
+    setTimeout(() => advanceFromStep1(), AUTO_ADVANCE_MS);
   }
 
   function selectCustomRole(value) {
     if (!value) return;
     formData.role = value;
-    persistState();
     advanceFromStep1();
   }
 
@@ -1574,75 +1209,77 @@
       el.style.display = 'none';
     });
 
+    track('cod_application_step_1_complete', { category: formData.category, role: formData.role });
     currentStep = 1;
     showStep(1, 'forward');
     updateDots();
+    recenterForm();
   }
 
-  // ---- Step 3: Decision maker ----
+  // ---- Step 3: Decision maker (auto-advance) ----
 
   function selectDecision(card, value) {
     const step = card.closest('.step');
-    step.querySelectorAll('.card-option').forEach(c => c.classList.remove('selected'));
+    step.querySelectorAll('.card-option').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-pressed', 'false');
+    });
     card.classList.add('selected');
+    card.setAttribute('aria-pressed', 'true');
     formData.decisionMaker = value;
-    persistState();
+    saveDraft();
 
-    setTimeout(() => goNext(), 400);
+    setTimeout(() => goNext(), AUTO_ADVANCE_MS);
   }
 
   // ---- General navigation ----
 
-  // Defensive: hide every step before any transition (prevents multi-step bleed)
-  function hideAllSteps() {
-    document.querySelectorAll('.step').forEach(s => {
-      s.classList.remove('active', 'slide-back');
-      s.style.display = 'none';
-    });
-  }
-
   function goNext() {
-    if (currentStep === 1 && !document.getElementById('helpText').value.trim()) {
-      document.getElementById('helpText').focus();
-      return;
-    }
+    // Step 2 validation: textarea must be 20+ chars
     if (currentStep === 1) {
-      formData.helpText = document.getElementById('helpText').value.trim();
-      persistState();
+      const ta = document.getElementById('helpText');
+      const val = ta.value.trim();
+      const err = document.getElementById('helpTextError');
+      if (val.length < 20) {
+        err.style.display = 'block';
+        ta.focus();
+        return;
+      }
+      err.style.display = 'none';
+      formData.helpText = val;
+      track('cod_application_step_2_complete', { help_text_length: val.length });
     }
 
-    hideAllSteps();
+    if (currentStep === 2) {
+      track('cod_application_step_3_complete', { decision_style: formData.decisionMaker });
+    }
+
+    const currentEl = document.querySelector(`.step[data-step="${currentStep}"]:not([id^="sub-"]):not([id="step-categories"])`);
+    if (!currentEl) {
+      const visible = document.querySelector('.step.active, .step.slide-back');
+      if (visible) { visible.classList.remove('active','slide-back'); visible.style.display = 'none'; }
+    } else {
+      currentEl.classList.remove('active');
+      currentEl.style.display = 'none';
+    }
+
     currentStep++;
     showStep(currentStep, 'forward');
     updateDots();
+    recenterForm();
   }
 
   function goBack() {
-    const wasOnCalendar = currentStep === 4;
-
-    hideAllSteps();
+    const visible = document.querySelector('.step[style*="flex"]:not([style*="none"])') || document.querySelector('.step.active');
+    if (visible) {
+      visible.classList.remove('active','slide-back');
+      visible.style.display = 'none';
+    }
 
     currentStep--;
 
-    // P0 FIX: reset calendar selection state when leaving step 5
-    if (wasOnCalendar) {
-      selectedDate = null;
-      selectedTime = null;
-      const confirmBtn = document.getElementById('btn-confirm');
-      if (confirmBtn) confirmBtn.disabled = true;
-      const summary = document.getElementById('summaryCard');
-      if (summary) summary.classList.remove('visible');
-      // Force date strip rebuild on re-entry so auto-select fires fresh
-      viewStart = null;
-    }
-
-    // Hide booking chip + trust row reappears + restore default header
-    document.getElementById('bookingChip').classList.remove('visible');
-    document.getElementById('trustRow').style.display = '';
-    document.getElementById('headerTitle').innerHTML = 'Schedule Your <em>Breakthrough</em> Call';
-    document.getElementById('headerSub').textContent = 'A few quick questions so we can make the most of our time together.';
-
     if (currentStep === 0) {
+      // Go back to categories
       const cats = document.getElementById('step-categories');
       cats.style.display = 'flex';
       cats.classList.add('active');
@@ -1656,11 +1293,13 @@
   }
 
   function showStep(index, direction) {
+    // Find the main step (not sub-panels)
     const steps = document.querySelectorAll(`.step[data-step="${index}"]`);
     let step;
     if (index === 0) {
       step = document.getElementById('step-categories');
     } else {
+      // Get the step that isn't a sub-panel
       steps.forEach(s => {
         if (!s.id.startsWith('sub-')) step = s;
       });
@@ -1676,11 +1315,6 @@
     } else {
       step.classList.add('active');
     }
-
-    // Calendar step setup
-    if (index === 4) {
-      enterCalendarStep();
-    }
   }
 
   function updateDots() {
@@ -1690,6 +1324,8 @@
       else if (i < currentStep) dot.classList.add('completed');
     });
     document.querySelector('.step-count').textContent = `${currentStep + 1} of ${totalSteps}`;
+    const indicator = document.querySelector('.step-indicator');
+    if (indicator) indicator.setAttribute('aria-valuenow', String(currentStep + 1));
   }
 
   // ---- Step 2: Textarea ----
@@ -1704,29 +1340,16 @@
   // ---- Step 4: Contact ----
 
   function validateContactForm() {
-    const name = document.getElementById('fullName').value.trim();
+    const first = document.getElementById('firstName').value.trim();
+    const last  = document.getElementById('lastName').value.trim();
     const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.replace(/\D/g, '');
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    // Phone is optional; only name + valid email required
-    document.getElementById('btn-submit').disabled = !(name && emailValid);
-
-    // Persist on every keystroke
-    formData.name = name;
-    formData.email = email;
-    formData.phone = document.getElementById('phone').value.trim();
-    formData.smsConsent = document.getElementById('smsConsent').checked;
-    persistState();
+    document.getElementById('btn-submit').disabled = !(first && last && emailValid && phone.length >= 10);
   }
 
   function formatPhone(input) {
-    let val = input.value;
-    // International format: starts with + → leave as-is, just strip invalid chars
-    if (val.startsWith('+')) {
-      input.value = '+' + val.slice(1).replace(/[^\d\s\-\(\)]/g, '');
-      return;
-    }
-    // US format default
-    val = val.replace(/\D/g, '');
+    let val = input.value.replace(/\D/g, '');
     if (val.length > 10) val = val.slice(0, 10);
     if (val.length >= 7) input.value = `(${val.slice(0,3)}) ${val.slice(3,6)}-${val.slice(6)}`;
     else if (val.length >= 4) input.value = `(${val.slice(0,3)}) ${val.slice(3)}`;
@@ -1734,278 +1357,96 @@
   }
 
   function submitForm() {
-    formData.name = document.getElementById('fullName').value.trim();
-    formData.email = document.getElementById('email').value.trim();
-    formData.phone = document.getElementById('phone').value.trim();
+    if (isSubmitting) return;
+
+    // Anti-bot: honeypot (filled field) + render-to-submit timing
+    const honey = document.getElementById('website_url');
+    if (honey && honey.value) {
+      track('cod_application_honeypot_caught', { reason: 'honeypot_filled' });
+      return;
+    }
+    if (Date.now() - RENDER_TS < MIN_HUMAN_SUBMIT_MS) {
+      track('cod_application_honeypot_caught', { reason: 'too_fast', elapsed_ms: Date.now() - RENDER_TS });
+      return;
+    }
+
+    formData.firstName  = document.getElementById('firstName').value.trim();
+    formData.lastName   = document.getElementById('lastName').value.trim();
+    formData.email      = document.getElementById('email').value.trim();
+    formData.phone      = document.getElementById('phone').value.trim();
     formData.smsConsent = document.getElementById('smsConsent').checked;
-    persistState();
 
-    // In production: POST to /api/cod/application -> GHL upsert contact -> returns contactId
-    console.log('Application submitted (would upsert to GHL):', formData);
+    // Loading state
+    isSubmitting = true;
+    const btn = document.getElementById('btn-submit');
+    btn.classList.add('loading');
+    btn.disabled = true;
 
-    goNext(); // advances to step 4 (calendar)
-  }
-
-  // ---- Step 5: Calendar ----
-
-  let selectedDate = null;
-  let selectedTime = null;
-  let viewStart = null;
-
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const DAYS_LONG = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-  const SLOT_POOL = {
-    full: ['9:00 AM','10:00 AM','11:00 AM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'],
-    morning: ['9:00 AM','10:00 AM','11:00 AM','11:30 AM'],
-    afternoon: ['1:00 PM','2:00 PM','3:00 PM','4:00 PM'],
-    sparse: ['10:30 AM','2:00 PM','4:30 PM']
-  };
-
-  function enterCalendarStep() {
-    // Update header for calendar context
-    document.getElementById('headerTitle').innerHTML = 'Pick Your <em>Time</em>';
-    document.getElementById('headerSub').textContent = '30-minute Breakthrough Call. Choose any open slot below.';
-
-    // Hide trust row on calendar step (already past consideration phase)
-    document.getElementById('trustRow').style.display = 'none';
-
-    // Show booking chip with name
-    const firstName = (formData.name || 'there').split(' ')[0];
-    const lastInitial = (formData.name || '').split(' ').slice(1).join(' ').charAt(0);
-    document.getElementById('chipAvatar').textContent = (firstName.charAt(0) || '?').toUpperCase();
-    document.getElementById('chipName').textContent = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
-    document.getElementById('bookingChip').classList.add('visible');
-
-    // Set timezone label — human-friendly
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const friendly = tz.split('/').pop().replace(/_/g, ' ');
-      document.getElementById('tzLabel').textContent = `Shown in ${friendly} time`;
-    } catch (e) {
-      document.getElementById('tzLabel').textContent = 'your local time';
-    }
-
-    // Build the date strip (only on first entry or after back-nav reset)
-    if (!viewStart) {
-      viewStart = new Date();
-      viewStart.setHours(0, 0, 0, 0);
-      buildDateStrip();
-    }
-
-    // P0 FIX: scroll time grid into view after auto-select on mobile
-    setTimeout(() => {
-      const grid = document.getElementById('timeGrid');
-      if (grid && window.innerWidth < 640) {
-        grid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 600);
-  }
-
-  function buildDateStrip() {
-    const strip = document.getElementById('dateStrip');
-    strip.innerHTML = '';
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(viewStart);
-      d.setDate(viewStart.getDate() + i);
-      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-      const isPast = d < today;
-      const isToday = d.getTime() === today.getTime();
-
-      const card = document.createElement('div');
-      card.className = 'date-card' + (isToday ? ' today' : '') + ((isWeekend || isPast) ? ' disabled' : '');
-      card.dataset.date = d.toISOString();
-      card.innerHTML = `
-        <div class="date-card-day">${DAYS_SHORT[d.getDay()]}</div>
-        <div class="date-card-num">${d.getDate()}</div>
-      `;
-      if (!isWeekend && !isPast) {
-        card.addEventListener('click', () => selectDateOnCalendar(d, card));
-      }
-      strip.appendChild(card);
-    }
-
-    document.getElementById('monthLabel').textContent = `${MONTHS[viewStart.getMonth()]} ${viewStart.getFullYear()}`;
-
-    // Auto-select first available
-    const firstAvailable = strip.querySelector('.date-card:not(.disabled)');
-    if (firstAvailable) firstAvailable.click();
-  }
-
-  function selectDateOnCalendar(date, card) {
-    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    selectedDate = date;
-    selectedTime = null;
-    updateBookingSummary();
-    document.getElementById('btn-confirm').disabled = true;
-
-    showLoadingSlots();
-    setTimeout(() => {
-      const dayOfWeek = date.getDay();
-      let pool;
-      if (dayOfWeek === 1) pool = SLOT_POOL.full;
-      else if (dayOfWeek === 2) pool = SLOT_POOL.morning;
-      else if (dayOfWeek === 3) pool = SLOT_POOL.afternoon;
-      else if (dayOfWeek === 4) pool = SLOT_POOL.sparse;
-      else pool = SLOT_POOL.full;
-      renderTimeSlots(pool);
-    }, 350);
-  }
-
-  function showLoadingSlots() {
-    const grid = document.getElementById('timeGrid');
-    grid.innerHTML = '';
-    for (let i = 0; i < 6; i++) {
-      const slot = document.createElement('div');
-      slot.className = 'time-slot loading';
-      slot.innerHTML = '<div class="time-slot-time">9:00 AM</div>';
-      grid.appendChild(slot);
-    }
-  }
-
-  function renderTimeSlots(times) {
-    const grid = document.getElementById('timeGrid');
-    grid.innerHTML = '';
-    if (!times || times.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'no-slots';
-      empty.textContent = 'No times available on this date. Try another day.';
-      grid.appendChild(empty);
-      return;
-    }
-    times.forEach(t => {
-      const [time, meridiem] = t.split(' ');
-      const slot = document.createElement('div');
-      slot.className = 'time-slot';
-      slot.dataset.time = t;
-      slot.innerHTML = `<div class="time-slot-time">${time}<span class="time-slot-meridiem">${meridiem}</span></div>`;
-      slot.addEventListener('click', () => selectTimeOnCalendar(t, slot));
-      grid.appendChild(slot);
+    track('cod_application_submit', {
+      category: formData.category,
+      role: formData.role,
+      decision_style: formData.decisionMaker,
+      sms_consent: formData.smsConsent,
+      help_text_length: formData.helpText.length
     });
-  }
 
-  function selectTimeOnCalendar(time, slot) {
-    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-    slot.classList.add('selected');
-    selectedTime = time;
-    updateBookingSummary();
-    document.getElementById('btn-confirm').disabled = false;
-  }
+    // PostHog identify - ties this session to the contact across systems
+    try {
+      if (typeof posthog !== 'undefined' && posthog.identify) {
+        posthog.identify(formData.email, {
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone,
+          professional_role: formData.role
+        });
+      }
+    } catch (e) { /* tracking should never block submission */ }
 
-  // ---- Wire up month-nav buttons (P0 fix: previously dead clicks) ----
-  function shiftDateWindow(days) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const newStart = new Date(viewStart);
-    newStart.setDate(viewStart.getDate() + days);
-    viewStart = newStart < today ? today : newStart;
-    buildDateStrip();
-    document.getElementById('prevMonth').disabled = (viewStart.getTime() === today.getTime());
-  }
+    // Populate hidden GHL form
+    const hf = document.getElementById('ghl-hidden-form');
+    if (hf) {
+      const set = (name, value) => {
+        const el = hf.querySelector(`[name="${name}"]`);
+        if (!el) return;
+        if (el.type === 'checkbox') el.checked = !!value;
+        else el.value = value || '';
+      };
+      set('first_name', formData.firstName);
+      set('last_name',  formData.lastName);
+      set('email',      formData.email);
+      set('phone',      formData.phone);
+      set('professional_category', formData.category);
+      set('professional_role',     formData.role);
+      set('what_you_help_with',    formData.helpText);
+      set('decision_style',        formData.decisionMaker);
+      set('sms_consent',           formData.smsConsent);
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const next = document.getElementById('nextMonth');
-    const prev = document.getElementById('prevMonth');
-    if (next) next.addEventListener('click', () => shiftDateWindow(14));
-    if (prev) prev.addEventListener('click', () => shiftDateWindow(-14));
-
-    // Restore form state from sessionStorage on page load
-    restoreState();
-  });
-
-  function updateBookingSummary() {
-    const card = document.getElementById('summaryCard');
-    if (!selectedDate || !selectedTime) {
-      card.classList.remove('visible');
-      return;
+      // Submit to GHL. GHL's "On Submit -> Redirect URL" will handle the calendar handoff
+      // with merge-tag passthrough so name/email/phone are prefilled.
+      try {
+        clearDraft();
+        hf.submit();
+        return; // GHL handles redirect from here
+      } catch (e) {
+        console.error('GHL form submit failed:', e);
+      }
     }
-    const dateStr = `${DAYS_LONG[selectedDate.getDay()]}, ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
-    document.getElementById('summaryTime').textContent = `${dateStr} · ${selectedTime}`;
-    let tz = 'your local time';
-    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' '); } catch (e) {}
-    document.getElementById('summaryMeta').textContent = `30 minutes · ${tz}`;
-    card.classList.add('visible');
-  }
 
-  function confirmBooking() {
-    formData.bookingDate = selectedDate.toISOString();
-    formData.bookingTime = selectedTime;
+    // Submission about to leave page - clear local draft
+    clearDraft();
 
-    // In production: POST to /api/cod/book -> GHL POST /calendars/events/appointments
-    console.log('Booking confirmed (would create GHL appointment):', formData);
-
-    const dateStr = selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    document.getElementById('bookedTime').textContent = `${dateStr} at ${selectedTime}`;
-    document.getElementById('bookedEmail').textContent = formData.email;
-
-    // Build add-to-calendar links (Google, Outlook, .ics download)
-    populateCalendarLinks(selectedDate, selectedTime);
-
-    // Clear stored draft now that booking is confirmed
-    clearState();
-
-    // Hide chrome + show success
-    document.querySelectorAll('.step').forEach(s => { s.style.display = 'none'; s.classList.remove('active'); });
-    document.getElementById('bookingChip').classList.remove('visible');
-    document.getElementById('stepIndicator').style.display = 'none';
-    document.getElementById('trustRow').style.display = 'none';
-    document.getElementById('headerTitle').innerHTML = '';
-    document.getElementById('headerSub').style.display = 'none';
-    document.getElementById('success').classList.add('active');
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // ---- Add-to-calendar link generation ----
-  function populateCalendarLinks(date, timeStr) {
-    // Parse "9:00 AM" → 9, "2:00 PM" → 14
-    const [time, meridiem] = timeStr.split(' ');
-    const [hr, min] = time.split(':').map(Number);
-    const hour24 = meridiem === 'PM' && hr !== 12 ? hr + 12 : (meridiem === 'AM' && hr === 12 ? 0 : hr);
-
-    const start = new Date(date);
-    start.setHours(hour24, min, 0, 0);
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + 30);
-
-    const fmtUTC = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const startUTC = fmtUTC(start);
-    const endUTC = fmtUTC(end);
-
-    const title = encodeURIComponent('Breakthrough Call · Clients on Demand');
-    const details = encodeURIComponent('Your 30-minute strategy conversation with Clients on Demand. Zoom link will be sent via email confirmation.');
-    const location = encodeURIComponent('Zoom (link in email)');
-
-    // Google Calendar
-    const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startUTC}/${endUTC}&details=${details}&location=${location}`;
-    document.getElementById('addGoogle').href = gcal;
-
-    // Outlook web
-    const outlook = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${start.toISOString()}&enddt=${end.toISOString()}&body=${details}&location=${location}`;
-    document.getElementById('addOutlook').href = outlook;
-
-    // .ics file (Apple / generic)
-    const ics = [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ClientsOnDemand//Booking//EN',
-      'BEGIN:VEVENT',
-      `UID:${Date.now()}@clientsondemand.com`,
-      `DTSTAMP:${fmtUTC(new Date())}`,
-      `DTSTART:${startUTC}`, `DTEND:${endUTC}`,
-      'SUMMARY:Breakthrough Call · Clients on Demand',
-      'DESCRIPTION:Your 30-minute strategy conversation. Zoom link via email.',
-      'LOCATION:Zoom (link in email)',
-      'END:VEVENT', 'END:VCALENDAR'
-    ].join('\r\n');
-    const icsBlob = new Blob([ics], { type: 'text/calendar' });
-    document.getElementById('addApple').href = URL.createObjectURL(icsBlob);
-
-    // Reschedule link — wire to GHL contact reschedule URL in production
-    document.getElementById('rescheduleLink').href = `mailto:booking@clientsondemand.com?subject=Reschedule%20my%20Breakthrough%20Call&body=I%20need%20to%20reschedule%20my%20call%20originally%20booked%20for%20${encodeURIComponent(date.toLocaleDateString())}%20at%20${encodeURIComponent(timeStr)}.`;
+    // Fallback: if no GHL form wired yet, redirect directly to calendar with query params
+    const params = new URLSearchParams({
+      first_name: formData.firstName,
+      last_name:  formData.lastName,
+      email:      formData.email,
+      phone:      formData.phone,
+      professional_role:    formData.role,
+      what_you_help_with:   formData.helpText,
+      decision_style:       formData.decisionMaker
+    });
+    window.location.href = `${CALENDAR_URL}?${params.toString()}`;
   }
 </script>
 

@@ -582,14 +582,36 @@
     border-top: 1px solid var(--border-default);
     text-align: center;
   }
-  .legal-disclaimer {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    line-height: 1.55;
-    font-weight: 300;
-    margin-bottom: 14px;
+  .trustpilot-wrap {
+    width: 100%;
+    margin: 0 auto 16px;
+    min-height: 100px;
+    position: relative;
   }
-  .legal-disclaimer strong { color: var(--text-secondary); font-weight: 500; }
+  .trustpilot-fallback {
+    text-align: center;
+    padding: 16px 8px;
+  }
+  .trustpilot-fallback .tp-stars { font-size: 18px; letter-spacing: 1px; margin-bottom: 4px; }
+  .trustpilot-fallback .tp-rating {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent-gold);
+    line-height: 1.1;
+  }
+  .trustpilot-fallback .tp-meta { font-size: 0.72rem; color: var(--text-muted); margin: 2px 0 8px; }
+  .trustpilot-fallback .tp-link {
+    display: inline-block;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border: 1px solid var(--border-default);
+    padding: 6px 14px;
+    border-radius: var(--radius-btn);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .trustpilot-fallback .tp-link:hover { border-color: var(--accent-gold-border); color: var(--accent-gold); }
   .legal-links {
     font-size: 0.72rem;
     color: var(--text-muted);
@@ -1032,12 +1054,27 @@
 
   <!-- ============ FTC + LEGAL FOOTER ============ -->
   <footer class="legal-footer">
-    <p class="legal-disclaimer">
-      <strong>Results disclaimer:</strong> The results described are not typical. Outcomes depend on
-      effort, market conditions, and individual circumstances. Clients on Demand makes no guarantee
-      of income or specific results. By scheduling a call you confirm you understand this is an
-      educational program, not a get-rich-quick scheme.
-    </p>
+    <!-- Trustpilot widget -- canonical COD TrustBox (same business unit as reg pages) -->
+    <div class="trustpilot-wrap">
+      <div class="trustpilot-widget" data-locale="en-US" data-template-id="539adbd6dec7e10e686debee" data-businessunit-id="5b2050a59fda6800011ebf55" data-style-height="160px" data-style-width="100%" data-stars="4,5" data-review-languages="en" data-font-family="Outfit">
+        <a href="https://www.trustpilot.com/review/clientsondemand.com" target="_blank" rel="noopener">Trustpilot</a>
+      </div>
+      <!-- Static fallback (shown if widget fails to load) -->
+      <div id="trustpilotFallback" class="trustpilot-fallback">
+        <div class="tp-stars" aria-hidden="true">&#11088;&#11088;&#11088;&#11088;&#11088;</div>
+        <div class="tp-rating">4.4 / 5</div>
+        <div class="tp-meta">Based on 500+ verified reviews</div>
+        <a class="tp-link" href="https://www.trustpilot.com/review/clientsondemand.com" target="_blank" rel="noopener">Read reviews on Trustpilot</a>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+    <script>
+      // Hide the static fallback if the real Trustpilot iframe loads
+      setTimeout(function(){
+        var tp = document.querySelector(".trustpilot-widget iframe");
+        if (tp) { var fb = document.getElementById("trustpilotFallback"); if (fb) fb.style.display = "none"; }
+      }, 3000);
+    </script>
     <p class="legal-links">
       <a href="https://clientsondemand.com/privacy" target="_blank" rel="noopener">Privacy Policy</a>
       <span aria-hidden="true">&middot;</span>

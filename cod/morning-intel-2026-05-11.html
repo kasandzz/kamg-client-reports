@@ -109,8 +109,8 @@
       <div class="card-title">Focus Statement</div>
       <div class="card-subtitle">Russ Docusign + Redstone CPL prep + CPG Krik clutch call</div>
       <div class="insight-item">
-        <div class="item-title">Top of Mind</div>
-        <div class="item-detail"><span class="hl-red">COD close rate is 0% on 96 calls past 10 days.</span> $53.6K spend, $16.5K cash, ROAS 0.31. Bring up at Daily Check In if not already on agenda. <span class="hl-amber">JIT funnel conv rate plummeted from ~17% to ~4%</span> after May 8 traffic spike (likely bot attack per Akari).</div>
+        <div class="item-title">Top of Mind (corrected post-Track-A-canary)</div>
+        <div class="item-detail">BQ headline shows 0% close on 96 calls, but that is the <em>fact_bookings.email = 100% NULL</em> data quality issue, NOT actual close rate. The new <span class="hl-green">fact_bookings_enriched</span> view (live as of 2026-05-11 morning) recovers emails via ghl_contacts and shows <span class="hl-green">46.28% close rate on 819 known-outcome bookings (379 closed)</span>. The cloud function is still hitting the old view. <span class="hl-amber">JIT funnel conv rate plummeted from ~17% to ~4%</span> after May 8 traffic spike (likely bot attack per Akari).</div>
       </div>
       <div class="insight-item">
         <div class="item-title">Redstone Setup</div>
@@ -207,12 +207,24 @@
       <div class="card-title">Carry-forward from 2026-05-08</div>
       <div class="card-subtitle">Last working day -- Friday session</div>
       <div class="insight-item">
+        <div class="item-title">AOC × COD JV Plan (last night)</div>
+        <div class="item-detail">Consolidated 5 sources into one team-facing plan with 4 workstreams (Russ on AOC podcast / affiliate $27 push / Russ-led offer reconstruction / Kas LP rebuild). Sequenced so offer rebuild gates LP rebuild. <a href="https://kasandzz.github.io/kamg-client-reports/aoc/cod-jv-plan.html" style="color:#3b82f6">cod-jv-plan.html live</a>. Economics softened to "proposed pending Russ + AJ sign-off". Ready to send to team.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">COD Data Validity Sweep (last night)</div>
+        <div class="item-detail">3 research agents shipped: governance, reconciliation/versioning, full audit plan with 80 named checks. Big finding: Layer 0 keystone is structurally empty -- master_customers, customer_events, all 6 bridge_* views, all 7 mv_* views, 8/15 fact_* tables = 0 rows. Track A canary (fact_bookings_enriched) shipped. Track B1 partition retention: 2 of 5 tables done; 3 are non-partitioned, DELETE SQL queued at cloud-function/queries/retention-deletes.sql. <span class="hl-red">SendGrid silent-fail flagged</span> -- sendgrid_messages has 1K rows over 2 days vs 300K+ delivered. DO NOT enable retention DELETE on sendgrid_messages until fixed.</div>
+      </div>
+      <div class="insight-item">
         <div class="item-title">Redstone Build Prep</div>
         <div class="item-detail">ELI5 wireframe brief v1+v2 locked. Transcript ingest done. Brand voice v2 drafted. Today's 10:00 block is the right slot to push this forward.</div>
       </div>
       <div class="insight-item">
         <div class="item-title">COD Franzi Reply Agent</div>
         <div class="item-detail">PRD brainstorm sections 1-2 locked Friday. Sections 3-8 still pending. Not urgent today.</div>
+      </div>
+      <div class="insight-item">
+        <div class="item-title">kamg-ops staged backlog</div>
+        <div class="item-detail">Repo has uncommitted COD sales-enablement work blocked by gitleaks on docs/cod/sales-enablement/figma-slide-map.md (Figma file_key false positive). Needs cleanup pass.</div>
       </div>
     </div>
   </div>
@@ -237,10 +249,10 @@
           <div class="stat-label">ROAS</div>
           <div class="stat-delta down">Below 1.0 break-even</div>
         </div>
-        <div class="stat-card red">
-          <div class="stat-value">0%</div>
-          <div class="stat-label">Close Rate</div>
-          <div class="stat-delta down">0 of 96 calls</div>
+        <div class="stat-card green">
+          <div class="stat-value">46.3%</div>
+          <div class="stat-label">Close Rate (enriched)</div>
+          <div class="stat-delta up">379 of 819 known outcomes</div>
         </div>
         <div class="stat-card green">
           <div class="stat-value">97.9%</div>
@@ -260,9 +272,9 @@
         </div>
       </div>
 
-      <div class="concern-item">
-        <div class="item-title">RED FLAG: 0 closes on 96 calls past 10 days</div>
-        <div class="item-detail">Dorian Matney 0/48 closed (97.9% show), Matt Dakan 0/45 closed (97.8% show), Colby Mann 0/1 closed. Show rate is healthy at 97.9% but the close engine is jammed. This is the single highest-leverage conversation for the Daily Check In.</div>
+      <div class="insight-item">
+        <div class="item-title">Track A canary LIVE -- close rate data integrity solved</div>
+        <div class="item-detail">Last night's session created <span class="hl-green">cod_warehouse.fact_bookings_enriched</span>: 11,843 total bookings, 11,830 emails recovered (99.9%) via ghl_contacts join, 819 with known outcome, 379 closed -- <span class="hl-green">46.28% close rate of known-outcome bookings</span>. The cloud function still queries the un-enriched view; that's why the table below shows 0 closes per closer. Action: cut the CF over to fact_bookings_enriched in the next deploy. Six data-quality findings flagged (fact_bookings.email/phone/name all NULL, sheets_call_outcomes_fathom_ai.date 100% NULL, sheets_enrollments only 334 rows -- manual subset, not canonical).</div>
       </div>
 
       <div class="concern-item">
@@ -438,6 +450,10 @@
       <div class="action-item"><div class="action-check"></div><div><div class="action-text">Sign Russ Docusign</div><div class="action-context">Personal admin -- 09:30</div></div></div>
       <div class="action-item"><div class="action-check"></div><div><div class="action-text">Riverside dry run: bring a topic for Krik + Julieta</div><div class="action-context">CPG -- 15:00</div></div></div>
       <div class="action-item"><div class="action-check"></div><div><div class="action-text">Lead List Review prep w/ Leo</div><div class="action-context">Internal -- 12:00 Google Meet</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div><div class="action-text">Send AOC × COD JV plan to team (Russ + AJ) for sign-off</div><div class="action-context">AOC -- cod-jv-plan.html shipped last night, ready to circulate</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div><div class="action-text">Cut COD cloud function over to fact_bookings_enriched view</div><div class="action-context">COD data -- unblocks accurate close-rate reporting in dashboards</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div><div class="action-text">Set up BQ Scheduled Query for retention DELETE on non-partitioned tables</div><div class="action-context">COD data -- 3 tables: cold_outbound_replies, etl_run_log. SendGrid HOLD until silent-fail fixed.</div></div></div>
+      <div class="action-item"><div class="action-check"></div><div><div class="action-text">Resolve gitleaks block on docs/cod/sales-enablement/figma-slide-map.md to clear kamg-ops staged work</div><div class="action-context">kamg-ops cleanup</div></div></div>
       <div class="action-item"><div class="action-check"></div><div><div class="action-text">Continue Franzi Reply Agent PRD (sections 3-8) when capacity allows</div><div class="action-context">COD -- carry-forward from 2026-05-08</div></div></div>
     </div>
   </div>

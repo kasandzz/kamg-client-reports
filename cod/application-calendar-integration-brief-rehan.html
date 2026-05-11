@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>COD — Application Calendar Integration: Build Brief for Rehan</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#111114; --panel2:#161619; --line:#22222a;
+    --ink:#f1f5f9; --muted:#94a3b8; --gold:#c8a96e; --mint:#5ee1c6; --red:#ff6b6b; --blue:#6bb4ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+  a{color:var(--mint);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:960px;margin:0 auto;padding:44px 22px 120px}
+  h1{font:600 32px/1.2 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 6px}
+  h2{font-size:20px;margin:48px 0 14px;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{font-size:16px;margin:24px 0 8px;color:var(--mint)}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:760px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0}
+  .card.warn{border-color:#4a2530;background:#1a0f12}
+  .card.ok{border-color:#1f3a35;background:#0e1c18}
+  .card.quote{border-left:3px solid var(--gold);border-radius:0 10px 10px 0;background:#14110c}
+  .card.blue{border-left:3px solid var(--blue);background:#0e151e}
+  code.inline{background:#05070c;padding:2px 7px;border-radius:4px;color:#ffd796;font-family:"JetBrains Mono",Consolas,monospace;font-size:13px}
+  pre{background:#05070c;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;font:13px/1.55 "JetBrains Mono",Consolas,monospace;color:#d8dee9}
+  pre .comment{color:#666}
+  pre .highlight{color:#e8c98e}
+  pre .add{color:#6bff8a}
+  pre .delete{color:#ff6b6b;text-decoration:line-through}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  ol li,ul li{margin:6px 0}
+  .chip{display:inline-block;background:#1c1c22;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+  .chip.g{color:#111;background:var(--gold);border-color:var(--gold);font-weight:600}
+  .chip.r{color:#fff;background:var(--red);border-color:var(--red);font-weight:600}
+  .hdr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .phase{display:flex;gap:14px;margin:16px 0;padding:18px 20px;background:var(--panel2);border:1px solid var(--line);border-radius:12px}
+  .phase .num{flex:0 0 44px;height:44px;border-radius:50%;background:var(--gold);color:#111;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center}
+  .phase .body{flex:1;min-width:0}
+  .phase h3{margin-top:0}
+  .phase .meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .phase .reqs{font-family:"JetBrains Mono",Consolas,monospace;font-size:11px;color:var(--gold);margin-top:6px}
+  .kv{display:grid;grid-template-columns:200px 1fr;gap:10px 18px;font-size:14px;margin:6px 0}
+  .kv div:nth-child(odd){color:var(--muted)}
+  .bad{color:var(--red)} .good{color:var(--mint)}
+  .file-ref{font-family:"JetBrains Mono",Consolas,monospace;font-size:12px;color:var(--blue);background:rgba(107,180,255,.08);padding:2px 8px;border-radius:4px}
+  .req-id{font-family:"JetBrains Mono",Consolas,monospace;font-size:11px;background:rgba(200,169,110,.15);color:var(--gold);padding:2px 7px;border-radius:4px;font-weight:600}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;margin-left:6px}
+  .tag-critical{background:rgba(255,107,107,.25);color:var(--red);border:1px solid rgba(255,107,107,.3)}
+  .tag-blocked{background:rgba(255,107,107,.15);color:var(--red)}
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+  .summary-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center}
+  .summary-box .num{font-size:28px;font-weight:700;color:var(--gold)}
+  .summary-box .label{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+  @media (max-width:640px){
+    .wrap{padding:24px 16px 60px}
+    .summary-grid{grid-template-columns:repeat(2,1fr)}
+    .phase{flex-direction:column;gap:8px}
+    .kv{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <span class="chip g">Client: COD</span>
+    <span class="chip">Owner: Rehan</span>
+    <span class="chip">Target: clientsondemand.live/application</span>
+    <span class="chip r">Priority: P0</span>
+    <span class="chip">Phase: Calendar Integration</span>
+  </div>
+
+  <h1>Application Calendar Integration — Build Brief</h1>
+  <p class="sub">Plain-English plan to replace GHL's hosted calendar widget with an in-page booking step on the rebuilt <code class="inline">/application</code> form. Builds on the form rebuild we shipped today. Plan is 4 phases, blocked on a 2-question Slack to Matt before anything else moves.</p>
+
+  <div class="summary-grid">
+    <div class="summary-box">
+      <div class="num">4</div>
+      <div class="label">Phases</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">25</div>
+      <div class="label">Requirements</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">1-2 days</div>
+      <div class="label">Build effort</div>
+    </div>
+    <div class="summary-box">
+      <div class="num">75%</div>
+      <div class="label">Current dropoff</div>
+    </div>
+  </div>
+
+  <h2>1. What we already shipped today (form rebuild)</h2>
+  <p class="sub">Context before the calendar work makes sense:</p>
+  <div class="card">
+    <ul>
+      <li><strong>4-step wizard form</strong> rebuilt and live at <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html</a></li>
+      <li>Fixes the mobile reflow bug, first/last name split, FTC footer, honeypot, PostHog events, a11y, localStorage draft, trust badge with 5,000+ count</li>
+      <li>Hidden GHL form pattern is in place — submit populates 5 custom fields + name + email + phone, then redirects out to GHL's calendar widget with merge-tag prefill</li>
+      <li>That redirect is the next leak we're attacking</li>
+    </ul>
+  </div>
+
+  <h2>2. Why we're replacing GHL's calendar</h2>
+  <div class="card warn">
+    <p>The current flow is: form submit → leave our domain → land on <code class="inline">app.clientsondemand.app/widget/bookings/breakthrough-call</code> → pick a slot → confirm.</p>
+    <p><strong>Two problems with the handoff:</strong></p>
+    <ul>
+      <li>Domain switch breaks the visual flow. Users perceive it as "the page reloaded" and a chunk bounce here.</li>
+      <li>The GHL widget styling does not match the form. The applicant just spent 90 seconds in our dark-gold experience and lands on a different-looking page. Trust erosion.</li>
+    </ul>
+    <p><strong>Compounding effect:</strong> The form rebuild attacks the form half of the 75% dropoff. The calendar integration attacks the handoff half. Together they should move the needle materially.</p>
+  </div>
+
+  <h2>3. What we're building — the 4 phases</h2>
+
+  <div class="phase">
+    <div class="num">1</div>
+    <div class="body">
+      <h3>Discovery + Matt sign-off <span class="tag tag-blocked">Blocked</span></h3>
+      <div class="meta">Goal: Unblock the build with confirmed calendar ID, auth method, API contract.</div>
+      <ul>
+        <li><strong>Slack DM to Matt with 2 questions</strong> (draft below in section 8). Don't start anything else until he replies.</li>
+        <li>Document the GHL Calendars API V2 contract for the two endpoints we'll call (free-slots, appointment creation)</li>
+        <li>Decide timezone handling — auto-detect from browser, display in user TZ, send to GHL in their expected format</li>
+        <li>Confirm which tags + pipeline triggers must fire post-booking</li>
+      </ul>
+      <div class="reqs">DISC-01 · DISC-02 · DISC-03 · DISC-04 · DISC-05</div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="num">2</div>
+    <div class="body">
+      <h3>Cloud function proxy</h3>
+      <div class="meta">Goal: Standalone GCP cloud function that proxies GHL Calendars API, with auth secret hidden server-side.</div>
+      <ul>
+        <li>Pattern to copy: <span class="file-ref">kamg-ops/cloud-function/cpg-attio/</span> (Node.js HTTP function, GCP Secret Manager pull on cold start)</li>
+        <li>Two endpoints to expose:
+          <ul>
+            <li><code class="inline">GET /api/cod/free-slots?date=YYYY-MM-DD&amp;tz=...</code> → returns available time slots</li>
+            <li><code class="inline">POST /api/cod/book</code> → creates the appointment + sets tags + moves pipeline</li>
+          </ul>
+        </li>
+        <li>GHL auth key in GCP Secret Manager as <code class="inline">cod-ghl-calendar-config</code></li>
+        <li>CORS locked to <code class="inline">clientsondemand.live</code> + <code class="inline">clientsondemand.com</code> only</li>
+        <li>Rate limit: 1 free-slots req/sec per IP, 1 booking/30sec per email</li>
+        <li>Deploy with uptime monitoring + Cloud Logging error alerts</li>
+      </ul>
+      <div class="reqs">BACKEND-01 · BACKEND-02 · BACKEND-03 · BACKEND-04 · BACKEND-05 · BACKEND-06</div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="num">3</div>
+    <div class="body">
+      <h3>Calendar UI integration</h3>
+      <div class="meta">Goal: Merge the existing Apr 23 calendar mock into the form as Step 5, wired to the cloud function from Phase 2.</div>
+      <ul>
+        <li><strong>Source UI:</strong> <span class="file-ref">kamg-client-reports/cod/application-calendar-step-mock.html</span> — date strip + time grid + booking chip + success state. Already in COD's design language. Do NOT redesign.</li>
+        <li>Target file: <span class="file-ref">kamg-ops/output/cod/application-form-redesign.html</span> — add as <code class="inline">&lt;div class="step" data-step="4"&gt;</code></li>
+        <li>Update <code class="inline">totalSteps</code> from 4 to 5, add a 5th step dot to the indicator</li>
+        <li>Replace mock <code class="inline">generateTimeSlots()</code> with <code class="inline">fetch('/api/cod/free-slots?date=...')</code></li>
+        <li>Replace mock <code class="inline">confirmBooking()</code> with <code class="inline">fetch('/api/cod/book', {method:'POST', body: ...})</code></li>
+        <li>Loading skeleton during slot fetch (already in mock)</li>
+        <li>Auto-detect timezone via <code class="inline">Intl.DateTimeFormat().resolvedOptions().timeZone</code>, display above time grid</li>
+        <li>Error states: empty slot day, network failure, API 4xx/5xx, slot collision (already taken)</li>
+      </ul>
+      <div class="reqs">UI-01 · UI-02 · UI-03 · UI-04 · UI-05 · UI-06 · UI-07 · UI-08</div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="num">4</div>
+    <div class="body">
+      <h3>QA + Launch</h3>
+      <div class="meta">Goal: Verified end-to-end, soft launch, then cutover.</div>
+      <ul>
+        <li>E2E mobile testing on real devices: iPhone Safari + Android Chrome</li>
+        <li>Timezone edge cases: US East, US Pacific, EU, DST boundary</li>
+        <li>GHL verification: contact appears, all 5 custom fields populated, tags set, pipeline moved, appointment visible</li>
+        <li>PostHog event verification: <code class="inline">cod_application_calendar_view</code>, <code class="inline">cod_application_slot_selected</code>, <code class="inline">cod_application_booking_confirmed</code></li>
+        <li>Soft launch on <code class="inline">/application-v2</code> for 48h before flipping <code class="inline">/application</code></li>
+        <li>Archive legacy GHL form config after cutover</li>
+      </ul>
+      <div class="reqs">LAUNCH-01 · LAUNCH-02 · LAUNCH-03 · LAUNCH-04 · LAUNCH-05 · LAUNCH-06</div>
+    </div>
+  </div>
+
+  <h2>4. Cloud function spec (Phase 2 details)</h2>
+
+  <h3>A. Endpoint shapes</h3>
+  <div class="card">
+    <p><strong>GET /api/cod/free-slots</strong></p>
+<pre>Request:
+  GET /api/cod/free-slots?date=2026-05-15&amp;tz=America/Mexico_City
+  Headers: none (CORS-validated by Origin)
+
+Response (200):
+  {
+    "date": "2026-05-15",
+    "timezone": "America/Mexico_City",
+    "slots": [
+      { "start_iso": "2026-05-15T09:00:00-06:00", "label": "9:00 AM" },
+      { "start_iso": "2026-05-15T10:30:00-06:00", "label": "10:30 AM" }
+    ]
+  }
+
+Response (200, no slots):
+  { "date": "2026-05-15", "timezone": "...", "slots": [] }
+
+Response (400, bad date):
+  { "error": "invalid_date", "message": "..." }
+
+Response (502, GHL down):
+  { "error": "upstream_error", "message": "..." }</pre>
+    <p><strong>POST /api/cod/book</strong></p>
+<pre>Request:
+  POST /api/cod/book
+  Content-Type: application/json
+  Body:
+  {
+    "slot_iso": "2026-05-15T09:00:00-06:00",
+    "first_name": "...",
+    "last_name": "...",
+    "email": "...",
+    "phone": "...",
+    "professional_category": "...",
+    "professional_role": "...",
+    "what_you_help_with": "...",
+    "decision_style": "...",
+    "sms_consent": true
+  }
+
+Response (200):
+  {
+    "booked": true,
+    "appointment_id": "ghl_appt_...",
+    "contact_id": "ghl_contact_...",
+    "slot_iso": "2026-05-15T09:00:00-06:00",
+    "calendar_invite_url": "..."   // optional, if GHL returns one
+  }
+
+Response (409, slot taken):
+  { "error": "slot_taken", "message": "This time was just booked. Please pick another." }
+
+Response (422, validation):
+  { "error": "validation", "fields": { "email": "invalid" } }</pre>
+  </div>
+
+  <h3>B. Cloud function structure</h3>
+  <div class="card">
+<pre>cloud-function/cod-calendar-proxy/
+├── package.json
+├── index.js              // entry, routes /free-slots and /book
+├── ghl-client.js         // wraps GHL Calendars API V2 calls
+├── auth.js               // pulls cod-ghl-calendar-config from Secret Manager
+├── cors.js               // origin allowlist
+├── rate-limit.js         // simple in-memory or Firestore-backed limiter
+└── README.md             // deployment + env vars</pre>
+    <p>Copy the boilerplate from <span class="file-ref">cloud-function/cpg-attio/</span> — it already does Secret Manager pull, CORS, error handling.</p>
+  </div>
+
+  <h2>5. UI integration spec (Phase 3 details)</h2>
+
+  <div class="card">
+    <h3>Sequence at form submit</h3>
+    <ol>
+      <li>User finishes Step 4 (contact info)</li>
+      <li>Submit button shows the loading spinner (already in current code)</li>
+      <li>POST to <code class="inline">/api/cod/book</code> happens at slot-confirm time — not at Step 4 submit. So Step 4 just transitions to Step 5 (calendar) without any GHL call yet.</li>
+      <li>Step 5 calls <code class="inline">GET /api/cod/free-slots</code> for today + the next 6 days, populates the date strip</li>
+      <li>User picks a date → fetch slots for that date → render time grid</li>
+      <li>User picks a slot → enable Confirm button → on click → <code class="inline">POST /api/cod/book</code> with all form data + slot</li>
+      <li>On 200 → show in-page success state (already designed in mock)</li>
+      <li>On error → show error state, allow retry</li>
+    </ol>
+    <p class="sub" style="margin-top:10px">This is different from today's hidden-GHL-form pattern. With the in-page calendar, the cloud function is the one calling GHL — the form no longer submits to GHL directly. Remove the hidden GHL form once Phase 3 is wired.</p>
+  </div>
+
+  <div class="card warn">
+    <strong>Important:</strong> Step 4 of the current form still has the hidden GHL form wired in for fallback. Keep that wiring intact until Phase 3 is done and verified. Only remove the hidden GHL form once the cloud function path is proven in production.
+  </div>
+
+  <h2>6. QA checklist (Phase 4)</h2>
+
+  <div class="card ok">
+    <ul>
+      <li><span class="good">✓</span> iPhone Safari + Android Chrome (real devices, not just DevTools emulator)</li>
+      <li><span class="good">✓</span> Full 5-step flow completes without horizontal scroll on 375px viewport</li>
+      <li><span class="good">✓</span> Slot loading skeleton appears within 200ms of date selection</li>
+      <li><span class="good">✓</span> Empty date returns "No times available. Try another day." — does NOT crash</li>
+      <li><span class="good">✓</span> Slot collision (someone else books the same slot first) shows the 409 error message and lets user pick again</li>
+      <li><span class="good">✓</span> Timezone detection works across US East / US Pacific / EU / DST boundary case</li>
+      <li><span class="good">✓</span> GHL contact created with: all 5 custom fields + first_name + last_name + email + phone</li>
+      <li><span class="good">✓</span> Tags applied: <code class="inline">application-submitted-v2</code> + <code class="inline">step:applied</code> + <code class="inline">step:booked</code></li>
+      <li><span class="good">✓</span> Pipeline moved to <strong>Applied — Awaiting Booking</strong> at form submit, then to <strong>Call Booked</strong> at slot confirm</li>
+      <li><span class="good">✓</span> Appointment visible in GHL calendar UI within 10 seconds of confirm</li>
+      <li><span class="good">✓</span> Booking confirmation email fires with <code class="inline">{{contact.first_name}}</code> resolved (not blank)</li>
+      <li><span class="good">✓</span> PostHog events fire: calendar_view, slot_selected, booking_confirmed</li>
+      <li><span class="good">✓</span> Cloud function logs show 0 unhandled errors over 48h soft launch</li>
+    </ul>
+  </div>
+
+  <h2>7. What to NOT do</h2>
+  <div class="card warn">
+    <ul>
+      <li><strong>Don't redesign the calendar UI.</strong> The Apr 23 mock is the design contract. Lift it as-is.</li>
+      <li><strong>Don't put GHL API keys in client JS.</strong> Anything that hits GHL goes through the cloud function.</li>
+      <li><strong>Don't break the existing form rebuild.</strong> The 4-step form is live and working. Add Step 5, don't refactor the first 4.</li>
+      <li><strong>Don't ship without Matt's sign-off.</strong> Phase 2 has zero starting context until DISC-01 + DISC-02 are answered.</li>
+      <li><strong>Don't cutover on a Friday.</strong> Soft launch midweek, cutover Tuesday or Wednesday.</li>
+    </ul>
+  </div>
+
+  <h2>8. The Slack DM to Matt (paste this)</h2>
+  <div class="card blue">
+<pre>Hey Matt — quick 2-Qs to unblock the next /application work.
+
+Form rebuild shipped today (P0+P1+P2 fixes + trust badge). Next phase
+is replacing the redirect to the GHL calendar widget with an in-page
+booking step on the same form. Should compound the form fixes against
+the 75% dropoff.
+
+Plan: cloud function proxy to GHL Calendars API V2 (free-slots +
+appointment-create), wire to the existing Apr 23 calendar UI mock as
+Step 5 of the form. Same pattern as the cpg-attio proxy.
+
+Need from you to start:
+1) GHL calendar ID for the Breakthrough Call?
+2) OK to use a static GHL API key in GCP Secret Manager (matching the
+   cpg-attio-config pattern), or do you want me to OAuth-flow it?
+
+I have a full 4-phase plan written up — happy to share it if helpful,
+but those 2 answers unblock everything.</pre>
+  </div>
+
+  <h2>9. Open items to confirm with Kas before building</h2>
+  <div class="card">
+    <table>
+      <tr><th>Item</th><th>Why it matters</th></tr>
+      <tr><td>Soft-launch slug — <code class="inline">/application-v2</code> or something else?</td><td>Need a non-prod URL to test against before flipping <code class="inline">/application</code>.</td></tr>
+      <tr><td>Calendar ID source — Kas pulls from GHL UI vs. Matt confirms?</td><td>Two paths to the same answer. Kas may already have access.</td></tr>
+      <tr><td>Timezone manual override — auto-detect only, or offer dropdown?</td><td>Auto-detect ships faster. Dropdown is more robust for VPN users.</td></tr>
+      <tr><td>Calendar slot density — show next 7 days or 14 days in the date strip?</td><td>UX call. Mock shows 7. 14 = more options, more scroll.</td></tr>
+    </table>
+  </div>
+
+  <p class="sub" style="margin-top:40px">
+    Planning artifacts: <span class="file-ref">~/gsd-workspaces/cod-application-calendar/.planning/</span><br>
+    Form (current): <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">application-form-redesign.html</a><br>
+    Calendar UI mock (reference): <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-calendar-step-mock.html">application-calendar-step-mock.html</a><br>
+    Brief generated 2026-05-11.
+  </p>
+
+</div>
+</body>
+</html>

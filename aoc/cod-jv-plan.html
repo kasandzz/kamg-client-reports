@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AOC x COD - JV Partnership Plan</title>
+<style>
+  :root{
+    --bg:#0b0d12;
+    --panel:#11141b;
+    --panel-2:#161a22;
+    --line-soft:#1f2531;
+    --ink:#e7ecf3;
+    --ink-soft:#9aa3b2;
+    --mute:#6b7585;
+    --accent:#7dd3fc;
+    --accent-2:#a78bfa;
+    --good:#34d399;
+    --warn:#fbbf24;
+    --aoc:#d4af37;
+    --cod:#22d3ee;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  body{line-height:1.55}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 28px 96px}
+  header.hero{padding:36px 0 28px;border-bottom:1px solid var(--line-soft)}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+  h1{font-size:38px;line-height:1.15;margin:0 0 12px;font-weight:700;letter-spacing:-.01em}
+  h1 .x{color:var(--mute);font-weight:400;margin:0 8px}
+  .aoc{color:var(--aoc)}
+  .cod{color:var(--cod)}
+  .sub{font-size:16px;color:var(--ink-soft);max-width:780px}
+  .meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:10px}
+  .pill{font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:99px;border:1px solid var(--line-soft);color:var(--ink-soft);background:var(--panel)}
+  section{margin-top:44px}
+  h2{font-size:22px;margin:0 0 6px;font-weight:600;letter-spacing:-.005em}
+  h2 .num{color:var(--mute);font-weight:400;margin-right:10px}
+  h2 + .lede{color:var(--ink-soft);margin:0 0 18px;max-width:780px}
+  h3{font-size:15px;margin:18px 0 8px;color:var(--ink);font-weight:600}
+  p{margin:8px 0}
+  ul{margin:8px 0 8px 22px;padding:0}
+  li{margin:4px 0}
+  .grid{display:grid;gap:14px}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:780px){.grid-3,.grid-2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;padding:18px 20px}
+  .card .tag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .card h4{margin:6px 0 8px;font-size:16px}
+  .card p{color:var(--ink-soft);font-size:14px;margin:4px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{color:var(--mute);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  td.owner{white-space:nowrap;font-weight:600}
+  .status{font-size:11px;padding:3px 8px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;display:inline-block}
+  .s-prog{background:rgba(125,211,252,.12);color:var(--accent)}
+  .s-block{background:rgba(251,191,36,.14);color:var(--warn)}
+  .s-todo{background:rgba(155,165,178,.12);color:var(--ink-soft)}
+  .kv{display:grid;grid-template-columns:170px 1fr;gap:8px 18px;font-size:14px}
+  .kv dt{color:var(--mute)}
+  .kv dd{margin:0;color:var(--ink)}
+  .links a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+  .links a:hover{border-bottom-color:var(--accent)}
+  .footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--mute)}
+  .footer span{color:var(--ink-soft)}
+  .col-aoc{border-top:2px solid var(--aoc)}
+  .col-cod{border-top:2px solid var(--cod)}
+  .col-joint{border-top:2px solid var(--accent-2)}
+  ol.steps{counter-reset:s;list-style:none;margin:10px 0 0;padding:0}
+  ol.steps li{counter-increment:s;padding:12px 0 12px 42px;border-bottom:1px solid var(--line-soft);position:relative}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line-soft);text-align:center;line-height:26px;font-size:12px;color:var(--ink-soft);font-weight:600}
+  ol.steps li:last-child{border-bottom:none}
+  ol.steps strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Partnership Plan / Internal Working Doc / v1</div>
+  <h1><span class="aoc">Art of Charm</span> <span class="x">x</span> <span class="cod">Clients on Demand</span><br/>JV Partnership Plan</h1>
+  <p class="sub">Four workstreams from the Apr 8 jam. WS3 unblocks WS4. One doc, one source of truth.</p>
+  <div class="meta">
+    <span class="pill">Stakeholders: Russ, AJ, Johnny, Kas, Matt, Ryan</span>
+    <span class="pill">Updated 2026-05-11</span>
+    <span class="pill">Status: ready to relaunch post-Europe</span>
+  </div>
+</header>
+
+<section>
+  <h2><span class="num">01</span>Four Workstreams</h2>
+
+  <div class="card col-cod" style="margin-top:16px">
+    <span class="tag" style="color:var(--cod)">WS1 / Russ on the AOC Podcast</span>
+    <h4>Seed AOC's audience with a Russ guest spot</h4>
+    <ul>
+      <li>AJ and Johnny host, Russ guest. Backstory, AI engine, the offer-on-the-call workshop.</li>
+      <li>Soft CTA in-episode to whichever niche page is live.</li>
+      <li>AJ + Johnny "play dumb, ask Russ how it works" (Russ's framing).</li>
+      <li>Repurpose: short-form clips for both sides, YouTube cut.</li>
+      <li>Show notes include the AOC-attributed workshop URL.</li>
+      <li><em>Optional:</em> record after WS3 so framing reflects the new offer. Nice-to-have, not a blocker.</li>
+    </ul>
+  </div>
+
+  <div class="card col-cod" style="margin-top:16px">
+    <span class="tag" style="color:var(--cod)">WS2 / Affiliate Push</span>
+    <h4>AOC promotes the $27 Workshop to its list</h4>
+    <ul>
+      <li>Hand-raiser email sequence: therapist first, coach next, broader after.</li>
+      <li>Lands on COD's existing niche $27 pages with a <code style="color:var(--accent)">?ref=aoc</code> URL parameter for attribution.</li>
+      <li>Optional VIP bonus: AJ or Johnny coaching call / Q&amp;A to lift upsell conversion.</li>
+    </ul>
+    <h3>Economics (proposed, pending Russ + AJ sign-off)</h3>
+    <div class="kv">
+      <dt>$27 ticket revenue</dt><dd><strong style="color:var(--good)">100% to AOC</strong></dd>
+      <dt>High-ticket sales</dt><dd><strong style="color:var(--good)">20% commission</strong> (~$2K per $10K enrollment)</dd>
+      <dt>Tracking</dt><dd>URL param passthrough, workshop purchase to call booking (Matt-built).</dd>
+    </div>
+  </div>
+
+  <div class="card col-joint" style="margin-top:16px">
+    <span class="tag" style="color:var(--accent-2)">WS3 / Offer Reconstruction (Russ-led)</span>
+    <h4>Rebuild the AOC offer from the outcome backwards</h4>
+    <p style="color:var(--ink-soft);font-size:14px;margin:6px 0"><strong style="color:var(--ink)">Must finish before WS4.</strong> Current XFA offer is from the pandemic, not converting, AJ + Johnny want it gone.</p>
+    <h3>45-60 min working session covers</h3>
+    <ul>
+      <li>AJ + Johnny's income, impact, day-to-day goals</li>
+      <li>Map against AOC's real audience: married analytical 38-year-olds who need to be chosen in the room</li>
+    </ul>
+    <h3>Positioning bets to test</h3>
+    <ul>
+      <li><strong>Career-relational</strong> - executive presence, being chosen for the deal</li>
+      <li><strong>Marriage / spark gone</strong> - highest emotional pain ceiling, most XFA buyers already married</li>
+      <li><strong>Executive mastermind tier</strong> - retainer model, small group of high earners</li>
+    </ul>
+    <h3>Outputs</h3>
+    <ul>
+      <li>New name + positioning line</li>
+      <li>Offer stack: tiers, prices, inclusions</li>
+      <li>Delivery model + core promise (feeds WS4)</li>
+    </ul>
+  </div>
+
+  <div class="card col-aoc" style="margin-top:16px">
+    <span class="tag" style="color:var(--aoc)">WS4 / AOC LP Rebuild (after WS3)</span>
+    <h4>Kas rebuilds join.theartofcharm.com/xfa against the new offer</h4>
+    <p style="color:var(--ink-soft);font-size:14px;margin:6px 0">Same 200 organic visits / 10-30 calls a month, CRO-engineered page. <strong style="color:var(--ink)">Blocked on WS3 outputs.</strong></p>
+    <h3>Key changes</h3>
+    <ul>
+      <li>Single-step app with financial pre-qual (fixes 40% can't-afford leak)</li>
+      <li>Built on WS3 positioning, not legacy XFA dating/confidence framing</li>
+      <li>Mobile-first (72% mobile traffic)</li>
+      <li>Real social proof: 250M+ downloads, 12K alumni, notable guests</li>
+      <li>Disqualifier ("Not for everyone") + working UTM passthrough</li>
+    </ul>
+    <h3>Test</h3>
+    <p style="color:var(--ink-soft);font-size:14px;margin:4px 0">200-visit validation. Baseline: 0.10% XFA CTA click rate, 45.8% app-to-booked.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">02</span>Legal &amp; Tracking</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h4>Two agreements (Ryan-led)</h4>
+      <ul>
+        <li><strong>Agreement A - JV / Affiliate.</strong> AOC promotes COD funnel. Split, attribution, term.</li>
+        <li><strong>Agreement B - Offer Build.</strong> Russ rebuilds AOC offer. Fee or revenue-share TBD.</li>
+      </ul>
+      <p style="color:var(--ink-soft);font-size:13px">Ryan drafts, COD attorney reviews, routes via Slack. COD-side counsel only.</p>
+    </div>
+    <div class="card">
+      <h4>Tracking (Matt-led)</h4>
+      <ul>
+        <li><code style="color:var(--accent)">?ref=aoc</code> URL param pre-populates hidden form field via JS.</li>
+        <li>Workshop purchase to call-booking attribution (handles email mismatch).</li>
+        <li>Bonus: co-branded $27 page variant with AOC social proof.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">03</span>Action Items by Owner</h2>
+  <table>
+    <thead><tr><th>Owner</th><th>Item</th><th>Blocking?</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="owner">Russ + AJ + Johnny</td>
+        <td>WS3 working session: book it, prep it, run it</td>
+        <td>Blocks WS3 + WS4</td>
+        <td><span class="status s-block">Open</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Russ + AJ + Johnny</td>
+        <td>WS1 podcast recording + publish (show notes carry attributed URL)</td>
+        <td>After WS3</td>
+        <td><span class="status s-todo">Not started</span></td>
+      </tr>
+      <tr>
+        <td class="owner">AJ + Johnny</td>
+        <td>WS2 hand-raiser email sequence (therapist, coach, broader)</td>
+        <td>Parallel with WS3</td>
+        <td><span class="status s-todo">Not started</span></td>
+      </tr>
+      <tr>
+        <td class="owner">AJ</td>
+        <td>Email list segmentation by occupation</td>
+        <td>Enhances WS2</td>
+        <td><span class="status s-prog">In progress</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Ryan</td>
+        <td>Agreement A (JV/Affiliate) draft + attorney review</td>
+        <td>Blocks WS2 launch</td>
+        <td><span class="status s-block">Open</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Ryan</td>
+        <td>Agreement B (Offer Build) draft</td>
+        <td>After WS3</td>
+        <td><span class="status s-todo">Not started</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Matt</td>
+        <td>URL-parameter attribution + workshop-to-call passthrough</td>
+        <td>Blocks WS2 launch</td>
+        <td><span class="status s-block">Open</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Kas</td>
+        <td>Persona engine on AOC's 5K transcripts (feeds WS3)</td>
+        <td>Feeds WS3</td>
+        <td><span class="status s-prog">In progress</span></td>
+      </tr>
+      <tr>
+        <td class="owner">Kas</td>
+        <td>WS4 LP rebuild against new offer</td>
+        <td>After WS3</td>
+        <td><span class="status s-block">Blocked on WS3</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="footer">
+  Working doc / prepared by <span>Kas</span> / ready for team review before sharing with AJ and Johnny / v1 / 2026-05-11
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>A Letter from Russ Ruffino · Clients on Demand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mona+Sans:wght@300;400;500;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   COD — A LETTER FROM RUSS RUFFINO
+   Editorial letterpress aesthetic — cream paper, ink, oxblood, gold leaf
+============================================================ */
+
+:root {
+  /* Palette */
+  --paper: #F4EDDC;
+  --paper-shade: #ECE3CC;
+  --paper-deep: #E1D5B5;
+  --ink: #1A130E;
+  --ink-soft: #3A2F26;
+  --ink-faded: #6E5F4E;
+  --oxblood: #6E2A30;
+  --oxblood-deep: #4A1A1F;
+  --gold: #A88B5C;
+  --gold-soft: #C8B084;
+  --gold-deep: #8A6E42;
+  --rule: #1A130E;
+
+  /* Fonts */
+  --serif: 'Cormorant Garamond', 'Garamond', 'Times New Roman', serif;
+  --italic: 'EB Garamond', 'Garamond', serif;
+  --sans: 'Mona Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --script: 'Caveat', cursive;
+
+  /* Sizing */
+  --slide-w: 1920px;
+  --slide-h: 1080px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  background: #0a0a14;
+  font-family: var(--sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* SLIDE: fixed 1920x1080 canvas with cream paper texture */
+.slide {
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  /* subtle paper grain — fine noise overlay */
+  background-image:
+    radial-gradient(at 25% 30%, rgba(168,139,92,0.04) 0%, transparent 50%),
+    radial-gradient(at 75% 80%, rgba(110,42,48,0.03) 0%, transparent 50%);
+}
+.slide::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.05 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Inverse slide — for thank you final */
+.slide.dark {
+  background: var(--ink);
+  color: var(--paper);
+}
+.slide.dark::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.7;
+}
+
+.slide-wrap {
+  margin: 60px auto;
+  width: var(--slide-w);
+  transform-origin: top center;
+}
+@media screen and (max-width: 1980px) {
+  .slide-wrap {
+    transform: scale(calc((100vw - 80px) / 1920));
+    height: calc(((100vw - 80px) / 1920) * 1080);
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+/* Folio number top-right */
+.folio {
+  position: absolute;
+  top: 80px; right: 120px;
+  font-family: var(--sans);
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 500;
+}
+.slide.dark .folio { color: var(--gold-soft); }
+
+/* Masthead — small top-left brand mark */
+.masthead {
+  position: absolute;
+  top: 80px; left: 120px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.slide.dark .masthead { color: var(--gold-soft); }
+
+/* Top + bottom hairlines on the cover only */
+.hairline-top, .hairline-bottom {
+  position: absolute;
+  left: 120px; right: 120px;
+  height: 1px;
+  background: var(--ink);
+  opacity: 0.6;
+}
+.hairline-top { top: 120px; }
+.hairline-bottom { bottom: 120px; }
+
+/* Section ornament */
+.ornament {
+  font-family: var(--serif);
+  color: var(--gold-deep);
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-align: center;
+  margin: 24px 0;
+}
+
+/* Section number (small caps) */
+.section-no {
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--oxblood);
+}
+.section-no::before {
+  content: '';
+  display: inline-block;
+  width: 36px; height: 1px;
+  background: var(--oxblood);
+  margin-right: 18px;
+  vertical-align: middle;
+}
+
+/* Display headlines */
+.h-display {
+  font-family: var(--serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 0.92;
+  color: var(--ink);
+}
+.h-display em {
+  font-style: italic;
+  font-family: var(--serif);
+  font-weight: 400;
+  color: var(--oxblood);
+}
+
+/* Body — generous reading line */
+.body-text {
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.body-text p { margin: 0 0 1em 0; }
+.body-text p:last-child { margin-bottom: 0; }
+
+/* Drop cap */
+.dropcap::first-letter {
+  font-family: var(--serif);
+  float: left;
+  font-size: 96px;
+  line-height: 0.8;
+  font-weight: 500;
+  padding: 8px 14px 0 0;
+  color: var(--oxblood);
+}
+
+/* Pull quote */
+.pullquote {
+  font-family: var(--italic);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 42px;
+  line-height: 1.25;
+  color: var(--ink);
+  position: relative;
+  padding-left: 32px;
+  border-left: 2px solid var(--oxblood);
+}
+.pullquote::before {
+  content: '"';
+  font-family: var(--serif);
+  font-size: 72px;
+  color: var(--oxblood);
+  position: absolute;
+  left: 6px; top: -10px;
+}
+
+/* Signature script */
+.signature {
+  font-family: var(--script);
+  font-weight: 700;
+  color: var(--oxblood);
+  font-size: 64px;
+  line-height: 0.9;
+  display: inline-block;
+  transform: rotate(-3deg);
+}
+
+/* Marginalia note */
+.marginalia {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Cards with letterpress feel */
+.card {
+  background: var(--paper-shade);
+  padding: 48px 44px;
+  border-top: 3px solid var(--oxblood);
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 0; width: 64px; height: 3px;
+  background: var(--gold);
+}
+
+/* Footer bar — fine printer's mark */
+.footer-mark {
+  position: absolute;
+  left: 120px; right: 120px;
+  bottom: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-faded);
+  font-weight: 500;
+}
+.footer-mark .dot { width: 4px; height: 4px; background: var(--gold-deep); border-radius: 50%; }
+
+.slide.dark .footer-mark { color: var(--gold-soft); }
+.slide.dark .footer-mark .dot { background: var(--gold-soft); }
+
+/* Number column for inclusions */
+.numbered-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 24px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(26,19,14,0.10);
+}
+.numbered-item:last-child { border-bottom: none; }
+.numbered-item .num {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--oxblood);
+  font-feature-settings: 'lnum';
+  line-height: 1;
+}
+.numbered-item .label {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.numbered-item .label .lead {
+  font-weight: 600;
+  color: var(--oxblood-deep);
+}
+
+/* Big numerals (pricing) */
+.big-numeral {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 140px;
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  color: var(--oxblood);
+  font-feature-settings: 'lnum';
+}
+
+/* Stage timeline */
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+.stage {
+  position: relative;
+  padding-top: 28px;
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--oxblood);
+}
+.stage::after {
+  content: '';
+  position: absolute;
+  top: -5px; left: 0;
+  width: 12px; height: 12px;
+  background: var(--oxblood);
+  border-radius: 50%;
+}
+.stage-no {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.stage-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.05;
+  margin: 0 0 4px 0;
+}
+.stage-days {
+  font-family: var(--italic);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-faded);
+  margin-bottom: 18px;
+}
+.stage-list {
+  list-style: none; padding: 0; margin: 0;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.stage-list li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 8px;
+}
+.stage-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--gold-deep);
+}
+
+/* Comparison list — replaces the table */
+.compare-grid {
+  columns: 2;
+  column-gap: 64px;
+}
+.compare-item {
+  break-inside: avoid;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(26,19,14,0.10);
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 16px;
+  align-items: baseline;
+}
+.compare-item:last-child { border-bottom: none; }
+.compare-mark {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--oxblood);
+  line-height: 1;
+}
+.compare-text {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+/* Three pillars */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 56px;
+}
+.pillar {
+  padding-top: 16px;
+  border-top: 2px solid var(--ink);
+}
+.pillar-mark {
+  font-family: var(--serif);
+  font-size: 64px;
+  color: var(--oxblood);
+  line-height: 1;
+  margin-bottom: 24px;
+  font-style: italic;
+  font-weight: 500;
+}
+.pillar-title {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 0 0 16px 0;
+}
+.pillar-title em {
+  font-style: italic;
+  color: var(--oxblood);
+}
+.pillar-body {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Action steps */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+.action {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 32px;
+  align-items: baseline;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(26,19,14,0.12);
+}
+.action:last-child { border-bottom: none; }
+.action .num {
+  font-family: var(--serif);
+  font-size: 72px;
+  color: var(--oxblood);
+  line-height: 0.9;
+  font-feature-settings: 'lnum';
+  font-style: italic;
+  font-weight: 400;
+}
+.action .title {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+}
+.action .copy {
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Print button (web only) */
+.print-btn {
+  position: fixed; top: 24px; right: 24px; z-index: 100;
+  background: var(--ink); color: var(--paper);
+  border: 1px solid var(--gold-deep);
+  padding: 12px 24px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.print-btn:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+/* PRINT CSS */
+@page { size: 13.333in 7.5in landscape; margin: 0; }
+@media print {
+  html, body { background: white; }
+  .print-btn { display: none; }
+  .slide-wrap {
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  .slide-wrap:last-child { page-break-after: auto; }
+  .slide { width: 100vw; height: 100vh; }
+}
+
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">Print to PDF</button>
+
+<main>
+
+<!-- ============================================================
+     SLIDE 1 — A LETTER (Cover)
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">Clients on Demand · Est. 2014</div>
+  <div class="folio">Folio · I</div>
+  <div class="hairline-top"></div>
+
+  <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 1400px;">
+    <div class="section-no" style="margin-bottom: 40px;">Personal Correspondence</div>
+
+    <h1 class="h-display" style="font-size: 138px; font-weight: 400; line-height: 0.95; letter-spacing: -0.025em; margin: 0;">
+      A Letter from<br/><em>Russ Ruffino</em>
+    </h1>
+
+    <div class="ornament" style="margin-top: 56px; font-size: 32px;">❦</div>
+
+    <div style="margin-top: 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; width: 720px; margin-left: auto; margin-right: auto; text-align: left;">
+      <div>
+        <div class="marginalia" style="margin-bottom: 6px;">Prepared for</div>
+        <div style="font-family: var(--italic); font-style: italic; font-size: 28px; color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 8px; min-height: 42px;">[Recipient Name]</div>
+      </div>
+      <div>
+        <div class="marginalia" style="margin-bottom: 6px;">From the desk of</div>
+        <div style="font-family: var(--italic); font-style: italic; font-size: 28px; color: var(--ink); border-bottom: 1px solid var(--ink); padding-bottom: 8px; min-height: 42px;">[Closer Name]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hairline-bottom"></div>
+  <div class="footer-mark">
+    <span>Volume One · The Family</span>
+    <span class="dot"></span>
+    <span>Issued 11 May 2026</span>
+    <span class="dot"></span>
+    <span>By Invitation Only</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 2 — THE LETTER ITSELF
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">Clients on Demand</div>
+  <div class="folio">Folio · II</div>
+
+  <div style="position: absolute; left: 200px; right: 800px; top: 200px;">
+    <div class="section-no" style="margin-bottom: 28px;">A Note from the Founder</div>
+
+    <h2 class="h-display" style="font-size: 80px; font-weight: 400; margin: 0 0 48px 0;">
+      <em>Welcome</em> to the family.
+    </h2>
+
+    <div class="body-text dropcap" style="font-size: 21px; line-height: 1.6; max-width: 780px;">
+      <p>You took a real step on our call today, and this is what comes next.</p>
+      <p>Inside is everything we discussed: the program, the team you will be working with, the ninety-day plan, and how we make sure you build a program priced for the income, freedom, and impact you came here to create.</p>
+      <p>Read it through. When you are ready, you know how to find me.</p>
+    </div>
+
+    <div style="margin-top: 64px;">
+      <div class="signature">Russ Ruffino</div>
+      <div class="marginalia" style="margin-top: 12px;">Founder &amp; Chief Executive</div>
+    </div>
+  </div>
+
+  <!-- Portrait column right side -->
+  <div style="position: absolute; right: 200px; top: 200px; width: 480px;">
+    <div style="border: 12px solid var(--paper); box-shadow: 0 30px 60px -20px rgba(26,19,14,0.45), 0 0 0 1px var(--ink); background: var(--ink);">
+      <img src="assets/russ-portrait.jpg" alt="Russ Ruffino"
+           style="width: 100%; height: 640px; object-fit: cover; display: block; filter: contrast(1.05) saturate(0.85);" />
+    </div>
+    <div style="text-align: center; margin-top: 24px;">
+      <div style="font-family: var(--serif); font-size: 24px; font-style: italic; color: var(--ink);">Russ Ruffino</div>
+      <div class="marginalia" style="margin-top: 6px;">Photographed in studio · 2025</div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section One</span>
+    <span class="dot"></span>
+    <span>Personal</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 3 — THE THREE THINGS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">The Program</div>
+  <div class="folio">Folio · III</div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 180px;">
+    <div class="section-no" style="margin-bottom: 32px;">What We Build</div>
+
+    <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0; max-width: 1200px;">
+      Three things, optimised <em>together</em>.
+    </h2>
+
+    <p style="font-family: var(--italic); font-style: italic; font-size: 26px; color: var(--ink-soft); margin: 36px 0 0 0; max-width: 1000px; line-height: 1.5;">
+      This is not a course. It is a workshop in which we build, with you, the offer, the funnel, the ad system, and the sales process that turn your expertise into a programme priced from five to fifteen thousand dollars per client.
+    </p>
+  </div>
+
+  <div style="position: absolute; left: 200px; right: 200px; bottom: 180px;">
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-mark">I.</div>
+        <h3 class="pillar-title"><em>Income</em></h3>
+        <p class="pillar-body">So you can build a programme priced at five to fifteen thousand dollars per client, and fill it consistently. Month after month.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-mark">II.</div>
+        <h3 class="pillar-title"><em>Freedom</em></h3>
+        <p class="pillar-body">So you can go just about anywhere, and do just about anything. The practice runs from a laptop, on your schedule.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-mark">III.</div>
+        <h3 class="pillar-title"><em>Impact</em></h3>
+        <p class="pillar-body">So you are changing the world with every client you enrol. Not because we said so. Because their lives say so.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Two</span>
+    <span class="dot"></span>
+    <span>The Mechanism</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 4 — AN INVENTORY (What's Included)
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">An Inventory</div>
+  <div class="folio">Folio · IV</div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 130px;">
+    <div class="section-no" style="margin-bottom: 24px;">What is Included</div>
+    <h2 class="h-display" style="font-size: 72px; font-weight: 400; margin: 0 0 16px 0;">
+      An <em>inventory</em>.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 20px; color: var(--ink-soft); margin: 0 0 36px 0; max-width: 900px;">
+      Everything we hand you, from your first day to your tenth client and beyond.
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 80px;">
+
+      <div class="numbered-item">
+        <div class="num">i.</div>
+        <div class="label"><span class="lead">A Success Team</span>—an Ads Coach, a Copy Coach, a Sales Coach, a Mindset Coach, and a Tech Coach. All five, on your side.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">ii.</div>
+        <div class="label"><span class="lead">Weekly Q&amp;A and Training Calls</span> with Russ and the team. Bring real questions, leave with real answers.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">iii.</div>
+        <div class="label"><span class="lead">Weekly Q&amp;A for your Sales Team</span>. Yes—we train your sales reps for you.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">iv.</div>
+        <div class="label"><span class="lead">Our $100M Process Library</span>—the detailed SOPs covering ads, funnels, webinars, sales, objections. Every working part.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">v.</div>
+        <div class="label"><span class="lead">Russ' AI Clone</span> for instant one-on-one coaching at the moment you need it. Day or night.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">vi.</div>
+        <div class="label"><span class="lead">Done-for-You Funnel Tech</span> built by our team in your first fourteen days. You never get stuck in the weeds.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">vii.</div>
+        <div class="label"><span class="lead">A 24-Hour Help Desk</span> for fast support and feedback. We do not believe in waiting.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">viii.</div>
+        <div class="label"><span class="lead">A Members-Only Group Chat</span> with Russ and the team. Quiet enough to think, warm enough to belong.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">ix.</div>
+        <div class="label"><span class="lead">Three Live Event Intensives Per Year</span>—Lions Pride and Millionaires Alliance gatherings.</div>
+      </div>
+
+      <div class="numbered-item">
+        <div class="num">x.</div>
+        <div class="label"><span class="lead">Lifetime Access</span> to every cohort, training, SOP, and update we release. Once you are family, you are family.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Three</span>
+    <span class="dot"></span>
+    <span>The Inventory</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 5 — A NINETY-DAY ALMANAC
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">The Calendar</div>
+  <div class="folio">Folio · V</div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 140px;">
+    <div class="section-no" style="margin-bottom: 24px;">A Ninety-Day Almanac</div>
+    <h2 class="h-display" style="font-size: 84px; font-weight: 400; margin: 0 0 14px 0;">
+      Your <em>first</em> ninety days.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 22px; color: var(--ink-soft); margin: 0 0 56px 0; max-width: 1000px;">
+      From the moment you sign, to the moment you welcome your first cohort. Four stages. Specific outcomes at each.
+    </p>
+
+    <div class="stage-grid">
+      <div class="stage">
+        <div class="stage-no">Stage One</div>
+        <h4 class="stage-title">Onboarding</h4>
+        <div class="stage-days">Days One — Fourteen</div>
+        <ul class="stage-list">
+          <li>Welcome calls with your full Success Team</li>
+          <li>Positioning and offer locked in</li>
+          <li>Done-for-you tech stack built (funnel, payments, CRM)</li>
+          <li>First ad creatives produced and in queue</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="stage-no">Stage Two</div>
+        <h4 class="stage-title">Lions Pride</h4>
+        <div class="stage-days">Days Fifteen — Forty-five</div>
+        <ul class="stage-list">
+          <li>Three or more weekly training calls</li>
+          <li>First-cohort fellowship with new members</li>
+          <li>Ad campaigns live; first call bookings arrive</li>
+          <li>Sales reps trained on the one-call-close framework</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="stage-no">Stage Three</div>
+        <h4 class="stage-title">Scaling</h4>
+        <div class="stage-days">Days Forty-six — Seventy-five</div>
+        <ul class="stage-list">
+          <li>Cost-per-booked-call dialled in</li>
+          <li>Real call data feeding offer and sales iteration</li>
+          <li>Close-rate coaching with your Sales Coach</li>
+          <li>Second creative cycle in market</li>
+        </ul>
+      </div>
+      <div class="stage">
+        <div class="stage-no">Stage Four</div>
+        <h4 class="stage-title">Millionaires Alliance</h4>
+        <div class="stage-days">Days Seventy-six — Ninety</div>
+        <ul class="stage-list">
+          <li>First cohort priced at five to fifteen thousand, closed</li>
+          <li>Multi-offer expansion paths mapped</li>
+          <li>Team-hiring playbooks for scaling beyond solo</li>
+          <li>Advocacy and referral systems unlocked</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Four</span>
+    <span class="dot"></span>
+    <span>The Calendar</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 6 — WHY US — comparison as numbered features
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">Why Us</div>
+  <div class="folio">Folio · VI</div>
+
+  <div style="position: absolute; left: 200px; top: 140px; width: 540px;">
+    <div class="section-no" style="margin-bottom: 24px;">Distinguished By</div>
+    <h2 class="h-display" style="font-size: 88px; font-weight: 400; margin: 0 0 28px 0;">
+      Why <em>Clients on Demand</em>.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 22px; color: var(--ink-soft); line-height: 1.45;">
+      Fourteen things you will find here, that you will not find elsewhere. Each verified by six thousand experts who chose us.
+    </p>
+
+    <div style="margin-top: 52px; padding: 28px 32px; background: var(--paper-shade); border-left: 3px solid var(--oxblood);">
+      <p style="font-family: var(--italic); font-style: italic; font-size: 18px; color: var(--ink); line-height: 1.5; margin: 0 0 12px 0;">"This is not for everyone. It is for the one in ten who will actually do the work."</p>
+      <p class="marginalia" style="margin: 0;">— Russ Ruffino</p>
+    </div>
+  </div>
+
+  <div style="position: absolute; right: 200px; top: 140px; width: 920px;">
+    <div class="compare-grid">
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">One-to-one and group coaching that gets you unstuck fast</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">A high-ticket sales system used by six thousand experts</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Rapid feedback on ads, messaging, offers, and copy. Often in hours.</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Done-for-you funnel tech. You never get stuck in the weeds.</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">A twenty-four-hour help desk with an intelligent AI assistant</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">A private client community of world-changing coaches</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Proprietary AI-powered prompts that write your copy with you</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">A one-call-close sales framework built for high-ticket</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Personal Ads, Copy, Sales, and Business Coaches on your side</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Real-time metrics tracking. You always know what is working.</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Proven ad templates that turn strangers into high-ticket clients</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Three or more live training calls every week. No waiting for help.</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">Verified reviews and case studies on Trustpilot from real clients</span></div>
+      <div class="compare-item"><span class="compare-mark">❦</span><span class="compare-text">A twelve-year track record of unmatched client results</span></div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Five</span>
+    <span class="dot"></span>
+    <span>Distinction</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 7 — THE MATHEMATICS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">The Mathematics</div>
+  <div class="folio">Folio · VII</div>
+
+  <div style="position: absolute; left: 50%; top: 220px; transform: translateX(-50%); text-align: center; width: 1200px;">
+    <div class="section-no" style="margin-bottom: 32px; display: inline-block;">On Return</div>
+    <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0;">
+      The <em>mathematics</em> of one client.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 24px; color: var(--ink-soft); margin: 32px 0 0 0; line-height: 1.5;">
+      We have priced the programme so you make back your investment with a single client of your own.
+    </p>
+  </div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 560px; display: grid; grid-template-columns: 1fr 100px 1fr; gap: 0; align-items: center;">
+    <div style="text-align: center; padding: 40px 32px; border: 1px solid var(--ink); background: var(--paper);">
+      <div class="marginalia" style="margin-bottom: 16px;">If your offer is priced at</div>
+      <div class="big-numeral">$5,000</div>
+      <div style="font-family: var(--serif); font-size: 22px; color: var(--ink-soft); margin-top: 28px; font-style: italic;">
+        $13,500 ÷ $5,000 =
+      </div>
+      <div style="font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--oxblood); margin-top: 8px;">
+        Just 2.7 clients to break even.
+      </div>
+    </div>
+    <div style="text-align: center; font-family: var(--serif); font-size: 56px; color: var(--gold-deep); font-style: italic;">or</div>
+    <div style="text-align: center; padding: 40px 32px; border: 2px solid var(--oxblood); background: var(--paper-shade); position: relative;">
+      <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--oxblood); color: var(--paper); padding: 4px 16px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;">The Family Standard</div>
+      <div class="marginalia" style="margin-bottom: 16px;">If your offer is priced at</div>
+      <div class="big-numeral">$15,000</div>
+      <div style="font-family: var(--serif); font-size: 22px; color: var(--ink-soft); margin-top: 28px; font-style: italic;">
+        $13,500 ÷ $15,000 =
+      </div>
+      <div style="font-family: var(--serif); font-size: 28px; font-weight: 500; color: var(--oxblood); margin-top: 8px;">
+        Pays for itself with one client.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Six</span>
+    <span class="dot"></span>
+    <span>Return</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 8 — THE TERMS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">The Terms</div>
+  <div class="folio">Folio · VIII</div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 140px;">
+    <div class="section-no" style="margin-bottom: 24px;">On Enrolment</div>
+    <h2 class="h-display" style="font-size: 88px; font-weight: 400; margin: 0;">
+      Two ways to <em>enrol</em>.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 22px; color: var(--ink-soft); margin: 28px 0 0 0;">
+      Pick the one that fits your situation.
+    </p>
+  </div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 460px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px;">
+
+    <!-- Option I — PIF -->
+    <div style="padding: 48px; border: 2px solid var(--oxblood); background: var(--paper-shade); position: relative;">
+      <div style="position: absolute; top: -14px; left: 36px; background: var(--oxblood); color: var(--paper); padding: 4px 16px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;">Recommended</div>
+      <div class="marginalia" style="margin-bottom: 16px;">Option I</div>
+      <h3 class="h-display" style="font-size: 44px; font-weight: 400; margin: 0 0 28px 0;"><em>Paid in Full</em></h3>
+      <div class="big-numeral" style="font-size: 110px; margin-bottom: 24px;">$13,500</div>
+      <p style="font-family: var(--sans); font-size: 18px; line-height: 1.5; color: var(--ink); margin: 0;">A single payment. Saves <strong style="color: var(--oxblood);">$1,500</strong> against financing. Seat locked in the next cohort upon receipt.</p>
+    </div>
+
+    <!-- Option II — Financing -->
+    <div style="padding: 48px; border: 1px solid var(--ink); background: var(--paper);">
+      <div class="marginalia" style="margin-bottom: 16px;">Option II</div>
+      <h3 class="h-display" style="font-size: 44px; font-weight: 400; margin: 0 0 28px 0;"><em>Standard Financing</em></h3>
+      <div class="big-numeral" style="font-size: 110px; margin-bottom: 24px;">$15,000</div>
+      <p style="font-family: var(--sans); font-size: 18px; line-height: 1.5; color: var(--ink); margin: 0;">Across multiple payments via <strong>Pava</strong>, <strong>Klarna</strong>, or split-pay. Interest-free. Custom plans available for the right fit.</p>
+    </div>
+
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Seven</span>
+    <span class="dot"></span>
+    <span>Terms · Interest-free financing through COD partners</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 9 — A CALL TO GREATNESS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">Three Conditions</div>
+  <div class="folio">Folio · IX</div>
+
+  <div style="position: absolute; left: 200px; right: 200px; top: 140px;">
+    <div class="section-no" style="margin-bottom: 24px;">A Call to Greatness</div>
+    <h2 class="h-display" style="font-size: 88px; font-weight: 400; margin: 0 0 28px 0;">
+      Three <em>things</em> to bring.
+    </h2>
+    <p style="font-family: var(--italic); font-style: italic; font-size: 22px; color: var(--ink-soft); margin: 0; max-width: 1100px; line-height: 1.5;">
+      To succeed in this programme, you must show up as your best self. Specifically, you must be three things.
+    </p>
+  </div>
+
+  <div style="position: absolute; left: 200px; right: 200px; bottom: 180px;">
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-mark">I.</div>
+        <h3 class="pillar-title">You must be <em>coachable</em>.</h3>
+        <p class="pillar-body">Our best clients have a saying: <em style="color: var(--oxblood);">"Russ say, I do."</em> We hand you the plan. We give you the support. All you must do is follow it.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-mark">II.</div>
+        <h3 class="pillar-title">You must be <em>resourceful</em>.</h3>
+        <p class="pillar-body">You make a way when there is no way. You are committed to winning. Willing to do what it takes to create the income, freedom, and impact you deserve.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-mark">III.</div>
+        <h3 class="pillar-title">You must be <em>decisive</em>.</h3>
+        <p class="pillar-body">Success is a series of fast, high-quality decisions. If you hesitate, or take forever to choose, this is not the group for you.</p>
+      </div>
+    </div>
+
+    <p style="font-family: var(--italic); font-style: italic; font-size: 24px; color: var(--ink); text-align: center; margin: 56px auto 0 auto; max-width: 1100px; line-height: 1.5;">
+      If you are reading this, it is because we believe you are all three. <span style="color: var(--oxblood); font-weight: 500;">And we believe the family will be stronger with you in it.</span>
+    </p>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Eight</span>
+    <span class="dot"></span>
+    <span>Conditions</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 10 — THE NEXT STEP
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="masthead">The Next Step</div>
+  <div class="folio">Folio · X</div>
+
+  <div style="position: absolute; left: 200px; top: 140px; width: 880px;">
+    <div class="section-no" style="margin-bottom: 24px;">When You Are Ready</div>
+    <h2 class="h-display" style="font-size: 88px; font-weight: 400; margin: 0 0 56px 0;">
+      Three <em>ways</em> forward.
+    </h2>
+
+    <div class="actions">
+      <div class="action">
+        <div class="num">I.</div>
+        <div>
+          <h4 class="title"><em>Pay in Full</em></h4>
+          <p class="copy">Send the $13,500 payment. Your closer texts you the link. Seat locked for the next cohort.</p>
+        </div>
+      </div>
+      <div class="action">
+        <div class="num">II.</div>
+        <div>
+          <h4 class="title"><em>Start the Financing Application</em></h4>
+          <p class="copy">Pava or Klarna application takes about five minutes. Approval typically same-day.</p>
+        </div>
+      </div>
+      <div class="action">
+        <div class="num">III.</div>
+        <div>
+          <h4 class="title"><em>Lock the Price with a Deposit</em></h4>
+          <p class="copy">Not ready to start this month? A deposit holds today's price and lets you pick your cohort start date.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Closer contact card -->
+  <div style="position: absolute; right: 200px; top: 220px; width: 460px; padding: 56px 48px; border: 1px solid var(--ink); background: var(--paper-shade); position: relative;">
+    <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--oxblood);"></div>
+    <div class="marginalia" style="margin-bottom: 28px;">Your Closer</div>
+    <div style="font-family: var(--serif); font-size: 44px; font-style: italic; font-weight: 400; line-height: 1.1; color: var(--ink); margin-bottom: 8px;">[Closer Name]</div>
+    <div style="height: 1px; background: var(--ink); margin: 36px 0;"></div>
+    <div style="font-family: var(--sans); font-size: 15px; line-height: 2; color: var(--ink);">
+      <div><span class="marginalia" style="display: inline-block; width: 76px; vertical-align: middle;">By Mail</span>[Closer Email]</div>
+      <div><span class="marginalia" style="display: inline-block; width: 76px; vertical-align: middle;">By Phone</span>[Closer Phone]</div>
+      <div><span class="marginalia" style="display: inline-block; width: 76px; vertical-align: middle;">By Calendar</span><span style="text-decoration: underline;">[Closer Calendar Link]</span></div>
+    </div>
+  </div>
+
+  <div class="footer-mark">
+    <span>Section Nine</span>
+    <span class="dot"></span>
+    <span>Action</span>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 11 — THANK YOU (Dark inverse slide)
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide dark">
+  <div class="masthead">Clients on Demand</div>
+  <div class="folio">Folio · XI</div>
+
+  <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 1400px;">
+
+    <div style="font-family: var(--sans); font-size: 13px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 60px; font-weight: 600;">
+      <span style="display: inline-block; width: 56px; height: 1px; background: var(--gold-soft); vertical-align: middle; margin-right: 24px;"></span>
+      In Closing
+      <span style="display: inline-block; width: 56px; height: 1px; background: var(--gold-soft); vertical-align: middle; margin-left: 24px;"></span>
+    </div>
+
+    <h2 class="h-display" style="font-size: 168px; font-weight: 400; line-height: 0.9; color: var(--paper); margin: 0;">
+      <em>Thank you,</em>
+    </h2>
+
+    <p style="font-family: var(--italic); font-style: italic; font-size: 32px; color: var(--gold-soft); margin: 56px auto 0 auto; max-width: 900px; line-height: 1.5;">
+      for considering us as your team for what comes next.
+    </p>
+
+    <div style="margin-top: 96px;">
+      <div class="signature" style="font-size: 88px; color: var(--gold-soft);">Russ Ruffino</div>
+      <div class="marginalia" style="color: var(--gold-soft); margin-top: 12px;">Founder &amp; Chief Executive, Clients on Demand</div>
+    </div>
+  </div>
+
+  <!-- FTC footer block -->
+  <div style="position: absolute; left: 200px; right: 200px; bottom: 60px; text-align: center;">
+    <div style="height: 1px; background: var(--gold-soft); opacity: 0.4; margin-bottom: 28px;"></div>
+    <div style="font-family: var(--sans); font-size: 11px; color: var(--gold-soft); opacity: 0.7; line-height: 1.7; letter-spacing: 0.05em;">
+      © Clients on Demand® · <a href="https://www.clientsondemand.com" style="color: var(--gold-soft); text-decoration: underline;">clientsondemand.com</a> ·
+      <a href="https://www.clientsondemand.com/earnings-disclaimer" style="color: var(--gold-soft); text-decoration: underline;">Earnings Disclaimer</a> ·
+      <a href="https://www.clientsondemand.com/privacy-policy" style="color: var(--gold-soft); text-decoration: underline;">Privacy Policy</a> ·
+      <a href="https://www.clientsondemand.com/terms" style="color: var(--gold-soft); text-decoration: underline;">Terms of Service</a>
+      <br/>
+      <span style="opacity: 0.7;">Results vary. We make no income guarantees. See our Earnings Disclaimer for details.</span>
+    </div>
+  </div>
+</section>
+</div>
+
+</main>
+
+</body>
+</html>

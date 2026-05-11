@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>A Letter from Russ Ruffino · Clients on Demand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Outfit:wght@200;300;400;500;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   COD CORE PROGRAM — POST-CALL LEAVE-BEHIND
+   Matches the COD application form aesthetic:
+   Dark fintech-editorial + Cormorant Garamond + Outfit + warm gold
+============================================================ */
+
+:root {
+  /* Palette — directly from COD application form */
+  --bg-base: #0a0a0c;
+  --bg-card: #111114;
+  --bg-card-hover: #1a1a1f;
+  --bg-card-selected: #1c1918;
+  --bg-deep: #050507;
+
+  --accent-gold: #c8a96e;
+  --accent-gold-light: #d4ba85;
+  --accent-gold-deep: #a08654;
+  --accent-gold-glow: rgba(200, 169, 110, 0.15);
+  --accent-gold-border: rgba(200, 169, 110, 0.3);
+  --accent-gold-strong: rgba(200, 169, 110, 0.55);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-faint: #475569;
+
+  --border-default: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --border-gold: rgba(200, 169, 110, 0.3);
+
+  --radius-lg: 18px;
+  --radius-card: 14px;
+  --radius-btn: 8px;
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-script: 'Caveat', cursive;
+
+  --slide-w: 1920px;
+  --slide-h: 1080px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg-deep);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+/* ============================================================
+   SLIDE BASE
+============================================================ */
+.slide {
+  position: relative;
+  width: var(--slide-w);
+  height: var(--slide-h);
+  overflow: hidden;
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+/* Subtle grain */
+.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Ambient glow */
+.ambient {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+}
+.ambient-1 {
+  top: -300px; right: -200px;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(200,169,110,0.18), transparent 70%);
+}
+.ambient-2 {
+  bottom: -400px; left: -300px;
+  width: 900px; height: 900px;
+  background: radial-gradient(circle, rgba(200,169,110,0.08), transparent 70%);
+}
+.ambient-3 {
+  top: 30%; left: 30%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(200,169,110,0.05), transparent 70%);
+}
+
+.slide-content {
+  position: relative;
+  z-index: 2;
+  width: 100%; height: 100%;
+}
+
+.slide-wrap {
+  margin: 50px auto;
+  width: var(--slide-w);
+  transform-origin: top center;
+  box-shadow: 0 50px 100px -30px rgba(0,0,0,0.8), 0 0 0 1px rgba(200,169,110,0.1);
+}
+@media screen and (max-width: 1980px) {
+  .slide-wrap {
+    transform: scale(calc((100vw - 80px) / 1920));
+    height: calc(((100vw - 80px) / 1920) * 1080);
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+/* ============================================================
+   COMMON ELEMENTS
+============================================================ */
+
+/* Masthead — top-left brand mark */
+.masthead {
+  position: absolute;
+  top: 60px; left: 100px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 5;
+}
+.masthead-logo {
+  width: 32px; height: 32px;
+  border: 1px solid var(--accent-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--accent-gold);
+}
+.masthead-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.masthead-text em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent-gold);
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  font-size: 14px;
+}
+
+/* Folio (top-right) */
+.folio {
+  position: absolute;
+  top: 60px; right: 100px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  z-index: 5;
+}
+
+/* Section number */
+.section-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 500;
+}
+.section-no::before {
+  content: '';
+  width: 36px;
+  height: 1px;
+  background: var(--accent-gold);
+}
+
+/* Display headline */
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 0.96;
+  letter-spacing: -0.018em;
+  color: var(--text-primary);
+}
+.h-display em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent-gold);
+}
+
+/* Body text */
+.body-text {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.body-text strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.body-text em {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--accent-gold);
+  font-size: 1.1em;
+}
+
+/* Lead paragraph */
+.lead {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 1100px;
+}
+
+/* Pill */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border: 1px solid var(--accent-gold-border);
+  border-radius: 999px;
+  background: rgba(200, 169, 110, 0.05);
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 500;
+}
+.pill::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+  box-shadow: 0 0 12px var(--accent-gold-glow);
+}
+
+/* Card */
+.cod-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: 36px;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cod-card.gold {
+  border-color: var(--accent-gold-border);
+  background: linear-gradient(180deg, rgba(200,169,110,0.04) 0%, var(--bg-card) 100%);
+}
+.cod-card.recommended {
+  border-color: var(--accent-gold);
+  background: linear-gradient(180deg, rgba(200,169,110,0.08) 0%, var(--bg-card) 100%);
+  box-shadow: 0 0 40px rgba(200,169,110,0.12);
+}
+
+/* Signature */
+.signature {
+  font-family: var(--font-script);
+  font-weight: 700;
+  color: var(--accent-gold);
+  font-size: 72px;
+  line-height: 0.85;
+  display: inline-block;
+  transform: rotate(-3deg);
+  text-shadow: 0 0 30px var(--accent-gold-glow);
+}
+
+/* Step dots (bottom indicator) */
+.step-dots {
+  position: absolute;
+  bottom: 50px; left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+}
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.step-dot.active {
+  background: var(--accent-gold);
+  width: 28px;
+  border-radius: 4px;
+  box-shadow: 0 0 14px var(--accent-gold-glow);
+}
+.step-dot.completed { background: var(--accent-gold); opacity: 0.4; }
+.step-count {
+  margin-left: 14px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Print button */
+.print-btn {
+  position: fixed; top: 24px; right: 24px; z-index: 999;
+  background: var(--accent-gold);
+  color: var(--bg-base);
+  border: none;
+  padding: 14px 28px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px var(--accent-gold-glow);
+}
+.print-btn:hover {
+  background: var(--accent-gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 40px var(--accent-gold-glow);
+}
+
+/* Print CSS */
+@page { size: 13.333in 7.5in landscape; margin: 0; }
+@media print {
+  html, body { background: white; }
+  .print-btn { display: none; }
+  .slide-wrap {
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    page-break-after: always;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+  .slide-wrap:last-child { page-break-after: auto; }
+  .slide { width: 100vw; height: 100vh; }
+}
+
+/* ============================================================
+   SLIDE-SPECIFIC PATTERNS
+============================================================ */
+
+/* Three pillars */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+.pillar {
+  padding: 44px 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  position: relative;
+  overflow: hidden;
+}
+.pillar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 56px; height: 2px;
+  background: var(--accent-gold);
+  box-shadow: 0 0 12px var(--accent-gold-glow);
+}
+.pillar-roman {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--accent-gold);
+  line-height: 1;
+  margin-bottom: 28px;
+}
+.pillar-title {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+.pillar-title em {
+  font-style: italic;
+  color: var(--accent-gold);
+}
+.pillar-body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Numbered inclusion items */
+.inclusion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 64px;
+}
+.inclusion-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 20px;
+  align-items: baseline;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.inclusion-item:nth-last-child(-n+2) { border-bottom: none; }
+.inclusion-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 32px;
+  color: var(--accent-gold);
+  line-height: 1;
+  font-weight: 500;
+}
+.inclusion-label {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 300;
+  color: var(--text-secondary);
+}
+.inclusion-label strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Stage timeline */
+.stages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 36px;
+}
+.stage {
+  position: relative;
+  padding: 32px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+}
+.stage::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-gold) 0%, transparent 100%);
+}
+.stage-no {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.stage-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.stage-days {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent-gold);
+  margin-bottom: 20px;
+}
+.stage-list {
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+.stage-list li {
+  padding-left: 14px;
+  position: relative;
+  margin-bottom: 8px;
+}
+.stage-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 9px;
+  width: 6px; height: 1px;
+  background: var(--accent-gold);
+}
+
+/* Comparison list */
+.compare-list {
+  columns: 2;
+  column-gap: 56px;
+}
+.compare-item {
+  break-inside: avoid;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.compare-mark {
+  color: var(--accent-gold);
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+}
+.compare-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+/* Big numeral */
+.numeral {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 132px;
+  line-height: 0.85;
+  letter-spacing: -0.035em;
+  color: var(--accent-gold);
+  font-feature-settings: 'lnum';
+}
+
+/* Action item */
+.actions { display: grid; gap: 24px; }
+.action-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 28px;
+  align-items: baseline;
+  padding: 24px 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.action-row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent-gold);
+}
+.action-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 68px;
+  color: var(--accent-gold);
+  line-height: 0.9;
+  font-weight: 500;
+}
+.action-title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.action-title em {
+  font-style: italic;
+  color: var(--accent-gold);
+}
+.action-copy {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="print-btn" onclick="window.print()">Print to PDF</button>
+
+<main>
+
+<!-- ============================================================
+     SLIDE 1 — COVER · A Letter
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">Clients on Demand <em>est. 2014</em></div>
+    </div>
+    <div class="folio">Folio · I</div>
+
+    <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 1400px;">
+
+      <div style="display: inline-block;" class="section-no">Personal Correspondence</div>
+
+      <h1 class="h-display" style="font-size: 168px; font-weight: 400; margin: 56px 0 0 0;">
+        A Letter from<br/><em>Russ Ruffino</em>
+      </h1>
+
+      <div style="margin-top: 56px; display: flex; align-items: center; justify-content: center; gap: 24px;">
+        <div style="width: 80px; height: 1px; background: var(--accent-gold-border);"></div>
+        <div style="font-family: var(--font-display); color: var(--accent-gold); font-size: 28px; font-style: italic;">❦</div>
+        <div style="width: 80px; height: 1px; background: var(--accent-gold-border);"></div>
+      </div>
+
+      <div style="margin: 56px auto 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; width: 820px; text-align: left;">
+        <div>
+          <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Prepared for</div>
+          <div style="font-family: var(--font-display); font-style: italic; font-size: 32px; color: var(--text-primary); border-bottom: 1px solid var(--accent-gold-border); padding-bottom: 8px; min-height: 48px;">[Recipient Name]</div>
+        </div>
+        <div>
+          <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">From the desk of</div>
+          <div style="font-family: var(--font-display); font-style: italic; font-size: 32px; color: var(--text-primary); border-bottom: 1px solid var(--accent-gold-border); padding-bottom: 8px; min-height: 48px;">[Closer Name]</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; bottom: 60px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-faint);">
+      <span>Volume One <span style="color: var(--accent-gold);">·</span> The Family</span>
+      <span>Issued 11 May 2026</span>
+      <span>By Invitation</span>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 2 — A NOTE FROM THE FOUNDER
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">Clients on Demand</div>
+    </div>
+    <div class="folio">Folio · II</div>
+
+    <div style="position: absolute; left: 180px; top: 200px; width: 940px;">
+      <div class="section-no" style="margin-bottom: 32px;">A Note from the Founder</div>
+
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0 0 56px 0;">
+        <em>Welcome</em><br/>to the family.
+      </h2>
+
+      <div class="body-text" style="font-size: 21px; line-height: 1.7;">
+        <p style="margin-bottom: 1.2em;">[Name], you took a real step on our call today, and this is what comes next.</p>
+        <p style="margin-bottom: 1.2em;">Inside is everything we discussed: the program, the team you'll be working with, the ninety-day roadmap, and how we make sure you build a program priced for the income, freedom, and impact you came here to create.</p>
+        <p style="margin-bottom: 0;">Read it through. When you're ready, you know how to find me.</p>
+      </div>
+
+      <div style="margin-top: 64px;">
+        <div class="signature">Russ Ruffino</div>
+        <div style="margin-top: 8px; font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-secondary); font-weight: 500;">Founder &amp; Chief Executive</div>
+      </div>
+    </div>
+
+    <!-- Portrait -->
+    <div style="position: absolute; right: 180px; top: 200px; width: 520px;">
+      <div style="position: relative; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px var(--accent-gold-border);">
+        <img src="assets/russ-portrait.jpg" alt="Russ Ruffino"
+             style="width: 100%; height: 680px; object-fit: cover; display: block; filter: brightness(0.95) contrast(1.05);" />
+        <!-- Gold gradient overlay -->
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(10,10,12,0.7) 100%); pointer-events: none;"></div>
+      </div>
+      <div style="text-align: center; margin-top: 24px;">
+        <div style="font-family: var(--font-display); font-style: italic; font-size: 26px; color: var(--text-primary);">Russ Ruffino</div>
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px;">Photographed in studio · 2025</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-dots">
+    <div class="step-dot completed"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 3 — THREE THINGS, OPTIMISED TOGETHER
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-3"></div>
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">The Program</div>
+    </div>
+    <div class="folio">Folio · III</div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 170px;">
+      <div class="section-no" style="margin-bottom: 32px;">What We Build</div>
+
+      <h2 class="h-display" style="font-size: 108px; font-weight: 400; margin: 0; max-width: 1400px;">
+        Three things, optimised <em>together</em>.
+      </h2>
+
+      <p class="lead" style="margin-top: 36px; font-style: italic; font-family: var(--font-display); font-size: 30px; color: var(--text-secondary); max-width: 1300px; line-height: 1.4;">
+        This is not a course. It is a program in which we build, with you, the offer, the funnel, the ad system, and the sales process that turn your expertise into a program priced at five to fifteen thousand dollars per client.
+      </p>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; bottom: 150px;">
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-roman">I.</div>
+          <h3 class="pillar-title"><em>Income</em></h3>
+          <p class="pillar-body">So you can build a program priced at $5K–$15K per client, and fill it consistently. Month after month.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-roman">II.</div>
+          <h3 class="pillar-title"><em>Freedom</em></h3>
+          <p class="pillar-body">So you can go just about anywhere, and do just about anything. The practice runs from a laptop, on your schedule.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-roman">III.</div>
+          <h3 class="pillar-title"><em>Impact</em></h3>
+          <p class="pillar-body">So you are changing the world with every client you enroll. Not because we say so. Because their lives say so.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-dots">
+    <div class="step-dot completed"></div>
+    <div class="step-dot completed"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 4 — WHAT'S INCLUDED · AN INVENTORY
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">An Inventory</div>
+    </div>
+    <div class="folio">Folio · IV</div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 130px;">
+      <div class="section-no" style="margin-bottom: 24px;">What is Included</div>
+
+      <h2 class="h-display" style="font-size: 80px; font-weight: 400; margin: 0 0 16px 0;">
+        Everything you need. <em>In one place.</em>
+      </h2>
+      <p class="lead" style="margin-bottom: 40px; max-width: 1200px;">
+        From your first day to your tenth client. Here is the full inventory.
+      </p>
+
+      <div class="inclusion-grid">
+        <div class="inclusion-item">
+          <div class="inclusion-num">i.</div>
+          <div class="inclusion-label"><strong>A Success Team.</strong> An Ads Coach, Copy Coach, Sales Coach, Mindset Coach, and Tech Coach. All five, on your side.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">ii.</div>
+          <div class="inclusion-label"><strong>Weekly Q&amp;A and Training Calls</strong> with Russ and the team. Bring real questions, leave with real answers.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">iii.</div>
+          <div class="inclusion-label"><strong>Weekly Q&amp;A for your Sales Team.</strong> Yes, we train your sales reps for you.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">iv.</div>
+          <div class="inclusion-label"><strong>Our $100M Process Library.</strong> Detailed SOPs covering ads, funnels, webinars, sales, objections. Every working part.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">v.</div>
+          <div class="inclusion-label"><strong>Russ' AI Clone</strong> for instant one-on-one coaching. Day or night.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">vi.</div>
+          <div class="inclusion-label"><strong>Done-for-You Funnel Tech</strong> built by our team in your first fourteen days. You never get stuck in the weeds.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">vii.</div>
+          <div class="inclusion-label"><strong>A 24-Hour Help Desk</strong> for fast support and feedback.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">viii.</div>
+          <div class="inclusion-label"><strong>A Members-Only Group Chat</strong> with Russ and the team. Quiet enough to think, warm enough to belong.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">ix.</div>
+          <div class="inclusion-label"><strong>Three Live Event Intensives Per Year.</strong> Lions Pride and Millionaires Alliance gatherings.</div>
+        </div>
+        <div class="inclusion-item">
+          <div class="inclusion-num">x.</div>
+          <div class="inclusion-label"><strong>Lifetime Access</strong> to every cohort, training, SOP, and update we release. Once you are family, you are family.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-dots">
+    <div class="step-dot completed"></div>
+    <div class="step-dot completed"></div>
+    <div class="step-dot completed"></div>
+    <div class="step-dot active"></div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 5 — YOUR FIRST 90 DAYS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">The Calendar</div>
+    </div>
+    <div class="folio">Folio · V</div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 140px;">
+      <div class="section-no" style="margin-bottom: 24px;">A Ninety-Day Roadmap</div>
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0;">
+        Your <em>first</em> ninety days.
+      </h2>
+      <p class="lead" style="margin: 36px 0 56px 0; max-width: 1300px;">
+        From the moment you sign, to the moment you welcome your first cohort. Four stages. Specific outcomes at each.
+      </p>
+
+      <div class="stages">
+        <div class="stage">
+          <div class="stage-no">Stage One</div>
+          <h4 class="stage-title">Onboarding</h4>
+          <div class="stage-days">Days 1 – 14</div>
+          <ul class="stage-list">
+            <li>Welcome calls with your full Success Team</li>
+            <li>Positioning and offer locked in</li>
+            <li>Done-for-you tech stack built (funnel, payments, CRM)</li>
+            <li>First ad creatives produced and in queue</li>
+          </ul>
+        </div>
+        <div class="stage">
+          <div class="stage-no">Stage Two</div>
+          <h4 class="stage-title">Lions Pride</h4>
+          <div class="stage-days">Days 15 – 45</div>
+          <ul class="stage-list">
+            <li>Live training cadence: 3+ weekly calls</li>
+            <li>First-cohort fellowship with new members</li>
+            <li>Ad campaigns live; first call bookings arrive</li>
+            <li>Sales reps trained on the one-call-close framework</li>
+          </ul>
+        </div>
+        <div class="stage">
+          <div class="stage-no">Stage Three</div>
+          <h4 class="stage-title">Scaling</h4>
+          <div class="stage-days">Days 46 – 75</div>
+          <ul class="stage-list">
+            <li>Cost-per-booked-call dialed in</li>
+            <li>Real call data feeding offer iteration</li>
+            <li>Close-rate coaching with your Sales Coach</li>
+            <li>Second creative cycle in market</li>
+          </ul>
+        </div>
+        <div class="stage">
+          <div class="stage-no">Stage Four</div>
+          <h4 class="stage-title">Millionaires Alliance</h4>
+          <div class="stage-days">Days 76 – 90</div>
+          <ul class="stage-list">
+            <li>First $5K – $15K cohort closed</li>
+            <li>Multi-offer expansion paths mapped</li>
+            <li>Team-hiring playbooks for scaling solo</li>
+            <li>Advocacy and referral systems unlocked</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 6 — WHY US
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">Distinction</div>
+    </div>
+    <div class="folio">Folio · VI</div>
+
+    <div style="position: absolute; left: 100px; top: 140px; width: 600px;">
+      <div class="section-no" style="margin-bottom: 24px;">Why Us</div>
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0 0 32px 0;">
+        Why <em>Clients on Demand</em>.
+      </h2>
+      <p class="lead" style="margin-bottom: 48px; font-style: italic; font-family: var(--font-display); font-size: 26px; line-height: 1.4;">
+        Fourteen things you will find here, that you will not find elsewhere. Each verified by six thousand experts who chose us.
+      </p>
+
+      <div style="padding: 28px 32px; background: var(--bg-card); border-left: 3px solid var(--accent-gold); border-radius: 0 var(--radius-card) var(--radius-card) 0;">
+        <p style="font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--text-primary); line-height: 1.5; margin: 0 0 16px 0;">"This is not for everyone. It is for the one in ten who will actually do the work."</p>
+        <p style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent-gold); margin: 0; font-weight: 500;">— Russ Ruffino</p>
+      </div>
+    </div>
+
+    <div style="position: absolute; right: 100px; top: 140px; width: 1000px;">
+      <div class="compare-list">
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">One-to-one and group coaching that gets you unstuck fast</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">A high-ticket sales system used by 6,000+ experts</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Rapid feedback on ads, messaging, offers, and copy. Often in hours.</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Done-for-you funnel tech. You never get stuck in the weeds.</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">A 24-hour help desk with an intelligent AI assistant</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">A private client community of world-changing coaches</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Proprietary AI-powered prompts that write your copy with you</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">A one-call-close sales framework built for high-ticket</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Personal Ads, Copy, Sales, and Business Coaches on your side</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Real-time metrics tracking. You always know what is working.</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Proven ad templates that turn strangers into high-ticket clients</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">3+ live training calls every week. No waiting for help.</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">Verified reviews on Trustpilot from real clients</span></div>
+        <div class="compare-item"><span class="compare-mark">✦</span><span class="compare-text">12-year track record of unmatched client results</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 7 — THE MATH
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-3"></div>
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">The Mathematics</div>
+    </div>
+    <div class="folio">Folio · VII</div>
+
+    <div style="position: absolute; left: 50%; top: 200px; transform: translateX(-50%); text-align: center; width: 1300px;">
+      <div style="display: inline-block;" class="section-no">On Return</div>
+      <h2 class="h-display" style="font-size: 108px; font-weight: 400; margin: 32px 0 0 0;">
+        The <em>mathematics</em> of one client.
+      </h2>
+      <p class="lead" style="margin-top: 36px; max-width: 1100px; margin-left: auto; margin-right: auto; font-style: italic; font-family: var(--font-display); font-size: 28px; line-height: 1.4;">
+        We have priced the program so you make back your investment with a single client of your own.
+      </p>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 600px; display: grid; grid-template-columns: 1fr 120px 1fr; gap: 0; align-items: center;">
+      <div class="cod-card gold" style="text-align: center; padding: 56px 40px;">
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px;">If your offer is priced at</div>
+        <div class="numeral">$5,000</div>
+        <div style="font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--text-secondary); margin-top: 32px;">
+          $13,500 ÷ $5,000 =
+        </div>
+        <div style="font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--accent-gold); margin-top: 10px; font-style: italic;">
+          2.7 clients to break even.
+        </div>
+      </div>
+
+      <div style="text-align: center; font-family: var(--font-display); font-size: 64px; color: var(--accent-gold-deep); font-style: italic; font-weight: 400;">or</div>
+
+      <div class="cod-card recommended" style="text-align: center; padding: 56px 40px; position: relative;">
+        <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent-gold); color: var(--bg-base); padding: 6px 18px; font-family: var(--font-body); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; border-radius: 999px; font-weight: 600;">The Family Standard</div>
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px;">If your offer is priced at</div>
+        <div class="numeral">$15,000</div>
+        <div style="font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--text-secondary); margin-top: 32px;">
+          $13,500 ÷ $15,000 =
+        </div>
+        <div style="font-family: var(--font-display); font-size: 30px; font-weight: 500; color: var(--accent-gold); margin-top: 10px; font-style: italic;">
+          Pays for itself with one client.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 8 — THE INVESTMENT
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">The Terms</div>
+    </div>
+    <div class="folio">Folio · VIII</div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 150px;">
+      <div class="section-no" style="margin-bottom: 24px;">On Enrolment</div>
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0;">
+        Two ways to <em>enrol</em>.
+      </h2>
+      <p class="lead" style="margin-top: 28px; font-style: italic; font-family: var(--font-display); font-size: 26px;">
+        Pick the one that fits your situation.
+      </p>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 480px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+
+      <div class="cod-card recommended" style="padding: 52px;">
+        <div style="position: absolute; top: -14px; left: 36px; background: var(--accent-gold); color: var(--bg-base); padding: 6px 18px; font-family: var(--font-body); font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; border-radius: 999px; font-weight: 600;">Recommended</div>
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px;">Option I</div>
+        <h3 class="h-display" style="font-size: 48px; font-weight: 400; margin: 0 0 32px 0;"><em>Paid in Full</em></h3>
+        <div class="numeral" style="font-size: 120px; margin-bottom: 28px;">$13,500</div>
+        <p style="font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--text-secondary); font-weight: 300;">A single payment. Saves <strong style="color: var(--accent-gold);">$1,500</strong> against financing. Seat locked in the next cohort upon receipt.</p>
+      </div>
+
+      <div class="cod-card" style="padding: 52px;">
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px;">Option II</div>
+        <h3 class="h-display" style="font-size: 48px; font-weight: 400; margin: 0 0 32px 0;"><em>Standard Financing</em></h3>
+        <div class="numeral" style="font-size: 120px; margin-bottom: 28px;">$15,000</div>
+        <p style="font-family: var(--font-body); font-size: 17px; line-height: 1.6; color: var(--text-secondary); font-weight: 300;">Across multiple payments via <strong style="color: var(--accent-gold);">Pava</strong>, <strong style="color: var(--accent-gold);">Klarna</strong>, or split-pay. Interest-free. Custom plans available for the right fit.</p>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; bottom: 60px; text-align: center; font-family: var(--font-body); font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted);">
+      All payment plans are interest-free through COD's partners <span style="color: var(--accent-gold);">·</span> Your closer will walk you through the application
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 9 — A CALL TO GREATNESS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">Three Conditions</div>
+    </div>
+    <div class="folio">Folio · IX</div>
+
+    <div style="position: absolute; left: 100px; right: 100px; top: 140px;">
+      <div class="section-no" style="margin-bottom: 24px;">A Call to Greatness</div>
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0 0 32px 0;">
+        Three <em>things</em> to bring.
+      </h2>
+      <p class="lead" style="max-width: 1300px; font-style: italic; font-family: var(--font-display); font-size: 26px;">
+        To succeed in this program, you must show up as your best self. Specifically, you must be three things.
+      </p>
+    </div>
+
+    <div style="position: absolute; left: 100px; right: 100px; bottom: 180px;">
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-roman">I.</div>
+          <h3 class="pillar-title">You must be<br/><em>coachable</em>.</h3>
+          <p class="pillar-body">Our best clients have a saying: <em style="color: var(--accent-gold);">"Russ say, I do."</em> We hand you the plan and give you the support. All you must do is follow it.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-roman">II.</div>
+          <h3 class="pillar-title">You must be<br/><em>resourceful</em>.</h3>
+          <p class="pillar-body">You make a way when there is no way. Committed to winning. Willing to do what it takes to create the income, freedom, and impact you deserve.</p>
+        </div>
+        <div class="pillar">
+          <div class="pillar-roman">III.</div>
+          <h3 class="pillar-title">You must be<br/><em>decisive</em>.</h3>
+          <p class="pillar-body">Success is a series of fast, high-quality decisions. If you hesitate or take forever to choose, this is not the group for you.</p>
+        </div>
+      </div>
+
+      <p style="font-family: var(--font-display); font-style: italic; font-size: 26px; color: var(--text-secondary); text-align: center; margin: 56px auto 0 auto; max-width: 1200px; line-height: 1.5;">
+        If you are reading this, it is because we believe you are all three. <span style="color: var(--accent-gold); font-weight: 500;">And we believe the family will be stronger with you in it.</span>
+      </p>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 10 — YOUR NEXT STEP
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">The Next Step</div>
+    </div>
+    <div class="folio">Folio · X</div>
+
+    <div style="position: absolute; left: 100px; top: 140px; width: 940px;">
+      <div class="section-no" style="margin-bottom: 24px;">When You Are Ready</div>
+      <h2 class="h-display" style="font-size: 96px; font-weight: 400; margin: 0 0 56px 0;">
+        Three <em>ways</em> forward.
+      </h2>
+
+      <div class="actions">
+        <div class="action-row">
+          <div class="action-num">I.</div>
+          <div>
+            <h4 class="action-title"><em>Pay in Full</em></h4>
+            <p class="action-copy">Send the $13,500 payment. Your closer texts you the link. Seat locked for the next cohort.</p>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="action-num">II.</div>
+          <div>
+            <h4 class="action-title"><em>Start the Financing Application</em></h4>
+            <p class="action-copy">Pava or Klarna application takes about five minutes. Approval typically same-day.</p>
+          </div>
+        </div>
+        <div class="action-row">
+          <div class="action-num">III.</div>
+          <div>
+            <h4 class="action-title"><em>Lock the Price with a Deposit</em></h4>
+            <p class="action-copy">Not ready to start this month? A deposit holds today's price and lets you pick your cohort start date.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Closer contact -->
+    <div style="position: absolute; right: 100px; top: 240px; width: 500px; padding: 56px 44px; background: var(--bg-card); border: 1px solid var(--accent-gold-border); border-radius: var(--radius-lg); position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-gold) 0%, transparent 100%);"></div>
+      <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 28px;">Your Closer</div>
+      <div style="font-family: var(--font-display); font-size: 44px; font-style: italic; font-weight: 400; line-height: 1.1; color: var(--text-primary); margin-bottom: 8px;">[Closer Name]</div>
+      <div style="height: 1px; background: var(--accent-gold-border); margin: 36px 0;"></div>
+      <div style="font-family: var(--font-body); font-size: 14px; line-height: 2.4; color: var(--text-primary);">
+        <div><span style="display: inline-block; width: 80px; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted);">By Mail</span>[Closer Email]</div>
+        <div><span style="display: inline-block; width: 80px; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted);">By Phone</span>[Closer Phone]</div>
+        <div><span style="display: inline-block; width: 80px; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted);">By Calendar</span><span style="text-decoration: underline; color: var(--accent-gold);">Book a Call</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+
+<!-- ============================================================
+     SLIDE 11 — THANK YOU
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide">
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+
+  <div class="slide-content">
+    <div class="masthead">
+      <div class="masthead-logo">C</div>
+      <div class="masthead-text">Clients on Demand</div>
+    </div>
+    <div class="folio">Folio · XI</div>
+
+    <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 1400px;">
+
+      <div style="display: inline-flex; align-items: center; gap: 24px; font-family: var(--font-body); font-size: 13px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent-gold); margin-bottom: 56px; font-weight: 500;">
+        <span style="display: inline-block; width: 56px; height: 1px; background: var(--accent-gold);"></span>
+        In Closing
+        <span style="display: inline-block; width: 56px; height: 1px; background: var(--accent-gold);"></span>
+      </div>
+
+      <h2 class="h-display" style="font-size: 176px; font-weight: 400; line-height: 0.9; margin: 0;">
+        <em>Thank you,</em>
+      </h2>
+
+      <p style="font-family: var(--font-display); font-style: italic; font-size: 36px; color: var(--text-secondary); margin: 56px auto 0 auto; max-width: 1000px; line-height: 1.4;">
+        for considering us as your team for what comes next.
+      </p>
+
+      <div style="margin-top: 96px;">
+        <div class="signature" style="font-size: 92px;">Russ Ruffino</div>
+        <div style="font-family: var(--font-body); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-secondary); margin-top: 14px; font-weight: 500;">Founder &amp; Chief Executive, Clients on Demand</div>
+      </div>
+    </div>
+
+    <!-- FTC footer -->
+    <div style="position: absolute; left: 100px; right: 100px; bottom: 50px; text-align: center;">
+      <div style="height: 1px; background: var(--border-default); margin-bottom: 24px;"></div>
+      <div style="font-family: var(--font-body); font-size: 11px; color: var(--text-faint); line-height: 1.7; letter-spacing: 0.05em;">
+        © Clients on Demand® · <a href="https://www.clientsondemand.com" style="color: var(--text-secondary); text-decoration: underline;">clientsondemand.com</a> ·
+        <a href="https://www.clientsondemand.com/earnings-disclaimer" style="color: var(--text-secondary); text-decoration: underline;">Earnings Disclaimer</a> ·
+        <a href="https://www.clientsondemand.com/privacy-policy" style="color: var(--text-secondary); text-decoration: underline;">Privacy Policy</a> ·
+        <a href="https://www.clientsondemand.com/terms" style="color: var(--text-secondary); text-decoration: underline;">Terms of Service</a>
+        <br/>
+        <span style="opacity: 0.7;">Results vary. We make no income guarantees. See our Earnings Disclaimer for details.</span>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+</main>
+
+</body>
+</html>

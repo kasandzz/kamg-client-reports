@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clients on Demand — You're Invited</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Roboto+Slab:wght@400;500;700;900&family=Inter:wght@400;500;600;700;800&family=Onest:wght@400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'cod-navy': '#000938',
+          'cod-navy-dark': '#01072B',
+          'cod-charcoal': '#1C1C1C',
+          'cod-gold': '#D8BC68',
+          'cod-gold-deep': '#B8952D',
+          'cod-gold-bright': '#EFC854',
+          'cod-gold-pale': '#F6DE94',
+          'cod-yellow': '#F7EB3B',
+          'cod-yellow-band': '#F2DD6C',
+          'cod-light': '#EBEBEB',
+        },
+        fontFamily: {
+          'display': ['"Roboto Slab"', 'Georgia', 'serif'],
+          'serif': ['"Libre Baskerville"', 'Georgia', 'serif'],
+          'body': ['Onest', 'Inter', 'sans-serif'],
+          'sig': ['Caveat', 'cursive'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root { --slide-w: 1920px; --slide-h: 1080px; }
+
+  body {
+    margin: 0;
+    background: #0a0a14;
+    font-family: 'Onest', 'Inter', sans-serif;
+    color: white;
+  }
+
+  /* Each slide is a fixed 1920x1080 canvas — scaled visually for web, full-size for print */
+  .slide {
+    position: relative;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+  }
+
+  /* Web view: scale slides into the viewport */
+  .slide-wrap {
+    margin: 40px auto;
+    width: var(--slide-w);
+    transform-origin: top center;
+  }
+  @media screen and (max-width: 1960px) {
+    .slide-wrap { transform: scale(calc((100vw - 40px) / 1920)); height: calc(((100vw - 40px) / 1920) * 1080); }
+  }
+
+  /* Navy → gold diagonal */
+  .bg-navy-gold {
+    background: linear-gradient(58.39deg, #000938 51.39%, #B8952D 135.86%);
+  }
+  .bg-navy-gold-alt {
+    background: linear-gradient(164.22deg, #000938 47.68%, #B8952D 174.96%);
+  }
+  /* Charcoal → deep navy (pricing slides) */
+  .bg-charcoal-navy {
+    background: linear-gradient(225.14deg, #1C1C1C 44.31%, #01072B 99.21%);
+  }
+  /* Light slide with black band */
+  .bg-light-banded {
+    background: #EBEBEB;
+  }
+  .bg-light-banded::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 478px;
+    background: black;
+  }
+
+  /* Gold pill (pre-headline) */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #D8BC68;
+    border-radius: 200px;
+    padding: 8px 22px;
+    color: #D8BC68;
+    font-family: 'Onest', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Translucent card on dark bg */
+  .card-trans {
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px;
+  }
+
+  /* Strategy nav dots at bottom of slides */
+  .nav-dots {
+    position: absolute;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .nav-dot { height: 8px; border-radius: 5px; background: rgba(247,235,59,0.5); }
+  .nav-dot.active { background: #F7EB3B; width: 48px; }
+  .nav-dot:not(.active) { width: 26px; }
+
+  /* Russ signature script */
+  .signature {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: #D8BC68;
+    transform: rotate(-9.37deg);
+    transform-origin: left center;
+    display: inline-block;
+  }
+
+  /* Hero display text */
+  .h-display { font-family: 'Roboto Slab', Georgia, serif; font-weight: 900; }
+  .h-serif { font-family: 'Libre Baskerville', Georgia, serif; font-weight: 700; }
+
+  /* Gold checkmark (✓) in circle */
+  .check-circle {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #D8BC68; color: #000938;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 28px; line-height: 1;
+  }
+
+  /* Smooth scroll-snap for web nav (optional) */
+  .deck { scroll-snap-type: y mandatory; }
+  .slide-wrap { scroll-snap-align: start; }
+
+  /* PRINT CSS — generates clean PDF when user prints to PDF */
+  @page { size: 13.333in 7.5in landscape; margin: 0; }
+  @media print {
+    html, body { background: white; margin: 0; padding: 0; }
+    .deck-controls { display: none; }
+    .slide-wrap { transform: none !important; margin: 0 !important; height: auto !important; page-break-after: always; page-break-inside: avoid; width: 100vw; }
+    .slide-wrap:last-child { page-break-after: auto; }
+    .slide { width: 100vw; height: 100vh; box-shadow: none; }
+  }
+
+  /* Deck controls (web only) */
+  .deck-controls {
+    position: fixed; top: 14px; right: 14px; z-index: 100;
+    background: rgba(0,9,56,0.9); border: 1px solid #D8BC68;
+    color: #D8BC68; padding: 10px 18px; border-radius: 999px;
+    font-family: 'Onest', sans-serif; font-weight: 600; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    cursor: pointer; user-select: none;
+  }
+  .deck-controls:hover { background: rgba(0,9,56,1); }
+
+  /* Decorative rotated ellipse on cover */
+  .cover-ellipse {
+    position: absolute;
+    width: 832px; height: 1293px;
+    left: 1116px; top: -200px;
+    transform: rotate(-34.21deg);
+    background: radial-gradient(ellipse at center, rgba(216,188,104,0.5) 0%, rgba(216,188,104,0) 65%);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<button class="deck-controls" onclick="window.print()">Print to PDF</button>
+
+<main class="deck">
+
+<!-- ============================================================
+     SLIDE 1 — COVER
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold">
+  <div class="cover-ellipse"></div>
+  <div class="absolute inset-[40px] border border-cod-gold rounded-2xl pointer-events-none"></div>
+
+  <div class="absolute left-[120px] top-[100px] w-[395px] h-[80px] flex items-center">
+    <img src="assets/cod-logo.png" alt="Clients on Demand" class="max-h-[80px] w-auto"
+         style="filter: brightness(0) invert(1);" />
+  </div>
+
+  <h1 class="absolute left-[120px] top-[246px] w-[1700px] h-display uppercase leading-[110px]">
+    <span class="text-cod-gold-bright text-[110px] block">you're invited</span>
+    <span class="text-white text-[110px] block">to join our family</span>
+  </h1>
+
+  <div class="absolute left-[120px] top-[640px] font-body text-[18px] tracking-wide text-cod-gold-pale">
+    <span class="block">Prepared for: <span class="text-white font-medium">[Recipient Name]</span></span>
+    <span class="block mt-3">Prepared by: <span class="text-white font-medium">[Closer Name]</span></span>
+  </div>
+
+  <!-- Trustpilot block -->
+  <div class="absolute left-[120px] bottom-[140px] flex items-center gap-4">
+    <span class="font-display text-white text-[26px] font-bold">Excellent</span>
+    <span class="text-[#00B67A] text-[32px] tracking-tighter">★★★★★</span>
+    <span class="text-white font-body text-[16px]">on <span class="font-bold">Trustpilot</span></span>
+  </div>
+  <div class="absolute left-[120px] bottom-[105px] font-body text-[14px] text-white/80">
+    Rated 4.4 / 5 based on 508 verified reviews
+  </div>
+
+  <!-- Press logos -->
+  <div class="absolute right-[120px] bottom-[60px] flex items-center gap-12">
+    <img src="assets/logo-huffpost.png" alt="Huffington Post" class="h-[28px] w-auto" style="filter: brightness(0) invert(1) opacity(0.85);" />
+    <img src="assets/logo-inc.png" alt="Inc." class="h-[24px] w-auto" style="filter: brightness(0) invert(1) opacity(0.85);" />
+    <img src="assets/logo-forbes.png" alt="Forbes" class="h-[22px] w-auto" style="filter: brightness(0) invert(1) opacity(0.85);" />
+    <img src="assets/logo-fortune.png" alt="Fortune" class="h-[22px] w-auto" style="filter: brightness(0) invert(1) opacity(0.85);" />
+    <img src="assets/logo-entrepreneur.png" alt="Entrepreneur" class="h-[24px] w-auto" style="filter: brightness(0) invert(1) opacity(0.85);" />
+  </div>
+
+  <div class="nav-dots">
+    <div class="nav-dot active"></div>
+    <div class="nav-dot"></div>
+    <div class="nav-dot"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 2 — A NOTE FROM RUSS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold-alt">
+  <div class="absolute right-0 top-0 bottom-0 w-[600px] bg-black"></div>
+
+  <span class="pill absolute left-[80px] top-[68px]">Welcome</span>
+
+  <h2 class="absolute left-[80px] top-[150px] h-display text-cod-gold text-[88px] leading-[100px] uppercase tracking-tight w-[1100px]">
+    Clients<br/>On Demand<sup class="text-[36px] align-super">®</sup>
+  </h2>
+
+  <div class="absolute left-[80px] top-[470px] w-[1080px] font-body text-white text-[24px] leading-[36px] space-y-7">
+    <p>[Name], welcome to the family.</p>
+    <p>You took a real step on our call today, and this is what comes next.</p>
+    <p>Inside is everything we discussed: the program, the team you'll be working with, the 90-day roadmap, and how we make sure you build a program priced for the income, freedom, and impact you came here to create.</p>
+    <p>Read it through. When you're ready, you know how to find me.</p>
+  </div>
+
+  <!-- Russ photo + signature column -->
+  <div class="absolute right-[100px] top-[160px] w-[460px]">
+    <div class="rounded-3xl overflow-hidden border-4 border-cod-gold/60 shadow-2xl">
+      <img src="assets/russ-portrait.jpg" alt="Russ Ruffino" class="w-full h-[580px] object-cover" />
+    </div>
+    <div class="mt-7 text-white">
+      <div class="font-body text-[22px] font-semibold">Russ Ruffino</div>
+      <div class="font-body text-[18px] text-cod-gold mt-1">founder and CEO</div>
+      <div class="signature text-[72px] mt-2 -ml-3">Russ Ruffino</div>
+    </div>
+  </div>
+
+  <div class="nav-dots">
+    <div class="nav-dot"></div>
+    <div class="nav-dot active"></div>
+    <div class="nav-dot"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 3 — WHAT WE'LL OPTIMIZE
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold">
+  <span class="pill absolute left-[80px] top-[68px]">The Program</span>
+
+  <h2 class="absolute left-[80px] top-[170px] h-serif text-cod-gold text-[60px] leading-[68px] w-[800px]">
+    What We'll Optimize
+  </h2>
+
+  <p class="absolute left-[80px] top-[290px] w-[1760px] font-body text-white text-[36px] leading-[50px]">
+    This program is designed to optimize 3 things:
+    <span class="text-cod-gold font-semibold">your Income, your Freedom, and your Impact.</span>
+  </p>
+
+  <!-- 3 cards -->
+  <div class="absolute left-[80px] right-[80px] top-[450px] grid grid-cols-3 gap-8">
+    <!-- Income -->
+    <div class="card-trans p-8 h-[420px] relative">
+      <div class="w-[70px] h-[70px] rounded-full bg-cod-gold-deep flex items-center justify-center mb-6">
+        <span class="text-white text-[40px] font-bold">$</span>
+      </div>
+      <h3 class="font-body text-cod-gold text-[28px] font-bold mb-5">Your Income</h3>
+      <p class="font-body text-white text-[20px] leading-[30px]">
+        So you can build a program priced at $5K–$15K per client and fill it consistently — month after month.
+      </p>
+    </div>
+    <!-- Freedom -->
+    <div class="card-trans p-8 h-[420px] relative">
+      <div class="w-[70px] h-[70px] rounded-full bg-cod-gold-deep flex items-center justify-center mb-6">
+        <span class="text-white text-[36px]">⟳</span>
+      </div>
+      <h3 class="font-body text-cod-gold text-[28px] font-bold mb-5">Your Freedom</h3>
+      <p class="font-body text-white text-[20px] leading-[30px]">
+        So you can go just about anywhere and do just about anything.
+      </p>
+    </div>
+    <!-- Impact -->
+    <div class="card-trans p-8 h-[420px] relative">
+      <div class="w-[70px] h-[70px] rounded-full bg-cod-gold-deep flex items-center justify-center mb-6">
+        <span class="text-white text-[36px]">⚡</span>
+      </div>
+      <h3 class="font-body text-cod-gold text-[28px] font-bold mb-5">Your Impact</h3>
+      <p class="font-body text-white text-[20px] leading-[30px]">
+        So you're changing the world with every client you enroll.
+      </p>
+    </div>
+  </div>
+
+  <!-- Gold footer band -->
+  <div class="absolute left-[80px] right-[80px] bottom-[110px] bg-cod-yellow-band rounded-2xl px-12 py-8 text-cod-navy">
+    <p class="font-body text-[22px] leading-[32px]">
+      Over the next 90 days, you can expect massive, permanent, and continuous upgrades in all 3 areas.
+    </p>
+    <p class="font-body text-[26px] leading-[32px] font-semibold mt-3">
+      The only question is: <span class="font-bold">Are you ready?</span>
+    </p>
+  </div>
+
+  <div class="nav-dots">
+    <div class="nav-dot"></div>
+    <div class="nav-dot"></div>
+    <div class="nav-dot active"></div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 4 — WHAT'S INCLUDED
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-charcoal-navy">
+  <h2 class="absolute left-[80px] top-[100px] h-display uppercase text-cod-gold text-[68px] tracking-tight">
+    What's Included
+  </h2>
+
+  <p class="absolute left-[80px] top-[220px] w-[1760px] font-body text-white text-[28px] leading-[42px]">
+    We give you everything you need to launch your offer, fill it, and run it.
+    <span class="text-cod-gold font-bold">From building your first $5K–$15K program to scaling it across multiple offers.</span>
+  </p>
+
+  <!-- Inclusions list (2 cols of 5) -->
+  <div class="absolute left-[80px] right-[80px] top-[360px] grid grid-cols-2 gap-x-12 gap-y-7">
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Access to your Success Team:</span> <span class="text-white">an Ads Coach, Copy Coach, Sales Coach, Mindset Coach, and Tech Coach</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Weekly Q&A and Training Calls</span> <span class="text-white">with Russ and team</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Weekly Q&A for your Sales Team</span> <span class="text-white">(yes, we train your sales reps for you)</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Access to ALL of our $100M processes and detailed SOPs</span> <span class="text-white">(ads, funnels, webinars, sales, objections, everything)</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Access to Russ' AI Clone</span> <span class="text-white">for instant 1:1 coaching</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">"Done-for-You" funnel tech</span> <span class="text-white">built by our team in your first 14 days</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">A 24-Hour Help Desk</span> <span class="text-white">for fast support and feedback</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">A Private Members-Only Group Chat</span> <span class="text-white">with Russ and the team</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">3 Live Event Intensives Per Year</span> <span class="text-white">(Lions Pride + Millionaires Alliance gatherings)</span></p>
+    </div>
+    <div class="flex gap-5 items-start">
+      <div class="check-circle shrink-0">✓</div>
+      <p class="font-body text-[20px] leading-[28px] pt-2"><span class="text-cod-gold font-bold">Lifetime access</span> <span class="text-white">to every cohort, training, SOP, and update we release</span></p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 5 — YOUR FIRST 90 DAYS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-light-banded">
+  <span class="pill absolute left-[80px] top-[68px] text-cod-gold border-cod-gold relative z-10">Action Plan</span>
+
+  <h2 class="absolute left-[80px] top-[200px] z-10">
+    <span class="h-serif font-normal text-white text-[120px] leading-none">First </span><span class="h-serif font-bold text-cod-gold text-[120px] leading-none">90 Days</span>
+  </h2>
+
+  <!-- Stage tabs + accent line -->
+  <div class="absolute left-[120px] right-[120px] top-[520px]">
+    <div class="grid grid-cols-4 gap-6 mb-0">
+      <div class="bg-cod-gold rounded-t-lg px-6 py-4 text-center font-body font-medium text-cod-navy text-[18px]">Stage 01</div>
+      <div class="bg-cod-gold rounded-t-lg px-6 py-4 text-center font-body font-medium text-cod-navy text-[18px]">Stage 02</div>
+      <div class="bg-cod-gold rounded-t-lg px-6 py-4 text-center font-body font-medium text-cod-navy text-[18px]">Stage 03</div>
+      <div class="bg-cod-gold rounded-t-lg px-6 py-4 text-center font-body font-medium text-cod-navy text-[18px]">Stage 04</div>
+    </div>
+    <div class="h-[3px] bg-cod-gold w-full"></div>
+
+    <div class="grid grid-cols-4 gap-6 mt-6 text-cod-navy">
+      <!-- Stage 01 -->
+      <div>
+        <h4 class="font-body font-bold text-cod-gold-deep text-[20px] mb-1">Onboarding</h4>
+        <div class="font-body text-[13px] text-cod-navy/60 mb-3">Days 1–14</div>
+        <p class="font-body font-semibold text-[15px] mb-2">What you gain:</p>
+        <ul class="font-body text-[14px] leading-[22px] list-disc list-outside ml-5 space-y-1">
+          <li>Welcome calls with your full Success Team</li>
+          <li>Positioning + offer locked in</li>
+          <li>Done-for-you tech stack built (funnel, payments, CRM)</li>
+          <li>First ad creatives produced and in queue</li>
+        </ul>
+      </div>
+      <!-- Stage 02 -->
+      <div>
+        <h4 class="font-body font-bold text-cod-gold-deep text-[20px] mb-1">Lions Pride</h4>
+        <div class="font-body text-[13px] text-cod-navy/60 mb-3">Days 15–45</div>
+        <p class="font-body font-semibold text-[15px] mb-2">What you gain:</p>
+        <ul class="font-body text-[14px] leading-[22px] list-disc list-outside ml-5 space-y-1">
+          <li>Live training cadence: 3+ weekly calls with Russ and team</li>
+          <li>First-cohort fellowship with other new members</li>
+          <li>Ad campaigns live; first call bookings arriving</li>
+          <li>Sales reps trained on the one-call-close framework</li>
+        </ul>
+      </div>
+      <!-- Stage 03 -->
+      <div>
+        <h4 class="font-body font-bold text-cod-gold-deep text-[20px] mb-1">Scaling</h4>
+        <div class="font-body text-[13px] text-cod-navy/60 mb-3">Days 46–75</div>
+        <p class="font-body font-semibold text-[15px] mb-2">What you gain:</p>
+        <ul class="font-body text-[14px] leading-[22px] list-disc list-outside ml-5 space-y-1">
+          <li>Cost-per-booked-call dialed in</li>
+          <li>Real call data feeding offer + sales iteration</li>
+          <li>Close-rate coaching with your personal Sales Coach</li>
+          <li>Second ad creative cycle live</li>
+        </ul>
+      </div>
+      <!-- Stage 04 -->
+      <div>
+        <h4 class="font-body font-bold text-cod-gold-deep text-[20px] mb-1">Millionaires Alliance Entry</h4>
+        <div class="font-body text-[13px] text-cod-navy/60 mb-3">Days 76–90</div>
+        <p class="font-body font-semibold text-[15px] mb-2">What you gain:</p>
+        <ul class="font-body text-[14px] leading-[22px] list-disc list-outside ml-5 space-y-1">
+          <li>First $5K–$15K cohort closed</li>
+          <li>Multi-offer expansion paths mapped</li>
+          <li>Team-hiring playbooks (if scaling beyond solo)</li>
+          <li>Advocacy + referral systems unlocked</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 6 — COMPARISON TABLE
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold">
+  <span class="pill absolute left-[80px] top-[68px]">Why Us</span>
+
+  <h2 class="absolute left-[80px] top-[180px] w-[600px]">
+    <span class="font-body text-white text-[40px] leading-[52px] font-normal block">Why Clients on Demand Is the</span>
+    <span class="h-display text-cod-gold text-[88px] leading-[88px] uppercase font-black block mt-2">#1 Choice</span>
+    <span class="font-body text-white text-[40px] leading-[52px] font-normal block mt-2">for Coaches Who Want Serious Results</span>
+  </h2>
+
+  <!-- Comparison white card -->
+  <div class="absolute left-[720px] right-[80px] top-[60px] bottom-[60px] bg-white rounded-2xl p-10 text-cod-navy overflow-hidden">
+    <div class="grid grid-cols-[1fr_180px_180px] gap-4 pb-4 border-b-2 border-cod-gold/40 mb-4 font-body font-bold text-[15px]">
+      <div>Features</div>
+      <div class="text-center bg-cod-gold rounded px-3 py-2">Clients on Demand</div>
+      <div class="text-center">Other Companies</div>
+    </div>
+    <div class="space-y-3 text-[14px] font-body">
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>1-on-1 + Group Coaching That Gets You Unstuck Fast</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Proven High-Ticket Sales System Used by 6,000+ Experts</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Rapid Feedback on Ads, Messaging, Offers &amp; Copy. Often in Hours.</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>"Done-for-You" Funnel Tech. You Never Get Stuck in the Weeds.</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>24/7 Help Desk + Smart AI Assistant to Answer Questions Instantly</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Private Client Community of World-Changing Coaches &amp; Experts</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Proprietary AI-Powered Prompts That Write Your Copy With You</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>A One-Call-Close Sales Framework Built for High-Ticket</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Personal Ads, Copy, Sales, and Business Coaches On Your Side</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Real-Time Metrics Tracking to Know Exactly What's Working</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Proven Ad Templates That Turn Strangers Into High-Ticket Clients</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>3+ Live Training &amp; Q&amp;A Calls Every Week. No Waiting for Support.</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center border-b border-cod-gold/20 pb-2">
+        <span>Verified Reviews &amp; Case Studies on Trustpilot from Real Clients</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+      <div class="grid grid-cols-[1fr_180px_180px] gap-4 items-center pb-2">
+        <span>12-Year Track Record of Unmatched Client Results</span>
+        <span class="text-center text-cod-gold-deep text-[20px]">✓</span>
+        <span class="text-center text-red-500 text-[20px]">✗</span>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 7 — THE MATH
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-charcoal-navy">
+  <span class="pill absolute left-[80px] top-[68px]">ROI</span>
+
+  <h2 class="absolute left-[80px] top-[180px] h-display uppercase text-cod-gold text-[80px] tracking-tight">
+    The Math
+  </h2>
+
+  <p class="absolute left-[80px] right-[80px] top-[310px] text-center font-body text-white text-[36px] leading-[50px]">
+    We've priced this program so you can make back your investment with
+    <span class="text-cod-gold font-bold">just ONE client</span>.
+  </p>
+
+  <!-- 2 cards -->
+  <div class="absolute left-[160px] right-[160px] top-[470px] grid grid-cols-2 gap-12">
+    <div class="card-trans p-12 text-center">
+      <div class="font-body text-cod-gold-pale text-[20px] mb-6">If your offer is priced at</div>
+      <div class="h-display text-cod-gold text-[88px] leading-none mb-6">$5,000</div>
+      <div class="font-body text-white text-[24px] leading-[34px]">
+        $13,500 ÷ $5,000 = <span class="font-bold text-cod-gold">2.7 clients to break even</span>
+      </div>
+    </div>
+    <div class="card-trans p-12 text-center">
+      <div class="font-body text-cod-gold-pale text-[20px] mb-6">If your offer is priced at</div>
+      <div class="h-display text-cod-gold text-[88px] leading-none mb-6">$15,000</div>
+      <div class="font-body text-white text-[24px] leading-[34px]">
+        $13,500 ÷ $15,000 = <span class="font-bold text-cod-gold">Pays for itself with one client</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="absolute left-[80px] right-[80px] bottom-[100px] text-center font-body text-white/85 text-[24px] leading-[36px]">
+    The math is simple. The work is real. We give you everything you need to land
+    <span class="text-cod-gold font-semibold">that first client and the next nine.</span>
+  </p>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 8 — THE INVESTMENT
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-charcoal-navy">
+  <h2 class="absolute left-[80px] top-[100px] h-display uppercase text-cod-gold text-[72px] tracking-tight">
+    The Investment
+  </h2>
+
+  <p class="absolute left-[80px] top-[230px] w-[1760px] font-body text-white text-[26px] leading-[38px]">
+    Two ways to enroll. Pick the one that fits your situation.
+  </p>
+
+  <!-- 2 option cards -->
+  <div class="absolute left-[120px] right-[120px] top-[340px] grid grid-cols-2 gap-12">
+    <div class="card-trans p-10 relative border-2 border-cod-gold">
+      <div class="absolute -top-4 left-8 bg-cod-gold text-cod-navy px-4 py-1 rounded-full font-body text-[14px] font-bold uppercase tracking-wider">Recommended</div>
+      <div class="font-body text-cod-gold text-[20px] uppercase tracking-wider mb-4">Option 1</div>
+      <div class="h-serif font-bold text-white text-[44px] leading-[50px] mb-8">Paid in Full</div>
+      <div class="space-y-4">
+        <div class="flex items-baseline gap-3">
+          <span class="h-display text-cod-gold text-[64px] leading-none">$13,500</span>
+        </div>
+        <div class="font-body text-white text-[20px] leading-[30px]">One payment, lifetime access</div>
+        <div class="font-body text-cod-gold text-[18px]">Saves $1,500 vs. financing</div>
+        <div class="font-body text-white/80 text-[18px] mt-4">Locks your seat in the next cohort immediately</div>
+      </div>
+    </div>
+
+    <div class="card-trans p-10">
+      <div class="font-body text-cod-gold text-[20px] uppercase tracking-wider mb-4">Option 2</div>
+      <div class="h-serif font-bold text-white text-[44px] leading-[50px] mb-8">Standard Financing</div>
+      <div class="space-y-4">
+        <div class="flex items-baseline gap-3">
+          <span class="h-display text-cod-gold text-[64px] leading-none">$15,000</span>
+          <span class="font-body text-white/70 text-[20px]">total</span>
+        </div>
+        <div class="font-body text-white text-[20px] leading-[30px]">Across multiple payments</div>
+        <div class="font-body text-white text-[18px] leading-[28px]">
+          Financing available via <span class="text-cod-gold font-semibold">Pava, Klarna,</span> or <span class="text-cod-gold font-semibold">split-pay</span>
+        </div>
+        <div class="font-body text-white/80 text-[18px] mt-4">Custom payment plans available for the right fit</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="absolute left-[80px] right-[80px] bottom-[100px] text-center font-body text-white/75 text-[20px] leading-[30px]">
+    All payment plans are interest-free through COD's partners. Your closer will walk you through the application.
+  </p>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 9 — A CALL TO GREATNESS
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold-alt">
+  <span class="pill absolute left-[80px] top-[68px]">Greatness</span>
+
+  <h2 class="absolute left-[80px] top-[160px] h-serif text-cod-gold text-[64px] leading-[72px] w-[900px]">
+    A Call to Greatness
+  </h2>
+
+  <p class="absolute left-[80px] right-[80px] top-[320px] text-center font-body text-white text-[34px] leading-[50px]">
+    To succeed in this program, you need to show up as your best self.<br/>
+    Specifically, you need to be <span class="text-cod-gold font-bold">3 things:</span>
+  </p>
+
+  <!-- 3 cards -->
+  <div class="absolute left-[80px] right-[80px] top-[510px] grid grid-cols-3 gap-8">
+    <div class="card-trans p-8 h-[380px]">
+      <h3 class="h-serif text-cod-gold text-[36px] leading-[44px] mb-5">You Must Be Coachable.</h3>
+      <p class="font-body text-white text-[19px] leading-[28px]">
+        Our top clients have a saying: <span class="text-cod-gold font-semibold">"Russ say, I do."</span> We hand you the exact game plan to succeed, and all the support you need to carry it out. All you need to do is follow it.
+      </p>
+    </div>
+    <div class="card-trans p-8 h-[380px]">
+      <h3 class="h-serif text-cod-gold text-[36px] leading-[44px] mb-5">You Must Be Resourceful.</h3>
+      <p class="font-body text-white text-[19px] leading-[28px]">
+        This means you make a way when there is no way. You're absolutely committed to winning and willing to do what it takes to create the income, freedom, and impact you deserve.
+      </p>
+    </div>
+    <div class="card-trans p-8 h-[380px]">
+      <h3 class="h-serif text-cod-gold text-[36px] leading-[44px] mb-5">You Must Be Decisive.</h3>
+      <p class="font-body text-white text-[19px] leading-[28px]">
+        Success is a series of fast, high-quality decisions. If you hesitate or take forever to make key decisions, this is not the group for you.
+      </p>
+    </div>
+  </div>
+
+  <p class="absolute left-[80px] right-[80px] bottom-[60px] text-center font-body text-white text-[22px] leading-[32px]">
+    If you're reading this, it's because we believe you are all 3.
+    <span class="text-cod-gold font-semibold block mt-1">And we believe the family will be stronger with you in it.</span>
+  </p>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 10 — YOUR NEXT STEP
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold">
+  <h2 class="absolute left-[80px] top-[100px] h-display uppercase text-cod-gold text-[72px] tracking-tight">
+    Your Next Step
+  </h2>
+
+  <p class="absolute left-[80px] top-[230px] w-[1100px] font-body text-white text-[28px] leading-[40px]">
+    Three ways to move forward today.
+  </p>
+
+  <!-- 3 stacked options -->
+  <div class="absolute left-[80px] top-[340px] w-[1200px] space-y-5">
+    <div class="card-trans border-l-4 border-cod-gold p-7 flex items-start gap-6">
+      <div class="w-14 h-14 rounded-full bg-cod-gold text-cod-navy font-display font-black text-[28px] flex items-center justify-center shrink-0">1</div>
+      <div>
+        <div class="h-serif text-cod-gold text-[28px] mb-2">Pay in Full</div>
+        <p class="font-body text-white text-[19px] leading-[28px]">Send the $13,500 payment. Your closer texts you the link. Seat locked for the next cohort.</p>
+      </div>
+    </div>
+    <div class="card-trans border-l-4 border-cod-gold p-7 flex items-start gap-6">
+      <div class="w-14 h-14 rounded-full bg-cod-gold text-cod-navy font-display font-black text-[28px] flex items-center justify-center shrink-0">2</div>
+      <div>
+        <div class="h-serif text-cod-gold text-[28px] mb-2">Start the Financing Application</div>
+        <p class="font-body text-white text-[19px] leading-[28px]">Pava or Klarna application takes about 5 minutes. Approval typically same-day.</p>
+      </div>
+    </div>
+    <div class="card-trans border-l-4 border-cod-gold p-7 flex items-start gap-6">
+      <div class="w-14 h-14 rounded-full bg-cod-gold text-cod-navy font-display font-black text-[28px] flex items-center justify-center shrink-0">3</div>
+      <div>
+        <div class="h-serif text-cod-gold text-[28px] mb-2">Lock the Price with a Deposit</div>
+        <p class="font-body text-white text-[19px] leading-[28px]">Not ready to start this month? Put down a deposit to hold today's price and pick your cohort start date.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Closer contact -->
+  <div class="absolute right-[80px] top-[340px] w-[520px] card-trans p-10 border border-cod-gold/30">
+    <div class="font-body text-cod-gold-pale text-[16px] uppercase tracking-wider mb-6">Your closer</div>
+    <div class="font-body text-white text-[28px] font-semibold mb-2">[Closer Name]</div>
+    <div class="h-[2px] w-16 bg-cod-gold mb-6"></div>
+    <div class="space-y-3 font-body text-[18px]">
+      <div class="text-cod-gold-pale">Email: <span class="text-white">[Closer Email]</span></div>
+      <div class="text-cod-gold-pale">Phone: <span class="text-white">[Closer Phone]</span></div>
+      <div class="text-cod-gold-pale">Book a call: <span class="text-white underline">[Closer Calendar Link]</span></div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ============================================================
+     SLIDE 11 — THANK YOU
+============================================================ -->
+<div class="slide-wrap">
+<section class="slide bg-navy-gold-alt">
+  <h2 class="absolute left-1/2 top-[280px] -translate-x-1/2 h-display uppercase text-cod-gold text-[160px] tracking-tighter leading-none">
+    Thank You
+  </h2>
+
+  <p class="absolute left-1/2 top-[490px] -translate-x-1/2 font-body text-white text-[32px] leading-[48px] text-center w-[1400px]">
+    for considering us as your team for what comes next.
+  </p>
+
+  <!-- Signature block centered -->
+  <div class="absolute left-1/2 top-[680px] -translate-x-1/2 text-center">
+    <div class="font-body text-white text-[26px] font-semibold">Russ Ruffino</div>
+    <div class="font-body text-cod-gold text-[20px] mt-1">founder and CEO, Clients on Demand</div>
+    <div class="signature text-[88px] mt-4 -ml-6">Russ Ruffino</div>
+  </div>
+
+  <!-- FTC footer -->
+  <div class="absolute left-[80px] right-[80px] bottom-[40px] text-center font-body text-white/60 text-[12px] leading-[20px]">
+    © Clients on Demand® · <a href="https://www.clientsondemand.com" class="underline">clientsondemand.com</a> ·
+    <a href="https://www.clientsondemand.com/earnings-disclaimer" class="underline">Earnings Disclaimer</a> ·
+    <a href="https://www.clientsondemand.com/privacy-policy" class="underline">Privacy Policy</a> ·
+    <a href="https://www.clientsondemand.com/terms" class="underline">Terms</a>
+    <br/>
+    Results vary. We make no income guarantees. See our Earnings Disclaimer for details.
+  </div>
+</section>
+</div>
+
+</main>
+
+</body>
+</html>

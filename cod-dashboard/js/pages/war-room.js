@@ -134,6 +134,25 @@ async function renderWarRoom(container) {
   var deltaSign = revDelta >= 0 ? '+' : '';
   var deltaStr = revDelta != null ? (deltaSign + revDelta.toFixed(1) + '%') : '--';
 
+  // Hero z-score badge: today's revenue vs trailing 30 days. We compute
+  // against the per-day series so the badge captures intra-day anomalies,
+  // not period vs prior-period.
+  var heroDailySeries = dailyRevenueData.slice(-30).map(function (r) { return Number(r.total_revenue || 0); });
+  var heroZ = Components.computeZScore ? Components.computeZScore(heroDailySeries) : null;
+  var heroZBadgeHTML = '';
+  if (heroZ != null && Math.abs(heroZ) >= 1.5) {
+    var heroSeverity = Math.abs(heroZ) >= 2.5 ? 'severe' : 'mild';
+    var heroFavorable = heroZ > 0; // hero is revenue, so positive is good
+    var heroBg = heroFavorable
+      ? (heroSeverity === 'severe' ? 'rgba(34,197,94,0.18)' : 'rgba(34,197,94,0.10)')
+      : (heroSeverity === 'severe' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.10)');
+    var heroFg = heroFavorable ? '#22c55e' : '#ef4444';
+    var heroBorder = heroFavorable ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)';
+    var heroSign = heroZ > 0 ? '+' : '';
+    var heroTip = "Today is " + Math.abs(heroZ).toFixed(1) + "σ " + (heroZ > 0 ? "above" : "below") + " the trailing 30-day mean";
+    heroZBadgeHTML = '<span title="' + heroTip + '" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:5px;background:' + heroBg + ';color:' + heroFg + ';border:1px solid ' + heroBorder + ';font-size:12px;font-weight:700;letter-spacing:0.04em;font-family:Manrope,sans-serif"><span style="font-size:13px;line-height:1">σ</span>' + heroSign + heroZ.toFixed(1) + '</span>';
+  }
+
   var sparkId = 'hero-spark-' + Date.now();
 
   heroCard.innerHTML = [
@@ -141,6 +160,7 @@ async function renderWarRoom(container) {
     '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">',
     '  <span style="font-size:36px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">' + Theme.formatValue(netRevenue, 'money') + '</span>',
     '  <span class="kpi-delta ' + deltaClass + '" style="font-size:16px">' + deltaArrow + ' ' + deltaStr + '</span>',
+    heroZBadgeHTML,
     '  <canvas id="' + sparkId + '" width="120" height="32" style="width:120px;height:32px"></canvas>',
     '</div>',
     '<div style="display:flex;gap:24px;margin-top:16px;flex-wrap:wrap">',
@@ -329,6 +349,14 @@ async function renderWarRoom(container) {
   var spendSpark = []; // no daily spend in dailyRevenue query, leave empty
   var enrollSpark = dailyRevenueData.map(function (r) { return r.enrollment_revenue || 0; });
 
+  // Z-score arrays for anomaly badges. We can compute z for any metric where
+  // we have a daily series; without one we leave it null and the badge skips.
+  // Use the last 30 days of dailyRevenueData where available.
+  var revSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.total_revenue || 0); });
+  var enrollSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.enrollment_revenue || 0); });
+  var revZ = Components.computeZScore ? Components.computeZScore(revSeries30) : null;
+  var enrollZ = Components.computeZScore ? Components.computeZScore(enrollSeries30) : null;
+
   Components.renderKPIStrip(kpiContainer, [
     {
       label: 'Ad Spend',
@@ -367,6 +395,8 @@ async function renderWarRoom(container) {
       format: 'num',
       delta: _delta(cur.enrollments, prev.enrollments),
       sparkData: enrollSpark,
+      zScore: enrollZ,
+      zWindow: 30,
       source: 'v_stripe_clean',
       calc: 'COUNT(DISTINCT email) WHERE amount > 500',
     },

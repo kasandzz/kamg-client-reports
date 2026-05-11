@@ -6,10 +6,30 @@ const Components = (() => {
   let _drillDownOpen = false;
 
   /**
+   * Compute the z-score of the last value of a numeric series vs the prior
+   * window. Returns null if the series has < 5 points or zero variance.
+   * Used by KPI cards to flag anomalous days.
+   */
+  function computeZScore(series) {
+    if (!Array.isArray(series) || series.length < 5) return null;
+    const last = Number(series[series.length - 1]);
+    if (!Number.isFinite(last)) return null;
+    const prior = series.slice(0, -1).map(Number).filter(Number.isFinite);
+    if (prior.length < 4) return null;
+    const mean = prior.reduce((a, b) => a + b, 0) / prior.length;
+    const variance = prior.reduce((s, v) => s + (v - mean) * (v - mean), 0) / prior.length;
+    const sd = Math.sqrt(variance);
+    if (sd === 0) return null;
+    return (last - mean) / sd;
+  }
+
+  /**
    * Render a strip of KPI cards into a container.
    * @param {string|HTMLElement} container - selector or element
    * @param {Array} kpis - array of KPI objects:
-   *   { label, value, format ('money'|'pct'|'num'), delta, invertCost, sparkData, drillDown }
+   *   { label, value, format ('money'|'pct'|'num'), delta, invertCost, sparkData, drillDown, zScore, invertCost }
+   *   - zScore: number. If |z| >= 1.5 a small sigma badge renders. Sign + invertCost
+   *     determine whether the badge reads as good (green) or bad (red).
    */
   function renderKPIStrip(container, kpis) {
     const el = typeof container === 'string' ? document.querySelector(container) : container;
@@ -68,6 +88,26 @@ const Components = (() => {
       const dotGlow = statusColor === Theme.COLORS.success ? '0 0 6px rgba(34,197,94,0.5)' : statusColor === Theme.COLORS.danger ? '0 0 6px rgba(239,68,68,0.5)' : 'none';
       const dotHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
 
+      // Z-score anomaly badge (only renders when |z| >= 1.5)
+      let zBadgeHTML = '';
+      if (kpi.zScore != null && Number.isFinite(kpi.zScore) && Math.abs(kpi.zScore) >= 1.5) {
+        const z = kpi.zScore;
+        const isHigh = z > 0;
+        // Default semantics: high z = good (more revenue/enrollments).
+        // For invertCost metrics (spend, CPB, cost/enroll), high z = bad.
+        const isFavorable = kpi.invertCost ? !isHigh : isHigh;
+        const severity = Math.abs(z) >= 2.5 ? 'severe' : 'mild';
+        const bg = isFavorable
+          ? (severity === 'severe' ? 'rgba(34,197,94,0.18)' : 'rgba(34,197,94,0.10)')
+          : (severity === 'severe' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.10)');
+        const fg = isFavorable ? '#22c55e' : '#ef4444';
+        const border = isFavorable ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)';
+        const sign = z > 0 ? '+' : '';
+        const tip = `Today is ${Math.abs(z).toFixed(1)}σ ${isHigh ? 'above' : 'below'} the recent ${Math.max(5, (kpi.zWindow || 30))}-day mean`
+          + (isFavorable ? ' (favorable)' : ' (unfavorable)');
+        zBadgeHTML = `<span class="kpi-z-badge" title="${_esc(tip)}" style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;background:${bg};color:${fg};border:1px solid ${border};font-size:10px;font-weight:700;letter-spacing:0.04em;font-family:Manrope,sans-serif;margin-left:6px"><span style="font-size:11px;line-height:1">σ</span>${sign}${z.toFixed(1)}</span>`;
+      }
+
       // Sparkline canvas id
       const sparkId = `spark-${i}-${Date.now()}`;
 
@@ -89,6 +129,7 @@ const Components = (() => {
         <div class="kpi-value-row">
           <span class="kpi-value">${formattedValue}</span>
           ${deltaHTML}
+          ${zBadgeHTML}
         </div>
         ${prevHTML}
         ${kpi.sparkData ? `<div class="kpi-spark-container"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
@@ -730,5 +771,6 @@ const Components = (() => {
     renderStaleBanner,
     guardROAS,
     renderSankey,
+    computeZScore,
   };
 })();

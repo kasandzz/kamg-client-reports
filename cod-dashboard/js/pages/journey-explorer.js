@@ -384,6 +384,28 @@ App.registerPage('journey-explorer', async (container) => {
     const nodeIdx = Object.fromEntries(nodes.map((n, i) => [n, i]));
     const nodeColors = nodes.map(n => _nodeColors[n] || _platformColors[n] || '#6366f1');
 
+    // Precompute total outflow per source node so each link can show its
+    // conversion-rate % vs the source. Also precompute total inflow per
+    // target node for the node-level hover.
+    const outflowBySource = {};
+    const inflowByTarget = {};
+    sankeyRows.forEach(r => {
+      const v = Number(r.value) || 0;
+      outflowBySource[r.from_node] = (outflowBySource[r.from_node] || 0) + v;
+      inflowByTarget[r.to_node]   = (inflowByTarget[r.to_node]   || 0) + v;
+    });
+
+    // Per-link customdata = [conversion_pct, source_label, target_label, source_total, target_total]
+    const linkCustomData = sankeyRows.map(r => {
+      const v = Number(r.value) || 0;
+      const sourceTotal = outflowBySource[r.from_node] || 0;
+      const pct = sourceTotal > 0 ? (v / sourceTotal) * 100 : 0;
+      return [pct, r.from_node, r.to_node, sourceTotal, inflowByTarget[r.to_node] || 0];
+    });
+
+    // Per-node customdata = [inflow_total, outflow_total]
+    const nodeCustomData = nodes.map(n => [inflowByTarget[n] || 0, outflowBySource[n] || 0]);
+
     Plotly.newPlot(
       sankeyDivId,
       [{
@@ -395,6 +417,12 @@ App.registerPage('journey-explorer', async (container) => {
           line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
           label: nodes,
           color: nodeColors,
+          customdata: nodeCustomData,
+          hovertemplate:
+            '<b>%{label}</b><br>' +
+            'In: %{customdata[0]:,}<br>' +
+            'Out: %{customdata[1]:,}' +
+            '<extra></extra>',
         },
         link: {
           source: sankeyRows.map(r => nodeIdx[r.from_node]),
@@ -406,6 +434,13 @@ App.registerPage('journey-explorer', async (container) => {
             : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
             : 'rgba(99,102,241,0.18)'
           ),
+          customdata: linkCustomData,
+          hovertemplate:
+            '<b>%{customdata[1]} &rarr; %{customdata[2]}</b><br>' +
+            'Volume: %{value:,}<br>' +
+            'Conversion: %{customdata[0]:.1f}%<br>' +
+            '<span style="opacity:.7">of %{customdata[3]:,} from source</span>' +
+            '<extra></extra>',
         },
       }],
       {
@@ -516,9 +551,10 @@ App.registerPage('journey-explorer', async (container) => {
       const cvr = Number(r.overall_cvr_pct) || 0;
       const cvrColor = cvr >= 5 ? Theme.COLORS.success : cvr >= 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
       const week = (r.cohort_week && (r.cohort_week.value || r.cohort_week)) || '';
+      const weekIso = String(week).slice(0, 10);
       html += `
-        <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
-          <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500">${_esc(String(week).slice(0,10))}</td>
+        <tr class="cohort-drill-row" data-week="${_esc(weekIso)}" data-size="${Number(r.cohort_size) || 0}" data-cvr="${cvr.toFixed(2)}" style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s" title="Click to drill into this cohort's individuals">
+          <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500"><span style="display:inline-flex;align-items:center;gap:6px">${_esc(weekIso)}<span style="font-size:9px;color:${Theme.COLORS.textMuted};opacity:0.6">&rarr;</span></span></td>
           <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.cohort_size) || 0)}</td>
           <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.tickets) || 0)}</td>
           <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.booked) || 0)}</td>
@@ -531,6 +567,20 @@ App.registerPage('journey-explorer', async (container) => {
     });
     html += '</tbody></table>';
     cohortCard.innerHTML += html;
+
+    // Wire cohort row click handlers (drill-in to individual journey list).
+    // The row uses the same Components.openDrillDown panel as KPI drill-downs.
+    setTimeout(() => {
+      const drillRows = cohortCard.querySelectorAll('.cohort-drill-row');
+      drillRows.forEach(row => {
+        row.addEventListener('mouseenter', () => { row.style.background = 'rgba(99,102,241,0.08)'; });
+        row.addEventListener('mouseleave', () => {
+          const idx = Array.from(drillRows).indexOf(row);
+          row.style.background = idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+        });
+        row.addEventListener('click', () => _openCohortDrill(row.dataset.week, Number(row.dataset.size), Number(row.dataset.cvr)));
+      });
+    }, 0);
   }
 
   // ===================================================================
@@ -655,6 +705,66 @@ App.registerPage('journey-explorer', async (container) => {
     if (btn) btn.addEventListener('click', _runLookup);
     if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') _runLookup(); });
   }, 0);
+
+  // Cohort drill-in: open the side panel and render a per-individual journey
+  // table for the clicked cohort week. Uses the same Components.openDrillDown
+  // panel that KPI cards use, so the UX is consistent.
+  async function _openCohortDrill(week, size, cvr) {
+    const title = `Cohort ${week} -- ${Theme.num(size)} contacts -- ${cvr}% CVR`;
+    Components.openDrillDown(title, async () => {
+      let rows;
+      try {
+        rows = await API.query('journey-explorer', 'cohortDrillIn', { week });
+      } catch (err) {
+        return `<div class="text-muted" style="padding:24px;text-align:center">Error loading cohort: ${_esc(err.message || String(err))}</div>`;
+      }
+      if (!rows || rows.length === 0) {
+        return '<div class="text-muted" style="padding:24px;text-align:center">No individuals found for this cohort.</div>';
+      }
+      const truncated = rows.length === 200 ? '<div style="font-size:11px;color:#eab308;padding:8px 12px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.2);border-radius:6px;margin-bottom:12px">Showing first 200 contacts (cohort may be larger). Sorted by enrolled, then total cash, then first-touch date.</div>' : '';
+      let html = truncated + `
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)">
+                <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Email</th>
+                <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Source</th>
+                <th style="text-align:left;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">First Touch</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Lead</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Ticket</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Att.</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Booked</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Showed</th>
+                <th style="text-align:center;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Enr.</th>
+                <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Cash</th>
+                <th style="text-align:right;padding:8px 10px;color:${Theme.COLORS.textMuted};font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:10px">Days</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      rows.forEach((r, i) => {
+        const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
+        const enrolled = r.enrolled === true || r.enrolled === 'true';
+        html += `
+          <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
+            <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500;font-family:JetBrains Mono,monospace;font-size:11px">${_esc(r.email || '')}</td>
+            <td style="padding:8px 10px;color:${Theme.COLORS.textSecondary};font-size:11px">${_esc(r.first_touch_platform || '–')}</td>
+            <td style="padding:8px 10px;color:${Theme.COLORS.textMuted};font-size:11px">${_fmtTs(r.first_touch_date)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${r.lead_created ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.lead_created)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${r.ticket_purchased ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.ticket_purchased)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${r.workshop_attended ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.workshop_attended)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${r.call_booked ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.call_booked)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${r.call_showed ? '#22c55e' : Theme.COLORS.textMuted}">${_yn(r.call_showed)}</td>
+            <td style="padding:8px 10px;text-align:center;color:${enrolled ? '#eab308' : Theme.COLORS.textMuted};font-weight:${enrolled ? '700' : '400'}">${enrolled ? '★' : '–'}</td>
+            <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-variant-numeric:tabular-nums">${Theme.money(Number(r.total_cash) || 0)}</td>
+            <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${r.days_lead_to_sale != null ? r.days_lead_to_sale : '–'}</td>
+          </tr>
+        `;
+      });
+      html += '</tbody></table></div>';
+      return html;
+    });
+  }
 
   // ---- Data gap callout ----
   const gapCard = document.createElement('div');

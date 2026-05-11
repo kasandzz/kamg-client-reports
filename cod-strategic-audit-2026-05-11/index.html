@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COD Strategic Audit &mdash; 2026-05-11 &mdash; Path to 3x ROAS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #020617; --bg-surface: #0a1628; --bg-card: #0f1e35; --bg-card-hover: #132240;
+      --border: #1e3a5f; --border-subtle: #132240;
+      --sky: #38bdf8; --sky-dim: rgba(56,189,248,0.12); --sky-border: rgba(56,189,248,0.25);
+      --gold: #facc15; --gold-dim: rgba(250,204,21,0.1); --gold-border: rgba(250,204,21,0.25);
+      --green: #22c55e; --green-dim: rgba(34,197,94,0.1); --green-border: rgba(34,197,94,0.25);
+      --red: #ef4444; --red-dim: rgba(239,68,68,0.1); --red-border: rgba(239,68,68,0.25);
+      --purple: #a78bfa; --purple-dim: rgba(167,139,250,0.12);
+      --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #475569;
+      --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text-primary); font-family: var(--font); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    .page-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; }
+
+    /* HEADER */
+    .report-header { padding: 48px 0 36px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 32px; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .header-title-group h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; }
+    .header-title-group .subtitle { margin-top: 8px; font-size: 16px; color: var(--text-secondary); max-width: 760px; }
+    .header-title-group .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--sky); font-family: var(--mono); margin-bottom: 12px; }
+    .header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .source-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--sky-dim); border: 1px solid var(--sky-border); color: var(--sky); font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; }
+    .date-badge { font-size: 12px; color: var(--text-muted); }
+
+    /* HONESTY BANNER */
+    .honesty-banner { background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.55; }
+    .honesty-banner .icon { color: var(--gold); font-weight: 700; font-size: 16px; line-height: 1; padding-top: 2px; }
+    .honesty-banner strong { color: var(--gold); }
+
+    /* KPI STRIP */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+    .kpi-cell { background: var(--bg-card); padding: 20px 22px; display: flex; flex-direction: column; gap: 4px; }
+    .kpi-cell:hover { background: var(--bg-card-hover); }
+    .kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); }
+    .kpi-value { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; font-family: var(--mono); margin-top: 4px; }
+    .kpi-value.sky { color: var(--sky); } .kpi-value.gold { color: var(--gold); } .kpi-value.green { color: var(--green); } .kpi-value.red { color: var(--red); }
+    .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.45; }
+    .kpi-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; font-family: var(--mono); padding: 2px 7px; border-radius: 4px; margin-top: 6px; width: fit-content; }
+    .kpi-trend.up-good { background: var(--green-dim); color: var(--green); }
+    .kpi-trend.down-bad { background: var(--red-dim); color: var(--red); }
+    .kpi-trend.flat { background: var(--bg-surface); color: var(--text-muted); }
+
+    /* SECTIONS */
+    .section { margin-bottom: 56px; }
+    .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); }
+    .section-num { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sky); font-family: var(--mono); }
+    .section-title { font-size: 19px; font-weight: 600; letter-spacing: -0.2px; }
+    .section-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; max-width: 880px; line-height: 1.65; }
+
+    /* THE MATH BLOCK */
+    .math-block { background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-surface) 100%); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 22px; }
+    .math-row { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 20px; margin-bottom: 16px; }
+    .math-cell { padding: 14px 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; }
+    .math-cell-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+    .math-cell-value { font-size: 22px; font-weight: 700; font-family: var(--mono); color: var(--text-primary); }
+    .math-cell.target { border-color: var(--gold-border); background: var(--gold-dim); }
+    .math-cell.target .math-cell-value { color: var(--gold); }
+    .math-cell.current { border-color: var(--sky-border); background: var(--sky-dim); }
+    .math-cell.current .math-cell-value { color: var(--sky); }
+    .math-cell.gap { border-color: var(--red-border); background: var(--red-dim); }
+    .math-cell.gap .math-cell-value { color: var(--red); }
+    .math-arrow { font-size: 24px; color: var(--text-muted); font-family: var(--mono); text-align: center; }
+    .math-note { font-size: 12px; color: var(--text-secondary); padding: 12px 0 0 0; border-top: 1px dashed var(--border-subtle); margin-top: 12px; line-height: 1.6; }
+    .math-note strong { color: var(--text-primary); }
+
+    /* TABLES */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-subtle); margin-bottom: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: var(--bg-surface); }
+    thead th { padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; border-bottom: 1px solid var(--border-subtle); }
+    thead th.num { text-align: right; }
+    tbody tr { border-bottom: 1px solid var(--border-subtle); transition: background 0.15s ease; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(56,189,248,0.04); }
+    tbody td { padding: 11px 14px; color: var(--text-secondary); font-variant-numeric: tabular-nums; vertical-align: top; }
+    tbody td.num { text-align: right; font-family: var(--mono); font-size: 13px; }
+    tbody td.bold { color: var(--text-primary); font-weight: 600; }
+    tbody td.green { color: var(--green); font-weight: 600; }
+    tbody td.sky { color: var(--sky); font-weight: 600; }
+    tbody td.gold { color: var(--gold); font-weight: 600; }
+    tbody td.red { color: var(--red); font-weight: 600; }
+    tbody td.muted { color: var(--text-muted); }
+    tbody td.tiny { font-size: 11.5px; line-height: 1.45; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--mono); }
+    .badge.s { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
+    .badge.m { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+    .badge.l { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+    .badge.p0 { background: var(--red); color: white; }
+    .badge.p1 { background: var(--gold); color: #1a1500; }
+    .badge.p2 { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .status-dot.live { background: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+    .status-dot.progress { background: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+    .status-dot.blocked { background: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+    .status-dot.planned { background: var(--text-muted); }
+
+    /* LEAK BARS */
+    .leak-list { display: flex; flex-direction: column; gap: 12px; }
+    .leak-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px 20px; display: grid; grid-template-columns: 32px 1fr auto; gap: 16px; align-items: center; transition: border-color 0.2s, background 0.2s; }
+    .leak-card:hover { border-color: var(--border); background: var(--bg-card-hover); }
+    .leak-rank { font-size: 22px; font-weight: 700; font-family: var(--mono); color: var(--sky); }
+    .leak-body h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .leak-body p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+    .leak-body p .hl { color: var(--text-primary); font-weight: 600; }
+    .leak-impact { font-family: var(--mono); font-size: 17px; font-weight: 700; color: var(--green); text-align: right; white-space: nowrap; }
+    .leak-impact-label { font-size: 9px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); display: block; margin-top: 2px; }
+
+    /* 2-COL LAYOUT */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .col-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px 20px; }
+    .col-card h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
+    .col-card.scale h3 { color: var(--green); }
+    .col-card.kill h3 { color: var(--red); }
+    .col-card ul { list-style: none; }
+    .col-card li { font-size: 13px; color: var(--text-secondary); padding: 7px 0; border-bottom: 1px solid var(--border-subtle); line-height: 1.5; }
+    .col-card li:last-child { border-bottom: none; }
+    .col-card li strong { color: var(--text-primary); font-weight: 600; }
+    .col-card li .meta { font-family: var(--mono); font-size: 11.5px; color: var(--text-muted); }
+
+    /* OPPORTUNITY CARDS */
+    .opp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .opp-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px; transition: border-color 0.2s, transform 0.2s; }
+    .opp-card:hover { border-color: var(--sky-border); transform: translateY(-2px); }
+    .opp-card .opp-cat { font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--sky); font-family: var(--mono); margin-bottom: 6px; }
+    .opp-card.cat-cac .opp-cat { color: var(--green); }
+    .opp-card.cat-conv .opp-cat { color: var(--sky); }
+    .opp-card.cat-ltv .opp-cat { color: var(--gold); }
+    .opp-card.cat-sales .opp-cat { color: var(--purple); }
+    .opp-card.cat-brand .opp-cat { color: var(--red); }
+    .opp-card.cat-data .opp-cat { color: var(--text-muted); }
+    .opp-card h5 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; line-height: 1.35; }
+    .opp-card p { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+    .opp-card .opp-foot { display: flex; gap: 6px; align-items: center; font-size: 10px; }
+
+    /* REFRAME BLOCKS */
+    .reframe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .reframe-card { background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-surface) 100%); border: 1px solid var(--purple-dim); border-radius: 10px; padding: 18px 22px; border-left: 3px solid var(--purple); }
+    .reframe-card h4 { font-size: 14px; font-weight: 700; color: var(--purple); margin-bottom: 8px; letter-spacing: -0.2px; }
+    .reframe-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .reframe-card p strong { color: var(--text-primary); font-weight: 600; }
+
+    /* CALLOUT */
+    .callout { padding: 14px 18px; border-radius: 8px; font-size: 13px; margin: 14px 0; line-height: 1.6; border-left: 3px solid; }
+    .callout.warn { background: var(--red-dim); border-color: var(--red); color: var(--text-secondary); }
+    .callout.warn strong { color: var(--red); }
+    .callout.note { background: var(--sky-dim); border-color: var(--sky); color: var(--text-secondary); }
+    .callout.note strong { color: var(--sky); }
+    .callout.success { background: var(--green-dim); border-color: var(--green); color: var(--text-secondary); }
+    .callout.success strong { color: var(--green); }
+
+    /* STOP LIST */
+    .stop-list { background: var(--red-dim); border: 1px solid var(--red-border); border-radius: 10px; padding: 18px 22px; }
+    .stop-list h4 { color: var(--red); font-size: 14px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 10px; }
+    .stop-list ul { list-style: none; padding-left: 0; }
+    .stop-list li { font-size: 13px; color: var(--text-secondary); padding: 6px 0 6px 24px; position: relative; line-height: 1.5; }
+    .stop-list li::before { content: '\2716'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+    .stop-list li strong { color: var(--text-primary); font-weight: 600; }
+
+    /* FOOTER */
+    .report-footer { border-top: 1px solid var(--border-subtle); padding-top: 28px; margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+    .footer-brand { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .footer-meta { font-size: 11px; color: var(--text-muted); line-height: 1.7; text-align: right; max-width: 560px; }
+    .footer-meta a { color: var(--sky); text-decoration: none; }
+    .footer-meta a:hover { text-decoration: underline; }
+
+    /* STICKY NAV */
+    .section-nav { position: sticky; top: 0; z-index: 10; background: rgba(2,6,23,0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); padding: 10px 0; margin-bottom: 32px; }
+    .section-nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .section-nav-inner::-webkit-scrollbar { display: none; }
+    .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 5px 11px; border-radius: 6px; white-space: nowrap; transition: color 0.15s, background 0.15s; }
+    .nav-link:hover { color: var(--sky); background: var(--sky-dim); }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .opp-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+      .reframe-grid { grid-template-columns: 1fr; }
+      .math-row { grid-template-columns: 1fr; }
+      .math-arrow { display: none; }
+    }
+    @media (max-width: 640px) {
+      .opp-grid { grid-template-columns: 1fr; }
+      .header-meta { align-items: flex-start; }
+      .header-top { flex-direction: column; }
+      .report-footer { flex-direction: column; }
+      .footer-meta { text-align: left; max-width: 100%; }
+      .leak-card { grid-template-columns: 1fr; gap: 8px; }
+      .leak-impact { text-align: left; }
+    }
+
+    ::-webkit-scrollbar { height: 4px; width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <nav class="section-nav">
+    <div class="section-nav-inner">
+      <a href="#math" class="nav-link">The Math</a>
+      <a href="#leaks" class="nav-link">Top 5 Leaks</a>
+      <a href="#ads" class="nav-link">Meta Ads</a>
+      <a href="#tests" class="nav-link">Tests (Next 14d)</a>
+      <a href="#workstreams" class="nav-link">In-Progress</a>
+      <a href="#opportunities" class="nav-link">15 New Ops</a>
+      <a href="#reframes" class="nav-link">Reframes</a>
+      <a href="#thisweek" class="nav-link">This Week</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <header class="report-header reveal">
+      <div class="header-top">
+        <div class="header-title-group">
+          <div class="eyebrow">Fractional CMO &middot; Strategic Audit</div>
+          <h1>COD Path to 3x ROAS</h1>
+          <p class="subtitle">Every inch of the system: ads, funnel, sales, data, lifecycle. Quantified leaks, ranked tests, in-progress status, and the strategic reframe Russ needs to hear.</p>
+        </div>
+        <div class="header-meta">
+          <div class="source-badge">BQ Live &middot; Meta API &middot; Stripe &middot; Hyros &middot; GHL</div>
+          <div class="date-badge">May 11, 2026 &middot; Morning Brief</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="honesty-banner reveal">
+      <span class="icon">!</span>
+      <span><strong>Data confidence note.</strong> Stripe + Meta + Hyros are live as of today. <strong>Hyros tables are still not in BigQuery</strong> &mdash; every "ROAS" number below carries an 8-15x uncertainty band on enrollment attribution until Phase-10 bridges land. <code>fact_bookings.email</code> is 100% NULL, blocking clean ticket-to-call joins. UTMs roll up ~100% to <code>direct_or_unknown</code>. Only the <strong>blended</strong> CAC ($7,960) is trustworthy by-source &mdash; not the per-channel splits. Read every "ROAS" below as a directional signal, not a settled number.</span>
+    </div>
+
+    <div class="kpi-strip reveal">
+      <div class="kpi-cell">
+        <div class="kpi-label">Blended ROAS (30d)</div>
+        <div class="kpi-value sky">1.63x</div>
+        <div class="kpi-sub">Cash basis &middot; 2.14x contract</div>
+        <div class="kpi-trend down-bad">vs 3x target</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Meta CPA (last 14d)</div>
+        <div class="kpi-value green">$36</div>
+        <div class="kpi-sub">Front-end ticket basis</div>
+        <div class="kpi-trend up-good">-61% vs prior 14d</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">Close Rate on Shows</div>
+        <div class="kpi-value red">28.6%</div>
+        <div class="kpi-sub">28 / 98 shown calls &middot; 30d</div>
+        <div class="kpi-trend down-bad">vs 40% benchmark</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-label">$ Recoverable / 30d</div>
+        <div class="kpi-value gold">$208K</div>
+        <div class="kpi-sub">Sum of top 3 funnel leaks</div>
+        <div class="kpi-trend flat">At current spend</div>
+      </div>
+    </div>
+
+    <div class="callout success reveal">
+      <strong>Headline win:</strong> The Apr 20 $6,426 CAC catastrophe is dead. Niche pivot + JIT Italy delivered <strong>-61% CPA in 14 days on flat spend</strong> ($107K &rarr; $101K). The bleed is no longer at the top of the funnel &mdash; it has moved <strong>downstream</strong>, into close rate, show rate, and LTV expansion. That is a much cheaper problem to solve.
+    </div>
+
+    <!-- SECTION 1: THE 3X MATH -->
+    <section id="math" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">01</div>
+        <h2 class="section-title">The 3x ROAS Math &mdash; Where the Gap Really Lives</h2>
+      </div>
+      <p class="section-desc">3x blended ROAS at $15K AOV is not a CAC problem. Even halving acquisition cost doesn't get there alone. The gap is a three-input equation: close rate, show rate, and LTV. Solve the math through coaching + lifecycle, not just media.</p>
+
+      <div class="math-block">
+        <div class="math-row">
+          <div class="math-cell current">
+            <div class="math-cell-label">Current State (30d)</div>
+            <div class="math-cell-value">$363K cash</div>
+          </div>
+          <div class="math-arrow">/</div>
+          <div class="math-cell">
+            <div class="math-cell-label">Spend</div>
+            <div class="math-cell-value">$222K</div>
+          </div>
+          <div class="math-arrow">=</div>
+          <div class="math-cell current">
+            <div class="math-cell-label">ROAS Today</div>
+            <div class="math-cell-value">1.63x</div>
+          </div>
+        </div>
+        <div class="math-row">
+          <div class="math-cell target">
+            <div class="math-cell-label">3x Target Needs</div>
+            <div class="math-cell-value">$668K cash</div>
+          </div>
+          <div class="math-arrow">on same</div>
+          <div class="math-cell">
+            <div class="math-cell-label">Spend</div>
+            <div class="math-cell-value">$222K</div>
+          </div>
+          <div class="math-arrow">=</div>
+          <div class="math-cell target">
+            <div class="math-cell-label">3x ROAS</div>
+            <div class="math-cell-value">3.00x</div>
+          </div>
+        </div>
+        <div class="math-row">
+          <div class="math-cell gap">
+            <div class="math-cell-label">Gap to Close</div>
+            <div class="math-cell-value">+$305K / 30d</div>
+          </div>
+          <div class="math-arrow">via</div>
+          <div class="math-cell" style="border-color: var(--green-border); background: var(--green-dim);">
+            <div class="math-cell-label" style="color: var(--green);">3 Levers</div>
+            <div class="math-cell-value" style="color: var(--green); font-size: 16px;">Close + Show + LTV</div>
+          </div>
+          <div class="math-arrow">unlocks</div>
+          <div class="math-cell target">
+            <div class="math-cell-label">Realistic Pace</div>
+            <div class="math-cell-value">60-90 days</div>
+          </div>
+        </div>
+        <div class="math-note">
+          <strong>Decomposition:</strong> Close-rate fix to 40% = <strong>+$143K</strong>. Monday cancel-rate fix = <strong>+$39K</strong>. Tue-Thu show-rate to 70% = <strong>+$26K</strong>. Sales-team coaching (5pp uplift &times; 3 reps per Russ' own SOP) = <strong>+$420K/mo</strong> capacity. <strong>LTV expansion</strong> (LP attach 25% + MA attach 10% to lift blended AOV from $15K to $22K) closes the rest at zero added CAC. The three levers stack to overshoot 3x &mdash; we don't need all of them, we need the cheapest two.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: TOP 5 LEAKS -->
+    <section id="leaks" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">02</div>
+        <h2 class="section-title">Top 5 Funnel Leaks Ranked by $ Recoverable</h2>
+      </div>
+      <p class="section-desc">Quantified from BigQuery 30-day window (Apr 11 &ndash; May 11). Money already spent acquiring these humans; conversion is the cheapest math in the building.</p>
+
+      <div class="leak-list">
+        <div class="leak-card">
+          <div class="leak-rank">1</div>
+          <div class="leak-body">
+            <h4>Close rate 28.6% vs 40% benchmark</h4>
+            <p>28 closes / 98 shown calls (30d). Two closer GHL user IDs (<span class="hl">arlY3hbKHE2SvdQfJ8H5</span>, <span class="hl">ZjzzwaUReBcV5caNXCvx</span>) took <span class="hl">82 calls and closed 0</span> &mdash; rookie reps, mis-assigned shows, or enrichment failure. Audit before assuming the script is broken.</p>
+          </div>
+          <div>
+            <div class="leak-impact">+$143K</div>
+            <span class="leak-impact-label">Cash / 30d</span>
+          </div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-rank">2</div>
+          <div class="leak-body">
+            <h4>Sales-team coaching gap (Russ' own SOP)</h4>
+            <p>Russ' manual: 10% floor, 15% target. Gap = $35K/rep/mo per point. Three reps &times; 4 points = <span class="hl">capacity unlock at zero media spend</span>. Highest-leverage lever in the business. Cheapest media buy you'll ever do.</p>
+          </div>
+          <div>
+            <div class="leak-impact">+$420K</div>
+            <span class="leak-impact-label">Capacity / 30d</span>
+          </div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-rank">3</div>
+          <div class="leak-body">
+            <h4>Monday cancellation rate 40%</h4>
+            <p>21 / 52 Monday bookings cancel &mdash; Sat/Sun impulse books, Monday reality hits. Cutting in half = 10 recovered shows = ~3 enrollments. Friday show rate is actually fine (67%) &mdash; <span class="hl">Monday is the catastrophe</span>, not Friday.</p>
+          </div>
+          <div>
+            <div class="leak-impact">+$39K</div>
+            <span class="leak-impact-label">Cash / 30d</span>
+          </div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-rank">4</div>
+          <div class="leak-body">
+            <h4>LTV expansion via Lions Pride attach</h4>
+            <p>Blended LTV ~$15K. No defined LP upsell trigger. 25% LP attach at $5K = blended LTV to $16.25K (+8%). Add 10% MA attach at $40K = blended to ~$22K. <span class="hl">Lets us hit 3x at current CAC</span> without a single new ad.</p>
+          </div>
+          <div>
+            <div class="leak-impact">$5-7K</div>
+            <span class="leak-impact-label">LTV / enrollee</span>
+          </div>
+        </div>
+        <div class="leak-card">
+          <div class="leak-rank">5</div>
+          <div class="leak-body">
+            <h4>Tue-Thu show rate 61% vs 70% target</h4>
+            <p>Cohort is qualified; the friction is reminder cadence. SMS-primary (90% mobile traffic) at T-24h, T-2h, T-15min beats email show by 15-30 pts industry standard. Adds ~6 shows = ~2 enrollments / 30d.</p>
+          </div>
+          <div>
+            <div class="leak-impact">+$26K</div>
+            <span class="leak-impact-label">Cash / 30d</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>Critical data caveat:</strong> Close-rate measurement is reliable. Show-rate measurement is reliable. <strong>Per-source CAC is NOT</strong> &mdash; UTMs broken, Hyros undercounts (18/28 enrollments). Only the blended $7,960 CAC is trustworthy. The infra fix (Phase-10 bridges + GHL auth + PostHog backfill) is the prerequisite for source-level decisions and is the <strong>#1 engineering unblock</strong> this week. Owner: Leo.
+      </div>
+    </section>
+
+    <!-- SECTION 3: META ADS -->
+    <section id="ads" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">03</div>
+        <h2 class="section-title">Meta Ads &mdash; Scale Map + Kill List</h2>
+      </div>
+      <p class="section-desc">Front-end CPA recovered hard. Now we surgically scale winners and shut bleeders. Three urgent calls before any team comms on ROAS numbers.</p>
+
+      <div class="callout warn">
+        <strong>TODAY action:</strong> Audit the JIT Italy "No content grind" campaign attribution &mdash; $7,989 spend, <strong>1,274 "conversions" at $6 CPA but ROAS reports 0.01</strong>. These are very likely <strong>lead-form events, not workshop tickets</strong>. Could swing topline numbers &plusmn;30% in either direction. Pull <code>hyros_sales</code> &times; <code>meta_ad_performance</code> join + check event_name in Meta Events Manager before quoting CPA externally. Owner: Pedro + Kas.
+      </div>
+
+      <div class="two-col">
+        <div class="col-card scale">
+          <h3>Scale Candidates (20% bump + 7d hold)</h3>
+          <ul>
+            <li><strong>Interest Stack Main AU/CA/UK Coaches</strong> &mdash; <span class="meta">$53 CPA, 354 conv, freq 1.05</span>. Bump $18.6K &rarr; $22.3K weekly.</li>
+            <li><strong>Attorney Meme Ad 4</strong> &mdash; <span class="meta">CTR +101% w-o-w to 17.06%</span>. Just hit inflection. Duplicate to its own CBO, $300/day.</li>
+            <li><strong>Therapists 3564 Meme Ads adset</strong> &mdash; <span class="meta">$68 CPA, $13.9K spend, freq 1.02</span>. Bump 20%.</li>
+            <li><strong>Meme Ad 2 Copy 2</strong> &mdash; <span class="meta">$61 CPA, 128 conv, freq 0.93</span>. Room to push.</li>
+            <li><strong>New Meme Ad 1b</strong> &mdash; <span class="meta">$54 CPA, 168 conv, 6.27% CTR</span>. Strongest meme at scale.</li>
+            <li><strong>COD #2 reactivation</strong> &mdash; zero spend on act_974384766072788. Duplicate top-3 winners; diversify learning, sandbox foul-play risk on #5.</li>
+          </ul>
+        </div>
+        <div class="col-card kill">
+          <h3>Kill or Fix List</h3>
+          <ul>
+            <li><strong>MA Funnel Application</strong> &mdash; <span class="meta">$656 CPA, $6,564 burned in 14d</span>. Pause + re-architect.</li>
+            <li><strong>MA LLA Stack &mdash; Schedule</strong> &mdash; <span class="meta">$1,789 spend, 0 conv</span>. Kill today.</li>
+            <li><strong>Interest Stack FB MA Videos 500K NW 700+ FICO</strong> &mdash; <span class="meta">$1,883 spend, 0 conv</span>. Kill today.</li>
+            <li><strong>Attorney Lawyer new image v3 - Copy 3</strong> &mdash; <span class="meta">$107 CPA, freq 1.21</span>. Replace creative.</li>
+            <li><strong>WS Paid Today Coaches Russ Image 1 - Copy</strong> &mdash; <span class="meta">freq 1.49</span>. Reduce 30% &mdash; approaching saturation.</li>
+            <li><strong>TOF Authority Reels</strong> &mdash; <span class="meta">$615 / 0 conv / 0.35% CTR</span>. Redesign or shut.</li>
+            <li><strong>Russ Therapists Talking Head Ad 1 + Video 1</strong> &mdash; rotate out; meme variants outperform.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: TOP 10 TESTS -->
+    <section id="tests" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">04</div>
+        <h2 class="section-title">Top 10 Tests for Next 14 Days (Ranked by Expected Lift)</h2>
+      </div>
+      <p class="section-desc">Synthesized from Meta intel + funnel leaks + new opportunities. Ranked by expected ROAS impact &times; speed-to-result.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 32px;">#</th>
+              <th>Test</th>
+              <th>Hypothesis &amp; Ship</th>
+              <th class="num">Expected Lift</th>
+              <th>Effort</th>
+              <th>Owner</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="bold">1</td>
+              <td class="bold">JIT Italy attribution audit</td>
+              <td class="tiny">"Conversions" are pixel-fired leads, not tickets. Join hyros_sales &times; meta_ad_performance on JIT ad_ids. <strong>Today.</strong></td>
+              <td class="num red">&plusmn;30% topline</td>
+              <td><span class="badge s">S</span></td>
+              <td>Pedro + Kas</td>
+            </tr>
+            <tr>
+              <td class="bold">2</td>
+              <td class="bold">Closer audit (2 zero-close GHL IDs)</td>
+              <td class="tiny">82 calls / 0 closes on two unmapped IDs. Either rookie reps, mis-assigned, or enrichment fail. Fix routing or fix reps.</td>
+              <td class="num green">+$143K/30d</td>
+              <td><span class="badge s">S</span></td>
+              <td>Kas + Russ</td>
+            </tr>
+            <tr>
+              <td class="bold">3</td>
+              <td class="bold">Booked-no-show resurrection sequence</td>
+              <td class="tiny">7-touch: SMS Day 0/1/3, email Day 2/7, Loom from EC Day 4, retargeting Day 5-14. 40% no-show pool already CAC-paid.</td>
+              <td class="num green">+13% closes</td>
+              <td><span class="badge m">M</span></td>
+              <td>Akari + EC ops</td>
+            </tr>
+            <tr>
+              <td class="bold">4</td>
+              <td class="bold">EC daily doctor-frame drill (15 min)</td>
+              <td class="tiny">Russ' SOP: doctor-frame is the single biggest close lever. Zero structured drill today. Compounds in 30 days.</td>
+              <td class="num green">+$35K/rep/mo</td>
+              <td><span class="badge s">S</span></td>
+              <td>Jayne / sales lead</td>
+            </tr>
+            <tr>
+              <td class="bold">5</td>
+              <td class="bold">Monday cancellation Sunday-confirm SMS</td>
+              <td class="tiny">"Still on?" SMS Sun PM to all Monday-booked callers. Test moving Monday slots to Tue-Thu band.</td>
+              <td class="num green">+$39K/30d</td>
+              <td><span class="badge s">S</span></td>
+              <td>Akari + Rehan</td>
+            </tr>
+            <tr>
+              <td class="bold">6</td>
+              <td class="bold">Pre-workshop SMS hype (T-24/T-2/T-15)</td>
+              <td class="tiny">90% mobile traffic + low show rate = SMS. One-tap launch beats email by 15-30 pts. Twilio + GHL trigger.</td>
+              <td class="num green">+8-12% show</td>
+              <td><span class="badge s">S</span></td>
+              <td>Rehan</td>
+            </tr>
+            <tr>
+              <td class="bold">7</td>
+              <td class="bold">Attorney Meme Ad 4 isolated scale</td>
+              <td class="tiny">+101% CTR inflection. Duplicate to its own CBO, $300/day, 1 ad, $50/day floor.</td>
+              <td class="num sky">+15-25% attorney CPA</td>
+              <td><span class="badge s">S</span></td>
+              <td>Pedro</td>
+            </tr>
+            <tr>
+              <td class="bold">8</td>
+              <td class="bold">Niche-LP &rarr; niche-EC routing</td>
+              <td class="tiny">Therapist LP &rarr; therapist-trained EC. Niche LPs exist; routing doesn't. Calendly logic + EC brief per niche.</td>
+              <td class="num sky">+2-5pp close</td>
+              <td><span class="badge s">S</span></td>
+              <td>Akari + Jayne</td>
+            </tr>
+            <tr>
+              <td class="bold">9</td>
+              <td class="bold">Applied-no-book 60-min outreach</td>
+              <td class="tiny">Same-hour call + VM + SMS + Calendly resend within 60 min. Already self-qualified; latency kills 50%+ today.</td>
+              <td class="num sky">+10-20 calls/wk</td>
+              <td><span class="badge s">S</span></td>
+              <td>EC team</td>
+            </tr>
+            <tr>
+              <td class="bold">10</td>
+              <td class="bold">Lions Pride 30-day upsell trigger</td>
+              <td class="tiny">"First-30-Day Win" milestone gate auto-invites enrollees to LP discovery call. Lifts blended LTV.</td>
+              <td class="num gold">+$5K/enroll</td>
+              <td><span class="badge m">M</span></td>
+              <td>Russ + Jodi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 5: IN-PROGRESS WORKSTREAMS -->
+    <section id="workstreams" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">05</div>
+        <h2 class="section-title">In-Progress Workstreams &mdash; Status &amp; Blockers</h2>
+      </div>
+      <p class="section-desc">Every workstream Kas mentioned, verified against latest artifacts. Status, what's left, blocker, owner. <strong>3 on track. 7 blocked or unowned.</strong></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Workstream</th>
+              <th>Status</th>
+              <th>What's Left</th>
+              <th>Blocker</th>
+              <th>Owner</th>
+              <th>Leverage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="bold">Email rewrites (booking + Friday show)</td>
+              <td><span class="status-dot progress"></span>Drafted</td>
+              <td class="tiny">Russ/Akari approval, GHL swap-in</td>
+              <td class="muted tiny">Copy sign-off</td>
+              <td>Kas</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Friday Updates SOP</td>
+              <td><span class="status-dot live"></span>Live</td>
+              <td class="tiny">Weekly execution discipline</td>
+              <td class="muted tiny">&mdash;</td>
+              <td>Russ / all</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Sales team deck (Jayne/floor)</td>
+              <td><span class="status-dot planned"></span>Planned</td>
+              <td class="tiny">Positioning deck + buyer-journey msg</td>
+              <td class="red tiny">No owner</td>
+              <td class="red">TBD</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+            <tr>
+              <td class="bold">BigQuery dashboard + master journey</td>
+              <td><span class="status-dot blocked"></span>Blocked</td>
+              <td class="tiny">PostHog backfill, GHL auth, deploy</td>
+              <td class="red tiny">GHL auth + PostHog partition</td>
+              <td>Leo</td>
+              <td><span class="badge p0">Highest</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Lions Pride LP (Jodi role)</td>
+              <td><span class="status-dot planned"></span>Planned</td>
+              <td class="tiny">Design + copy + objection bank</td>
+              <td class="red tiny">No owner / brief</td>
+              <td class="red">TBD</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Millionaires Alliance LP</td>
+              <td><span class="status-dot planned"></span>Planned</td>
+              <td class="tiny">Design + copy for MA tier</td>
+              <td class="red tiny">No owner / brief</td>
+              <td class="red">TBD</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Application booking page redesign</td>
+              <td><span class="status-dot progress"></span>In progress</td>
+              <td class="tiny">A/B setup via GHL, PostHog tracking</td>
+              <td class="muted tiny">PostHog multivariate</td>
+              <td>Rehan + Pedro</td>
+              <td><span class="badge p1">Med</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Podcast outreach + book launch</td>
+              <td><span class="status-dot progress"></span>Research phase</td>
+              <td class="tiny">Outreach list, sequence, book positioning</td>
+              <td class="red tiny">No owner</td>
+              <td class="red">TBD</td>
+              <td><span class="badge p1">Med</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Cold email management</td>
+              <td><span class="status-dot progress"></span>Very early</td>
+              <td class="tiny">List + segments, A/B angles, CPL bench</td>
+              <td class="red tiny">No owner / list source</td>
+              <td class="red">TBD</td>
+              <td><span class="badge p0">High (unproven)</span></td>
+            </tr>
+            <tr>
+              <td class="bold">Google Ads (launched)</td>
+              <td><span class="status-dot live"></span>Live</td>
+              <td class="tiny">Winner criteria, budget allocation</td>
+              <td class="muted tiny">Budget/criteria clarity</td>
+              <td>Pedro</td>
+              <td><span class="badge p0">High</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <strong>Ownership crisis:</strong> Of the 10 workstreams, <strong>5 have no clear owner</strong> (sales deck, LP LP, MA LP, podcast, cold email). All five could move the 3x ROAS needle. The team call's #1 outcome should be assigning owners with a Friday-by-Friday deliverable cadence. Don't leave the meeting with unassigned work.
+      </div>
+    </section>
+
+    <!-- SECTION 6: 15 NEW OPPORTUNITIES -->
+    <section id="opportunities" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">06</div>
+        <h2 class="section-title">15 New Opportunities Not Yet in Flight</h2>
+      </div>
+      <p class="section-desc">Beyond the in-progress list &mdash; what's MISSING from the current plan that could move 3x ROAS the most. Categorized: CAC, Conv, LTV, Sales, Brand, Data.</p>
+
+      <div class="opp-grid">
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #1</div>
+          <h5>Booked-no-show resurrection</h5>
+          <p>7-touch SMS+email+Loom+retargeting. 40% pool already CAC-paid. Rebook 15-25% at near-zero cost.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: +13% closes</span></div>
+        </div>
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #2</div>
+          <h5>Applied-no-book 60-min outreach</h5>
+          <p>Same-hour call + VM + SMS + Calendly resend. Latency kills 50%+. 10-20 more calls/wk at zero ad cost.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: +10-20 calls/wk</span></div>
+        </div>
+        <div class="opp-card cat-sales">
+          <div class="opp-cat">Sales &middot; #3</div>
+          <h5>EC conversion coaching loop</h5>
+          <p>Fathom + AI score every call. Weekly digest, recoach bottom 2 reps. Each 1pt = $7K/rep/mo.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: $35K/rep/mo</span></div>
+        </div>
+        <div class="opp-card cat-ltv">
+          <div class="opp-cat">LTV &middot; #4</div>
+          <h5>Lions Pride 30-day upsell trigger</h5>
+          <p>"First-30-Day Win" gate auto-invites enrollees to LP. Lifts blended AOV $15K&rarr;$15.75K.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: +5% CAC equiv</span></div>
+        </div>
+        <div class="opp-card cat-sales">
+          <div class="opp-cat">Sales &middot; #5</div>
+          <h5>Doctor-frame drill mornings</h5>
+          <p>15-min daily roleplay, rotating objection. Russ' #1 named lever. Compounds in 30 days.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: same as #3</span></div>
+        </div>
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #6</div>
+          <h5>$27 &rarr; no-show EC Loom</h5>
+          <p>90-sec personalized Loom from named EC within 6h. Niche-aware. Crushes generic email.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: +2-4pp app rate</span></div>
+        </div>
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #7</div>
+          <h5>Application abandon recovery</h5>
+          <p>Capture email on field-1. "80% done" drip at 30m/24h/72h with deep-link resume.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: +10% completion</span></div>
+        </div>
+        <div class="opp-card cat-cac">
+          <div class="opp-cat">CAC &middot; #8</div>
+          <h5>Stage-split retargeting</h5>
+          <p>4 pools: WS-no-app, app-no-book, booked-no-show, call-no-close. Bespoke creative each.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: +5-15% reconv</span></div>
+        </div>
+        <div class="opp-card cat-brand">
+          <div class="opp-cat">Brand/CAC &middot; #9</div>
+          <h5>Cold-email + LinkedIn ABM (licensed niches)</h5>
+          <p>State bar / AICPA / licensure rosters. Zero-CPM channel for highest-AOV prospects.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: long-tail demand</span></div>
+        </div>
+        <div class="opp-card cat-sales">
+          <div class="opp-cat">Sales/Conv &middot; #10</div>
+          <h5>Niche-LP &rarr; niche-EC routing</h5>
+          <p>Therapist LP &rarr; therapist-trained EC who speaks licensure language. Calendly logic + EC briefs.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: +2-5pp close</span></div>
+        </div>
+        <div class="opp-card cat-data">
+          <div class="opp-cat">Data/Conv &middot; #11</div>
+          <h5>Workshop-attendee NPS + free-text</h5>
+          <p>1-question + free-text on workshop success page. Reveals actual objection bank for script revision.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: script intel</span></div>
+        </div>
+        <div class="opp-card cat-ltv">
+          <div class="opp-cat">LTV/CAC &middot; #12</div>
+          <h5>MA &rarr; Advocacy referral mechanic</h5>
+          <p>Stage 12 exists, no formal referral motion. "Refer 1, get X" with tracked link. Sub-$2K CAC from warm.</p>
+          <div class="opp-foot"><span class="badge m">M</span><span class="muted">Lift: 92% CAC cut</span></div>
+        </div>
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #13</div>
+          <h5>Pre-workshop SMS hype</h5>
+          <p>T-24h, T-2h, T-15min SMS with one-tap launch. 90% mobile = SMS-primary, email-secondary.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: +15-30pp show</span></div>
+        </div>
+        <div class="opp-card cat-conv">
+          <div class="opp-cat">Conv &middot; #14</div>
+          <h5>Workshop mid-roll "what's next" CTA</h5>
+          <p>Mobile drop at min 45. Wistia overlay at 42min: "Save your seat to Friday Q&amp;A". Friday is the only live element.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: +VIP attach</span></div>
+        </div>
+        <div class="opp-card cat-sales">
+          <div class="opp-cat">Sales &middot; #15</div>
+          <h5>Per-rep objection library + Fri digest</h5>
+          <p>Fathom + Claude extracts winning lines from top reps. Friday Slack canvas to all ECs. Lateral knowledge transfer.</p>
+          <div class="opp-foot"><span class="badge s">S</span><span class="muted">Lift: floor moves up</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 7: STRATEGIC REFRAMES -->
+    <section id="reframes" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">07</div>
+        <h2 class="section-title">Strategic Reframes for Russ</h2>
+      </div>
+      <p class="section-desc">The five things the team probably believes that aren't quite right &mdash; said in the order they should be said in the call.</p>
+
+      <div class="reframe-grid">
+        <div class="reframe-card">
+          <h4>A. LTV is the math, not CAC.</h4>
+          <p>3x ROAS at $15K AOV isn't a media problem. If we shift program economics from $15K LTV to $22K (LP attach 25%, MA attach 10%), <strong>3x ROAS is achievable at current CAC</strong>. The team is treating ROAS as a media metric. It's a lifecycle metric.</p>
+        </div>
+        <div class="reframe-card">
+          <h4>B. The sales team is the cheapest media buy.</h4>
+          <p>Spending another $50K on Meta to lower CAC 8% is harder than coaching the bottom-quartile EC up 4 points. <strong>This week's #1 ROAS lever is sales-floor coaching, not media.</strong> Reframe the war room around close rate.</p>
+        </div>
+        <div class="reframe-card">
+          <h4>C. Workshop = qualification, not conversion.</h4>
+          <p>Workshop's job is to identify and route, not to close. The application + EC call is the close. Workshop optimization plateaus; the real leak is application-to-close (which we don't measure cleanly yet). <strong>That measurement is P0.</strong></p>
+        </div>
+        <div class="reframe-card">
+          <h4>D. Friday VIP is the most underleveraged asset.</h4>
+          <p>It's the only live moment in the funnel. 1-to-many psychology + live close energy. <strong>Build the entire VIP upsell ladder around making Friday unmissable</strong>, not "an extra Q&amp;A." Stop framing Friday as a bonus &mdash; frame the workshop as the bonus.</p>
+        </div>
+        <div class="reframe-card" style="grid-column: 1 / -1;">
+          <h4>E. We don't have a "name the regulator" creative in test.</h4>
+          <p>Cross-niche ICP research (therapists / attorneys / coaches / educators / CPAs) is unanimous: the regulatory frame earns 30 seconds of attention. <strong>Top-of-funnel creative should include one variant per niche naming the licensure body</strong> (state bar, AICPA, licensing board). Cheap test, big read on hook efficacy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8: THIS WEEK -->
+    <section id="thisweek" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">08</div>
+        <h2 class="section-title">P0 This Week + Stop List</h2>
+      </div>
+      <p class="section-desc">Five things that have to happen by Friday May 17. Five things to stop doing.</p>
+
+      <div class="two-col">
+        <div class="col-card scale">
+          <h3>P0 by Friday 5/17</h3>
+          <ul>
+            <li><strong>1. JIT Italy attribution audit (TODAY)</strong> &mdash; <span class="meta">Pedro + Kas</span>. Confirm whether 1,274 "conversions" are tickets or leads before any external ROAS quote.</li>
+            <li><strong>2. Closer audit (zero-close GHL IDs)</strong> &mdash; <span class="meta">Kas + Russ</span>. Resolve <code>arlY3hbKHE2SvdQfJ8H5</code> + <code>ZjzzwaUReBcV5caNXCvx</code>. Real reps? Mis-assigned? Enrichment fail?</li>
+            <li><strong>3. Unbreakable Event LP rebuild P0 fixes</strong> &mdash; <span class="meta">Kas</span>. Strip fake scarcity, em dashes, inline testimonials. Soften qualifier. Mobile sticky CTA.</li>
+            <li><strong>4. GHL auth + PostHog backfill</strong> &mdash; <span class="meta">Leo</span>. The unblock for source-level CAC and master journey table.</li>
+            <li><strong>5. Assign 5 unowned workstreams</strong> &mdash; <span class="meta">Russ + Kas</span>. Sales deck, LP LP, MA LP, podcast, cold email. Friday-by-Friday cadence.</li>
+          </ul>
+        </div>
+        <div class="stop-list">
+          <h4>Stop Doing</h4>
+          <ul>
+            <li><strong>Stop running broad Meta retargeting.</strong> Split by funnel stage (4 pools) or kill.</li>
+            <li><strong>Stop optimizing the $27 reg page in isolation.</strong> The actual bottleneck is application-to-close, not registration.</li>
+            <li><strong>Stop adding new niche LPs</strong> before niche-routing &rarr; niche-EC structure exists. Gain is capped without routing.</li>
+            <li><strong>Stop relying on email only</strong> for time-sensitive moments (booking confirm, workshop reminder, no-show). 90% mobile = SMS-primary.</li>
+            <li><strong>Stop treating "more leads" as the brief.</strong> Brief is now: convert the leads we already paid for. Top-funnel scaling pauses until app-to-close is measured + fixed.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="report-footer">
+      <div class="footer-brand">COD Strategic Audit &middot; Path to 3x ROAS</div>
+      <div class="footer-meta">
+        Generated 2026-05-11 &middot; Fractional CMO brief for Russ + team call.<br>
+        Sources: BigQuery <code>green-segment-491604-j8.cod_warehouse</code> live, Meta Ads API, Stripe, Hyros, GHL, PostHog.<br>
+        Deep-dives:
+        <a href="01-meta-ads-intel.md">01-meta-ads-intel.md</a> &middot;
+        <a href="02-funnel-leaks.md">02-funnel-leaks.md</a> &middot;
+        <a href="03-workstream-inventory.md">03-workstream-inventory.md</a> &middot;
+        <a href="04-new-opportunities.md">04-new-opportunities.md</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointment Setting SOP · For Boris @ LTHS · 2026-05-11</title>
+<style>
+  :root {
+    --bg: #0a0d14;
+    --bg-2: #0f1320;
+    --panel: #131826;
+    --panel-2: #181d2c;
+    --line: #1f2740;
+    --line-2: #2a3450;
+    --ink: #e8ecf5;
+    --ink-2: #b8c0d4;
+    --mute: #7a8299;
+    --accent: #6ee7b7;
+    --accent-2: #38bdf8;
+    --accent-3: #a78bfa;
+    --warn: #facc15;
+    --bad: #f87171;
+    --good: #34d399;
+    --grad: linear-gradient(135deg, #6ee7b7 0%, #38bdf8 60%, #a78bfa 100%);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { padding: 2.5rem 1.25rem 4rem; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  /* Header */
+  .hero { background: linear-gradient(135deg, #0f1320 0%, #131826 60%, #0f1320 100%); border: 1px solid var(--line); border-radius: 18px; padding: 2.25rem 2.25rem 2rem; position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; top: -120px; right: -120px; width: 380px; height: 380px; background: radial-gradient(circle, rgba(110,231,183,0.16), transparent 70%); pointer-events: none; }
+  .eyebrow { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.85rem; }
+  h1 { font-size: 2.1rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.18; max-width: 760px; }
+  h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .subtitle { color: var(--ink-2); margin-top: 0.75rem; font-size: 1.02rem; max-width: 760px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--mute); }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* TL;DR */
+  .tldr { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 12px; padding: 1.25rem 1.4rem; margin-top: 1.75rem; }
+  .tldr h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.7rem; font-weight: 700; }
+  .tldr ul { list-style: none; padding: 0; }
+  .tldr li { padding: 0.45rem 0 0.45rem 1.5rem; position: relative; color: var(--ink-2); font-size: 0.94rem; }
+  .tldr li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .tldr li b { color: var(--ink); font-weight: 600; }
+
+  /* Sections */
+  section { margin-top: 2.25rem; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.6rem 1.75rem 1.85rem; }
+  .sec-head { display: flex; align-items: center; gap: 0.85rem; padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+  .sec-num { background: var(--bg-2); border: 1px solid var(--line-2); width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 0.88rem; color: var(--accent-2); flex-shrink: 0; }
+  .sec-head h2 { font-size: 1.22rem; font-weight: 700; letter-spacing: -0.01em; }
+  .sec-head .tag { margin-left: auto; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mute); padding: 0.3rem 0.6rem; border: 1px solid var(--line-2); border-radius: 999px; }
+
+  h3 { font-size: 1.02rem; font-weight: 700; color: var(--ink); margin: 1.5rem 0 0.6rem; }
+  h3.first { margin-top: 0; }
+  h4 { font-size: 0.82rem; font-weight: 700; color: var(--accent-2); text-transform: uppercase; letter-spacing: 0.1em; margin: 1.2rem 0 0.5rem; }
+  p { color: var(--ink-2); font-size: 0.95rem; margin-bottom: 0.7rem; }
+  p b, li b { color: var(--ink); font-weight: 600; }
+  ul, ol { padding-left: 1.4rem; color: var(--ink-2); margin-bottom: 0.7rem; }
+  li { margin-bottom: 0.4rem; font-size: 0.94rem; }
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px dotted var(--line-2); }
+  a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  code { background: var(--bg-2); border: 1px solid var(--line); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 0.6rem 0 1rem; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mute); background: var(--bg-2); border-bottom: 1px solid var(--line-2); }
+  td { color: var(--ink-2); }
+  tr:hover td { background: var(--bg-2); }
+  td b { color: var(--ink); }
+
+  /* Pills */
+  .pill { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .pill.good { background: rgba(52,211,153,0.12); color: var(--good); border: 1px solid rgba(52,211,153,0.28); }
+  .pill.bad { background: rgba(248,113,113,0.1); color: var(--bad); border: 1px solid rgba(248,113,113,0.28); }
+  .pill.test { background: rgba(250,204,21,0.1); color: var(--warn); border: 1px solid rgba(250,204,21,0.28); }
+  .pill.info { background: rgba(56,189,248,0.1); color: var(--accent-2); border: 1px solid rgba(56,189,248,0.28); }
+  .pill.ai { background: rgba(167,139,250,0.12); color: var(--accent-3); border: 1px solid rgba(167,139,250,0.28); }
+
+  /* Two-col */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 0.5rem 0 0.75rem; }
+  @media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+  .card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 1.15rem 1.25rem; }
+  .card h4 { margin-top: 0; }
+  .card.do { border-left: 3px solid var(--good); }
+  .card.dont { border-left: 3px solid var(--bad); }
+  .card.note { border-left: 3px solid var(--accent-2); }
+  .card.ai { border-left: 3px solid var(--accent-3); }
+
+  /* Script blocks: real human voice the setter or agent uses */
+  .script { background: #ffffff; color: #1a1d28; border-radius: 10px; padding: 1.25rem 1.45rem; border: 1px solid var(--line-2); margin: 0.7rem 0 1rem; font-size: 0.95rem; line-height: 1.55; position: relative; }
+  .script::before { content: "VERBATIM"; position: absolute; top: -10px; left: 16px; background: var(--accent); color: #0a0d14; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; padding: 0.2rem 0.55rem; border-radius: 4px; }
+  .script p { color: #1a1d28; margin-bottom: 0.55rem; }
+  .script p:last-child { margin-bottom: 0; }
+  .script b { color: #0a0d14; }
+  .script em { color: #5f6776; font-style: italic; }
+
+  /* Callout */
+  .callout { background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--accent-2); border-radius: 8px; padding: 0.95rem 1.15rem; margin: 0.9rem 0; }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad { border-left-color: var(--bad); }
+  .callout.ai { border-left-color: var(--accent-3); }
+  .callout strong { color: var(--ink); }
+
+  /* TOC */
+  .toc { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem 1.4rem; margin-top: 1.5rem; }
+  .toc h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2); margin-bottom: 0.7rem; font-weight: 700; }
+  .toc ol { columns: 2; column-gap: 1.5rem; list-style: none; padding: 0; }
+  @media (max-width: 720px) { .toc ol { columns: 1; } }
+  .toc li { padding: 0.3rem 0; font-size: 0.9rem; }
+  .toc li::before { content: counter(list-item) ". "; color: var(--mute); font-weight: 600; }
+  .toc li { counter-increment: list-item; }
+  .toc ol { counter-reset: list-item; }
+  .toc a { color: var(--ink-2); border: none; }
+  .toc a:hover { color: var(--accent); }
+
+  /* Footer */
+  footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); text-align: center; color: var(--mute); font-size: 0.78rem; }
+  footer b { color: var(--ink-2); }
+
+  /* Anchor offset */
+  section[id] { scroll-margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Appointment Setting Playbook · Built for Boris @ LTHS</div>
+  <h1>The <span class="grad">Booking System</span> That Turns Cold Replies Into Booked Calls</h1>
+  <p class="subtitle">A field-tested SOP for replying to inbound leads, qualifying them fast, and getting them on the calendar with a real strategist. Built for humans to read and AI agents to learn from.</p>
+  <div class="meta-row">
+    <div><b>Prepared by:</b> Kas Andz</div>
+    <div><b>For:</b> Boris &amp; Vladislav Ryn, LTHS</div>
+    <div><b>Date:</b> 2026-05-11</div>
+    <div><b>Use:</b> Human SOP + AI agent training material</div>
+  </div>
+</header>
+
+<div class="tldr">
+  <h2>The whole thing in 6 bullets</h2>
+  <ul>
+    <li><b>Cold calling is dead.</b> Text first, get permission to call, then call. Connected calls book at near 100%.</li>
+    <li><b>Speed wins.</b> When someone replies, you respond within minutes, not hours. The motivation window is small.</li>
+    <li><b>Curiosity beats pitching.</b> One question opens the floodgates: "What sparked your interest?" Listen, react, then route.</li>
+    <li><b>Frame the call as service, not sales.</b> "I want to make sure you get the most out of this." Resistance collapses.</li>
+    <li><b>Book inside 24 hours, never past 48.</b> Show rates drop sharply the further out you book.</li>
+    <li><b>This is an AI-trainable system.</b> Every rule below is a policy your reply agent can learn and apply.</li>
+  </ul>
+</div>
+
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#part-1">Mindset &amp; Readiness</a></li>
+    <li><a href="#part-2">The Reply-First System</a></li>
+    <li><a href="#part-3">CRM Setup (Generic)</a></li>
+    <li><a href="#part-4">The Phone Call Script</a></li>
+    <li><a href="#part-5">Handling Common Responses</a></li>
+    <li><a href="#part-6">Follow-Up Sequences</a></li>
+    <li><a href="#part-7">Show Rate Optimization</a></li>
+    <li><a href="#part-8">DM Setting (Instagram &amp; Social)</a></li>
+    <li><a href="#part-9">Compensation Structure</a></li>
+    <li><a href="#part-10">KPIs &amp; Benchmarks</a></li>
+    <li><a href="#part-11">The Setter and Closer Relationship</a></li>
+    <li><a href="#part-12">Pre-Call Asset Requirement</a></li>
+    <li><a href="#part-13">Using AI for Application Analysis</a></li>
+    <li><a href="#part-14">AI Booking Agent: Implementation</a></li>
+    <li><a href="#part-15">Daily Playbook (Setter)</a></li>
+    <li><a href="#part-16">Templates Appendix</a></li>
+  </ol>
+</div>
+
+<section id="philosophy">
+  <div class="sec-head">
+    <div class="sec-num">0</div>
+    <h2>The Philosophy (Read This First)</h2>
+    <span class="tag">Mindset</span>
+  </div>
+
+  <p>This is not a dial-and-pray operation. The reason this system works is because it is built on genuine human connection in an era where every prospect is drowning in automation and AI outreach.</p>
+
+  <p>Your setter is not "just a setter." They are the front door to your business. They are the first real human voice your prospect hears. If that experience is cold, scripted, or robotic, the lead is already lost.</p>
+
+  <p>In a benchmark deployment of this exact system, <b>60% of all enrolments were set by an appointment setter</b>, not self-booked, not automated. Real humans, doing the work, with genuine curiosity.</p>
+
+  <div class="callout">
+    <strong>Core mindset:</strong> Be obsessed with the mission, genuinely curious about people, and treat every conversation like it matters. Because it does.
+  </div>
+</section>
+
+<section id="part-1">
+  <div class="sec-head">
+    <div class="sec-num">1</div>
+    <h2>Setter Mindset &amp; Readiness</h2>
+    <span class="tag">Foundation</span>
+  </div>
+
+  <p>Before your setter touches a phone or opens the CRM, they need to internalise five principles.</p>
+
+  <h3 class="first">1.1 Be obsessed with the offer</h3>
+  <p>Your setter has to actually believe in what you are selling. They need to understand the transformation your product or service creates, know client success stories by heart, and genuinely get excited when a prospect describes a problem your offer solves. If your setter does not believe in the offer, they cannot sell the next conversation.</p>
+
+  <h3>1.2 Be genuinely curious</h3>
+  <p>This is not fake curiosity scripting. When a prospect tells you they run an agency, a content channel, or a product brand, you should actually want to hear about it. Ask follow-up questions because you are interested, not because a script told you to. People can feel the difference instantly.</p>
+
+  <h3>1.3 Take care of yourself first</h3>
+  <p>If you are stressed, tired, sick, dealing with family issues, or in a bad mood, do not get near prospects. Your energy transfers through the phone. Sleep, water, supplements, daily steps. This is a performance role and you need to show up performing.</p>
+
+  <h3>1.4 You are not "just a setter"</h3>
+  <p>The setter role is not an entry-level stepping stone to becoming a closer. It is a specialised skill set that requires thick skin, quick wit, the ability to build instant rapport, and genuine people skills. A great setter is the most valuable person on the sales team. Own that identity.</p>
+
+  <h3>1.5 Gamify everything</h3>
+  <p>Track your bookings visually. Colour-code your calendar (yellow for showed, green for closed). Compete with yourself. Beat Monday's number on Tuesday. Make the dopamine hit of a confirmed booking your fuel. This keeps energy high across full work days.</p>
+</section>
+
+<section id="part-2">
+  <div class="sec-head">
+    <div class="sec-num">2</div>
+    <h2>The Reply-First System</h2>
+    <span class="tag">The Core Move</span>
+  </div>
+
+  <h3 class="first">2.1 Why this exists</h3>
+  <p>Cold calling is effectively dead for appointment setting. Modern iOS and Android updates mean calls from unknown numbers often do not even ring. The phone silently rejects them. The workaround is simple: <b>text first, get permission to call, then call</b>. Once a prospect has texted with you, your number is no longer unknown. The phone rings. They pick up. They expect you.</p>
+
+  <p>This single shift, texting before calling, is the highest-leverage change you can make to your appointment-setting process. Data from connected calls run this way shows near-100% booking rates.</p>
+
+  <h3>2.2 The two main lead sources (and how the trigger differs)</h3>
+
+  <table>
+    <thead>
+      <tr><th>Lead Source</th><th>Trigger Moment</th><th>Outreach Type</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Webinar / event / asset registration</b></td><td>Contact opts in</td><td>Automated SMS fires immediately on opt-in</td></tr>
+      <tr><td><b>Cold email reply</b></td><td>Prospect replies to outbound email</td><td>Setter (or agent) replies in-thread within minutes, ideally with a free sample hook</td></tr>
+      <tr><td><b>Inbound form / DM</b></td><td>Contact submits enquiry</td><td>Automated SMS or DM within minutes, manual follow-up after</td></tr>
+      <tr><td><b>Past leads (reactivation)</b></td><td>Triggered manually by you</td><td>Personalised batch with a clear new reason to talk</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.3 The initial message template (event-style triggers)</h3>
+
+  <div class="script">
+    <p><b>Hey!</b> [Setter Name] here from [Your Name or Brand]'s team. You registered for the [event / masterclass / asset] with [Your Name]. I'd love to grab 5 minutes with you to align on your goals so you get the absolute most out of it. Won't take long. I'm free for the next hour. When's a good time to call?</p>
+  </div>
+
+  <h4>Why each element earns its place</h4>
+  <ul>
+    <li><b>Uses the setter's first name</b>, not the founder's name. You are a real person, not an automated blast.</li>
+    <li><b>References what they signed up for.</b> Confirms they took an action, which validates the outreach.</li>
+    <li><b>Frames it as serving them.</b> "So you get the most out of it." This is customer service, not a sales pitch. Disarms resistance.</li>
+    <li><b>Creates a soft time constraint.</b> "I'm free for the next hour" creates urgency without pressure.</li>
+    <li><b>Asks permission to call.</b> "When's a good time to call?" hands them agency and ensures the phone rings.</li>
+  </ul>
+
+  <h3>2.4 The initial reply template (cold email / inbound)</h3>
+
+  <p>When a prospect replies to a cold email or inbound DM, your job is to keep the energy up and route them to a fast conversation. Sample first, then trigger the booking.</p>
+
+  <div class="script">
+    <p>Hey [First Name], thanks for getting back to me. Quick question before I put something together: what specifically would you want this for, and is there a particular product, brand or audience I should design around?</p>
+    <p>I'd love to drop you a sample image and then we can grab 5 minutes to walk through it properly. What's your phone number? I'll text you so we can lock in a quick time.</p>
+  </div>
+
+  <div class="callout warn">
+    <strong>Important nuance for sample-based offers:</strong> Until they have spoken to you, send only an image or a storyboard, not a finished video. A still image takes minutes to produce and triggers the same emotional reaction as the full deliverable. Save full production for prospects who have booked or proven they are real.
+  </div>
+
+  <h3>2.5 A note on the setter's name</h3>
+  <p>If your setter has a name that is hard to pronounce or might cause confusion for your audience, consider using a shortened or anglicised version. Not a fake name. Something close to their real name that flows easily in conversation. Zero friction. If a prospect has to ask "what was your name again?" you have already lost momentum.</p>
+</section>
+
+<section id="part-3">
+  <div class="sec-head">
+    <div class="sec-num">3</div>
+    <h2>CRM Setup (Generic)</h2>
+    <span class="tag">Tooling</span>
+  </div>
+
+  <p>This SOP is CRM-agnostic. The same principles apply whether you use HubSpot, Attio, GoHighLevel, Pipedrive, Close, or anything else with workflows and SMS.</p>
+
+  <h3 class="first">3.1 For evergreen funnels (simplest setup)</h3>
+  <p>This is the easiest version. Someone opts in or replies. The text fires automatically. Your setter watches for replies.</p>
+  <ul>
+    <li><b>Trigger:</b> Contact reaches a specific stage (registered, replied, submitted form)</li>
+    <li><b>Action:</b> Send SMS using the template above</li>
+    <li><b>Tag added:</b> <code>[setter-name]-contacted</code></li>
+    <li><b>Smart list:</b> Tag = setter-name AND has NOT booked a call</li>
+  </ul>
+
+  <h3>3.2 For live or daily events (batch setup)</h3>
+
+  <div class="callout bad">
+    <strong>Compliance rule:</strong> Do NOT blast all contacts at once. Carrier compliance (TCPA / 10DLC in the US, similar rules in the UK and EU) will flag your account if you send hundreds of texts simultaneously from the same number at the same time daily.
+  </div>
+
+  <p><b>The fix:</b> use your CRM's drip setting.</p>
+  <ul>
+    <li>Select the day's contacts</li>
+    <li>Choose "send as drip" (or equivalent)</li>
+    <li>Set to <b>25 contacts every 10 to 15 minutes</b></li>
+    <li>Example: 100 registrations = roughly 40 minutes to send all texts</li>
+  </ul>
+
+  <h3>3.3 Staying organised</h3>
+
+  <h4>Tagging system</h4>
+  <ul>
+    <li>When you start a conversation with a prospect, add a tag with your name (e.g. <code>sarah-setter</code>)</li>
+    <li>Create a smart list that filters: Tag = your name AND has NOT booked a call</li>
+    <li>This becomes your active follow-up list, everyone you have contacted who has not booked yet</li>
+    <li>Once they book, the booking automation tags them as <code>call-booked</code> and they fall off the list automatically</li>
+  </ul>
+
+  <h4>Phone notifications</h4>
+  <p>Set up your CRM's mobile app and turn on notifications. You will often catch replies faster on your phone than watching the desktop conversation tab.</p>
+
+  <div class="callout">
+    <strong>Pro tip:</strong> If the smart-list method feels too complex on day one, the old-school fallback works. Copy and paste every name that replies into a Google Sheet or note. Search them manually in the CRM for follow-up. Not elegant. Fully functional.
+  </div>
+</section>
+
+<section id="part-4">
+  <div class="sec-head">
+    <div class="sec-num">4</div>
+    <h2>The Phone Call Script</h2>
+    <span class="tag">The Conversation</span>
+  </div>
+
+  <p>When someone texts back "yeah, call me" or "I'm free now" or "give me 10 minutes", you call immediately. Speed matters enormously here. The motivation window is small.</p>
+
+  <h3 class="first">4.1 Opening (15 to 30 seconds)</h3>
+
+  <div class="script">
+    <p><b>Hey! This is [Setter Name] with [Your Name]'s team. How are you doing?</b></p>
+  </div>
+
+  <p>Say <b>"how are you doing?"</b> like you actually mean it. Slow it down slightly. This is a pattern interrupt. Most setters rush through it or sound robotic. When you say it with genuine warmth, it stops people in their tracks. They actually answer.</p>
+
+  <h4>If they ask "how are you?"</h4>
+  <p>Have a short, relatable, slightly funny human answer ready. Not "I'm good."</p>
+  <ul>
+    <li>"I'm on my third coffee and my dog is going crazy under my desk, but having a great day. Thanks for asking."</li>
+    <li>"Living the dream over here, the Wi-Fi held up today so I'm calling that a win."</li>
+  </ul>
+  <p>Then pivot: <b>"But that's not why I'm calling..."</b></p>
+
+  <h4>If they do NOT ask how you are</h4>
+  <p>Have a seasonal or topical pivot ready:</p>
+  <ul>
+    <li>"Happy New Year! Can I still say that?" (January to February)</li>
+    <li>"Hey, did you catch any of the [big sports event / cultural moment]?"</li>
+    <li>"Happy Monday, we made it through another weekend!"</li>
+  </ul>
+
+  <div class="callout">
+    <strong>The point:</strong> Be a human being. Create a micro-moment of real connection before you get into the reason for the call. In a world of AI and automation, being a real, warm, slightly funny person is your unfair advantage.
+  </div>
+
+  <h3>4.2 The transition (10 seconds)</h3>
+
+  <div class="script">
+    <p><b>Alright, but that's not why I'm calling.</b> I'm calling because I saw you [signed up for the workshop happening tonight / replied to my email about [offer]]. I just want to make sure you've got everything you need and you're set up to get real value out of this.</p>
+  </div>
+
+  <p>This frames you as customer service, not sales. You are calling to help them prepare. No one puts a guard up when someone is trying to help them get value from something they already engaged with.</p>
+
+  <h3>4.3 The discovery question (the golden moment)</h3>
+
+  <div class="script">
+    <p>While I have you here, help me out real quick. [Your Name] always wants to make sure we're serving you in the best way possible. <b>Do you mind sharing what sparked your interest in [signing up / replying to me]?</b></p>
+  </div>
+
+  <p>This is where the magic happens. This single question opens the floodgates. High-quality prospects will start telling you everything: their background, their business, their frustrations, what they have tried, what is not working. You will not have to dig, they will volunteer.</p>
+
+  <h4>What to listen for</h4>
+  <ul>
+    <li>What do they actually do?</li>
+    <li>Who do they serve? (Their customer or audience)</li>
+    <li>Are they already shipping or just starting out?</li>
+    <li>What is their current pain point or frustration?</li>
+    <li>Do they have an existing offer, brand, or pipeline?</li>
+    <li>How busy is their schedule? (Tells you about capacity and commitment)</li>
+    <li>Are they currently investing in growth?</li>
+  </ul>
+
+  <h3>4.4 Digging deeper (conversational, not interrogation)</h3>
+  <p>Use natural follow-ups. React genuinely to what they tell you.</p>
+  <ul>
+    <li>"Oh really, tell me more about that."</li>
+    <li>"That's so interesting, who are you serving? Like, is it [self-deprecating example so they laugh]?"</li>
+    <li>"If I wanted to work with you, hypothetically, how would that look? What's the investment?"</li>
+    <li>"Are you working with clients one-on-one right now, or in groups?"</li>
+    <li>"What would you say is the biggest bottleneck in your business right now?"</li>
+    <li>"Have you tried anything else to solve this?"</li>
+  </ul>
+
+  <div class="callout">
+    <strong>The actor element:</strong> You have to genuinely make them feel like you are interested in <b>them</b>: their offer, their mission, their story. Most of these people work alone all day. No one ever asks them about their business. When you show up with real curiosity and enthusiasm, they light up. They feel seen.
+  </div>
+
+  <p>If their offer is genuinely compelling, tell them: <b>"That's amazing. I would actually sign up for that."</b> Only say this if you mean it. Authenticity is non-negotiable.</p>
+
+  <p>If their offer needs work, pivot to the hypothetical: <b>"Okay, so hypothetically, if you had your dream offer dialled in, what would that look like?"</b></p>
+
+  <h3>4.5 The transition to booking (the insider frame)</h3>
+
+  <p>After the discovery conversation, transition back to the asset (webinar, sample, etc.) and then into the booking.</p>
+
+  <div class="script">
+    <p>You're really going to love the [event / what we'll show you], because what [Your Name] covers actually addresses exactly what you just told me about [reference their specific pain point]. It's going to be super valuable for you.</p>
+  </div>
+
+  <p>Then drop the insider frame:</p>
+
+  <div class="script">
+    <p>Okay, can I tell you something? Don't tell anyone I told you this...</p>
+    <p>[Your Name] isn't going to be pushy or salesy on the [event / call]. There's no hard pitch. But what they WILL do is offer some time with our strategy team afterwards. A one-on-one conversation to really dig into your specific situation and see if and how we can help you hit your goals.</p>
+    <p>Here's the thing: those spots fill up fast because everyone is going to want one. But since I've got you right here, I can get you a head start and put you on the calendar with our top advisor before everyone else even knows it's available.</p>
+    <p><b>Do you want to do that? Want me to grab 30 minutes for you?</b></p>
+  </div>
+
+  <h4>Why this works</h4>
+  <ul>
+    <li><b>You're giving them insider access.</b> They feel special, like VIP treatment.</li>
+    <li><b>You're removing the pressure of the pitch.</b> "He's NOT going to be pushy" lowers resistance.</li>
+    <li><b>You're creating legitimate urgency.</b> Spots really do fill up fast.</li>
+    <li><b>You're offering exclusivity.</b> "The top advisor," "before everyone else."</li>
+    <li><b>You asked for the yes.</b> "Want me to grab 30 minutes for you?" forces buy-in.</li>
+  </ul>
+
+  <h3>4.6 For evergreen funnels (adaptation)</h3>
+  <p>If you are not running live events, adjust the frame:</p>
+
+  <div class="script">
+    <p>What I can do is take all the pressure off those follow-up emails and sequences. Instead of going through all that, I can get you directly on the calendar with our top strategist. You get priority, you get the best time slot, and you get a real conversation about your specific situation. <b>Do you want to do that?</b></p>
+  </div>
+
+  <h3>4.7 Booking the call</h3>
+  <p>When they say yes (and roughly 80% will):</p>
+
+  <div class="script">
+    <p><b>Awesome, let's pull up calendars.</b> What works better for you, tomorrow morning or tomorrow afternoon?</p>
+  </div>
+
+  <h4>Critical rules for booking</h4>
+  <ul>
+    <li><b>Book within 24 hours whenever possible.</b> Same day or next day. Never book more than 48 hours out unless absolutely necessary. Show rates drop dramatically the further out you book.</li>
+    <li><b>Give two options</b> (morning or afternoon). Do not give open-ended availability.</li>
+    <li><b>Tell them who they are meeting with and hype the rep:</b> "You're going to be with [Rep Name], he's been with [Your Name] forever, knows everything inside and out. You'll be in great hands."</li>
+    <li><b>Get confirmation:</b> Send the calendar invite while on the call. Make sure they receive it. Get a verbal "yes, I got it."</li>
+  </ul>
+
+  <h3>4.8 Ending the call</h3>
+
+  <div class="script">
+    <p>You're all set. Your call is [day] at [time] with [Rep Name]. And hey, don't forget about the [asset / event]. Make sure you watch it before your call, because everything covered in there is going to make your strategy session so much more powerful. You'll get way more out of it.</p>
+    <p>It was so great talking to you. I'm excited for you, I think this is going to be a really great conversation. <b>Take care!</b></p>
+  </div>
+</section>
+
+<section id="part-5">
+  <div class="sec-head">
+    <div class="sec-num">5</div>
+    <h2>Handling Common Responses</h2>
+    <span class="tag">Objections</span>
+  </div>
+
+  <h3 class="first">5.1 "I want to see the [asset / sample] first before I book anything."</h3>
+  <p>Do not push. Build the touch point instead.</p>
+  <div class="script">
+    <p>Totally get that. Go enjoy [the asset / the sample], I think you're going to love it. Hey, is it okay if I reach out to you tomorrow? I'd love to hear what you thought of it, just for feedback. And if you want to grab time with the team after, I can set that up for you then.</p>
+  </div>
+  <p>You just got permission to follow up. You will book them on the back end.</p>
+
+  <h3>5.2 "Is this a sales call?"</h3>
+  <div class="script">
+    <p>No, no, this isn't a pitch or anything like that. This is literally just a conversation with a strategist on the team to look at your specific situation and see if there's anything we can help with. No pressure at all. If it's a fit, great. If not, you'll still walk away with some clarity on your next steps. Fair enough?</p>
+  </div>
+
+  <h3>5.3 "I'm not sure / let me think about it."</h3>
+  <div class="script">
+    <p>Totally fine. Just make sure you catch the [asset / event], I really think you'll find it valuable based on what you just told me. And hey, if you want to grab time with the team after, just text me back and I'll set it up. Sound good?</p>
+  </div>
+
+  <h3>5.4 "I don't remember signing up for this."</h3>
+  <div class="script">
+    <p>Oh no worries, it happens. Well, you're on the list for [Your Name]'s [asset] about [topic]. If that's not your thing, no problem at all, I'll make sure you're taken care of. But if you ARE interested in [result], it might be worth checking out. Want me to send you the link?</p>
+  </div>
+
+  <h3>5.5 They text "STOP" or "Unsubscribe"</h3>
+  <p>Respect it immediately. Remove them. These people were never going to buy. Filtering them out actually improves your data quality.</p>
+</section>
+
+<section id="part-6">
+  <div class="sec-head">
+    <div class="sec-num">6</div>
+    <h2>Follow-Up Sequences</h2>
+    <span class="tag">Persistence</span>
+  </div>
+
+  <h3 class="first">6.1 Day-after follow-up (for non-bookers)</h3>
+  <p>If someone was on a live event and did not book during your pre-event call, hit them the next day.</p>
+
+  <div class="script">
+    <p>Hey! Saw you were at the [event] last night but haven't grabbed your strategy session yet. Ready to book? Don't make me call again 😉 [Setter Name]</p>
+  </div>
+
+  <p>If they reply, book them using the same conversational approach, abbreviated for text:</p>
+
+  <div class="script">
+    <p>Awesome! Quick question: tell me about your offer. Are you already working with clients or just getting started?</p>
+  </div>
+
+  <p>Get a little info, then: <b>"Perfect timing to hop on a call. Let me get you on the calendar."</b></p>
+
+  <h3>6.2 The "name + question mark" follow-up</h3>
+  <p>For contacts who never replied to your initial outreach, wait 2 to 3 days, then send just their name with a question mark.</p>
+
+  <div class="script">
+    <p>Sarah?</p>
+  </div>
+
+  <p>That's it. It is weird enough that people respond. When they do, re-engage: <b>"Hey! Just checking in, are you still interested in grabbing time with the team?"</b></p>
+
+  <h3>6.3 The "is this still a priority?" follow-up</h3>
+  <p>Your final attempt before moving to long-term nurture:</p>
+
+  <div class="script">
+    <p>Is this still a priority for you?</p>
+  </div>
+  <p>Or:</p>
+  <div class="script">
+    <p>Have you given up on this?</p>
+  </div>
+  <p>These work. They trigger a response because no one wants to admit they have given up on something they once cared about.</p>
+
+  <h3>6.4 Follow-up timing</h3>
+  <table>
+    <thead><tr><th>Day</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><b>Day 0</b></td><td>Automated text fires on registration / reply</td></tr>
+      <tr><td><b>Day 1</b></td><td>Follow up with non-responders (text or call attempt)</td></tr>
+      <tr><td><b>Day 2 to 3</b></td><td>"Name + question mark" text</td></tr>
+      <tr><td><b>Day 5 to 7</b></td><td>"Is this still a priority?" text</td></tr>
+      <tr><td><b>After Day 7</b></td><td>Move to long-term email or content nurture</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="part-7">
+  <div class="sec-head">
+    <div class="sec-num">7</div>
+    <h2>Show Rate Optimization</h2>
+    <span class="tag">Don't Lose The Booking</span>
+  </div>
+
+  <p>Once a call is booked, your job is not done. The setter should work hand-in-hand with automation to maximise show rates.</p>
+
+  <h3 class="first">7.1 Automated confirmations &amp; reminders</h3>
+  <p>Set up the following in your CRM:</p>
+  <ol>
+    <li><b>Immediately after booking:</b> Confirmation text with date, time, and who they are meeting with. End with: "Reply YES to confirm."</li>
+    <li><b>4 hours before the call:</b> "Friendly reminder, your strategy session is at [time] today. Does that time still work for you?"</li>
+    <li><b>People who reply to the 4-hour reminder show up.</b> People who ignore all reminders have a significantly lower show rate. This is useful data for your closers: if someone confirmed via text, they are warmer.</li>
+  </ol>
+
+  <h3>7.2 The confirmation reply indicator</h3>
+  <p>Track who replies "YES" to confirmations and who does not. Share this information with your closers. A prospect who confirmed is in a different headspace than one who went dark after booking.</p>
+</section>
+
+<section id="part-8">
+  <div class="sec-head">
+    <div class="sec-num">8</div>
+    <h2>DM Setting (Instagram &amp; Social)</h2>
+    <span class="tag">Inbound DMs</span>
+  </div>
+
+  <p>DM setting follows the same philosophical principles as phone setting: genuine curiosity, human connection, qualifying without interrogating.</p>
+
+  <h3 class="first">8.1 Automated trigger (Instagram via ManyChat or similar)</h3>
+  <ul>
+    <li><b>Trigger:</b> New follower or new DM</li>
+    <li><b>Automated DM:</b> <em>"Thanks for the follow! What brings you here?"</em></li>
+  </ul>
+  <p>That's it. Keep the first message simple. No links, no pitches. Just a genuine question. When they reply, the setter takes over manually.</p>
+
+  <h3>8.2 The DM conversation flow</h3>
+  <p><b>Listen first.</b> Let them tell you what they are interested in, what they do, what they are struggling with.</p>
+
+  <p><b>Qualify with natural questions:</b></p>
+  <ul>
+    <li>"Oh cool, are you already working with clients or just getting started?"</li>
+    <li>"What's your biggest challenge right now with [their area]?"</li>
+    <li>"Have you tried anything else to solve that?"</li>
+  </ul>
+
+  <h3>8.3 Routing the prospect</h3>
+  <table>
+    <thead><tr><th>Prospect Profile</th><th>Route To</th></tr></thead>
+    <tbody>
+      <tr><td>Newer, still figuring things out, unfamiliar with your world</td><td>Free asset or event, let them get to know you first</td></tr>
+      <tr><td>Has a clear pain point, already operating, sophisticated</td><td>Direct to strategy call, they are ready for a real conversation</td></tr>
+      <tr><td>Just asking random questions, no real intent</td><td>Give a helpful one-liner, point to free content, don't push</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.4 Booking from DMs</h3>
+  <p>When a prospect is ready for a call but you are in DMs, use this transition:</p>
+
+  <div class="script">
+    <p>Honestly I could try to type all this out here but it would take 3,500 words and wouldn't even make sense 😅 Would it be crazy to just hop on a quick call? I can get you 30 minutes with our top strategist and you can actually talk this through properly.</p>
+  </div>
+
+  <h3>8.5 Identity in DMs (running the founder's account)</h3>
+  <p>When operating the founder's Instagram, you do not need to announce that you are not the founder. Most people understand that accounts with large followings have teams. If someone directly asks <em>"Is this [Founder]?"</em>, be honest: <em>"[Founder] is in and out of DMs, but right now you've got me, and I've got you covered."</em></p>
+  <p><b>Never lie. Never pretend to be the founder.</b> But do not volunteer the distinction unless asked.</p>
+</section>
+
+<section id="part-9">
+  <div class="sec-head">
+    <div class="sec-num">9</div>
+    <h2>Compensation Structure</h2>
+    <span class="tag">Pay The Setter Properly</span>
+  </div>
+
+  <p>A well-compensated setter is a motivated setter. Recommended structure:</p>
+
+  <table>
+    <thead><tr><th>Component</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr><td><b>Base pay</b></td><td>$1,500 to $3,000 / month depending on hours and experience</td></tr>
+      <tr><td><b>Commission</b></td><td>5% of every closed deal that originated from a setter-booked appointment</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.1 Calculating the ROI of a setter</h3>
+  <p>The key metric is <b>DPL (Dollars Per Lead)</b>, not cost per lead. The dollar value each booked call represents.</p>
+  <p><b>Formula:</b> Total revenue ÷ total booked calls = DPL</p>
+
+  <div class="callout">
+    <strong>Example math:</strong> Setter books 20 appointments per month. Your DPL is $1,500. That's $30,000 in expected revenue from the setter's work. You're paying them $2,500 base + roughly $1,500 in commissions = $4,000. <b>ROI: 7.5x return on setter investment.</b>
+  </div>
+
+  <p>Even a mediocre setter booking 10 appointments at a $1,500 DPL generates $15,000 against a $3,000 to $4,000 cost. It is very hard to lose money on this hire if they are doing the work.</p>
+</section>
+
+<section id="part-10">
+  <div class="sec-head">
+    <div class="sec-num">10</div>
+    <h2>KPIs &amp; Benchmarks</h2>
+    <span class="tag">What To Measure</span>
+  </div>
+
+  <h3 class="first">10.1 Setter KPIs</h3>
+  <table>
+    <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Text response rate (from automated outreach)</td><td>10%+ of contacted leads should text back</td></tr>
+      <tr><td>Booking rate on connected calls</td><td>80%+ (aim for near-100% with this method)</td></tr>
+      <tr><td>Calls booked per day</td><td>Depends on volume, track against contact volume</td></tr>
+      <tr><td>Follow-up touches per non-booked contact</td><td>Minimum 3 to 5 attempts before moving to nurture</td></tr>
+      <tr><td>Show rate on setter-booked calls</td><td>Track and compare against self-booked show rate</td></tr>
+      <tr><td>Close rate on setter-booked calls</td><td>Track and compare against self-booked close rate</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.2 Daily reporting</h3>
+
+  <h4>Start-of-day report (post in team channel by 9am local)</h4>
+  <ul>
+    <li>Calls booked for the day, listed by closer</li>
+    <li>Any relevant notes on specific prospects</li>
+  </ul>
+
+  <h4>End-of-day report (post by 6pm local)</h4>
+  <ul>
+    <li>Number of outreach texts sent</li>
+    <li>Number of replies received</li>
+    <li>Number of calls connected</li>
+    <li>Number of appointments booked</li>
+    <li>Any notable conversations or feedback</li>
+  </ul>
+</section>
+
+<section id="part-11">
+  <div class="sec-head">
+    <div class="sec-num">11</div>
+    <h2>The Setter and Closer Relationship</h2>
+    <span class="tag">Team Dynamics</span>
+  </div>
+
+  <p>This is the piece most people miss. The setter and the closers must work as a tight unit.</p>
+
+  <div class="two">
+    <div class="card do">
+      <h4>Do</h4>
+      <ul>
+        <li>Setter posts the day's calendar every morning so every closer sees what's coming</li>
+        <li>Detailed notes go into the CRM after every booked call: what they do, who they serve, their pain points</li>
+        <li>Setter and closer are peers with different specialisations</li>
+        <li>Celebrate wins together, a setter-booked close is a team win</li>
+        <li>Over-communicate cancellations, fill slots fast</li>
+      </ul>
+    </div>
+    <div class="card dont">
+      <h4>Don't</h4>
+      <ul>
+        <li>Treat the setter as subordinate to the closer</li>
+        <li>Let the closer go into the call blind, with no notes</li>
+        <li>Hide cancellations or no-shows from the setter</li>
+        <li>Skip the team channel updates because "everyone is busy"</li>
+        <li>Forget that closers cannot close someone who never showed up</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Bond as a team.</strong> Know each other. Trust each other. The closer cannot enrol someone who never showed up. The setter cannot close someone they have never met. They need each other.
+  </div>
+</section>
+
+<section id="part-12">
+  <div class="sec-head">
+    <div class="sec-num">12</div>
+    <h2>Pre-Call Asset Requirement</h2>
+    <span class="tag">Test This</span>
+  </div>
+
+  <p>Should you require prospects to watch your asset (webinar, video, sample) before their strategy call? This is something to test for your specific offer.</p>
+
+  <h3 class="first">The testing ladder</h3>
+  <ol>
+    <li>Start with <b>no requirement</b>. Anyone can book, no friction.</li>
+    <li>Track your cost per booking, show rate, and close rate.</li>
+    <li>Add a requirement to <b>watch 5 minutes</b>, re-measure.</li>
+    <li>Extend to <b>15 minutes</b>, re-measure.</li>
+    <li>Try requiring <b>the full asset</b>, re-measure.</li>
+  </ol>
+
+  <p>Find the sweet spot where the friction of watching improves call quality without killing your booking volume.</p>
+
+  <h3>What the setter should say regardless</h3>
+  <div class="script">
+    <p>Make sure you watch the [asset] before your call. Everything [Your Name] covers in there will make your strategy session way more valuable. You'll get so much more out of it.</p>
+  </div>
+
+  <p>Frame watching as something that benefits <b>them</b>, not as a gate you are putting up.</p>
+
+  <div class="callout">
+    <strong>Key data point:</strong> Prospects who watch the full asset close at significantly higher rates. The asset does heavy lifting, it builds trust, establishes authority, addresses objections, and pre-sells the transformation. An informed prospect is an easier close.
+  </div>
+</section>
+
+<section id="part-13">
+  <div class="sec-head">
+    <div class="sec-num">13</div>
+    <h2>Using AI for Application Analysis</h2>
+    <span class="tag">High Leverage</span>
+  </div>
+
+  <p>This is a high-leverage move most businesses are not doing yet.</p>
+
+  <h3 class="first">The process</h3>
+  <ol>
+    <li>Export all of your application or intake survey data from your CRM</li>
+    <li>Export all of your end-of-day reports showing call outcomes (closed, didn't close, no-show, etc.)</li>
+    <li>Feed both data sets to Claude (or another LLM)</li>
+    <li>Ask: <em>"Which of our application questions are predictive of whether someone actually closes?"</em></li>
+  </ol>
+
+  <h3>What you will likely find</h3>
+  <p>Some questions you think are important (like income level or company size) may have zero correlation with closing. Others you barely pay attention to may be highly predictive. In one benchmark deployment, revenue level had no statistical correlation with close rate. A prospect making $0 to $1K per month closed at the same rate as someone making $100K+ per month.</p>
+
+  <h3>What to do with this information</h3>
+  <ul>
+    <li>Remove or replace questions that have no predictive value</li>
+    <li>Double down on questions that ARE predictive</li>
+    <li>Have the LLM suggest new questions that might improve data quality</li>
+    <li>Do not let your closers make assumptions based on application answers that do not actually predict anything</li>
+  </ul>
+
+  <p>Run this analysis quarterly as your audience and offer evolve.</p>
+</section>
+
+<section id="part-14">
+  <div class="sec-head">
+    <div class="sec-num">14</div>
+    <h2>AI Booking Agent: Implementation</h2>
+    <span class="tag ai">AI Layer</span>
+  </div>
+
+  <p>This SOP is written so a human can read it and an AI agent can learn from it. Here is how to translate the principles above into an actual booking agent that runs alongside (or in front of) your setter.</p>
+
+  <h3 class="first">14.1 What the AI agent should and should not do</h3>
+
+  <div class="two">
+    <div class="card ai">
+      <h4 class="first">AI does well</h4>
+      <ul>
+        <li>Drafting the first reply within seconds of an inbound email or DM</li>
+        <li>Asking the qualifying questions (intent, budget, audience, urgency)</li>
+        <li>Suggesting calendar times and sending the booking link</li>
+        <li>Sending confirmation messages and reminders</li>
+        <li>Following up at the right cadence (Day 1, Day 2 to 3, Day 5 to 7)</li>
+        <li>Logging every interaction in the CRM with structured tags</li>
+        <li>Scoring leads by ICP fit before you even respond</li>
+      </ul>
+    </div>
+    <div class="card dont">
+      <h4>AI does badly (keep humans here)</h4>
+      <ul>
+        <li>The actual phone call. Voice matters, energy matters, humour matters</li>
+        <li>Reading subtle emotional cues like grief, excitement, frustration</li>
+        <li>Spotting a "wrong fit but high status" lead to escalate manually</li>
+        <li>Knowing when to break the script to be a real human</li>
+        <li>Telling the difference between a tyre-kicker and a future whale</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>14.2 Agent system prompt (starter template)</h3>
+
+  <p>This is a working starter prompt. Adapt the bracketed fields. Feed this SOP into the agent's knowledge base alongside the prompt.</p>
+
+  <div class="card note">
+<pre style="white-space: pre-wrap; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.84rem; color: var(--ink-2); margin: 0; line-height: 1.6;">You are the booking agent for [Your Name] at [Your Brand].
+
+Your job:
+1. Reply to inbound leads (cold email replies, form fills, DMs) within minutes.
+2. Qualify each lead against our ICP without sounding like a script.
+3. Get qualified leads on the calendar with our strategy team inside 48 hours.
+4. Hand any edge cases or high-status leads to a human setter immediately.
+
+Voice:
+- Warm, slightly funny, curious, never salesy.
+- Short sentences. No corporate jargon. No emojis except 😉 or 😅 when natural.
+- Always reference what the prospect actually wrote. Never generic acknowledgements.
+- NEVER use em dashes. Use commas, periods, or hyphens.
+
+ICP (qualify against this):
+- [Industry / segment 1]
+- [Industry / segment 2]
+- [Company size / role / signal]
+- Disqualifiers: [list]
+
+Flow:
+1. Acknowledge their message specifically.
+2. Ask 1 to 2 qualifying questions (what is it for, who is it for, when).
+3. Offer a small free hook (image, sample, audit, etc.) AND propose a 5 to 15 min call.
+4. Send a calendar link with two specific time options inside 24 to 48 hours.
+5. If they book, send confirmation + reminder + day-of nudge.
+6. If they go quiet, follow up Day 1, Day 2 to 3 ("[FirstName]?"), Day 5 to 7 ("Is this still a priority?").
+
+Escalate to a human setter when:
+- The lead is a known high-value account
+- They ask a technical question outside your knowledge
+- They show emotional weight (grief, anger, urgency)
+- They explicitly ask to talk to a human
+
+Knowledge base: see attached SOP.</pre>
+  </div>
+
+  <h3>14.3 The agent's qualification rubric</h3>
+  <p>Have the agent score each lead before responding. A simple 0 to 5 rubric works.</p>
+
+  <table>
+    <thead><tr><th>Score</th><th>Profile</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><b>5</b></td><td>Perfect ICP, clear intent, decision-maker, budget signal</td><td>Reply within 5 minutes, push for call same day or next day</td></tr>
+      <tr><td><b>4</b></td><td>Strong ICP, intent unclear but real, decision-maker</td><td>Reply same hour, qualify with one question, push for call inside 48 hours</td></tr>
+      <tr><td><b>3</b></td><td>Adjacent ICP, real human, real interest</td><td>Reply same day, send hook, see if conversation develops</td></tr>
+      <tr><td><b>2</b></td><td>Wrong ICP but high status (PR, partnership, referral)</td><td>Escalate to human, do not auto-reply</td></tr>
+      <tr><td><b>1</b></td><td>Wrong ICP, low intent</td><td>Send polite decline or route to nurture content</td></tr>
+      <tr><td><b>0</b></td><td>Spam, abusive, or unsubscribe</td><td>Tag and remove from list</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.4 Hard rules the agent must never break</h3>
+  <ul>
+    <li><b>Never lie.</b> Never claim to be the founder. Never invent client testimonials, numbers, or capabilities.</li>
+    <li><b>Never pitch a closed price.</b> Pricing happens on the call with a human.</li>
+    <li><b>Never spray identical messages.</b> Every reply must reference something specific the prospect wrote.</li>
+    <li><b>Never push past three follow-ups without a response.</b> After Day 7, move to nurture.</li>
+    <li><b>Never send a video, large file, or proposal autonomously.</b> Send still images or storyboards as samples until a human approves more.</li>
+    <li><b>Never bypass STOP / UNSUBSCRIBE.</b> Tag and remove on first signal.</li>
+    <li><b>Never use em dashes</b> in any outbound message. They read as AI tells. Use commas, periods, or hyphens.</li>
+  </ul>
+
+  <h3>14.5 Human-in-the-loop checkpoints</h3>
+  <p>Don't let the agent run fully autonomous until you have at least two weeks of reviewed output. Suggested checkpoints:</p>
+  <ul>
+    <li><b>Week 1:</b> Agent drafts, human approves every send. Build a confidence baseline.</li>
+    <li><b>Week 2:</b> Agent sends Score 1 to 3 leads autonomously. Score 4 to 5 still draft-then-approve.</li>
+    <li><b>Week 3+:</b> Agent sends all replies autonomously. Human reviews daily logs.</li>
+    <li><b>Always:</b> Human handles the actual phone call. The agent never speaks on a call.</li>
+  </ul>
+
+  <h3>14.6 What to feed the agent on day one</h3>
+  <ol>
+    <li>This SOP (the whole document)</li>
+    <li>Your last 50 to 100 winning email replies, raw, with outcomes (booked / closed / ghosted)</li>
+    <li>Your ICP definition in one paragraph</li>
+    <li>Your disqualifiers in one paragraph</li>
+    <li>Three to five examples of "perfect" replies you would send yourself</li>
+    <li>Three to five examples of replies that went badly and why</li>
+    <li>Calendar link, booking page URL, and the rules for when to surface it</li>
+  </ol>
+
+  <div class="callout ai">
+    <strong>The principle:</strong> The agent does not replace the human. It removes the latency between an inbound signal and a thoughtful, qualifying response. The human still owns the phone call, the close, and the relationship. The agent owns the speed.
+  </div>
+</section>
+
+<section id="part-15">
+  <div class="sec-head">
+    <div class="sec-num">15</div>
+    <h2>Daily Playbook (Setter)</h2>
+    <span class="tag">Operations</span>
+  </div>
+
+  <h3 class="first">Morning</h3>
+  <ol>
+    <li>Post start-of-day report: what's on the calendar, any notes</li>
+    <li>Load new inbound leads into the CRM</li>
+    <li>Fire the automated message drip (25 contacts per 10 to 15 minute increment)</li>
+    <li>Check DMs for overnight conversations</li>
+  </ol>
+
+  <h3>Active hours</h3>
+  <ol start="5">
+    <li>Monitor phone and CRM for replies. Call immediately when someone responds.</li>
+    <li>Run through phone calls using the script framework</li>
+    <li>Book appointments. Enter detailed notes into the CRM.</li>
+    <li>Work your follow-up smart list (contacts tagged but not yet booked)</li>
+    <li>Handle DM conversations. Qualify and route.</li>
+    <li>Stay in communication with closers throughout the day</li>
+  </ol>
+
+  <h3>End of day</h3>
+  <ol start="11">
+    <li>Post end-of-day report: texts sent, replies, connections, bookings</li>
+    <li>Review tomorrow's calendar. Any prep needed?</li>
+    <li>Clear your head. Tomorrow you do it again.</li>
+  </ol>
+</section>
+
+<section id="part-16">
+  <div class="sec-head">
+    <div class="sec-num">16</div>
+    <h2>Templates Appendix</h2>
+    <span class="tag">Copy-Paste</span>
+  </div>
+
+  <h3 class="first">Initial automated text (event-style)</h3>
+  <div class="script">
+    <p>Hey! [Name] here from [Brand]'s team. You registered for the [event] with [Founder]. I'd love to grab 5 min to align on your goals so you get the most out of it. I'm free for the next hour. When's a good time to call?</p>
+  </div>
+
+  <h3>Initial reply (cold email / inbound)</h3>
+  <div class="script">
+    <p>Hey [First Name], thanks for getting back to me. Quick question before I put something together: what specifically would you want this for, and is there a particular product, brand or audience I should design around? I'd love to drop you a sample and grab 5 minutes to walk through it. What's your number?</p>
+  </div>
+
+  <h3>Day-after follow-up</h3>
+  <div class="script">
+    <p>Hey! Saw you were at the [event] last night but haven't grabbed your strategy session yet. Ready to book? Don't make me call again 😉</p>
+  </div>
+
+  <h3>Name + question mark</h3>
+  <div class="script"><p>Sarah?</p></div>
+
+  <h3>Last attempt</h3>
+  <div class="script"><p>Is this still a priority for you?</p></div>
+
+  <h3>Confirmation reminder (4 hours before call)</h3>
+  <div class="script">
+    <p>Friendly reminder, your call is at [time] today with [Rep Name]. Does that time still work for you?</p>
+  </div>
+
+  <h3>Phone call opening</h3>
+  <div class="script">
+    <p>Hey! This is [Name] with [Founder]'s team. How are you doing?</p>
+  </div>
+
+  <h3>Discovery question</h3>
+  <div class="script">
+    <p>While I have you, help me out real quick. [Founder] always wants us to serve you in the best way possible. Do you mind sharing what sparked your interest in signing up?</p>
+  </div>
+
+  <h3>Booking transition</h3>
+  <div class="script">
+    <p>Can I tell you something? Don't tell anyone I said this... [Founder] isn't going to be pushy or salesy. But they WILL offer time with our strategy team. I can get you a head start and put you on the calendar with our top advisor before everyone else. Want me to grab 30 minutes for you?</p>
+  </div>
+
+  <h3>DM opener (Instagram, new follower)</h3>
+  <div class="script"><p>Thanks for the follow! What brings you here?</p></div>
+
+  <h3>DM to call transition</h3>
+  <div class="script">
+    <p>I could type all this out but it would be 3,500 words and still wouldn't make sense 😅 Would it be crazy to just hop on a quick call? I can get you 30 min with our top strategist.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>This SOP is a living document.</b> As you implement and test, update it with your own benchmarks, scripts, and adaptations for your specific offer and audience.</p>
+  <p>The principles do not change. The specific language should be customised to sound like you.</p>
+  <p style="margin-top: 0.8rem;">Prepared 2026-05-11 · Kas Andz for Boris &amp; Vladislav, LTHS</p>
+</footer>
+
+</div>
+</body>
+</html>

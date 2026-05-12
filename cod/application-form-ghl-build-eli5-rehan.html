@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>COD - Application Form Build: ELI5 Guide for Rehan (Honeypot + Autosave + PostHog)</title>
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#111114; --panel2:#161619; --line:#22222a;
+    --ink:#f1f5f9; --muted:#94a3b8; --gold:#c8a96e; --mint:#5ee1c6; --red:#ff6b6b;
+    --amber:#ffb84d; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+  a{color:var(--mint);text-decoration:none} a:hover{text-decoration:underline}
+  .wrap{max-width:980px;margin:0 auto;padding:44px 22px 120px}
+  h1{font:600 32px/1.2 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;margin:0 0 6px}
+  h2{font-size:20px;margin:48px 0 10px;color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:8px}
+  h3{font-size:16px;margin:22px 0 8px;color:var(--mint)}
+  h4{font-size:14px;margin:14px 0 6px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:780px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:14px 0}
+  .card.warn{border-color:#4a2530;background:#1a0f12}
+  .card.ok{border-color:#1f3a35;background:#0e1c18}
+  .card.note{border-color:#3a3520;background:#1a1810}
+  .card.quote{border-left:3px solid var(--gold);border-radius:0 10px 10px 0;background:#14110c}
+  code.inline{background:#05070c;padding:2px 7px;border-radius:4px;color:#ffd796;font-family:"JetBrains Mono",Consolas,monospace;font-size:13px}
+  pre{background:#05070c;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;font:12.5px/1.55 "JetBrains Mono",Consolas,monospace;color:#d8dee9;margin:10px 0}
+  pre .c{color:#7c8590}
+  pre .k{color:#ffb84d}
+  pre .s{color:#9bd97f}
+  table{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  ol li,ul li{margin:6px 0}
+  .chip{display:inline-block;background:#1c1c22;border:1px solid var(--line);color:var(--muted);padding:3px 9px;border-radius:999px;font-size:12px;margin:2px 4px 2px 0}
+  .chip.g{color:#111;background:var(--gold);border-color:var(--gold);font-weight:600}
+  .chip.r{color:#fff;background:#7a1f2c;border-color:#7a1f2c;font-weight:600}
+  .chip.y{color:#111;background:var(--amber);border-color:var(--amber);font-weight:600}
+  .hdr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .step{display:flex;gap:14px;margin:18px 0}
+  .step .num{flex:0 0 36px;height:36px;border-radius:50%;background:var(--gold);color:#111;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .body{flex:1;min-width:0}
+  .kv{display:grid;grid-template-columns:240px 1fr;gap:10px 18px;font-size:14px}
+  .kv div:nth-child(odd){color:var(--muted)}
+  .bad{color:var(--red)} .good{color:var(--mint)} .warn-t{color:var(--amber)}
+  .toc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:18px 0 30px}
+  .toc h3{margin:0 0 8px;color:var(--gold)}
+  .toc ol{margin:0;padding-left:20px;color:var(--muted)}
+  .toc a{color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
+  .priority-bar{display:flex;gap:10px;margin:18px 0 0;flex-wrap:wrap}
+  .pri{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
+  .pri b{color:var(--ink);display:block;margin-bottom:2px}
+  .pri.must{border-color:#7a1f2c}
+  .pri.should{border-color:#5d4818}
+  .pri.nice{border-color:#1f3a35}
+  details{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:8px 0}
+  summary{cursor:pointer;color:var(--gold);font-weight:600}
+  details[open] summary{margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <span class="chip g">Client: COD</span>
+    <span class="chip">Owner: Rehan</span>
+    <span class="chip">Target: clientsondemand.live/application</span>
+    <span class="chip r">Priority: P0</span>
+    <span class="chip">Date: 2026-05-12</span>
+  </div>
+  <h1>Application Form -- Full GHL Build Guide</h1>
+  <p class="sub">Step-by-step ELI5 guide for porting the redesigned application form (<a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">link</a>) into GoHighLevel with every feature wired up: 4-step wizard, custom fields, honeypot, anti-bot timing trap, draft autosave, PostHog event tracking, PostHog identify, Hyros, hidden GHL form bridge, calendar passthrough, pipeline tags, A11y, Trustpilot. Read everything once before touching GHL.</p>
+
+  <div class="priority-bar">
+    <div class="pri must"><b>Must Do</b>Sections 1-9, 11, 13, 14</div>
+    <div class="pri should"><b>Should Do</b>Sections 10, 12 (tracking)</div>
+    <div class="pri nice"><b>Nice to Have</b>Section 15 (A11y polish)</div>
+  </div>
+
+  <div class="toc">
+    <h3>What you will build (sections)</h3>
+    <ol>
+      <li><a href="#s1">Why we are doing this</a></li>
+      <li><a href="#s2">The 5 custom fields (create FIRST)</a></li>
+      <li><a href="#s3">The 4 steps of the form</a></li>
+      <li><a href="#s4">Funnel page setup</a></li>
+      <li><a href="#s5">Drop in the Custom Code block</a></li>
+      <li><a href="#s6">Hidden GHL form (the bridge)</a></li>
+      <li><a href="#s7">Honeypot (hidden trap field)</a></li>
+      <li><a href="#s8">Timing trap (bots submit too fast)</a></li>
+      <li><a href="#s9">Draft autosave (localStorage)</a></li>
+      <li><a href="#s10">PostHog event tracking (all 6 events)</a></li>
+      <li><a href="#s11">PostHog identify (link session to contact)</a></li>
+      <li><a href="#s12">Hyros script</a></li>
+      <li><a href="#s13">Calendar passthrough URL</a></li>
+      <li><a href="#s14">Tags + pipeline stage on submit</a></li>
+      <li><a href="#s15">A11y, mobile fixes, Trustpilot</a></li>
+      <li><a href="#s16">Test as yourself (QA checklist)</a></li>
+      <li><a href="#s17">Show Kas before pushing live</a></li>
+    </ol>
+  </div>
+
+  <h2 id="s1">1. Why we are doing this</h2>
+  <div class="card quote">
+    <p>The current GHL-native application form has a <b>75% dropoff on the booking page</b>. On mobile, picking a Step 1 option makes the form jump out of the viewport, looks broken, users bounce. GHL Forms cannot fix this -- their renderer controls height and scroll.</p>
+    <p>The redesign is a self-contained HTML/CSS/JS page that does not depend on GHL's form widget for layout. Your job is to make this the live page AND wire its output into GHL so all back-end automations (calendar, pipeline, emails, attribution) still work.</p>
+  </div>
+
+  <h2 id="s2">2. The 5 custom fields (create FIRST -- before anything else)</h2>
+  <p class="sub">In GHL: <b>Settings &rarr; Custom Fields &rarr; New Custom Field</b>. Create all 5 BEFORE you touch the page, otherwise GHL silently drops the data on submit and you will spend an hour debugging blank contacts.</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>Field name</th><th>Field key (case-sensitive)</th><th>Type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Professional Category</td><td><code class="inline">professional_category</code></td><td>Single Line Text</td><td>Values: healthcare / business / professional / custom</td></tr>
+        <tr><td>Professional Role</td><td><code class="inline">professional_role</code></td><td>Single Line Text</td><td>Sub-role within the category (e.g. "Licensed Therapist/Counselor")</td></tr>
+        <tr><td>What You Help With</td><td><code class="inline">what_you_help_with</code></td><td>Multi Line Text</td><td>20-220 char range -- enforced on page</td></tr>
+        <tr><td>Decision Style</td><td><code class="inline">decision_style</code></td><td>Dropdown</td><td>3 values: <code class="inline">solo</code> / <code class="inline">spouse</code> / <code class="inline">business-partner</code></td></tr>
+        <tr><td>SMS Consent</td><td><code class="inline">sms_consent</code></td><td>Checkbox</td><td>Required for legal compliance (TCPA)</td></tr>
+      </tbody>
+    </table>
+    <p class="warn-t" style="margin-top:10px"><b>WARNING:</b> Field keys are case-sensitive. No trailing spaces. Match exactly or downstream automations break silently.</p>
+  </div>
+
+  <h2 id="s3">3. The 4 steps of the form (what the user sees)</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Step</th><th>Question</th><th>Type</th><th>Goes into</th></tr></thead>
+      <tbody>
+        <tr><td>1a</td><td>Which category? (Healthcare / Business / Legal+Finance+Education / Something Else)</td><td>4 card buttons, single-select</td><td><code class="inline">professional_category</code></td></tr>
+        <tr><td>1b</td><td>Specific role (changes based on 1a)</td><td>Card buttons OR text input (if "Something Else")</td><td><code class="inline">professional_role</code></td></tr>
+        <tr><td>2</td><td>In 1-2 sentences, what do you help people with?</td><td>Textarea (min 20, max 220 chars, live counter)</td><td><code class="inline">what_you_help_with</code></td></tr>
+        <tr><td>3</td><td>When investing in growth, who decides? (Solo / Spouse / Business Partner)</td><td>3 card buttons, single-select</td><td><code class="inline">decision_style</code></td></tr>
+        <tr><td>4</td><td>First name, Last name, Email, Phone, SMS consent</td><td>Standard fields + checkbox</td><td>Standard GHL contact fields + <code class="inline">sms_consent</code></td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin:10px 0 0">Auto-advance: cards in Steps 1 and 3 advance 700ms after click. Step 2 needs a Continue button (textarea requires manual progression).</p>
+  </div>
+
+  <h2 id="s4">4. Funnel page setup in GHL</h2>
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Clone the existing Application step</h3>
+    <p><b>Sites &rarr; Funnels &rarr; Application Funnel &rarr;</b> right-click the <code class="inline">/application</code> step &rarr; Clone &rarr; rename clone to <code class="inline">application-v2</code>. Do NOT touch the live <code class="inline">/application</code> URL yet.</p>
+  </div></div>
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Wipe the page body</h3>
+    <p>Open <code class="inline">application-v2</code> in Funnel Builder. Delete every section currently on the page (the GHL-native form, the headline section, footer -- everything). You want a blank canvas.</p>
+  </div></div>
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Add one full-width row + one Custom Code block</h3>
+    <p>Drop in a single full-width row. Inside it: add a <b>Custom Code</b> element (under "Elements" panel). That is where the entire HTML/CSS/JS will live. Do not add anything else to the page.</p>
+  </div></div>
+
+  <h2 id="s5">5. Drop in the Custom Code block</h2>
+  <p class="sub">Open the source file: <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">application-form-redesign.html</a>. View source (Ctrl+U). Copy everything from <code class="inline">&lt;!DOCTYPE html&gt;</code> to <code class="inline">&lt;/html&gt;</code>. Paste into the Custom Code block.</p>
+  <div class="card warn">
+    <p><b>GHL Custom Code constraint:</b> GHL strips the <code class="inline">&lt;html&gt;</code>, <code class="inline">&lt;head&gt;</code>, and <code class="inline">&lt;body&gt;</code> tags. Paste it anyway -- it works -- but if anything breaks, strip everything outside <code class="inline">&lt;body&gt;...&lt;/body&gt;</code> and re-paste just the inner content. Move the <code class="inline">&lt;link&gt;</code> font preloads + <code class="inline">&lt;style&gt;</code> into the Funnel page's "Tracking Code &rarr; Head" section.</p>
+  </div>
+  <div class="card note">
+    <p><b>Fonts:</b> the design uses <b>Cormorant Garamond</b> (headings) + <b>Outfit</b> (body) loaded from Google Fonts. The <code class="inline">&lt;link rel="preconnect"&gt;</code> and <code class="inline">&lt;link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond..."&gt;</code> lines at the top of the file MUST stay. Without them the page will fall back to system fonts and look generic.</p>
+  </div>
+
+  <h2 id="s6">6. The hidden GHL form (this is the bridge)</h2>
+  <p class="sub">The redesigned page is NOT a GHL form -- it is custom HTML. To get data into GHL contacts, you need a hidden GHL-native form on the same page that receives the data on submit.</p>
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Add a GHL form element below the Custom Code block</h3>
+    <p>In Funnel Builder, drop a <b>Form</b> element below the Custom Code row. Build a form with these fields (use the Add Field panel, link each to the custom field key from Section 2):</p>
+    <ul>
+      <li>First Name &rarr; standard contact field</li>
+      <li>Last Name &rarr; standard contact field</li>
+      <li>Email &rarr; standard contact field</li>
+      <li>Phone &rarr; standard contact field</li>
+      <li>Professional Category &rarr; <code class="inline">professional_category</code></li>
+      <li>Professional Role &rarr; <code class="inline">professional_role</code></li>
+      <li>What You Help With &rarr; <code class="inline">what_you_help_with</code></li>
+      <li>Decision Style &rarr; <code class="inline">decision_style</code></li>
+      <li>SMS Consent &rarr; <code class="inline">sms_consent</code></li>
+    </ul>
+  </div></div>
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Set the form ID and hide it</h3>
+    <p>In the form's <b>Advanced &rarr; Custom CSS</b>, set:</p>
+<pre>#ghl-hidden-form { display: none !important; }</pre>
+    <p>In the form settings &rarr; <b>HTML ID</b> field, set: <code class="inline">ghl-hidden-form</code></p>
+    <p>The JS in the Custom Code block at line 1487 looks for <code class="inline">document.getElementById('ghl-hidden-form')</code>. If the ID is anything else, submission silently fails.</p>
+  </div></div>
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Match each input's name attribute to these exact strings</h3>
+<pre><span class="k">first_name      last_name      email      phone</span>
+<span class="k">professional_category   professional_role   what_you_help_with</span>
+<span class="k">decision_style          sms_consent</span></pre>
+    <p>GHL usually does this automatically when you map the field to a custom field key, but verify in the Inspector (right-click the input on the published page &rarr; Inspect &rarr; check <code class="inline">name="..."</code>).</p>
+  </div></div>
+
+  <h2 id="s7">7. Honeypot (hidden trap field for bots)</h2>
+  <div class="card">
+    <p><b>What it is:</b> An invisible text field called <code class="inline">website_url</code>. Real humans never see it because it's positioned <code class="inline">left:-9999px</code>. Bots that crawl the DOM see "looks like a form field" and fill it in. If any value is in <code class="inline">website_url</code> on submit, we reject the submission silently and fire a PostHog event.</p>
+    <h4>Where it lives in the HTML</h4>
+    <p>Already in the source file at lines 1007-1011 inside the Step 4 panel. It's part of the visible form rendered to the page (not the hidden GHL form). The JS check at line 1443-1447 runs BEFORE the GHL form submits.</p>
+    <h4>What you need to do in GHL</h4>
+    <ul>
+      <li><b>Nothing extra.</b> The honeypot lives entirely in the Custom Code block. No GHL custom field needed.</li>
+      <li>Verify after publishing: View Source on the live page, search for <code class="inline">website_url</code>, confirm the wrapper <code class="inline">div</code> has <code class="inline">style="position:absolute;left:-9999px;..."</code>.</li>
+    </ul>
+    <h4>How to test the honeypot works</h4>
+    <ol>
+      <li>Open the published page in Chrome DevTools.</li>
+      <li>Console: <code class="inline">document.getElementById('website_url').value = 'http://spam.com'</code></li>
+      <li>Fill the rest of the form normally. Click Submit.</li>
+      <li>You should see NOTHING happen on the page. In the PostHog dashboard you should see a <code class="inline">cod_application_honeypot_caught</code> event with <code class="inline">reason: honeypot_filled</code>.</li>
+    </ol>
+  </div>
+
+  <h2 id="s8">8. Timing trap (bots submit too fast)</h2>
+  <div class="card">
+    <p><b>What it is:</b> A timer starts when the page loads (<code class="inline">RENDER_TS = Date.now()</code>). On submit, if less than 3000ms has elapsed, the submission is rejected as a bot. Real humans take at least a few seconds to read Step 1.</p>
+    <h4>Configuration</h4>
+<pre><span class="k">const</span> MIN_HUMAN_SUBMIT_MS = <span class="s">3000</span>; <span class="c">// line 1102</span></pre>
+    <h4>What you need to do in GHL</h4>
+    <ul>
+      <li><b>Nothing.</b> It's already in the JS. Do not change the value.</li>
+      <li>If you ever see legitimate users getting blocked (very unlikely -- the form takes 30+ seconds to complete), tell Kas before increasing/decreasing.</li>
+    </ul>
+    <h4>How to test</h4>
+    <ol>
+      <li>Open the page. Immediately open DevTools console.</li>
+      <li>Run: <code class="inline">document.getElementById('btn-submit').click()</code> within 3 seconds. (You'd need to bypass the disabled state first -- this is a synthetic test.)</li>
+      <li>Or just trust the code -- PostHog will fire <code class="inline">cod_application_honeypot_caught</code> with <code class="inline">reason: too_fast</code> if it triggers in production.</li>
+    </ol>
+  </div>
+
+  <h2 id="s9">9. Draft autosave (localStorage, 24h expiry)</h2>
+  <div class="card">
+    <p><b>What it is:</b> Every time the user types in a field or selects a card, their progress is saved to browser <code class="inline">localStorage</code> under the key <code class="inline">cod_app_draft_v1</code>. If they close the tab and come back within 24h, the form rehydrates and they pick up where they left off. After 24h, the draft auto-expires.</p>
+    <h4>What gets saved</h4>
+    <p>Category, role, decision style, help text, first name, last name, email, phone, SMS consent. NOT the honeypot value (obviously).</p>
+    <h4>What you need to do in GHL</h4>
+    <ul>
+      <li><b>Nothing.</b> All localStorage logic is in the JS (lines 1141-1196).</li>
+      <li>The draft is cleared automatically on successful submit, so a returning visitor after booking gets a fresh form.</li>
+    </ul>
+    <h4>How to test</h4>
+    <ol>
+      <li>Fill out Steps 1, 2, 3 fully. Stop at Step 4.</li>
+      <li>Close the tab.</li>
+      <li>Reopen the page. You should see Steps 1-3 already filled when you navigate back through them, and the textarea char count should show your earlier text.</li>
+      <li>To inspect: DevTools &rarr; Application &rarr; Local Storage &rarr; your domain &rarr; look for <code class="inline">cod_app_draft_v1</code>.</li>
+    </ol>
+  </div>
+
+  <h2 id="s10">10. PostHog event tracking (all 6 events)</h2>
+  <div class="card">
+    <p><b>What it is:</b> The page fires PostHog events at every key user action so we can build a real per-step funnel and measure where dropoff happens.</p>
+    <h4>Required: PostHog snippet must be on the page</h4>
+    <p>Open GHL &rarr; Funnel &rarr; Settings &rarr; <b>Tracking Code &rarr; Head Tracking Code</b> and paste:</p>
+<pre>&lt;script&gt;
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&amp;&amp;(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&amp;&amp;(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n&lt;o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_REPLACE_WITH_COD_PROJECT_KEY',{api_host:'https://us.i.posthog.com'})
+&lt;/script&gt;</pre>
+    <p><b>Get the project key from Kas</b> -- it lives in the COD PostHog project. Or check the existing $27 reg page tracking code; the application page uses the same key.</p>
+    <h4>The 6 events that will fire</h4>
+    <table>
+      <thead><tr><th>Event name</th><th>When it fires</th><th>Properties</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline">cod_application_category_selected</code></td><td>User picks Step 1a category</td><td><code class="inline">category</code></td></tr>
+        <tr><td><code class="inline">cod_application_step_1_complete</code></td><td>User picks Step 1b role and form advances</td><td><code class="inline">category</code>, <code class="inline">role</code></td></tr>
+        <tr><td><code class="inline">cod_application_step_2_complete</code></td><td>User clicks Continue on textarea</td><td><code class="inline">help_text_length</code></td></tr>
+        <tr><td><code class="inline">cod_application_step_3_complete</code></td><td>User picks decision style and auto-advance fires</td><td><code class="inline">decision_style</code></td></tr>
+        <tr><td><code class="inline">cod_application_submit</code></td><td>User clicks Schedule My Call (final submit, passed bot checks)</td><td><code class="inline">category</code>, <code class="inline">role</code>, <code class="inline">decision_style</code>, <code class="inline">sms_consent</code>, <code class="inline">help_text_length</code></td></tr>
+        <tr><td><code class="inline">cod_application_honeypot_caught</code></td><td>Bot detected (honeypot filled OR submitted in &lt; 3s)</td><td><code class="inline">reason</code>, <code class="inline">elapsed_ms</code> (when too_fast)</td></tr>
+      </tbody>
+    </table>
+    <h4>How to test</h4>
+    <ol>
+      <li>Open PostHog &rarr; Activity &rarr; Events (live view).</li>
+      <li>In another tab, fill out the form as yourself.</li>
+      <li>Watch each event fire in real time as you progress through the steps.</li>
+    </ol>
+  </div>
+
+  <h2 id="s11">11. PostHog identify (tie session to contact)</h2>
+  <div class="card">
+    <p><b>What it is:</b> On final submit, the page calls <code class="inline">posthog.identify(email, {first_name, last_name, phone, role})</code>. This converts the anonymous PostHog session into a tracked contact so every event the person ever fired (workshop watch, scroll depth, page views, etc.) is now stitched to their email and visible on their GHL contact.</p>
+    <h4>What you need to do in GHL</h4>
+    <ul>
+      <li><b>Nothing extra in GHL.</b> The identify call is already in the JS at lines 1473-1484. As long as the PostHog snippet from Section 10 is loaded BEFORE the form submits, identify will work.</li>
+      <li>Reference: Kas published <code class="inline">rehan-posthog-identify-guide-2026-05-06.html</code> -- you have it. Same pattern.</li>
+    </ul>
+    <h4>How to verify it works</h4>
+    <ol>
+      <li>Submit the form as yourself (use a unique test email like <code class="inline">rehan+app1@kasandz.com</code>).</li>
+      <li>In PostHog, search Persons for that email.</li>
+      <li>You should see a Person record with first_name, last_name, phone, professional_role properties populated.</li>
+      <li>Open the Person profile &rarr; you should see all the <code class="inline">cod_application_step_*</code> events for THIS submission listed under their timeline.</li>
+    </ol>
+  </div>
+
+  <h2 id="s12">12. Hyros script</h2>
+  <div class="card">
+    <p><b>What it is:</b> Hyros is COD's ad-attribution platform. It needs its own tracking script on every conversion page to attribute the booking back to the originating ad.</p>
+    <h4>What you need to do</h4>
+    <ol>
+      <li>Open GHL &rarr; Funnel &rarr; Settings &rarr; <b>Tracking Code &rarr; Head Tracking Code</b> (same place as PostHog).</li>
+      <li>Paste the Hyros script. Get the exact snippet from the existing live application page (View Source) OR from any of the $27 funnel pages.</li>
+      <li>The Hyros snippet looks roughly like:</li>
+    </ol>
+<pre>&lt;script async src="https://t.clientsondemand.com/v1/lst/universal-script?ph=..."&gt;&lt;/script&gt;</pre>
+    <p>Do NOT swap or remove the placeholder hash -- it identifies the COD account. Copy the existing one verbatim.</p>
+    <h4>How to verify</h4>
+    <ol>
+      <li>Open the published page. DevTools &rarr; Network tab &rarr; filter by "hyros" or "t.clientsondemand".</li>
+      <li>Reload. You should see one request to the Hyros endpoint return 200.</li>
+      <li>In Hyros dashboard, check that today's traffic shows the new <code class="inline">/application-v2</code> URL.</li>
+    </ol>
+  </div>
+
+  <h2 id="s13">13. Calendar passthrough URL (THIS IS CRITICAL)</h2>
+  <div class="card warn">
+    <p><b>The most-broken part of every form rebuild.</b> On submit, the user needs to land on the Breakthrough Call calendar with their name/email/phone PRE-FILLED. If you do this wrong, every booking shows up blank in GHL and the sales team gets useless leads.</p>
+  </div>
+  <div class="step"><div class="num">1</div><div class="body">
+    <h3>Open the hidden GHL form &rarr; On Submit settings</h3>
+    <p>Click the hidden form &rarr; <b>Settings &rarr; On Submit Actions</b>.</p>
+  </div></div>
+  <div class="step"><div class="num">2</div><div class="body">
+    <h3>Set "Redirect to URL"</h3>
+    <p>Paste this EXACT URL into the redirect field:</p>
+<pre>https://app.clientsondemand.app/widget/bookings/breakthrough-call
+  ?first_name={{contact.first_name}}
+  &amp;last_name={{contact.last_name}}
+  &amp;email={{contact.email}}
+  &amp;phone={{contact.phone}}
+  &amp;professional_role={{contact.professional_role}}
+  &amp;what_you_help_with={{contact.what_you_help_with}}
+  &amp;decision_style={{contact.decision_style}}</pre>
+    <p class="warn-t" style="margin-top:8px">Strip the line breaks when you actually paste -- it should be one continuous URL. The line breaks above are for readability only.</p>
+  </div></div>
+  <div class="step"><div class="num">3</div><div class="body">
+    <h3>Confirm the calendar group is unchanged</h3>
+    <p><b>Matt's warning, repeated:</b> if anyone clones or moves the calendar to a different calendar group, merge fields stop resolving and every booking lands with blank contact info. Verify the calendar at <code class="inline">app.clientsondemand.app/widget/bookings/breakthrough-call</code> is the same one used today before flipping traffic.</p>
+  </div></div>
+  <div class="card warn">
+    <p><b>Do NOT redirect with JavaScript</b> (<code class="inline">window.location.href = ...</code>). Merge tags <code class="inline">{{contact.first_name}}</code> will not resolve because GHL hasn't saved the contact yet at the moment JS runs. The redirect MUST be set via the GHL form's On Submit Action so GHL processes it server-side after contact creation.</p>
+  </div>
+
+  <h2 id="s14">14. Tags + pipeline stage on submit</h2>
+  <p class="sub">Still in the hidden GHL form &rarr; On Submit Actions, ADD these (in addition to the redirect):</p>
+  <div class="card">
+    <ol>
+      <li><b>Add Tag &rarr;</b> <code class="inline">application-submitted-v2</code> (lets us segment the new-page submissions in dashboards)</li>
+      <li><b>Add Tag &rarr;</b> <code class="inline">step:applied</code> (canonical funnel-stage tag we use everywhere)</li>
+      <li><b>Update Pipeline Stage &rarr;</b> move contact to <b>"Applied -- Awaiting Booking"</b> in the Application Pipeline</li>
+    </ol>
+    <p class="sub" style="margin-top:10px">If the pipeline stage doesn't exist yet, ask Kas first -- don't create new pipeline stages without sign-off (they affect every dashboard).</p>
+  </div>
+
+  <h2 id="s15">15. A11y + mobile fixes + Trustpilot (already in code, just verify)</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3>Already in the JS</h3>
+      <ul>
+        <li>All <code class="inline">.card-option</code> cards get <code class="inline">role="button"</code>, <code class="inline">tabindex="0"</code>, <code class="inline">aria-pressed</code></li>
+        <li>Enter and Space keys trigger selection</li>
+        <li>Step indicator has <code class="inline">role="progressbar"</code> with live <code class="inline">aria-valuenow</code></li>
+        <li>Phone field has <code class="inline">inputmode="tel"</code> (numeric keypad on mobile)</li>
+        <li>All inputs have proper <code class="inline">autocomplete</code> attributes (browser autofill works)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Mobile reflow fix (THE bug from current page)</h3>
+      <ul>
+        <li>Function <code class="inline">recenterForm()</code> runs after every step change</li>
+        <li>It calls <code class="inline">scrollIntoView({behavior:'smooth', block:'center'})</code> on the active step</li>
+        <li>This fixes the "form disappears off screen after tapping option" bug on mobile Safari</li>
+        <li>Verify: on iPhone, tap any Step 1 category card. The next panel should auto-scroll into view.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Trustpilot widget (in footer)</h3>
+    <p>Already in the HTML. Loads via <code class="inline">tp.widget.bootstrap.min.js</code>. Has a static fallback (4.4 / 5 stars, "500+ verified reviews") that displays if the widget fails to load within 3 seconds.</p>
+    <p>Verify after publishing: the real Trustpilot iframe should appear within ~2 seconds. If you only see the static fallback (no iframe), the widget script is blocked -- check GHL's tracking-code allowlist.</p>
+  </div>
+
+  <h2 id="s16">16. Test as yourself (QA checklist -- ALL must pass)</h2>
+  <div class="card ok">
+    <h4>Functional</h4>
+    <ul>
+      <li><span class="good">[ ]</span> On iPhone Safari + Chrome Android: tapping ANY Step 1 category does NOT cause the form to disappear or jump scroll position</li>
+      <li><span class="good">[ ]</span> Full 4-step flow completes without horizontal scroll on 375px viewport (iPhone SE)</li>
+      <li><span class="good">[ ]</span> Phone field accepts and auto-formats US numbers as <code class="inline">(123) 456-7890</code></li>
+      <li><span class="good">[ ]</span> Submit button stays disabled until first name + last name + valid email + 10-digit phone are all filled</li>
+      <li><span class="good">[ ]</span> Textarea blocks Continue if under 20 chars; shows error message</li>
+      <li><span class="good">[ ]</span> Back button returns to previous step without losing data</li>
+    </ul>
+    <h4>Data into GHL</h4>
+    <ul>
+      <li><span class="good">[ ]</span> After submit, new contact appears in GHL with ALL 5 custom fields populated</li>
+      <li><span class="good">[ ]</span> Contact has <code class="inline">first_name</code>, <code class="inline">last_name</code>, <code class="inline">email</code>, <code class="inline">phone</code> on standard fields (NOT all jammed into "name")</li>
+      <li><span class="good">[ ]</span> Contact has tag <code class="inline">application-submitted-v2</code></li>
+      <li><span class="good">[ ]</span> Contact has tag <code class="inline">step:applied</code></li>
+      <li><span class="good">[ ]</span> Contact is in pipeline stage <b>"Applied -- Awaiting Booking"</b></li>
+    </ul>
+    <h4>Calendar handoff</h4>
+    <ul>
+      <li><span class="good">[ ]</span> After submit, user lands on Breakthrough Call calendar</li>
+      <li><span class="good">[ ]</span> Calendar widget has name, email, phone PRE-FILLED (verify by reading the widget itself, not just the URL)</li>
+      <li><span class="good">[ ]</span> Booking confirmation email fires with <code class="inline">{{contact.first_name}}</code> resolved (NOT blank)</li>
+    </ul>
+    <h4>Bot defenses</h4>
+    <ul>
+      <li><span class="good">[ ]</span> Setting <code class="inline">website_url</code> value via DevTools then submitting = nothing happens, PostHog logs <code class="inline">cod_application_honeypot_caught</code></li>
+      <li><span class="good">[ ]</span> No bots in your first 24h of GHL contacts after publishing (zero contacts with empty fields or random-looking data)</li>
+    </ul>
+    <h4>Tracking</h4>
+    <ul>
+      <li><span class="good">[ ]</span> All 6 PostHog events visible in PostHog live events panel during a real submission</li>
+      <li><span class="good">[ ]</span> PostHog Person record created with email + first_name + last_name + phone + professional_role properties</li>
+      <li><span class="good">[ ]</span> Hyros script loads (200 response in DevTools Network tab)</li>
+      <li><span class="good">[ ]</span> Hyros dashboard shows traffic from the new URL within 1 hour of publishing</li>
+    </ul>
+    <h4>Draft autosave</h4>
+    <ul>
+      <li><span class="good">[ ]</span> Fill Steps 1-3, close tab, reopen -- data is restored</li>
+      <li><span class="good">[ ]</span> After successful submit, <code class="inline">cod_app_draft_v1</code> is gone from localStorage (fresh form for next visitor on shared device)</li>
+    </ul>
+    <h4>Visual</h4>
+    <ul>
+      <li><span class="good">[ ]</span> Cormorant Garamond loads on headings, Outfit on body (no FOUT, no system-font fallback)</li>
+      <li><span class="good">[ ]</span> Gold accent color is <code class="inline">#c8a96e</code> (eyedropper from Kas's reference page if unsure)</li>
+      <li><span class="good">[ ]</span> Trustpilot widget loads in footer within 2-3 seconds, or static fallback shows</li>
+      <li><span class="good">[ ]</span> Page matches dark gold aesthetic of the front-end funnel page</li>
+    </ul>
+  </div>
+
+  <h2 id="s17">17. Show Kas before pushing live</h2>
+  <div class="card warn">
+    <p><b>DO NOT</b> overwrite <code class="inline">/application</code> until QA passes AND Kas signs off.</p>
+    <ol>
+      <li>Publish to <code class="inline">clientsondemand.live/application-v2</code> (or whatever your draft slug is)</li>
+      <li>Run the entire QA checklist above as yourself, twice (once on desktop, once on mobile)</li>
+      <li>Slack Kas in <code class="inline">#clients-on-demand-pro</code> with: the v2 URL, a Loom of you completing the form on mobile, and screenshots of the new contact in GHL + the PostHog events firing</li>
+      <li>Wait for Kas's "ship it" before flipping traffic from <code class="inline">/application</code> to <code class="inline">/application-v2</code></li>
+    </ol>
+  </div>
+
+  <h2>Reference: where everything lives in the source file</h2>
+  <details>
+    <summary>Click to expand: line-by-line map of the redesign source HTML</summary>
+    <div class="kv">
+      <div>Lines 7-36</div><div>Cutover comment block (your runbook, baked into the file)</div>
+      <div>Lines 37-39</div><div>Google Fonts preconnect + load (move to GHL Head Tracking Code if needed)</div>
+      <div>Lines 40-720</div><div>All CSS (paste verbatim into Custom Code OR Head Tracking Code)</div>
+      <div>Lines 740-1040</div><div>HTML markup (the 4 steps + footer)</div>
+      <div>Lines 1007-1011</div><div>Honeypot div (hidden, position:-9999px)</div>
+      <div>Lines 1042-1053</div><div>Hidden GHL form placeholder -- REPLACE with real GHL form (same input names)</div>
+      <div>Lines 1055-1086</div><div>FTC + legal footer (Trustpilot + privacy/terms/DMCA)</div>
+      <div>Lines 1089-1102</div><div>JS state and constants (DRAFT_KEY, MIN_HUMAN_SUBMIT_MS, etc.)</div>
+      <div>Lines 1104-1151</div><div>DOMContentLoaded: A11y wiring + draft restore + autosave listeners</div>
+      <div>Lines 1153-1196</div><div>localStorage draft save / restore / clear</div>
+      <div>Lines 1198-1205</div><div>PostHog track() helper</div>
+      <div>Lines 1207-1217</div><div>recenterForm() -- the mobile reflow fix</div>
+      <div>Lines 1219-1297</div><div>Step 1 logic (category drill-down + role selection + auto-advance)</div>
+      <div>Lines 1299-1313</div><div>Step 3 logic (decision style auto-advance)</div>
+      <div>Lines 1315-1409</div><div>Step navigation (goNext, goBack, showStep, updateDots)</div>
+      <div>Lines 1411-1418</div><div>Step 2 character counter</div>
+      <div>Lines 1420-1437</div><div>Step 4 contact validation + phone formatting</div>
+      <div>Lines 1439-1530</div><div>submitForm() -- honeypot check, timing check, identify, GHL hand-off</div>
+    </div>
+  </details>
+
+  <h2>Open questions for Kas (before you start)</h2>
+  <div class="card">
+    <table>
+      <tr><th>Question</th><th>Default if no answer</th></tr>
+      <tr><td>PostHog project key for COD -- want the existing one (same as $27 reg page)?</td><td>Use the same key as the $27 reg page -- View Source on the live reg page to grab it</td></tr>
+      <tr><td>Is the breakthrough-call calendar group going to move before launch?</td><td>Assume no -- use current URL</td></tr>
+      <tr><td>Should we hard-cutover or run an A/B split with the legacy page?</td><td>Hard cutover -- the legacy page is bleeding 75%, A/B is wasted spend</td></tr>
+      <tr><td>Pipeline stage "Applied -- Awaiting Booking" -- does it already exist?</td><td>Verify in GHL before submitting; if missing, ask before creating</td></tr>
+    </table>
+  </div>
+
+  <p class="sub" style="margin-top:40px">Source design: <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-redesign.html">application-form-redesign.html</a> &nbsp;|&nbsp; This guide: <a href="https://kasandzz.github.io/kamg-client-reports/cod/application-form-ghl-build-eli5-rehan.html">application-form-ghl-build-eli5-rehan.html</a></p>
+
+</div>
+</body>
+</html>

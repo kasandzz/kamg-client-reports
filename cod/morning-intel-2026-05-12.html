@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KasOS Morning Intelligence -- 2026-05-12</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* -- Reset -- */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* -- Header -- */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+
+  /* -- Tabs -- */
+  .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
+  .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
+  .tab:hover { background:#1e293b; color:#e2e8f0; }
+  .tab.active { background:#1e293b; color:#3b82f6; border-bottom-color:#3b82f6; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* -- Cards -- */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; margin-bottom:16px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
+
+  /* -- Stat Grid -- */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.green::before { background:#10b981; }
+  .stat-card.red::before { background:#ef4444; }
+  .stat-card.amber::before { background:#f59e0b; }
+  .stat-value { font-size:24px; font-weight:700; }
+  .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-delta { font-size:10px; margin-top:4px; padding:2px 6px; border-radius:4px; display:inline-block; }
+  .stat-delta.up { background:rgba(16,185,129,.15); color:#10b981; }
+  .stat-delta.down { background:rgba(239,68,68,.15); color:#ef4444; }
+  .stat-delta.flat { background:rgba(245,158,11,.15); color:#f59e0b; }
+
+  /* -- Sparkline -- */
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+
+  /* -- List Items -- */
+  .win-item, .concern-item, .insight-item { padding:12px 16px; border-radius:8px; margin-bottom:8px; }
+  .win-item { background:rgba(16,185,129,.08); border-left:3px solid #10b981; }
+  .concern-item { background:rgba(239,68,68,.08); border-left:3px solid #ef4444; }
+  .insight-item { background:rgba(59,130,246,.08); border-left:3px solid #3b82f6; }
+  .item-title { font-weight:600; font-size:12px; margin-bottom:4px; }
+  .item-detail { font-size:11px; color:#94a3b8; }
+
+  /* -- Schedule -- */
+  .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:70px; }
+  .schedule-body { flex:1; }
+  .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .schedule-prep { font-size:11px; color:#94a3b8; }
+  .schedule-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:9px; font-weight:600; margin-right:4px; }
+  .tag-cod { background:rgba(139,92,246,.15); color:#8b5cf6; }
+  .tag-aoc { background:rgba(236,72,153,.15); color:#ec4899; }
+  .tag-cpg { background:rgba(6,182,212,.15); color:#06b6d4; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
+
+  /* -- Overnight -- */
+  .overnight-item { display:flex; gap:12px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
+  .overnight-body { flex:1; }
+  .overnight-source { font-size:10px; color:#64748b; }
+  .overnight-text { font-size:11px; color:#e2e8f0; margin-top:2px; }
+  .priority-badge { font-size:9px; font-weight:600; padding:2px 6px; border-radius:4px; white-space:nowrap; }
+  .priority-high { background:rgba(239,68,68,.15); color:#ef4444; }
+  .priority-med { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .priority-low { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .priority-celebrate { background:rgba(16,185,129,.15); color:#10b981; }
+
+  /* -- Action Items -- */
+  .action-item { display:flex; gap:10px; padding:10px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; align-items:center; }
+  .action-check { width:18px; height:18px; border:2px solid #3b82f6; border-radius:4px; flex-shrink:0; }
+  .action-text { font-size:12px; flex:1; }
+  .action-context { font-size:10px; color:#64748b; }
+
+  /* -- Tables -- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+
+  /* -- Funnel -- */
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:24px; border-radius:4px; display:flex; align-items:center; padding-left:8px; font-size:10px; font-weight:600; min-width:40px; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  /* -- Talking Points -- */
+  .talk-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .talk-trigger { font-size:10px; color:#f59e0b; font-weight:600; margin-bottom:4px; }
+  .talk-response { font-size:11px; color:#e2e8f0; }
+  .talk-data { font-size:10px; color:#64748b; margin-top:6px; }
+
+  /* -- Russ Intel -- */
+  .russ-decision { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(139,92,246,.08); border-left:3px solid #8b5cf6; }
+  .russ-question { padding:12px 16px; border-radius:8px; margin-bottom:8px; background:rgba(245,158,11,.08); border-left:3px solid #f59e0b; }
+  .russ-date { font-size:10px; color:#64748b; }
+  .russ-source { font-size:9px; color:#64748b; margin-left:8px; }
+
+  /* -- Utility -- */
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>KasOS Morning Intelligence</h1>
+    <div class="subtitle">Tuesday May 12 2026 -- 15 events, COD launch day, Redstone Eric+Leo at 11:30</div>
+    <div class="meta">Generated 2026-05-12T18:28:49.804Z | Data as of mixed: cal/email FRESH, slack/BQ STALE</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('myday')">My Day</div>
+    <div class="tab" onclick="showTab('cod')">COD Intel</div>
+    
+    
+    <div class="tab" onclick="showTab('overnight')">Overnight</div>
+    <div class="tab" onclick="showTab('actions')">Actions</div>
+    <div class="tab" onclick="showTab('sources')">Sources</div>
+  </div>
+
+  <div class="section active" id="myday"><div class="card"><div class="card-title">Today: 15 events</div><div class="card-subtitle">Heavy day -- 8 deliverable blocks, 4 external meetings</div><div class="schedule-item"><div class="schedule-time">08:15</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cod">cod</span> COD 3rd Email</div></div></div><div class="schedule-item"><div class="schedule-time">08:30</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cod">cod</span> Russ Call Block</div></div></div><div class="schedule-item"><div class="schedule-time">10:00</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> Arazoo &amp; Kas Catch Up</div><div class="schedule-prep">with arazoo@yodelmobile.com</div></div></div><div class="schedule-item"><div class="schedule-time">11:00</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">cpg</span> Redstone deep plan</div></div></div><div class="schedule-item"><div class="schedule-time">11:15</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">cpg</span> Redstone Reporting and CPL</div></div></div><div class="schedule-item"><div class="schedule-time">11:30</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">cpg</span> Lead List &amp; Copy Review</div><div class="schedule-prep">with leo + eric@redstonemanufacturing.com</div><div class="schedule-prep" style="color:#3b82f6">meet.google.com/tpo-xuzg-mne</div></div></div><div class="schedule-item"><div class="schedule-time">12:30</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> BigQuery Push</div></div></div><div class="schedule-item"><div class="schedule-time">12:45</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cod">cod</span> COD Launch Plan</div></div></div><div class="schedule-item"><div class="schedule-time">13:15</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cod">cod</span> Sales Team COD Deck</div></div></div><div class="schedule-item"><div class="schedule-time">13:45</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> Finance calc and projection</div></div></div><div class="schedule-item"><div class="schedule-time">14:00</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> Update Asana</div></div></div><div class="schedule-item"><div class="schedule-time">14:15</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">cpg</span> Jack sales call follow up</div><div class="schedule-prep">with jack@outriderdigital.com</div></div></div><div class="schedule-item"><div class="schedule-time">14:45</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> Hague Audit &amp; Emails Prep</div></div></div><div class="schedule-item"><div class="schedule-time">15:30</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-cpg">cpg</span> CPG Guide on Riverside</div></div></div><div class="schedule-item"><div class="schedule-time">16:30</div><div class="schedule-body"><div class="schedule-title"><span class="schedule-tag tag-internal">internal</span> Dog Walker</div></div></div></div><div class="card"><div class="card-title">Wins from yesterday</div><div class="win-item"><div class="item-title">AOC x COD JV plan v7 published</div><div class="item-detail">Live on kamg-client-reports; relaunching post-Europe May 11</div></div><div class="win-item"><div class="item-title">LTHS appointment-setting SOP shipped for Boris</div><div class="item-detail">Live on GitHub Pages, COD-stripped, AI agent section added</div></div><div class="win-item"><div class="item-title">Knowledge compilation run 86 complete</div><div class="item-detail">2 KBs enriched (ADR-019 + cms-options linked)</div></div></div><div class="card"><div class="card-title">Focus statement</div><div class="insight-item"><div class="item-title">Primary focus: COD launch plan + Redstone Eric/Leo lead-list call (11:30)</div><div class="item-detail">Russ owns Wed Facebook Strategy. Eric expects deliverables -- last 7 days have been comms-heavy, not output-heavy.</div></div></div></div>
+  <div class="section" id="cod"><div class="card" style="background:rgba(245,158,11,0.08); border-color:#f59e0b;"><div class="card-title" style="color:#f59e0b;">WARNING: COD BQ data is 14 days stale</div><div class="card-subtitle">Cloud Function morning-intel-collector OAuth broken (Gmail+Calendar invalid_client). cod_kpis cached from 2026-04-29 run covering 2026-04-22 to 2026-04-28. Numbers below are historical, not current.</div></div><div class="stat-grid"><div class="stat-card amber"><div class="stat-value">$55,422</div><div class="stat-label">Gross rev (4/22-4/28)</div></div><div class="stat-card amber"><div class="stat-value">10</div><div class="stat-label">Enrollments (window)</div></div><div class="stat-card amber"><div class="stat-value">0.30x</div><div class="stat-label">ROAS (stale)</div></div><div class="stat-card amber"><div class="stat-value">466</div><div class="stat-label">Leads (window)</div></div><div class="stat-card amber"><div class="stat-value">145</div><div class="stat-label">Applied</div></div><div class="stat-card amber"><div class="stat-value">31.1%</div><div class="stat-label">Lead -> Applied</div></div></div><div class="card"><div class="card-title">Funnel (4/22-4/28 snapshot)</div><div class="funnel-row"><div class="funnel-label">Leads</div><div class="funnel-bar" style="background:#3b82f6;width:100%">466</div></div><div class="funnel-row"><div class="funnel-label">Applied</div><div class="funnel-bar" style="background:#8b5cf6;width:31%">145</div><div class="funnel-pct">31.1%</div></div><div class="funnel-row"><div class="funnel-label">Enrolled</div><div class="funnel-bar" style="background:#10b981;width:4%;min-width:60px">10</div><div class="funnel-pct">booked/showed NULL</div></div></div><div class="card"><div class="card-title">Ad spend top 5 (window)</div><table class="data-table"><thead><tr><th>Campaign</th><th>Spend</th><th>CPM</th><th>CTR</th></tr></thead><tbody><tr><td>Paid Workshop - ABO (Cold) - Industry Adsets - Winning</td><td>$120,679</td><td>$74</td><td>7.2%</td></tr><tr><td>Paid Workshop - CBO | Licensed Therapists Counselors (LMFT, LCSW, LPC) Winning A</td><td>$33,413</td><td>$89</td><td>6.2%</td></tr><tr><td>MA Funnel Application | ABO - Millionaire Alliance Mastermind - Application</td><td>$10,570</td><td>$249</td><td>4.9%</td></tr><tr><td>Paid Workshop - CBO - FB | Coaches Consultants and Experts - Winning Ads - 2</td><td>$7,485</td><td>$207</td><td>2.7%</td></tr><tr><td>Retargeting - VSL Book Call (COD#5) - 3</td><td>$4,963</td><td>$230</td><td>2.6%</td></tr></tbody></table></div><div class="card"><div class="card-title">Today's COD blocks</div><div class="insight-item"><div class="item-title">08:15 -- COD 3rd Email</div><div class="item-detail">Russ workflow output</div></div><div class="insight-item"><div class="item-title">08:30 -- Russ Call Block</div></div><div class="insight-item"><div class="item-title">12:45 -- COD Launch Plan</div></div><div class="insight-item"><div class="item-title">13:15 -- Sales Team COD Deck</div></div></div></div>
+  
+  
+  <div class="section" id="overnight"><div class="card"><div class="card-title">Email -- last 24h (fresh from MCP)</div><div class="card-subtitle">7 threads need attention</div><div class="overnight-item"><div><span class="priority-badge priority-high">HIGH</span></div><div class="overnight-body"><div class="overnight-source">eric@redstonemanufacturing.com (via Slack) <span style="color:#94a3b8">[redstone]</span></div><div class="overnight-text"><b>Slack workspace invite</b><br/>Eric set up new Redstone Slack workspace -- accept before 11:30 lead-list call</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-med">MED</span></div><div class="overnight-body"><div class="overnight-source">krik@cpgaffiliate.com <span style="color:#94a3b8">[cpg]</span></div><div class="overnight-text"><b>Cold email report - April 27 - May 11</b><br/>Vovik report: 47 replies (3.17%), 29 interested. Need scaling decision</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-med">MED</span></div><div class="overnight-body"><div class="overnight-source">jack@outriderdigital.com <span style="color:#94a3b8">[redstone]</span></div><div class="overnight-text"><b>Outrider Digital x SB Mobile Detailing</b><br/>Meeting recap; SB Mobile Detailing context for 14:15 follow-up</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-med">MED</span></div><div class="overnight-body"><div class="overnight-source">krik@cpgaffiliate.com <span style="color:#94a3b8">[cpg]</span></div><div class="overnight-text"><b>Riverside Practice Clutch call</b><br/>CPG Riverside producer-mode prep; today 15:30 CPG Guide call</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-low">LOW</span></div><div class="overnight-body"><div class="overnight-source">russruffino@gmail.com <span style="color:#94a3b8">[cod]</span></div><div class="overnight-text"><b>Facebook Strategy meeting Wed May 13</b><br/>Tomorrow noon, accept invite</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-low">LOW</span></div><div class="overnight-body"><div class="overnight-source">rehan@kasandz.com <span style="color:#94a3b8">[admin]</span></div><div class="overnight-text"><b>vital-electronics.com domain transfer complete</b><br/>Shawn Balstone now owns the domain</div></div></div><div class="overnight-item"><div><span class="priority-badge priority-low">LOW</span></div><div class="overnight-body"><div class="overnight-source">no-reply@fathom.video <span style="color:#94a3b8">[redstone]</span></div><div class="overnight-text"><b>Recap: Outrider Digital x SB Mobile Detailing</b><br/>Luke Smith founded SB 32yrs ago, 23 employees</div></div></div></div><div class="card" style="opacity:.75"><div class="card-title">Slack overnight (STALE -- 2026-04-28 snapshot from cloud)</div><div class="card-subtitle">14 messages from cloud cache; fresh sync skipped this morning due to time pressure (COD email at 08:15)</div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#marketing-optimization</div><div class="overnight-text">For the First Attribute and Last Attribution fields these come directly from UTMs that GHL processes. The data is pushed to that Reporting Workbook at multiple points. (There are multiple sheets insid</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text">Weird one that as it looks like it's behind a bar that isn't there on many devices. I've stuck the CTA to the bottom using a more robust method now.
+
+All the click actions have worked for me correctly</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#sales-fun</div><div class="overnight-text">&lt;@U8V881XGA&gt;</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#sales-team-help</div><div class="overnight-text">A new *COD w/ DFY* client has been kicked off and is ready to onboard!
+&amp;gt;*Client*: &lt;https://app.ontraport.com/#!/contact/edit&amp;amp;id=495137|Laura Riness&gt; | &lt;mailto:laura.riness@outlook.com|laura.rin</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#sales-fun</div><div class="overnight-text">fist bump</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text"></div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text">May need to move it up</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text">Also CTA is below the fold on mobile</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text">Please check out</div></div></div><div class="overnight-item"><div class="overnight-body"><div class="overnight-source">#tech-titans</div><div class="overnight-text">Mike Buontempo messaged me to say that CTA on JIT webinar is broken. Then he clicked again and it worked</div></div></div></div></div>
+  <div class="section" id="actions"><div class="card"><div class="card-title">Time-sensitive (before noon)</div><div class="action-item"><div class="action-check"></div><div class="action-text">Send COD 3rd Email (08:15 block) <span class="action-context">Russ workflow output</span></div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Accept Eric's Redstone Slack invite before 11:30 lead-list call</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Prep lead list + copy ahead of 11:30 with Eric+Leo <span class="action-context">meet.google.com/tpo-xuzg-mne</span></div></div></div><div class="card"><div class="card-title">Today's deliverables</div><div class="action-item"><div class="action-check"></div><div class="action-text">BigQuery push (12:30)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">COD Launch Plan (12:45)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Sales Team COD Deck (13:15)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Finance calc + projection (13:45)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Update Asana (14:00)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Jack sales-call follow up (14:15)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">Hague Audit & Emails prep (14:45)</div></div><div class="action-item"><div class="action-check"></div><div class="action-text">CPG Riverside guide call (15:30)</div></div></div><div class="card"><div class="card-title">Carry-forward concerns</div><div class="concern-item"><div class="item-title">Backup task stuck 13 days (FIXED today)</div><div class="item-detail">Terminated stuck task, running manually now. Permanent fix: investigate why task stays in Running state.</div></div><div class="concern-item"><div class="item-title">Morning-intel CF OAuth broken</div><div class="item-detail">invalid_client on Gmail+Calendar refresh tokens. cod_kpis cached BQ data 14 days stale. Needs CF OAuth re-auth.</div></div><div class="concern-item"><div class="item-title">Cache TTL patch N/A on native installer</div><div class="item-detail">cli.js not found -- patch is for node-installed Claude Code, not native Windows installer. Not blocking.</div></div><div class="concern-item"><div class="item-title">Agency Brain offline on PC-C</div><div class="item-detail">192.168.100.20:8080 unreachable. Compiler ingest bridge dormant; non-blocking.</div></div></div></div>
+  <div class="section" id="sources"><div class="card"><div class="card-title">Data source map</div><table class="data-table"><thead><tr><th>Source</th><th>Status</th><th>Freshness</th></tr></thead><tbody><tr><td>Calendar</td><td style="color:#10b981">FRESH (MCP)</td><td>2026-05-12T18:28:49.804Z</td></tr><tr><td>Email</td><td style="color:#10b981">FRESH (MCP, last 1d)</td><td>2026-05-12T18:28:49.804Z</td></tr><tr><td>Slack overnight</td><td style="color:#f59e0b">STALE (cloud cache)</td><td>2026-04-28</td></tr><tr><td>COD BQ KPIs</td><td style="color:#f59e0b">STALE (cloud cache)</td><td>2026-04-22 to 2026-04-28</td></tr><tr><td>Compiler</td><td style="color:#10b981">HEALTHY</td><td>last run 06:00 CDMX today</td></tr><tr><td>Backup</td><td style="color:#f59e0b">RECOVERING</td><td>stuck task killed, manual run in progress</td></tr><tr><td>Agency Brain</td><td style="color:#ef4444">OFFLINE</td><td>PC-C unreachable</td></tr></tbody></table></div><div class="card"><div class="card-title">Data badge</div><div class="insight-item"><div class="item-title">Mode: local-fallback (FRESH for cal/email, STALE for slack/BQ)</div><div class="item-detail">Cloud "latest" pointer + timestamped file both showed 2026-04-29 generated_at -- morning-intel CF needs OAuth re-auth.</div></div></div></div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') === `showTab('${id}')`) t.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

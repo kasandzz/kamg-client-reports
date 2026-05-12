@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rehan Brief: 2-Step Modal Checkout (COD $27 Workshop)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.6; padding: 2rem; }
+  .container { max-width: 860px; margin: 0 auto; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 2rem 2.5rem; border-radius: 16px 16px 0 0; }
+  .header h1 { font-size: 1.65rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .header .subtitle { font-size: 0.95rem; opacity: 0.8; }
+  .header-meta { display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.85rem; flex-wrap: wrap; }
+  .header-meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+  .alert-bar { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem 1.5rem; font-size: 0.9rem; font-weight: 600; }
+  .alert-bar em { font-weight: 400; }
+
+  .tldr { background: #ecfeff; border-left: 4px solid #06b6d4; padding: 1.1rem 1.5rem; font-size: 0.92rem; }
+  .tldr strong { color: #155e75; }
+
+  .content { background: white; padding: 2rem 2.5rem; border-radius: 0 0 16px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .task-section { margin-bottom: 2.5rem; }
+  .task-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e5e5ea; }
+  .task-number { background: #1a1a2e; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+  .task-title { font-size: 1.2rem; font-weight: 700; }
+
+  .link-box { background: #f0f4ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .link-box .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #6366f1; font-weight: 700; margin-bottom: 0.25rem; }
+  .link-box a { color: #4f46e5; font-weight: 600; word-break: break-all; text-decoration: none; }
+  .link-box a:hover { text-decoration: underline; }
+
+  .context-box { background: #fafafa; border-left: 3px solid #a78bfa; border-radius: 0 10px 10px 0; padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: 0.9rem; }
+  .context-box .context-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #7c3aed; font-weight: 700; margin-bottom: 0.5rem; }
+  .context-box blockquote { font-style: italic; color: #555; border-left: 2px solid #ddd; padding-left: 0.75rem; margin: 0.5rem 0; }
+
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: #1a1a2e; }
+  h4 { font-size: 0.9rem; font-weight: 700; margin: 1.25rem 0 0.4rem; color: #374151; }
+  p { margin-bottom: 0.75rem; font-size: 0.92rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 0.75rem; }
+  li { margin-bottom: 0.35rem; font-size: 0.92rem; }
+
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6; display: flex; gap: 0.5rem; align-items: flex-start; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-num { background: #e5e7eb; color: #374151; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  .warn { color: #dc2626; font-weight: 700; }
+  .highlight { background: #fef9c3; padding: 0 0.2rem; border-radius: 3px; }
+  .divider { height: 1px; background: #e5e5ea; margin: 2rem 0; }
+
+  .sub-section { background: #fafafa; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+  .sub-section h4 { margin-top: 0; }
+  .sub-label { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.15rem 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; }
+  .sub-label.must { background: #fee2e2; color: #dc2626; }
+  .sub-label.explore { background: #e0e7ff; color: #4f46e5; }
+  .sub-label.nice { background: #dcfce7; color: #166534; }
+
+  .footer { margin-top: 2rem; padding: 1.25rem 1.5rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; }
+  .footer h3 { color: #dc2626; margin-top: 0; font-size: 0.95rem; }
+  .footer ul { margin-bottom: 0; }
+  .footer li { font-size: 0.9rem; }
+
+  /* Flow diagram */
+  .flow { display: flex; align-items: center; gap: 0; margin: 1rem 0; flex-wrap: wrap; }
+  .flow-step { padding: 0.55rem 1rem; font-size: 0.82rem; font-weight: 600; border: 1px solid #c7d2fe; background: #f0f4ff; color: #3730a3; }
+  .flow-step:first-child { border-radius: 8px 0 0 8px; }
+  .flow-step:last-child { border-radius: 0 8px 8px 0; }
+  .flow-step.save { background: #dcfce7; border-color: #86efac; color: #166534; }
+  .flow-step.paid { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+  .flow-arrow { background: transparent; border: none; padding: 0 0.4rem; font-size: 0.85rem; color: #9ca3af; }
+
+  /* Code snippets */
+  code, pre { font-family: 'SF Mono', Consolas, monospace; font-size: 0.85rem; }
+  code { background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 4px; color: #1f2937; }
+  pre { background: #1a1a2e; color: #e5e7eb; padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; margin: 0.5rem 0 1rem; line-height: 1.5; }
+  pre code { background: transparent; padding: 0; color: inherit; }
+
+  /* Event table */
+  table.events { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+  table.events th, table.events td { text-align: left; padding: 0.55rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+  table.events th { background: #f9fafb; font-weight: 700; color: #374151; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; }
+  table.events td code { font-size: 0.82rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>2-Step Modal Checkout: Build &amp; Split Test</h1>
+    <div class="subtitle">COD $27 Workshop — Convert full-page redirect into in-page modal with email-capture step</div>
+    <div class="header-meta">
+      <span>From: Kas</span>
+      <span>To: Rehan</span>
+      <span>Date: 2026-05-12</span>
+      <span>Priority: HIGH</span>
+    </div>
+  </div>
+
+  <!-- ALERT -->
+  <div class="alert-bar">
+    Show me a Loom of the full modal flow on desktop AND mobile before activating the PostHog experiment. <em>Same rule as always — nothing live without my eyes on it first.</em>
+  </div>
+
+  <!-- TLDR -->
+  <div class="tldr">
+    <strong>TL;DR — what we&apos;re doing and why:</strong> The current $27 workshop checkout sends people away from the reg page to a full GHL checkout page. We lose two things: (1) the context of the reg page, and (2) any data on people who bail before paying. We&apos;re replacing that with a <strong>modal that opens on top of the reg page</strong>. Step 1 asks for name + email and <strong>saves to GHL immediately</strong>. Step 2 collects payment. Even if they bail at Step 2, we have their email and can run an abandoned-checkout sequence. We&apos;ll test it 50/50 against the current flow using a PostHog feature flag so we have real numbers before we kill the old one.
+  </div>
+
+  <div class="content">
+
+    <!-- ================== TASK 1 — BIG PICTURE ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">1</div>
+        <div class="task-title">The Big Picture (read this first)</div>
+      </div>
+
+      <h3>Current flow (what users see today)</h3>
+      <div class="flow">
+        <span class="flow-step">Reg page</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step">Click &quot;Save my seat&quot;</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step">Redirected to GHL checkout page</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step paid">Pay $27</span>
+      </div>
+      <p><strong>The problem:</strong> If they don&apos;t complete payment, we have nothing on them. No email, no name, no way to follow up. Lots of money walks out the door silently.</p>
+
+      <h3>New flow (what we&apos;re building)</h3>
+      <div class="flow">
+        <span class="flow-step">Reg page</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step">Click &quot;Save my seat&quot;</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step">Modal opens (Step 1: Name + Email)</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step save">✓ Saved to GHL</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step">Step 2 (Payment)</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-step paid">Pay $27</span>
+      </div>
+      <p><strong>The win:</strong> Even if they bail at Step 2, we already have their name + email saved as a GHL contact tagged <code>workshop-checkout-started</code>. That triggers a 3-email abandoned-checkout sequence to bring them back. <span class="highlight">Free pipeline from people who would have ghosted us.</span></p>
+
+      <div class="context-box">
+        <div class="context-label">Why we&apos;re doing this</div>
+        <blockquote>$27 workshop is the top of the COD funnel — every checkout abandon is a lost call/enrollment downstream. Even a 5% recovery rate from abandoned-checkout emails is huge over a month. We also want cleaner attribution: with Step 1 captured, we can match GHL contacts back to PostHog sessions and ad campaigns.</blockquote>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 2 — BUILD MODAL ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">2</div>
+        <div class="task-title">Build the 2-Step Modal in GHL</div>
+      </div>
+
+      <div class="link-box">
+        <div class="label">Platform — GHL $27 Reg Page</div>
+        <a href="https://app.gohighlevel.com/" target="_blank">app.gohighlevel.com → COD sub-account → Sites → Funnels → $27 Workshop → Registration page</a>
+      </div>
+
+      <h3>Step 1 — Email + Name capture (the most important part)</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Fields in Step 1</h4>
+        <ul>
+          <li><strong>Full Name</strong> (single field — NOT split first/last)</li>
+          <li><strong>Email</strong></li>
+          <li>One button: <strong>&quot;Continue to checkout →&quot;</strong></li>
+        </ul>
+        <p><strong>Critical behaviour:</strong> When they click &quot;Continue to checkout&quot;, the form <span class="warn">MUST create/update the GHL contact BEFORE moving to Step 2</span>. If they close the modal at this point, we still keep the contact.</p>
+      </div>
+
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Tags applied at Step 1 submit</h4>
+        <ul>
+          <li>Add tag: <code>workshop-checkout-started</code></li>
+          <li>Add tag: <code>workshop-source-modal-v1</code> (so we can filter test-group contacts later)</li>
+          <li>Custom field <code>checkout_started_at</code> = current timestamp</li>
+        </ul>
+      </div>
+
+      <h3>Step 2 — Payment</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Step 2 = the existing GHL Stripe checkout, embedded inside the modal</h4>
+        <ul>
+          <li>Reuse the existing $27 Stripe product — don&apos;t make a new one</li>
+          <li>Pre-fill Name + Email from Step 1 so they don&apos;t retype</li>
+          <li>Card fields, billing zip, &quot;Complete order — $27&quot; button</li>
+          <li>On success: redirect to current thank-you / replay URL (same one as today)</li>
+        </ul>
+      </div>
+
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Tags applied at successful payment</h4>
+        <ul>
+          <li>Add tag: <code>workshop-purchased</code></li>
+          <li>Remove tag: <code>workshop-checkout-started</code> (so abandoned sequence stops)</li>
+          <li>Custom field <code>checkout_completed_at</code> = current timestamp</li>
+        </ul>
+      </div>
+
+      <h3>Modal UX rules</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Behaviour</h4>
+        <ul>
+          <li>Trigger: click on any &quot;Save my seat&quot; / &quot;Reserve seat&quot; / &quot;Get instant access&quot; CTA</li>
+          <li>Modal opens centered, dark overlay behind</li>
+          <li>Close button (X) top-right — closing fires PostHog event <code>checkout_modal_closed</code></li>
+          <li>Mobile: modal fills the screen edge-to-edge, large tap targets, keyboard-friendly</li>
+          <li>Back button on Step 2 returns to Step 1 (lets them fix typos)</li>
+          <li><span class="warn">Mobile-first design</span> — 90% of our traffic is mobile</li>
+        </ul>
+      </div>
+
+      <div class="context-box">
+        <div class="context-label">Reference styling</div>
+        <blockquote>Match the dark fintech aesthetic of the current $27 reg page. Use the existing COD button color and font stack — don&apos;t reinvent it. The modal should feel like a continuation of the page, not a different site.</blockquote>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 3 — POSTHOG EXPERIMENT ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">3</div>
+        <div class="task-title">Set Up the PostHog Experiment (50/50 split)</div>
+      </div>
+
+      <div class="link-box">
+        <div class="label">Platform — PostHog</div>
+        <a href="https://app.posthog.com/" target="_blank">app.posthog.com → COD project → Experiments → New experiment</a>
+      </div>
+
+      <h3>Why PostHog, not GHL A/B</h3>
+      <p>GHL&apos;s built-in A/B is too dumb — it can&apos;t do proper stat significance, it can&apos;t segment by traffic source, and we can&apos;t cross-reference with ad spend. PostHog handles the split, the events, and the math.</p>
+
+      <h3>Experiment setup</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Create the feature flag</h4>
+        <ul>
+          <li>Feature flag key: <code>checkout-modal-2step-v1</code></li>
+          <li>Variants: <code>control</code> (50%) and <code>modal-2step</code> (50%)</li>
+          <li>Rollout: 100% of users on the $27 reg page get bucketed</li>
+          <li>Persistence: by <code>distinct_id</code> (so the same visitor always sees the same variant, even across sessions)</li>
+        </ul>
+      </div>
+
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Wire it into the reg page</h4>
+        <p>Pseudo-code for what the CTA click needs to do:</p>
+<pre><code>// On reg page load
+posthog.onFeatureFlags(function() {
+  const variant = posthog.getFeatureFlag('checkout-modal-2step-v1');
+  // variant is 'control' or 'modal-2step'
+
+  document.querySelectorAll('.cta-save-seat').forEach(btn =&gt; {
+    btn.addEventListener('click', function(e) {
+      if (variant === 'modal-2step') {
+        e.preventDefault();
+        openCheckoutModal();   // new flow
+      }
+      // else: let the existing link redirect (control flow)
+    });
+  });
+});</code></pre>
+        <p>Make sure the PostHog snippet loads BEFORE any CTA can be clicked, otherwise the variant won&apos;t be known yet. If you&apos;re unsure how, ping me — we have a working pattern from the prior PostHog setup.</p>
+      </div>
+
+      <h3>Primary metric (what wins the test)</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Conversion rate from CTA click → paid</h4>
+        <ul>
+          <li><strong>Goal event:</strong> <code>checkout_completed</code></li>
+          <li><strong>Entry event:</strong> <code>checkout_cta_clicked</code></li>
+          <li><strong>Minimum sample:</strong> 1,000 CTA-clicks per variant OR 14 days, whichever comes first</li>
+          <li><strong>Significance threshold:</strong> 95% confidence (PostHog default)</li>
+        </ul>
+      </div>
+
+      <div class="sub-section">
+        <span class="sub-label explore">Explore (secondary metrics)</span>
+        <h4>What we also want to see in the dashboard</h4>
+        <ul>
+          <li>Step-1 capture rate (modal variant only): % of CTA-clicks that submit Step 1</li>
+          <li>Step-1 → Step-2 advance rate</li>
+          <li>Step-2 → paid rate (the &quot;new abandon rate&quot;)</li>
+          <li>Time on page before CTA click (does the modal change browsing behaviour?)</li>
+          <li>Mobile vs desktop split for each variant</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 4 — EVENTS ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">4</div>
+        <div class="task-title">PostHog Events to Fire</div>
+      </div>
+
+      <p>Every event below must fire from BOTH variants where applicable so we can compare apples-to-apples.</p>
+
+      <table class="events">
+        <thead>
+          <tr><th>Event name</th><th>Fires when</th><th>Variants</th><th>Properties</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>checkout_cta_clicked</code></td>
+            <td>Any &quot;Save my seat&quot; CTA is clicked on the reg page</td>
+            <td>Both</td>
+            <td><code>variant</code>, <code>cta_position</code> (hero / mid / footer), <code>device</code></td>
+          </tr>
+          <tr>
+            <td><code>checkout_step1_viewed</code></td>
+            <td>Modal opens to Step 1</td>
+            <td>Modal only</td>
+            <td><code>variant</code></td>
+          </tr>
+          <tr>
+            <td><code>checkout_step1_submitted</code></td>
+            <td>Name + Email submitted, contact saved to GHL</td>
+            <td>Modal only</td>
+            <td><code>variant</code>, <code>email</code> (hashed if needed)</td>
+          </tr>
+          <tr>
+            <td><code>checkout_step2_viewed</code></td>
+            <td>Payment step shown</td>
+            <td>Modal only</td>
+            <td><code>variant</code></td>
+          </tr>
+          <tr>
+            <td><code>checkout_modal_closed</code></td>
+            <td>X clicked or backdrop tapped</td>
+            <td>Modal only</td>
+            <td><code>variant</code>, <code>closed_at_step</code> (1 or 2)</td>
+          </tr>
+          <tr>
+            <td><code>checkout_completed</code></td>
+            <td>Payment success (after Stripe confirms)</td>
+            <td>Both</td>
+            <td><code>variant</code>, <code>amount</code>, <code>email</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="context-box">
+        <div class="context-label">Identify call</div>
+        <blockquote>On <code>checkout_step1_submitted</code> for the modal variant, call <code>posthog.identify(email, { name, variant: 'modal-2step' })</code> so the GHL contact and the PostHog person are linked. This unblocks downstream attribution. Use the same identify pattern we set up before — see prior PostHog identify dev brief in the COD output folder.</blockquote>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 5 — ABANDONED CHECKOUT ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">5</div>
+        <div class="task-title">Abandoned Checkout Email Sequence</div>
+      </div>
+
+      <div class="link-box">
+        <div class="label">Platform — GHL Workflows</div>
+        <a href="https://app.gohighlevel.com/" target="_blank">app.gohighlevel.com → COD sub-account → Automation → Workflows → New workflow</a>
+      </div>
+
+      <h3>Trigger</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Workflow trigger conditions</h4>
+        <ul>
+          <li><strong>Trigger:</strong> Contact tag added = <code>workshop-checkout-started</code></li>
+          <li><strong>Filter:</strong> Contact does NOT have tag <code>workshop-purchased</code></li>
+          <li><strong>Wait condition before email 1:</strong> 30 minutes</li>
+          <li><strong>Exit condition (re-check before each email):</strong> If tag <code>workshop-purchased</code> is added, stop the workflow immediately</li>
+        </ul>
+      </div>
+
+      <h3>3-Email sequence (drafts — I&apos;ll write final copy)</h3>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Email 1 — 30 min after Step 1 (light reminder)</h4>
+        <ul>
+          <li>Subject: <em>Quick — you almost had your seat</em></li>
+          <li>Body: 2 sentences + same CTA link back to reg page with <code>?resume=1</code> param so we can track recoveries</li>
+        </ul>
+      </div>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Email 2 — 24h later (value reminder)</h4>
+        <ul>
+          <li>Reminder of what they get for $27, no fake scarcity</li>
+        </ul>
+      </div>
+      <div class="sub-section">
+        <span class="sub-label must">Must Do</span>
+        <h4>Email 3 — 72h later (final nudge)</h4>
+        <ul>
+          <li>Short, low-pressure last email</li>
+          <li>After email 3, tag with <code>workshop-checkout-abandoned-final</code> and exit</li>
+        </ul>
+      </div>
+
+      <div class="context-box">
+        <div class="context-label">Rule — Kas writes the copy</div>
+        <blockquote>Build the workflow structure with placeholder copy. <span class="warn">I&apos;ll send you the final email copy.</span> Don&apos;t generate it yourself — there are COD voice rules (no fake scarcity, no toolkit refs, no workshop denigration) that need to be applied by hand.</blockquote>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 6 — QA ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">6</div>
+        <div class="task-title">QA Before We Activate</div>
+      </div>
+
+      <p>Run through this list on a test contact (use <code>rehan+test@kasandz.com</code> so you can re-test cleanly):</p>
+
+      <ol class="checklist">
+        <li><span class="check-num">1</span> <span>Open reg page in incognito on mobile + desktop — confirm PostHog assigns a variant</span></li>
+        <li><span class="check-num">2</span> <span>Click CTA in <strong>control</strong> variant — verify it still redirects to current full-page checkout</span></li>
+        <li><span class="check-num">3</span> <span>Force yourself into the <strong>modal-2step</strong> variant (PostHog has an override tool) — modal opens</span></li>
+        <li><span class="check-num">4</span> <span>Submit Step 1 — within 5 seconds, verify the contact appears in GHL with tags <code>workshop-checkout-started</code> + <code>workshop-source-modal-v1</code></span></li>
+        <li><span class="check-num">5</span> <span>Close the modal before Step 2 — confirm contact stays in GHL, no purchase tag</span></li>
+        <li><span class="check-num">6</span> <span>Open abandoned-checkout workflow — confirm the test contact is queued for Email 1</span></li>
+        <li><span class="check-num">7</span> <span>Manually advance workflow time (or use 1-min waits for testing) — verify Email 1 fires</span></li>
+        <li><span class="check-num">8</span> <span>Re-open reg page, complete full flow with Stripe test card <code>4242 4242 4242 4242</code></span></li>
+        <li><span class="check-num">9</span> <span>Verify <code>workshop-purchased</code> tag added, <code>workshop-checkout-started</code> tag removed, workflow exits</span></li>
+        <li><span class="check-num">10</span> <span>Verify all 6 PostHog events fire and show up in the Live events feed</span></li>
+        <li><span class="check-num">11</span> <span>Mobile retest — open on actual phone, not just Chrome devtools</span></li>
+        <li><span class="check-num">12</span> <span class="warn">Record a Loom of the full flow (desktop + mobile) and send to me BEFORE activating the feature flag rollout above 0%</span></li>
+      </ol>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ================== TASK 7 — DEFINITION OF DONE ================== -->
+    <div class="task-section">
+      <div class="task-header">
+        <div class="task-number">7</div>
+        <div class="task-title">Definition of Done</div>
+      </div>
+
+      <p>You can call this task complete when ALL of these are true:</p>
+      <ol class="checklist">
+        <li><span class="check-num">1</span> <span>Modal exists on the $27 reg page and only fires for users in the <code>modal-2step</code> PostHog variant</span></li>
+        <li><span class="check-num">2</span> <span>Step 1 saves Name + Email to GHL contact with correct tags BEFORE Step 2 loads</span></li>
+        <li><span class="check-num">3</span> <span>Step 2 uses existing $27 Stripe product, pre-filled with Step 1 data</span></li>
+        <li><span class="check-num">4</span> <span>Successful payment removes the &quot;started&quot; tag and adds &quot;purchased&quot;</span></li>
+        <li><span class="check-num">5</span> <span>Abandoned-checkout workflow exists and is wired to the right tags (waiting on my email copy)</span></li>
+        <li><span class="check-num">6</span> <span>PostHog feature flag is created at 0% rollout (not live to users yet)</span></li>
+        <li><span class="check-num">7</span> <span>All 6 events fire reliably in tests</span></li>
+        <li><span class="check-num">8</span> <span>Loom recorded and sent to Kas</span></li>
+        <li><span class="check-num">9</span> <span><span class="warn">Kas has approved → THEN flip the flag to 100% rollout (50/50 split)</span></span></li>
+      </ol>
+    </div>
+
+    <!-- FOOTER REMINDERS -->
+    <div class="footer">
+      <h3>Reminders</h3>
+      <ul>
+        <li><strong>Nothing goes live without showing me first.</strong> Loom of desktop + mobile, then I flip the flag.</li>
+        <li><strong>Don&apos;t touch the control flow.</strong> The current full-page checkout must keep working exactly as it does today — it&apos;s 50% of the test.</li>
+        <li><strong>Single &quot;Full Name&quot; field</strong> — not split first/last. Single field, the whole way through.</li>
+        <li><strong>Test on a real mobile device</strong>, not just devtools. 90% of our traffic is mobile.</li>
+        <li><strong>If you hit any GHL limitation</strong> (modals are tricky inside GHL builders), flag it to me immediately — we&apos;ll figure out a custom HTML embed if needed.</li>
+        <li><strong>Use the existing PostHog identify pattern</strong> from the prior brief — don&apos;t re-invent it.</li>
+        <li><strong>I&apos;ll write the abandoned-checkout email copy.</strong> Build placeholders only.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -580,13 +580,17 @@ App.registerPage('journey-explorer', async (container) => {
   cohortCard.innerHTML = `
     <div style="margin-bottom:8px">
       <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Cohort Velocity (Weekly)</div>
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Week-of-first-touch cohorts. Compare CVR + close speed across cohorts.</div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Week-of-first-touch cohorts. Compare CVR + close speed across cohorts. <span style="color:${Theme.COLORS.textSecondary}">Click any row to drill into individual journeys.</span></div>
     </div>
   `;
   splitGrid.appendChild(cohortCard);
 
-  if (_jeErrors.cohort || !cohortRows || cohortRows.length === 0) {
-    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">${_jeErrors.cohort || 'No cohort data.'}</div>`;
+  if (_jeErrors.cohort) {
+    // Don't dump raw BQ error text at users; log to console and show structured copy.
+    console.warn('cohortVelocity query error:', _jeErrors.cohort);
+    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">Cohort velocity data unavailable — query failed. Retry the page, or check Data Health.</div>`;
+  } else if (!cohortRows || cohortRows.length === 0) {
+    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">No cohort velocity data in the last 12 weeks. Widen the lookback or verify that bridge_customer_journey has rows for recent cohort_weeks.</div>`;
   } else {
     let html = `
       <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
@@ -607,7 +611,16 @@ App.registerPage('journey-explorer', async (container) => {
     cohortRows.forEach((r, i) => {
       const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
       const cvr = Number(r.overall_cvr_pct) || 0;
-      const cvrColor = cvr >= 5 ? Theme.COLORS.success : cvr >= 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+      const cohortSize = Number(r.cohort_size) || 0;
+      // CVR color tiering. Previously sub-2% cohorts collapsed into a muted
+      // textSecondary that read as "neutral" — actively underperforming cohorts
+      // now surface in danger red. The "no cohort_size" case stays muted (no
+      // signal to grade).
+      const cvrColor = cohortSize === 0
+        ? Theme.COLORS.textMuted
+        : cvr >= 5 ? Theme.COLORS.success
+        : cvr >= 2 ? Theme.COLORS.warning
+        : Theme.COLORS.danger;
       const week = (r.cohort_week && (r.cohort_week.value || r.cohort_week)) || '';
       const weekIso = String(week).slice(0, 10);
       html += `

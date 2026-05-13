@@ -306,26 +306,28 @@ App.registerPage('ma-funnel', async (container) => {
   appSection.appendChild(appCard);
 
   const aRows = appRows || [];
-  Theme.createChart('ma-app-trend', {
-    type: 'bar',
-    data: {
-      labels: aRows.map(r => r.day ? r.day.value || r.day : r.day),
-      datasets: [{
-        label: 'Applications',
-        data: aRows.map(r => r.applications || 0),
-        backgroundColor: '#a855f7',
-        borderRadius: 3,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, maxTicksLimit: 15 }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+  Components.lazyChart('ma-app-trend', () => {
+    Theme.createChart('ma-app-trend', {
+      type: 'bar',
+      data: {
+        labels: aRows.map(r => r.day ? r.day.value || r.day : r.day),
+        datasets: [{
+          label: 'Applications',
+          data: aRows.map(r => r.applications || 0),
+          backgroundColor: '#a855f7',
+          borderRadius: 3,
+        }],
       },
-    },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, maxTicksLimit: 15 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        },
+      },
+    });
   });
 });
 

@@ -654,42 +654,44 @@ function _renderCampaignCharts(container) {
   volumeCard.appendChild(volumeCanvas);
   grid.appendChild(volumeCard);
 
-  Theme.createChart('ce-volume-chart', {
-    type: 'line',
-    data: {
-      labels: _CE_DAILY.map(d => { const dt = new Date(d.date); return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }),
-      datasets: [{
-        label: 'Emails Sent',
-        data: _CE_DAILY.map(d => d.sent),
-        borderColor: Theme.COLORS.accent,
-        backgroundColor: Theme.COLORS.accent + '18',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-      }, {
-        label: 'Replies',
-        data: _CE_DAILY.map(d => d.replied),
-        borderColor: Theme.COLORS.success,
-        backgroundColor: Theme.COLORS.success + '18',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        yAxisID: 'y1',
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } } },
-      scales: {
-        x: { grid: { color: Theme.COLORS.gridLine }, ticks: { maxTicksLimit: 10, font: { size: 10 } } },
-        y: { grid: { color: Theme.COLORS.gridLine }, title: { display: true, text: 'Sent', font: { size: 10 } } },
-        y1: { position: 'right', grid: { display: false }, title: { display: true, text: 'Replies', font: { size: 10 } } },
+  Components.lazyChart('ce-volume-chart', () => {
+    Theme.createChart('ce-volume-chart', {
+      type: 'line',
+      data: {
+        labels: _CE_DAILY.map(d => { const dt = new Date(d.date); return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }),
+        datasets: [{
+          label: 'Emails Sent',
+          data: _CE_DAILY.map(d => d.sent),
+          borderColor: Theme.COLORS.accent,
+          backgroundColor: Theme.COLORS.accent + '18',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+        }, {
+          label: 'Replies',
+          data: _CE_DAILY.map(d => d.replied),
+          borderColor: Theme.COLORS.success,
+          backgroundColor: Theme.COLORS.success + '18',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          yAxisID: 'y1',
+        }],
       },
-    },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } } },
+        scales: {
+          x: { grid: { color: Theme.COLORS.gridLine }, ticks: { maxTicksLimit: 10, font: { size: 10 } } },
+          y: { grid: { color: Theme.COLORS.gridLine }, title: { display: true, text: 'Sent', font: { size: 10 } } },
+          y1: { position: 'right', grid: { display: false }, title: { display: true, text: 'Replies', font: { size: 10 } } },
+        },
+      },
+    });
   });
 
   // -- Chart 3: Cold Email Funnel (without Sent -- too large, skews chart) --
@@ -713,39 +715,41 @@ function _renderCampaignCharts(container) {
 
   const funnelColors = ['#3b82f6', '#06b6d4', '#14b8a6', '#22c55e', '#eab308', '#f97316'];
 
-  Theme.createChart('ce-funnel-chart', {
-    type: 'bar',
-    data: {
-      labels: funnelStages.map(s => s.label),
-      datasets: [{
-        data: funnelStages.map(s => s.value),
-        backgroundColor: funnelColors.map(c => c + 'cc'),
-        borderRadius: 4,
-        barThickness: 32,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            afterLabel: (ctx) => {
-              const idx = ctx.dataIndex;
-              if (idx === 0) return '';
-              const prev = funnelStages[idx - 1].value;
-              const rate = prev > 0 ? ((funnelStages[idx].value / prev) * 100).toFixed(1) : '0.0';
-              return rate + '% conversion from ' + funnelStages[idx - 1].label;
+  Components.lazyChart('ce-funnel-chart', () => {
+    Theme.createChart('ce-funnel-chart', {
+      type: 'bar',
+      data: {
+        labels: funnelStages.map(s => s.label),
+        datasets: [{
+          data: funnelStages.map(s => s.value),
+          backgroundColor: funnelColors.map(c => c + 'cc'),
+          borderRadius: 4,
+          barThickness: 32,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                const idx = ctx.dataIndex;
+                if (idx === 0) return '';
+                const prev = funnelStages[idx - 1].value;
+                const rate = prev > 0 ? ((funnelStages[idx].value / prev) * 100).toFixed(1) : '0.0';
+                return rate + '% conversion from ' + funnelStages[idx - 1].label;
+              },
             },
           },
         },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: Theme.COLORS.gridLine } },
+        },
       },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: Theme.COLORS.gridLine } },
-      },
-    },
+    });
   });
 
   // Conversion rate labels below funnel
@@ -781,34 +785,36 @@ function _renderCampaignCharts(container) {
     return hr + ampm;
   });
 
-  Theme.createChart('ce-reply-hours-chart', {
-    type: 'bar',
-    data: {
-      labels: hourLabels,
-      datasets: [{
-        label: 'Human Replies',
-        data: hours.map(h => h.human_replies),
-        backgroundColor: Theme.COLORS.accent + 'cc',
-        borderRadius: 3,
-      }, {
-        label: 'Automated/Bounce',
-        data: hours.map(h => h.total_replies - h.human_replies),
-        backgroundColor: Theme.COLORS.textMuted + '66',
-        borderRadius: 3,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
-        tooltip: { mode: 'index' },
+  Components.lazyChart('ce-reply-hours-chart', () => {
+    Theme.createChart('ce-reply-hours-chart', {
+      type: 'bar',
+      data: {
+        labels: hourLabels,
+        datasets: [{
+          label: 'Human Replies',
+          data: hours.map(h => h.human_replies),
+          backgroundColor: Theme.COLORS.accent + 'cc',
+          borderRadius: 3,
+        }, {
+          label: 'Automated/Bounce',
+          data: hours.map(h => h.total_replies - h.human_replies),
+          backgroundColor: Theme.COLORS.textMuted + '66',
+          borderRadius: 3,
+        }],
       },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
-        y: { stacked: true, grid: { color: Theme.COLORS.gridLine } },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { mode: 'index' },
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 } } },
+          y: { stacked: true, grid: { color: Theme.COLORS.gridLine } },
+        },
       },
-    },
+    });
   });
 
   // -- CPA Comparison (if Meta data available) --
@@ -820,35 +826,37 @@ function _renderCampaignCharts(container) {
     cpaCard.appendChild(cpaCanvas);
     grid.appendChild(cpaCard);
 
-    Theme.createChart('ce-cpa-compare-chart', {
-      type: 'line',
-      data: {
-        labels: _CE_META_CPA.map(d => {
-          const dt = new Date(d.week);
-          return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        }),
-        datasets: [{
-          label: 'Meta Ads CPA',
-          data: _CE_META_CPA.map(d => d.cpa > 0 ? d.cpa.toFixed(2) : null),
-          borderColor: Theme.COLORS.warning,
-          backgroundColor: Theme.COLORS.warning + '18',
-          tension: 0.3,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
-          tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': $' + ctx.raw } },
+    Components.lazyChart('ce-cpa-compare-chart', () => {
+      Theme.createChart('ce-cpa-compare-chart', {
+        type: 'line',
+        data: {
+          labels: _CE_META_CPA.map(d => {
+            const dt = new Date(d.week);
+            return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          }),
+          datasets: [{
+            label: 'Meta Ads CPA',
+            data: _CE_META_CPA.map(d => d.cpa > 0 ? d.cpa.toFixed(2) : null),
+            borderColor: Theme.COLORS.warning,
+            backgroundColor: Theme.COLORS.warning + '18',
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }],
         },
-        scales: {
-          x: { grid: { color: Theme.COLORS.gridLine } },
-          y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => '$' + v } },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
+            tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': $' + ctx.raw } },
+          },
+          scales: {
+            x: { grid: { color: Theme.COLORS.gridLine } },
+            y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => '$' + v } },
+          },
         },
-      },
+      });
     });
   }
 }
@@ -1258,36 +1266,38 @@ function _renderConversionBridge(container) {
 
   const bridgeColors = ['#22c55e', '#06b6d4', '#a855f7', '#eab308', '#64748b', '#ef4444'];
 
-  Theme.createChart('ce-bridge-chart', {
-    type: 'bar',
-    data: {
-      labels: _CE_BRIDGE.map(b => stageLabels[b.funnel_stage] || b.funnel_stage),
-      datasets: [{
-        data: _CE_BRIDGE.map(b => b.lead_count || 0),
-        backgroundColor: _CE_BRIDGE.map((_, i) => (bridgeColors[i] || '#64748b') + 'cc'),
-        borderRadius: 4,
-        barThickness: 32,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            afterLabel: (ctx) => {
-              const b = _CE_BRIDGE[ctx.dataIndex];
-              return b && b.total_revenue > 0 ? 'Revenue: ' + Theme.money(b.total_revenue) : '';
+  Components.lazyChart('ce-bridge-chart', () => {
+    Theme.createChart('ce-bridge-chart', {
+      type: 'bar',
+      data: {
+        labels: _CE_BRIDGE.map(b => stageLabels[b.funnel_stage] || b.funnel_stage),
+        datasets: [{
+          data: _CE_BRIDGE.map(b => b.lead_count || 0),
+          backgroundColor: _CE_BRIDGE.map((_, i) => (bridgeColors[i] || '#64748b') + 'cc'),
+          borderRadius: 4,
+          barThickness: 32,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => {
+                const b = _CE_BRIDGE[ctx.dataIndex];
+                return b && b.total_revenue > 0 ? 'Revenue: ' + Theme.money(b.total_revenue) : '';
+              },
             },
           },
         },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: Theme.COLORS.gridLine } },
+        },
       },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: Theme.COLORS.gridLine } },
-      },
-    },
+    });
   });
 }
 
@@ -1388,30 +1398,32 @@ function _renderABTests(container) {
   chartCard.appendChild(chartCanvas);
   container.appendChild(chartCard);
 
-  Theme.createChart('ce-ab-chart', {
-    type: 'bar',
-    data: {
-      labels: tests.map(t => {
-        const short = t.campaign.length > 15 ? t.campaign.slice(0, 15) + '...' : t.campaign;
-        return short + ' #' + t.step;
-      }),
-      datasets: [
-        { label: 'Variant A', data: tests.map(t => t.a_reply.toFixed(2)), backgroundColor: Theme.COLORS.accent + 'cc', borderRadius: 4 },
-        { label: 'Variant B', data: tests.map(t => t.b_reply.toFixed(2)), backgroundColor: Theme.COLORS.accentLight + 'cc', borderRadius: 4 },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
-        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.raw + '% reply rate' } },
+  Components.lazyChart('ce-ab-chart', () => {
+    Theme.createChart('ce-ab-chart', {
+      type: 'bar',
+      data: {
+        labels: tests.map(t => {
+          const short = t.campaign.length > 15 ? t.campaign.slice(0, 15) + '...' : t.campaign;
+          return short + ' #' + t.step;
+        }),
+        datasets: [
+          { label: 'Variant A', data: tests.map(t => t.a_reply.toFixed(2)), backgroundColor: Theme.COLORS.accent + 'cc', borderRadius: 4 },
+          { label: 'Variant B', data: tests.map(t => t.b_reply.toFixed(2)), backgroundColor: Theme.COLORS.accentLight + 'cc', borderRadius: 4 },
+        ],
       },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => v + '%' } },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { boxWidth: 8, usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.raw + '% reply rate' } },
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: Theme.COLORS.gridLine }, ticks: { callback: v => v + '%' } },
+        },
       },
-    },
+    });
   });
 }
 

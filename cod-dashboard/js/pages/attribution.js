@@ -243,7 +243,7 @@ App.registerPage('attribution', async (container) => {
   varSection.style.cssText = 'margin-top:32px';
   varSection.innerHTML = `
     <h3 style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">Reconciliation Gaps</h3>
-    <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:16px">Where Hyros first-touch and last-touch disagree by >20%. Kas debugging tool.</div>`;
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:16px">Where Hyros first-touch and last-touch disagree by >20%. Sources with both first-touch and last-touch revenue under $100 are excluded as noise. Kas debugging tool.</div>`;
   container.appendChild(varSection);
 
   const varCard = document.createElement('div');
@@ -270,7 +270,12 @@ App.registerPage('attribution', async (container) => {
   varRows.sort((a, b) => b.pctDiff - a.pctDiff);
 
   if (!varRows.length) {
-    varCard.innerHTML = `<div style="padding:30px 20px;text-align:center;color:${Theme.COLORS.textMuted};font-size:12px">No sources with >20% disagreement between first-touch and last-touch. Attribution is reconciled.</div>`;
+    // Previous copy "Attribution is reconciled" overstated the conclusion —
+    // it only meant no sources with >$100 revenue had >20% disagreement. A
+    // meaningful difference might exist among the small sources we filtered
+    // out. Honest empty-state names the threshold so the user can widen it
+    // or trust the result accordingly.
+    varCard.innerHTML = `<div style="padding:30px 20px;text-align:center;color:${Theme.COLORS.textMuted};font-size:12px">No sources with >$100 revenue and >20% first-touch / last-touch disagreement in the selected window. Reconciliation is clean within that threshold; smaller sources are excluded as noise.</div>`;
   } else {
     var vh = `<table style="width:100%;border-collapse:collapse;font-size:12px">
       <thead><tr>
@@ -300,7 +305,7 @@ App.registerPage('attribution', async (container) => {
   srcSection.style.cssText = 'margin-top:32px';
   srcSection.innerHTML = `
     <h3 style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">Source Performance</h3>
-    <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:16px">Top sources by first-touch revenue. Counts split into ticket sales (&lt;= $100) vs enrollment sales (&gt; $500).</div>`;
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:16px">Top 25 sources by first-touch revenue (table is capped — sources beyond rank 25 are not shown). Counts split into ticket sales (&lt;= $100) vs enrollment sales (&gt; $500).</div>`;
   container.appendChild(srcSection);
 
   const srcCard = document.createElement('div');

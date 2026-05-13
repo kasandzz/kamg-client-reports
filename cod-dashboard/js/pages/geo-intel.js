@@ -70,12 +70,20 @@ App.registerPage('geo-intel', async (container) => {
     const _priorRev   = ps.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0) - totalRev;
     const _priorState = new Set(ps.map(r => r.state).filter(Boolean)).size - stateCt;
 
+    // Best ROAS State: filter states with at least $500 spend so a $50-spend
+    // state with one $5K conversion (ROAS = 100x) doesn't crown over a $50K-
+    // spend state with $200K revenue (ROAS = 4x). The crowd-the-podium effect
+    // was making the headline ROAS card meaningless for ad-allocation
+    // decisions — same shape of "actively-bad-data" truthfulness fix as
+    // ads-meta Source Attribution (a8a1c3f) and segments numeric-string sort
+    // (10c4a90). $500 floor matches the Dead Zones noise threshold for
+    // consistency.
     const roasRanked = cs
-      .filter(r => r.roas != null && isFinite(r.roas) && r.roas > 0)
+      .filter(r => r.roas != null && isFinite(r.roas) && r.roas > 0 && (parseFloat(r.spend) || 0) >= 500)
       .sort((a, b) => (parseFloat(b.roas) || 0) - (parseFloat(a.roas) || 0));
     const bestRoasRow = roasRanked.length > 0 ? roasRanked[0] : null;
     const bestRoasHtml = bestRoasRow
-      ? _esc(bestRoasRow.state) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + parseFloat(bestRoasRow.roas).toFixed(1) + 'x)</span>'
+      ? _esc(bestRoasRow.state) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + parseFloat(bestRoasRow.roas).toFixed(1) + 'x &middot; ' + Math.round(parseFloat(bestRoasRow.spend) || 0).toLocaleString() + ' spend)</span>'
       : '<span style="color:#666">--</span>';
     const topStateHtml = topRow.state ? _esc(topRow.state) : '<span style="color:#666">--</span>';
 

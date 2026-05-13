@@ -42,7 +42,10 @@ const QUERIES = [
   { page: 'war-room', query: 'dailyRevenue',           params: { days: 14 } },
   { page: 'war-room', query: 'staleness',              params: {} },
   { page: 'war-room', query: 'leakDetection',          params: { days: 14 } },
-  { page: 'war-room', query: 'closers',                params: { days: 14 } },
+  // SKIPPED 2026-05-13: 'closers' query is called by war-room.js dashboard but not
+  // registered on the CF side. Returns HTTP 400 'Unknown query'. Dashboard handles
+  // gracefully via empty-array fallback. Re-add if CF registers the query.
+  // { page: 'war-room', query: 'closers',                params: { days: 14 } },
   { page: 'war-room', query: 'dailyRevenueStack',      params: { days: 14 } },
   { page: 'war-room', query: 'weeklyDailyBreakdown',   params: {} },
 
@@ -72,13 +75,17 @@ const QUERIES = [
   { page: 'ads-meta', query: 'scatterAdSets',          params: { days: 14 } },
 
   // ads-google.js
-  { page: 'google-ads', query: 'default',              params: { days: 14 } },
-  { page: 'google-ads', query: 'campaigns',            params: { days: 14 } },
-  { page: 'google-ads', query: 'keywords',             params: { days: 14 } },
-  { page: 'google-ads', query: 'youtube',              params: { days: 14 } },
-  { page: 'google-ads', query: 'crossPlatform',        params: { days: 14 } },
-  { page: 'google-ads', query: 'daily',                params: { days: 14 } },
-  { page: 'google-ads', query: 'landingPages',         params: { days: 14 } },
+  // SKIPPED 2026-05-13: google_ads_campaign_performance table dropped upstream.
+  // ALL google-ads:* queries return HTTP 500 until the source data is rematerialized.
+  // Dashboard's ads-google.js page already has empty-state polish from the all-night build.
+  // Re-enable once a replacement table/view lands (likely future sheets_google_ads_* or fact_*).
+  // { page: 'google-ads', query: 'default',              params: { days: 14 } },
+  // { page: 'google-ads', query: 'campaigns',            params: { days: 14 } },
+  // { page: 'google-ads', query: 'keywords',             params: { days: 14 } },
+  // { page: 'google-ads', query: 'youtube',              params: { days: 14 } },
+  // { page: 'google-ads', query: 'crossPlatform',        params: { days: 14 } },
+  // { page: 'google-ads', query: 'daily',                params: { days: 14 } },
+  // { page: 'google-ads', query: 'landingPages',         params: { days: 14 } },
 
   // funnels.js (workshop + funnel-27 + worklists)
   { page: 'workshop', query: 'ytd',                    params: {} },

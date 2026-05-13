@@ -464,50 +464,52 @@ App.registerPage('journey-explorer', async (container) => {
     // Per-node customdata = [inflow_total, outflow_total]
     const nodeCustomData = nodes.map(n => [inflowByTarget[n] || 0, outflowBySource[n] || 0]);
 
-    Plotly.newPlot(
-      sankeyDivId,
-      [{
-        type: 'sankey',
-        orientation: 'h',
-        node: {
-          pad: 14,
-          thickness: 18,
-          line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
-          label: nodes,
-          color: nodeColors,
-          customdata: nodeCustomData,
-          hovertemplate:
-            '<b>%{label}</b><br>' +
-            'In: %{customdata[0]:,}<br>' +
-            'Out: %{customdata[1]:,}' +
-            '<extra></extra>',
+    Components.lazyChart(sankeyDivId, () => {
+      Plotly.newPlot(
+        sankeyDivId,
+        [{
+          type: 'sankey',
+          orientation: 'h',
+          node: {
+            pad: 14,
+            thickness: 18,
+            line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
+            label: nodes,
+            color: nodeColors,
+            customdata: nodeCustomData,
+            hovertemplate:
+              '<b>%{label}</b><br>' +
+              'In: %{customdata[0]:,}<br>' +
+              'Out: %{customdata[1]:,}' +
+              '<extra></extra>',
+          },
+          link: {
+            source: sankeyRows.map(r => nodeIdx[r.from_node]),
+            target: sankeyRows.map(r => nodeIdx[r.to_node]),
+            value:  sankeyRows.map(r => Number(r.value) || 0),
+            color: sankeyRows.map(r =>
+              r.to_node && r.to_node.startsWith('Lost') ? 'rgba(239,68,68,0.20)'
+              : r.to_node === 'No Show' || r.to_node === 'Call No Show' || r.to_node === 'No Booking' ? 'rgba(239,68,68,0.18)'
+              : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
+              : 'rgba(99,102,241,0.18)'
+            ),
+            customdata: linkCustomData,
+            hovertemplate:
+              '<b>%{customdata[1]} &rarr; %{customdata[2]}</b><br>' +
+              'Volume: %{value:,}<br>' +
+              'Conversion: %{customdata[0]:.1f}%<br>' +
+              '<span style="opacity:.7">of %{customdata[3]:,} from source</span>' +
+              '<extra></extra>',
+          },
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          font: { family: 'Manrope, sans-serif', size: 11, color: Theme.COLORS.textPrimary },
+          margin: { t: 10, b: 10, l: 10, r: 10 },
         },
-        link: {
-          source: sankeyRows.map(r => nodeIdx[r.from_node]),
-          target: sankeyRows.map(r => nodeIdx[r.to_node]),
-          value:  sankeyRows.map(r => Number(r.value) || 0),
-          color: sankeyRows.map(r =>
-            r.to_node && r.to_node.startsWith('Lost') ? 'rgba(239,68,68,0.20)'
-            : r.to_node === 'No Show' || r.to_node === 'Call No Show' || r.to_node === 'No Booking' ? 'rgba(239,68,68,0.18)'
-            : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
-            : 'rgba(99,102,241,0.18)'
-          ),
-          customdata: linkCustomData,
-          hovertemplate:
-            '<b>%{customdata[1]} &rarr; %{customdata[2]}</b><br>' +
-            'Volume: %{value:,}<br>' +
-            'Conversion: %{customdata[0]:.1f}%<br>' +
-            '<span style="opacity:.7">of %{customdata[3]:,} from source</span>' +
-            '<extra></extra>',
-        },
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        font: { family: 'Manrope, sans-serif', size: 11, color: Theme.COLORS.textPrimary },
-        margin: { t: 10, b: 10, l: 10, r: 10 },
-      },
-      Theme.PLOTLY_CONFIG
-    );
+        Theme.PLOTLY_CONFIG
+      );
+    });
   }
 
   // ===================================================================
@@ -540,37 +542,39 @@ App.registerPage('journey-explorer', async (container) => {
     speedDiv.style.cssText = 'height:340px;width:100%';
     speedCard.appendChild(speedDiv);
 
-    Plotly.newPlot(
-      speedDivId,
-      [{
-        type: 'bar',
-        x: speedRows.map(r => r.bucket),
-        y: speedRows.map(r => Number(r.enrollments) || 0),
-        text: speedRows.map(r => {
-          const cash = Number(r.cash) || 0;
-          return cash > 0 ? Theme.money(cash) : '';
-        }),
-        textposition: 'outside',
-        marker: {
-          color: speedRows.map(r => {
-            if (r.bucket === 'Unknown') return '#6b7280';
-            const ord = Number(r.ord);
-            if (ord <= 1) return '#22c55e';
-            if (ord <= 3) return '#06b6d4';
-            if (ord <= 5) return '#eab308';
-            return '#ef4444';
+    Components.lazyChart(speedDivId, () => {
+      Plotly.newPlot(
+        speedDivId,
+        [{
+          type: 'bar',
+          x: speedRows.map(r => r.bucket),
+          y: speedRows.map(r => Number(r.enrollments) || 0),
+          text: speedRows.map(r => {
+            const cash = Number(r.cash) || 0;
+            return cash > 0 ? Theme.money(cash) : '';
           }),
+          textposition: 'outside',
+          marker: {
+            color: speedRows.map(r => {
+              if (r.bucket === 'Unknown') return '#6b7280';
+              const ord = Number(r.ord);
+              if (ord <= 1) return '#22c55e';
+              if (ord <= 3) return '#06b6d4';
+              if (ord <= 5) return '#eab308';
+              return '#ef4444';
+            }),
+          },
+          hovertemplate: '<b>%{x}</b><br>%{y} enrollments<extra></extra>',
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          margin: { t: 20, b: 60, l: 50, r: 20 },
+          xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickangle: -30 },
+          yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Enrollments' },
         },
-        hovertemplate: '<b>%{x}</b><br>%{y} enrollments<extra></extra>',
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        margin: { t: 20, b: 60, l: 50, r: 20 },
-        xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickangle: -30 },
-        yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Enrollments' },
-      },
-      Theme.PLOTLY_CONFIG
-    );
+        Theme.PLOTLY_CONFIG
+      );
+    });
   }
 
   // ---- Cohort Velocity Table ----

@@ -2855,6 +2855,12 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
 // Thin shim over Components.renderMetricGrid -- the shared dense-metric helper
 // that other pages (War Room, etc.) reuse. Visual output is identical: same
 // f27-metric class names, same fmt helpers semantics inside the component.
+//
+// WARN_DATA_UNRESOLVED (Stage 0.5): funnel-27 namespace is on the all-night
+// data validity flag list (cash-collected reconciliation vs Hyros / Stripe and
+// posthog backfill verification still deferred to the bq-auth follow-up
+// spawn). Numbers below should be cross-checked against the Russ war-room
+// tracker Sheet before being quoted externally.
 async function renderF27Metrics() {
   var grid = document.getElementById('f27MetricsGrid');
   if (!grid) return;
@@ -2883,7 +2889,14 @@ async function renderF27Metrics() {
   } catch(e) {}
 
   if (!data) {
-    grid.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:12px;">No funnel-27 data available. Check BQ connection.</div>';
+    grid.innerHTML =
+      '<div style="padding:14px 16px;border:1px dashed rgba(239,68,68,0.35);border-radius:8px;background:rgba(239,68,68,0.04)">' +
+        '<div style="color:var(--text-primary);font-size:13px;font-weight:600;margin-bottom:4px">No Unit Economics data available</div>' +
+        '<div style="color:var(--text-muted);font-size:12px;line-height:1.5">' +
+          'The <code style="font-size:11px">funnel-27.metrics</code> query returned no rows for the selected window. ' +
+          'Widen the date range, or check <a href="data-health.html" style="color:#22d3ee;text-decoration:none">Data Health</a> for the underlying view freshness.' +
+        '</div>' +
+      '</div>';
     return;
   }
 

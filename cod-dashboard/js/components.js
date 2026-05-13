@@ -758,6 +758,158 @@ const Components = (() => {
     el.innerHTML = svg;
   }
 
+  // ---- Metric Grid (dense f27-metric pattern, shared across pages) ----
+
+  function _injectMetricGridCSS() {
+    if (document.getElementById('metric-grid-component-css')) return;
+    var style = document.createElement('style');
+    style.id = 'metric-grid-component-css';
+    style.textContent = [
+      '.f27-metrics-grid {',
+      '  display: grid;',
+      '  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));',
+      '  gap: 10px;',
+      '}',
+      '.f27-metric {',
+      '  background: var(--bg-card);',
+      '  border: 1px solid var(--border);',
+      '  border-radius: var(--radius-md);',
+      '  padding: 10px 14px;',
+      '  position: relative;',
+      '}',
+      '.f27-metric__label {',
+      '  font-size: var(--text-xs);',
+      '  color: var(--text-muted);',
+      '  text-transform: uppercase;',
+      '  letter-spacing: 0.5px;',
+      '  font-weight: 600;',
+      '  margin-bottom: 4px;',
+      '}',
+      '.f27-metric__value {',
+      '  font-size: var(--text-lg);',
+      '  font-weight: 700;',
+      '  color: var(--text-primary);',
+      '  font-family: var(--font-mono);',
+      '}',
+      '.f27-metric__delta {',
+      '  font-size: var(--text-xs);',
+      '  margin-top: 2px;',
+      '}',
+      '.f27-metric__delta--up { color: var(--status-up); }',
+      '.f27-metric__delta--down { color: var(--status-down); }',
+      '.f27-metric__delta--neutral { color: var(--status-neutral); }',
+      '.f27-metric__spark { margin-top: 4px; height: 20px; line-height: 0; }',
+      '.f27-metric__spark canvas { display: block; }',
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  // Format helpers match funnels.js renderF27Metrics semantics exactly so the
+  // shim in funnels.js produces zero visual diff. pct expects a decimal
+  // (0.235 -> '23.5%'); pctRaw expects an already-percentage value.
+  function _fmtMetric(value, format) {
+    if (value == null || !Number.isFinite(Number(value))) {
+      if (format === 'roas') return '0.00x';
+      if (format === 'pct' || format === 'pctRaw') return '0.0%';
+      if (format === 'money') return '$0';
+      return '0';
+    }
+    var v = Number(value);
+    switch (format) {
+      case 'money':  return '$' + Math.round(v).toLocaleString();
+      case 'pct':    return (v * 100).toFixed(1) + '%';
+      case 'pctRaw': return v.toFixed(1) + '%';
+      case 'roas':   return v.toFixed(2) + 'x';
+      case 'num':    return Math.round(v).toLocaleString();
+      default:       return String(v);
+    }
+  }
+
+  /**
+   * Render a dense grid of metric cards. The gold-standard pattern from the
+   * $27 Funnel Unit Economics card on funnels.js. Reusable across any page
+   * with >3 inline KPIs.
+   *
+   * Two ways to pass a metric:
+   *   A. Raw + format -- { label, value: <number>, prevValue?: <number>, format: 'money'|'pct'|'pctRaw'|'roas'|'num', invertDelta?: bool, sparklineData?: number[] }
+   *   B. Pre-formatted -- { label, valueHtml: <string>, deltaHtml?: <string>, deltaCls?: 'up'|'down'|'neutral', sparklineData?: number[] }
+   *
+   * @param {HTMLElement|string} container
+   * @param {Array} metrics
+   * @param {Object} [opts]
+   * @param {number}  [opts.minColWidth=180] grid minmax floor
+   * @param {boolean} [opts.showSparklines=true] global toggle (no-op without sparklineData per metric)
+   */
+  function renderMetricGrid(container, metrics, opts) {
+    _injectMetricGridCSS();
+    var el = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!el) return;
+    opts = opts || {};
+    var showSparklines = opts.showSparklines !== false;
+
+    el.classList.add('f27-metrics-grid');
+    if (opts.minColWidth && opts.minColWidth !== 180) {
+      el.style.gridTemplateColumns = 'repeat(auto-fit, minmax(' + opts.minColWidth + 'px, 1fr))';
+    }
+
+    el.innerHTML = '';
+    var sparkRenders = [];
+    var nowStamp = Date.now();
+
+    metrics.forEach(function(m, i) {
+      var card = document.createElement('div');
+      card.className = 'f27-metric';
+
+      // Value: either pre-formatted html or raw number with format spec
+      var valueHtml;
+      if (typeof m.valueHtml === 'string') {
+        valueHtml = m.valueHtml;
+      } else {
+        valueHtml = _esc(_fmtMetric(m.value, m.format));
+      }
+
+      // Delta
+      var deltaHtml = '';
+      if (typeof m.deltaHtml === 'string' && m.deltaHtml.length > 0) {
+        var preCls = m.deltaCls || 'neutral';
+        deltaHtml = '<div class="f27-metric__delta f27-metric__delta--' + preCls + '">' + m.deltaHtml + '</div>';
+      } else if (m.value != null && m.prevValue != null) {
+        var cur = Number(m.value);
+        var prev = Number(m.prevValue);
+        if (Number.isFinite(cur) && Number.isFinite(prev) && prev !== 0) {
+          var pct = ((cur - prev) / Math.abs(prev)) * 100;
+          var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral';
+          if (m.invertDelta) {
+            if (cls === 'up') cls = 'down';
+            else if (cls === 'down') cls = 'up';
+          }
+          var arrow = pct > 0 ? '▲' : pct < 0 ? '▼' : '—';
+          deltaHtml = '<div class="f27-metric__delta f27-metric__delta--' + cls + '">' + arrow + ' ' + Math.abs(pct).toFixed(1) + '% vs prior</div>';
+        }
+      }
+
+      // Sparkline
+      var sparkHtml = '';
+      if (showSparklines && Array.isArray(m.sparklineData) && m.sparklineData.length > 1) {
+        var sid = 'metric-spark-' + i + '-' + nowStamp;
+        sparkHtml = '<div class="f27-metric__spark"><canvas id="' + sid + '" width="80" height="20"></canvas></div>';
+        sparkRenders.push({ id: sid, data: m.sparklineData });
+      }
+
+      card.innerHTML =
+        '<div class="f27-metric__label">' + _esc(m.label || '') + '</div>' +
+        '<div class="f27-metric__value">' + valueHtml + '</div>' +
+        deltaHtml +
+        sparkHtml;
+
+      el.appendChild(card);
+    });
+
+    sparkRenders.forEach(function(s) {
+      requestAnimationFrame(function() { renderSparkline(s.id, s.data); });
+    });
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -772,5 +924,6 @@ const Components = (() => {
     guardROAS,
     renderSankey,
     computeZScore,
+    renderMetricGrid,
   };
 })();

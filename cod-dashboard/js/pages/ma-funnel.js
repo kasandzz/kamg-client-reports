@@ -90,19 +90,53 @@ App.registerPage('ma-funnel', async (container) => {
   engEl.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px';
   container.appendChild(engEl);
 
+  // Session-level engagement proxies (PRD §6 + state.md ma-funnel polish).
+  // Real Play Rate and Avg Engagement gauges are blocked on PostHog identify()
+  // wiring (see docs/cod/ma-funnel-posthog-identify-spec.md). Until that lands,
+  // express the same intent from the data we DO have:
+  //   - Play Rate proxy  = proxy_watched / registrations  (% of registered who
+  //                         crossed the "started watching" threshold per the
+  //                         ma-funnel BQ proxy field).
+  //   - Engagement proxy = proxy_avg_watch_seconds        (avg watch time of
+  //                         those who started, displayed as Xm Ys).
+  // Both cards are explicitly labelled "Proxy" so this is not mistaken for the
+  // real PostHog-backed gauge. When PostHog identify() lands and the BQ view
+  // gains real play_rate / avg_engagement_pct fields, swap these in directly.
   const proxyWatched = d.proxy_watched || 0;
-  const proxyAvg = d.proxy_avg_watch_seconds ? Math.round(d.proxy_avg_watch_seconds) : 0;
+  const proxyAvgSec = d.proxy_avg_watch_seconds ? Math.round(d.proxy_avg_watch_seconds) : 0;
+  const proxyRegs = d.registrations || 0;
+  const playRateProxy = proxyRegs > 0 ? (proxyWatched / proxyRegs) * 100 : null;
+  const playRateColor = playRateProxy == null
+    ? Theme.COLORS.textMuted
+    : (playRateProxy >= 60 ? '#22c55e' : playRateProxy >= 35 ? '#eab308' : '#ef4444');
+  const engagementColor = proxyAvgSec >= 600
+    ? '#22c55e'
+    : proxyAvgSec >= 300
+      ? '#eab308'
+      : proxyAvgSec > 0
+        ? '#ef4444'
+        : Theme.COLORS.textMuted;
+  const playRateText = playRateProxy == null ? '--' : playRateProxy.toFixed(1) + '%';
+  const engagementText = proxyAvgSec > 0
+    ? Math.floor(proxyAvgSec / 60) + 'm ' + (proxyAvgSec % 60) + 's'
+    : '--';
 
   engEl.innerHTML = `
     <div class="card" style="padding:16px;border-left:3px solid ${engColor}">
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:4px">Play Rate</div>
-      <div style="font-size:16px;font-weight:600;color:${Theme.COLORS.textMuted}">Pending PostHog</div>
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px">Proxy: ${proxyWatched} attended</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted}">Play Rate</div>
+        <span style="font-size:9px;font-weight:700;color:#f59e0b;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border:1px dashed rgba(245,158,11,0.45);border-radius:8px">Proxy</span>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:${playRateColor}">${playRateText}</div>
+      <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:6px">${proxyWatched.toLocaleString()} attended / ${proxyRegs.toLocaleString()} registered &middot; PostHog identify() pending</div>
     </div>
     <div class="card" style="padding:16px;border-left:3px solid ${engColor}">
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:4px">Avg Engagement</div>
-      <div style="font-size:16px;font-weight:600;color:${Theme.COLORS.textMuted}">Pending PostHog</div>
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px">Proxy: ${proxyAvg}s avg watch</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted}">Avg Engagement</div>
+        <span style="font-size:9px;font-weight:700;color:#f59e0b;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border:1px dashed rgba(245,158,11,0.45);border-radius:8px">Proxy</span>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:${engagementColor}">${engagementText}</div>
+      <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:6px">avg watch time of attended (proxy_avg_watch_seconds) &middot; gauge pending PostHog</div>
     </div>`;
 
   // ---- Section 2: Plotly Sankey ----

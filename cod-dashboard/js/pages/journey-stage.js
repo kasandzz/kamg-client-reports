@@ -152,6 +152,38 @@ for (let s = 1; s <= 12; s++) {
       }
 
       _renderStageNav(container, stageNum);
+
+      // ---- Cache-refresh listener: re-render in place when background SWR delivers fresher rows ----
+      // Pattern shared with war-room / revenue / ads-meta / journey-explorer / funnels / ma-funnel /
+      // sales-team / email / segments / attribution / geo-intel. AbortController cleans up on navigate.
+      const refreshCtl = new AbortController();
+      window.addEventListener('cache-refresh', async (e) => {
+        if (!e || !e.detail) return;
+        if (e.detail.page !== 'journey-stage' || e.detail.queryName !== 'default') return;
+        // Cache key includes stage filter — only refresh THIS stage's card.
+        const key = e.detail.cacheKey || '';
+        if (key.indexOf(`stage=${stageNum}`) === -1) return;
+        try {
+          const fresh = await API.query('journey-stage', 'default', { days: Filters.getDays(), stage: stageNum });
+          if (!fresh || fresh.length === 0) return;
+          // Find the existing chart card (header + chart) and re-render only the chart portion in place.
+          const chartCanvas = container.querySelector(`#stage-chart-${stageNum}`);
+          const chartCard = chartCanvas ? chartCanvas.closest('.card') : null;
+          const tableCard = container.querySelector('.card table');
+          if (chartCard) chartCard.remove();
+          else if (tableCard && tableCard.closest('.card')) tableCard.closest('.card').remove();
+          // Re-render by chartType against the fresh rows.
+          if (cfg.chartType === 'table')      _renderTable(container, cfg, fresh);
+          else if (cfg.chartType === 'bar')   _renderBarChart(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'line')  _renderLineChart(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'gauge') _renderGauge(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'hbar')  _renderHBar(container, cfg, fresh, stageNum);
+          // The nav button row stays put — no need to re-render it.
+        } catch (_) { /* swallow — background refresh is best-effort */ }
+      }, { signal: refreshCtl.signal });
+      // Abort on next navigation: App fires a "page-leave" event in shell.js; if not, the listener
+      // gets garbage-collected when the container is replaced. AbortController makes cleanup explicit.
+      window.addEventListener('page-leave', () => refreshCtl.abort(), { once: true });
     });
   })(s);
 }

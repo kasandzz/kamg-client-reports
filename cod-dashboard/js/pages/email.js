@@ -275,51 +275,53 @@ App.registerPage('email-intel', async (container) => {
     return delivered > 0 ? (opened / delivered) * 100 : 0;
   });
 
-  Theme.createChart(engCanvasId, {
-    type: 'line',
-    data: {
-      labels: engLabels,
-      datasets: [
-        {
-          label:           'Open Rate %',
-          data:            openRates,
-          borderColor:     Theme.FUNNEL.blue,
-          backgroundColor: 'transparent',
-          borderWidth:     2,
-          pointRadius:     3,
-          tension:         0.3,
+  Components.lazyChart(engCanvasId, () => {
+    Theme.createChart(engCanvasId, {
+      type: 'line',
+      data: {
+        labels: engLabels,
+        datasets: [
+          {
+            label:           'Open Rate %',
+            data:            openRates,
+            borderColor:     Theme.FUNNEL.blue,
+            backgroundColor: 'transparent',
+            borderWidth:     2,
+            pointRadius:     3,
+            tension:         0.3,
+          },
+        ],
+      },
+      options: {
+        responsive:          true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.pct(ctx.parsed.y)}`,
+            },
+          },
         },
-      ],
-    },
-    options: {
-      responsive:          true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } },
-        },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.pct(ctx.parsed.y)}`,
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: {
+              color:    Theme.COLORS.textMuted,
+              font:     { size: 10 },
+              callback: (v) => Theme.pct(v),
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid:  { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          ticks: {
-            color:    Theme.COLORS.textMuted,
-            font:     { size: 10 },
-            callback: (v) => Theme.pct(v),
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-      },
-    },
+    });
   });
 
   } // end Engagement Rates else block
@@ -357,35 +359,37 @@ App.registerPage('email-intel', async (container) => {
     return t > 0.5 ? Theme.FUNNEL.purple : Theme.FUNNEL.blue;
   });
 
-  Plotly.newPlot(
-    subjectDivId,
-    [
+  Components.lazyChart(subjectDivId, () => {
+    Plotly.newPlot(
+      subjectDivId,
+      [
+        {
+          type:        'bar',
+          orientation: 'h',
+          x:           openRatesSub,
+          y:           subjects,
+          text:        sentCounts.map(s => `${Theme.num(s)} sent`),
+          textposition: 'outside',
+          marker: { color: barColors },
+          hovertemplate: '<b>%{y}</b><br>Open Rate: %{x:.1f}%<extra></extra>',
+        },
+      ],
       {
-        type:        'bar',
-        orientation: 'h',
-        x:           openRatesSub,
-        y:           subjects,
-        text:        sentCounts.map(s => `${Theme.num(s)} sent`),
-        textposition: 'outside',
-        marker: { color: barColors },
-        hovertemplate: '<b>%{y}</b><br>Open Rate: %{x:.1f}%<extra></extra>',
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 10, b: 40, l: 260, r: 80 },
+        xaxis: {
+          ...Theme.PLOTLY_LAYOUT.xaxis,
+          title: 'Open Rate (%)',
+        },
+        yaxis: {
+          ...Theme.PLOTLY_LAYOUT.yaxis,
+          autorange: 'reversed',
+          tickfont:  { size: 11 },
+        },
       },
-    ],
-    {
-      ...Theme.PLOTLY_LAYOUT,
-      margin: { t: 10, b: 40, l: 260, r: 80 },
-      xaxis: {
-        ...Theme.PLOTLY_LAYOUT.xaxis,
-        title: 'Open Rate (%)',
-      },
-      yaxis: {
-        ...Theme.PLOTLY_LAYOUT.yaxis,
-        autorange: 'reversed',
-        tickfont:  { size: 11 },
-      },
-    },
-    Theme.PLOTLY_CONFIG
-  );
+      Theme.PLOTLY_CONFIG
+    );
+  });
 
   } // end Subject Performance else block
 
@@ -457,25 +461,27 @@ App.registerPage('email-intel', async (container) => {
       '#f97316', '#06b6d4', '#eab308', '#ef4444', '#6366f1'
     ];
 
-    Plotly.newPlot(
-      donutDivId,
-      [{
-        type: 'pie',
-        hole: 0.55,
-        labels: donutLabels,
-        values: donutValues,
-        marker: { colors: palette.slice(0, donutLabels.length) },
-        textinfo: 'label+percent',
-        textposition: 'outside',
-        hovertemplate: '<b>%{label}</b><br>Delivered: %{value:,}<br>Share: %{percent}<extra></extra>',
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        margin: { t: 20, b: 20, l: 20, r: 20 },
-        showlegend: false,
-      },
-      Theme.PLOTLY_CONFIG
-    );
+    Components.lazyChart(donutDivId, () => {
+      Plotly.newPlot(
+        donutDivId,
+        [{
+          type: 'pie',
+          hole: 0.55,
+          labels: donutLabels,
+          values: donutValues,
+          marker: { colors: palette.slice(0, donutLabels.length) },
+          textinfo: 'label+percent',
+          textposition: 'outside',
+          hovertemplate: '<b>%{label}</b><br>Delivered: %{value:,}<br>Share: %{percent}<extra></extra>',
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          margin: { t: 20, b: 20, l: 20, r: 20 },
+          showlegend: false,
+        },
+        Theme.PLOTLY_CONFIG
+      );
+    });
 
     // Chart B: Per-Provider Rates Table
     const tableCard = document.createElement('div');

@@ -71,15 +71,24 @@ const Shell = (() => {
 
     // Build nav HTML
     let navHTML = '';
+    let sectionIdx = 0;
     for (const section of NAV) {
       const sStyle = section.sectionStyle ? ` style="${section.sectionStyle}"` : '';
-      navHTML += `<div class="nav-section-label"${sStyle}>${section.section}</div>\n`;
+      const sectionId = `nav-section-${sectionIdx++}`;
+      navHTML += `<div class="nav-section-label" id="${sectionId}"${sStyle}>${section.section}</div>\n`;
+      navHTML += `<ul class="nav-section-list" role="list" aria-labelledby="${sectionId}">\n`;
       for (const item of section.items) {
         const active = item.page === pageName ? ' active' : '';
         const dimmed = item.dimmed ? ' dimmed' : '';
-        const disabled = item.disabled ? ' style="opacity:0.35;pointer-events:none;cursor:default"' : '';
-        navHTML += `<a class="nav-item${active}${dimmed}" href="${_pageHref(item.page)}" data-page="${item.page}"${disabled}><span class="nav-icon">${item.icon}</span><span class="nav-label">${item.label}</span><span class="nav-dot" hidden></span></a>\n`;
+        const isCurrent = item.page === pageName;
+        const ariaCurrent = isCurrent ? ' aria-current="page"' : '';
+        const ariaDisabled = item.disabled ? ' aria-disabled="true" tabindex="-1"' : '';
+        const disabledStyle = item.disabled ? ' style="opacity:0.35;pointer-events:none;cursor:default"' : '';
+        // Visually-hidden text label gives the link a discernible name independent
+        // of the emoji icon (icons are aria-hidden, so screen readers read .nav-label only).
+        navHTML += `<li role="listitem"><a class="nav-item${active}${dimmed}" href="${_pageHref(item.page)}" data-page="${item.page}"${ariaCurrent}${ariaDisabled}${disabledStyle}><span class="nav-icon" aria-hidden="true">${item.icon}</span><span class="nav-label">${item.label}</span><span class="nav-dot" hidden aria-hidden="true"></span></a></li>\n`;
       }
+      navHTML += `</ul>\n`;
     }
 
     return `
@@ -102,21 +111,21 @@ const Shell = (() => {
     <!-- Main App Shell -->
     <div id="app-shell" class="app-shell" hidden>
       <!-- Sidebar -->
-      <aside id="sidebar" class="sidebar">
+      <aside id="sidebar" class="sidebar" aria-label="Site navigation">
         <div class="sidebar-header">
-          <a href="${_basePath()}pages/war-room.html" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px">
-            <span class="sidebar-logo">&#127919;</span>
+          <a href="${_basePath()}pages/war-room.html" aria-label="COD Command — go to War Room" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px">
+            <span class="sidebar-logo" aria-hidden="true">&#127919;</span>
             <span class="sidebar-title">COD Command</span>
           </a>
         </div>
 
-        <button id="sidebar-search-btn" class="sidebar-search-btn" aria-label="Search pages (Ctrl+K)">
-          <span class="sidebar-search-icon">&#128269;</span>
+        <button id="sidebar-search-btn" class="sidebar-search-btn" type="button" aria-label="Open page search (Ctrl or Command K)" aria-haspopup="dialog">
+          <span class="sidebar-search-icon" aria-hidden="true">&#128269;</span>
           <span class="sidebar-search-text">Search...</span>
-          <kbd class="sidebar-kbd">&#8984;K</kbd>
+          <kbd class="sidebar-kbd" aria-hidden="true">&#8984;K</kbd>
         </button>
 
-        <nav class="sidebar-nav" id="sidebar-nav">
+        <nav class="sidebar-nav" id="sidebar-nav" aria-label="Primary">
           ${navHTML}
         </nav>
       </aside>
@@ -125,9 +134,9 @@ const Shell = (() => {
       <main class="main-content" id="main-content" tabindex="-1">
         <!-- Top Bar -->
         <header class="top-bar">
-          <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+          <button id="sidebar-toggle" type="button" class="sidebar-toggle" aria-label="Toggle navigation menu" aria-controls="sidebar" aria-expanded="false"><span aria-hidden="true">&#9776;</span></button>
           <h1 id="page-title" class="page-title">${pageInfo.label}</h1>
-          <div id="global-controls" class="global-controls"></div>
+          <div id="global-controls" class="global-controls" role="toolbar" aria-label="Page filters and controls"></div>
         </header>
 
         <!-- Page Container -->
@@ -201,13 +210,15 @@ const Shell = (() => {
     const sidebar = document.getElementById('sidebar');
     if (sidebarToggle && sidebar) {
       sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
+        const opened = sidebar.classList.toggle('open');
+        sidebarToggle.setAttribute('aria-expanded', String(opened));
       });
 
       document.querySelectorAll('.nav-item[data-page]').forEach(item => {
         item.addEventListener('click', () => {
           if (window.innerWidth <= 768) {
             sidebar.classList.remove('open');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
           }
         });
       });

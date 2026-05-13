@@ -81,6 +81,29 @@ App.registerPage('ads-google', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildGoogleAdsMetrics());
 
+  // SWR cache-refresh wiring. When api.js detects a row-count delta from a
+  // background live fetch, re-fetch the keyed result and re-render the grid
+  // only. Listens for 'default' (the headline KPI query); the 2x prev fetch
+  // shares the same page namespace and refreshes naturally on the next mount.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', (e) => {
+    if (!e || !e.detail || e.detail.page !== 'google-ads' || e.detail.queryName !== 'default') return;
+    Promise.all([
+      API.query('google-ads', 'default', { days }),
+      API.query('google-ads', 'default', { days: days * 2 }).catch(() => null),
+    ]).then(([nextKpis, nextDouble]) => {
+      const nextKpi    = (nextKpis && nextKpis.length > 0) ? nextKpis[0] : {};
+      const nextDbl    = (nextDouble && nextDouble.length > 0) ? nextDouble[0] : {};
+      // Replace closure-captured refs so _buildGoogleAdsMetrics reads updated values.
+      Object.assign(kpi, nextKpi);
+      Object.assign(kpiDouble, nextDbl);
+      Components.renderMetricGrid(kpiContainer, _buildGoogleAdsMetrics());
+    }).catch(() => { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- Campaign Performance Table ----
   try { _renderGoogleCampaignTable(container, campaigns || []); } catch (e) { console.warn('Campaign table error:', e); }
 

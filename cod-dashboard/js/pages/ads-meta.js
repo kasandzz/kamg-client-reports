@@ -844,7 +844,11 @@ function _esc(s) {
 
 function _renderSourceAttribution(container, data) {
   if (!data || data.length === 0) {
-    _renderDeferredPlaceholder(container, 'Source Attribution', 'No Hyros-attributed Meta sources in the current window.');
+    _renderDeferredPlaceholder(
+      container,
+      'Source Attribution',
+      'No Hyros-attributed Meta sources in the current window. Widen the date range or check that the Hyros<>Meta mapping is current in mv_attribution_comparison.'
+    );
     return;
   }
 
@@ -885,18 +889,28 @@ function _renderSourceAttribution(container, data) {
   data.forEach((r, i) => {
     const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
     const roas = Number(r.roas) || 0;
-    const roasColor = roas >= 3 ? Theme.COLORS.success : roas >= 1 ? Theme.COLORS.warning : roas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+    const revenue = Number(r.revenue) || 0;
     const spend = Number(r.spend) || 0;
     const cac = Number(r.cac) || 0;
+    // ROAS display: distinguish "spent without measurable return" (danger, 0.00x)
+    // from "no spend joined in window" (muted, –). Previously both showed '–'
+    // which masked active money-losing sources.
+    const roasMeasured = spend > 0;
+    const roasDisplay = roasMeasured ? roas.toFixed(2) + 'x' : '–';
+    const roasColor = !roasMeasured
+      ? Theme.COLORS.textMuted
+      : roas >= 3 ? Theme.COLORS.success
+      : roas >= 1 ? Theme.COLORS.warning
+      : Theme.COLORS.danger;
     html += `
       <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
         <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.source || '')}">${_esc(r.source || '')}</td>
         <td style="padding:8px 10px;text-align:right;color:${spend > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${spend > 0 ? Theme.money(spend) : '–'}</td>
         <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.leads) || 0)}</td>
         <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.conversions) || 0)}</td>
-        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(Number(r.revenue) || 0)}</td>
+        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(revenue)}</td>
         <td style="padding:8px 10px;text-align:right;color:${cac > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${cac > 0 ? Theme.money(cac) : '–'}</td>
-        <td style="padding:8px 10px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roas > 0 ? roas.toFixed(2) + 'x' : '–'}</td>
+        <td style="padding:8px 10px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roasDisplay}</td>
       </tr>
     `;
   });

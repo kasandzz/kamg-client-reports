@@ -13,12 +13,9 @@
   .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
   .header .subtitle { color:#94a3b8; font-size:13px; }
   .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
-  .health-badge { position:absolute; top:24px; right:0; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:600; }
-  .health-ok { background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
-  .health-amber { background:rgba(245,158,11,.12); color:#f59e0b; border:1px solid rgba(245,158,11,.3); }
-  .health-red { background:rgba(239,68,68,.12); color:#ef4444; border:1px solid rgba(239,68,68,.3); }
-  .data-banner { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:12px; color:#fbbf24; }
-  .data-banner strong { color:#f59e0b; }
+  .health-badge { position:absolute; top:24px; right:0; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:600; background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.3); }
+  .alert-banner { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.4); border-radius:8px; padding:14px 18px; margin-bottom:20px; font-size:12px; color:#fca5a5; }
+  .alert-banner strong { color:#ef4444; }
 
   .tabs { display:flex; gap:4px; margin-bottom:24px; flex-wrap:wrap; border-bottom:1px solid #1e293b; padding-bottom:8px; }
   .tab { padding:8px 16px; background:#111827; border:1px solid #1e293b; border-radius:8px 8px 0 0; cursor:pointer; color:#94a3b8; font-size:12px; font-family:inherit; transition:all .2s; }
@@ -31,17 +28,22 @@
   .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
   .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:16px; }
 
-  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
   .stat-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px; text-align:center; position:relative; overflow:hidden; }
   .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
   .stat-card.green::before { background:#10b981; }
   .stat-card.red::before { background:#ef4444; }
   .stat-card.amber::before { background:#f59e0b; }
+  .stat-card.blue::before { background:#3b82f6; }
   .stat-value { font-size:24px; font-weight:700; }
+  .stat-value.danger { color:#ef4444; }
+  .stat-value.warn { color:#f59e0b; }
+  .stat-value.ok { color:#10b981; }
   .stat-label { font-size:10px; color:#94a3b8; margin-top:4px; }
+  .stat-detail { font-size:10px; color:#64748b; margin-top:6px; }
 
   .schedule-item { display:flex; gap:16px; padding:14px; background:#111827; border:1px solid #1e293b; border-radius:12px; margin-bottom:10px; }
-  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:90px; }
+  .schedule-time { font-size:13px; font-weight:700; color:#3b82f6; white-space:nowrap; min-width:100px; }
   .schedule-body { flex:1; }
   .schedule-title { font-weight:600; font-size:13px; margin-bottom:4px; }
   .schedule-prep { font-size:11px; color:#94a3b8; }
@@ -50,9 +52,8 @@
   .tag-lths { background:rgba(6,182,212,.15); color:#06b6d4; }
   .tag-redstone { background:rgba(239,68,68,.15); color:#ef4444; }
   .tag-leke { background:rgba(245,158,11,.15); color:#f59e0b; }
-  .tag-vital { background:rgba(16,185,129,.15); color:#10b981; }
-  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
   .tag-personal { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .tag-internal { background:rgba(59,130,246,.15); color:#3b82f6; }
 
   .overnight-item { display:flex; gap:12px; padding:12px 14px; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; }
   .overnight-body { flex:1; }
@@ -70,14 +71,25 @@
   .action-context { font-size:10px; color:#64748b; margin-top:3px; }
   .action-priority { font-size:9px; padding:2px 6px; border-radius:3px; font-weight:600; margin-left:8px; }
 
-  .err-card { background:rgba(239,68,68,.05); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:14px; margin-bottom:8px; }
-  .err-title { font-size:12px; font-weight:600; color:#ef4444; margin-bottom:4px; }
-  .err-detail { font-size:11px; color:#94a3b8; }
-  .ok-card { background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981; }
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; }
+  .data-table td { padding:8px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+  .data-table .neg { color:#ef4444; }
+  .data-table .pos { color:#10b981; }
+
+  .funnel-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .funnel-label { width:130px; font-size:11px; color:#94a3b8; text-align:right; }
+  .funnel-bar { height:28px; border-radius:4px; display:flex; align-items:center; padding:0 10px; font-size:11px; font-weight:600; min-width:50px; color:#0a0e17; }
+  .funnel-pct { font-size:10px; color:#64748b; margin-left:8px; }
+
+  .sparkline { display:inline-block; vertical-align:middle; margin-left:8px; }
+  .sparkline polyline { fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
 
   .hl { color:#38bdf8; font-weight:600; }
   .hl-green { color:#10b981; font-weight:600; }
   .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-red { color:#ef4444; font-weight:600; }
   .hl-rose { color:#ec4899; font-weight:600; }
 </style>
 </head>
@@ -85,13 +97,13 @@
 <div class="container">
   <div class="header">
     <h1>KasOS Morning Intelligence</h1>
-    <div class="subtitle">Wednesday, 2026-05-13 -- CDMX 08:51 -- Focus: Russ FB Strategy + Daniel Redstone handover + GCP billing</div>
-    <div class="meta">Generated 14:51 UTC | Source: <span style="color:#f59e0b">local-fallback</span> | Cloud intel stale 14d | Skill Health: <span style="color:#10b981">OK</span></div>
-    <div class="health-badge health-amber">Infrastructure: 3 stale services</div>
+    <div class="subtitle">Wednesday 2026-05-13 -- CDMX 09:13 -- Anchor: Russ FB Strategy call at 12:00</div>
+    <div class="meta">Generated 15:13 UTC | Source: <span style="color:#10b981">cloud</span> (CF 11:01Z, 2h fresh) | Sync errors: Gmail+Calendar OAuth (live MCP fallback used)</div>
+    <div class="health-badge">Data: cloud fresh</div>
   </div>
 
-  <div class="data-banner">
-    <strong>Data freshness warning:</strong> Cloud morning-intel CF stopped Apr 29 (Gmail/Calendar OAuth invalid_client). PersonalOS backup last ran Apr 29. Agency Brain (PC-C) unreachable. Calendar+email fetched live via MCP. Slack COD via Bot API. BQ KPI section disabled until cloud cron is fixed.
+  <div class="alert-banner">
+    <strong>BIG NUMBER ALERT for Russ call:</strong> May 1-13 MTD -- ad spend $94,125, gross revenue $20,141, <strong>ROAS 0.21</strong>. 120 calls booked, 112 showed (93% show rate), <strong>0 closed</strong> across Dorian / Matt / Colby. The "Paid Workshop ABO" campaign alone burned $74,962 (80% of spend). 7-day ROAS trend is collapsing: 0.71 -> 0.25 -> 0.21 -> 0.07 -> 0.14 -> 0.13 -> 0.33. This is the room you walk into at 12:00.
   </div>
 
   <div class="tabs">
@@ -99,28 +111,20 @@
     <div class="tab" onclick="showTab('cod')">COD Intel</div>
     <div class="tab" onclick="showTab('overnight')">Overnight (14)</div>
     <div class="tab" onclick="showTab('actions')">Actions</div>
-    <div class="tab" onclick="showTab('infra')">Infra Issues</div>
+    <div class="tab" onclick="showTab('infra')">Infra</div>
     <div class="tab" onclick="showTab('sources')">Sources</div>
   </div>
 
   <div class="section active" id="myday">
     <div class="card">
-      <div class="card-title">Schedule -- 2 client meetings, 1 internal sync</div>
-      <div class="card-subtitle">All times CDMX. Focus blocks shown alongside meetings.</div>
-
-      <div class="schedule-item">
-        <div class="schedule-time">08:30-10:00</div>
-        <div class="schedule-body">
-          <div class="schedule-title"><span class="schedule-tag tag-personal">FOCUS</span>Russ Call Block (NO MEETING SCHEDULED in slot)</div>
-          <div class="schedule-prep">Reserved for ad-hoc Russ calls. Conflicting BUILD COD LISTS block on calendar. Use for either: prep for 12:00 FB Strategy call, OR knock out the COD lists work, OR action overnight email replies.</div>
-        </div>
-      </div>
+      <div class="card-title">Schedule -- 2 client meetings + 1 invoice block</div>
+      <div class="card-subtitle">All times CDMX. Russ FB call is the anchor.</div>
 
       <div class="schedule-item">
         <div class="schedule-time">11:15-11:30</div>
         <div class="schedule-body">
-          <div class="schedule-title"><span class="schedule-tag tag-redstone">REDSTONE</span>Eric Invoice (focus block)</div>
-          <div class="schedule-prep">Send May invoice to Eric -- $4k flat retainer, Net 0, Inv 003+. Bank details from reference memory. Personalized thank-you card line per template.</div>
+          <div class="schedule-title"><span class="schedule-tag tag-redstone">REDSTONE</span>Eric Invoice block</div>
+          <div class="schedule-prep">Send May invoice -- $4k flat retainer, Net 0, Inv 003+. Template: 03-Resources/templates/invoice/invoice-template.html. Personalized thank-you card line.</div>
         </div>
       </div>
 
@@ -128,124 +132,243 @@
         <div class="schedule-time">11:30-12:00</div>
         <div class="schedule-body">
           <div class="schedule-title"><span class="schedule-tag tag-lths">LTHS</span>LTHS Strategy Session</div>
-          <div class="schedule-prep">Attendees: Boris Ryn (lths.studio), Vladislav (lths.studio), Vovik. Recurring weekly strategy. Vovik also accepted COD weekly Thu call -- separate workstream. Light prep: check last LTHS meeting note for action items.</div>
+          <div class="schedule-prep">Boris Ryn + Vladislav + Vovik. Recurring weekly. Light prep -- last meeting note for action items. Vovik also on COD weekly Thu call (separate workstream).</div>
         </div>
       </div>
 
-      <div class="schedule-item">
-        <div class="schedule-time">12:00-13:00</div>
+      <div class="schedule-item" style="border-color:rgba(139,92,246,.4);">
+        <div class="schedule-time" style="color:#8b5cf6;">12:00-13:00</div>
         <div class="schedule-body">
-          <div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Facebook Strategy Call (Russ + Akari + Lucah + Sheena + Pedro + Jayne)</div>
-          <div class="schedule-prep">Russ-hosted via zoomwithRuss.com. Topic: Facebook strategy. Russ + Akari (accepted), Lucah Brand Breakthrough (accepted), Pedro (needsAction), Sheena (needsAction), Jayne (needsAction). FULL PREP NEEDED -- this is the strategic conversation about the channel post-Apr 30 funnel debrief.</div>
+          <div class="schedule-title"><span class="schedule-tag tag-cod">COD</span>Facebook Strategy Call -- Russ + Akari + Lucah + Pedro + Sheena + Jayne</div>
+          <div class="schedule-prep">zoomwithRuss.com. <span class="hl-red">PRIMARY EVENT TODAY.</span> Walk in with the ROAS 0.21 number, the closer 0/112 close-rate, the workshop-funnel back-end gap. War Room Dashboard PRD ready to green-light. BQ validity audit unlocked previously-invisible workshop attendance (192 attended + 136 no-show events) -- bring this.</div>
         </div>
       </div>
 
       <div class="schedule-item">
         <div class="schedule-time">15:30-21:30</div>
         <div class="schedule-body">
-          <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Paperclip deep research (6h block)</div>
-          <div class="schedule-prep">Long focus block. Last paperclip work: 6/7 patterns live, mcp+obsidian+aperture+slack+gh-issues+hindsight via pnpm build workaround. Drift-analysis ported, 7 patterns left to mine.</div>
-        </div>
-      </div>
-
-      <div class="schedule-item">
-        <div class="schedule-time">16:30</div>
-        <div class="schedule-body">
-          <div class="schedule-title"><span class="schedule-tag tag-personal">PERSONAL</span>Dog Walker (interrupts paperclip block)</div>
-          <div class="schedule-prep">15-min interrupt mid-paperclip.</div>
+          <div class="schedule-title"><span class="schedule-tag tag-internal">INTERNAL</span>Paperclip deep research (6h block, dog walker breaks at 16:30)</div>
+          <div class="schedule-prep">6/7 patterns live. 7 patterns left to mine. drift-analysis already ported.</div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Carry-forwards from yesterday's late-night session</div>
-      <div class="card-subtitle">From 2026-05-13 daily note (COD BQ audit + warehouse refactor marathon)</div>
+      <div class="card-title">Carry-forwards from last night's BQ marathon</div>
+      <div class="card-subtitle">From 2026-05-13 daily note</div>
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
           <div class="action-text">PostHog API key value rotation (plaintext exposure window unknown)</div>
-          <div class="action-context">Now bound via Secret Manager; key value itself still exposed. Rotate in PostHog dashboard.</div>
+          <div class="action-context">Bound via Secret Manager already; key value itself needs rotation in PostHog dashboard.</div>
         </div>
         <div class="action-priority priority-high">P0</div>
       </div>
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Verify in Gmail UI: only ONE Daniel AI draft + ONE Shawn draft (delete duplicates)</div>
-          <div class="action-context">5 drafts pushed yesterday. Earlier broken Daniel draft may persist in UI.</div>
+          <div class="action-text">Verify Gmail UI: only ONE Daniel AI draft + ONE Shawn draft</div>
+          <div class="action-context">5 drafts pushed yesterday; earlier broken Daniel draft may persist.</div>
         </div>
         <div class="action-priority priority-med">P1</div>
       </div>
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Google quota form for billing export (5 -> 10 projects on personal billing)</div>
-          <div class="action-context">https://support.google.com/code/contact/billing_quota_increase. Required for COD warehouse migration.</div>
+          <div class="action-text">Google quota form -- 5 -> 10 projects on personal billing 0134B7-A70A52-C124E3</div>
+          <div class="action-context">https://support.google.com/code/contact/billing_quota_increase. Needed for COD warehouse migration.</div>
         </div>
         <div class="action-priority priority-med">P1</div>
       </div>
-      <div class="action-item">
-        <div class="action-check"></div>
-        <div class="action-body">
-          <div class="action-text">Wistia integration (awaiting Ryan reply to Slack DM)</div>
-          <div class="action-context">Draft at kamg-ops/meetings/cod/2026-05-13-ryan-wistia-access-dm.md. Slack MCP not connected to COD workspace -- paste manually.</div>
-        </div>
-        <div class="action-priority priority-low">P2</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Focus statement</div>
-      <div class="card-subtitle">Recommended primary focus based on overnight signals</div>
-      <p style="font-size:12px; color:#e2e8f0;">
-        <span class="hl">Russ FB Strategy call at 12:00</span> is today's strategic anchor. Before that:
-        <span class="hl-amber">handle Daniel Redstone</span> ("Nope, everything is in the report" pushback means Eric intro needs different framing -- Daniel won't write a warm intro for you, so YOU send the cold intro to Eric introducing Daniel),
-        <span class="hl-rose">investigate GCP billing alerts</span> (100% on £20 personal budget -- likely paperclip/morning-intel CF spend),
-        and <span class="hl-green">send Eric invoice</span> (Redstone monthly flat retainer due).
-      </p>
     </div>
   </div>
 
   <div class="section" id="cod">
-    <div class="data-banner" style="background:rgba(239,68,68,.05); border-color:rgba(239,68,68,.3); color:#ef4444;">
-      <strong>BQ KPI snapshot unavailable.</strong> Cloud collector last successful run 2026-04-29. Gmail+Calendar OAuth tokens expired. ROAS, enrollments, ad spend, closer table, funnel sankey -- all hidden until cron is fixed. Re-run manually: <code style="background:#0a0e17; padding:2px 6px; border-radius:3px;">gcloud functions deploy morningIntelCollector --project=green-segment-491604-j8</code>
+    <div class="card">
+      <div class="card-title">May 1-13 MTD Performance</div>
+      <div class="card-subtitle">From cod_kpis -- generated 2026-05-13 11:01 UTC. Period: 13 days.</div>
+
+      <div class="stat-grid">
+        <div class="stat-card red">
+          <div class="stat-value danger">0.21</div>
+          <div class="stat-label">ROAS</div>
+          <div class="stat-detail">Target: 1.0+ break-even</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value danger">$94.1k</div>
+          <div class="stat-label">AD SPEND</div>
+          <div class="stat-detail">$7.2k/day average</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value warn">$20.1k</div>
+          <div class="stat-label">GROSS REVENUE</div>
+          <div class="stat-detail">$13.7k workshop + $5.8k enroll</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value danger">0</div>
+          <div class="stat-label">CLOSES (calls)</div>
+          <div class="stat-detail">112 shown -> 0 closed = 0%</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value warn">7</div>
+          <div class="stat-label">ENROLLMENTS</div>
+          <div class="stat-detail">From workshop self-serve, not calls</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-value ok">93%</div>
+          <div class="stat-label">SHOW RATE</div>
+          <div class="stat-detail">112/120 -- top of class</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-value ok">82%</div>
+          <div class="stat-label">VIP TAKE</div>
+          <div class="stat-detail">Workshop->VIP conversion proxy</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-value">$826</div>
+          <div class="stat-label">AVG DEAL</div>
+          <div class="stat-detail">Workshop tickets dominate mix</div>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Russ FB Strategy Call -- 12:00 CDMX (prep summary)</div>
-      <div class="card-subtitle">Akari, Lucah, Sheena, Pedro, Jayne on the invite</div>
+      <div class="card-title">7-day trend -- ROAS in free-fall</div>
+      <div class="card-subtitle">Each day's cash / spend / enrollments. May 6 was the last day with closes.</div>
+      <table class="data-table">
+        <tr><th>Date</th><th>Cash</th><th>Spend</th><th>ROAS</th><th>Enrollments</th><th>Show rate</th></tr>
+        <tr><td>2026-05-06</td><td>$5,653</td><td>$7,999</td><td class="neg">0.71</td><td>3</td><td>100%</td></tr>
+        <tr><td>2026-05-07</td><td>$1,850</td><td>$7,317</td><td class="neg">0.25</td><td>0</td><td>100%</td></tr>
+        <tr><td>2026-05-08</td><td>$1,534</td><td>$7,476</td><td class="neg">0.21</td><td>0</td><td>86%</td></tr>
+        <tr><td>2026-05-09</td><td>$513</td><td>$7,075</td><td class="neg">0.07</td><td>0</td><td>100%</td></tr>
+        <tr><td>2026-05-10</td><td>$1,021</td><td>$7,384</td><td class="neg">0.14</td><td>0</td><td>100%</td></tr>
+        <tr><td>2026-05-11</td><td>$1,172</td><td>$9,050</td><td class="neg">0.13</td><td>0</td><td>92%</td></tr>
+        <tr><td>2026-05-12</td><td>$2,847</td><td>$8,736</td><td class="neg">0.33</td><td>2</td><td>62%</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Closer performance -- 13 days, 112 calls shown, 0 closed</div>
+      <div class="card-subtitle">From cod_kpis.closer_performance. This is the headline for Russ.</div>
+      <table class="data-table">
+        <tr><th>Closer</th><th>Calls</th><th>Showed</th><th>Show rate</th><th>Closed</th><th>Close rate</th></tr>
+        <tr><td>Matt Dakan</td><td>60</td><td>57</td><td class="pos">95%</td><td class="neg">0</td><td class="neg">0%</td></tr>
+        <tr><td>Dorian Matney</td><td>59</td><td>54</td><td class="pos">92%</td><td class="neg">0</td><td class="neg">0%</td></tr>
+        <tr><td>Colby Mann</td><td>1</td><td>1</td><td>100%</td><td class="neg">0</td><td class="neg">0%</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ad spend breakdown -- 80% of budget on one campaign</div>
+      <div class="card-subtitle">From cod_kpis.ad_spend_breakdown.</div>
+      <table class="data-table">
+        <tr><th>Campaign</th><th>Spend</th><th>Impressions</th><th>Clicks</th><th>CPM</th><th>CTR</th></tr>
+        <tr><td>Paid Workshop ABO (Cold) -- Industry Adsets -- Winning</td><td class="neg">$74,962</td><td>908k</td><td>77,331</td><td>$82.53</td><td class="pos">8.51%</td></tr>
+        <tr><td>JIT April -- Russ Italy Ads -- Lead</td><td>$8,248</td><td>333k</td><td>10,698</td><td>$24.78</td><td>3.21%</td></tr>
+        <tr><td>JIT April -- Russ Italy Ads -- Schedule</td><td>$6,844</td><td>49k</td><td>1,532</td><td class="neg">$139.60</td><td>3.13%</td></tr>
+        <tr><td>MA Funnel Application ABO</td><td>$2,832</td><td>16k</td><td>916</td><td class="neg">$173.45</td><td class="pos">5.61%</td></tr>
+        <tr><td>[TOF -- COLD] Authority Reels</td><td>$535</td><td>55k</td><td>212</td><td>$9.79</td><td>0.39%</td></tr>
+        <tr><td>[RETARGET] Authority Reels</td><td>$363</td><td>35k</td><td>310</td><td>$10.27</td><td>0.88%</td></tr>
+        <tr><td>JIT April -- Russ Italy Ads</td><td>$340</td><td>2k</td><td>86</td><td class="neg">$145.91</td><td>3.69%</td></tr>
+      </table>
+      <p style="font-size:11px; color:#94a3b8; margin-top:12px;">
+        Workshop ABO has <strong style="color:#10b981;">healthy front-end metrics</strong> (8.51% CTR, $82 CPM) -- the leak is downstream. 77k clicks but only 437 leads, 120 booked calls, 0 closed. Either workshop-to-call conversion is broken or call-to-close is broken (closer table says it's the latter).
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Funnel state</div>
+      <div class="card-subtitle">From cod_kpis.funnel. Note: applied_to_booked &gt; 100% indicates dedup issue.</div>
+      <div class="funnel-row">
+        <div class="funnel-label">Leads</div>
+        <div class="funnel-bar" style="background:#3b82f6; width:100%;">437</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Applied</div>
+        <div class="funnel-bar" style="background:#8b5cf6; width:14%;">61</div>
+        <span class="funnel-pct">14% (lead -> apply)</span>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Booked</div>
+        <div class="funnel-bar" style="background:#ec4899; width:27%;">120</div>
+        <span class="funnel-pct">197% applied -- dedup issue OR re-bookings</span>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Showed</div>
+        <div class="funnel-bar" style="background:#f59e0b; width:26%;">112</div>
+        <span class="funnel-pct">93% (booked -> showed)</span>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Enrolled</div>
+        <div class="funnel-bar" style="background:#ef4444; width:1.6%;">7</div>
+        <span class="funnel-pct">6.25% (showed -> enrolled, NOT from calls)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Talking points for 12:00 Russ FB Strategy call</div>
+      <div class="card-subtitle">Order matters -- lead with what's working, then the problem, then the fix.</div>
       <p style="font-size:12px;">
-        <strong>Recent COD strategic context:</strong><br>
-        - <span class="hl-amber">Kas Focus Pivot</span> staged (memory: 2026-05-12 -- considering shift from funnel-side to MA client-results side; sparked by Russ "it's a results issue" vent + Ezra voxer 3-pillar churn signal). This call could be the venue if Russ surfaces FB performance.<br>
-        - <span class="hl">Franzi Reply Agent</span> PRD locked (2026-05-08, Approach B drafter + winning-pattern engine).<br>
-        - <span class="hl">Friday Updates SOP</span> shipped 2026-05-11 -- awaiting Russ adoption.<br>
-        - <span class="hl">War Room Dashboard</span> still the highest-leverage open build (Russ spec, 8 funnels Mon/Tue cadence).<br>
-        - <span class="hl">Meta foul-play audit</span> still blocked on re-export with Website URL col.<br>
+        <strong>1. Front-end is healthy.</strong> Workshop ABO CTR 8.51%, show rate 93%, VIP take rate 82%. The ads ARE working as advertised.<br><br>
+        <strong>2. Back-end is broken.</strong> 112 calls shown, 0 closed across Dorian + Matt + Colby in 13 days. ROAS 0.21 -> we're losing $74k/mo on this trajectory.<br><br>
+        <strong>3. 7-day trend says it's getting worse, not better.</strong> ROAS collapsed from 0.71 (May 6) to 0.07-0.33 range. Only May 6 and May 12 had any enrollments (3 + 2 = 5 of 7 MTD).<br><br>
+        <strong>4. JIT Russ Italy Ads campaigns are bleeding</strong> -- $15,432 combined spend, CPM $24-$146, low CTR on Schedule variant (3.13%). These look like FB experiments worth pruning.<br><br>
+        <strong>5. The War Room Dashboard would have caught this 7 days ago</strong> -- Russ's spec from Apr 30. PRD v1.2 at kamg-ops/docs/cod/cod-dashboard-prd.html ready to green-light.<br><br>
+        <strong>6. BQ validity audit unlocked previously-invisible workshop attendance</strong> -- 192 attended + 136 no-show events that were 100% NULL pre-fix. War-room reports will now show ~3-4x more top-of-funnel volume.<br><br>
+        <strong>7. Kas Focus Pivot framing (if Russ surfaces "it's a results issue"):</strong> shift my time from funnel-side to MA client-results side. The data above SUPPORTS that pivot -- front-end works, back-end needs the help.<br>
       </p>
-      <p style="font-size:12px; margin-top:10px;">
-        <strong>Talking points to bring:</strong><br>
-        1. War Room Dashboard PRD v1.2 lives at kamg-ops/docs/cod/cod-dashboard-prd.html -- ready for green-light.<br>
-        2. BQ validity audit (2026-05-12, trust score 61/100) -- 5 P0 fixes done last night, war-room funnel reports were undercounting top-of-funnel by ~3-4x.<br>
-        3. Workshop attendance bridge fix -- 192 attended + 136 no-show events now visible (were 100% NULL).<br>
-        4. Hyros catches paying customers BEFORE GHL form submit; new view v_customer_events_enriched.is_first_touch fixes reporting.<br>
-      </p>
-      <p style="font-size:12px; margin-top:10px;">
-        <strong>Russ doctrine reminders (from memory):</strong>
-        Speed PLUS rigor. Never frame $27 workshop as lesser. No fake scarcity. No "Only X spots." No toolkit references in COD emails. FTC compliance gate on income claims.
+      <p style="font-size:12px; margin-top:10px; color:#fbbf24;">
+        <strong>Doctrine reminders:</strong> Speed PLUS rigor. Never frame $27 workshop as lesser. No fake scarcity. No toolkit references. FTC gate on income claims. NO testimonials in emails. NO em dashes in client-facing copy.
       </p>
     </div>
   </div>
 
   <div class="section" id="overnight">
     <div class="card">
-      <div class="card-title">Overnight email -- 14 threads (last 24h)</div>
-      <div class="card-subtitle">Slack COD member channels: 0 substantive messages overnight (quiet)</div>
+      <div class="card-title">Overnight Slack (COD member channels) -- 23 messages</div>
+      <div class="card-subtitle">From cod_kpis blob. Top signals only.</div>
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack | #cod-new-sales-eod</div>
+          <div class="overnight-text">"We have a Zap listening to messages in here and processing with AI for call status updates etc. Can we keep this channel clean for EOD reports please..."</div>
+          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Zap is processing AI status updates from this channel -- confirms the ops automation Russ is running.</div>
+        </div>
+        <span class="priority-badge priority-med">MED</span>
+      </div>
+
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack | #cod-new-sales-eod</div>
+          <div class="overnight-text">"One quick clarification on the explainer page idea -- it's a fairly often asked question 'for more info', I just want one click so a pixel fires..."</div>
+        </div>
+        <span class="priority-badge priority-low">LOW</span>
+      </div>
+
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack | #cod-new-sales-eod</div>
+          <div class="overnight-text">"Totally fair -- others typically use nurture sequences, remarketing and what Franzi is doing already tbh."</div>
+        </div>
+        <span class="priority-badge priority-low">LOW</span>
+      </div>
+
+      <div class="overnight-item">
+        <div class="overnight-body">
+          <div class="overnight-source">Slack | #marketing-optimization</div>
+          <div class="overnight-text">"Added to thursday :slightly_smiling_face: He'll likely confirm when he wakes up"</div>
+        </div>
+        <span class="priority-badge priority-low">LOW</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Overnight email -- 14 threads (Gmail MCP live fetch)</div>
 
       <div class="overnight-item">
         <div class="overnight-body">
           <div class="overnight-source">Gmail | daniel@blogtrepreneur.co.uk | 08:25 CDMX | Re: Redstone Monthly Report</div>
           <div class="overnight-text"><strong>Daniel:</strong> "Nope. Everything is in the report so hopefully he can read that and take things from there."</div>
-          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Translation: Daniel will NOT write a warm intro to Eric. The May-10 handover requires YOU send the cold intro. Reframe the intro email: keep the report attached, position as your handover, give Eric Daniel's direct contact + a paragraph on what Daniel does day-to-day.</div>
+          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Daniel won't write the warm intro. YOU send Eric a cold handover intro with Daniel's report attached.</div>
         </div>
         <span class="priority-badge priority-high">HIGH</span>
       </div>
@@ -253,8 +376,8 @@
       <div class="overnight-item">
         <div class="overnight-body">
           <div class="overnight-source">Gmail | CloudPlatform-noreply@google.com | 06:41 CDMX | 100% of budget reached</div>
-          <div class="overnight-text"><strong>GCP Billing Alert:</strong> £20.00 personal billing budget (0134B7-A70A52-C124E3) hit 100% for May 1-31. 90% alert fired ~4h earlier (02:20 CDMX).</div>
-          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Per memory rule "GCP Billing Alerts" -- P0 critical, surface first. Likely culprits: paperclip stack (PostHog+CF traffic), Brain on PC-C (Ollama LAN doesn't hit GCP), morning-intel CF (5am daily). Check billing detail before mid-month surprise.</div>
+          <div class="overnight-text"><strong>GCP Billing:</strong> £20 personal budget (0134B7-A70A52-C124E3) hit 100% for May 1-31. 90% alert fired ~4h earlier.</div>
+          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">P0 per memory rule. Likely paperclip stack or morning-intel CF (which now we know IS running daily despite OAuth errors).</div>
         </div>
         <span class="priority-badge priority-high">HIGH</span>
       </div>
@@ -262,8 +385,8 @@
       <div class="overnight-item">
         <div class="overnight-body">
           <div class="overnight-source">Gmail | temitope@leke.services | 06:55 CDMX | Kas Andz | Leke Services</div>
-          <div class="overnight-text"><strong>Temitope (Leke):</strong> Microsoft Teams meeting invite sent. CC: leo@kasandz.com, elton@leke.services. No body shown beyond join link.</div>
-          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Likely the follow-up call Laolu requested. Check calendar -- if no date attached, Laolu's team wants you to pick. Coordinates with the Laolu draft you sent at 04:21 CDMX last night.</div>
+          <div class="overnight-text"><strong>Temitope:</strong> Microsoft Teams meeting invite sent. CC leo@kasandz.com, elton@leke.services.</div>
+          <div class="overnight-text" style="color:#fbbf24; margin-top:4px;">Follow-up from Laolu thread. Pick a time -- coordinate with your 04:21 CDMX draft to Laolu.</div>
         </div>
         <span class="priority-badge priority-high">HIGH</span>
       </div>
@@ -271,8 +394,8 @@
       <div class="overnight-item">
         <div class="overnight-body">
           <div class="overnight-source">Gmail | jack@outriderdigital.com | 04:00 CDMX | Free Audit Onboarding</div>
-          <div class="overnight-text"><strong>Jack (Outrider):</strong> Looping you, Luke Sb Mobile Detailing, Wesley, Jeremy in. "I'll be out next week, so Kas will take point on the initial meeting with Jeremy and get me up to speed when I'm back the following week."</div>
-          <div class="overnight-text" style="color:#94a3b8; margin-top:4px;">Wesley replied 04:53 confirming access EOD tomorrow + competitors list. New audit engagement -- SB Mobile Detailing.</div>
+          <div class="overnight-text"><strong>Jack (Outrider):</strong> Looping in Luke + Wesley + Jeremy SB Mobile Detailing. "Kas will take point on the initial meeting with Jeremy."</div>
+          <div class="overnight-text" style="color:#94a3b8; margin-top:4px;">Wesley confirmed access EOD tomorrow + competitors list incoming. New audit engagement.</div>
         </div>
         <span class="priority-badge priority-med">MED</span>
       </div>
@@ -281,31 +404,15 @@
         <div class="overnight-body">
           <div class="overnight-source">Gmail | paule@vital.global | 02:50 CDMX | Re: Catch up</div>
           <div class="overnight-text"><strong>Paul (Vital):</strong> "Nice one, thanks Kas. See you Tuesday."</div>
-          <div class="overnight-text" style="color:#10b981; margin-top:4px;">Tuesday May 19, 10:00 CDMX / 4pm UK locked. Calendar invite accepted. Shawn also accepted. No action needed pre-call.</div>
+          <div class="overnight-text" style="color:#10b981; margin-top:4px;">Tuesday 19 May 10:00 CDMX / 4pm UK locked. Both Paul + Shawn accepted.</div>
         </div>
         <span class="priority-badge priority-low">FYI</span>
       </div>
 
       <div class="overnight-item">
         <div class="overnight-body">
-          <div class="overnight-source">Gmail | vovik@chaptersagency.com + vovik@voviktsybulskyi.com | 02:50 CDMX | Accepted: COD Weekly Call</div>
-          <div class="overnight-text"><strong>Vovik:</strong> Accepted Thursday 8:30-9am CDMX recurring. Both work + personal accounts confirmed.</div>
-        </div>
-        <span class="priority-badge priority-low">FYI</span>
-      </div>
-
-      <div class="overnight-item">
-        <div class="overnight-body">
-          <div class="overnight-source">Gmail | hello@clutch.co | 06:06 CDMX | AI Visibility Dashboard webinar</div>
-          <div class="overnight-text">Marketing -- 11am or 11pm ET sessions. Skip unless researching AEO/GEO competitive tooling.</div>
-        </div>
-        <span class="priority-badge priority-low">FYI</span>
-      </div>
-
-      <div class="overnight-item">
-        <div class="overnight-body">
-          <div class="overnight-source">Gmail | PPTI Newsletter | 07:03 CDMX | Adamo Foods / cultivated meat</div>
-          <div class="overnight-text">Protein production tech newsletter. Skip.</div>
+          <div class="overnight-source">Gmail | vovik@chaptersagency.com (+ personal) | 02:50 CDMX | Accepted: COD Weekly Call</div>
+          <div class="overnight-text"><strong>Vovik:</strong> Accepted Thursday 8:30-9am CDMX recurring (both work + personal accounts).</div>
         </div>
         <span class="priority-badge priority-low">FYI</span>
       </div>
@@ -315,22 +422,13 @@
   <div class="section" id="actions">
     <div class="card">
       <div class="card-title">Today's actionable items</div>
-      <div class="card-subtitle">Time-sensitive first. P0 = today, P1 = this week, P2 = parking-lot.</div>
+      <div class="card-subtitle">Russ FB call dependencies marked P0 first.</div>
 
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Investigate GCP £20 budget 100% alert -- which project/service is the culprit?</div>
-          <div class="action-context">Run: <code style="background:#0a0e17;padding:1px 4px;border-radius:3px;">gcloud billing accounts list</code> then drill into May spend by project. Memory rule: per-client billing separation. Check no client project is on personal billing.</div>
-        </div>
-        <div class="action-priority priority-high">P0</div>
-      </div>
-
-      <div class="action-item">
-        <div class="action-check"></div>
-        <div class="action-body">
-          <div class="action-text">Reply to Daniel: "Got it, I'll send Eric the intro directly with your report attached"</div>
-          <div class="action-context">Daniel won't write the intro. Send Eric: subject "Daniel Hall - your new Google Ads direct contact", attach Daniel's May report, give Daniel's email + 1-paragraph on day-to-day, frame as removing yourself from the loop.</div>
+          <div class="action-text">Prep Russ FB Strategy call briefing -- ROAS 0.21, closer 0/112, workshop ABO 80% of spend</div>
+          <div class="action-context">Anchor at 12:00 CDMX. Bring War Room Dashboard PRD as the green-light proposal.</div>
         </div>
         <div class="action-priority priority-high">P0</div>
       </div>
@@ -339,7 +437,7 @@
         <div class="action-check"></div>
         <div class="action-body">
           <div class="action-text">Send Eric May invoice -- $4k flat retainer, Net 0</div>
-          <div class="action-context">Block at 11:15 CDMX. Template: 03-Resources/templates/invoice/invoice-template.html. Bank: Wise USD + UK address. Thank-you card line.</div>
+          <div class="action-context">11:15 block. Template + Wise USD + UK address + thank-you card.</div>
         </div>
         <div class="action-priority priority-high">P0</div>
       </div>
@@ -347,8 +445,8 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Prep for Russ FB Strategy call at 12:00 -- bring War Room Dashboard PRD + BQ validity audit findings</div>
-          <div class="action-context">Last night's marathon yields strong signal for this call. War-room funnel was undercounting top-of-funnel 3-4x. 192 workshop attendees were invisible.</div>
+          <div class="action-text">Reply to Daniel: "Understood, I'll send Eric the intro directly with your report attached"</div>
+          <div class="action-context">Then send Eric: handover intro, Daniel's email, report attached, frame as removing yourself from the loop.</div>
         </div>
         <div class="action-priority priority-high">P0</div>
       </div>
@@ -357,7 +455,7 @@
         <div class="action-check"></div>
         <div class="action-body">
           <div class="action-text">Respond to temitope@leke.services Teams meeting invite -- propose time</div>
-          <div class="action-context">Coordinate with Laolu draft you sent last night. Check calendar for a slot post-12:00 call today, or push to tomorrow/Thursday.</div>
+          <div class="action-context">Coordinate with your 04:21 CDMX draft to Laolu.</div>
         </div>
         <div class="action-priority priority-high">P0</div>
       </div>
@@ -365,8 +463,17 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Fix morning-intel CF OAuth -- both Gmail and Calendar tokens expired</div>
-          <div class="action-context">Errors: "Gmail: invalid_client", "Calendar: invalid_client". CF has been writing stale data since Apr 29. Re-auth service account or refresh OAuth tokens in Secret Manager.</div>
+          <div class="action-text">Investigate GCP £20 budget 100% alert -- which project/service?</div>
+          <div class="action-context">Drill into May spend by project on personal billing. Memory rule: per-client billing separation.</div>
+        </div>
+        <div class="action-priority priority-high">P0</div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-check"></div>
+        <div class="action-body">
+          <div class="action-text">Fix morning-intel CF OAuth -- Gmail+Calendar tokens invalid_client</div>
+          <div class="action-context">CF runs daily and writes the timestamped blob fine, but Gmail+Calendar fields are blank. Need to refresh service account OAuth creds in Secret Manager. Run: <code>gcloud functions describe morningIntelCollector --project=green-segment-491604-j8</code> to see env + secrets binding.</div>
         </div>
         <div class="action-priority priority-med">P1</div>
       </div>
@@ -374,8 +481,8 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">Investigate PersonalOS backup gap -- last successful 2026-04-29 (14 days)</div>
-          <div class="action-context">backup.log at G:\My Drive\Backups\PersonalOS\ ends 04-29. Check scheduled task / cron / restart Google Drive sync. 14d gap is unacceptable per backup health rules.</div>
+          <div class="action-text">Verify PersonalOS backup completes -- triggered manually at 09:09, NextRunTime 14/05 02:00</div>
+          <div class="action-context">LastTaskResult: 267009 (TASK_RUNNING). Check G:\My Drive\Backups\PersonalOS\backup.log after it finishes. If 14-day gap recurs, audit Windows Task Scheduler triggers.</div>
         </div>
         <div class="action-priority priority-med">P1</div>
       </div>
@@ -383,17 +490,8 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">SB Mobile Detailing -- prep for initial meeting with Jeremy (Jack out next week)</div>
-          <div class="action-context">Jack hands off, you take initial. Wait for Wesley's EOD-tomorrow access drop. Add to kamg-ops/client-intel/ when scoped.</div>
-        </div>
-        <div class="action-priority priority-med">P1</div>
-      </div>
-
-      <div class="action-item">
-        <div class="action-check"></div>
-        <div class="action-body">
-          <div class="action-text">Verify Gmail UI duplicate drafts (Daniel AI x2, Shawn x2)</div>
-          <div class="action-context">From yesterday's session. Delete the broken versions if visible.</div>
+          <div class="action-text">PC-C is OFF -- power on to bring Agency Brain online</div>
+          <div class="action-context">192.168.100.20 destination host unreachable (not just service down). Physical/remote wake required. Brain hosts compiler-brain bridge but is non-blocking.</div>
         </div>
         <div class="action-priority priority-low">P2</div>
       </div>
@@ -401,8 +499,8 @@
       <div class="action-item">
         <div class="action-check"></div>
         <div class="action-body">
-          <div class="action-text">PostHog API key rotation (plaintext exposure window)</div>
-          <div class="action-context">Already in Secret Manager. Rotate value in PostHog dashboard then update secret.</div>
+          <div class="action-text">Fix morning skill: stale -latest- pointer should fall back to timestamped blob</div>
+          <div class="action-context">Current logic: if pointer exists, use it. Bug: if pointer is stale (>6h old) but timestamped blob is fresh, we incorrectly go local-fallback. Patch the Phase 2 Step 1 logic to also try timestamped if pointer age > 360min.</div>
         </div>
         <div class="action-priority priority-low">P2</div>
       </div>
@@ -411,59 +509,59 @@
 
   <div class="section" id="infra">
     <div class="card">
-      <div class="card-title">Infrastructure issues detected this morning</div>
-      <div class="card-subtitle">Three services in a stale/failed state -- all since approximately 2026-04-29</div>
+      <div class="card-title">Infrastructure -- what's healthy and what's broken</div>
+      <div class="card-subtitle">Resolved during this morning run.</div>
 
-      <div class="err-card">
-        <div class="err-title">1. Cloud morning-intel CF -- 14 days stale</div>
-        <div class="err-detail">
-          GCS blob morning-intel-latest-2026-05-13.json exists but contains generated_at=2026-04-29T11:00:23Z.
-          Errors in payload: <code style="background:#0a0e17;padding:1px 4px;border-radius:3px;">["Gmail: invalid_client","Calendar: invalid_client"]</code>.
-          Result: today's intel built from local-fallback path (MCP calendar + MCP gmail + COD Slack curl). COD BQ KPIs unavailable.<br>
-          <strong>Fix:</strong> Refresh OAuth credentials for morningIntelCollector service account. Re-deploy CF.
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:14px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:600; color:#10b981; margin-bottom:4px;">RESOLVED: morning-intel cloud blob</div>
+        <div style="font-size:11px; color:#94a3b8;">
+          Original diagnosis was wrong. CF runs every day at 11:00 UTC and writes a timestamped blob (today: 2026-05-13T11:01:09.508Z). The <code>-latest-</code> pointer was sometimes returning a stale cached read. Promoted today's blob to the pointer; verified fresh. <strong>Remaining issue:</strong> Gmail+Calendar OAuth still <code>invalid_client</code> inside the CF -- but COD KPIs + Slack work and that's the bulk of the value.
         </div>
       </div>
 
-      <div class="err-card">
-        <div class="err-title">2. PersonalOS backup -- 14 days stale</div>
-        <div class="err-detail">
-          backup.log last entry 2026-04-29 08:41 (G:\My Drive\Backups\PersonalOS\backup.log). Last 5 successful entries: Apr 19, 20, 23, 26, 29.
-          14-day gap from Apr 29 to today violates 3-day CRITICAL threshold.<br>
-          <strong>Fix:</strong> Run "backup" task manually to confirm script works; check Windows Task Scheduler for the daily PersonalOS Daily Backup trigger.
+      <div style="background:rgba(245,158,11,.05); border:1px solid rgba(245,158,11,.3); border-radius:8px; padding:14px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:600; color:#f59e0b; margin-bottom:4px;">TRIGGERED: PersonalOS backup task</div>
+        <div style="font-size:11px; color:#94a3b8;">
+          Task existed in Windows Scheduler but hadn't completed since 2026-04-29 (14d gap). Manually triggered at 09:09 CDMX, LastTaskResult 267009 = TASK_RUNNING. NextRunTime 14/05 02:00. Backup is in flight; verify backup.log when it finishes.
         </div>
       </div>
 
-      <div class="err-card">
-        <div class="err-title">3. Agency Brain (PC-C) -- offline</div>
-        <div class="err-detail">
-          curl http://192.168.100.20:8080/status -> error:unreachable. Brain hosts compiler-brain bridge but is not always running.<br>
-          <strong>Status:</strong> Non-blocking (per skill, only blocks if compiler+brain both red). Compiler is HEALTHY (last run 2026-05-13 05:30Z, 88 total runs, +83 notes / +114 enriched / +246 connections lifetime). Brain alone can stay offline.
+      <div style="background:rgba(239,68,68,.05); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:14px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:600; color:#ef4444; margin-bottom:4px;">UNFIXABLE FROM HERE: PC-C is off</div>
+        <div style="font-size:11px; color:#94a3b8;">
+          Ping to 192.168.100.20 returns "Destination host unreachable" -- the machine itself is off, not just the Brain service. Agency Brain compiler-brain bridge is offline until PC-C is powered on. Non-blocking (compiler is healthy independently).
         </div>
       </div>
 
-      <div class="ok-card">Slack Bot (COD): PASS -- claude_sync @ clientsondemand.slack.com (member of full-team-chat, sales-fun, sales-team-help, bot_calendar_appointments)</div>
-      <div class="ok-card">Slack MCP (Personal): PASS -- kasandz workspace</div>
-      <div class="ok-card">Gmail MCP: PASS -- k@kasandz.com (14 overnight threads retrieved)</div>
-      <div class="ok-card">Google Calendar MCP: PASS -- 14 events today</div>
-      <div class="ok-card">Google Sheets: PASS -- service account credentials present</div>
-      <div class="ok-card">Knowledge Compiler: HEALTHY -- last run 9h ago, success status</div>
-      <div class="ok-card">kamg-ops: clean -- pulled OK, 5 expired locks cleaned (all owned by kas)</div>
-      <div class="ok-card">Heartbeat: OK -- no skill flags, no critical issues</div>
+      <div style="background:rgba(239,68,68,.05); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:14px; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:600; color:#ef4444; margin-bottom:4px;">DEFERRED: CF OAuth invalid_client</div>
+        <div style="font-size:11px; color:#94a3b8;">
+          Gmail + Calendar inside morningIntelCollector return <code>invalid_client</code> -- service account OAuth creds expired or scope was revoked. Today's intel was supplemented via live MCP Gmail + Calendar; not blocking the dashboard. P1 -- fix this week so the CF stops needing the MCP supplement.
+        </div>
+      </div>
+
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Slack Bot (COD): PASS -- claude_sync, members of full-team-chat / sales-fun / sales-team-help</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Gmail MCP: PASS -- k@kasandz.com (14 overnight threads)</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Google Calendar MCP: PASS -- 14 events today</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Google Sheets: PASS -- service account creds present</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Knowledge Compiler: HEALTHY -- last run 05:30 UTC, 88 total runs, lifetime +83 notes / +114 enriched / +246 connections</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">kamg-ops: clean -- pulled OK, 5 expired locks cleaned (all owned by kas)</div>
+      <div style="background:rgba(16,185,129,.05); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:11px; color:#10b981;">Heartbeat: OK -- 0 skill flags, 0 critical issues</div>
     </div>
   </div>
 
   <div class="section" id="sources">
     <div class="card">
-      <div class="card-title">Data sources used to build this dashboard</div>
-      <div class="card-subtitle">DATA_SOURCE = <span style="color:#f59e0b">local-fallback</span> (cloud blob &gt;6h stale + had OAuth errors)</div>
-      <table style="width:100%; font-size:11px; border-collapse:collapse;">
-        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #1e293b; color:#94a3b8;">Field</th><th style="text-align:left; padding:6px; border-bottom:1px solid #1e293b; color:#94a3b8;">Source</th><th style="text-align:left; padding:6px; border-bottom:1px solid #1e293b; color:#94a3b8;">Freshness</th></tr>
-        <tr><td style="padding:6px; border-bottom:1px solid #1e293b;">calendar.events</td><td style="padding:6px; border-bottom:1px solid #1e293b;">MCP gcal_list_events (live)</td><td style="padding:6px; border-bottom:1px solid #1e293b; color:#10b981;">fresh</td></tr>
-        <tr><td style="padding:6px; border-bottom:1px solid #1e293b;">email_overnight</td><td style="padding:6px; border-bottom:1px solid #1e293b;">MCP gmail_search_threads newer_than:1d</td><td style="padding:6px; border-bottom:1px solid #1e293b; color:#10b981;">fresh</td></tr>
-        <tr><td style="padding:6px; border-bottom:1px solid #1e293b;">slack_overnight.cod</td><td style="padding:6px; border-bottom:1px solid #1e293b;">Slack Bot API conversations.history (12h window)</td><td style="padding:6px; border-bottom:1px solid #1e293b; color:#10b981;">fresh (quiet)</td></tr>
-        <tr><td style="padding:6px; border-bottom:1px solid #1e293b;">cod_kpis</td><td style="padding:6px; border-bottom:1px solid #1e293b;">GCS morning-intel-latest-2026-05-13.json</td><td style="padding:6px; border-bottom:1px solid #1e293b; color:#ef4444;">2026-04-29 (stale 14d -- hidden)</td></tr>
-        <tr><td style="padding:6px; border-bottom:1px solid #1e293b;">vault context</td><td style="padding:6px; border-bottom:1px solid #1e293b;">MEMORY.md + project/reference files</td><td style="padding:6px; border-bottom:1px solid #1e293b; color:#10b981;">fresh</td></tr>
-        <tr><td style="padding:6px;">heartbeat envelope</td><td style="padding:6px;">.claude/skills/heartbeat/scripts/cli.mjs</td><td style="padding:6px; color:#10b981;">fresh (0 flags)</td></tr>
+      <div class="card-title">Data sources -- this run</div>
+      <div class="card-subtitle">DATA_SOURCE = <span style="color:#10b981">cloud</span> (today's blob, 11:01 UTC -- 2h cache age)</div>
+      <table class="data-table">
+        <tr><th>Field</th><th>Source</th><th>Freshness</th></tr>
+        <tr><td>cod_kpis</td><td>GCS morning-intel-latest-2026-05-13.json (CF run at 11:01 UTC)</td><td class="pos">fresh</td></tr>
+        <tr><td>slack_overnight.cod</td><td>GCS blob (23 msgs) + live Bot API verify</td><td class="pos">fresh</td></tr>
+        <tr><td>calendar.events</td><td>MCP gcal_list_events (live, CF had OAuth error)</td><td class="pos">fresh</td></tr>
+        <tr><td>email_overnight</td><td>MCP gmail_search_threads newer_than:1d (live, CF had OAuth error)</td><td class="pos">fresh</td></tr>
+        <tr><td>vault context</td><td>MEMORY.md + project files</td><td class="pos">fresh</td></tr>
+        <tr><td>heartbeat envelope</td><td>.claude/skills/heartbeat/scripts/cli.mjs</td><td class="pos">fresh (0 flags)</td></tr>
       </table>
     </div>
   </div>

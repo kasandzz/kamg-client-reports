@@ -239,32 +239,34 @@ App.registerPage('revenue', async (container) => {
       }
     };
 
-    Theme.createChart(doughnutId, {
-      type: 'doughnut',
-      data: {
-        labels: procLabels,
-        datasets: [{
-          data: procValues,
-          backgroundColor: Theme.FUNNEL_ARRAY.slice(0, procLabels.length),
-          borderWidth: 0,
-          hoverBorderWidth: 2,
-          hoverBorderColor: Theme.COLORS.textPrimary,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '65%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.label}: ${Theme.money(ctx.raw)} (${procPcts[ctx.dataIndex]?.toFixed(1)}%)`,
+    Components.lazyChart(doughnutId, () => {
+      Theme.createChart(doughnutId, {
+        type: 'doughnut',
+        data: {
+          labels: procLabels,
+          datasets: [{
+            data: procValues,
+            backgroundColor: Theme.FUNNEL_ARRAY.slice(0, procLabels.length),
+            borderWidth: 0,
+            hoverBorderWidth: 2,
+            hoverBorderColor: Theme.COLORS.textPrimary,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${Theme.money(ctx.raw)} (${procPcts[ctx.dataIndex]?.toFixed(1)}%)`,
+              },
             },
           },
         },
-      },
-      plugins: [centerTextPlugin],
+        plugins: [centerTextPlugin],
+      });
     });
 
     // Build legend
@@ -367,80 +369,82 @@ App.registerPage('revenue', async (container) => {
     const refundRates = churn.map(r => parseFloat(r.refund_rate) || 0);
     const totalFailed = churn.reduce((sum, r) => sum + (parseInt(r.failed_payments) || 0), 0);
 
-    Theme.createChart(churnCanvasId, {
-      type: 'bar',
-      data: {
-        labels: churnMonths,
-        datasets: [
-          {
-            label: 'New Revenue',
-            data: newRevenue,
-            backgroundColor: Theme.FUNNEL.green,
-            order: 2,
-            yAxisID: 'y',
-          },
-          {
-            label: 'Refund Amount',
-            data: refundAmounts,
-            backgroundColor: Theme.FUNNEL.red,
-            order: 2,
-            yAxisID: 'y',
-          },
-          {
-            label: 'Refund Rate',
-            data: refundRates,
-            type: 'line',
-            borderColor: Theme.COLORS.warning,
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: Theme.COLORS.warning,
-            tension: 0.3,
-            order: 1,
-            yAxisID: 'y1',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.dataset.yAxisID === 'y1') return `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`;
-                return `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`;
+    Components.lazyChart(churnCanvasId, () => {
+      Theme.createChart(churnCanvasId, {
+        type: 'bar',
+        data: {
+          labels: churnMonths,
+          datasets: [
+            {
+              label: 'New Revenue',
+              data: newRevenue,
+              backgroundColor: Theme.FUNNEL.green,
+              order: 2,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Refund Amount',
+              data: refundAmounts,
+              backgroundColor: Theme.FUNNEL.red,
+              order: 2,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Refund Rate',
+              data: refundRates,
+              type: 'line',
+              borderColor: Theme.COLORS.warning,
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: Theme.COLORS.warning,
+              tension: 0.3,
+              order: 1,
+              yAxisID: 'y1',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.dataset.yAxisID === 'y1') return `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`;
+                  return `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`;
+                },
               },
             },
           },
-        },
-        scales: {
-          x: {
-            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-          y: {
-            position: 'left',
-            ticks: {
-              color: Theme.COLORS.textMuted,
-              font: { size: 10 },
-              callback: (v) => Theme.money(v),
+          scales: {
+            x: {
+              ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+              grid: { color: 'rgba(255,255,255,0.04)' },
             },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-          y1: {
-            position: 'right',
-            ticks: {
-              color: Theme.COLORS.warning,
-              font: { size: 10 },
-              callback: (v) => v.toFixed(1) + '%',
+            y: {
+              position: 'left',
+              ticks: {
+                color: Theme.COLORS.textMuted,
+                font: { size: 10 },
+                callback: (v) => Theme.money(v),
+              },
+              grid: { color: 'rgba(255,255,255,0.04)' },
             },
-            grid: { display: false },
+            y1: {
+              position: 'right',
+              ticks: {
+                color: Theme.COLORS.warning,
+                font: { size: 10 },
+                callback: (v) => v.toFixed(1) + '%',
+              },
+              grid: { display: false },
+            },
           },
         },
-      },
+      });
     });
 
     failedRow.innerHTML = `
@@ -495,56 +499,58 @@ App.registerPage('revenue', async (container) => {
     trendData = enrollCounts.map((_, i) => parseFloat((intercept + slope * i).toFixed(2)));
   }
 
-  Theme.createChart(enrollCanvasId, {
-    type: 'bar',
-    data: {
-      labels: monthLabels,
-      datasets: [
-        {
-          label: 'Enrollments',
-          data: enrollCounts,
-          backgroundColor: Theme.FUNNEL.green,
-          order: 2,
-          yAxisID: 'y',
+  Components.lazyChart(enrollCanvasId, () => {
+    Theme.createChart(enrollCanvasId, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Enrollments',
+            data: enrollCounts,
+            backgroundColor: Theme.FUNNEL.green,
+            order: 2,
+            yAxisID: 'y',
+          },
+          ...(trendData.length ? [{
+            label: 'Trend',
+            data: trendData,
+            type: 'line',
+            borderColor: Theme.COLORS.warning,
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            tension: 0.3,
+            order: 1,
+            yAxisID: 'y',
+          }] : []),
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.num(ctx.parsed.y)}`,
+            },
+          },
         },
-        ...(trendData.length ? [{
-          label: 'Trend',
-          data: trendData,
-          type: 'line',
-          borderColor: Theme.COLORS.warning,
-          backgroundColor: 'transparent',
-          borderWidth: 2,
-          borderDash: [4, 4],
-          pointRadius: 0,
-          tension: 0.3,
-          order: 1,
-          yAxisID: 'y',
-        }] : []),
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.num(ctx.parsed.y)}`,
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-      },
-    },
+    });
   });
 
   // -- Monthly Cash Collected (bar) --
@@ -562,43 +568,45 @@ App.registerPage('revenue', async (container) => {
 
   const revenueSeries = (monthly || []).map(r => r.revenue || 0);
 
-  Theme.createChart(revenueCanvasId, {
-    type: 'bar',
-    data: {
-      labels: monthLabels,
-      datasets: [{
-        label: 'Cash Collected',
-        data: revenueSeries,
-        backgroundColor: Theme.FUNNEL.blue,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`,
+  Components.lazyChart(revenueCanvasId, () => {
+    Theme.createChart(revenueCanvasId, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Cash Collected',
+          data: revenueSeries,
+          backgroundColor: Theme.FUNNEL.blue,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: {
+              color: Theme.COLORS.textMuted,
+              font: { size: 10 },
+              callback: (v) => Theme.money(v),
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          ticks: {
-            color: Theme.COLORS.textMuted,
-            font: { size: 10 },
-            callback: (v) => Theme.money(v),
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-      },
-    },
+    });
   });
 
   // ======================================================

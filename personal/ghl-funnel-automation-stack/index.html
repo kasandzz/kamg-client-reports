@@ -124,31 +124,12 @@ footer { padding: 40px 0 80px; font-size: 12px; color: var(--ink-3); letter-spac
 </section>
 
 <section>
-  <div class="kicker">The Goal</div>
-  <h2>Constraints first, so the rest of this makes sense.</h2>
-  <p>You design landing pages in Claude Code — real HTML, real CSS, pulling from kamg-astro-starter components. The output needs to land inside the client's GHL sub-account as native page-builder sections, not a raw HTML embed, so the client can log in and edit copy or swap images without touching code.</p>
-  <p>Three non-negotiables make most of the obvious paths wrong:</p>
-  <ul>
-    <li><strong>Client self-edit must work in the GHL builder UI.</strong> Custom HTML blobs and external Astro hosting both fail this.</li>
-    <li><strong>Output should preserve the Claude-designed look as closely as possible.</strong> Funnel AI's "regenerate from inspiration" approach fails this.</li>
-    <li><strong>The pipeline should be repeatable across clients without per-build heroics.</strong> Pure manual rebuilds fail this at volume.</li>
-  </ul>
-</section>
-
-<section>
-  <div class="kicker">The Core Mechanism</div>
-  <h2>GHL ships a built-in HTML-to-native-sections converter. It's called "Import from URL."</h2>
-  <p>Inside the funnel builder there's an Import feature that scrapes a public page and rebuilds it as native sections, columns, and elements. Sections, headings, paragraphs, images, buttons, and basic styling come through as first-class builder objects. The client can click any of them and edit.</p>
-  <p>What doesn't come through: forms, calendars, popups, JS-driven content, complex animations, scroll-triggered effects, anything that depends on runtime behavior. GHL drops or stubs those.</p>
-  <p>The whole pipeline rides on this feature. <strong>Design the page in Claude Code, deploy to a public URL, point GHL's Import at it, then clean up the gaps.</strong> The cleanup is where Playwright earns its keep.</p>
-</section>
-
-<section>
-  <div class="kicker">Where Playwright Fits</div>
-  <h2>Closing the ~30% gap that Import misses.</h2>
-  <p>Import-from-URL gives you the visual scaffold. What remains is GHL-specific: binding a real GHL Form to the opt-in slot, attaching a Calendar widget to the booking section, wiring conversion pixels, configuring the page-level SEO and tracking, hitting publish. Either you click through those manually each time, or Playwright does it.</p>
-  <p><strong>Playwright MCP</strong> is the practical answer. It drives a real Chrome session (authenticated via a saved <code>storageState</code> so MFA isn't an issue), navigates the GHL builder, and applies the cleanup steps deterministically. Claude Code reads your design intent and emits the Playwright calls.</p>
-  <p>The tradeoff: GHL ships UI updates roughly weekly, so selector drift is real. Pin to <code>data-testid</code> and ARIA roles where available, plan for one selector-refresh sprint per quarter, and accept that the first build of a script costs more than the eventual amortized run.</p>
+  <div class="kicker">How It Works</div>
+  <h2>Import from URL + Playwright cleanup.</h2>
+  <p>GHL's funnel builder ships an "Import from URL" feature that scrapes a public page and rebuilds it as native builder objects: sections, columns, headings, paragraphs, images, buttons, basic styling. The client can click any of them and edit. This is the closest thing GHL exposes to an HTML import API and it's the load-bearing piece of the pipeline.</p>
+  <p>What Import drops: forms, calendars, popups, JS-driven content, animations, scroll-triggered effects, anything runtime-dependent. Expect ~70% of the page through cleanly, ~30% as GHL-specific gaps.</p>
+  <p><strong>Playwright MCP</strong> (microsoft/playwright-mcp) closes those gaps. It drives an authenticated Chrome session via saved <code>storageState</code> (MFA handled once, persisted), navigates the GHL builder, and applies cleanup deterministically: drop a real GHL Form into the opt-in slot, bind a Calendar widget, set pixels, configure SEO, publish. Claude Code reads the design spec and emits the Playwright calls.</p>
+  <p>Selector drift is the maintenance cost — GHL ships UI changes ~weekly, expect ~10-20% selector drift per quarter. Pin to <code>data-testid</code> and ARIA roles, plan one refresh sprint per quarter, and accept that the first script costs more than the amortized run.</p>
 </section>
 
 <section>

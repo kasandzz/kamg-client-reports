@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Designed HTML into GHL Page Builder · ELI5 Guide</title>
+<title>HTML → GHL Page Builder · Practical Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
@@ -59,6 +59,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(-
 .glossary .def { color: var(--ink-2); font-size: 15.5px; line-height: 1.6; padding: 12px 0; border-top: 1px solid var(--line); }
 .glossary .def:nth-child(2) { border-top: 0; padding-top: 0; }
 .glossary .def strong { color: var(--ink); font-weight: 500; }
+.glossary .def code { font-size: 12.5px; }
 
 .steps { margin: 20px 0; }
 .step { display: grid; grid-template-columns: 60px 1fr; gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: start; }
@@ -67,7 +68,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(-
 .step .body h4 { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; margin-bottom: 8px; color: var(--ink); line-height: 1.35; }
 .step .body p { color: var(--ink-2); font-size: 15.5px; line-height: 1.65; margin-bottom: 8px; }
 .step .body p:last-child { margin-bottom: 0; }
-.step .body .what { font-size: 13px; color: var(--ink-3); margin-top: 8px; font-style: italic; }
+.step .body code { font-size: 12.5px; }
 
 .flowchart { background: var(--bg-2); border: 1px solid var(--line); padding: 28px; margin: 24px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.85; color: var(--ink-2); overflow-x: auto; white-space: pre; }
 .flowchart .root { color: var(--gold-2); font-weight: 700; }
@@ -86,6 +87,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(-
 .tradeoff-table th { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--bg-2); }
 .tradeoff-table td { color: var(--ink-2); line-height: 1.55; }
 .tradeoff-table td strong { color: var(--ink); font-weight: 500; }
+.tradeoff-table td code { font-size: 12.5px; }
 
 .sources { padding: 48px 0; border-top: 1px solid var(--line); }
 .sources a { color: var(--ink-2); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed var(--line); display: block; font-size: 13.5px; }
@@ -111,144 +113,117 @@ footer { padding: 40px 0 80px; font-size: 12px; color: var(--ink-3); letter-spac
 <div class="wrap">
 
 <div class="topbar">
-  <div>KAS&nbsp;ANDZ &nbsp;<span class="dot">●</span>&nbsp; ELI5 GUIDE</div>
-  <div>2026-05-13 · v3</div>
+  <div>KAS&nbsp;ANDZ &nbsp;<span class="dot">●</span>&nbsp; PRACTICAL GUIDE</div>
+  <div>2026-05-13 · v4</div>
 </div>
 
 <section class="hero">
   <div class="eyebrow">Designed HTML → GHL Page Builder</div>
-  <h1>How to take a page you designed in Claude Code and get it inside GHL's funnel builder <span class="accent">so the client can edit it themselves.</span></h1>
-  <p class="deck">Plain-English guide. <strong>What you want, why it's hard, what actually works, how to set it up.</strong> Cuts everything that doesn't serve this specific goal.</p>
+  <h1>Turning Claude-designed HTML into native GHL builder pages <span class="accent">the client can self-edit.</span></h1>
+  <p class="deck">Practical guide for shipping designed pages into GoHighLevel as proper editable sections, not Custom HTML blobs. <strong>What works, why it works, how to set it up</strong>, and which adjacent tools to ignore.</p>
 </section>
 
 <section>
-  <div class="kicker">The Goal in Plain English</div>
-  <h2>You want this. Not anything else.</h2>
-  <p>You design a beautiful landing page in Claude Code. Real HTML, real CSS, maybe pulling from your kamg-astro-starter components. It looks great in the browser.</p>
-  <p>Now you want that page <strong>living inside your client's GoHighLevel account</strong>, sitting in their funnel builder as proper editable sections. So when the client logs in later, they can change the headline, swap an image, or update copy themselves, without calling you.</p>
-  <p>That last part is the whole point. If the result isn't editable in the GHL builder, you've failed the brief. The client wants control of their own page.</p>
+  <div class="kicker">The Goal</div>
+  <h2>Constraints first, so the rest of this makes sense.</h2>
+  <p>You design landing pages in Claude Code — real HTML, real CSS, pulling from kamg-astro-starter components. The output needs to land inside the client's GHL sub-account as native page-builder sections, not a raw HTML embed, so the client can log in and edit copy or swap images without touching code.</p>
+  <p>Three non-negotiables make most of the obvious paths wrong:</p>
+  <ul>
+    <li><strong>Client self-edit must work in the GHL builder UI.</strong> Custom HTML blobs and external Astro hosting both fail this.</li>
+    <li><strong>Output should preserve the Claude-designed look as closely as possible.</strong> Funnel AI's "regenerate from inspiration" approach fails this.</li>
+    <li><strong>The pipeline should be repeatable across clients without per-build heroics.</strong> Pure manual rebuilds fail this at volume.</li>
+  </ul>
 </section>
 
 <section>
-  <div class="kicker">First, the basics</div>
-  <h2>What GHL actually is, in human language.</h2>
-  <p>GoHighLevel (GHL) is a marketing platform agencies resell to clients. Think Squarespace + Mailchimp + Calendly + Stripe + a CRM, all in one dashboard. Each client gets a "sub-account," their own little workspace.</p>
-  <p>Inside that workspace is the <strong>Funnel &amp; Website Builder</strong>. It's a drag-and-drop page editor, exactly like Squarespace, Wix, or Webflow. Pages are built from "sections," which contain "rows," which contain "columns," which hold "elements" like text, images, buttons, forms.</p>
-  <p>When something is built as <em>native sections</em>, the client can click on any element in the builder, type new text, swap an image, drag things around. That's the editability we're after.</p>
-
-  <div class="callout warn">
-    <div class="label">The Trap to Avoid</div>
-    <h4>If you paste your HTML into a "Custom HTML" element, the page renders fine, but it becomes one big un-editable blob.</h4>
-    <p>The client sees the page but can't click on the headline to change it. They'd have to know how to edit raw HTML. That defeats the entire reason they're using GHL. So Custom HTML paste is off the table for our goal.</p>
-  </div>
+  <div class="kicker">The Core Mechanism</div>
+  <h2>GHL ships a built-in HTML-to-native-sections converter. It's called "Import from URL."</h2>
+  <p>Inside the funnel builder there's an Import feature that scrapes a public page and rebuilds it as native sections, columns, and elements. Sections, headings, paragraphs, images, buttons, and basic styling come through as first-class builder objects. The client can click any of them and edit.</p>
+  <p>What doesn't come through: forms, calendars, popups, JS-driven content, complex animations, scroll-triggered effects, anything that depends on runtime behavior. GHL drops or stubs those.</p>
+  <p>The whole pipeline rides on this feature. <strong>Design the page in Claude Code, deploy to a public URL, point GHL's Import at it, then clean up the gaps.</strong> The cleanup is where Playwright earns its keep.</p>
 </section>
 
 <section>
-  <div class="kicker">The plot twist</div>
-  <h2>There's a button hiding in GHL that does most of the work.</h2>
-  <p>GHL has a feature called <strong>"Import from URL."</strong> You point it at a published web page, and it scrapes that page into native GHL sections automatically. Sections, columns, images, basic styling, all imported as proper editable builder elements.</p>
-  <p>This is the load-bearing fact for our entire plan. The official GHL documentation confirms it: imports sections/columns/images/basic styling as native elements. Some things break, forms, calendars, popups, complex animations, and those get rebuilt by hand. But the layout and copy come through.</p>
-  <p><strong>This is the bridge from your Claude-designed HTML to the GHL builder.</strong> You design in Claude Code, host the page somewhere public (Vercel preview is fine), then point GHL's "Import from URL" at it. Native sections come out the other end.</p>
-
-  <div class="callout info">
-    <div class="label">What This Means For You</div>
-    <h4>Your real job becomes: design HTML that imports cleanly.</h4>
-    <p>Simple semantic HTML with clean CSS will import well. JavaScript-driven content, complex animations, and CSS magic that depends on hover/scroll triggers will not. Design for import-friendliness up front and the rest is much smoother.</p>
-  </div>
+  <div class="kicker">Where Playwright Fits</div>
+  <h2>Closing the ~30% gap that Import misses.</h2>
+  <p>Import-from-URL gives you the visual scaffold. What remains is GHL-specific: binding a real GHL Form to the opt-in slot, attaching a Calendar widget to the booking section, wiring conversion pixels, configuring the page-level SEO and tracking, hitting publish. Either you click through those manually each time, or Playwright does it.</p>
+  <p><strong>Playwright MCP</strong> is the practical answer. It drives a real Chrome session (authenticated via a saved <code>storageState</code> so MFA isn't an issue), navigates the GHL builder, and applies the cleanup steps deterministically. Claude Code reads your design intent and emits the Playwright calls.</p>
+  <p>The tradeoff: GHL ships UI updates roughly weekly, so selector drift is real. Pin to <code>data-testid</code> and ARIA roles where available, plan for one selector-refresh sprint per quarter, and accept that the first build of a script costs more than the eventual amortized run.</p>
 </section>
 
 <section>
-  <div class="kicker">Where Playwright comes in</div>
-  <h2>The robot that fixes what Import-from-URL misses.</h2>
-  <p>Import-from-URL gets you to ~70% of a finished page. The remaining ~30% is GHL-specific stuff that doesn't exist in your reference HTML: form bindings, calendar widgets, checkout elements, conversion pixels, the publish button.</p>
-  <p>That gap is where <strong>Playwright MCP</strong> comes in. Plain English: Playwright is a piece of software that drives a real web browser like a human would, clicking buttons, typing into fields, dragging elements. MCP ("Model Context Protocol") is the bridge that lets Claude Code tell Playwright what to do.</p>
-  <p>So Claude reads your design spec, opens the GHL builder via Playwright, and clicks through the cleanup steps: "drag a form element here, connect it to the lead-capture workflow, set the redirect URL, click publish." Same thing you'd do by hand, except scripted so it runs in 2 minutes instead of 20.</p>
-</section>
-
-<section>
-  <div class="kicker">Glossary · ELI5</div>
-  <h2>The five terms you actually need to know.</h2>
+  <div class="kicker">Terminology</div>
+  <h2>Five terms used throughout this doc.</h2>
   <div class="glossary">
     <div class="term">GHL sub-account</div>
-    <div class="def">Your client's workspace inside GoHighLevel. Each sub-account has its own funnels, forms, calendars, contacts. You manage these as the agency from your master "agency view."</div>
+    <div class="def">A client's isolated workspace inside GoHighLevel. Each one has its own funnels, forms, calendars, contacts, workflows, and domain mappings. Agencies manage many of these from the agency-level view.</div>
 
     <div class="term">Native sections</div>
-    <div class="def">Page elements (headline, image, button, form) that exist as first-class objects inside the GHL builder. <strong>Click-to-edit.</strong> Opposite of a Custom HTML blob.</div>
+    <div class="def">Page elements that exist as first-class builder objects: sections containing rows containing columns containing typed elements (Headline, Text, Image, Button, Form, Calendar, Video, etc.). Click-to-edit in the builder UI. The opposite is a Custom HTML element, which renders correctly but isn't section-editable.</div>
 
     <div class="term">Import from URL</div>
-    <div class="def">A GHL builder feature. Paste a public web URL, GHL scrapes the page and recreates it as native sections inside a new funnel page. Built-in HTML-to-builder converter.</div>
+    <div class="def">A GHL funnel-builder feature. Provide a public URL, GHL fetches the rendered page, and recreates it as native sections inside a new funnel page. The closest thing to an HTML-import API that GHL exposes.</div>
 
-    <div class="term">Playwright</div>
-    <div class="def">Software that drives a real browser like a remote-controlled mouse and keyboard. Click here, type that, upload this file. We use it to script the cleanup work in the GHL builder after Import-from-URL.</div>
+    <div class="term">Playwright MCP</div>
+    <div class="def">An MCP server (microsoft/playwright-mcp) that lets Claude Code drive a real browser via the Playwright API. Useful for any web UI without an automation-friendly API — including GHL's builder. Reuses saved authentication state so it doesn't need to log in every run.</div>
 
-    <div class="term">MCP server</div>
-    <div class="def">A small piece of software that lets Claude Code use external tools. <strong>Playwright MCP</strong> = Claude can drive Playwright. <strong>HighLevel Official MCP</strong> = Claude can read/write the GHL API (contacts, tags, pipelines).</div>
+    <div class="term">HighLevel Official MCP</div>
+    <div class="def">GHL's vendor-published MCP server (HTTP, PIT auth). 36 tools covering CRM-side operations: contacts, tags, pipelines, custom fields, calendars, products, media. Does <strong>not</strong> include funnel/page/form writes — that's the gap Playwright fills.</div>
   </div>
 </section>
 
 <section>
-  <div class="kicker">The Full Pipeline</div>
-  <h2>What the whole flow looks like end-to-end.</h2>
-  <div class="flowchart"><span class="root">1. You + Claude Code</span>
-   <span class="arrow">↓</span>  design landing page in HTML/CSS
-   <span class="arrow">↓</span>  (use kamg-astro-starter components)
-<span class="root">2. Deploy to public URL</span>
-   <span class="arrow">↓</span>  Vercel preview, takes ~10 seconds
-<span class="root">3. GHL: Import from URL</span>
-   <span class="arrow">↓</span>  paste your Vercel URL
-   <span class="arrow">↓</span>  GHL scrapes → native sections (rough but real)
-<span class="root">4. Playwright MCP cleanup</span>
-   <span class="arrow">↓</span>  Claude scripts the gap-filling:
-   <span class="arrow">↓</span>    · attach GHL form to opt-in
-   <span class="arrow">↓</span>    · wire calendar booking widget
-   <span class="arrow">↓</span>    · set up conversion pixels
-   <span class="arrow">↓</span>    · click publish
-<span class="root">5. Client logs in, edits whatever they want</span>
-   ✓  native section editing works
-   ✓  goal achieved</div>
+  <div class="kicker">The Pipeline</div>
+  <h2>End-to-end flow.</h2>
+  <div class="flowchart"><span class="root">1. Claude Code</span>
+   <span class="arrow">↓</span>  design HTML/CSS using kamg-astro-starter components
+   <span class="arrow">↓</span>  follow import-friendliness rules (see Step 3)
+<span class="root">2. Vercel preview deploy</span>
+   <span class="arrow">↓</span>  public URL, ~10s
+<span class="root">3. GHL → Import from URL</span>
+   <span class="arrow">↓</span>  paste preview URL into the funnel builder Import field
+   <span class="arrow">↓</span>  GHL renders the page and recreates as native sections
+<span class="root">4. Playwright MCP cleanup pass</span>
+   <span class="arrow">↓</span>  Claude reads design spec, scripts the GHL-side wiring:
+   <span class="arrow">↓</span>    bind Form element, attach Calendar, set pixels, set SEO, publish
+<span class="root">5. Client edits in the GHL builder</span>
+   ✓  native section editing works as expected</div>
 </section>
 
 <section>
-  <div class="kicker">Step-by-Step Setup · ELI5</div>
-  <h2>What to actually do, in order.</h2>
+  <div class="kicker">Setup</div>
+  <h2>Order of operations.</h2>
 
   <div class="steps">
 
     <div class="step">
       <div class="num">1</div>
       <div class="body">
-        <h4>Get the basics installed in Claude Code</h4>
-        <p>Two MCP servers, one-time setup. Add both to your <code>~/.claude.json</code> file.</p>
-        <ul>
-          <li><strong>Playwright MCP</strong> (microsoft/playwright-mcp) — the browser robot</li>
-          <li><strong>HighLevel Official MCP</strong> (HTTP, vendor-provided) — for any API work (contacts, tags, pipelines)</li>
-        </ul>
-        <p class="what">Plain English: these are the tools Claude needs to talk to GHL and to drive a browser.</p>
+        <h4>Install the two MCP servers</h4>
+        <p>Add to <code>~/.claude.json</code>: <code>microsoft/playwright-mcp</code> (browser automation) and the HighLevel Official MCP (HTTP, vendor-published). Generate a Private Integration Token in the client's GHL sub-account (Settings → Private Integrations), scope it narrowly, store in <code>.env</code>.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="num">2</div>
       <div class="body">
-        <h4>Log into GHL once, save the session</h4>
-        <p>Open a real Chrome window via Playwright. Log into the client's GHL sub-account by hand once (with MFA if needed). Save the browser session to a file (<code>auth-state.json</code>). Playwright reuses this every future run, so you never have to log in again.</p>
-        <p class="what">Plain English: like saving your Netflix login on a TV. You do it once.</p>
+        <h4>One-time GHL login → persist storageState</h4>
+        <p>Open a headed Playwright session, log into the GHL sub-account by hand (with MFA), save cookies + localStorage to <code>auth-state.json</code> via Playwright's <code>browser_storage_state</code>. Gitignore the file. Every subsequent run loads this state and runs authenticated without prompts.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="num">3</div>
       <div class="body">
-        <h4>Design the page in Claude Code with import in mind</h4>
-        <p>Build the page as you would normally, but with discipline:</p>
+        <h4>Design the page with import-friendliness in mind</h4>
+        <p>Import-from-URL works on the rendered DOM. Anything that depends on JS execution, scroll position, hover, or runtime fetches gets dropped or flattened. Discipline:</p>
         <ul>
-          <li>Use clear semantic HTML (real <code>&lt;section&gt;</code> tags, clear hierarchy)</li>
-          <li>Stick to standard fonts (Google Fonts is fine, no exotic webfonts)</li>
-          <li>No JavaScript-driven content, everything must render in static HTML</li>
-          <li>Avoid complex animations or scroll-triggered effects</li>
-          <li>Use simple CSS, grid and flexbox are fine, absolute positioning will confuse the import</li>
+          <li>Real semantic <code>&lt;section&gt;</code> structure, one logical block per section</li>
+          <li>Standard fonts via Google Fonts; avoid exotic webfonts or font-variable tricks</li>
+          <li>Static content only — no JS-rendered headings, no client-side data fetches</li>
+          <li>CSS grid and flexbox fine; absolute positioning and CSS transforms confuse the import</li>
+          <li>No scroll-triggered animations, parallax, intersection-observer effects</li>
         </ul>
-        <p class="what">Plain English: design like it's 2014. Boring HTML imports cleanly. Fancy HTML breaks.</p>
       </div>
     </div>
 
@@ -256,42 +231,32 @@ footer { padding: 40px 0 80px; font-size: 12px; color: var(--ink-3); letter-spac
       <div class="num">4</div>
       <div class="body">
         <h4>Deploy to a public URL</h4>
-        <p>Push to a Vercel preview, Netlify drop, or GitHub Pages. Anywhere public. Takes 30 seconds. You just need a URL GHL can fetch.</p>
-        <p class="what">Plain English: GHL needs to be able to visit your page on the open internet to copy it.</p>
+        <p>Vercel preview, Netlify, GitHub Pages — any public host. GHL needs to fetch the rendered page over the open internet, so localhost won't work. Vercel previews tear down after the build so leakage isn't a concern for short-lived imports.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="num">5</div>
       <div class="body">
-        <h4>In the client's GHL: Import from URL</h4>
-        <p>Funnels &amp; Websites → New Funnel → Add Step → choose "Import from a URL" (or Import button in the page builder). Paste your Vercel URL. Wait ~30-60 seconds. GHL scrapes the page into native sections.</p>
-        <p>You'll get headlines, paragraphs, images, buttons, and basic layout as real builder elements. You'll be missing: working forms, calendars, checkout, popups, anything dynamic.</p>
-        <p class="what">Plain English: this is the magic step. The button you didn't know existed.</p>
+        <h4>Import inside GHL</h4>
+        <p>In the client sub-account: Funnels &amp; Websites → New Funnel → Add Step → Import from URL. Paste the preview URL, wait ~30-60s for the scrape and conversion. Expect to land with: layout, headlines, body copy, images, buttons as native elements. Expect to be missing: working forms, calendars, checkout, popups, anything dynamic.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="num">6</div>
       <div class="body">
-        <h4>Playwright cleanup pass</h4>
-        <p>Ask Claude Code to run the cleanup script. It opens the GHL builder via Playwright (using your saved login) and methodically:</p>
-        <ul>
-          <li>Drags a GHL Form element into the opt-in slot, picks the form from the dropdown</li>
-          <li>Drops a Calendar element into the booking slot, picks the calendar</li>
-          <li>Adds tracking pixels in head/body via the page settings panel</li>
-          <li>Saves and publishes</li>
-        </ul>
-        <p class="what">Plain English: the robot does the dragging-and-clicking work that you'd do by hand. Same result, 10x faster.</p>
+        <h4>Run the Playwright cleanup script</h4>
+        <p>Claude Code reads the original design spec (which forms go where, which calendar, which workflow on submit, tracking pixels, SEO meta) and drives the GHL builder via Playwright MCP to apply the GHL-specific wiring. Per-section it: drops the right native element, opens its config panel, selects the bound resource, saves.</p>
+        <p>Build the script once per client vertical or page archetype. Subsequent funnels in the same shape become near-instant runs.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="num">7</div>
       <div class="body">
-        <h4>Hand off to the client</h4>
-        <p>Client logs in. They can click any headline and retype it. They can swap any image. They can rearrange sections. <strong>Goal achieved.</strong></p>
-        <p class="what">Plain English: you've delivered a beautifully-designed page that's also fully editable in their own dashboard.</p>
+        <h4>Hand off</h4>
+        <p>Client logs in, clicks any headline, edits in place. Each section is a real builder section so the experience matches what they signed up for when they bought GHL.</p>
       </div>
     </div>
 
@@ -299,105 +264,105 @@ footer { padding: 40px 0 80px; font-size: 12px; color: var(--ink-3); letter-spac
 </section>
 
 <section>
-  <div class="kicker">Honest Tradeoffs</div>
-  <h2>What this approach actually costs you.</h2>
+  <div class="kicker">Tradeoffs</div>
+  <h2>What this approach costs.</h2>
 
   <table class="tradeoff-table">
     <thead>
-      <tr><th>What you give up</th><th>Why it happens</th><th>How to mitigate</th></tr>
+      <tr><th>Cost</th><th>Why</th><th>Mitigation</th></tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Pixel-perfect design fidelity</strong></td>
-        <td>Import-from-URL flattens fancy CSS. Custom fonts may swap. Complex layouts may simplify.</td>
-        <td>Design import-friendly from the start. Treat the result as a "near-match" not "exact match."</td>
+        <td><strong>Design fidelity drift</strong></td>
+        <td>Import flattens CSS transforms, custom font stacks, complex grids. Result is "close to" the source, not pixel-perfect.</td>
+        <td>Design import-friendly from the start. Treat the import as the baseline, polish via the builder or custom CSS panel.</td>
       </tr>
       <tr>
-        <td><strong>Speed on the first run</strong></td>
-        <td>Playwright scripts need to be written and tested before they save time.</td>
-        <td>Build the cleanup script once per client vertical. Reuse it across funnels.</td>
+        <td><strong>First-build cost is high</strong></td>
+        <td>Playwright cleanup scripts have to be written and stabilized before they save time.</td>
+        <td>Write the script during the first funnel of a given vertical. Amortize across subsequent builds.</td>
       </tr>
       <tr>
-        <td><strong>Maintenance discipline</strong></td>
-        <td>GHL ships UI changes weekly. Your Playwright selectors may drift 10-20% per quarter.</td>
-        <td>Pin to stable selectors (<code>data-testid</code>, role-based). Plan one selector-refresh sprint each quarter.</td>
+        <td><strong>Selector drift</strong></td>
+        <td>GHL ships UI changes weekly. Expect ~10-20% of builder selectors to drift per quarter.</td>
+        <td>Pin to <code>data-testid</code> and ARIA roles. Run a selector refresh sprint each quarter. Avoid XPath and text-content navigation.</td>
       </tr>
       <tr>
-        <td><strong>Some things still must be manual</strong></td>
-        <td>OAuth connections (Stripe, Mailgun, Twilio), DNS for custom domains, payment-method selection.</td>
-        <td>Accept "one manual integrations day per new client." No automation eliminates these.</td>
+        <td><strong>Irreducibly manual integrations</strong></td>
+        <td>Stripe / Mailgun / Twilio / GA / Meta connections all require interactive OAuth consent per sub-account. DNS for custom domains lives at the registrar.</td>
+        <td>Budget one "integrations day" per new client. No automation path eliminates these.</td>
       </tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <div class="kicker">What got cut from v1/v2 of this brief</div>
-  <h2>Tools and paths that sound related but don't serve this goal.</h2>
-  <p style="color: var(--ink-2); font-size: 15.5px; margin-bottom: 24px;">Including them confused the picture. Here's what each one actually does, and why it doesn't fit "designed HTML → editable GHL page."</p>
+  <div class="kicker">Adjacent Tools, And Why They're Not Here</div>
+  <h2>What I cut from earlier versions of this doc.</h2>
+  <p style="color: var(--ink-2); font-size: 15.5px; margin-bottom: 24px;">Earlier drafts included these. Each has legitimate use cases — none of them serves the goal of "designed HTML → editable GHL page."</p>
 
   <div class="cuts">
 
     <div class="cut">
       <div class="what">Snapshots</div>
-      <div class="why"><strong>What it does:</strong> Clones an existing GHL workspace (funnels + workflows + forms + everything) to a new sub-account. <strong>Why it doesn't fit:</strong> Snapshots clone GHL builds you already made inside GHL. They don't translate designed HTML into GHL. Wrong direction entirely — useful for replicating a working setup across multiple clients, not for getting a new HTML design into GHL.</div>
+      <div class="why"><strong>What it is:</strong> A GHL feature that clones an entire sub-account configuration (funnels, workflows, forms, custom fields, templates) into another sub-account. <strong>Why it's not here:</strong> Snapshots replicate things you've already built inside GHL. They don't ingest HTML. Different problem.</div>
     </div>
 
     <div class="cut">
       <div class="what">n8n + n8n-mcp</div>
-      <div class="why"><strong>What it does:</strong> Automation platform for connecting apps together (form-submit → Slack message → CRM update). <strong>Why it doesn't fit:</strong> n8n is about gluing systems together for ongoing workflows. It has zero to do with translating HTML into a page builder. Useful for other agency work, irrelevant here.</div>
+      <div class="why"><strong>What it is:</strong> Workflow automation platform for connecting apps via webhooks and event chains. <strong>Why it's not here:</strong> n8n is post-deployment glue — form-submit triggers, CRM sync, notification fan-out. It doesn't translate page markup into a builder.</div>
     </div>
 
     <div class="cut">
       <div class="what">External Astro hosting</div>
-      <div class="why"><strong>What it does:</strong> Host the LP on Vercel and connect GHL forms/calendars via webhooks. <strong>Why it doesn't fit:</strong> The page lives on Vercel, not in GHL. Client can't self-edit in the GHL builder anymore — every text change becomes a developer task. Fails the core goal.</div>
+      <div class="why"><strong>What it is:</strong> Host the LP on Vercel, route GHL forms via webhooks. <strong>Why it's not here:</strong> The page no longer lives in GHL, so client self-edit in the GHL builder is impossible. Fails the core constraint.</div>
     </div>
 
     <div class="cut">
-      <div class="what">Funnel AI as a translator</div>
-      <div class="why"><strong>What it does:</strong> GHL's built-in AI takes a URL or screenshot as <em>visual inspiration</em> and regenerates a page from scratch. <strong>Why it doesn't fit:</strong> It's not a translator, it's a regenerator. Your carefully-designed HTML becomes a vibes-input. Result is generic, not your design. Useful for net-new niches with no reference, not for shipping your specific design.</div>
+      <div class="what">Funnel AI as translator</div>
+      <div class="why"><strong>What it is:</strong> GHL's built-in AI accepts a URL or screenshot as <em>visual inspiration</em> and regenerates a page. <strong>Why it's not here:</strong> It's a regenerator, not a converter. Your design becomes mood-board input. Result is generic, not your design. Different tool, different job.</div>
     </div>
 
     <div class="cut">
       <div class="what">Claude Chrome extension</div>
-      <div class="why"><strong>What it does:</strong> Anthropic's browser-using Claude, drives your authenticated tab. <strong>Why it doesn't fit (yet):</strong> DOM-driven, chokes on drag-drop canvases like GHL's builder. Documented case of a 10-minute task taking 2 hours. Useful for GHL admin work (smart lists, tags, workflows config). Not for the builder canvas.</div>
+      <div class="why"><strong>What it is:</strong> Anthropic's browser-using Claude (Pro / Max), drives an authenticated tab. <strong>Why it's not here:</strong> Useful for GHL admin work — smart lists, tag cleanup, workflows config — but documented to struggle with drag-drop canvas builders. Wrong tool for the page-builder write layer.</div>
     </div>
 
     <div class="cut">
       <div class="what">Visual-diff fix loop</div>
-      <div class="why"><strong>What it does:</strong> Renders both pages, takes screenshots, asks Claude to spot differences, scripts fixes. <strong>Why it doesn't fit:</strong> Overengineered for the volume. The Import-from-URL → Playwright-cleanup pipeline gets you to "close enough" without the closed loop. Reach for this only if you're shipping &gt;30 of the same page and pixel parity is contractual.</div>
+      <div class="why"><strong>What it is:</strong> Render reference + actual, pixel-diff, send to Claude, emit fix script, iterate until convergence. <strong>Why it's not here:</strong> Overengineered for current volumes. Import + Playwright cleanup gets close enough. Revisit if shipping 30+ identical pages where pixel parity is contractual.</div>
     </div>
 
   </div>
 </section>
 
 <section>
-  <div class="kicker">The Honest Bottom Line</div>
-  <h2>If this approach feels lower-tech than expected, that's because it is.</h2>
-  <p>The "build entire funnels with Claude Code + MCPs" framing makes it sound like there's a magic API or a hot new agent that does the whole thing in one prompt. <strong>There isn't.</strong> GHL deliberately doesn't open its page builder to outside automation, and no MCP can change that.</p>
-  <p>What's actually available is more boring and more useful: a built-in import feature most agencies don't know about, a browser robot that closes the gaps, and discipline in how you design the source HTML. <strong>That stack is enough to take your designed page into an editable client builder in well under an hour, repeatedly.</strong></p>
-  <p>The week-one move is to ship one real funnel through this pipeline end-to-end. Pick a real client. Design the page in Claude Code with import-friendliness rules. Deploy to Vercel. Import-from-URL in GHL. Write the Playwright cleanup script. Hand off to the client. Then watch what actually breaks, fix it, save the script, and the second funnel is half the work of the first.</p>
+  <div class="kicker">Bottom Line</div>
+  <h2>The answer is more boring than the question implied.</h2>
+  <p>"Build entire GHL funnels with Claude Code + MCPs" sounds like there should be a generative API or a hot new agent that one-shots the whole thing. There isn't. GHL deliberately doesn't expose the page builder, and no MCP changes that.</p>
+  <p>What's actually available — Import from URL + Playwright MCP + design discipline — is enough to compress a 6-8 hour manual build to under an hour, repeatable across clients, with the client retaining full self-edit in the GHL builder. The first build is the expensive one; everything after that runs against the same script.</p>
+  <p>The week-one move: ship one funnel end-to-end through this pipeline. Pick a real client. Design the HTML with the import-friendliness rules. Deploy. Import. Write the cleanup script as you go. Hand off. Note what broke, fix the script, ship the second build at half the cost.</p>
 </section>
 
 <section class="sources">
-  <div class="kicker">Sources · the receipts</div>
-  <h2 style="margin-bottom: 14px;">Where these claims come from.</h2>
-  <p style="margin-bottom: 20px; color: var(--ink-2); font-size: 15px;">Vendor docs + community signal. Accessed 2026-05-13.</p>
+  <div class="kicker">Sources</div>
+  <h2 style="margin-bottom: 14px;">References.</h2>
+  <p style="margin-bottom: 20px; color: var(--ink-2); font-size: 15px;">Vendor docs and community signal. Accessed 2026-05-13.</p>
 
-  <a href="https://help.gohighlevel.com/support/solutions/articles/48001076117-import-and-or-cloning-funnels-websites" target="_blank">GHL: Import / Clone Funnels &amp; Websites (the core feature)</a>
-  <a href="https://help.gohighlevel.com/support/solutions/articles/48001209319-converting-funnels-and-websites-with-the-new-import-feature" target="_blank">GHL: Converting Funnels with the Import Feature</a>
-  <a href="https://help.gohighlevel.com/support/solutions/articles/155000005796-drag-and-drop-with-auto-hierarchical-layout-in-funnel-website-builder" target="_blank">GHL: Drag-and-Drop Auto-Hierarchical Layout (builder anatomy)</a>
-  <a href="https://help.gohighlevel.com/support/solutions/articles/155000006713-funnels-websites-ai" target="_blank">GHL: Funnel &amp; Website AI (what it actually does)</a>
+  <a href="https://help.gohighlevel.com/support/solutions/articles/48001076117-import-and-or-cloning-funnels-websites" target="_blank">GHL · Import / Clone Funnels &amp; Websites</a>
+  <a href="https://help.gohighlevel.com/support/solutions/articles/48001209319-converting-funnels-and-websites-with-the-new-import-feature" target="_blank">GHL · Converting Funnels with the Import Feature</a>
+  <a href="https://help.gohighlevel.com/support/solutions/articles/155000005796-drag-and-drop-with-auto-hierarchical-layout-in-funnel-website-builder" target="_blank">GHL · Drag-and-Drop Auto-Hierarchical Layout (builder anatomy)</a>
+  <a href="https://help.gohighlevel.com/support/solutions/articles/155000006713-funnels-websites-ai" target="_blank">GHL · Funnel &amp; Website AI</a>
   <a href="https://marketplace.gohighlevel.com/docs/other/mcp/" target="_blank">HighLevel Official MCP Documentation</a>
-  <a href="https://marketplace.gohighlevel.com/docs/Authorization/PrivateIntegrationsToken/" target="_blank">HighLevel Private Integration Tokens (auth)</a>
-  <a href="https://playwright.dev/mcp/tools/storage" target="_blank">Playwright MCP: Storage State Tools (saved login)</a>
-  <a href="https://playwright.dev/mcp/configuration/user-profile" target="_blank">Playwright MCP: User Profile Config</a>
-  <a href="https://ideas.gohighlevel.com/funnels/p/html-funnel-import" target="_blank">GHL Ideas: HTML Funnel Import (open feature request since 2021)</a>
-  <a href="https://ideas.gohighlevel.com/apis/p/expose-workflow-creation-funnel-page-editing-and-form-creation-via-api" target="_blank">GHL Ideas: Expose Funnel Editing via API (still open)</a>
+  <a href="https://marketplace.gohighlevel.com/docs/Authorization/PrivateIntegrationsToken/" target="_blank">HighLevel · Private Integration Tokens</a>
+  <a href="https://playwright.dev/mcp/tools/storage" target="_blank">Playwright MCP · Storage State Tools</a>
+  <a href="https://playwright.dev/mcp/configuration/user-profile" target="_blank">Playwright MCP · User Profile Config</a>
+  <a href="https://ideas.gohighlevel.com/funnels/p/html-funnel-import" target="_blank">GHL Ideas · HTML Funnel Import (open since Jan 2021)</a>
+  <a href="https://ideas.gohighlevel.com/apis/p/expose-workflow-creation-funnel-page-editing-and-form-creation-via-api" target="_blank">GHL Ideas · Expose Funnel Editing via API (open)</a>
 </section>
 
 <footer>
-  KAS&nbsp;ANDZ · ELI5 GUIDE · v3 · 2026-05-13 · DESIGNED HTML INTO GHL PAGE BUILDER
+  KAS&nbsp;ANDZ · PRACTICAL GUIDE · v4 · 2026-05-13
 </footer>
 
 </div>

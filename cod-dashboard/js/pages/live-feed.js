@@ -440,6 +440,11 @@
       `;
     }
 
+    // ---- Refresh error banner (shown only after at least one successful load) ----
+    const errBanner = document.createElement('div');
+    errBanner.style.cssText = `display:none;padding:10px 14px;margin-bottom:12px;border-left:3px solid ${Theme.COLORS.danger};background:rgba(239,68,68,0.06);font-size:12px;color:${Theme.COLORS.textSecondary};border-radius:4px`;
+    container.appendChild(errBanner);
+
     // ---- Table container ----
     const tableWrap = document.createElement('div');
     tableWrap.className = 'card lf-table-wrap';
@@ -535,9 +540,18 @@
       } catch (err) {
         if (tableWrap.children.length === 0) {
           tableWrap.innerHTML = `<div style="padding:24px"><p class="text-muted">Failed to load Live Feed: ${err.message}</p></div>`;
+        } else {
+          // Post-initial-load failures were silent before — feed appeared frozen
+          // with no signal that polling had broken. Surface as a non-blocking
+          // banner; auto-clears on next successful refresh below.
+          const ts = new Date().toLocaleTimeString();
+          errBanner.style.display = 'block';
+          errBanner.textContent = `Live Feed refresh failed at ${ts}: ${err.message}. Polling continues — banner clears on next success.`;
         }
         return;
       }
+      // Successful response — clear any prior failure banner.
+      errBanner.style.display = 'none';
 
       // Filter to core funnel events
       rows = (rows || []).filter(r => ALLOWED_TYPES.has(r.event_type));

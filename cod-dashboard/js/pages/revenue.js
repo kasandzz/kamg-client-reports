@@ -608,12 +608,28 @@ App.registerPage('revenue', async (container) => {
   recentSection.style.cssText = 'margin-top:24px';
   container.appendChild(recentSection);
 
+  // Classify each row into tickets vs enrollments.
+  // Heuristic: description match for "Event Registration" / "Ticket" / "Workshop" -> ticket;
+  // otherwise enrollment. Pure amount-based fallback when description missing.
+  function _classifyRecent(r) {
+    var desc = String(r && r.description || '').toLowerCase();
+    if (/event registration|ticket|workshop|vip/.test(desc)) return 'ticket';
+    if (r && Number(r.amount) >= 1000) return 'enrollment';
+    return 'ticket';
+  }
+  var _recentAll = Array.isArray(recent) ? recent.slice() : [];
+  _recentAll.forEach(function (r) { r._classification = _classifyRecent(r); });
+  var _ticketCount = _recentAll.filter(function (r) { return r._classification === 'ticket'; }).length;
+  var _enrollCount = _recentAll.filter(function (r) { return r._classification === 'enrollment'; }).length;
+  var _recentFilter = 'all'; // 'all' | 'ticket' | 'enrollment'
+
   const recentHeader = document.createElement('div');
-  recentHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px';
+  recentHeader.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px';
   recentHeader.innerHTML = `
     <div>
       <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Recent Enrollments</div>
       <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Last 20 high-ticket transactions ($100+) across all processors. Live from Stripe.</div>
+      <div id="recent-filter-pills" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"></div>
     </div>
     <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
       <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: v_stripe_clean
@@ -626,10 +642,49 @@ App.registerPage('revenue', async (container) => {
   recentCard.style.cssText = 'padding:0;overflow-x:auto';
   recentSection.appendChild(recentCard);
 
-  if (!recent || recent.length === 0) {
-    recentCard.style.padding = '24px';
-    recentCard.innerHTML = '<div class="text-muted" style="text-align:center">No recent enrollments in the selected window.</div>';
-  } else {
+  function _renderRecentPills() {
+    var host = document.getElementById('recent-filter-pills');
+    if (!host) return;
+    var pills = [
+      { key: 'all',        label: 'All',         count: _recentAll.length },
+      { key: 'ticket',     label: 'Tickets',     count: _ticketCount },
+      { key: 'enrollment', label: 'Enrollments', count: _enrollCount }
+    ];
+    host.innerHTML = pills.map(function (p) {
+      var active = p.key === _recentFilter;
+      var bg = active ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.03)';
+      var border = active ? '1px solid rgba(124,58,237,0.5)' : '1px solid rgba(255,255,255,0.08)';
+      var color = active ? '#c4b5fd' : Theme.COLORS.textMuted;
+      return '<button data-key="' + p.key + '" class="recent-pill" style="cursor:pointer;padding:5px 12px;border-radius:20px;border:' + border + ';background:' + bg + ';color:' + color + ';font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-family:inherit">' +
+        p.label + ' <span style="opacity:0.7;margin-left:4px">' + p.count + '</span>' +
+      '</button>';
+    }).join('');
+    host.querySelectorAll('.recent-pill').forEach(function (b) {
+      b.addEventListener('click', function () {
+        _recentFilter = this.dataset.key;
+        _renderRecentPills();
+        _renderRecentTable();
+      });
+    });
+  }
+
+  function _renderRecentTable() {
+    var rows = _recentFilter === 'all'
+      ? _recentAll
+      : _recentAll.filter(function (r) { return r._classification === _recentFilter; });
+
+    if (!rows || rows.length === 0) {
+      recentCard.style.padding = '24px';
+      recentCard.innerHTML = '<div class="text-muted" style="text-align:center">No rows match the selected filter.</div>';
+      return;
+    }
+    recentCard.style.padding = '0';
+    _renderRecentTableHTML(rows);
+  }
+
+  function _renderRecentTableHTML(rows) {
+    var recent = rows;
+    {
     function _processorBadge(p) {
       const colors = {
         'Stripe':       { bg: 'rgba(99,102,241,0.15)', fg: '#818cf8' },
@@ -676,6 +731,10 @@ App.registerPage('revenue', async (container) => {
     html += '</tbody></table>';
     recentCard.innerHTML = html;
   }
+  } // close _renderRecentTableHTML
+
+  _renderRecentPills();
+  _renderRecentTable();
 });
 
 App.onFilterChange(() => App.navigate('revenue'));

@@ -478,9 +478,16 @@ function _renderCampaignTable(container) {
     let rowsHtml = '';
 
     filtered.forEach(c => {
-      const replyRate = c.sent > 0 ? ((c.replied / c.sent) * 100).toFixed(1) : '0.0';
+      // Reply rate against gross sent (matches BQ kpis query). The deliverable
+      // variant excludes bounces from the denominator so the % matches what a
+      // clean list would actually produce; surfaced as a smaller subtext so
+      // the headline number stays directly comparable to the campaign report.
+      const sent = c.sent || 0;
+      const replyRateGross = sent > 0 ? ((c.replied / sent) * 100) : 0;
+      const deliverable = sent - (c.bounced || 0);
+      const replyRateDeliv = deliverable > 0 ? ((c.replied / deliverable) * 100) : 0;
       const intRate = c.replied > 0 ? ((c.interested / c.replied) * 100).toFixed(1) : '0.0';
-      const bounceRate = c.sent > 0 ? ((c.bounced / c.sent) * 100).toFixed(1) : '0.0';
+      const bounceRate = sent > 0 ? ((c.bounced / sent) * 100).toFixed(1) : '0.0';
       const bounceColor = parseFloat(bounceRate) > 3 ? Theme.COLORS.danger : (parseFloat(bounceRate) > 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary);
       const nameDisplay = c.name.length > 45 ? c.name.slice(0, 45) + '...' : c.name;
 
@@ -489,7 +496,7 @@ function _renderCampaignTable(container) {
         <td style="${tdStyle}">${_ceStatusDot(c.status)}</td>
         <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.leads)}</td>
         <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.sent)}</td>
-        <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.replied)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${replyRate}%</span></td>
+        <td style="${tdStyle};font-family:'JetBrains Mono',monospace" title="Deliverable (ex-bounce): ${replyRateDeliv.toFixed(1)}%">${Theme.num(c.replied)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${replyRateGross.toFixed(1)}%</span></td>
         <td style="${tdStyle};font-family:'JetBrains Mono',monospace">${Theme.num(c.interested)} <span style="color:${Theme.COLORS.textMuted};font-size:11px">${intRate}%</span></td>
         <td style="${tdStyle};font-family:'JetBrains Mono',monospace;color:${bounceColor}">${bounceRate}%</td>
       </tr>`;

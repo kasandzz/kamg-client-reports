@@ -251,7 +251,13 @@ App.registerPage('email-intel', async (container) => {
   const engCard = document.createElement('div');
   engCard.className = 'card';
   engCard.style.cssText = 'padding:20px';
-  engCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Engagement Rates</div>`;
+  // Title now names the actual measured metric. Previous version showed "Click
+  // Rate %" as a flat zero line because the daily query doesn't return click
+  // events — a closer scanning the page at standup would conclude clicks were
+  // 0% rather than that the data was unavailable. Footnote discloses the gap
+  // and points at the page-level Click Rate KPI which DOES carry the value.
+  engCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Daily Open Rate</div>
+    <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-bottom:12px;font-family:'JetBrains Mono',monospace">opened / delivered &middot; per-day click rate not in email.daily query — see KPI strip for window-level click rate</div>`;
 
   const engCanvasId = 'email-engagement-rates';
   const engCanvas   = document.createElement('canvas');
@@ -260,17 +266,13 @@ App.registerPage('email-intel', async (container) => {
   engCard.appendChild(engCanvas);
   grid.appendChild(engCard);
 
-  // Build per-day open rate and click rate from daily data
-  // daily query returns sent/delivered/opened/bounced -- compute rates on the fly
+  // Build per-day open rate from daily data. Click rate dataset removed —
+  // email.daily returns sent/delivered/opened/bounced only, no clicks column.
   const engLabels    = (dailyRows || []).map(r => r.day);
   const openRates    = (dailyRows || []).map(r => {
     const delivered = r.delivered || 0;
     const opened    = r.opened    || 0;
     return delivered > 0 ? (opened / delivered) * 100 : 0;
-  });
-  const clickRates   = (dailyRows || []).map(r => {
-    // click rate requires clicks col; daily query only has opened -- use 0 as placeholder
-    return 0;
   });
 
   Theme.createChart(engCanvasId, {
@@ -286,17 +288,6 @@ App.registerPage('email-intel', async (container) => {
           borderWidth:     2,
           pointRadius:     3,
           tension:         0.3,
-          yAxisID:         'y',
-        },
-        {
-          label:           'Click Rate %',
-          data:            clickRates,
-          borderColor:     Theme.FUNNEL.orange,
-          backgroundColor: 'transparent',
-          borderWidth:     2,
-          pointRadius:     3,
-          tension:         0.3,
-          yAxisID:         'yRight',
         },
       ],
     },
@@ -320,22 +311,12 @@ App.registerPage('email-intel', async (container) => {
           grid:  { color: 'rgba(255,255,255,0.04)' },
         },
         y: {
-          position: 'left',
           ticks: {
             color:    Theme.COLORS.textMuted,
             font:     { size: 10 },
             callback: (v) => Theme.pct(v),
           },
           grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        yRight: {
-          position: 'right',
-          ticks: {
-            color:    Theme.COLORS.textMuted,
-            font:     { size: 10 },
-            callback: (v) => Theme.pct(v),
-          },
-          grid: { drawOnChartArea: false },
         },
       },
     },

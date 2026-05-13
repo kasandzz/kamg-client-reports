@@ -3000,16 +3000,31 @@ function _journeyFallback() {
 
 async function renderJourneyStages() {
   var d;
+  var usingFallback = false;
   try {
     var sk = await API.query('funnel-27', 'sankey', { days: currentDays });
     if (sk && sk.length > 0) d = sk[0];
   } catch(e) { /* fall through */ }
-  if (!d) d = _journeyFallback();
+  if (!d) { d = _journeyFallback(); usingFallback = true; }
 
   var container = document.getElementById('journeyStagesContainer');
   if (!container) return;
 
-  var rowHtml = '<div class="stage-row">';
+  // Truthfulness: when the BQ sankey query returns nothing, the hardcoded
+  // _journeyFallback numbers would otherwise render with no indication they
+  // are reference-only. Disclose this inline so a closer scanning the page
+  // at standup can tell live volumes from reference shape.
+  var rowHtml = '';
+  if (usingFallback) {
+    rowHtml +=
+      '<div style="margin-bottom:10px;padding:8px 12px;border:1px dashed rgba(245,158,11,0.45);border-radius:6px;' +
+        'background:rgba(245,158,11,0.06);display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-secondary)">' +
+        '<span style="font-size:11px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.05em">Reference data</span>' +
+        '<span>The <code style="font-size:10px">funnel-27.sankey</code> query returned no rows for the selected window. ' +
+        'Stage volumes below are illustrative only -- widen the date range or check Data Health to surface live numbers.</span>' +
+      '</div>';
+  }
+  rowHtml += '<div class="stage-row">';
 
   JOURNEY_STAGES.forEach(function(stage, idx) {
     var vol = stage.field ? (d[stage.field] || 0) : null;

@@ -33,37 +33,59 @@ App.registerPage('segments', async (container) => {
   // 2x-window query. Text-only cards (top segment, best conversion) use
   // valueHtml since they're categorical, not numeric — pattern documented in
   // components.js renderMetricGrid JSDoc shape B.
-  const totalContacts = rows.reduce((s, r) => s + (r.contacts || 0), 0);
-  const totalEnrolled = rows.reduce((s, r) => s + (r.enrolled || 0), 0);
-  const totalRevenue = rows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
-  const topSeg = rows.length > 0 ? [...rows].sort((a, b) => (b.enrolled || 0) - (a.enrolled || 0))[0] : null;
-  const bestConv = rows.length > 0 ? [...rows].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
-
-  const _priorContacts2x  = priorRows.reduce((s, r) => s + (r.contacts || 0), 0);
-  const _priorEnrolled2x  = priorRows.reduce((s, r) => s + (r.enrolled || 0), 0);
-  const _priorRevenue2x   = priorRows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
-  const _priorContacts = _priorContacts2x - totalContacts;
-  const _priorEnrolled = _priorEnrolled2x - totalEnrolled;
-  const _priorRevenue  = _priorRevenue2x  - totalRevenue;
-  const _priorSegments = priorRows.length; // count of distinct profession groups in 2x window
-
   function _esc(str) { var el = document.createElement('span'); el.textContent = String(str || ''); return el.innerHTML; }
-  const topSegHtml = topSeg ? _esc(topSeg.profession) : '<span style="color:#666">--</span>';
-  const bestConvHtml = bestConv
-    ? _esc(bestConv.profession) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + (bestConv.enroll_rate || 0).toFixed(1) + '%)</span>'
-    : '<span style="color:#666">--</span>';
+
+  function _buildSegmentsMetrics(curRows, prevRows) {
+    const cur = curRows || [];
+    const prev = prevRows || [];
+    const totalContacts = cur.reduce((s, r) => s + (r.contacts || 0), 0);
+    const totalEnrolled = cur.reduce((s, r) => s + (r.enrolled || 0), 0);
+    const totalRevenue  = cur.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+    const topSeg  = cur.length > 0 ? [...cur].sort((a, b) => (b.enrolled || 0)    - (a.enrolled || 0))[0]    : null;
+    const bestConv = cur.length > 0 ? [...cur].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
+
+    const _priorContacts = prev.reduce((s, r) => s + (r.contacts || 0), 0) - totalContacts;
+    const _priorEnrolled = prev.reduce((s, r) => s + (r.enrolled || 0), 0) - totalEnrolled;
+    const _priorRevenue  = prev.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0) - totalRevenue;
+    const _priorSegments = prev.length;
+
+    const topSegHtml = topSeg ? _esc(topSeg.profession) : '<span style="color:#666">--</span>';
+    const bestConvHtml = bestConv
+      ? _esc(bestConv.profession) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + (bestConv.enroll_rate || 0).toFixed(1) + '%)</span>'
+      : '<span style="color:#666">--</span>';
+
+    return [
+      { label: 'Total Contacts',    value: totalContacts, prevValue: _priorContacts > 0 ? _priorContacts : undefined, format: 'num'   },
+      { label: 'Total Enrollments', value: totalEnrolled, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num'   },
+      { label: 'Total Revenue',     value: totalRevenue,  prevValue: _priorRevenue  > 0 ? _priorRevenue  : undefined, format: 'money' },
+      { label: 'Top Segment',       valueHtml: topSegHtml },
+      { label: 'Best Conversion',   valueHtml: bestConvHtml },
+      { label: 'Segments Tracked',  value: cur.length,    prevValue: _priorSegments > 0 ? _priorSegments : undefined, format: 'num'   },
+    ];
+  }
 
   const kpiEl = document.createElement('div');
   kpiEl.style.marginBottom = '16px';
   container.appendChild(kpiEl);
-  Components.renderMetricGrid(kpiEl, [
-    { label: 'Total Contacts',    value: totalContacts, prevValue: _priorContacts > 0 ? _priorContacts : undefined, format: 'num'   },
-    { label: 'Total Enrollments', value: totalEnrolled, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num'   },
-    { label: 'Total Revenue',     value: totalRevenue,  prevValue: _priorRevenue  > 0 ? _priorRevenue  : undefined, format: 'money' },
-    { label: 'Top Segment',       valueHtml: topSegHtml },
-    { label: 'Best Conversion',   valueHtml: bestConvHtml },
-    { label: 'Segments Tracked',  value: rows.length,   prevValue: _priorSegments > 0 ? _priorSegments : undefined, format: 'num'   },
-  ]);
+  Components.renderMetricGrid(kpiEl, _buildSegmentsMetrics(rows, priorRows));
+
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending to Stage 4
+  // mid 6). When api.js detects row-count delta from background live fetch
+  // on segments.nicheFunnel, re-fetch and re-render the metric grid only.
+  // priorRows (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across
+  // App.onFilterChange re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'segments' || e.detail.queryName !== 'nicheFunnel') return;
+    API.query('segments', 'nicheFunnel', { days: days }).then(function (newRows) {
+      if (!newRows) return;
+      Components.renderMetricGrid(kpiEl, _buildSegmentsMetrics(newRows, priorRows));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Section 2: Niche Comparison Table (sortable) ----
   const tableSection = document.createElement('div');

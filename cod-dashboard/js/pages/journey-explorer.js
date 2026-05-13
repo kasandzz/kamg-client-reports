@@ -108,6 +108,25 @@ App.registerPage('journey-explorer', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildJourneyMetrics(d, priorJourney));
 
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for journey-explorer).
+  // When api.js detects a row-count delta from background live fetch on the
+  // journey-explorer.default query, re-fetch and re-render the metric grid only.
+  // priorJourney (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across the
+  // re-renders triggered by App.onFilterChange. Pattern from revenue.js:87-97
+  // and ads-meta.js Stage 3.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'journey-explorer' || e.detail.queryName !== 'default') return;
+    API.query('journey-explorer', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildJourneyMetrics(rows[0] || {}, priorJourney));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- Section header ----
   const headerRow = document.createElement('div');
   headerRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px';

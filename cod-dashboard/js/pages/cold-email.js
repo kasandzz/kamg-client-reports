@@ -378,21 +378,41 @@ function _renderColdEmailKPIs(container) {
 
   // Sparkline data from daily BQ data
   const dailySent = _CE_DAILY.map(d => d.sent);
-  const dailyReplyRate = _CE_DAILY.map(d => d.sent > 0 ? (d.replied / d.sent) * 100 : 0);
   const dailyReplied = _CE_DAILY.map(d => d.replied);
 
+  // Truthfulness: BQ-side reply_rate uses gross sent (includes bounced) as
+  // denominator. Bounced messages can't reply, so the gross figure under-
+  // represents what a deliverable send rate would yield. Surface BOTH below.
+  const grossReply = Number(k.reply_rate || 0);
+  const bounceRate = Number(k.bounce_rate || 0);
+  const deliverableReply = (bounceRate > 0 && bounceRate < 100)
+    ? grossReply / (1 - bounceRate / 100)
+    : grossReply;
+  const replyRateValueHtml =
+    `<span>${grossReply.toFixed(2)}%</span>` +
+    `<span style="display:block;font-size:10px;font-weight:500;color:var(--text-muted,#64748b);margin-top:2px">Deliverable: ${deliverableReply.toFixed(2)}%</span>`;
+
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Leads',       value: k.total_leads || 0,         format: 'num',   sparkData: dailySent,        source: 'BigQuery: emailbison_campaigns',    calc: 'SUM(leads_count) across all campaigns for date range' },
-    { label: 'Emails Sent',       value: k.total_sent || 0,          format: 'num',   sparkData: dailySent,        source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(sent) for date range' },
-    { label: 'Reply Rate',        value: k.reply_rate || 0,          format: 'pct',   sparkData: dailyReplyRate,   source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(replied) / SUM(sent) * 100' },
-    { label: 'Interested',        value: k.total_interested || 0,    format: 'num',   sparkData: dailyReplied,     source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(interested) for date range (positive-intent replies)' },
-    { label: 'Bounce Rate',       value: k.bounce_rate || 0,         format: 'pct',                               source: 'BigQuery: cold_outbound_stats',     calc: 'SUM(bounced) / SUM(sent) * 100' },
-    { label: 'Active Campaigns',  value: activeCampaigns,            format: 'num',                               source: 'BigQuery: emailbison_campaigns',    calc: 'COUNT(*) WHERE status = "active"' },
-    { label: 'Deliverability',    value: k.deliverability_rate || 0, format: 'pct',                               source: 'BigQuery: cold_outbound_stats',     calc: '(SUM(sent) - SUM(bounced)) / SUM(sent) * 100' },
-  ]);
+  function _buildColdEmailMetrics() {
+    return [
+      { label: 'Total Leads',      value: k.total_leads      || 0, format: 'num'  },
+      { label: 'Emails Sent',      value: k.total_sent       || 0, format: 'num',  sparklineData: dailySent },
+      { label: 'Reply Rate',       valueHtml: replyRateValueHtml },
+      { label: 'Interested',       value: k.total_interested || 0, format: 'num',  sparklineData: dailyReplied },
+      { label: 'Bounce Rate',      value: bounceRate,              format: 'pct'  },
+      { label: 'Active Campaigns', value: activeCampaigns,         format: 'num'  },
+      { label: 'Deliverability',   value: k.deliverability_rate || 0, format: 'pct' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildColdEmailMetrics());
+
+  // Expose builder for the cache-refresh wiring below.
+  container._ceKpiBuilder = _buildColdEmailMetrics;
+  container._ceKpiGrid    = kpiContainer;
 }
 
 // ---------------------------------------------------------------------------

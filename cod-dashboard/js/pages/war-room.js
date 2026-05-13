@@ -223,7 +223,11 @@ async function renderWarRoom(container) {
   container.appendChild(stackCard);
 
   if (dailyRevStackData && dailyRevStackData.length > 0) {
-    requestAnimationFrame(function () {
+    // Lazy-init: defer Chart.js construction until the canvas scrolls into
+    // view. Metric-switching click handler (inside _renderStackShopifyStyle)
+    // re-invokes the function directly, bypassing lazyChart's once-flag —
+    // so subsequent metric switches still re-render normally.
+    Components.lazyChart(stackCanvasId, function () {
       _renderStackShopifyStyle(dailyRevStackData, stackStripId, stackCanvasId, stackLegendId);
     });
   } else {

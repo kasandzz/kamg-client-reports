@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GHL Funnel Automation Stack · Research Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0e;
+  --bg-2: #11131a;
+  --bg-3: #161922;
+  --line: #1f2330;
+  --line-2: #2a2f3f;
+  --ink: #e8eaf0;
+  --ink-2: #a4a9b8;
+  --ink-3: #6e7384;
+  --gold: #d4a64a;
+  --gold-2: #f0c460;
+  --green: #6dd29a;
+  --red: #ef6464;
+  --amber: #f0b454;
+  --blue: #6fa8ff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.55; }
+body { font-size: 16px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+
+/* TOP RULE */
+.topbar { border-bottom: 1px solid var(--line); padding: 18px 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); display: flex; justify-content: space-between; align-items: center; }
+.topbar .meta { display: flex; gap: 28px; }
+.topbar .dot { color: var(--gold); }
+
+/* HERO */
+.hero { padding: 88px 0 56px; border-bottom: 1px solid var(--line); }
+.hero .eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 24px; }
+.hero h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(40px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -0.02em; max-width: 900px; }
+.hero h1 .accent { color: var(--gold); font-style: italic; }
+.hero .deck { margin-top: 24px; font-size: 19px; color: var(--ink-2); max-width: 720px; line-height: 1.5; }
+.hero .byline { margin-top: 44px; display: flex; gap: 32px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.hero .byline span strong { color: var(--ink); font-weight: 600; }
+
+/* TLDR CALLOUT */
+.tldr { margin: 64px 0; padding: 36px 40px; border: 1px solid var(--gold); border-left-width: 4px; background: linear-gradient(135deg, rgba(212,166,74,0.06), rgba(212,166,74,0.01)); position: relative; }
+.tldr .label { position: absolute; top: -10px; left: 28px; background: var(--bg); padding: 0 12px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.tldr p { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.45; color: var(--ink); font-weight: 600; }
+.tldr p .strike { text-decoration: line-through; color: var(--ink-3); font-weight: 400; }
+.tldr p strong { color: var(--gold-2); font-weight: 700; }
+
+/* SECTION */
+section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+section.tight { padding: 48px 0; }
+section h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 38px; letter-spacing: -0.01em; margin-bottom: 12px; }
+section .sub { color: var(--ink-2); font-size: 16px; margin-bottom: 40px; max-width: 720px; }
+.kicker { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
+
+/* PILLAR GRID */
+.pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.pillar { background: var(--bg-2); padding: 36px 32px; }
+.pillar .num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); font-weight: 600; letter-spacing: .1em; margin-bottom: 18px; }
+.pillar h3 { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.15; margin-bottom: 16px; }
+.pillar h3 small { display: block; font-family: 'Inter', sans-serif; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-bottom: 8px; }
+.pillar .verdict { display: inline-block; padding: 4px 10px; border-radius: 2px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; margin-bottom: 18px; }
+.verdict.ok { background: rgba(109,210,154,0.12); color: var(--green); border: 1px solid rgba(109,210,154,0.3); }
+.verdict.warn { background: rgba(240,180,84,0.12); color: var(--amber); border: 1px solid rgba(240,180,84,0.3); }
+.verdict.bad { background: rgba(239,100,100,0.12); color: var(--red); border: 1px solid rgba(239,100,100,0.3); }
+.pillar ul { list-style: none; }
+.pillar li { padding: 8px 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.55; border-bottom: 1px dashed var(--line); display: flex; gap: 10px; }
+.pillar li:last-child { border-bottom: 0; }
+.pillar li .glyph { color: var(--gold); font-weight: 700; min-width: 14px; }
+.pillar li .glyph.no { color: var(--red); }
+.pillar li .glyph.yes { color: var(--green); }
+.pillar li strong { color: var(--ink); font-weight: 600; }
+.pillar code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--gold-2); background: var(--bg-3); padding: 1px 6px; border-radius: 2px; }
+
+/* MCP TABLE */
+.mcp-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+.mcp-table th, .mcp-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+.mcp-table th { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--bg-2); }
+.mcp-table td { color: var(--ink-2); }
+.mcp-table td.rank { font-family: 'JetBrains Mono', monospace; color: var(--gold); font-weight: 600; width: 60px; }
+.mcp-table td strong { color: var(--ink); font-weight: 600; }
+.mcp-table tr.featured td { background: rgba(212,166,74,0.04); }
+
+/* ARCH DIAGRAM */
+.arch { background: var(--bg-2); border: 1px solid var(--line); padding: 40px; margin-top: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; color: var(--ink-2); overflow-x: auto; white-space: pre; }
+.arch .root { color: var(--gold-2); font-weight: 700; }
+.arch .branch { color: var(--ink); font-weight: 600; }
+.arch .leaf { color: var(--ink-3); }
+
+/* COVERAGE TABLE */
+.coverage { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14.5px; }
+.coverage th, .coverage td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--line); }
+.coverage th { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--bg-2); }
+.coverage td { color: var(--ink-2); }
+.coverage td strong { color: var(--ink); font-weight: 600; }
+.coverage .pct { font-family: 'JetBrains Mono', monospace; color: var(--gold-2); font-weight: 700; font-size: 16px; }
+.coverage .bar-cell { width: 240px; }
+.bar { background: var(--bg-3); height: 8px; border-radius: 2px; overflow: hidden; position: relative; }
+.bar .fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-2)); }
+
+/* WEEK PLAN */
+.week { display: grid; grid-template-columns: 90px 1fr; gap: 0; margin-top: 8px; border-top: 1px solid var(--line); }
+.week .day, .week .body { padding: 22px 24px 22px 0; border-bottom: 1px solid var(--line); }
+.week .day { font-family: 'JetBrains Mono', monospace; color: var(--gold); font-weight: 600; font-size: 13px; letter-spacing: .1em; padding-left: 0; padding-top: 24px; }
+.week .body h4 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.week .body p { color: var(--ink-2); font-size: 14.5px; line-height: 1.55; }
+.week .body code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--gold-2); background: var(--bg-3); padding: 1px 6px; border-radius: 2px; }
+
+/* WHAT IT MEANS */
+.takeaway { background: var(--bg-2); border-left: 4px solid var(--gold); padding: 36px 40px; margin-top: 8px; }
+.takeaway h3 { font-family: 'Fraunces', Georgia, serif; font-size: 24px; margin-bottom: 16px; font-weight: 700; }
+.takeaway p { color: var(--ink-2); font-size: 16px; line-height: 1.6; margin-bottom: 14px; }
+.takeaway p strong { color: var(--gold-2); font-weight: 600; }
+.takeaway .pull { font-family: 'Fraunces', Georgia, serif; font-size: 22px; line-height: 1.4; color: var(--ink); font-weight: 600; margin: 24px 0; padding-left: 24px; border-left: 2px solid var(--gold); }
+
+/* SOURCES */
+.sources { font-size: 13px; }
+.sources .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 32px; }
+.sources a { color: var(--ink-2); text-decoration: none; padding: 6px 0; border-bottom: 1px dashed var(--line); display: block; }
+.sources a:hover { color: var(--gold-2); }
+.sources a:before { content: "→ "; color: var(--gold); }
+
+/* FOOT */
+footer { padding: 48px 0 80px; font-size: 12px; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
+footer .line { display: flex; justify-content: space-between; align-items: center; }
+
+/* MOBILE */
+@media (max-width: 720px) {
+  .wrap { padding: 0 20px; }
+  .pillars { grid-template-columns: 1fr; }
+  .sources .grid { grid-template-columns: 1fr; }
+  .week { grid-template-columns: 70px 1fr; }
+  .hero { padding: 64px 0 40px; }
+  .tldr { padding: 28px 22px; }
+  .arch { padding: 24px 16px; font-size: 11.5px; }
+  .coverage .bar-cell { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<div class="topbar">
+  <div>KAS&nbsp;ANDZ &nbsp;<span class="dot">●</span>&nbsp; RESEARCH BRIEF</div>
+  <div class="meta">
+    <span>2026-05-13</span>
+    <span>INTERNAL</span>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">Automation Architecture · Agency Operations</div>
+  <h1>Building entire GHL funnels with Claude Code — <span class="accent">what actually works in 2026.</span></h1>
+  <p class="deck">A four-vector deep dive into the GoHighLevel automation surface: REST API coverage, the Claude Chrome extension, the community MCP landscape, and the funnel object model. Compressed into one decision: where to spend your build time.</p>
+  <div class="byline">
+    <span><strong>RESEARCH</strong> · 4 parallel agents</span>
+    <span><strong>SCOPE</strong> · API + MCP + Browser-driver</span>
+    <span><strong>OUTCOME</strong> · Production stack + week-one plan</span>
+  </div>
+</section>
+
+<section class="tight">
+  <div class="tldr">
+    <div class="label">TL;DR</div>
+    <p>You <span class="strike">cannot build GHL funnels purely via API.</span> The page builder, forms, and workflows are deliberately not exposed and HighLevel has not budged in 2+ years. The real leverage is <strong>Snapshots + Playwright MCP + HighLevel Official MCP</strong>, in that order. Plan: clone-and-customize, not build-from-scratch.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">The Four Pillars</div>
+  <h2>What each layer can and cannot do.</h2>
+  <p class="sub">Compressed from 4 parallel research agents. Verdicts are agency-grade, not theoretical.</p>
+
+  <div class="pillars">
+
+    <div class="pillar">
+      <div class="num">01 / API</div>
+      <h3><small>REST · LeadConnector v2</small>HighLevel API v2</h3>
+      <span class="verdict warn">Partial · CRM-side only</span>
+      <ul>
+        <li><span class="glyph yes">✓</span><span><strong>CRUD:</strong> Contacts, Tags, Pipelines, Custom Fields, Calendars, Products, Media, trigger contact into workflow</span></li>
+        <li><span class="glyph no">✕</span><span><strong>Blocked:</strong> Funnel/page create or edit, Forms create, Workflow create, Domain attach</span></li>
+        <li><span class="glyph">›</span><span>Auth: <strong>Private Integration Token</strong> from sub-account · 5 PITs / location · static bearer</span></li>
+        <li><span class="glyph">›</span><span>v1 agency key died <code>2025-12-31</code> · v2 only · <code>Version: 2021-07-28</code> header mandatory</span></li>
+        <li><span class="glyph">›</span><span>Rate: 100 req / 10s burst · 200k req / day per resource</span></li>
+      </ul>
+    </div>
+
+    <div class="pillar">
+      <div class="num">02 / BROWSER</div>
+      <h3><small>Anthropic · Research preview → GA</small>Claude Chrome Extension</h3>
+      <span class="verdict bad">Net negative for canvas builds</span>
+      <ul>
+        <li><span class="glyph yes">✓</span><span><strong>Earns its keep:</strong> the admin surface · workflows config · smart lists · tag/pipeline setup · bulk text edits</span></li>
+        <li><span class="glyph no">✕</span><span><strong>Chokes on:</strong> drag-drop canvas · nested iframes · Vue SPA state · documented case: 10-min human task = 2hrs Claude</span></li>
+        <li><span class="glyph">›</span><span>Tier: Pro = Haiku only (won't cut it) · <strong>Max ($100+/mo) = minimum viable</strong></span></li>
+        <li><span class="glyph">›</span><span>DOM-driven (not vision) · drives logged-in tab · per-domain lock to <code>app.gohighlevel.com</code></span></li>
+        <li><span class="glyph">›</span><span>Prompt-injection residual: 11.2% post-defense · still meaningful · grant only to read-only contexts initially</span></li>
+      </ul>
+    </div>
+
+    <div class="pillar">
+      <div class="num">03 / MCP</div>
+      <h3><small>Model Context Protocol · 2026</small>The MCP Stack</h3>
+      <span class="verdict ok">Production-ready · 4-server combo</span>
+      <ul>
+        <li><span class="glyph yes">✓</span><span><strong>HighLevel Official MCP</strong> · HTTP · 36 tools · vendor-maintained · PIT auth</span></li>
+        <li><span class="glyph yes">✓</span><span><strong>microsoft/playwright-mcp</strong> · drives authenticated GHL via <code>storageState</code> · the real funnel engine</span></li>
+        <li><span class="glyph yes">✓</span><span><strong>czlonkowski/n8n-mcp</strong> · chains ops the API can't compose · GHL official n8n template ships</span></li>
+        <li><span class="glyph">›</span><span>Community giants: BusyBee3333 (520+ tools, Agent Studio) · mastanley13 (269 tools)</span></li>
+        <li><span class="glyph no">✕</span><span>Computer Use API · overkill · $2-6 / session · escape hatch only</span></li>
+      </ul>
+    </div>
+
+    <div class="pillar">
+      <div class="num">04 / ANATOMY</div>
+      <h3><small>Funnel object model · Snapshot system</small>Funnel Anatomy</h3>
+      <span class="verdict ok">Snapshot is the 70% lever</span>
+      <ul>
+        <li><span class="glyph">›</span><span>Hierarchy: <strong>Funnel → Steps → Pages → Sections → Rows → Columns → Elements</strong></span></li>
+        <li><span class="glyph yes">✓</span><span><strong>Snapshot includes:</strong> funnels, pages, workflows, forms, surveys, calendars, templates, custom fields/objects, pipelines, tags, products, memberships, Brand Voice</span></li>
+        <li><span class="glyph no">✕</span><span><strong>Snapshot excludes:</strong> contacts, conversations, Stripe / Mailgun / Twilio OAuth, phone numbers, domain attach</span></li>
+        <li><span class="glyph no">✕</span><span><strong>No public funnel JSON export.</strong> Top-voted ideas board request for 2+ years · still open</span></li>
+        <li><span class="glyph">›</span><span>Full funnel build = <strong>~45-55 discrete config steps</strong> across all attached objects</span></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="kicker">MCP Servers · Ranked</div>
+  <h2>The four MCPs that ship the work.</h2>
+  <p class="sub">Maturity-ranked, with the only ones worth installing on Day 1.</p>
+
+  <table class="mcp-table">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Server</th>
+        <th>Surface</th>
+        <th>Auth</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="featured">
+        <td class="rank">01</td>
+        <td><strong>HighLevel Official MCP</strong></td>
+        <td>36 tools · Contacts, Convos, Opps, Calendars, Payments, Social, Blogs, Email, Locations</td>
+        <td>PIT</td>
+        <td>CRM-side baseline</td>
+      </tr>
+      <tr class="featured">
+        <td class="rank">02</td>
+        <td><strong>microsoft / playwright-mcp</strong></td>
+        <td>Headless browser w/ saved <code>auth-state.json</code></td>
+        <td>Cookie state</td>
+        <td>Funnel + workflow + form writes</td>
+      </tr>
+      <tr class="featured">
+        <td class="rank">03</td>
+        <td><strong>czlonkowski / n8n-mcp</strong></td>
+        <td>Workflow chain orchestration · official GHL template (17 ops)</td>
+        <td>n8n session</td>
+        <td>Cross-system glue</td>
+      </tr>
+      <tr>
+        <td class="rank">04</td>
+        <td>BusyBee3333 / Go-High-Level-MCP-2026</td>
+        <td>520+ tools · includes Agent Studio</td>
+        <td>PIT</td>
+        <td>Extended surface, optional</td>
+      </tr>
+      <tr>
+        <td class="rank">05</td>
+        <td>mastanley13 / GoHighLevel-MCP</td>
+        <td>269 tools / 19 categories</td>
+        <td>PIT</td>
+        <td>Backup option</td>
+      </tr>
+      <tr>
+        <td class="rank">—</td>
+        <td>Anthropic Computer Use</td>
+        <td>Vision-driven full GUI · Sonnet 4.6 = 72.5% OSWorld</td>
+        <td>API key</td>
+        <td>Escape hatch · skip on Day 1</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="kicker">Production Architecture</div>
+  <h2>The stack that actually ships funnels.</h2>
+  <p class="sub">Four layers. Each one owns a slice of the build. Snapshots carry the 70%, MCPs handle customization, browser drives the gaps, human owns taste.</p>
+
+  <div class="arch">
+<span class="root">                       Claude Code (Opus 4.7)</span>
+                                  │
+        ┌─────────────────────────┼─────────────────────────┐
+        │                         │                         │
+  <span class="branch">HighLevel Official</span>        <span class="branch">Playwright MCP</span>          <span class="branch">n8n-mcp</span>
+  <span class="branch">MCP</span> (PIT, 36 tools)       (storageState)            (workflow chain)
+        │                         │                         │
+  <span class="leaf">Contacts, tags,</span>          <span class="leaf">Page edits,</span>              <span class="leaf">Cross-system glue,</span>
+  <span class="leaf">pipelines, fields,</span>       <span class="leaf">workflow config,</span>         <span class="leaf">webhooks, ops the</span>
+  <span class="leaf">calendars, media,</span>        <span class="leaf">form designer,</span>           <span class="leaf">API can't compose</span>
+  <span class="leaf">products, contacts</span>       <span class="leaf">snapshot push, publish</span>
+        │                         │                         │
+        └─────────────────────────┼─────────────────────────┘
+                                  │
+                       <span class="branch">Snapshot library</span>
+                       (UI-built per vertical,
+                        pushed per client)
+                                  │
+                      <span class="branch">Claude Chrome ext</span>
+                      (admin surface ONLY ·
+                       workflows · smart lists ·
+                       bulk text edits)
+  </div>
+</section>
+
+<section>
+  <div class="kicker">Coverage Map · The Punchline</div>
+  <h2>Where each method earns its slice.</h2>
+  <p class="sub">~70% of a funnel is reachable via Snapshot clone. Pure-API is currently infeasible for the page / workflow / form layer.</p>
+
+  <table class="coverage">
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Method</th>
+        <th class="bar-cell">Share</th>
+        <th style="text-align:right;">%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Snapshot clone</strong></td>
+        <td>UI-built once, pushed N×</td>
+        <td class="bar-cell"><div class="bar"><div class="fill" style="width:70%"></div></div></td>
+        <td style="text-align:right;"><span class="pct">70%</span></td>
+      </tr>
+      <tr>
+        <td><strong>API / Official MCP</strong></td>
+        <td>Tags, pipelines, fields, contacts, calendars, media</td>
+        <td class="bar-cell"><div class="bar"><div class="fill" style="width:15%"></div></div></td>
+        <td style="text-align:right;"><span class="pct">15%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Playwright MCP</strong></td>
+        <td>Page edits, workflow edits, form edits, publish click</td>
+        <td class="bar-cell"><div class="bar"><div class="fill" style="width:10%"></div></div></td>
+        <td style="text-align:right;"><span class="pct">10%</span></td>
+      </tr>
+      <tr>
+        <td><strong>Irreducibly manual</strong></td>
+        <td>Stripe / Mailgun OAuth, DNS, payment methods, design taste</td>
+        <td class="bar-cell"><div class="bar"><div class="fill" style="width:5%"></div></div></td>
+        <td style="text-align:right;"><span class="pct">5%</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="kicker">Week-One Build Sequence</div>
+  <h2>From zero to first client funnel shipped.</h2>
+  <p class="sub">Seven days. The 70% lever first, the customization layer second, the glue third.</p>
+
+  <div class="week">
+    <div class="day">DAY 1</div>
+    <div class="body">
+      <h4>Build the master snapshot library</h4>
+      <p>One master snapshot per client vertical (education, fitness, services). One-time UI work, but it's the 70% leverage. Everything downstream rides on this.</p>
+    </div>
+
+    <div class="day">DAY 2</div>
+    <div class="body">
+      <h4>Wire HighLevel Official MCP</h4>
+      <p>Add HTTP MCP to <code>~/.claude.json</code>. Generate scoped PIT in sub-account settings. Test contact + tag + pipeline ops from Claude Code.</p>
+    </div>
+
+    <div class="day">DAY 3</div>
+    <div class="body">
+      <h4>Install playwright-mcp + save auth state</h4>
+      <p>Manual login to GHL once. Save <code>auth-state.json</code> to a gitignored path. Smoke test: "open funnel X and rename step 2."</p>
+    </div>
+
+    <div class="day">DAY 4</div>
+    <div class="body">
+      <h4>Build /ghl-clone-client slash command</h4>
+      <p>Composes the three layers: (a) snapshot push via API push-status tracking, (b) Playwright-MCP renames pages + swaps copy/images from a client brief, (c) Official-MCP creates client-specific tags + pipeline.</p>
+    </div>
+
+    <div class="day">DAY 5</div>
+    <div class="body">
+      <h4>Add n8n-mcp for cross-system glue</h4>
+      <p>Form-webhook → Slack DM → CRM update flows. Import the official HighLevel n8n template (17 ops) as a starting point.</p>
+    </div>
+
+    <div class="day">DAY 6-7</div>
+    <div class="body">
+      <h4>Ship one real client funnel end-to-end</h4>
+      <p>Skip Computer Use. Skip Claude Chrome unless you specifically need it for daily admin (Franzi-style ops). Measure: time-to-ship + manual touchpoints + breakage.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">What This Means For The Agency</div>
+  <h2>Clone-and-customize, not build-from-scratch.</h2>
+
+  <div class="takeaway">
+    <h3>Stop trying to make Claude "build the page builder."</h3>
+    <p>That's a dead end until HighLevel opens the API, which they have explicitly declined to do for years. Treat funnel production as <strong>clone-and-customize</strong>:</p>
+
+    <p class="pull">"1 master snapshot per vertical = your IP. Claude Code + MCPs handle the customization layer. Human owns design pass + OAuth + DNS."</p>
+
+    <p>This collapses a 6-8 hour funnel build to roughly <strong>60-90 minutes</strong> with current tooling.</p>
+
+    <p>Going to zero requires either HighLevel opening the API (out of your control) or building an Astro / Vercel external LP stack and routing GHL forms / webhooks to it. The second path is fully in your control and you already have <code>kamg-astro-starter</code> + 3,008-component library sitting idle. That is the real moat.</p>
+  </div>
+</section>
+
+<section class="sources">
+  <div class="kicker">Sources · 35 references</div>
+  <h2>Primary references.</h2>
+  <p class="sub">Vendor docs first, then community + benchmarks. All accessed 2026-05-13.</p>
+
+  <div class="grid">
+    <a href="https://marketplace.gohighlevel.com/docs/" target="_blank">HighLevel API v2 Docs Hub</a>
+    <a href="https://marketplace.gohighlevel.com/docs/ghl/funnels/funnel/index.html" target="_blank">Funnels API (read-only)</a>
+    <a href="https://marketplace.gohighlevel.com/docs/ghl/snapshots/snapshots/index.html" target="_blank">Snapshots API</a>
+    <a href="https://marketplace.gohighlevel.com/docs/ghl/forms/forms/index.html" target="_blank">Forms API (no writes)</a>
+    <a href="https://marketplace.gohighlevel.com/docs/ghl/calendars/calendars/index.html" target="_blank">Calendars API</a>
+    <a href="https://marketplace.gohighlevel.com/docs/ghl/medias/medias/index.html" target="_blank">Medias API</a>
+    <a href="https://marketplace.gohighlevel.com/docs/Authorization/PrivateIntegrationsToken/" target="_blank">Private Integration Tokens</a>
+    <a href="https://marketplace.gohighlevel.com/docs/other/mcp/" target="_blank">HighLevel Official MCP</a>
+    <a href="https://help.gohighlevel.com/support/solutions/articles/48000982511-snapshots-overview" target="_blank">Snapshots Overview (help)</a>
+    <a href="https://help.gohighlevel.com/support/solutions/articles/155000005762-create-a-new-sub-account-using-snapshot" target="_blank">Create Sub-Account via Snapshot</a>
+    <a href="https://help.gohighlevel.com/support/solutions/articles/155000005796-drag-and-drop-with-auto-hierarchical-layout-in-funnel-website-builder" target="_blank">Drag-and-Drop / Auto-Hierarchical Layout</a>
+    <a href="https://help.gohighlevel.com/support/solutions/articles/155000007777-automate-workflows-with-ghl-mcp-and-n8n" target="_blank">HighLevel + n8n Integration Guide</a>
+    <a href="https://ideas.gohighlevel.com/apis/p/expose-workflow-creation-funnel-page-editing-and-form-creation-via-api" target="_blank">Ideas: Funnel/Workflow API Gap (open)</a>
+    <a href="https://ideas.gohighlevel.com/funnels/p/html-funnel-import" target="_blank">Ideas: HTML Funnel Import (open)</a>
+    <a href="https://claude.com/blog/claude-for-chrome" target="_blank">Anthropic: Piloting Claude in Chrome</a>
+    <a href="https://support.claude.com/en/articles/12306336-claude-in-chrome-release-notes" target="_blank">Claude in Chrome Release Notes</a>
+    <a href="https://support.claude.com/en/articles/12012173-get-started-with-claude-in-chrome" target="_blank">Claude in Chrome Permissions</a>
+    <a href="https://claude.com/claude-for-chrome" target="_blank">Claude for Chrome Product</a>
+    <a href="https://aitoolanalysis.com/claude-in-chrome-review/" target="_blank">Claude in Chrome Review 2026</a>
+    <a href="https://www.halluminate.ai/blog/benchmark" target="_blank">Halluminate Web Bench (DOM vs Vision)</a>
+    <a href="https://leaderboard.steel.dev/" target="_blank">Steel.dev Browser Agent Leaderboards</a>
+    <a href="https://github.com/busybee3333/go-high-level-mcp-2026-complete" target="_blank">GitHub: BusyBee3333 GHL MCP</a>
+    <a href="https://github.com/mastanley13/GoHighLevel-MCP" target="_blank">GitHub: mastanley13 GHL MCP</a>
+    <a href="https://github.com/czlonkowski/n8n-mcp" target="_blank">GitHub: czlonkowski n8n-mcp</a>
+    <a href="https://playwright.dev/mcp/tools/storage" target="_blank">Playwright MCP Storage Tools</a>
+    <a href="https://playwright.dev/mcp/configuration/user-profile" target="_blank">Playwright Profile Config</a>
+    <a href="https://www.gohighlevel.com/post/introducing-the-mcp-server" target="_blank">HighLevel MCP Announcement</a>
+    <a href="https://smithery.ai/servers/cpretzinger/gohighlevel-mcp" target="_blank">Smithery: GHL MCP</a>
+    <a href="https://github.com/GoHighLevel/highlevel-api-docs" target="_blank">GitHub: highlevel-api-docs</a>
+    <a href="https://www.nxcode.io/resources/news/claude-sonnet-4-6-complete-guide-benchmarks-pricing-2026" target="_blank">Claude Sonnet 4.6 Benchmarks 2026</a>
+  </div>
+</section>
+
+<footer>
+  <div class="line">
+    <span>KAS&nbsp;ANDZ · INTERNAL RESEARCH BRIEF</span>
+    <span>2026-05-13 · GHL FUNNEL AUTOMATION STACK · v1.0</span>
+  </div>
+</footer>
+
+</div>
+
+</body>
+</html>

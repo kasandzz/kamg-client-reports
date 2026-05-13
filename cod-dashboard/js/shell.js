@@ -149,20 +149,22 @@ const Shell = (() => {
       </main>
 
       <!-- Drill-Down Panel -->
-      <div id="drill-down-panel" class="drill-down-panel" hidden>
+      <div id="drill-down-panel" class="drill-down-panel" hidden role="dialog" aria-modal="true" aria-labelledby="drill-down-title" tabindex="-1">
         <div class="drill-down-header">
-          <h3 id="drill-down-title" class="drill-down-title"></h3>
-          <button id="drill-down-close" class="drill-down-close" aria-label="Close panel">&times;</button>
+          <h2 id="drill-down-title" class="drill-down-title"></h2>
+          <button id="drill-down-close" type="button" class="drill-down-close" aria-label="Close panel">&times;</button>
         </div>
         <div id="drill-down-content" class="drill-down-content"></div>
       </div>
 
       <!-- Search Modal -->
-      <div id="search-modal" class="search-modal" hidden>
-        <div class="search-backdrop"></div>
+      <div id="search-modal" class="search-modal" hidden role="dialog" aria-modal="true" aria-labelledby="search-modal-label">
+        <div class="search-backdrop" aria-hidden="true"></div>
         <div class="search-dialog card">
-          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off">
-          <div id="search-results" class="search-results"></div>
+          <h2 id="search-modal-label" class="sr-only">Search pages</h2>
+          <label for="search-input" class="sr-only">Search pages</label>
+          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off" aria-controls="search-results">
+          <div id="search-results" class="search-results" role="listbox" aria-label="Page search results"></div>
         </div>
       </div>
     </div>`;

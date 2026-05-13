@@ -4,6 +4,10 @@
 
 const Components = (() => {
   let _drillDownOpen = false;
+  // Track the element that triggered drill-down so we can return focus on close
+  // (WCAG 2.4.3 Focus Order, 3.2.1 On Focus).
+  let _drillDownTrigger = null;
+  let _drillDownKeyHandler = null;
 
   /**
    * Compute the z-score of the last value of a numeric series vs the prior
@@ -215,15 +219,47 @@ const Components = (() => {
 
     if (!panel) return;
 
+    // Remember who triggered this so focus can return on close
+    _drillDownTrigger = document.activeElement;
+
     titleEl.textContent = title;
-    content.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+    content.innerHTML = '<div class="page-placeholder"><div class="spinner" role="status" aria-label="Loading"></div></div>';
     panel.hidden = false;
 
     // Trigger open transition
     requestAnimationFrame(() => {
       panel.classList.add('open');
+      // Move focus into the dialog so screen readers announce it + Esc works
+      const closeBtn = document.getElementById('drill-down-close');
+      if (closeBtn) closeBtn.focus();
     });
     _drillDownOpen = true;
+
+    // Install Esc + focus-trap key handler (removed on close)
+    _drillDownKeyHandler = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDrillDown();
+        return;
+      }
+      if (e.key === 'Tab') {
+        // Simple focus trap: cycle through focusable elements inside the panel
+        const focusable = panel.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', _drillDownKeyHandler);
 
     try {
       const result = await fetchFn();
@@ -232,10 +268,10 @@ const Components = (() => {
       } else if (result && result.rows) {
         content.innerHTML = renderTable(result.rows, result);
       } else {
-        content.innerHTML = '<div class="empty-state"><span class="empty-state-icon">&#128203;</span><p>No data available</p></div>';
+        content.innerHTML = '<div class="empty-state"><span class="empty-state-icon" aria-hidden="true">&#128203;</span><p>No data available</p></div>';
       }
     } catch (err) {
-      content.innerHTML = `<div class="empty-state"><span class="empty-state-icon">&#9888;&#65039;</span><p>Error loading data</p></div>`;
+      content.innerHTML = `<div class="empty-state"><span class="empty-state-icon" aria-hidden="true">&#9888;&#65039;</span><p>Error loading data</p></div>`;
       console.warn('[Components] drill-down error:', err);
     }
   }
@@ -245,7 +281,18 @@ const Components = (() => {
     if (!panel) return;
     panel.classList.remove('open');
     _drillDownOpen = false;
-    setTimeout(() => { panel.hidden = true; }, 300);
+    if (_drillDownKeyHandler) {
+      document.removeEventListener('keydown', _drillDownKeyHandler);
+      _drillDownKeyHandler = null;
+    }
+    setTimeout(() => {
+      panel.hidden = true;
+      // Restore focus to the element that opened the drill-down
+      if (_drillDownTrigger && typeof _drillDownTrigger.focus === 'function') {
+        try { _drillDownTrigger.focus(); } catch (_) { /* element may be gone */ }
+      }
+      _drillDownTrigger = null;
+    }, 300);
   }
 
   function isDrillDownOpen() {
@@ -923,6 +970,54 @@ const Components = (() => {
     });
   }
 
+  /**
+   * Defer a chart/expensive-render until its container scrolls into view.
+   * Uses IntersectionObserver; falls back to immediate init when IO unavailable
+   * OR when the element is already in the initial viewport (rootMargin: 200px).
+   *
+   * Pattern:
+   *   Components.lazyChart('myCanvasId', () => {
+   *     new Chart(document.getElementById('myCanvasId'), { ... });
+   *   });
+   *
+   * - Idempotent: re-calling on the same id is a no-op until the element changes
+   * - Single-fire: disconnects observer after first intersection
+   * - Skeleton: optional 2nd arg `skeletonText` shows in place until init fires
+   *
+   * @param {string|HTMLElement} target  Container or canvas id/element
+   * @param {Function} initFn            Synchronous chart init callback
+   * @param {string} [skeletonText]      Optional placeholder text
+   */
+  function lazyChart(target, initFn, skeletonText) {
+    const el = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!el || typeof initFn !== 'function') return;
+    if (el._lazyChartFired) return;
+
+    // Optional skeleton — only render if the element is empty
+    if (skeletonText && !el.innerHTML.trim()) {
+      el.setAttribute('aria-busy', 'true');
+      el.style.minHeight = el.style.minHeight || '120px';
+    }
+
+    const fire = () => {
+      if (el._lazyChartFired) return;
+      el._lazyChartFired = true;
+      el.removeAttribute('aria-busy');
+      try { initFn(); } catch (err) { console.warn('[lazyChart] init failed:', err); }
+    };
+
+    // Fallback: no IntersectionObserver support → init immediately
+    if (typeof IntersectionObserver === 'undefined') { fire(); return; }
+
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) { io.disconnect(); fire(); return; }
+      }
+    }, { rootMargin: '200px 0px', threshold: 0.01 });
+    io.observe(el);
+    el._lazyChartObserver = io;
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -938,5 +1033,6 @@ const Components = (() => {
     renderSankey,
     computeZScore,
     renderMetricGrid,
+    lazyChart,
   };
 })();

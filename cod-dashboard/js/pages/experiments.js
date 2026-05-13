@@ -53,6 +53,22 @@ App.registerPage('experiments', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildExperimentMetrics(kpi));
 
+  // SWR cache-refresh wiring. If api.js detects row-count delta from a
+  // background live fetch (i.e. registry got populated mid-session), re-render
+  // the metric grid without forcing the user to reload. AbortController guards
+  // against listener leaks across re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', (e) => {
+    if (!e || !e.detail || e.detail.page !== 'experiments' || e.detail.queryName !== 'default') return;
+    API.query('experiments', 'default', { days }).then((rows) => {
+      const next = (rows && rows.length > 0) ? rows[0] : {};
+      Components.renderMetricGrid(kpiContainer, _buildExperimentMetrics(next));
+    }).catch(() => { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- Empty State Hero ----
   const heroCard = document.createElement('div');
   heroCard.className = 'card';

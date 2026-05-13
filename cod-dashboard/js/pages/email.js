@@ -139,6 +139,23 @@ App.registerPage('email-intel', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildEmailMetrics(kpi, priorKpi));
 
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending to Stage 4
+  // mid 6). When api.js detects a row-count delta from background live fetch
+  // on email.default, re-fetch and re-render the metric grid only. priorKpi
+  // (2x-window) stays closure-stable. AbortController prevents listener
+  // accumulation across App.onFilterChange re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'email' || e.detail.queryName !== 'default') return;
+    API.query('email', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildEmailMetrics(rows[0] || {}, priorKpi));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   } // end KPI else block
 
   // ---- 2-column chart grid ----

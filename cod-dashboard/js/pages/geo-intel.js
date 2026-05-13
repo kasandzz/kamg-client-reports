@@ -94,6 +94,19 @@ App.registerPage('geo-intel', async (container) => {
   container.appendChild(kpiContainer);
   Components.renderMetricGrid(kpiContainer, _buildGeoIntelMetrics(stateData, deadZones, priorStates));
 
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — Stage 4 mid 6 extension).
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'geo-intel' || e.detail.queryName !== 'states') return;
+    API.query('geo-intel', 'states', { days: days }).then(function (newStates) {
+      if (!newStates) return;
+      Components.renderMetricGrid(kpiContainer, _buildGeoIntelMetrics(newStates, deadZones, priorStates));
+    }).catch(function () { /* swallow */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- US Choropleth (full width) ----
   const mapCard = _geoCard('Revenue by State');
   mapCard.style.gridColumn = '1 / -1';

@@ -27,6 +27,16 @@ App.registerPage('journey-explorer', async (container) => {
   const d = (raw && raw.length > 0) ? raw[0] : {};
   container.innerHTML = '';
 
+  // Doubled-window default fetch for prior-period delta math on the metric grid.
+  // Mirrors revenue.js:42-44 / ads-meta.js Stage 3 pattern. Non-blocking — deltas
+  // hide on failure. WARN_DATA_UNRESOLVED — journey-explorer queries posthog-backed
+  // master_journey + bridge_customer_journey views, on the Stage 0.5 flag list.
+  let priorJourney = {};
+  try {
+    const priorData = await API.query('journey-explorer', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorJourney = priorData[0];
+  } catch (_) { /* deltas hide */ }
+
   // ---- Stage definitions ----
   const STAGES = [
     { num: 1,  name: 'Ad Exposure',    color: '#4F9CF9', field: null,         tracking: 'partial'  },
@@ -56,18 +66,47 @@ App.registerPage('journey-explorer', async (container) => {
   const fullCount    = STAGES.filter(s => s.tracking === 'full').length;
   const partialCount = STAGES.filter(s => s.tracking === 'partial').length;
 
-  // ---- KPI Strip ----
+  // ======================================================
+  // SECTION 1: Journey KPI Metric Grid (Mode 2 conversion)
+  // renderMetricGrid pattern from war-room / revenue / ads-meta (Stage 2.5/3).
+  // Was a 6-card KPI strip; now a dense f27-metric grid with prior-period
+  // deltas and an enrolled-trend sparkline. cohortRows feeds the sparkline
+  // (weekly enrollment volume, reversed to oldest→newest for left-to-right read).
+  // Source/calc tooltip context dropped per PRD §2 Mode 2 tradeoff.
+  // ======================================================
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Tickets Sold',    value: d.tickets     || 0, format: 'num', source: 'BQ stripe_charges', calc: 'COUNT(charges WHERE amount IN (27, 54) AND status = succeeded)' },
-    { label: 'Attended',        value: d.attended    || 0, format: 'num', source: 'BQ zoom_attendance', calc: 'COUNT(DISTINCT email WHERE attended = true)' },
-    { label: 'Enrolled',        value: d.enrolled    || 0, format: 'num', source: 'BQ hyros_sales', calc: 'COUNT(sales WHERE tag = enrolled)' },
-    { label: 'Overall CVR',     value: d.overall_cvr || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / tickets_sold' },
-    { label: 'Close Rate',      value: d.close_rate  || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / showed_on_call' },
-    { label: 'Show Rate',       value: d.show_rate   || 0, format: 'pct', source: 'BQ zoom_attendance JOIN ghl_appointments', calc: 'attended / booked' },
-  ]);
+  // cohortRows is weekly velocity (up to 12 weeks). BQ likely returns DESC
+  // by cohort_week; sparkline wants oldest→newest, so defensively reverse.
+  const enrolledSpark = (cohortRows || [])
+    .slice()
+    .reverse()
+    .map(r => Number(r.enrolled || 0));
+
+  function _buildJourneyMetrics(cur, prev) {
+    cur = cur || {};
+    prev = prev || {};
+    // prev is the 2x-window aggregate; subtract current for raw counts.
+    const _priorTickets  = (prev.tickets  || 0) - (cur.tickets  || 0);
+    const _priorAttended = (prev.attended || 0) - (cur.attended || 0);
+    const _priorEnrolled = (prev.enrolled || 0) - (cur.enrolled || 0);
+    // Rate fields can't be subtracted; use the 2x-window aggregate as approximate prior.
+    // Directionally correct, magnitude approximate. Acceptable per PRD §2 tradeoff.
+    const _priorCvr   = prev.overall_cvr || 0;
+    const _priorClose = prev.close_rate  || 0;
+    const _priorShow  = prev.show_rate   || 0;
+    return [
+      { label: 'Tickets Sold', value: cur.tickets     || 0, prevValue: _priorTickets  > 0 ? _priorTickets  : undefined, format: 'num' },
+      { label: 'Attended',     value: cur.attended    || 0, prevValue: _priorAttended > 0 ? _priorAttended : undefined, format: 'num' },
+      { label: 'Enrolled',     value: cur.enrolled    || 0, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num', sparklineData: enrolledSpark },
+      { label: 'Overall CVR',  value: cur.overall_cvr || 0, prevValue: _priorCvr   > 0 ? _priorCvr   : undefined, format: 'pct' },
+      { label: 'Close Rate',   value: cur.close_rate  || 0, prevValue: _priorClose > 0 ? _priorClose : undefined, format: 'pct' },
+      { label: 'Show Rate',    value: cur.show_rate   || 0, prevValue: _priorShow  > 0 ? _priorShow  : undefined, format: 'pct' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildJourneyMetrics(d, priorJourney));
 
   // ---- Section header ----
   const headerRow = document.createElement('div');

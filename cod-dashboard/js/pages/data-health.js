@@ -85,26 +85,23 @@ App.registerPage('data-health', async (container) => {
   const unknown = rows.filter(r => r.status.state === 'unknown').length;
   const fresh = rows.filter(r => r.status.state === 'fresh').length;
 
+  // KPI grid via shared component (Mode 2 conversion 2026-05-13). Status colors
+  // are preserved per-card by wrapping the value in a span with inline color —
+  // the default f27-metric__value color is var(--text-primary).
   const kpiStrip = document.createElement('div');
-  kpiStrip.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px';
-  const kpis = [
-    { label: 'Tables Tracked',   value: totalTables, color: Theme.COLORS.textPrimary },
-    { label: 'Fresh',             value: fresh,       color: Theme.COLORS.success },
-    { label: 'Stale (warn)',      value: stale,       color: Theme.COLORS.warning },
-    { label: 'Critical',          value: critical,    color: Theme.COLORS.danger },
-    { label: 'No Data',           value: unknown,     color: Theme.COLORS.textMuted },
-  ];
-  kpis.forEach(k => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.cssText = 'padding:16px';
-    card.innerHTML = `
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:${Theme.COLORS.textMuted};margin-bottom:8px">${k.label}</div>
-      <div style="font-size:28px;font-weight:700;color:${k.color};font-family:'JetBrains Mono',monospace">${k.value}</div>
-    `;
-    kpiStrip.appendChild(card);
-  });
+  kpiStrip.style.marginBottom = '20px';
   container.appendChild(kpiStrip);
+  const kpis = [
+    { label: 'Tables Tracked', value: totalTables, color: Theme.COLORS.textPrimary },
+    { label: 'Fresh',           value: fresh,       color: Theme.COLORS.success },
+    { label: 'Stale (warn)',    value: stale,       color: Theme.COLORS.warning },
+    { label: 'Critical',        value: critical,    color: Theme.COLORS.danger },
+    { label: 'No Data',         value: unknown,     color: Theme.COLORS.textMuted },
+  ];
+  Components.renderMetricGrid(kpiStrip, kpis.map(k => ({
+    label: k.label,
+    valueHtml: `<span style="color:${k.color}">${k.value}</span>`,
+  })), { showSparklines: false });
 
   // ---- Header ----
   const headerCard = document.createElement('div');

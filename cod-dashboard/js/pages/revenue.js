@@ -71,6 +71,24 @@ App.registerPage('revenue', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(k, priorKpi, pip));
 
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for revenue).
+  // When api.js detects a row-count delta from background live fetch on the
+  // enrollment.default query, re-fetch and re-render the KPI grid only.
+  // priorKpi (2x-window) and pip stay closure-stable; their own SWR refresh
+  // will be the next event. AbortController prevents listener accumulation
+  // across re-renders triggered by filter changes (App.onFilterChange).
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'enrollment' || e.detail.queryName !== 'default') return;
+    API.query('enrollment', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(rows[0] || {}, priorKpi, pip));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ======================================================
   // SECTION 2: LTV Cohort Heatmap (Plotly)
   // ======================================================

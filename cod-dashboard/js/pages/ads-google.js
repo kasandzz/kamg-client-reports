@@ -512,14 +512,24 @@ function _renderCrossPlatform(container, data) {
     return;
   }
 
-  const google = data.find(r => r.platform === 'Google Ads') || {};
-  const meta   = data.find(r => r.platform === 'Meta Ads')   || {};
+  const googleRow = data.find(r => r.platform === 'Google Ads');
+  const metaRow   = data.find(r => r.platform === 'Meta Ads');
+  const google = googleRow || {};
+  const meta   = metaRow   || {};
 
   const gSpend = +(google.total_spend || 0);
   const mSpend = +(meta.total_spend || 0);
   const totalSpend = gSpend + mSpend;
-  const gPct = totalSpend > 0 ? (gSpend / totalSpend * 100).toFixed(0) : 50;
-  const mPct = totalSpend > 0 ? (mSpend / totalSpend * 100).toFixed(0) : 50;
+  // Truthfulness: previously fell back to "50 / 50" when both platforms had $0
+  // spend — visually identical to a genuine even split. Now we surface the
+  // no-spend state explicitly so the comparison bar can't lie by symmetry.
+  const noSpend = totalSpend <= 0;
+  const gPct = noSpend ? 0 : Math.round(gSpend / totalSpend * 100);
+  const mPct = noSpend ? 0 : 100 - gPct;
+  const missingPlatforms = [
+    !googleRow ? 'Google Ads' : null,
+    !metaRow   ? 'Meta Ads'   : null,
+  ].filter(Boolean);
 
   const GOOGLE_COLOR = '#FBBC04';
   const META_COLOR   = '#1877F2';
@@ -550,22 +560,34 @@ function _renderCrossPlatform(container, data) {
     </div>`;
   }
 
+  const missingNote = missingPlatforms.length > 0
+    ? `<div style="margin-bottom:12px;font-size:11px;color:${Theme.COLORS.warning};padding:8px 10px;border-left:2px solid ${Theme.COLORS.warning};background:rgba(245,158,11,0.06)">Missing row for: ${missingPlatforms.join(', ')}. Crosss-platform bridge query may be filtering them out — values below show as $0.</div>`
+    : '';
+
+  const spendShare = noSpend
+    ? `<div style="margin-top:8px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
+        <div style="font-size:12px;color:${Theme.COLORS.textMuted};padding:10px;text-align:center;border:1px dashed ${Theme.COLORS.border};border-radius:6px">No spend in either platform for the selected window — share cannot be computed.</div>
+      </div>`
+    : `<div style="margin-top:8px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
+          <div style="width:${gPct}%;background:${GOOGLE_COLOR};transition:width .3s"></div>
+          <div style="width:${mPct}%;background:${META_COLOR};transition:width .3s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-family:'JetBrains Mono',monospace">
+          <span style="color:${GOOGLE_COLOR}">Google ${gPct}%</span>
+          <span style="color:${META_COLOR}">Meta ${mPct}%</span>
+        </div>
+      </div>`;
+
   card.innerHTML += `
+    ${missingNote}
     <div style="display:flex;gap:16px;margin-bottom:16px">
       ${platformCard('Google Ads', GOOGLE_COLOR, google)}
       ${platformCard('Meta Ads', META_COLOR, meta)}
     </div>
-    <div style="margin-top:8px">
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
-        <div style="width:${gPct}%;background:${GOOGLE_COLOR};transition:width .3s"></div>
-        <div style="width:${mPct}%;background:${META_COLOR};transition:width .3s"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-family:'JetBrains Mono',monospace">
-        <span style="color:${GOOGLE_COLOR}">Google ${gPct}%</span>
-        <span style="color:${META_COLOR}">Meta ${mPct}%</span>
-      </div>
-    </div>
+    ${spendShare}
   `;
 
   container.appendChild(card);

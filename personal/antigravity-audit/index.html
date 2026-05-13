@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Antigravity Capability Audit — what you have, what you're missing, how to wire it up</title>
+<meta name="description" content="Full Google Antigravity feature audit cross-referenced against your Claude Code stack, plus the actual state of the bridge already running on your machine." />
+<style>
+:root {
+  --bg: #0b0c0f;
+  --bg-elev: #12141a;
+  --bg-card: #161922;
+  --line: #232733;
+  --line-soft: #1a1d27;
+  --ink: #e6e8ee;
+  --ink-soft: #a8adbb;
+  --ink-mute: #6a6f7d;
+  --gold: #d4af7a;
+  --gold-soft: #b88e54;
+  --cream: #f5ecd9;
+  --good: #6ec28b;
+  --warn: #d4a04a;
+  --bad: #d76b6b;
+  --accent: #8aa9d6;
+  --serif: 'Georgia', 'Iowan Old Style', 'Apple Garamond', serif;
+  --sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+body { line-height: 1.55; font-size: 16px; }
+a { color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(212, 175, 122, 0.25); }
+a:hover { color: var(--cream); border-color: var(--cream); }
+code, kbd, .mono { font-family: var(--mono); font-size: 0.88em; }
+code { background: var(--bg-elev); border: 1px solid var(--line); padding: 1px 6px; border-radius: 3px; color: var(--cream); }
+kbd { background: var(--bg-elev); border: 1px solid var(--line); border-bottom-width: 2px; padding: 2px 6px; border-radius: 4px; color: var(--cream); font-size: 0.82em; }
+
+/* layout */
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 56px 0; border-bottom: 1px solid var(--line-soft); }
+section:last-of-type { border-bottom: none; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: normal; letter-spacing: -0.01em; margin: 0 0 16px 0; }
+h1 { font-size: 44px; line-height: 1.1; color: var(--cream); }
+h2 { font-size: 30px; color: var(--cream); margin-top: 0; }
+h3 { font-size: 21px; color: var(--gold); margin-top: 32px; }
+h4 { font-size: 16px; color: var(--cream); font-family: var(--sans); font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; margin-top: 24px; }
+p { margin: 0 0 14px 0; color: var(--ink-soft); }
+ul, ol { margin: 0 0 14px 0; padding-left: 22px; color: var(--ink-soft); }
+li { margin-bottom: 6px; }
+li > strong { color: var(--ink); }
+hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+
+/* hero */
+.hero { padding: 80px 0 64px; background: linear-gradient(180deg, #0f1118 0%, var(--bg) 100%); border-bottom: 1px solid var(--line); }
+.hero-eyebrow { font-family: var(--mono); font-size: 12px; color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 18px; }
+.hero h1 { max-width: 880px; }
+.hero-sub { font-family: var(--serif); font-size: 20px; color: var(--ink-soft); max-width: 760px; font-style: italic; margin-top: 18px; }
+.hero-meta { margin-top: 36px; display: flex; gap: 28px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--ink-mute); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-meta span strong { color: var(--cream); font-weight: 600; }
+
+/* punchline panel */
+.tldr { background: var(--bg-card); border: 1px solid var(--gold-soft); border-left: 4px solid var(--gold); padding: 28px 32px; margin: 28px 0; border-radius: 4px; }
+.tldr h3 { margin-top: 0; color: var(--gold); }
+.tldr p:last-child { margin-bottom: 0; }
+.tldr ul { color: var(--ink); }
+
+/* cards */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin: 18px 0; }
+.card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 4px; padding: 20px 22px; }
+.card h4 { margin-top: 0; }
+.card p { font-size: 14px; margin-bottom: 0; }
+@media (max-width: 720px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* status pills */
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; border: 1px solid; margin-right: 6px; }
+.pill.have { color: var(--good); border-color: rgba(110, 194, 139, 0.4); background: rgba(110, 194, 139, 0.07); }
+.pill.partial { color: var(--warn); border-color: rgba(212, 160, 74, 0.4); background: rgba(212, 160, 74, 0.07); }
+.pill.miss { color: var(--bad); border-color: rgba(215, 107, 107, 0.4); background: rgba(215, 107, 107, 0.07); }
+.pill.doc { color: var(--accent); border-color: rgba(138, 169, 214, 0.4); background: rgba(138, 169, 214, 0.07); }
+
+/* feature row */
+.feature { padding: 22px 0; border-bottom: 1px solid var(--line-soft); }
+.feature:last-child { border-bottom: none; }
+.feature-head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 8px; }
+.feature-head h3 { margin: 0; color: var(--cream); font-size: 19px; }
+.feature-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; }
+.feature p { margin-bottom: 8px; font-size: 15px; }
+.feature .note { font-size: 13px; color: var(--ink-mute); margin-top: 6px; }
+
+/* table */
+table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+th { color: var(--gold); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--line); }
+td { color: var(--ink-soft); }
+td strong { color: var(--ink); }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* action list */
+.actions { counter-reset: act; margin: 24px 0; }
+.action { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding: 22px 0; border-bottom: 1px solid var(--line-soft); }
+.action::before { counter-increment: act; content: counter(act, decimal-leading-zero); font-family: var(--serif); font-size: 36px; color: var(--gold); line-height: 1; }
+.action h4 { margin: 0 0 6px 0; font-size: 17px; text-transform: none; letter-spacing: normal; font-family: var(--serif); color: var(--cream); }
+.action .est { font-family: var(--mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; }
+.action p { font-size: 14px; margin: 8px 0 0 0; }
+
+/* callout */
+.callout { background: rgba(215, 107, 107, 0.06); border-left: 3px solid var(--bad); padding: 16px 20px; margin: 18px 0; border-radius: 0 4px 4px 0; }
+.callout strong { color: var(--bad); }
+.callout.warn { background: rgba(212, 160, 74, 0.06); border-color: var(--warn); }
+.callout.warn strong { color: var(--warn); }
+.callout.good { background: rgba(110, 194, 139, 0.06); border-color: var(--good); }
+.callout.good strong { color: var(--good); }
+.callout p { color: var(--ink); }
+.callout p:last-child { margin-bottom: 0; }
+
+/* footnotes */
+.footnotes { font-size: 13px; color: var(--ink-mute); }
+.footnotes a { font-size: 13px; }
+
+/* nav */
+.toc { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 4px; padding: 22px 26px; margin: 30px 0; }
+.toc h4 { margin-top: 0; color: var(--gold); border: none; }
+.toc ol { padding-left: 20px; margin: 0; }
+.toc li { margin-bottom: 4px; }
+.toc a { border: none; color: var(--ink); }
+.toc a:hover { color: var(--gold); }
+
+/* small caps section label */
+.section-label { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Personal Audit · 2026-05-12 · Kas only</div>
+    <h1>You're already running both. The bridge just isn't wired tight.</h1>
+    <p class="hero-sub">A full inventory of Google Antigravity's capabilities, cross-referenced against the Claude Code stack you actually have installed — and the bridge between them that already exists on your machine but isn't being used deliberately.</p>
+    <div class="hero-meta">
+      <span><strong>Antigravity</strong> v0.26.0 (Jetski)</span>
+      <span><strong>Claude Code ext</strong> v2.1.123</span>
+      <span><strong>Bridge lockfiles</strong> 70+</span>
+      <span><strong>Pricing nerf</strong> Mar 2026 · 92% free cut</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="tldr">
+      <h3>The headline</h3>
+      <p>You've been running Claude Code <em>inside</em> Antigravity for weeks — 70+ lockfiles in <code>~/.claude/ide/</code> prove the bridge is active. KasOS is opened in Antigravity, BigQuery MCP is configured for the COD warehouse, Claude Opus 4.6 is your selected model inside the IDE. <strong>But Antigravity's Gemini agent can't see any of your rules</strong> — no CLAUDE.md, no GSD conventions, no client-isolation enforcement, no em-dash ban. That fixes with one symlink.</p>
+      <p>Three other gaps matter:</p>
+      <ul>
+        <li><strong>Playwright MCP is missing</strong> — only <code>lp-audit-rebuild</code> drives a browser, and only via raw <code>npx playwright</code> shell calls. Every other skill is blind to the rendered page.</li>
+        <li><strong>nanobanana-mcp is missing</strong> despite your MEMORY claiming it's configured. <code>/ads-generate</code> and <code>/ads-photoshoot</code> silently fail today.</li>
+        <li><strong>Your visual-iteration loop is locked inside one skill.</strong> The autonomous "look at it → fix CSS → look again" cycle that makes Antigravity feel magical exists in <code>lp-audit-rebuild</code>'s ITERATE band. Extract it as a standalone skill and every project gets it.</li>
+      </ul>
+    </div>
+
+    <div class="toc">
+      <h4>Contents</h4>
+      <ol>
+        <li><a href="#inventory">Antigravity full feature inventory</a></li>
+        <li><a href="#hidden">Hidden / power-user features you're not using</a></li>
+        <li><a href="#mapping">What's already in your Claude Code stack</a></li>
+        <li><a href="#interop">The bridge that already exists on your machine</a></li>
+        <li><a href="#actions">Action plan, priority-ranked</a></li>
+        <li><a href="#sources">Sources</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section id="inventory">
+  <div class="wrap">
+    <div class="section-label">Section 1</div>
+    <h2>Antigravity full feature inventory</h2>
+    <p>Cross-referenced from Google's developer blog, Codecademy, Wikipedia, InfoWorld, Hackernoon, and 20+ third-party tutorials. Confidence ratings reflect how many independent sources confirm each feature.</p>
+
+    <h3>Agent layer</h3>
+    <div class="feature">
+      <div class="feature-head"><h3>Agent Manager (Mission Control)</h3><span class="feature-meta">Cmd+E · Documented</span></div>
+      <p>Spawn up to 5 agents working asynchronously across the same repo or different workspaces, each on a different model. Each agent gets its own conversation thread, plan artifact, and walkthrough.</p>
+      <p class="note">Footgun: no automatic git worktree isolation. Two agents editing the same file = merge conflicts. Workaround: spawn each in its own worktree before dispatching.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-head"><h3>Editor View · Playground · Inbox</h3><span class="feature-meta">Sidebar · Documented</span></div>
+      <p>Standard VS Code-style IDE (Editor). Scratch conversation area (Playground) that can be promoted to a real workspace. Cross-conversation tracker (Inbox).</p>
+    </div>
+    <div class="feature">
+      <div class="feature-head"><h3>Knowledge Items (KIs)</h3><span class="feature-meta">Auto-generated · Documented</span></div>
+      <p>Direct analog to your MEMORY.md. A Knowledge Subagent writes editable markdown facts to <code>~/.gemini/antigravity/knowledge/&lt;id&gt;/</code> at conversation end. You can manually edit or delete wrong KIs.</p>
+      <p class="note">Power-user trick: say "this is experimental, don't create Knowledge Items from this" to suppress storage for a single conversation.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-head"><h3>Skills · Rules · Workflows</h3><span class="feature-meta">Filesystem · Documented</span></div>
+      <p>The trifecta that mirrors your GSD architecture exactly:</p>
+      <ul>
+        <li><strong>Skills</strong> — <code>.agent/skills/&lt;name&gt;/SKILL.md</code> with YAML frontmatter <code>description</code>. Loads only when semantic match — solves context bloat. Same shape as Claude Code skills.</li>
+        <li><strong>Rules</strong> — <code>AGENTS.md</code> (cross-tool, also read by Cursor) or <code>GEMINI.md</code> (Antigravity-only). Loaded always.</li>
+        <li><strong>Workflows</strong> — <code>.agent/workflows/*.md</code> triggered with <code>/name</code> like slash commands. Supports parallel step execution with <code>// parallel</code> annotation (April 2026 update).</li>
+      </ul>
+    </div>
+
+    <h3>Browser / visual layer</h3>
+    <div class="feature">
+      <div class="feature-head"><h3>Browser View — Chrome extension subagent</h3><span class="feature-meta">Setup gated · Documented</span></div>
+      <p>Dedicated browser model that launches Chrome, scrolls, types, clicks, inspects console logs, captures DOM as markdown. Auto-records the session as WebP video stored in <code>browser_recordings/</code> per workspace.</p>
+      <p class="note">Default 30s timeout per step — complex flows time out. April 2026 update split form ops into separate inspect-then-submit steps; multi-tab handling fixed.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-head"><h3>Browser URL Allowlist</h3><span class="feature-meta">Settings · Documented</span></div>
+      <p>Prompt-injection defense — restricts agent navigation to trusted domains. File at <code>~/.gemini/antigravity/browserAllowlist.txt</code>. Layer Claude Code doesn't have.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-head"><h3>Visual Artifacts</h3><span class="feature-meta">Auto · Documented</span></div>
+      <p>Screenshots and video recordings of every agent action saved as artifacts. Walkthrough artifact (April 2026) bundles task list + screenshots + video + diff in one shareable view — perfect for client deliverables.</p>
+    </div>
+
+    <h3>Planning layer</h3>
+    <div class="feature">
+      <div class="feature-head"><h3>Planning Mode vs Fast Mode</h3><span class="feature-meta">Dropdown · Documented</span></div>
+      <p>Planning produces three artifact types before any code runs: <strong>Task List</strong> (high-level goals), <strong>Implementation Plan</strong> (verbose technical), <strong>Walkthrough</strong> (post-execution summary). Inline Google-Docs-style comments — highlight a step, leave a comment, agent revises. Fast mode skips the plan.</p>
+      <p class="note">Multiple reviewers report Planning Mode is the biggest cost lever — fewer wasted tokens than letting the agent thrash on a bad direction.</p>
+    </div>
+
+    <h3>Image generation</h3>
+    <div class="feature">
+      <div class="feature-head"><h3>Nano Banana Pro (native MCP integration)</h3><span class="feature-meta">Auto · Documented</span></div>
+      <p>Google DeepMind's image model wired in via MCP. Agent invokes automatically when a task needs visuals — no hotkey. Up to 14 reference images per call for style consistency. Legible in-image text. Frame consistency across multiple generations.</p>
+      <p class="note">You're not using this if you're not asking for mockups. Try: "generate three hero mockup options for this section."</p>
+    </div>
+
+    <h3>Models &amp; pricing</h3>
+    <table>
+      <thead><tr><th>Model</th><th>Best for</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Gemini 3.1 Pro</strong></td><td>Planning, architecture, long-context</td><td>Current primary</td></tr>
+        <tr><td><strong>Gemini 3 Flash</strong></td><td>Quick edits, refactors</td><td>Speed-optimized</td></tr>
+        <tr><td><strong>Claude Sonnet 4.6</strong></td><td>Implementation, frontend</td><td>Post-launch addition</td></tr>
+        <tr><td><strong>Claude Opus 4.6</strong></td><td>Heavy reasoning, security audits</td><td>Your currently selected model</td></tr>
+        <tr><td><strong>GPT-OSS 120B</strong></td><td>Open-source variant</td><td>Medium reasoning tier</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <p><strong>March 2026 pricing nerf:</strong> Free tier cut ~92%. Pro tier ($20/mo) lost the 5-hour refresh cycle. New credit model: $25 = 2,500 AI credits. Ultra is $249.99/mo. <strong>No BYOK</strong> — community requested Gemini API key support, Google hasn't shipped it. Workaround: route through Vertex AI for high-volume work.</p>
+    </div>
+
+    <h3>MCP support</h3>
+    <ul>
+      <li><strong>Config path:</strong> <code>~/.gemini/antigravity/mcp_config.json</code> — global only, no per-workspace support (officially acknowledged limitation).</li>
+      <li><strong>Critical gotcha:</strong> after editing the JSON you MUST click Refresh in the Manage MCP Servers panel. Does NOT hot-reload.</li>
+      <li><strong>Unified Permissions (v1.22.2, Apr 8 2026):</strong> Allow/Deny/Ask lists with <code>action(target)</code> syntax — <code>command(prefix)</code>, <code>read_file(/path)</code>, <code>mcp(server/tool)</code>, <code>mcp(server/*)</code>.</li>
+      <li><strong>Pre-built integrations:</strong> Firebase, Google Cloud Data Cloud (BigQuery, AlloyDB, Spanner, Cloud SQL), Workspace MCPs (Gmail/Drive/Calendar), GitHub, Nano Banana Pro.</li>
+      <li><strong>Recent updates:</strong> v1.22.2 unified permissions (Apr 8), workspace tenant support (Apr 2026), Walkthroughs promoted to first-class UI layer.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="hidden">
+  <div class="wrap">
+    <div class="section-label">Section 2</div>
+    <h2>Hidden / power-user features you're not using</h2>
+    <p>Compiled from Reddit, dev.to, Medium, Hacker News, and the Kerrick Long power-user guide. These are the things even regular users miss.</p>
+
+    <h3>The filesystem layer Antigravity barely advertises</h3>
+    <p>Antigravity persists almost everything to disk in plain markdown. Most users miss this. On your machine right now:</p>
+    <table>
+      <thead><tr><th>Path</th><th>What's in it</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.gemini/antigravity/brain/&lt;conv-id&gt;/</code></td><td>Per-conversation <code>task.md</code>, <code>implementation_plan.md</code>, <code>walkthrough.md</code> — grep, version-control, recover via <code>.resolved.N</code> versions</td></tr>
+        <tr><td><code>~/.gemini/antigravity/knowledge/&lt;id&gt;/</code></td><td>Editable markdown KIs + <code>metadata.json</code>. Fix wrong facts manually.</td></tr>
+        <tr><td><code>~/.gemini/antigravity/browser_recordings/</code></td><td>WebP video of every browser session, per workspace</td></tr>
+        <tr><td><code>~/.gemini/antigravity/html_artifacts/</code></td><td>Empty on your machine — first place to look once you start asking for HTML deliverables</td></tr>
+        <tr><td><code>~/.gemini/antigravity/conversations/</code> + <code>implicit/</code></td><td>Encrypted protobuf <code>.pb</code> — not user-readable, skip</td></tr>
+        <tr><td><code>~/.gemini/antigravity/mcp_config.json</code></td><td>Currently has <code>bigquery</code> server bound to <code>green-segment-491604-j8</code> (COD warehouse)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Turbo annotations — the killer feature nobody mentions</h3>
+    <p>Inside any prompt or workflow file:</p>
+    <ul>
+      <li><code>// turbo</code> — auto-run the single next command without approval</li>
+      <li><code>// turbo-all</code> — auto-run all subsequent commands in the block</li>
+    </ul>
+    <p>More granular than the global "Always Proceed" setting. The recommended pattern for trusted CI test loops.</p>
+
+    <h3>The three-file context spine</h3>
+    <p>Power users build a context spine in the repo root instead of pasting long prompts:</p>
+    <ol>
+      <li><strong>AGENTS.md</strong> — behavioral constraints, forbidden actions, Definition of Done. Cross-tool standard, also read by Cursor.</li>
+      <li><strong>GEMINI.md</strong> — Antigravity-only override (or global at <code>~/.gemini/GEMINI.md</code>). Tech requirements, architecture decisions.</li>
+      <li><strong>brand_guidelines.md</strong> — colors, typography, UI tone. Keeps frontend output consistent across iterations.</li>
+    </ol>
+    <p>Workspace-scoped rules also live at <code>.agent/rules/*.md</code>.</p>
+
+    <h3>The full @ reference set</h3>
+    <p>Most users only know <code>@file</code> and <code>@workspace</code>. The full set:</p>
+    <table>
+      <tbody>
+        <tr><td><code>@workspace</code></td><td>Entire project</td></tr>
+        <tr><td><code>@file</code></td><td>Specific file</td></tr>
+        <tr><td><code>@terminal</code></td><td>Current terminal output — huge for debugging</td></tr>
+        <tr><td><code>@problems</code></td><td>Errors + warnings panel</td></tr>
+        <tr><td><code>@selection</code></td><td>Currently selected text</td></tr>
+        <tr><td><code>@codebase</code></td><td>Indexed search</td></tr>
+        <tr><td><code>@Supabase @Firebase @Cloudflare @Linear @Vercel</code></td><td>Live MCP-backed queries — the underutilized power move</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Keyboard shortcuts most users miss</h3>
+    <ul>
+      <li><kbd>Cmd/Ctrl + L</kbd> — toggle agent panel then type immediately, never click the chat input</li>
+      <li><kbd>Cmd/Ctrl + Shift + L</kbd> — new conversation thread (cheap, use it more)</li>
+      <li><kbd>Cmd/Ctrl + E</kbd> — flip editor ↔ agent without mouse</li>
+      <li><kbd>Cmd/Ctrl + I</kbd> in terminal — AI terminal command</li>
+      <li>Select text + <kbd>Cmd/Ctrl + L</kbd> — pipe terminal output to agent (faster than copy/paste)</li>
+      <li>Sparkle (✨) icon in Source Control — AI commit message generator</li>
+    </ul>
+
+    <h3>Conversation modes &amp; cost levers</h3>
+    <ul>
+      <li><strong>Planning before Fast</strong> — multiple reviewers report Plan-first is the single biggest cost lever. Anything &gt; 30 min should plan first.</li>
+      <li><strong>Model routing per subtask</strong> — Gemini 3.1 Pro for planning, Flash for quick edits, Sonnet 4.6 for frontend implementation, Opus 4.6 for heavy reasoning.</li>
+      <li><strong>Manual final QA in embedded browser</strong> — automated browser testing burns more tokens than asking the agent to verify. Do final visual check yourself.</li>
+    </ul>
+
+    <h3>Confirmed footguns</h3>
+    <ul>
+      <li><strong>Cursor settings import broken</strong> for some users; onboarding crashes on final step</li>
+      <li><strong>Agent goes unresponsive after failed browser tests</strong> — only fix is new conversation thread</li>
+      <li><strong>Doesn't reliably read <code>CLAUDE.md</code></strong> even with long-context claims</li>
+      <li><strong>No queued changes</strong> (unlike Claude Code) — can't batch sequential approvals</li>
+      <li><strong>No archive function</strong> — only delete, with unclear KI retention</li>
+      <li><strong>Prompt-injection risk</strong> — attackers can hide instructions in code comments or docs that exfiltrate via markdown image rendering. Never store API keys in workspace files.</li>
+      <li><strong>Region issues</strong> — mainland China needs TUN-mode proxy with US IP</li>
+    </ul>
+
+    <h3>Where it loses vs Cursor / Claude Code</h3>
+    <p>Consensus from XDA, Codecademy, andrew.ooo, Visual Studio Magazine:</p>
+    <ul>
+      <li><strong>Cursor</strong> wins inline coding flow, polished frontend output, individual dev satisfaction</li>
+      <li><strong>Claude Code</strong> wins queued approvals, sequential batching, terminal-native workflow</li>
+      <li><strong>Windsurf</strong> wins price ($15/mo) and post-Cognition agent depth</li>
+      <li><strong>Antigravity</strong> wins multi-agent orchestration, visual verification via browser recordings, model-per-task flexibility, Google Cloud / BigQuery / Firebase integration</li>
+    </ul>
+    <p>SWE-bench: Antigravity 76.2% vs Cursor ~77% — practically tied.</p>
+  </div>
+</section>
+
+<section id="mapping">
+  <div class="wrap">
+    <div class="section-label">Section 3</div>
+    <h2>What's already in your Claude Code stack</h2>
+    <p>Antigravity feature → what you have on disk → priority to wire up.</p>
+
+    <div class="feature">
+      <div class="feature-head"><h3>1. In-IDE Browser Previews</h3><span class="feature-meta"><span class="pill miss">Missing</span></span></div>
+      <p>No <code>chrome-devtools-mcp</code> active. <code>playwright-mcp</code> plugin not installed. <code>chrome-devtools-mcp</code> sits disabled in <code>~/.claude/mcp-disabled.json</code> — was set up once and shut off. The only browser-driving code is raw <code>npx playwright</code> shell calls inside <code>lp-audit-rebuild/lib/handoff-handler.js:162-163</code> and <code>lib/screenshot.js</code>. One-shot capture, not interactive nav/click/validate.</p>
+      <p><strong>Fix:</strong> install official <code>playwright</code> plugin from marketplace (134k installs, vetted) or move <code>chrome-devtools-mcp</code> entry from <code>mcp-disabled.json</code> into <code>.claude.json</code>. Gives <code>browser_navigate</code> / <code>browser_click</code> / <code>browser_snapshot</code> as first-class tools.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>2. Visual Artifacts (screenshots + video)</h3><span class="feature-meta"><span class="pill partial">Partial</span></span></div>
+      <p>Screenshots: yes, via <code>lp-audit-rebuild/lib/screenshot.js</code> — hardcoded 1440×900 desktop + 375×812 mobile, full-page JPEG, base64-returned. Consumed by <code>visual-storyteller.md</code>, <code>mobile-validator.md</code>, <code>cro-analyst.md</code> agents. <strong>Silently degrades</strong> if playwright not installed — both <code>conductor.js:249</code> and <code>phase-band-runner.js:78</code> wrap it in try/catch.</p>
+      <p>Video recording: <strong>nothing</strong>. No screen capture skill anywhere.</p>
+      <p><strong>Fix:</strong> confirm <code>npm ls playwright</code> inside the skill dir. Install <code>playwright-mcp</code> — its traces produce <code>.zip</code> with video frames.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>3. Responsive testing / automatic resizing</h3><span class="feature-meta"><span class="pill partial">Partial</span></span></div>
+      <p>Locked to <code>lp-audit-rebuild</code>, two viewports only. <code>frontend-design</code>, <code>taste-skill</code>, <code>ui-ux-pro-max</code> skills do zero viewport testing.</p>
+      <p><strong>Fix:</strong> extend <code>screenshot.js</code> to <code>VIEWPORTS = [320, 375, 768, 1024, 1440, 1920]</code> loop, or wire <code>playwright-mcp</code> and let agents request viewports on demand.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>4. Autonomous iteration (detect bug → self-fix)</h3><span class="feature-meta"><span class="pill partial">Partial</span></span></div>
+      <p>The loop exists — <code>lp-audit-rebuild</code> ITERATE band (phases 11–13). <code>visual-storyteller</code> + <code>cro-analyst</code> + <code>code-reviewer</code> agents read screenshots, propose patches, builder applies. But it's locked to LP rebuilds, behind explicit <code>AskUserQuestion</code> gates per <code>feedback_design_pass_user_gate.md</code>.</p>
+      <p><strong>Fix:</strong> generalize the ITERATE-band as a standalone <code>iterate-on-visual</code> skill. Takes any HTML/Astro/JSX file + goal description. Highest-leverage compound move once Playwright is wired in.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>5. Planning mode</h3><span class="feature-meta"><span class="pill have">Have</span></span></div>
+      <p><code>/gsd:ui-phase</code> generates UI-SPEC.md design contract before any code. <code>/gsd:plan-phase</code> produces full PLAN.md with verification loop. <code>superpowers:writing-plans</code> + <code>superpowers:brainstorming</code> enforce plan-before-build. <code>lp-audit-rebuild</code> has dedicated <code>architect.md</code> + <code>strategist.md</code> PRE_BUILD agents. <strong>Arguably more rigorous than Antigravity's.</strong></p>
+      <p>No tool gap. Friction is rule-discipline — sometimes skipped under "stop-asking-just-build" pressure.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>6. Nanobanana image generation</h3><span class="feature-meta"><span class="pill miss">Missing</span></span></div>
+      <p><code>ads-generate</code> SKILL.md requires <code>banana-claude v1.4.1+ with nanobanana-mcp</code>. <strong>Neither is installed.</strong> Not in <code>.claude.json</code>, not in project <code>.mcp.json</code>, not in any <code>mcp-*.json</code>. <strong>Your MEMORY.md entry claiming it's configured is stale.</strong> Zero image-generation MCPs active. <code>figma__upload_assets</code> can only upload existing images.</p>
+      <div class="callout">
+        <p><strong>Active capability leak:</strong> <code>/ads-generate</code>, <code>/ads-photoshoot</code>, and any LP needing hero imagery silently fail or fall back to deprecated scripts today. Update MEMORY.md to flag this.</p>
+      </div>
+      <p><strong>Fix:</strong> run <code>/banana setup</code> (path stated in <code>ads-generate/SKILL.md</code>) or add <code>nanobanana-mcp</code> directly to <code>.claude.json</code> <code>mcpServers</code>.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>7. Task-level abstraction ("make this look modern SaaS")</h3><span class="feature-meta"><span class="pill have">Have</span></span></div>
+      <p>Significantly deeper than Antigravity:</p>
+      <ul>
+        <li><code>ui-ux-pro-max</code> — 50+ styles, 161 palettes, 57 font pairings, 161 product types</li>
+        <li>Theme skills: <code>brutalist</code>, <code>minimalist</code>, <code>soft</code>, <code>redesign</code>, <code>taste</code>, <code>theme-factory</code> (10 generic + 8 client)</li>
+        <li>3,008 components in <code>kamg-astro-starter/library</code></li>
+        <li>Agency design agents: <code>design-ui-designer</code>, <code>design-ux-architect</code>, <code>design-brand-guardian</code>, <code>design-visual-storyteller</code></li>
+      </ul>
+      <p>Friction: <code>bug_design_pass_missing_swipe_collector.md</code> — design passes don't auto-load design KBs before agents run. That's the actual gap, not raw capability.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-head"><h3>8. Multi-file orchestration</h3><span class="feature-meta"><span class="pill have">Have</span></span></div>
+      <p><code>/gsd:execute-phase</code> wave-based parallelization. <code>/gsd:autonomous</code> chains discuss→plan→execute. <code>superpowers:subagent-driven-development</code> + <code>superpowers:dispatching-parallel-agents</code>. <code>lp-audit-rebuild</code> orchestrates 15 agents across 17 phases with model routing. Parallelism rules already encoded in CLAUDE.md.</p>
+    </div>
+  </div>
+</section>
+
+<section id="interop">
+  <div class="wrap">
+    <div class="section-label">Section 4</div>
+    <h2>The bridge that already exists on your machine</h2>
+    <p>You've been running Claude Code inside Antigravity for weeks. Here's the actual state of the integration — what works, what's racing, what's leaking.</p>
+
+    <div class="callout good">
+      <p><strong>Ground truth from your filesystem:</strong> Antigravity v0.26.0 (codename "Jetski", VS Code base 1.107.0) at <code>%LOCALAPPDATA%\Programs\Antigravity\</code>. Claude Code v2.1.123 installed as Antigravity extension at <code>~/.antigravity/extensions/anthropic.claude-code-2.1.123-win32-x64\</code>. KasOS workspace already open. Claude Opus 4.6 selected as panel model. BigQuery MCP already bound to <code>green-segment-491604-j8</code> in <code>~/.gemini/antigravity/mcp_config.json</code>. <strong>70+ lockfiles</strong> in <code>~/.claude/ide/*.lock</code>, every one with <code>"ideName":"Antigravity"</code> — every prior Antigravity window the Claude Code extension has bridged to.</p>
+    </div>
+
+    <h3>Shared state matrix</h3>
+    <table>
+      <thead><tr><th>Layer</th><th>Shared?</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Workspace files</td><td><span class="pill have">Yes</span></td><td>Both edit the same disk paths. No abstraction.</td></tr>
+        <tr><td>Git state</td><td><span class="pill have">Yes</span></td><td>Same <code>.git</code> directory. Both can commit — racing on the working tree.</td></tr>
+        <tr><td>.vscode/ settings</td><td><span class="pill have">Yes</span></td><td>VS Code-format. Currently none in KasOS.</td></tr>
+        <tr><td>~/.claude/ config</td><td><span class="pill miss">CC only</span></td><td>Antigravity does NOT read CLAUDE.md, hooks, plugins, your MCP. Only the Claude Code extension running inside Antigravity does.</td></tr>
+        <tr><td>~/.gemini/antigravity/</td><td><span class="pill miss">Antigravity only</span></td><td>Claude Code has zero awareness. Artifacts, conversation history, browser recordings — all opaque unless you <code>@</code>-mention.</td></tr>
+        <tr><td>Conversation history</td><td><span class="pill miss">Separate stores</span></td><td>Antigravity: <code>~/.gemini/antigravity/conversations/</code>. Claude Code: <code>~/.claude/projects/</code>. No cross-resume.</td></tr>
+      </tbody>
+    </table>
+    <p><strong>The boundary:</strong> filesystem and git are the only true shared bus. Everything else is sandboxed per tool.</p>
+
+    <h3>The critical gap: AGENTS.md doesn't exist in KasOS</h3>
+    <div class="callout">
+      <p>Without <code>AGENTS.md</code> at the workspace root, Antigravity's Gemini agent operates with <strong>zero context</strong> on your rules: GSD conventions, slug routing, FTC compliance gates, em-dash bans, client-isolation rules, Net 0 invoicing, FTC income-claim phrasing. Every time you ask Gemini to do client work, it could violate any of these silently.</p>
+      <p><strong>One-line fix:</strong> symlink <code>AGENTS.md</code> → <code>CLAUDE.md</code> at the workspace root. Antigravity reads AGENTS.md natively. Cursor also reads it. Free portability.</p>
+    </div>
+
+    <h3>MCP overlap — same backend, separate processes</h3>
+    <ul>
+      <li>Two independent registries. <code>~/.gemini/antigravity/mcp_config.json</code> is <strong>global only, no per-workspace support</strong>.</li>
+      <li>Same MCP server can be registered in both. Each tool launches its own stdio process / holds its own HTTP session. They do NOT share session state.</li>
+      <li><strong>Active risk for your client work:</strong> the BigQuery MCP currently bound to COD's <code>green-segment-491604-j8</code> in Antigravity is visible <strong>from every workspace you open</strong>, including non-COD client work. Violates your <em>Per-Client Billing Separation</em> rule from MEMORY.md.</li>
+    </ul>
+
+    <h3>Known conflicts on your specific install</h3>
+    <table>
+      <tbody>
+        <tr><td><strong>Secondary sidebar bug (#18301)</strong></td><td>Claude Code ext targets VS Code 1.108+. Your Antigravity is 1.107. Can break activity bar on older builds. Workaround: edit extension <code>package.json</code> to remove <code>secondarySidebar</code> blocks.</td></tr>
+        <tr><td><strong>CLI install loop (#22360)</strong></td><td><code>code</code> shell command isn't named <code>code</code> in Antigravity. Anthropic closed as "not planned." Install extension manually from Open VSX.</td></tr>
+        <tr><td><strong>Auto-accept compound risk</strong></td><td><code>nextcortex.antigravity-auto-accept</code> installed + your Claude Code <code>bypassPermissions</code> mode = nothing prompts on either side. Fine for trusted dirs; dangerous if Antigravity edits a client deliverable while Claude Code is also writing.</td></tr>
+        <tr><td><strong>Same-file race</strong></td><td>Last write wins. Both have auto-save. Mitigation: never run both on the same file simultaneously.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>The recommended division of labor</h3>
+    <p>Run Antigravity as the <strong>shell</strong> — the IDE you look at, the diff viewer, the planning artifact UI, the browser-driven visual feedback. Run Claude Code as the <strong>engine</strong> — the side that knows GSD, all your skills, hooks, plugins, CLAUDE.md, FTC/copy/client-isolation rules.</p>
+    <ul>
+      <li>Use the Claude Code panel inside Antigravity for fast edits + slash commands</li>
+      <li>Drop to <code>claude</code> in the integrated terminal for full skill access</li>
+      <li>Reserve Gemini 3 / Jetski for two specific jobs only:
+        <ul>
+          <li><strong>Whole-repo planning</strong> when you want a different lens on a big architectural change</li>
+          <li><strong>Browser-driven visual iteration</strong> on LP rebuilds — point Gemini at the live URL, let its browser subagent screenshot + suggest tweaks, then have Claude Code land the implementation</li>
+        </ul>
+      </li>
+      <li>Sync rules via <code>AGENTS.md</code> symlink (one line, one fix)</li>
+      <li>Treat <code>mcp_config.json</code> as the global always-on set (BigQuery, paperclip); <code>~/.claude/.mcp.json</code> as the rich set (your full kit)</li>
+      <li><strong>Git worktrees</strong> whenever you intend to run both agents in parallel — never on the same file</li>
+      <li><strong>Client deliverables with strict isolation</strong> (COD, Redstone, CPG): do them in Claude Code only until Antigravity ships per-workspace MCP scope</li>
+    </ul>
+  </div>
+</section>
+
+<section id="actions">
+  <div class="wrap">
+    <div class="section-label">Section 5</div>
+    <h2>Action plan, priority-ranked</h2>
+    <p>Ordered by compound leverage. Each estimate is realistic, not aspirational.</p>
+
+    <div class="actions">
+      <div class="action">
+        <div>
+          <h4>Symlink AGENTS.md → CLAUDE.md at KasOS root</h4>
+          <span class="est">~2 min · highest ROI</span>
+          <p>Gives Antigravity's Gemini agent visibility into every rule you've codified — GSD conventions, em-dash ban, client-isolation, FTC gates, Net 0 invoicing. Without this, Gemini is rule-blind on every prompt. Windows: <code>mklink AGENTS.md CLAUDE.md</code> in cmd as admin. Or just copy the file — sync manually when CLAUDE.md changes.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Install Playwright MCP plugin from marketplace</h4>
+          <span class="est">~15 min · unlocks 3 features in one move</span>
+          <p>Collapses features 1, 2, 3 from the mapping section. Gives every skill access to <code>browser_navigate</code>, <code>browser_click</code>, <code>browser_snapshot</code>, <code>browser_take_screenshot</code>. 134k installs, vetted official plugin. Path: <code>claude-plugins-official/marketplace.json:1443</code>.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Wire nanobanana-mcp (and update MEMORY.md)</h4>
+          <span class="est">~5 min if API key handy</span>
+          <p><code>/ads-generate</code> and <code>/ads-photoshoot</code> are silently broken right now. The skills already assume nanobanana-mcp exists. Add to <code>~/.claude.json</code> under <code>mcpServers</code>. Then delete or update the stale <em>"nanobanana-mcp configured"</em> claim in MEMORY.md so future sessions stop assuming dormant capability.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Create per-client AGENTS.md files (avoid MCP scope leak)</h4>
+          <span class="est">~20 min · client-safety move</span>
+          <p>Antigravity's MCP is global — COD's BigQuery MCP is visible to every workspace you open. Until Google ships per-workspace scope, put a per-client <code>AGENTS.md</code> in each <code>kamg-ops/sites/&lt;slug&gt;/</code> root with explicit "do not query &lt;other client&gt; tables" guard rules. Belt-and-suspenders alongside your existing client-isolation memory.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Port your top 5 GSD workflows as Antigravity workflows</h4>
+          <span class="est">~30 min</span>
+          <p>Drop markdown files in <code>~/.gemini/antigravity/workflows/</code> for: <code>/save</code>, <code>/morning</code>, <code>/compound</code>, <code>/ads create</code>, <code>/lp-audit-rebuild</code>. Antigravity workflows trigger with <code>/name</code> in chat just like GSD slash commands. Add <code>// parallel</code> annotation to independent steps for free wall-clock speedup.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Port high-value skills to Antigravity skills directory</h4>
+          <span class="est">~1 hr · format is nearly identical</span>
+          <p>SKILL.md format is nearly identical. Start with: <code>lp-audit-rebuild</code>, <code>taste-skill</code>, <code>deslop</code>, <code>theme-factory</code>, <code>ads-create</code>. Drop in <code>~/.gemini/antigravity/skills/</code>. Antigravity loads only on semantic match via the <code>description</code> field — same mechanic as Claude Code.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Generalize lp-audit's ITERATE band into standalone iterate-on-visual skill</h4>
+          <span class="est">~2 hrs · highest compound leverage</span>
+          <p>The visual-feedback iteration loop in <code>lp-audit-rebuild/lib/phase-band-runner.js</code> + <code>agents/visual-storyteller.md</code> + <code>agents/code-reviewer.md</code> IS Antigravity's autonomous-iteration feature — just locked to LP rebuilds. Extract as a generic skill: takes any HTML/Astro/JSX file + goal description, runs screenshot → critique → patch → re-screenshot until quality threshold. Once Playwright is wired in (action #2), this becomes the magic "fix until it looks right" loop usable from any project.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Add a /sync-rules workflow that regenerates AGENTS.md from CLAUDE.md</h4>
+          <span class="est">~30 min</span>
+          <p>If symlinks are too brittle on Windows, build a tiny sync workflow: reads CLAUDE.md, writes AGENTS.md, optionally trims sections Gemini doesn't need. Run on Claude Code hook when CLAUDE.md changes.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Add a pre-tool-use guard against same-file races</h4>
+          <span class="est">~45 min</span>
+          <p>Lightweight hook that refuses Claude Code edits when an Antigravity agent is mid-task on the same file (detect via Antigravity lockfile or <code>.pb</code> brain file modification time). Belt-and-suspenders against the auto-accept compound risk. Optional — only matters if you actually run both agents simultaneously.</p>
+        </div>
+      </div>
+
+      <div class="action">
+        <div>
+          <h4>Try Gemini 3.1 Pro in Planning Mode for next big architectural decision</h4>
+          <span class="est">free</span>
+          <p>One specific habit to try: when you have a non-trivial multi-day decision (e.g. PersonalOS/WorkOS split), open it in Antigravity Planning Mode with Gemini 3.1 Pro instead of Claude Code. Compare the plan artifact to what Claude Code's <code>gsd-planner</code> would have produced. If Gemini's bigger effective context gives meaningfully better whole-repo synthesis, you have a new tool in rotation. If not, you've confirmed Claude Code is your default and can stop second-guessing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Skip / already strong:</strong> Planning mode, task-level abstraction, multi-file orchestration. You're at or above Antigravity parity on these — don't spend cycles. The compound wins are 1, 2, 3, and 7.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sources">
+  <div class="wrap">
+    <div class="section-label">Section 6</div>
+    <h2>Sources</h2>
+    <p class="footnotes">All findings cross-referenced. Honest limitations: Antigravity's official docs site (<code>antigravity.google/docs/*</code>) is a JS-rendered SPA that wasn't fetchable — primary details come from third-party mirrors, Google Developers Blog, Wikipedia, codelabs, and the actual install state on this machine. Binary <code>.pb</code> files in <code>brain/</code> and <code>browser_recordings/</code> are Google-internal protobuf schemas and not human-readable from disk.</p>
+    <h4>Official</h4>
+    <ul class="footnotes">
+      <li><a href="https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/">Build with Google Antigravity — Developers Blog</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Google_Antigravity">Wikipedia: Google Antigravity</a></li>
+      <li><a href="https://codelabs.developers.google.com/getting-started-google-antigravity">Getting Started with Google Antigravity — Codelabs</a></li>
+      <li><a href="https://cloud.google.com/blog/products/data-analytics/connect-google-antigravity-ide-to-googles-data-cloud-services">Antigravity + Data Cloud MCPs — Google Cloud Blog</a></li>
+      <li><a href="https://discuss.ai.google.dev/t/support-for-per-workspace-mcp-config-on-antigravity/111952">Per-workspace MCP config request thread</a></li>
+      <li><a href="https://discuss.ai.google.dev/t/antigravity-add-your-own-api-keys-models/137068">BYOK request thread</a></li>
+    </ul>
+    <h4>Deep-dive walkthroughs</h4>
+    <ul class="footnotes">
+      <li><a href="https://kerrick.blog/posts/2026/a-power-user-guide-for-google-antigravity/">A Power User Guide for Google Antigravity — Kerrick Long</a></li>
+      <li><a href="https://medium.com/google-developer-experts/google-antigravity-custom-mcp-server-integration-to-improve-vibe-coding-f92ddbc1c22d">Custom MCP Server Integration — Tarun Jain, GDE</a></li>
+      <li><a href="https://atamel.dev/posts/2025/11-25_customize_antigravity_rules_workflows/">Customize Antigravity Rules &amp; Workflows — Mete Atamel</a></li>
+      <li><a href="https://medium.com/@atulprogrammer/my-1-month-with-new-google-antigravity-ide-im-genuinely-obsessed-absolute-game-changer-fbbfce0d1027">My 1 Month With Antigravity — Atul Programmer</a></li>
+      <li><a href="https://www.codecademy.com/article/how-to-set-up-and-use-google-antigravity">How to Set Up and Use Google Antigravity — Codecademy</a></li>
+      <li><a href="https://www.infoworld.com/article/4096113/a-first-look-at-googles-new-antigravity-ide.html">First Look at Google's New Antigravity IDE — InfoWorld</a></li>
+      <li><a href="https://www.xda-developers.com/spent-month-with-cursor-google-antigravity-windsurf-to-find-real-pro-choice/">A Month with Cursor, Antigravity, Windsurf — XDA</a></li>
+      <li><a href="https://www.codecademy.com/article/agentic-ide-comparison-cursor-vs-windsurf-vs-antigravity">Agentic IDE Comparison — Codecademy</a></li>
+    </ul>
+    <h4>Tips, tricks, gotchas</h4>
+    <ul class="footnotes">
+      <li><a href="https://antigravity.codes/blog/antigravity-cheat-sheet">Antigravity Cheat Sheet — Shortcuts &amp; Commands</a></li>
+      <li><a href="https://antigravity.codes/blog/antigravity-mcp-tutorial">How to Use MCP Servers in Antigravity</a></li>
+      <li><a href="https://antigravity.codes/blog/antigravity-credits-pricing-explained">Credits &amp; Pricing Explained (March 2026)</a></li>
+      <li><a href="https://antigravity.codes/blog/antigravity-agents-md-guide">AGENTS.md Guide</a></li>
+      <li><a href="https://antigravitylab.net/en/articles/antigravity/antigravity-features-update-april-2026">April 2026 Update — Walkthroughs &amp; Browser Agents</a></li>
+      <li><a href="https://dev.to/mayu2008/mastering-google-antigravity-the-future-of-vibe-coding-in-2026-45l4">Mastering Google Antigravity — dev.to</a></li>
+      <li><a href="https://dev.to/czmilo/15-essential-google-antigravity-tips-and-tricks-complete-guide-in-2025-3omj">15 Essential Tips &amp; Tricks — dev.to</a></li>
+      <li><a href="https://dev.to/googleai/my-first-experience-creating-antigravity-skills-524b">Creating Antigravity Skills — dev.to</a></li>
+      <li><a href="https://blog.stablediscussion.com/p/googles-antigravity-ide-still-too">Antigravity Still Too Early — Stable Discussion</a></li>
+      <li><a href="https://hackernoon.com/google-antigravity-20-game-changing-prompts-for-complete-automation">20 Game-Changing Prompts — Hackernoon</a></li>
+    </ul>
+    <h4>Bridge / interop</h4>
+    <ul class="footnotes">
+      <li><a href="https://code.claude.com/docs/en/vs-code">Claude Code VS Code docs</a></li>
+      <li><a href="https://github.com/anthropics/claude-code/issues/18301">Issue #18301 — secondary sidebar conflict</a></li>
+      <li><a href="https://github.com/anthropics/claude-code/issues/22360">Issue #22360 — CLI install loop in Antigravity</a></li>
+      <li><a href="https://www.augmentcode.com/tools/google-antigravity-vs-claude-code">Antigravity vs Claude Code — Augment</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer style="padding: 40px 0 60px; text-align: center; color: var(--ink-mute); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;">
+  <div class="wrap">
+    Antigravity audit · 2026-05-12 · Kas internal
+  </div>
+</footer>
+
+</body>
+</html>

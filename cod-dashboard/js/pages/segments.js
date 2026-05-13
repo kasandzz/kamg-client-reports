@@ -117,10 +117,24 @@ App.registerPage('segments', async (container) => {
   let sortAsc = false;
 
   function renderNicheTable() {
+    // Only the `profession` column is genuinely categorical — everything else
+    // is numeric. BigQuery NUMERIC fields (revenue, avg_deal) often arrive as
+    // strings, which made `typeof av === 'string'` fire the localeCompare
+    // branch and sort the Revenue column alphabetically — "10000" before
+    // "9000" because '1' < '9'. The Top 5 by revenue was wrong any time the
+    // values crossed an order-of-magnitude boundary. Now we route on the
+    // column key, not on JS type, and force numeric coercion for all non-text
+    // columns (parseFloat handles both string and number inputs).
+    const isTextCol = sortKey === 'profession';
     const sorted = [...rows].sort((a, b) => {
-      const av = a[sortKey], bv = b[sortKey];
-      if (typeof av === 'string') return sortAsc ? (av || '').localeCompare(bv || '') : (bv || '').localeCompare(av || '');
-      return sortAsc ? ((av || 0) - (bv || 0)) : ((bv || 0) - (av || 0));
+      if (isTextCol) {
+        const av = a[sortKey] || '';
+        const bv = b[sortKey] || '';
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      }
+      const an = parseFloat(a[sortKey]) || 0;
+      const bn = parseFloat(b[sortKey]) || 0;
+      return sortAsc ? (an - bn) : (bn - an);
     });
 
     let html = '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>';

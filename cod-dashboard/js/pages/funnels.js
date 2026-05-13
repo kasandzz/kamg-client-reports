@@ -2859,6 +2859,23 @@ async function renderF27Metrics() {
   var grid = document.getElementById('f27MetricsGrid');
   if (!grid) return;
 
+  // Cache-refresh wiring (Stage 2 follow-up #3): re-render the Unit Economics
+  // grid in place when api.js detects a row-count delta on the funnel-27.metrics
+  // background SWR fetch. AbortController cleanup before re-listen prevents
+  // handler accumulation across filter-change re-renders (Filters.onChange ->
+  // renderAll -> renderF27Metrics). Mirrors the war-room / revenue / ads-meta /
+  // journey-explorer pattern.
+  if (grid._cacheRefreshController) {
+    try { grid._cacheRefreshController.abort(); } catch(_) {}
+  }
+  var controller = new AbortController();
+  grid._cacheRefreshController = controller;
+  window.addEventListener('cache-refresh', function(e) {
+    var detail = e && e.detail;
+    if (!detail || detail.page !== 'funnel-27' || detail.queryName !== 'metrics') return;
+    renderF27Metrics();
+  }, { signal: controller.signal });
+
   var data = null;
   try {
     var rows = await API.query('funnel-27', 'metrics', { days: currentDays });

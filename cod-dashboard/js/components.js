@@ -41,6 +41,10 @@ const Components = (() => {
 
     el.innerHTML = '';
     el.classList.add('kpi-grid');
+    // The KPI strip is a logical group of stat readouts. role=group with a
+    // label keeps assistive tech from announcing every card as standalone.
+    if (!el.getAttribute('role')) el.setAttribute('role', 'group');
+    if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', 'Key performance indicators');
 
     kpis.forEach((kpi, i) => {
       const card = document.createElement('div');
@@ -67,10 +71,26 @@ const Components = (() => {
             openDrillDown(kpi.label, kpi.drillDown);
           }
         });
+      } else {
+        // Non-clickable KPIs are read-only status -- expose to AT as a stat group.
+        // Using role=group + label so screen readers announce
+        // "[label] [value] [delta]" as one unit instead of three loose strings.
+        card.setAttribute('role', 'group');
       }
 
       // Formatted value
       const formattedValue = Theme.formatValue(kpi.value, kpi.format);
+
+      // Build a single aria-label that summarises label + value + delta for AT.
+      let _ariaParts = [String(kpi.label || ''), String(formattedValue || '')];
+      if (kpi.delta != null) {
+        const _d = (deltaNum >= 0 ? '+' : '') + deltaNum.toFixed(1) + '%';
+        const _dir = deltaNum > 0 ? 'up' : deltaNum < 0 ? 'down' : 'flat';
+        const _good = isPositive ? ' (favorable)' : isNegative ? ' (unfavorable)' : '';
+        _ariaParts.push(`${_dir} ${_d}${_good}`);
+      }
+      if (kpi.drillDown) _ariaParts.push('(click to drill in)');
+      card.setAttribute('aria-label', _ariaParts.join(', '));
 
       // Delta + previous period comparison
       let deltaHTML = '';
@@ -90,7 +110,7 @@ const Components = (() => {
 
       // Traffic light dot
       const dotGlow = statusColor === Theme.COLORS.success ? '0 0 6px rgba(34,197,94,0.5)' : statusColor === Theme.COLORS.danger ? '0 0 6px rgba(239,68,68,0.5)' : 'none';
-      const dotHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
+      const dotHTML = `<span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
 
       // Z-score anomaly badge (only renders when |z| >= 1.5)
       let zBadgeHTML = '';
@@ -136,7 +156,7 @@ const Components = (() => {
           ${zBadgeHTML}
         </div>
         ${prevHTML}
-        ${kpi.sparkData ? `<div class="kpi-spark-container"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
+        ${kpi.sparkData ? `<div class="kpi-spark-container" aria-hidden="true"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
         ${calcHTML}
       `;
 
@@ -150,11 +170,45 @@ const Components = (() => {
   }
 
   /**
+   * Apply role=img + aria-label to a chart container so screen readers
+   * announce a summary instead of skipping over canvas/svg pixels.
+   *
+   * WCAG 1.1.1 Non-text Content: charts rendered to canvas/svg are
+   * non-text and need a text alternative.
+   *
+   * Usage from a page:
+   *   Components.describeChart(container, "Daily revenue trend, $200K to $260K over 14 days");
+   *
+   * @param {string|HTMLElement} target
+   * @param {string} label - short summary of the metric being visualised
+   * @param {string} [description] - optional longer description (set as aria-describedby target)
+   */
+  function describeChart(target, label, description) {
+    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!el || !label) return;
+    el.setAttribute('role', 'img');
+    el.setAttribute('aria-label', label);
+    if (description) {
+      const descId = 'chart-desc-' + Math.random().toString(36).slice(2, 9);
+      const descEl = document.createElement('div');
+      descEl.id = descId;
+      descEl.className = 'sr-only';
+      descEl.textContent = description;
+      el.appendChild(descEl);
+      el.setAttribute('aria-describedby', descId);
+    }
+  }
+
+  /**
    * Render a mini sparkline chart (no axes, no labels).
    */
   function renderSparkline(canvasId, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
+    // Sparklines are decorative trend cues -- the underlying number is read
+    // by the parent KPI card's aria-label, so hide the canvas from AT.
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.setAttribute('role', 'presentation');
 
     const ctx = canvas.getContext('2d');
     const w = 80;
@@ -326,10 +380,10 @@ const Components = (() => {
     const limit = options.limit || 100;
     const displayRows = rows.slice(0, limit);
 
-    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
+    let html = '<div class="data-table-wrap" role="region" aria-label="Data table" tabindex="0"><table class="data-table"><thead><tr>';
     columns.forEach(col => {
       const isNum = col.format === 'money' || col.format === 'pct' || col.format === 'num';
-      html += `<th${isNum ? ' class="num"' : ''}>${_esc(col.label)}</th>`;
+      html += `<th scope="col"${isNum ? ' class="num"' : ''}>${_esc(col.label)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
@@ -727,8 +781,21 @@ const Components = (() => {
 
     var H = currentY + padY;
 
-    // Build SVG
-    var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
+    // Build SVG. role=img + accessible name so screen readers announce
+    // the funnel summary instead of skipping straight over the diagram.
+    // Auto-summary: "<first-node>: <value> -> <last-node>: <value> (N stages)"
+    var first = nodes[0] || {};
+    var last  = nodes[nodes.length - 1] || {};
+    var summary = (config.title || 'Funnel flow') + ': ' +
+      (first.label || '') + ' ' + (first.value != null ? first.value.toLocaleString() : '') +
+      (last && last !== first
+        ? ' to ' + (last.label || '') + ' ' + (last.value != null ? last.value.toLocaleString() : '')
+        : '') +
+      ', ' + nodes.length + ' stages';
+    var svgTitleId = 'sankey-title-' + Math.random().toString(36).slice(2, 8);
+    var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="' + svgTitleId + '">' +
+      '<title id="' + svgTitleId + '">' + summary.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</title>' +
+      '<defs>';
 
     // Gradients for links
     links.forEach(function(link, i) {
@@ -1034,5 +1101,6 @@ const Components = (() => {
     computeZScore,
     renderMetricGrid,
     lazyChart,
+    describeChart,
   };
 })();

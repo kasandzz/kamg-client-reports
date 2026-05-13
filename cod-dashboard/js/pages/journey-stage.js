@@ -103,11 +103,24 @@ for (let s = 1; s <= 12; s++) {
       }
 
       // ---- Fetch data ----
+      // WARN_DATA_UNRESOLVED: journey-stage queries join master_journey / bridge_session_attribution
+      // (posthog-backed) per Stage 0.5 7-day validity audit. Backfill verification pending.
       let rows;
       try {
         rows = await API.query('journey-stage', 'default', { days, stage: stageNum });
       } catch (err) {
-        container.innerHTML += `<div class="card" style="padding:24px"><p class="text-muted">Failed to load stage ${stageNum}: ${err.message}</p></div>`;
+        const errCard = document.createElement('div');
+        errCard.className = 'card';
+        errCard.style.cssText = 'padding:24px; border-left:3px solid #ef4444;';
+        const errTitle = document.createElement('p');
+        errTitle.style.cssText = 'margin:0 0 6px; font-size:14px; font-weight:600; color:var(--text-primary, #e2e8f0);';
+        errTitle.textContent = `Stage ${stageNum} data failed to load`;
+        const errDetail = document.createElement('p');
+        errDetail.style.cssText = 'margin:0; font-size:12px; color:var(--text-secondary, #94a3b8); line-height:1.5;';
+        errDetail.textContent = `${err.message || String(err)} — posthog/BQ join may be unhealthy. Check Data Health for event ingestion status.`;
+        errCard.appendChild(errTitle);
+        errCard.appendChild(errDetail);
+        container.appendChild(errCard);
         _renderStageNav(container, stageNum);
         return;
       }
@@ -115,7 +128,11 @@ for (let s = 1; s <= 12; s++) {
       if (!rows || rows.length === 0 || (rows[0] && rows[0].status === 'no_data')) {
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.innerHTML = `<span class="empty-state-icon">&#9888;</span><p>No data for the selected period</p>`;
+        empty.innerHTML = `
+          <span class="empty-state-icon">&#9888;</span>
+          <p style="margin:6px 0 4px;">No <strong>${cfg.title}</strong> events in the selected period</p>
+          <p style="margin:0; font-size:12px; color:var(--text-muted, #64748b);">Sourced from posthog event stream → master_journey. If you expect activity, check Data Health for event ingestion gaps.</p>
+        `;
         container.appendChild(empty);
         _renderStageNav(container, stageNum);
         return;

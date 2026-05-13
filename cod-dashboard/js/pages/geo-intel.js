@@ -159,11 +159,10 @@ App.registerPage('geo-intel', async (container) => {
   dzCard.appendChild(dzTable);
   container.appendChild(dzCard);
 
-  // ---- Render Plotly charts ----
-  requestAnimationFrame(() => {
-    _renderChoropleth(mapDiv, stateData || []);
-    _renderStateBars(barDiv, stateData || []);
-  });
+  // ---- Render Plotly charts (lazy: choropleth above fold fires immediately
+  //      via IO; state bars are below fold and defer until scroll) ----
+  Components.lazyChart(mapDiv, () => _renderChoropleth(mapDiv, stateData || []));
+  Components.lazyChart(barDiv, () => _renderStateBars(barDiv, stateData || []));
 });
 
 // ---------------------------------------------------------------------------

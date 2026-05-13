@@ -16,10 +16,12 @@ const Theme = (() => {
     border:        'rgba(255,255,255,0.06)',
     borderHover:   'rgba(255,255,255,0.12)',
     borderAccent:  'rgba(124,58,237,0.3)',
+    // Text colors -- kept in sync with css/theme.css :root tokens.
+    // muted/secondary bumped 2026-05-13 for WCAG AA 4.5:1 contrast.
     textPrimary:   '#f1f5f9',
-    textSecondary: '#7c8da4',
-    textMuted:     '#475569',
-    textDisabled:  '#334155',
+    textSecondary: '#94a3b8',
+    textMuted:     '#8b95a5',
+    textDisabled:  '#475569',
     success:       '#22c55e',
     danger:        '#ef4444',
     accent:        '#7c3aed',
@@ -30,7 +32,7 @@ const Theme = (() => {
     accentCyan:    '#22d3ee',
     accentGold:    '#facc15',
     warning:       '#f59e0b',
-    neutral:       '#64748b',
+    neutral:       '#94a3b8',
     gridLine:      'rgba(255,255,255,0.04)',
     tooltipBg:     'rgba(8,8,13,0.85)',
   };

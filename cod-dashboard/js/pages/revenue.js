@@ -1,12 +1,19 @@
 /* ============================================
    Revenue & LTV -- processor breakdown, LTV cohorts,
    closer concentration, churn absorption
+
+   WARN_DATA_UNRESOLVED: all queries on this page hit the 'enrollment'
+   namespace flagged in .planning/allnight-data-validity-7day.md
+   (Stage 0.5). Treat KPI deltas as directional, not authoritative,
+   until the bq-auth follow-up spawn clears the discrepancy.
    ============================================ */
 
 App.registerPage('revenue', async (container) => {
   const days = Filters.getDays();
 
   // ---- Fetch all data in parallel ----
+  // All eight queries below depend on enrollment-namespace BQ sources flagged
+  // by Stage 0.5 data validity audit; see top-of-file WARN_DATA_UNRESOLVED.
   let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent;
 
   try {
@@ -164,7 +171,18 @@ App.registerPage('revenue', async (container) => {
       Theme.PLOTLY_CONFIG
     );
   } else {
-    heatmapDiv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:${Theme.COLORS.textMuted}">No LTV cohort data available</div>`;
+    // Empty-state polish: structured copy instead of a single dim line.
+    // Triggered when ltvCohorts query returns []; common when the window has
+    // fewer than 30 days of post-enrollment runway (no cohort can age to 30d).
+    heatmapDiv.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:24px;gap:6px">
+        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary}">No LTV cohorts in the selected range</div>
+        <div style="font-size:12px;color:${Theme.COLORS.textMuted};max-width:360px;line-height:1.5">
+          Cohorts need at least 30 days of post-enrollment runway to surface here.
+          Try expanding the date filter, or check back after the next cohort matures.
+        </div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px;font-family:JetBrains Mono,monospace">enrollment.ltvCohorts · months=12</div>
+      </div>`;
   }
 
   // ======================================================

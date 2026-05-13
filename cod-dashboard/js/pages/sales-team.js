@@ -162,12 +162,21 @@ App.registerPage('sales-team', async (container) => {
   let sortKey = 'total_cash';
   let sortAsc = false;
 
+  // Highlight the best closer per metric. CAC is lowest-is-best (efficiency);
+  // every other numeric column is highest-is-best. The previous version early-
+  // returned for col.key === 'cac', so the most-efficient closer was never
+  // green-highlighted on the CAC column even though the comparison logic was
+  // already in place — a real visibility bug for the "who's getting cheap
+  // enrollments" question at standup. Zero/missing values are filtered out so
+  // a closer with no spend isn't crowned as the most-efficient.
   function findBest(col) {
-    if (col.key === 'closer' || col.key === 'cac') return null;
-    let best = null, bestVal = col.key === 'cac' ? Infinity : -Infinity;
+    if (col.key === 'closer') return null;
+    const lowerIsBetter = col.key === 'cac';
+    let best = null, bestVal = lowerIsBetter ? Infinity : -Infinity;
     reps.forEach(r => {
-      const v = parseFloat(r[col.key]) || 0;
-      if (col.key === 'cac' ? v < bestVal : v > bestVal) { bestVal = v; best = r.closer; }
+      const raw = parseFloat(r[col.key]);
+      if (!Number.isFinite(raw) || raw === 0) return; // skip missing/zero so they don't win
+      if (lowerIsBetter ? raw < bestVal : raw > bestVal) { bestVal = raw; best = r.closer; }
     });
     return best;
   }

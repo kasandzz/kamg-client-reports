@@ -70,6 +70,24 @@ App.registerPage('sales-team', async (container) => {
 
   Components.renderMetricGrid(kpiEl, _buildSalesTeamMetrics(t, priorTeam));
 
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending pattern from
+  // top 6 pages to mid 6). When api.js detects row-count delta from background
+  // live fetch on sales-team.default, re-fetch and re-render the KPI grid only.
+  // priorTeam (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across re-
+  // renders triggered by App.onFilterChange.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'sales-team' || e.detail.queryName !== 'default') return;
+    API.query('sales-team', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiEl, _buildSalesTeamMetrics(rows[0] || {}, priorTeam));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- Section 2: Calls by Funnel Source -- Stacked Bar ----
   const funnelSection = document.createElement('div');
   funnelSection.style.cssText = 'margin-top:32px';

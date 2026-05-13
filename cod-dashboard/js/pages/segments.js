@@ -18,22 +18,51 @@ App.registerPage('segments', async (container) => {
   container.innerHTML = '';
   const rows = nicheData || [];
 
-  // ---- Section 1: KPI Strip ----
+  // ---- Prior period delta (fetch 2x window, sum, subtract) ----
+  // WARN_DATA_UNRESOLVED — segments queries posthog-backed
+  // master_journey + bridge_session_attribution; posthog backfill verification
+  // deferred to bq-auth follow-up. See .planning/allnight-data-validity-7day.md
+  let priorRows = [];
+  try {
+    priorRows = await API.query('segments', 'nicheFunnel', { days: days * 2 }) || [];
+  } catch (_) { /* ignore */ }
+
+  // ---- Section 1: Team KPI Metric Grid (Mode 2 conversion) ----
+  // 6-card KPI strip → dense f27-style metric grid. Numeric cards (contacts /
+  // enrollments / revenue / segments tracked) get prev-period deltas from the
+  // 2x-window query. Text-only cards (top segment, best conversion) use
+  // valueHtml since they're categorical, not numeric — pattern documented in
+  // components.js renderMetricGrid JSDoc shape B.
   const totalContacts = rows.reduce((s, r) => s + (r.contacts || 0), 0);
   const totalEnrolled = rows.reduce((s, r) => s + (r.enrolled || 0), 0);
   const totalRevenue = rows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
   const topSeg = rows.length > 0 ? [...rows].sort((a, b) => (b.enrolled || 0) - (a.enrolled || 0))[0] : null;
   const bestConv = rows.length > 0 ? [...rows].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
 
+  const _priorContacts2x  = priorRows.reduce((s, r) => s + (r.contacts || 0), 0);
+  const _priorEnrolled2x  = priorRows.reduce((s, r) => s + (r.enrolled || 0), 0);
+  const _priorRevenue2x   = priorRows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+  const _priorContacts = _priorContacts2x - totalContacts;
+  const _priorEnrolled = _priorEnrolled2x - totalEnrolled;
+  const _priorRevenue  = _priorRevenue2x  - totalRevenue;
+  const _priorSegments = priorRows.length; // count of distinct profession groups in 2x window
+
+  function _esc(str) { var el = document.createElement('span'); el.textContent = String(str || ''); return el.innerHTML; }
+  const topSegHtml = topSeg ? _esc(topSeg.profession) : '<span style="color:#666">--</span>';
+  const bestConvHtml = bestConv
+    ? _esc(bestConv.profession) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + (bestConv.enroll_rate || 0).toFixed(1) + '%)</span>'
+    : '<span style="color:#666">--</span>';
+
   const kpiEl = document.createElement('div');
+  kpiEl.style.marginBottom = '16px';
   container.appendChild(kpiEl);
-  Components.renderKPIStrip(kpiEl, [
-    { label: 'Total Contacts',    value: totalContacts,  format: 'num' },
-    { label: 'Total Enrollments',  value: totalEnrolled, format: 'num' },
-    { label: 'Total Revenue',     value: totalRevenue,   format: 'money' },
-    { label: 'Top Segment',       value: topSeg ? topSeg.profession : '--', format: 'text' },
-    { label: 'Best Conversion',   value: bestConv ? `${bestConv.profession} (${(bestConv.enroll_rate || 0).toFixed(1)}%)` : '--', format: 'text' },
-    { label: 'Segments Tracked',  value: rows.length,    format: 'num' },
+  Components.renderMetricGrid(kpiEl, [
+    { label: 'Total Contacts',    value: totalContacts, prevValue: _priorContacts > 0 ? _priorContacts : undefined, format: 'num'   },
+    { label: 'Total Enrollments', value: totalEnrolled, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num'   },
+    { label: 'Total Revenue',     value: totalRevenue,  prevValue: _priorRevenue  > 0 ? _priorRevenue  : undefined, format: 'money' },
+    { label: 'Top Segment',       valueHtml: topSegHtml },
+    { label: 'Best Conversion',   valueHtml: bestConvHtml },
+    { label: 'Segments Tracked',  value: rows.length,   prevValue: _priorSegments > 0 ? _priorSegments : undefined, format: 'num'   },
   ]);
 
   // ---- Section 2: Niche Comparison Table (sortable) ----

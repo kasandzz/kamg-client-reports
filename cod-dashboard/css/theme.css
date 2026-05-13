@@ -195,10 +195,35 @@ h1, h2, h3, h4, h5, h6 {
   color: #fff;
 }
 
-/* Focus */
+/* Focus -- WCAG 2.4.7 Focus Visible + 1.4.11 Non-text Contrast.
+   Two-layer ring: bright cyan for visibility on any background +
+   dark inset so the ring stays visible on the accent purple buttons too.
+   --accent-cyan (#22d3ee) lands at ~9:1 contrast against bg-page. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--accent-cyan);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(8, 8, 13, 0.85);
+}
+
+/* Buttons / links inside the active sidebar pill need higher-contrast ring */
+.nav-item.active:focus-visible,
+.auth-btn:focus-visible,
+.dp-btn--primary:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.6);
+}
+
+/* Honor user's reduced-motion preference -- disable card fade-up, spinner,
+   sidebar slide transitions, etc. (WCAG 2.3.3 Animation from Interactions) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Utility */

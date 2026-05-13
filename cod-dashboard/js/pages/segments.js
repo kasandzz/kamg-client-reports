@@ -300,11 +300,9 @@ async function _renderGeoSection(container, days) {
   dzCard.appendChild(_geoDeadZoneTable(dzRows));
   geoGrid.appendChild(dzCard);
 
-  // Render Plotly charts
-  requestAnimationFrame(() => {
-    _geoChoropleth(mapDiv, states);
-    _geoStateBars(barDiv, states);
-  });
+  // Render Plotly charts (lazy-init: both are below-fold, IO fires on scroll)
+  Components.lazyChart(mapDiv, () => _geoChoropleth(mapDiv, states));
+  Components.lazyChart(barDiv, () => _geoStateBars(barDiv, states));
 }
 
 function _geoChoropleth(el, stateData) {

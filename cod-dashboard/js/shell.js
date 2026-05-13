@@ -163,7 +163,7 @@ const Shell = (() => {
         <div class="search-dialog card">
           <h2 id="search-modal-label" class="sr-only">Search pages</h2>
           <label for="search-input" class="sr-only">Search pages</label>
-          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off" aria-controls="search-results">
+          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off" role="combobox" aria-controls="search-results" aria-autocomplete="list" aria-expanded="true" aria-activedescendant="">
           <div id="search-results" class="search-results" role="listbox" aria-label="Page search results"></div>
         </div>
       </div>
@@ -245,9 +245,12 @@ const Shell = (() => {
     const backdrop = modal?.querySelector('.search-backdrop');
     const searchBtn = document.getElementById('sidebar-search-btn');
     let focusedIdx = -1;
+    // Remember the trigger element so we can restore focus on close
+    let _searchTrigger = null;
 
     function open() {
       if (!modal) return;
+      _searchTrigger = document.activeElement;
       modal.hidden = false;
       input.value = '';
       _renderSearchResults('');
@@ -258,6 +261,11 @@ const Shell = (() => {
     function close() {
       if (!modal) return;
       modal.hidden = true;
+      input.setAttribute('aria-activedescendant', '');
+      if (_searchTrigger && typeof _searchTrigger.focus === 'function') {
+        try { _searchTrigger.focus(); } catch (_) { /* gone */ }
+      }
+      _searchTrigger = null;
     }
 
     function _renderSearchResults(query) {
@@ -267,8 +275,8 @@ const Shell = (() => {
         : ALL_PAGES;
 
       results.innerHTML = filtered.map((item, i) => `
-        <div class="search-result-item${i === focusedIdx ? ' focused' : ''}" data-page="${item.page}" data-idx="${i}">
-          <span class="search-result-icon">${item.icon}</span>
+        <div class="search-result-item${i === focusedIdx ? ' focused' : ''}" role="option" id="search-opt-${i}" aria-selected="${i === focusedIdx}" data-page="${item.page}" data-idx="${i}">
+          <span class="search-result-icon" aria-hidden="true">${item.icon}</span>
           <span>${_highlightMatch(item.label, q)}</span>
           <span class="search-result-section">${item.section}</span>
         </div>
@@ -313,9 +321,18 @@ const Shell = (() => {
     }
 
     function _updateFocus(items) {
-      items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+      items.forEach((el, i) => {
+        const sel = i === focusedIdx;
+        el.classList.toggle('focused', sel);
+        el.setAttribute('aria-selected', sel ? 'true' : 'false');
+      });
       if (items[focusedIdx]) {
         items[focusedIdx].scrollIntoView({ block: 'nearest' });
+        // aria-activedescendant lets screen readers track the
+        // "virtually focused" option while real focus stays on the input
+        input.setAttribute('aria-activedescendant', items[focusedIdx].id);
+      } else {
+        input.setAttribute('aria-activedescendant', '');
       }
     }
 

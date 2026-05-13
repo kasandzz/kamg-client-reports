@@ -87,7 +87,17 @@ App.registerPage('experiments', async (container) => {
   confidence FLOAT64,
   winner STRING,
   notes STRING
-);`;
+)
+PARTITION BY start_date
+CLUSTER BY status;
+
+-- Example: log a planned test
+INSERT INTO cod_warehouse.experiment_registry
+  (id, name, status, variant_a, variant_b, metric, start_date)
+VALUES
+  ('exp_001', 'Reg page hero copy', 'planned',
+   'Original hero', 'Outcome-led hero',
+   'reg_to_workshop_rate', DATE '2026-05-20');`;
 
   const copyBtnId = 'exp-copy-sql-btn';
 
@@ -172,9 +182,9 @@ App.registerPage('experiments', async (container) => {
   plannedCard.style.cssText = 'padding:24px;margin-top:16px';
 
   plannedCard.innerHTML = `
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Planned Tests</div>
-      <div style="font-size:12px;color:var(--text-muted)">Awaiting registry</div>
+      <div style="font-size:12px;color:var(--text-muted)">Roadmap target: 24 across COD funnel · Registry: 0 logged</div>
     </div>
     <div style="
       border:2px dashed var(--border-subtle);

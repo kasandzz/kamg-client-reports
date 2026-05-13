@@ -354,8 +354,13 @@ function _renderHBar(container, cfg, rows, stageNum) {
 
   requestAnimationFrame(() => {
     if (typeof Plotly === 'undefined') return;
-    const labels = rows.map(r => r[cfg.labelField] || 'Unknown');
-    const values = rows.map(r => parseFloat(r[cfg.valueField]) || 0);
+    // Sort by valueField descending so the hbar reads as a leaderboard top-to-bottom.
+    // Prior behavior: rows arrived in whatever order BQ returned (typically clustered by closer
+    // surname) — a reader scanning Stage 7 (Sales Call close rate) would misread the order as
+    // ranked. Stable sort: equal close_rate keeps original BQ order.
+    const sorted = rows.slice().sort((a, b) => (parseFloat(b[cfg.valueField]) || 0) - (parseFloat(a[cfg.valueField]) || 0));
+    const labels = sorted.map(r => r[cfg.labelField] || 'Unknown');
+    const values = sorted.map(r => parseFloat(r[cfg.valueField]) || 0);
 
     Plotly.newPlot('stage-chart-' + stageNum, [{
       type: 'bar',

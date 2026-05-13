@@ -56,6 +56,17 @@ App.registerPage('email-intel', async (container) => {
   const kpi = (kpiRows && kpiRows.length > 0) ? kpiRows[0] : {};
   container.innerHTML = '';
 
+  // ---- Prior period delta (fetch 2x window, compute delta) ----
+  // WARN_DATA_UNRESOLVED — sendgrid_messages is on Stage 0.5 flag list
+  // (sendgrid backfill verification deferred to bq-auth follow-up). Send
+  // counts and event counts are subtracted cleanly; rates are accepted as
+  // 2x-window approximate prior. See .planning/allnight-data-validity-7day.md
+  let priorKpi = {};
+  try {
+    const priorData = await API.query('email', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorKpi = priorData[0];
+  } catch (_) { /* ignore */ }
+
   // Helper: inline error card for failed query section
   function _eiErrorCard(sectionName, queryKey) {
     const err = _eiQueryErrors[queryKey];
@@ -98,61 +109,35 @@ App.registerPage('email-intel', async (container) => {
   } else {
 
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Total Sent',
-      value: kpi.total_sent || 0,
-      format: 'num',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE date >= DATE_SUB(CURRENT_DATE, INTERVAL {days} DAY)',
-    },
-    {
-      label: 'Delivery Rate',
-      value: kpi.delivery_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(delivered) / COUNT(*) * 100',
-    },
-    {
-      label: 'Open Rate',
-      value: kpi.open_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(DISTINCT opens) / COUNT(delivered) * 100',
-    },
-    {
-      label: 'Click Rate',
-      value: kpi.click_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(DISTINCT clicks) / COUNT(delivered) * 100',
-    },
-    {
-      label: 'Bounced',
-      value: kpi.bounced || 0,
-      format: 'num',
-      invertCost: true,
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "bounce"',
-    },
-    {
-      label: 'Unsubscribed',
-      value: kpi.unsubscribed || 0,
-      format: 'num',
-      invertCost: true,
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "unsubscribe"',
-    },
-    {
-      label: 'Delivered',
-      value: kpi.delivered || 0,
-      format: 'num',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "delivered"',
-    },
-  ]);
+  // Mode 2 conversion: 7-card KPI strip → dense f27-style metric grid.
+  // Pattern from war-room.js / revenue.js / sales-team.js. Engagement rates
+  // (delivery/open/click) are pre-divided in BQ → format pctRaw. Bounced /
+  // Unsubscribed carry invertDelta (more is worse). Source/calc tooltip
+  // context dropped per PRD §2 Mode 2 tradeoff.
+  // sendgrid format note: kpi.delivery_rate / open_rate / click_rate values
+  // are already in 0-100 percent form per the SQL `* 100` in the calc field.
+  function _buildEmailMetrics(cur, prev) {
+    const c = cur || {};
+    const p = prev || {};
+    const _priorSent      = (p.total_sent   || 0) - (c.total_sent   || 0);
+    const _priorDelivered = (p.delivered    || 0) - (c.delivered    || 0);
+    const _priorBounced   = (p.bounced      || 0) - (c.bounced      || 0);
+    const _priorUnsub     = (p.unsubscribed || 0) - (c.unsubscribed || 0);
+    return [
+      { label: 'Total Sent',     value: c.total_sent,    prevValue: _priorSent      > 0 ? _priorSent      : undefined, format: 'num'    },
+      { label: 'Delivered',      value: c.delivered,     prevValue: _priorDelivered > 0 ? _priorDelivered : undefined, format: 'num'    },
+      { label: 'Delivery Rate',  value: c.delivery_rate, prevValue: p.delivery_rate,                                   format: 'pctRaw' },
+      { label: 'Open Rate',      value: c.open_rate,     prevValue: p.open_rate,                                       format: 'pctRaw' },
+      { label: 'Click Rate',     value: c.click_rate,    prevValue: p.click_rate,                                      format: 'pctRaw' },
+      { label: 'Bounced',        value: c.bounced,       prevValue: _priorBounced   > 0 ? _priorBounced   : undefined, format: 'num',   invertDelta: true },
+      { label: 'Unsubscribed',   value: c.unsubscribed,  prevValue: _priorUnsub     > 0 ? _priorUnsub     : undefined, format: 'num',   invertDelta: true },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildEmailMetrics(kpi, priorKpi));
 
   } // end KPI else block
 

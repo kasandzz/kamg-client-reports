@@ -348,14 +348,39 @@ async function renderWarRoom(container) {
   kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderMetricGrid(kpiContainer, [
-    { label: 'Ad Spend',        value: cur.total_spend,         prevValue: prev.total_spend,         format: 'money', invertDelta: true },
-    { label: 'CPB',             value: cur.cpb,                 prevValue: prev.cpb,                 format: 'money', invertDelta: true },
-    { label: 'Cost/Enrollment', value: cur.cost_per_enrollment, prevValue: prev.cost_per_enrollment, format: 'money', invertDelta: true },
-    { label: 'Enrollments',     value: cur.enrollments,         prevValue: prev.enrollments,         format: 'num'   },
-    { label: 'ROAS',            value: cur.roas,                prevValue: prev.roas,                format: 'roas'  },
-    { label: 'Close Rate',      value: cur.close_rate,          prevValue: prev.close_rate,          format: 'pct'   },
-  ]);
+  // Daily enrollment-revenue series doubles as a sparkline trend hint for
+  // the Enrollments card. Other metrics lack a daily series in the current
+  // war-room queries (no daily spend, no daily close rate); leave them blank.
+  var enrollSpark = (dailyRevenueData || []).map(function (r) { return Number(r.enrollment_revenue || 0); });
+
+  function _buildWarRoomMetrics(curRow, prevRow) {
+    return [
+      { label: 'Ad Spend',        value: curRow.total_spend,         prevValue: prevRow.total_spend,         format: 'money', invertDelta: true },
+      { label: 'CPB',             value: curRow.cpb,                 prevValue: prevRow.cpb,                 format: 'money', invertDelta: true },
+      { label: 'Cost/Enrollment', value: curRow.cost_per_enrollment, prevValue: prevRow.cost_per_enrollment, format: 'money', invertDelta: true },
+      { label: 'Enrollments',     value: curRow.enrollments,         prevValue: prevRow.enrollments,         format: 'num',   sparklineData: enrollSpark },
+      { label: 'ROAS',            value: curRow.roas,                prevValue: prevRow.roas,                format: 'roas'  },
+      { label: 'Close Rate',      value: curRow.close_rate,          prevValue: prevRow.close_rate,          format: 'pct'   },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(cur, prev));
+
+  // SWR cache-refresh wiring (discharges Stage 2 deferred follow-up #3 for
+  // war-room). When api.js detects row-count delta from a background live
+  // fetch, re-fetch the in-memory-cached result and re-render the grid only.
+  // AbortController guards against listener leaks across re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'war-room' || e.detail.queryName !== 'default') return;
+    API.query('war-room', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(rows[0] || {}, rows[1] || {}));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ================================================================
   // SECTION 4: Leak Detection Panel (WAR-03)

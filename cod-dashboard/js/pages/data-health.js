@@ -193,7 +193,17 @@ App.registerPage('data-health', async (container) => {
   }
   pageRows.sort((a, b) => {
     const rank = { critical: 3, warning: 2, unknown: 1, fresh: 0 };
-    return rank[b.worstRow.status.state] - rank[a.worstRow.status.state];
+    const stateDiff = rank[b.worstRow.status.state] - rank[a.worstRow.status.state];
+    if (stateDiff !== 0) return stateDiff;
+    // Tiebreak 1: oldest data first within the same status — surfaces the page
+    // that's closest to slipping into the next-worse bucket. null/Infinity ages
+    // (unknown rows) are treated as "older than all known ages" so they bubble up.
+    const ageA = a.worstRow.age == null ? Infinity : a.worstRow.age;
+    const ageB = b.worstRow.age == null ? Infinity : b.worstRow.age;
+    if (ageA !== ageB) return ageB - ageA;
+    // Tiebreak 2: page name alphabetically — full determinism so Antigravity
+    // visual regression diffs don't flap on equal-age pages.
+    return a.pageName.localeCompare(b.pageName);
   });
 
   const tableEl = document.createElement('table');

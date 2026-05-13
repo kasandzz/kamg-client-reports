@@ -170,7 +170,12 @@ const Components = (() => {
 
     // Determine color based on trend
     const trend = data[data.length - 1] - data[0];
-    const color = trend >= 0 ? '#22c55e' : '#ef4444';
+    const isUp = trend >= 0;
+    const color = isUp ? '#22c55e' : '#ef4444';
+    // Pre-computed rgba(..., 0.15) for the gradient top stop. The old
+    // string-replace assumed an rgb() input and silently produced a solid
+    // hex for hex inputs, killing the intended fade.
+    const fillTop = isUp ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
 
     ctx.beginPath();
     ctx.strokeStyle = color;
@@ -188,7 +193,7 @@ const Components = (() => {
 
     // Gradient fill
     const gradient = ctx.createLinearGradient(0, 0, 0, h);
-    gradient.addColorStop(0, color.replace(')', ',0.15)').replace('rgb', 'rgba'));
+    gradient.addColorStop(0, fillTop);
     gradient.addColorStop(1, 'transparent');
 
     ctx.lineTo(padding + w - padding * 2, h);

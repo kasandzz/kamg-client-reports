@@ -336,6 +336,22 @@
     countBadge.textContent = '0 events';
     header.appendChild(countBadge);
 
+    // Last-updated indicator — the page polls every 60s but never told the user
+    // when the displayed snapshot was taken. A stale-looking screen with no
+    // "last updated" cue felt broken even when polling was healthy.
+    let lastRefreshAt = null;
+    const updatedBadge = document.createElement('span');
+    updatedBadge.style.cssText = `font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;border-radius:12px;background:rgba(255,255,255,0.03)`;
+    updatedBadge.textContent = 'Polling every 60s';
+    header.appendChild(updatedBadge);
+    // Tick once a second so the relative timestamp stays current between polls.
+    const updatedTicker = setInterval(() => {
+      if (!document.body.contains(container)) { clearInterval(updatedTicker); return; }
+      if (!lastRefreshAt) { updatedBadge.textContent = 'Polling every 60s'; return; }
+      const secs = Math.floor((Date.now() - lastRefreshAt) / 1000);
+      updatedBadge.textContent = secs < 5 ? 'Just refreshed' : `Updated ${secs}s ago · next poll in ${Math.max(0, 60 - secs)}s`;
+    }, 1000);
+
     // Sound toggle
     const soundLabel = document.createElement('label');
     soundLabel.style.cssText = `font-size:12px;color:${Theme.COLORS.textSecondary};display:flex;align-items:center;gap:6px;margin-left:auto;cursor:pointer`;
@@ -565,6 +581,7 @@
       tableWrap.appendChild(table);
 
       lastEventIds = newIds;
+      lastRefreshAt = Date.now();
     }
 
     // Initial load

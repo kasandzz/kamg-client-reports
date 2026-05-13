@@ -25,6 +25,16 @@ App.registerPage('attribution', async (container) => {
   container.innerHTML = '';
   const k = (kpiData && kpiData.length > 0) ? kpiData[0] : {};
 
+  // ---- Prior period delta (fetch 2x window, compute delta) ----
+  // Hyros-backed page; not on Stage 0.5 flag list. Money/count fields subtract
+  // cleanly; rate fields (ROAS) accept the 2x-window aggregate as approximate
+  // prior — same tradeoff as ads-meta.js / revenue.js / sales-team.js.
+  let priorK = {};
+  try {
+    const priorData = await API.query('attribution', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorK = priorData[0];
+  } catch (_) { /* ignore */ }
+
   // ---- Page Header ----
   const header = document.createElement('div');
   header.style.cssText = 'margin-bottom:24px';
@@ -34,17 +44,35 @@ App.registerPage('attribution', async (container) => {
   `;
   container.appendChild(header);
 
-  // ---- KPI Strip ----
+  // ---- KPI Metric Grid (Mode 2 conversion) ----
+  // 6-card KPI strip → dense f27-style metric grid. ROAS now uses 'roas'
+  // format instead of pre-formatted text. Ad Spend carries invertDelta so
+  // increases render in danger red.
+  function _buildAttributionMetrics(cur, prev) {
+    const c = cur || {};
+    const p = prev || {};
+    const _curRev    = parseFloat(c.total_revenue)  || 0;
+    const _curSales  = parseInt(c.total_sales)      || 0;
+    const _curTicket = parseFloat(c.ticket_revenue) || 0;
+    const _curSpend  = parseFloat(c.total_spend)    || 0;
+    const _priorRev    = (parseFloat(p.total_revenue)  || 0) - _curRev;
+    const _priorSales  = (parseInt(p.total_sales)      || 0) - _curSales;
+    const _priorTicket = (parseFloat(p.ticket_revenue) || 0) - _curTicket;
+    const _priorSpend  = (parseFloat(p.total_spend)    || 0) - _curSpend;
+    return [
+      { label: 'Total Revenue (Hyros)', value: _curRev,                                   prevValue: _priorRev    > 0 ? _priorRev    : undefined, format: 'money' },
+      { label: 'Total Sales',           value: _curSales,                                 prevValue: _priorSales  > 0 ? _priorSales  : undefined, format: 'num'   },
+      { label: 'Ticket Revenue',        value: _curTicket,                                prevValue: _priorTicket > 0 ? _priorTicket : undefined, format: 'money' },
+      { label: 'Ad Spend (Meta)',       value: _curSpend,                                 prevValue: _priorSpend  > 0 ? _priorSpend  : undefined, format: 'money', invertDelta: true },
+      { label: 'Total ROAS',            value: parseFloat(c.total_roas)  || 0,            prevValue: parseFloat(p.total_roas)  || undefined,      format: 'roas'  },
+      { label: 'Ticket ROAS',           value: parseFloat(c.ticket_roas) || 0,            prevValue: parseFloat(p.ticket_roas) || undefined,      format: 'roas'  },
+    ];
+  }
+
   const kpiEl = document.createElement('div');
+  kpiEl.style.marginBottom = '16px';
   container.appendChild(kpiEl);
-  Components.renderKPIStrip(kpiEl, [
-    { label: 'Total Revenue (Hyros)', value: parseFloat(k.total_revenue) || 0, format: 'money' },
-    { label: 'Total Sales',           value: parseInt(k.total_sales) || 0,     format: 'num' },
-    { label: 'Ticket Revenue',        value: parseFloat(k.ticket_revenue) || 0, format: 'money' },
-    { label: 'Ad Spend (Meta)',       value: parseFloat(k.total_spend) || 0,    format: 'money' },
-    { label: 'Total ROAS',            value: ((parseFloat(k.total_roas) || 0)).toFixed(2) + 'x', format: 'text' },
-    { label: 'Ticket ROAS',           value: ((parseFloat(k.ticket_roas) || 0)).toFixed(2) + 'x', format: 'text' },
-  ]);
+  Components.renderMetricGrid(kpiEl, _buildAttributionMetrics(k, priorK));
 
   // Helpers
   function fmtMoney(n) {

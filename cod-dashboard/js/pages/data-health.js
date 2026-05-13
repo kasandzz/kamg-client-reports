@@ -68,6 +68,29 @@ App.registerPage('data-health', async (container) => {
 
   container.removeChild(loadingNote);
 
+  // Empty-Map disclosure: api.js silently catches errors in getDataFreshness
+  // and returns an empty Map — without this banner the page would render five
+  // zero-count KPIs and an empty coverage table with no explanation. Surfacing
+  // the failure mode keeps the data-health page honest about its own data health.
+  if (!freshnessMap || freshnessMap.size === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = `padding:20px;margin-bottom:20px;border-left:3px solid ${Theme.COLORS.danger}`;
+    empty.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:${Theme.COLORS.danger};text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Freshness query returned no data</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textSecondary};line-height:1.6">
+        The <code style="font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.04);padding:1px 6px;border-radius:3px">meta/dataFreshness</code> endpoint succeeded but no tables were returned. This usually means one of:
+      </div>
+      <ul style="font-size:12px;color:${Theme.COLORS.textSecondary};line-height:1.7;margin:6px 0 0 0;padding-left:20px">
+        <li>The Cloud Function lost permission to read <code style="font-family:'JetBrains Mono',monospace">INFORMATION_SCHEMA</code> on <code style="font-family:'JetBrains Mono',monospace">cod_warehouse</code></li>
+        <li>The CF threw and api.js swallowed it (check CF logs)</li>
+        <li>The dataset was renamed or moved</li>
+      </ul>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:10px">All counts below render as 0 / empty until the upstream query recovers.</div>
+    `;
+    container.appendChild(empty);
+  }
+
   // ---- Build table rows with classification ----
   const rows = [];
   for (const [tableName, ms] of freshnessMap.entries()) {

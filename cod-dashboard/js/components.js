@@ -424,14 +424,22 @@ const Components = (() => {
   // ---- Staleness Banner ----
 
   /**
-   * Compute a relative time string from an ISO date/timestamp.
-   * @param {string|Date} isoString
+   * Compute a relative time string from an ISO date/timestamp, epoch ms,
+   * Date instance, or BQ-shaped { value: <iso> } wrapper.
+   * Returns 'unknown' when the input can't be parsed.
+   * @param {string|number|Date|{value:string}} input
    * @returns {string} e.g. "3 days ago", "2 hours ago"
    */
-  function _relativeTime(isoString) {
-    const then = new Date(isoString);
+  function _relativeTime(input) {
+    if (input == null) return 'unknown';
+    var raw = (typeof input === 'object' && !(input instanceof Date) && input.value != null)
+      ? input.value
+      : input;
+    const then = new Date(raw);
+    if (isNaN(then.getTime())) return 'unknown';
     const now = new Date();
     const diffMs = now - then;
+    if (diffMs < 0) return 'just now';
     const diffMin = Math.floor(diffMs / 60000);
     if (diffMin < 1) return 'just now';
     if (diffMin < 60) return diffMin + ' minute' + (diffMin === 1 ? '' : 's') + ' ago';

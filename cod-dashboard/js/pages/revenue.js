@@ -29,14 +29,6 @@ App.registerPage('revenue', async (container) => {
   const pip = (pipeline && pipeline.length > 0) ? pipeline[0] : {};
   container.innerHTML = '';
 
-  // ---- Derived values ----
-  const totalEnrolled = k.total_enrolled || 0;
-  const cashCollected = k.cash_collected || 0;
-  const roas = k.roas || 0;
-  const avgDealSize = k.avg_deal_size || 0;
-  const refundRate = k.refund_rate || 0;
-  const ticketToEnrollment = pip.ticket_to_enrollment_rate || 0;
-
   // ---- Prior period delta (fetch 2x window, compute delta) ----
   let priorKpi = {};
   try {
@@ -44,73 +36,40 @@ App.registerPage('revenue', async (container) => {
     if (priorData && priorData.length > 0) priorKpi = priorData[0];
   } catch (_) { /* ignore */ }
 
-  const priorCash = (priorKpi.cash_collected || 0) - cashCollected;
-  const priorEnrolled = (priorKpi.total_enrolled || 0) - totalEnrolled;
-  const priorRoas = priorCash > 0 && priorKpi.total_spend
-    ? priorCash / ((priorKpi.total_spend || 0) - (k.total_spend || 0) || 1)
-    : 0;
-
-  function calcDelta(current, prior) {
-    if (!prior || prior === 0) return null;
-    return ((current - prior) / Math.abs(prior)) * 100;
-  }
-
   // ======================================================
-  // SECTION 1: Revenue KPI Strip
+  // SECTION 1: Revenue KPI Metric Grid (Mode 2 conversion)
+  // renderMetricGrid pattern from war-room.js (canonical, Stage 2.5).
+  // Was a 6-card KPI strip; now a dense $27 Funnel-style grid with
+  // sparkline on the Enrollments card (monthly trend, oldest→newest).
+  // Source/calc tooltip context dropped per PRD §2 Mode 2 tradeoff.
   // ======================================================
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Enrollments',
-      value: totalEnrolled,
-      format: 'num',
-      delta: calcDelta(totalEnrolled, priorEnrolled),
-      prevValue: priorEnrolled > 0 ? priorEnrolled : undefined,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'COUNT(*) WHERE status=succeeded AND amount>100',
-    },
-    {
-      label: 'Cash Collected',
-      value: cashCollected,
-      format: 'money',
-      delta: calcDelta(cashCollected, priorCash),
-      prevValue: priorCash > 0 ? priorCash : undefined,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'SUM(amount) WHERE status=succeeded AND amount>100',
-    },
-    {
-      label: 'ROAS (Cash)',
-      value: roas,
-      format: 'num',
-      delta: calcDelta(roas, priorRoas),
-      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean',
-      calc: 'cash_collected / total_ad_spend',
-    },
-    {
-      label: 'Avg Deal Size',
-      value: avgDealSize,
-      format: 'money',
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'AVG(amount) WHERE amount > 100',
-    },
-    {
-      label: 'Refund Rate',
-      value: refundRate,
-      format: 'pct',
-      invertCost: true,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'refund_count / total_count * 100',
-    },
-    {
-      label: 'Ticket-to-Enrollment',
-      value: ticketToEnrollment,
-      format: 'pct',
-      source: 'BigQuery: vw_workshop_funnel_pipeline',
-      calc: 'enrolled / total_tickets * 100',
-    },
-  ]);
+  // Monthly enrollments series doubles as sparkline trend for Enrollments card.
+  const enrollSpark = (monthly || []).map(r => Number(r.enrollments || 0));
+
+  function _buildRevenueMetrics(curK, prevK, curPip) {
+    const cur = curK || {};
+    const prev = prevK || {};
+    const pipNow = curPip || {};
+    // priorK comes from the 2x-window query; subtract current to get prior-period-only values.
+    const _priorCash = (prev.cash_collected || 0) - (cur.cash_collected || 0);
+    const _priorEnrolled = (prev.total_enrolled || 0) - (cur.total_enrolled || 0);
+    const _priorSpend = (prev.total_spend || 0) - (cur.total_spend || 0);
+    const _priorRoas = _priorSpend > 0 ? _priorCash / _priorSpend : 0;
+    return [
+      { label: 'Enrollments',         value: cur.total_enrolled,            prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num',    sparklineData: enrollSpark },
+      { label: 'Cash Collected',      value: cur.cash_collected,            prevValue: _priorCash     > 0 ? _priorCash     : undefined, format: 'money'  },
+      { label: 'ROAS (Cash)',         value: cur.roas,                      prevValue: _priorRoas     > 0 ? _priorRoas     : undefined, format: 'roas'   },
+      { label: 'Avg Deal Size',       value: cur.avg_deal_size,                                                                          format: 'money'  },
+      { label: 'Refund Rate',         value: cur.refund_rate,                                                                            format: 'pctRaw', invertDelta: true },
+      { label: 'Ticket-to-Enrollment',value: pipNow.ticket_to_enrollment_rate,                                                           format: 'pctRaw' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(k, priorKpi, pip));
 
   // ======================================================
   // SECTION 2: LTV Cohort Heatmap (Plotly)

@@ -339,85 +339,22 @@ async function renderWarRoom(container) {
   container.appendChild(weekCard);
 
   // ================================================================
-  // SECTION 3: KPI Strip (WAR-07)
+  // SECTION 3: KPI Metric Grid (WAR-07) -- Mode 2 conversion from KPI strip
+  // to dense f27-style metric cards. Hero card above remains big; this grid
+  // packs the 6 supporting metrics into a denser visual rhythm matching the
+  // $27 Funnel Unit Economics pattern. PRD §2 Mode 2.
   // ================================================================
   var kpiContainer = document.createElement('div');
   kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  // Build spark arrays from dailyRevenue where applicable
-  var spendSpark = []; // no daily spend in dailyRevenue query, leave empty
-  var enrollSpark = dailyRevenueData.map(function (r) { return r.enrollment_revenue || 0; });
-
-  // Z-score arrays for anomaly badges. We can compute z for any metric where
-  // we have a daily series; without one we leave it null and the badge skips.
-  // Use the last 30 days of dailyRevenueData where available.
-  var revSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.total_revenue || 0); });
-  var enrollSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.enrollment_revenue || 0); });
-  var revZ = Components.computeZScore ? Components.computeZScore(revSeries30) : null;
-  var enrollZ = Components.computeZScore ? Components.computeZScore(enrollSeries30) : null;
-
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Ad Spend',
-      value: cur.total_spend || 0,
-      prevValue: prev.total_spend || 0,
-      format: 'money',
-      delta: _delta(cur.total_spend, prev.total_spend),
-      invertCost: true,
-      source: 'v_meta_ads_clean',
-      calc: 'SUM(spend)',
-    },
-    {
-      label: 'CPB',
-      value: cur.cpb || 0,
-      prevValue: prev.cpb || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cpb, prev.cpb),
-      source: 'v_meta_ads_clean + v_sheets_bookings',
-      calc: 'total_spend / total_calls',
-    },
-    {
-      label: 'Cost/Enrollment',
-      value: cur.cost_per_enrollment || 0,
-      prevValue: prev.cost_per_enrollment || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
-      source: 'v_meta_ads_clean + v_stripe_clean',
-      calc: 'total_spend / enrollments',
-    },
-    {
-      label: 'Enrollments',
-      value: cur.enrollments || 0,
-      prevValue: prev.enrollments || 0,
-      format: 'num',
-      delta: _delta(cur.enrollments, prev.enrollments),
-      sparkData: enrollSpark,
-      zScore: enrollZ,
-      zWindow: 30,
-      source: 'v_stripe_clean',
-      calc: 'COUNT(DISTINCT email) WHERE amount > 500',
-    },
-    {
-      label: 'ROAS',
-      value: cur.roas || 0,
-      prevValue: prev.roas || 0,
-      format: 'num',
-      delta: _delta(cur.roas, prev.roas),
-      source: 'v_stripe_clean + v_meta_ads_clean',
-      calc: '(gross_revenue - refunds) / total_spend',
-    },
-    {
-      label: 'Close Rate',
-      value: cur.close_rate || 0,
-      prevValue: prev.close_rate || 0,
-      format: 'pct',
-      delta: _delta(cur.close_rate, prev.close_rate),
-      source: 'v_sheets_bookings_enriched',
-      calc: 'closed / total_calls * 100',
-    },
+  Components.renderMetricGrid(kpiContainer, [
+    { label: 'Ad Spend',        value: cur.total_spend,         prevValue: prev.total_spend,         format: 'money', invertDelta: true },
+    { label: 'CPB',             value: cur.cpb,                 prevValue: prev.cpb,                 format: 'money', invertDelta: true },
+    { label: 'Cost/Enrollment', value: cur.cost_per_enrollment, prevValue: prev.cost_per_enrollment, format: 'money', invertDelta: true },
+    { label: 'Enrollments',     value: cur.enrollments,         prevValue: prev.enrollments,         format: 'num'   },
+    { label: 'ROAS',            value: cur.roas,                prevValue: prev.roas,                format: 'roas'  },
+    { label: 'Close Rate',      value: cur.close_rate,          prevValue: prev.close_rate,          format: 'pct'   },
   ]);
 
   // ================================================================

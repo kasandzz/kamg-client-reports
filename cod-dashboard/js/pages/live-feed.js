@@ -381,16 +381,22 @@
 
       if (totalBuyers === 0) { vipStatsBar.style.display = 'none'; return; }
 
-      let checkboxCount = 0, upsellCount = 0;
+      // Truthfulness: previously every non-checkbox VIP row was bucketed as
+      // "upsell" — including rows with missing or unknown vip_source. The two
+      // bars summed to 100% but silently conflated "real upsell" with "unknown".
+      // Now we track a third bucket and render it only if nonzero.
+      let checkboxCount = 0, upsellCount = 0, unknownCount = 0;
       vipRows.forEach(r => {
         const p = _payload(r);
         if (p.vip_source === 'checkout_checkbox') checkboxCount++;
-        else upsellCount++;
+        else if (p.vip_source === 'upsell_page') upsellCount++;
+        else unknownCount++;
       });
 
       const vipRate = ((totalVip / totalBuyers) * 100).toFixed(1);
       const cbRate = totalBuyers > 0 ? ((checkboxCount / totalBuyers) * 100).toFixed(1) : '0.0';
       const upRate = totalBuyers > 0 ? ((upsellCount / totalBuyers) * 100).toFixed(1) : '0.0';
+      const unkRate = totalBuyers > 0 ? ((unknownCount / totalBuyers) * 100).toFixed(1) : '0.0';
 
       vipStatsBar.style.display = 'flex';
       vipStatsBar.innerHTML = `
@@ -421,6 +427,15 @@
             <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#a78bfa;min-width:38px;text-align:right">${upRate}%</span>
             <span style="color:${Theme.COLORS.textMuted}">(${upsellCount})</span>
           </div>
+          ${unknownCount > 0 ? `
+          <div class="lf-vip-bar-row" title="VIP rows missing vip_source — payload has is_vip / vip / ticket_type='vip' but no explicit source tag">
+            <span style="min-width:70px;color:${Theme.COLORS.textMuted}">Unknown</span>
+            <div class="lf-vip-bar-track">
+              <div class="lf-vip-bar-fill" style="width:${unkRate}%;background:${Theme.COLORS.textMuted}"></div>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${Theme.COLORS.textMuted};min-width:38px;text-align:right">${unkRate}%</span>
+            <span style="color:${Theme.COLORS.textMuted}">(${unknownCount})</span>
+          </div>` : ''}
         </div>
       `;
     }

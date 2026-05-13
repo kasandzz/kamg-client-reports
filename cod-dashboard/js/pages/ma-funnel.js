@@ -6,6 +6,23 @@
 App.registerPage('ma-funnel', async (container) => {
   const days = Filters.getDays();
 
+  // Cache-refresh wiring (Stage 2 follow-up #3): re-navigate the page when
+  // api.js detects a row-count delta on the ma-funnel.default background SWR
+  // fetch. The page already re-runs end-to-end on Filters.onChange via
+  // App.navigate -- reusing that path keeps the KPI + engagement + sankey
+  // sections coherent (sankey/regs/apps share the same lookback window).
+  // AbortController cleanup before re-listen prevents handler accumulation.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (_) {}
+  }
+  const cacheCtrl = new AbortController();
+  container._cacheRefreshController = cacheCtrl;
+  window.addEventListener('cache-refresh', (e) => {
+    const detail = e && e.detail;
+    if (!detail || detail.page !== 'ma-funnel' || detail.queryName !== 'default') return;
+    App.navigate('ma-funnel');
+  }, { signal: cacheCtrl.signal });
+
   let summary, regRows, appRows, sankeyRow;
   try {
     [summary, regRows, appRows, sankeyRow] = await Promise.all([

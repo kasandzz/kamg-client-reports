@@ -8,7 +8,8 @@ const Shell = (() => {
   const AUTH_KEY = 'cod_auth';
   const AUTH_PASS = 'cod2026';
 
-  // Navigation structure (mirrors index.html sidebar)
+  // Navigation structure (mirrors index.html sidebar).
+  // Order within each section reflects usage frequency (most-used first).
   const NAV = [
     { section: 'COMMAND', items: [
       { page: 'war-room',   icon: '&#127919;', label: 'War Room' },
@@ -22,13 +23,15 @@ const Shell = (() => {
     ]},
     { section: 'CONVERSION', items: [
       { page: 'funnels',     icon: '&#127744;', label: '$27 Funnel' },
-      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
       { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team' },
+      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
       { page: 'experiments', icon: '&#129514;', label: 'Experiments', dimmed: true },
     ]},
     { section: 'INTELLIGENCE', items: [
-      { page: 'segments',         icon: '&#128202;', label: 'Segments' },
       { page: 'journey-explorer', icon: '&#128279;', label: 'Journey Explorer' },
+      { page: 'email-intel',      icon: '&#128231;', label: 'Email Intel' },
+      { page: 'segments',         icon: '&#128202;', label: 'Segments' },
+      { page: 'geo-intel',        icon: '&#127758;', label: 'Geo Intel' },
     ]},
     { section: 'OPERATIONS', items: [
       { page: 'live-feed',   icon: '&#9889;',   label: 'Live Feed' },

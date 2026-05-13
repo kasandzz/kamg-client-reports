@@ -297,6 +297,24 @@ App.registerPage('cold-email', async (container) => {
   _renderABTests(container);
   _renderInsights(container);
 
+  // SWR cache-refresh wiring for the KPI grid only — re-rendering the whole
+  // page on every background refresh would be expensive and disruptive (filter
+  // selections, scroll position). The grid alone gives the freshest headline.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', (e) => {
+    if (!e || !e.detail || e.detail.page !== 'cold-email' || e.detail.queryName !== 'kpis') return;
+    API.query('cold-email', 'kpis', { days }).then((rows) => {
+      if (!rows || rows.length === 0) return;
+      Object.assign(_CE_KPI, rows[0]);
+      if (typeof container._ceKpiBuilder === 'function' && container._ceKpiGrid) {
+        Components.renderMetricGrid(container._ceKpiGrid, container._ceKpiBuilder());
+      }
+    }).catch(() => { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // Wire filter re-render
   App.onFilterChange(() => App.navigate('cold-email'));
 });

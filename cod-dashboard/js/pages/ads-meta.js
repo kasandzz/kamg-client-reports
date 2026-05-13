@@ -103,6 +103,29 @@ App.registerPage('ads-meta', async (container) => {
 
   Components.renderMetricGrid(kpiContainer, _buildAdsMetaMetrics(kpi, priorKpi, accountRoas, totalSpend));
 
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for ads-meta).
+  // When api.js detects a row-count delta from background live fetch on the
+  // ads-meta.default query, re-fetch and re-render the metric grid only.
+  // priorKpi (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across the
+  // re-renders triggered by App.onFilterChange. Pattern from revenue.js:87-97.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'ads-meta' || e.detail.queryName !== 'default') return;
+    API.query('ads-meta', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      // Recompute accountRoas off the same campaigns rollup (campaigns query has
+      // its own SWR refresh event; we accept stale revenue here for the spend-side update).
+      const _rev = (campaigns || []).reduce((s, c) => s + (c.revenue || 0), 0);
+      const _spend = rows[0].total_spend || 0;
+      const _roas = _spend > 0 ? _rev / _spend : 0;
+      Components.renderMetricGrid(kpiContainer, _buildAdsMetaMetrics(rows[0] || {}, priorKpi, _roas, _spend));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // ---- 2-column chart grid ----
   const grid = document.createElement('div');
   grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px';

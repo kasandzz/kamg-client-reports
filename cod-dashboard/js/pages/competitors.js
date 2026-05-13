@@ -49,4 +49,32 @@ App.registerPage('competitors', async (container) => {
     `;
     grid.appendChild(card);
   });
+
+  // Implementation plan — three phases, each phase = upstream source + target BQ table.
+  // Surfaces concrete next steps so the page is informative even while empty.
+  const planCard = document.createElement('div');
+  planCard.className = 'card';
+  planCard.style.cssText = 'padding:20px;margin-top:16px';
+  const plan = [
+    { phase: 'Phase 1', what: 'Quarterly manual research', target: 'bridge_competitors',         status: 'Not started' },
+    { phase: 'Phase 2', what: 'Meta Ad Library scrape (weekly)', target: 'meta_competitor_ads',   status: 'Not started' },
+    { phase: 'Phase 3', what: 'Public funnel snapshots (monthly)', target: 'competitor_funnel_snapshots', status: 'Not started' },
+  ];
+  let planRows = '';
+  plan.forEach((p) => {
+    planRows += `
+      <div style="display:grid;grid-template-columns:90px 1fr 220px 110px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid ${Theme.COLORS.gridLine};font-size:12px">
+        <span style="font-weight:700;color:${Theme.COLORS.textSecondary};font-family:'JetBrains Mono',monospace;font-size:11px">${p.phase}</span>
+        <span style="color:${Theme.COLORS.textPrimary}">${p.what}</span>
+        <span style="color:${Theme.COLORS.textMuted};font-family:'JetBrains Mono',monospace;font-size:11px">→ ${p.target}</span>
+        <span style="text-align:right"><span style="padding:3px 8px;border-radius:10px;background:${Theme.COLORS.accentGhost};color:${Theme.COLORS.accentLight};font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">${p.status}</span></span>
+      </div>
+    `;
+  });
+  planCard.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">Implementation Plan</div>
+    <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:12px">To populate this page, each phase below must ship its upstream source + BQ target.</div>
+    ${planRows}
+  `;
+  container.appendChild(planCard);
 });

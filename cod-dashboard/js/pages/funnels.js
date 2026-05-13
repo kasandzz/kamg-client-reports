@@ -3333,6 +3333,12 @@ async function renderSalesDynamic() {
 }
 
 var currentDays = 30;
+// First-call gates for lazy-init. renderAll runs again on filter / compare /
+// avg-mode changes WITHOUT DOM teardown, so canvas elements persist and
+// Components.lazyChart's _lazyChartFired flag would block subsequent renders.
+// Solution: only lazy-defer on the FIRST renderAll. Later calls run direct.
+var _funnelsLazyFiredShowRate = false;
+var _funnelsLazyFiredSalesDynamic = false;
 
 async function renderAll(days) {
   currentDays = days;
@@ -3357,12 +3363,31 @@ async function renderAll(days) {
   // Slice daily data to match days
   var daily = MOCK_DATA.daily_show_rates.slice(-days);
   var prevDaily = MOCK_DATA.prev_daily_show_rates.slice(-days);
-  await renderShowRateTrend(daily, prevDaily);
+  // Lazy-defer the first show-rate trend render (section 4, below the funnel
+  // chart); subsequent renderAll calls draw immediately.
+  if (!_funnelsLazyFiredShowRate) {
+    _funnelsLazyFiredShowRate = true;
+    Components.lazyChart('showRateTrendChart', function () {
+      renderShowRateTrend(daily, prevDaily);
+    });
+  } else {
+    await renderShowRateTrend(daily, prevDaily);
+  }
 
   await renderCompletionBreakdown(cur, prev);
   await renderHeatmap();
   await renderTicketHeatmap();
-  await renderSalesDynamic();
+  // Sales Dynamic is far below the fold (after KPI grid, F27 metrics, two big
+  // chart cards, journey stages, cohort table, worklists, watch-time, heatmaps).
+  // Two Chart.js inits — defer the first render only.
+  if (!_funnelsLazyFiredSalesDynamic) {
+    _funnelsLazyFiredSalesDynamic = true;
+    Components.lazyChart('salesDynamicRevenueChart', function () {
+      renderSalesDynamic();
+    });
+  } else {
+    await renderSalesDynamic();
+  }
   await renderJourneyStages();
   // Russ Daily Operations -- runs in parallel, doesn't block downstream renders
   renderWeeklyCohort();

@@ -74,6 +74,23 @@ App.registerPage('attribution', async (container) => {
   container.appendChild(kpiEl);
   Components.renderMetricGrid(kpiEl, _buildAttributionMetrics(k, priorK));
 
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending to Stage 4
+  // mid 6). When api.js detects row-count delta from background live fetch
+  // on attribution.default, re-fetch and re-render the metric grid only.
+  // priorK (2x-window) stays closure-stable. AbortController prevents listener
+  // accumulation across App.onFilterChange re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'attribution' || e.detail.queryName !== 'default') return;
+    API.query('attribution', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiEl, _buildAttributionMetrics(rows[0] || {}, priorK));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
+
   // Helpers
   function fmtMoney(n) {
     var v = Math.round(parseFloat(n) || 0);

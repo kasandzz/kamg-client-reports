@@ -83,6 +83,9 @@ const Shell = (() => {
     }
 
     return `
+    <!-- Skip to main content (WCAG 2.4.1 Bypass Blocks) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Auth Gate -->
     <div id="auth-gate" class="auth-gate">
       <div class="auth-card card">
@@ -119,7 +122,7 @@ const Shell = (() => {
       </aside>
 
       <!-- Main Content -->
-      <main class="main-content">
+      <main class="main-content" id="main-content" tabindex="-1">
         <!-- Top Bar -->
         <header class="top-bar">
           <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>

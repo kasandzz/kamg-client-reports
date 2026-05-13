@@ -26,11 +26,16 @@ App.registerPage('ads-google', async (container) => {
   } catch (_) {}
 
   // ---- Parallel data fetch ----
-  let kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages;
+  // The doubled-window prev fetch follows the ads-meta.js f7eca46 pattern: the
+  // page's `default` query returns headline KPIs for the selected window; we
+  // also request the 2x-window flavor so we can derive prior-period deltas
+  // (curRow - prevDoubleRow + curRow ≈ prev window) without a server-side change.
+  let kpis, kpisPrev, campaigns, keywords, youtube, crossPlatform, daily, landingPages;
 
   try {
-    [kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages] = await Promise.all([
+    [kpis, kpisPrev, campaigns, keywords, youtube, crossPlatform, daily, landingPages] = await Promise.all([
       API.query('google-ads', 'default',       { days }),
+      API.query('google-ads', 'default',       { days: days * 2 }).catch(() => null),
       API.query('google-ads', 'campaigns',     { days }),
       API.query('google-ads', 'keywords',      { days }),
       API.query('google-ads', 'youtube',       { days }).catch(() => null),
@@ -44,21 +49,37 @@ App.registerPage('ads-google', async (container) => {
   }
 
   const kpi = (kpis && kpis.length > 0) ? kpis[0] : {};
+  const kpiDouble = (kpisPrev && kpisPrev.length > 0) ? kpisPrev[0] : {};
 
-  // ---- KPI Strip ----
+  // ---- KPI metric grid (Mode 2 conversion 2026-05-13) ----
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Spend',   value: kpi.total_spend || 0,             format: 'money' },
-    { label: 'Impressions',   value: kpi.total_impressions || 0,       format: 'num' },
-    { label: 'Clicks',        value: kpi.total_clicks || 0,            format: 'num' },
-    { label: 'CTR',           value: kpi.avg_ctr || 0,                 format: 'pct' },
-    { label: 'CPC',           value: kpi.avg_cpc || 0,                 format: 'money' },
-    { label: 'Conversions',   value: kpi.total_conversions || 0,       format: 'num' },
-    { label: 'CPA',           value: kpi.avg_cpa || 0,                 format: 'money', invertCost: true },
-    { label: 'ROAS',          value: Components.guardROAS(kpi.account_roas || 0), format: 'num' },
-  ]);
+  function _prev(field) {
+    const cur = Number(kpi[field] || 0);
+    const dbl = Number(kpiDouble[field] || 0);
+    if (!dbl || dbl <= cur) return null;
+    return dbl - cur;
+  }
+
+  // Daily spend series doubles as a sparkline trend hint for Total Spend.
+  const spendSpark = (daily || []).map(d => Number(d.spend || 0));
+
+  function _buildGoogleAdsMetrics() {
+    return [
+      { label: 'Total Spend', value: kpi.total_spend       || 0, prevValue: _prev('total_spend'),       format: 'money', invertDelta: true, sparklineData: spendSpark },
+      { label: 'Impressions', value: kpi.total_impressions || 0, prevValue: _prev('total_impressions'), format: 'num'   },
+      { label: 'Clicks',      value: kpi.total_clicks      || 0, prevValue: _prev('total_clicks'),      format: 'num'   },
+      { label: 'CTR',         value: kpi.avg_ctr           || 0, prevValue: _prev('avg_ctr'),           format: 'pct'   },
+      { label: 'CPC',         value: kpi.avg_cpc           || 0, prevValue: _prev('avg_cpc'),           format: 'money', invertDelta: true },
+      { label: 'Conversions', value: kpi.total_conversions || 0, prevValue: _prev('total_conversions'), format: 'num'   },
+      { label: 'CPA',         value: kpi.avg_cpa           || 0, prevValue: _prev('avg_cpa'),           format: 'money', invertDelta: true },
+      { label: 'ROAS',        valueHtml: Components.guardROAS(kpi.account_roas || 0) === 'N/A' ? '<span style="color:var(--text-muted,#64748b)">N/A</span>' : Number(Components.guardROAS(kpi.account_roas)).toFixed(2) + 'x' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildGoogleAdsMetrics());
 
   // ---- Campaign Performance Table ----
   try { _renderGoogleCampaignTable(container, campaigns || []); } catch (e) { console.warn('Campaign table error:', e); }

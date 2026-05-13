@@ -2740,17 +2740,19 @@ function renderFunnelChart(days, currentRows, previousRows) {
     });
   });
 
-  // Legend
-  var curStart = cur[0].dt.substring(5);
-  var curEnd = cur[cur.length - 1].dt.substring(5);
-  var prevStart = prev[0].dt.substring(5);
-  var prevEnd = prev[prev.length - 1].dt.substring(5);
+  // Legend (guard against empty arrays — prev may be [] when compare is off or BQ returns no prev rows)
+  var curStart = cur.length ? cur[0].dt.substring(5) : '';
+  var curEnd = cur.length ? cur[cur.length - 1].dt.substring(5) : '';
+  var prevStart = prev.length ? prev[0].dt.substring(5) : '';
+  var prevEnd = prev.length ? prev[prev.length - 1].dt.substring(5) : '';
   document.getElementById('funnelLegend').innerHTML =
     '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;background:currentColor;display:inline-block"></span><strong style="color:#f1f5f9">This period</strong> <span style="opacity:0.6">' + curStart + ' to ' + curEnd + '</span></span>' +
-    '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span><strong style="color:#f1f5f9">Previous period</strong> <span style="opacity:0.6">' + prevStart + ' to ' + prevEnd + '</span></span>';
+    (prev.length ? '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span><strong style="color:#f1f5f9">Previous period</strong> <span style="opacity:0.6">' + prevStart + ' to ' + prevEnd + '</span></span>' : '');
 
   // Draw chart
-  drawFunnelLine(cur, prev, FUNNEL_METRICS[activeFunnelMetric].key, FUNNEL_METRICS[activeFunnelMetric].color);
+  if (cur.length > 0) {
+    drawFunnelLine(cur, prev, FUNNEL_METRICS[activeFunnelMetric].key, FUNNEL_METRICS[activeFunnelMetric].color);
+  }
 
   // Store rows on canvas for KPI card click reuse
   var canvas = document.getElementById('funnelChart');

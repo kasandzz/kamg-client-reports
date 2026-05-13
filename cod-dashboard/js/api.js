@@ -5,9 +5,49 @@
 const API = (() => {
   const BASE_URL = 'https://us-central1-green-segment-491604-j8.cloudfunctions.net/codDashboard';
   const CACHE_TTL = 5 * 60 * 1000; // 5 min
+  const FILE_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24h hard ceiling on baked JSON
   const _cache = new Map();
   const _inflight = new Map();
   const _meta = new Map(); // page:query -> { fetchedAt, cachedAt, fromCache }
+  const _fileCacheMiss = new Set(); // remember 404s so we don't re-attempt within the session
+
+  // Relative base path for static asset fetches. Mirrors shell.js L498 logic.
+  const _basePath = () => (window.location.pathname.includes('/pages/') ? '../' : './');
+
+  /**
+   * Deterministic cache filename for a (page, queryName, params) tuple.
+   * MUST stay in sync with scripts/build-cache.js cacheKeyFor().
+   * Filter-state params (days/closer/channel/vip/compare) are merged in by the
+   * caller before this is invoked.
+   */
+  function _cacheKeyFor(page, queryName, allParams) {
+    const parts = [page, queryName];
+    const keys = Object.keys(allParams || {})
+      .filter(k => k !== 'page' && k !== 'query' && allParams[k] !== null && allParams[k] !== undefined && allParams[k] !== '')
+      .sort();
+    for (const k of keys) parts.push(`${k}_${allParams[k]}`);
+    return parts.join('__').replace(/[^a-zA-Z0-9_-]/g, '-');
+  }
+
+  /**
+   * Stale-while-revalidate file-cache read. Returns rows array on hit,
+   * null on miss / parse error / >24h stale.
+   */
+  async function _readFileCache(cacheKey) {
+    if (_fileCacheMiss.has(cacheKey)) return null;
+    try {
+      const res = await fetch(`${_basePath()}data/cache/${cacheKey}.json`, { cache: 'no-store' });
+      if (!res.ok) { _fileCacheMiss.add(cacheKey); return null; }
+      const payload = await res.json();
+      if (!payload || !Array.isArray(payload.rows)) return null;
+      const fetchedAt = payload.fetched_at ? new Date(payload.fetched_at).getTime() : 0;
+      if (!fetchedAt || Date.now() - fetchedAt > FILE_CACHE_MAX_AGE_MS) return null;
+      return { rows: payload.rows, fetchedAt };
+    } catch {
+      _fileCacheMiss.add(cacheKey);
+      return null;
+    }
+  }
 
   // Maps dashboard page name -> BQ tables it depends on (used for data freshness)
   const PAGE_TABLES = {
@@ -63,8 +103,9 @@ const API = (() => {
 
     const url = `${BASE_URL}?${qs.toString()}`;
     const cacheKey = url;
+    const fileCacheKey = _cacheKeyFor(page, queryName, allParams);
 
-    // Return cached if fresh
+    // Return in-memory cache if fresh
     const cached = _cache.get(cacheKey);
     if (cached && Date.now() - cached.ts < CACHE_TTL) {
       return cached.data;
@@ -75,10 +116,35 @@ const API = (() => {
       return _inflight.get(cacheKey);
     }
 
-    const promise = _fetchAndCache(url, cacheKey, page, queryName);
-    _inflight.set(cacheKey, promise);
-    promise.finally(() => _inflight.delete(cacheKey));
-    return promise;
+    // Cache-first stale-while-revalidate path:
+    // 1. Try baked file cache (instant). If hit, return rows immediately AND
+    //    fire a background live refetch so subsequent renders update on delta.
+    // 2. On miss, fall through to the existing live-fetch + memcache path.
+    const filePromise = _readFileCache(fileCacheKey);
+    const livePromise = _fetchAndCache(url, cacheKey, page, queryName);
+    _inflight.set(cacheKey, livePromise);
+    livePromise.finally(() => _inflight.delete(cacheKey));
+
+    const fileHit = await filePromise;
+    if (fileHit) {
+      _meta.set(`${page}:${queryName}`, {
+        fetchedAt: fileHit.fetchedAt,
+        cachedAt: fileHit.fetchedAt,
+        fromCache: true,
+      });
+      // Background refetch: when live arrives with a delta, dispatch event for pages to listen
+      livePromise.then(liveRows => {
+        if (Array.isArray(liveRows) && liveRows.length !== fileHit.rows.length) {
+          try {
+            window.dispatchEvent(new CustomEvent('cache-refresh', {
+              detail: { page, queryName, cacheKey: fileCacheKey, prevRows: fileHit.rows.length, nextRows: liveRows.length },
+            }));
+          } catch {}
+        }
+      }).catch(() => {});
+      return fileHit.rows;
+    }
+    return livePromise;
   }
 
   async function _fetchAndCache(url, cacheKey, page, queryName) {

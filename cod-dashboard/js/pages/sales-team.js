@@ -236,30 +236,32 @@ App.registerPage('sales-team', async (container) => {
   revSection.appendChild(revCard);
 
   const sortedByRev = [...reps].sort((a, b) => (b.total_cash || 0) - (a.total_cash || 0));
-  Theme.createChart('sales-rev-by-closer', {
-    type: 'bar',
-    data: {
-      labels: sortedByRev.map(r => r.closer || 'Unknown'),
-      datasets: [{
-        label: 'Revenue',
-        data: sortedByRev.map(r => r.total_cash || 0),
-        backgroundColor: '#6c5ce7',
-        borderRadius: 4,
-      }],
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => Theme.money(ctx.parsed.x) } },
+  Components.lazyChart('sales-rev-by-closer', () => {
+    Theme.createChart('sales-rev-by-closer', {
+      type: 'bar',
+      data: {
+        labels: sortedByRev.map(r => r.closer || 'Unknown'),
+        datasets: [{
+          label: 'Revenue',
+          data: sortedByRev.map(r => r.total_cash || 0),
+          backgroundColor: '#6c5ce7',
+          borderRadius: 4,
+        }],
       },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: Theme.COLORS.textPrimary, font: { size: 11 } }, grid: { display: false } },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => Theme.money(ctx.parsed.x) } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: Theme.COLORS.textPrimary, font: { size: 11 } }, grid: { display: false } },
+        },
       },
-    },
+    });
   });
 
   // ---- Section 5: Monthly Close Rate Trends ----
@@ -296,25 +298,27 @@ App.registerPage('sales-team', async (container) => {
     spanGaps: true,
   }));
 
-  Theme.createChart('sales-monthly-trends', {
-    type: 'line',
-    data: { labels: months, datasets: trendDatasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${(ctx.parsed.y || 0).toFixed(1)}%` } },
-      },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => v + '%' },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          title: { display: true, text: 'Close Rate %', color: Theme.COLORS.textMuted, font: { size: 10 } },
+  Components.lazyChart('sales-monthly-trends', () => {
+    Theme.createChart('sales-monthly-trends', {
+      type: 'line',
+      data: { labels: months, datasets: trendDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${(ctx.parsed.y || 0).toFixed(1)}%` } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => v + '%' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'Close Rate %', color: Theme.COLORS.textMuted, font: { size: 10 } },
+          },
         },
       },
-    },
+    });
   });
   // ---- Section 6: No-Show Cost + Objection Donut (split row) ----
   const splitRow = document.createElement('div');
@@ -379,33 +383,35 @@ App.registerPage('sales-team', async (container) => {
     objCard.appendChild(objCanvas);
 
     const objColors = ['#ef4444', '#f59e0b', '#a855f7', '#06b6d4', '#22c55e', '#ec4899', '#6b7280'];
-    Theme.createChart('sales-objection-donut', {
-      type: 'doughnut',
-      data: {
-        labels: objs.map(r => r.objection_type),
-        datasets: [{
-          data: objs.map(r => parseInt(r.cnt) || 0),
-          backgroundColor: objs.map((_, i) => objColors[i % objColors.length]),
-          borderColor: '#0f1117',
-          borderWidth: 2,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '62%',
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: { color: Theme.COLORS.textSecondary, font: { size: 11 }, boxWidth: 10 },
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed / objs.reduce((s, r) => s + (parseInt(r.cnt) || 0), 0)) * 100).toFixed(1)}%)`,
+    Components.lazyChart('sales-objection-donut', () => {
+      Theme.createChart('sales-objection-donut', {
+        type: 'doughnut',
+        data: {
+          labels: objs.map(r => r.objection_type),
+          datasets: [{
+            data: objs.map(r => parseInt(r.cnt) || 0),
+            backgroundColor: objs.map((_, i) => objColors[i % objColors.length]),
+            borderColor: '#0f1117',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: Theme.COLORS.textSecondary, font: { size: 11 }, boxWidth: 10 },
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed / objs.reduce((s, r) => s + (parseInt(r.cnt) || 0), 0)) * 100).toFixed(1)}%)`,
+              },
             },
           },
         },
-      },
+      });
     });
   }
 
@@ -517,25 +523,27 @@ App.registerPage('sales-team', async (container) => {
     spanGaps: true,
   }));
 
-  Theme.createChart('sales-monthly-dpl', {
-    type: 'line',
-    data: { labels: months, datasets: dplDatasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y || 0)}` } },
-      },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          title: { display: true, text: 'DPL ($/call booked)', color: Theme.COLORS.textMuted, font: { size: 10 } },
+  Components.lazyChart('sales-monthly-dpl', () => {
+    Theme.createChart('sales-monthly-dpl', {
+      type: 'line',
+      data: { labels: months, datasets: dplDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y || 0)}` } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'DPL ($/call booked)', color: Theme.COLORS.textMuted, font: { size: 10 } },
+          },
         },
       },
-    },
+    });
   });
 });
 

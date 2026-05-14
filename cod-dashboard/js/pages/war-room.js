@@ -532,10 +532,15 @@ function _escText(str) {
 var _warStackChartInstance = null;
 var _warStackActiveMetric = 3; // 0=Tickets, 1=VIP, 2=High-Ticket, 3=Total
 
+// High-Ticket = ANY Stripe purchase >$1000 (initial COD program payment, includes
+// split-pay; full price ~$13k but split-pay means any payment over $1k qualifies).
+// Renewals (prior >$1k payment from same email) will split out once
+// v_stripe_classified view ships (end-of-project data phase). VIP includes single
+// $54 AND the second $27 within 7 days from the same email (paired upgrade).
 var _WAR_STACK_METRICS = [
-  { key: 'ticket_revenue',      label: 'Tickets',     color: '#06b6d4', tip: 'Daily $27 workshop ticket revenue from Stripe charges.' },
-  { key: 'vip_revenue',         label: 'VIP',         color: '#a855f7', tip: 'Daily VIP upgrade revenue ($27 -> $54) from Stripe charges.' },
-  { key: 'high_ticket_revenue', label: 'High-Ticket', color: '#22c55e', tip: 'Daily core program enrollment revenue ($13.5k+ contracts).' },
+  { key: 'ticket_revenue',      label: 'Tickets',     color: '#06b6d4', tip: 'Initial $27 workshop ticket purchase, first per customer in 7-day window.' },
+  { key: 'vip_revenue',         label: 'VIP',         color: '#a855f7', tip: 'VIP upgrade revenue: single $54 charge, or second $27 from same customer within 7 days.' },
+  { key: 'high_ticket_revenue', label: 'High-Ticket', color: '#22c55e', tip: 'Initial COD program payment ($1,000+ per transaction, includes split-pay). Excludes renewals once classification view ships.' },
   { key: '_total',              label: 'Total',       color: '#f59e0b', tip: 'Sum of Tickets + VIP + High-Ticket per day.' }
 ];
 

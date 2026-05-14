@@ -74,18 +74,11 @@ const Filters = (() => {
     compareLabel.appendChild(document.createTextNode('Compare'));
     container.appendChild(compareLabel);
 
-    // Show Calculations toggle
-    container.appendChild(_el('div', 'filter-divider'));
-    const calcLabel = _el('label', 'filter-checkbox');
-    const calcCb = document.createElement('input');
-    calcCb.type = 'checkbox';
-    calcCb.checked = false;
-    calcCb.addEventListener('change', () => {
-      document.body.classList.toggle('show-calcs', calcCb.checked);
-    });
-    calcLabel.appendChild(calcCb);
-    calcLabel.appendChild(document.createTextNode('Show calculations'));
-    container.appendChild(calcLabel);
+    // Show Calculations toggle REMOVED 2026-05-13: replaced by per-page
+    // Data Lineage & Sources section (see lineage.js + brief Tail B plan).
+    // The data-calc attribute system and Components.initCalcTooltip remain in
+    // place as dead infrastructure -- can be re-enabled by setting
+    // body.classList.add('show-calcs') if needed.
 
     // Custom Date Picker
     const dpWrap = _el('div', 'dp-wrap');

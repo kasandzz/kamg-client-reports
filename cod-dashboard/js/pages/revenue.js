@@ -279,7 +279,7 @@ App.registerPage('revenue', async (container) => {
   const processorCard = document.createElement('div');
   processorCard.className = 'card';
   processorCard.style.cssText = 'padding:20px';
-  processorCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Revenue by Processor</div>`;
+  processorCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Revenue by Payment Method</div>`;
 
   const doughnutId = 'revenue-processor-doughnut';
   const doughnutCanvas = document.createElement('canvas');

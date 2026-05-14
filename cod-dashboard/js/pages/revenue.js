@@ -73,11 +73,15 @@ App.registerPage('revenue', async (container) => {
     // priorK comes from the 2x-window query; subtract current to get prior-period-only values.
     const _priorCash = (prev.cash_collected || 0) - (cur.cash_collected || 0);
     const _priorEnrolled = (prev.total_enrolled || 0) - (cur.total_enrolled || 0);
+    const _priorRefunds = (prev.refunds || 0) - (cur.refunds || 0);
     const _priorSpend = (prev.total_spend || 0) - (cur.total_spend || 0);
     const _priorRoas = _priorSpend > 0 ? _priorCash / _priorSpend : 0;
+    // Phase 01-04c: Refunds card now lands real Stripe data (refund_amount + refund_date).
+    // Was effectively zero before because the old SQL used amount<0 which Stripe doesn't emit.
     return [
       { label: 'Enrollments',         value: cur.total_enrolled,            prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num',    sparklineData: enrollSpark },
       { label: 'Cash Collected',      value: cur.cash_collected,            prevValue: _priorCash     > 0 ? _priorCash     : undefined, format: 'money'  },
+      { label: 'Refunds (Stripe)',    value: cur.refunds,                   prevValue: _priorRefunds  > 0 ? _priorRefunds  : undefined, format: 'money', invertDelta: true },
       { label: 'ROAS (Cash)',         value: cur.roas,                      prevValue: _priorRoas     > 0 ? _priorRoas     : undefined, format: 'roas'   },
       { label: 'Avg Deal Size',       value: cur.avg_deal_size,                                                                          format: 'money'  },
       { label: 'Refund Rate',         value: cur.refund_rate,                                                                            format: 'pctRaw', invertDelta: true },

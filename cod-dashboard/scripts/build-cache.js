@@ -63,6 +63,9 @@ const QUERIES = [
   { page: 'enrollment', query: 'jodiConcentration',    params: { days: 14 } },
   { page: 'enrollment', query: 'churnAbsorption',      params: {} },
   { page: 'enrollment', query: 'recentEnrollments',    params: { limit: 20 } },
+  // Phase 02-akari step 5 (2026-05-14): COD/LP/REDO product-type split.
+  { page: 'enrollment', query: 'productTypeSplit',         params: { days: 14 } },
+  { page: 'enrollment', query: 'productTypeSplitMonthly',  params: { days: 365 } },
 
   // ads-meta.js
   { page: 'ads-meta', query: 'staleness',              params: {} },

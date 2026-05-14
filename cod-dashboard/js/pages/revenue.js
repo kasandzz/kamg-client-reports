@@ -14,10 +14,10 @@ App.registerPage('revenue', async (container) => {
   // ---- Fetch all data in parallel ----
   // All eight queries below depend on enrollment-namespace BQ sources flagged
   // by Stage 0.5 data validity audit; see top-of-file WARN_DATA_UNRESOLVED.
-  let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent;
+  let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent, ptSplit, ptSplitMonthly;
 
   try {
-    [kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent] = await Promise.all([
+    [kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent, ptSplit, ptSplitMonthly] = await Promise.all([
       API.query('enrollment', 'default', { days }),
       API.query('enrollment', 'monthly', { days: 365 }),
       API.query('enrollment', 'pipeline', { days }),
@@ -26,6 +26,9 @@ App.registerPage('revenue', async (container) => {
       API.query('enrollment', 'jodiConcentration', { days }),
       API.query('enrollment', 'churnAbsorption'),
       API.query('enrollment', 'recentEnrollments', { limit: 20 }),
+      // Phase 02-akari step 5 (2026-05-14): COD/LP/REDO split off Akari SoT.
+      API.query('enrollment', 'productTypeSplit', { days }),
+      API.query('enrollment', 'productTypeSplitMonthly', { days: 365 }),
     ]);
   } catch (err) {
     container.innerHTML = `<div class="card" style="padding:24px"><p class="text-muted">Failed to load Revenue & LTV: ${err.message}</p></div>`;
@@ -108,6 +111,98 @@ App.registerPage('revenue', async (container) => {
       Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(rows[0] || {}, priorKpi, pip));
     }).catch(function () { /* swallow; live fetch already failed once */ });
   }, { signal: container._cacheRefreshController.signal });
+
+  // ======================================================
+  // SECTION 1.5: Product Type Split (COD / LP / REDO / MA / etc.)
+  // Source: enrollment.productTypeSplit + productTypeSplitMonthly off
+  // v_enrollments_unified (Akari sheet primary). Added 2026-05-14 as
+  // part of Phase 02-akari step 5 -- gives ops a per-product revenue
+  // view alongside the existing total KPI strip.
+  // ======================================================
+  const ptCard = document.createElement('div');
+  ptCard.className = 'card';
+  ptCard.style.cssText = 'padding:20px;margin-top:16px';
+  container.appendChild(ptCard);
+
+  ptCard.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Revenue by Product Type</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:4px;max-width:560px">Cash collected per product over the selected window. Source: Akari enrollment sheet (v_enrollments_unified). REDO = re-enrollment renewals tracked separately from new COD deals.</div>
+      </div>
+    </div>
+    <div id="revenue-pt-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px"></div>
+    <canvas id="revenue-pt-monthly" style="height:280px"></canvas>
+  `;
+
+  const ptCards = ptCard.querySelector('#revenue-pt-cards');
+  const ptList = (ptSplit || []).slice().sort((a, b) => (b.cash_collected || 0) - (a.cash_collected || 0));
+  const ptTotal = ptList.reduce((s, r) => s + (Number(r.cash_collected) || 0), 0);
+  // Stable color map per product type so the cards and the stacked bar share hues.
+  const PT_COLORS = {
+    COD:   '#5B8DEF',
+    LP:    '#8B5CF6',
+    REDO:  '#F59E0B',
+    MA:    '#10B981',
+    UP:    '#EC4899',
+    DFY:   '#06B6D4',
+    OTHER: '#64748B'
+  };
+  if (ptList.length === 0) {
+    ptCards.innerHTML = `<div style="font-size:12px;color:${Theme.COLORS.textMuted}">No enrollments in the selected window.</div>`;
+  } else {
+    ptList.forEach(row => {
+      const pt = String(row.product_type || 'OTHER');
+      const color = PT_COLORS[pt] || PT_COLORS.OTHER;
+      const cash = Number(row.cash_collected) || 0;
+      const enrolls = Number(row.enrollments) || 0;
+      const pct = ptTotal > 0 ? (cash / ptTotal) * 100 : 0;
+      const card = document.createElement('div');
+      card.style.cssText = `border:1px solid ${Theme.COLORS.borderSubtle};border-left:3px solid ${color};border-radius:6px;padding:12px 14px;background:${Theme.COLORS.surfaceMuted || 'rgba(255,255,255,0.02)'}`;
+      card.innerHTML = `
+        <div style="font-size:10px;font-weight:600;color:${color};letter-spacing:.05em;text-transform:uppercase">${pt}</div>
+        <div style="font-size:18px;font-weight:700;color:${Theme.COLORS.textPrimary};margin-top:4px">$${cash.toLocaleString()}</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">${enrolls} enroll${enrolls === 1 ? '' : 's'} &middot; ${pct.toFixed(1)}%</div>
+      `;
+      ptCards.appendChild(card);
+    });
+  }
+
+  // Monthly stacked bar
+  const ptMonthlyCanvas = ptCard.querySelector('#revenue-pt-monthly');
+  const monthlyRows = (ptSplitMonthly || []).filter(r => r && r.month);
+  if (monthlyRows.length > 0 && typeof Chart !== 'undefined') {
+    const months = [...new Set(monthlyRows.map(r => r.month))].sort();
+    const types = [...new Set(monthlyRows.map(r => r.product_type || 'OTHER'))]
+      .sort((a, b) => (PT_COLORS[a] ? 0 : 1) - (PT_COLORS[b] ? 0 : 1));
+    const byKey = new Map();
+    monthlyRows.forEach(r => byKey.set(`${r.month}|${r.product_type}`, Number(r.cash_collected) || 0));
+    const datasets = types.map(pt => ({
+      label: pt,
+      data: months.map(m => byKey.get(`${m}|${pt}`) || 0),
+      backgroundColor: PT_COLORS[pt] || PT_COLORS.OTHER,
+      borderWidth: 0,
+      stack: 'pt'
+    }));
+    Components.lazyChart(ptMonthlyCanvas, () => new Chart(ptMonthlyCanvas.getContext('2d'), {
+      type: 'bar',
+      data: { labels: months, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textMuted, font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${Number(ctx.raw).toLocaleString()}` } }
+        },
+        scales: {
+          x: { stacked: true, ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { display: false } },
+          y: { stacked: true, ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => '$' + (v / 1000).toFixed(0) + 'k' }, grid: { color: Theme.COLORS.gridLine || 'rgba(255,255,255,0.04)' } }
+        }
+      }
+    }));
+  } else {
+    ptMonthlyCanvas.style.display = 'none';
+  }
 
   // ======================================================
   // SECTION 2: LTV Cohort Heatmap (Plotly)

@@ -98,6 +98,59 @@
   display: block;
 }
 
+/* Universal Show-Calculations hover tooltip (Phase 0.4).
+   Any element with data-calc="formula | source | period | refresh" gets
+   a tooltip on hover/focus when body.show-calcs is set. */
+body.show-calcs [data-calc] {
+  cursor: help;
+  text-decoration: underline dotted rgba(148, 163, 184, 0.45);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+body.show-calcs [data-calc]:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.calc-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 9999;
+  max-width: 360px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  color: var(--text-secondary, #cbd5e1);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 11px;
+  line-height: 1.55;
+  pointer-events: none;
+  text-align: left;
+}
+.calc-tooltip__row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.calc-tooltip__row + .calc-tooltip__row {
+  margin-top: 4px;
+}
+.calc-tooltip__label {
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 9px;
+  font-weight: 600;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+.calc-tooltip__value {
+  color: var(--text-primary, #f1f5f9);
+  word-break: break-word;
+}
+
 .kpi-value-row {
   display: flex;
   align-items: baseline;

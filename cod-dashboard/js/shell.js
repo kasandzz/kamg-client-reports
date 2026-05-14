@@ -357,6 +357,7 @@ const Shell = (() => {
     _initSidebar();
     _initSearch();
     Filters.init();
+    if (Components.initCalcTooltip) Components.initCalcTooltip();
     Notifications.startChecking();
 
     // Mark this page as viewed

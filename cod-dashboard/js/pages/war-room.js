@@ -1,14 +1,20 @@
 /* ============================================
-   War Room v2 -- CEO 5-second pulse page
-   6 stacked sections: staleness, hero revenue,
-   KPI strip, leak detection, funnel summary,
-   sales pulse.
-   Mobile-first vertical stack (D-02).
+   War Room v3 -- CEO 5-second scan
+   Stacked sections:
+     1. Staleness banner (only when stale)
+     2. Shopify-style snapshot strip (6 hero KPIs)
+     3. Customer-journey cards (Top -> Mid -> Bottom)
+     4. Mini closer board (top 5 this week)
+     5. Daily revenue stack (Tickets/VIP/HT/Total)
+     6. This week's daily table
+   Mobile-first vertical stack.
+   Leak / anomaly strip removed 2026-05-13 per Kas.
    ============================================ */
 
 App.registerPage('war-room', async (container) => {
   await renderWarRoom(container);
-  App.onFilterChange(() => renderWarRoom(container));
+  // Filter-change re-renders are handled centrally in shell.js (Filters.onChange);
+  // App.onFilterChange does not exist -- removing dead call that was throwing.
 });
 
 async function renderWarRoom(container) {
@@ -46,7 +52,9 @@ async function renderWarRoom(container) {
   }
 
   // ---- Fetch all data in parallel ----
-  let defaultData, dailyRevenueData, stalenessData, leakData, closersData,
+  // Closer data lives in sales-team CF registry (war-room:closers does not exist).
+  // leakDetection fetch removed in v3 -- anomaly strip deleted per Kas 2026-05-13.
+  let defaultData, dailyRevenueData, stalenessData, closersData,
       dailyRevStackData, weeklyDailyData;
 
   try {
@@ -54,19 +62,17 @@ async function renderWarRoom(container) {
       API.query('war-room', 'default', { days }),
       API.query('war-room', 'dailyRevenue', { days }),
       API.query('war-room', 'staleness', {}),
-      API.query('war-room', 'leakDetection', { days }),
-      API.query('war-room', 'closers', { days }),
-      API.query('war-room', 'dailyRevenueStack', { days: 14 }),
+      API.query('sales-team', 'closers', { days }),
+      API.query('war-room', 'dailyRevenueStack', { days }),
       API.query('war-room', 'weeklyDailyBreakdown', {}),
     ]);
 
     defaultData = results[0].status === 'fulfilled' ? results[0].value : [];
     dailyRevenueData = results[1].status === 'fulfilled' ? results[1].value : [];
     stalenessData = results[2].status === 'fulfilled' ? results[2].value : [];
-    leakData = results[3].status === 'fulfilled' ? results[3].value : [];
-    closersData = results[4].status === 'fulfilled' ? results[4].value : [];
-    dailyRevStackData = results[5].status === 'fulfilled' ? results[5].value : [];
-    weeklyDailyData = results[6].status === 'fulfilled' ? results[6].value : [];
+    closersData = results[3].status === 'fulfilled' ? results[3].value : [];
+    dailyRevStackData = results[4].status === 'fulfilled' ? results[4].value : [];
+    weeklyDailyData = results[5].status === 'fulfilled' ? results[5].value : [];
   } catch (err) {
     container.innerHTML = '<div class="card" style="padding:24px"><p class="text-muted">Failed to load War Room: ' + err.message + '</p></div>';
     return;
@@ -107,86 +113,257 @@ async function renderWarRoom(container) {
   }
 
   // ================================================================
-  // SECTION 2: Hero Revenue Card (WAR-01)
+  // SECTION 2 (v3): Shopify-style Snapshot Strip
+  // 6 hero KPIs Russ scans in 5 seconds:
+  // Revenue / Ad Spend / Bookings / Blended CPBC / Show% / Close%
+  // Each card: traffic-light dot, value, delta, optional sparkline,
+  // optional z-score badge, data-calc tooltip (Show Calculations).
   // ================================================================
-  var heroCard = document.createElement('div');
-  heroCard.className = 'card hero-revenue-card';
-  heroCard.style.cssText = 'padding:32px;margin-bottom:16px';
+  var snapshotContainer = document.createElement('div');
+  snapshotContainer.style.marginBottom = '20px';
+  snapshotContainer.classList.add('kpi-grid--snapshot');
+  container.appendChild(snapshotContainer);
 
-  var netRevenue = cur.net_revenue || 0;
-  var prevNetRevenue = prev.net_revenue || 0;
-  var revDelta = _delta(netRevenue, prevNetRevenue);
+  var heroSpark = (dailyRevenueData || []).map(function (r) { return Number(r.total_revenue || 0); });
+  var heroZ = Components.computeZScore ? Components.computeZScore(heroSpark.slice(-30)) : null;
 
-  // Build sparkline data from dailyRevenue
-  var sparkData = (dailyRevenueData || []).map(function (r) { return r.total_revenue || 0; });
+  // Show rate isn't in default query -- derive from total_calls + no_shows.
+  var curShowed = Math.max(0, (cur.total_calls || 0) - (cur.no_shows || 0));
+  var prevShowed = Math.max(0, (prev.total_calls || 0) - (prev.no_shows || 0));
+  var curShowRate = (cur.total_calls || 0) > 0 ? (curShowed / cur.total_calls * 100) : 0;
+  var prevShowRate = (prev.total_calls || 0) > 0 ? (prevShowed / prev.total_calls * 100) : 0;
 
-  // Compute today / 7d / 30d sub-metrics from dailyRevenue
-  var drLen = dailyRevenueData ? dailyRevenueData.length : 0;
-  var todayRev = drLen > 0 ? (dailyRevenueData[drLen - 1].total_revenue || 0) : 0;
-  var last7 = drLen >= 7 ? dailyRevenueData.slice(-7) : dailyRevenueData || [];
-  var last30 = drLen >= 30 ? dailyRevenueData.slice(-30) : dailyRevenueData || [];
-  var rev7d = _sum(last7.map(function (r) { return r.total_revenue || 0; }));
-  var rev30d = _sum(last30.map(function (r) { return r.total_revenue || 0; }));
+  var periodLabel = 'last ' + days + 'd';
 
-  // Delta arrow + class
-  var deltaClass = revDelta != null ? Theme.deltaClass(revDelta, false) : 'neutral';
-  var deltaArrow = revDelta > 0 ? '&#9650;' : revDelta < 0 ? '&#9660;' : '';
-  var deltaSign = revDelta >= 0 ? '+' : '';
-  var deltaStr = revDelta != null ? (deltaSign + revDelta.toFixed(1) + '%') : '--';
+  var snapshotKpis = [
+    {
+      label: 'Revenue',
+      value: cur.net_revenue || 0,
+      prevValue: prev.net_revenue || 0,
+      delta: _delta(cur.net_revenue || 0, prev.net_revenue || 0),
+      format: 'money',
+      sparkData: heroSpark,
+      zScore: heroZ,
+      source: 'v_stripe_clean (Stripe)',
+      calc: 'SUM(amount WHERE status=succeeded) - refunds',
+      period: periodLabel,
+      refresh: 'hourly',
+    },
+    {
+      label: 'Ad Spend',
+      value: cur.total_spend || 0,
+      prevValue: prev.total_spend || 0,
+      delta: _delta(cur.total_spend || 0, prev.total_spend || 0),
+      format: 'money',
+      invertCost: true,
+      source: 'v_meta_ads_clean (Meta API)',
+      calc: 'SUM(spend) per day',
+      period: periodLabel,
+      refresh: 'daily',
+    },
+    {
+      label: 'Bookings',
+      value: cur.total_calls || 0,
+      prevValue: prev.total_calls || 0,
+      delta: _delta(cur.total_calls || 0, prev.total_calls || 0),
+      format: 'num',
+      source: 'v_fact_bookings_clean (GHL)',
+      calc: 'COUNT(*) calls booked in period',
+      period: periodLabel,
+      refresh: 'hourly',
+    },
+    {
+      label: 'Blended CPBC',
+      value: cur.cpb || 0,
+      prevValue: prev.cpb || 0,
+      delta: _delta(cur.cpb || 0, prev.cpb || 0),
+      format: 'money',
+      invertCost: true,
+      source: 'Meta spend / GHL bookings',
+      calc: 'total_spend / total_calls (truth metric)',
+      period: periodLabel,
+      refresh: 'hourly',
+    },
+    {
+      label: 'Show %',
+      value: curShowRate,
+      prevValue: prevShowRate,
+      delta: _delta(curShowRate, prevShowRate),
+      format: 'pct',
+      source: 'v_fact_bookings_clean (GHL)',
+      calc: '(total_calls - no_shows) / total_calls * 100',
+      period: periodLabel,
+      refresh: 'hourly',
+    },
+    {
+      label: 'Close %',
+      value: cur.close_rate || 0,
+      prevValue: prev.close_rate || 0,
+      delta: _delta(cur.close_rate || 0, prev.close_rate || 0),
+      format: 'pct',
+      source: 'v_fact_bookings_clean + v_stripe_clean',
+      calc: 'closed / total_calls * 100',
+      period: periodLabel,
+      refresh: 'hourly',
+    },
+  ];
 
-  // Hero z-score badge: today's revenue vs trailing 30 days. We compute
-  // against the per-day series so the badge captures intra-day anomalies,
-  // not period vs prior-period.
-  var heroDailySeries = dailyRevenueData.slice(-30).map(function (r) { return Number(r.total_revenue || 0); });
-  var heroZ = Components.computeZScore ? Components.computeZScore(heroDailySeries) : null;
-  var heroZBadgeHTML = '';
-  if (heroZ != null && Math.abs(heroZ) >= 1.5) {
-    var heroSeverity = Math.abs(heroZ) >= 2.5 ? 'severe' : 'mild';
-    var heroFavorable = heroZ > 0; // hero is revenue, so positive is good
-    var heroBg = heroFavorable
-      ? (heroSeverity === 'severe' ? 'rgba(34,197,94,0.18)' : 'rgba(34,197,94,0.10)')
-      : (heroSeverity === 'severe' ? 'rgba(239,68,68,0.18)' : 'rgba(239,68,68,0.10)');
-    var heroFg = heroFavorable ? '#22c55e' : '#ef4444';
-    var heroBorder = heroFavorable ? 'rgba(34,197,94,0.35)' : 'rgba(239,68,68,0.35)';
-    var heroSign = heroZ > 0 ? '+' : '';
-    var heroTip = "Today is " + Math.abs(heroZ).toFixed(1) + "σ " + (heroZ > 0 ? "above" : "below") + " the trailing 30-day mean";
-    heroZBadgeHTML = '<span title="' + heroTip + '" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:5px;background:' + heroBg + ';color:' + heroFg + ';border:1px solid ' + heroBorder + ';font-size:12px;font-weight:700;letter-spacing:0.04em;font-family:Manrope,sans-serif"><span style="font-size:13px;line-height:1">σ</span>' + heroSign + heroZ.toFixed(1) + '</span>';
+  Components.renderKPIStrip(snapshotContainer, snapshotKpis);
+
+  // SECTION 3 (v3) -- Anomaly / Leak Detection Strip REMOVED per Kas 2026-05-13.
+  // leakData fetch removed below; if you need it back, restore the API.query
+  // call and the chip-row render block in git history.
+
+  // ================================================================
+  // SECTION 4 (v3): Customer Journey Cards
+  // Three stage-grouped cards: Top of Funnel -> Mid -> Bottom.
+  // Each card aggregates the sources we have data for and deep-links
+  // to the detail page. Avoids 8 repetitive boxes per PRD: war-room
+  // is the executive summary, detail pages own the per-source data.
+  // ================================================================
+  var journeyRow = document.createElement('div');
+  journeyRow.className = 'war-room-journey-row';
+  journeyRow.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px';
+  container.appendChild(journeyRow);
+
+  function _stageCard(opts) {
+    var card = document.createElement('a');
+    card.href = opts.href || '#';
+    card.className = 'card';
+    card.style.cssText = 'padding:20px;text-decoration:none;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:12px;border-top:2px solid ' + opts.color + ';transition:transform 0.15s, border-color 0.15s';
+    card.setAttribute('role', 'link');
+    card.setAttribute('aria-label', opts.stage + ' funnel: ' + opts.title);
+
+    var header = '<div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:' + opts.color + '">' + opts.stage + '</span><span style="font-size:11px;color:' + Theme.COLORS.textMuted + '">' + (opts.subtitle || '') + '</span></div>';
+    var title = '<div style="font-size:15px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + opts.title + '</div>';
+
+    var rowsHTML = (opts.rows || []).map(function (r) {
+      var valColor = r.valueColor || Theme.COLORS.textPrimary;
+      var valStr = (r.value == null || r.value === '')
+        ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>'
+        : r.value;
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(255,255,255,0.04);font-size:12px">' +
+        '<span style="color:' + Theme.COLORS.textSecondary + '">' + _escText(r.label) + '</span>' +
+        '<span style="font-family:var(--font-mono);font-weight:600;color:' + valColor + ';font-variant-numeric:tabular-nums">' + valStr + '</span>' +
+        '</div>';
+    }).join('');
+
+    var footer = '<div style="font-size:11px;color:' + opts.color + ';margin-top:4px">View detail &rarr;</div>';
+
+    card.innerHTML = header + title + '<div>' + rowsHTML + '</div>' + footer;
+    return card;
   }
 
-  var sparkId = 'hero-spark-' + Date.now();
+  // TOP -- traffic + acquisition
+  journeyRow.appendChild(_stageCard({
+    stage: 'Top',
+    title: 'Traffic + Acquisition',
+    subtitle: 'Meta + Google + Cold Email',
+    color: '#06b6d4',
+    href: '#ads-meta',
+    rows: [
+      { label: 'Meta spend',  value: Theme.formatValue(cur.total_spend || 0, 'money') },
+      { label: 'Impressions', value: (cur.total_impressions || 0).toLocaleString() },
+      { label: 'Clicks',      value: (cur.total_clicks || 0).toLocaleString() },
+      { label: 'Google Ads',  value: null },
+      { label: 'Cold Email',  value: null },
+    ],
+  }));
 
-  heroCard.innerHTML = [
-    '<div style="font-size:11px;font-weight:600;color:' + Theme.COLORS.textSecondary + ';text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Revenue</div>',
-    '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">',
-    '  <span style="font-size:36px;font-weight:800;color:#fff;font-family:Manrope,sans-serif">' + Theme.formatValue(netRevenue, 'money') + '</span>',
-    '  <span class="kpi-delta ' + deltaClass + '" style="font-size:16px">' + deltaArrow + ' ' + deltaStr + '</span>',
-    heroZBadgeHTML,
-    '  <canvas id="' + sparkId + '" width="120" height="32" style="width:120px;height:32px"></canvas>',
-    '</div>',
-    '<div style="display:flex;gap:24px;margin-top:16px;flex-wrap:wrap">',
-    '  <div>',
-    '    <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">Today</div>',
-    '    <div style="font-size:18px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + Theme.formatValue(todayRev, 'money') + '</div>',
-    '  </div>',
-    '  <div>',
-    '    <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">7d</div>',
-    '    <div style="font-size:18px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + Theme.formatValue(rev7d, 'money') + '</div>',
-    '  </div>',
-    '  <div>',
-    '    <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">30d</div>',
-    '    <div style="font-size:18px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + Theme.formatValue(rev30d, 'money') + '</div>',
-    '  </div>',
-    '</div>',
-  ].join('\n');
+  // MID -- workshop / webinar pipeline
+  var vipApprox = Math.max(0, (cur.gross_revenue || 0) - (cur.ticket_revenue || 0) - (cur.enrollment_revenue || 0));
+  journeyRow.appendChild(_stageCard({
+    stage: 'Mid',
+    title: 'Workshop + Webinar',
+    subtitle: '$27 + JIT pipeline',
+    color: '#a855f7',
+    href: '#funnels',
+    rows: [
+      { label: '$27 ticket rev', value: Theme.formatValue(cur.ticket_revenue || 0, 'money') },
+      { label: 'VIP / upsell rev', value: Theme.formatValue(vipApprox, 'money') },
+      { label: 'Bookings',       value: (cur.total_calls || 0).toLocaleString() },
+      { label: 'JIT Webinar',    value: null },
+    ],
+  }));
 
-  container.appendChild(heroCard);
+  // BOTTOM -- MA / sales / enrollments
+  journeyRow.appendChild(_stageCard({
+    stage: 'Bottom',
+    title: 'MA + Sales Close',
+    subtitle: 'Applications + enrollments',
+    color: '#22c55e',
+    href: '#sales-team',
+    rows: [
+      { label: 'Calls showed',    value: curShowed.toLocaleString() },
+      { label: 'Enrollments',     value: (cur.enrollments || 0).toLocaleString(), valueColor: Theme.COLORS.success },
+      { label: 'Enrollment rev',  value: Theme.formatValue(cur.enrollment_revenue || 0, 'money'), valueColor: Theme.COLORS.success },
+      { label: 'Close rate',      value: (cur.close_rate || 0).toFixed(1) + '%' },
+    ],
+  }));
 
-  // Render hero sparkline after DOM insert
-  if (sparkData.length > 1) {
-    requestAnimationFrame(function () {
-      Components.renderSparkline(sparkId, sparkData);
-    });
+  // ================================================================
+  // SECTION 5 (v3): Mini Closer Board
+  // Top 5 closers ranked by close_rate (>=3 calls). Deep-link to
+  // Sales Team page. Data sourced from sales-team:closers CF query
+  // (war-room:closers does not exist; old code was hitting a 400).
+  // ================================================================
+  var closerCard = _card('Mini Closer Board', { padding: '20px 24px' });
+  var closerSub = document.createElement('div');
+  closerSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
+  closerSub.textContent = 'Top 5 closers, ranked by close rate. Min 3 calls to qualify.';
+  closerCard.appendChild(closerSub);
+
+  if (closersData && closersData.length > 0) {
+    var qualified = closersData.filter(function (c) { return (c.total_calls || 0) >= 3; });
+    qualified.sort(function (a, b) { return (b.close_rate || 0) - (a.close_rate || 0); });
+    var top5 = qualified.slice(0, 5);
+
+    if (top5.length > 0) {
+      var maxClose = top5[0].close_rate || 0;
+      var listWrap = document.createElement('div');
+      listWrap.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+
+      top5.forEach(function (c, idx) {
+        var pct = Math.max(0, Math.min(100, c.close_rate || 0));
+        var barPct = maxClose > 0 ? (pct / maxClose * 100) : 0;
+        var rankLabel = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : (idx + 1) + 'th';
+
+        var row = document.createElement('div');
+        row.style.cssText = 'display:grid;grid-template-columns:36px 1fr 68px 64px;align-items:center;gap:12px;padding:8px 0;font-size:13px;border-top:1px solid rgba(255,255,255,0.04)';
+        row.innerHTML = [
+          '<span style="font-size:10px;font-weight:700;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">' + rankLabel + '</span>',
+          '<div>',
+          '  <div style="font-weight:600;color:' + Theme.COLORS.textPrimary + '">' + _escText(c.closer || 'Unknown') + '</div>',
+          '  <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;width:' + barPct.toFixed(1) + '%;background:' + Theme.COLORS.success + ';border-radius:2px"></div></div>',
+          '</div>',
+          '<span style="font-family:var(--font-mono);text-align:right;color:' + Theme.COLORS.success + ';font-weight:600">' + pct.toFixed(1) + '%</span>',
+          '<span style="font-family:var(--font-mono);text-align:right;color:' + Theme.COLORS.textMuted + ';font-size:12px">' + (c.total_calls || 0) + ' calls</span>',
+        ].join('');
+        listWrap.appendChild(row);
+      });
+
+      closerCard.appendChild(listWrap);
+
+      var closerLink = document.createElement('a');
+      closerLink.href = '#sales-team';
+      closerLink.style.cssText = 'font-size:12px;color:' + Theme.COLORS.accentCyan + ';text-decoration:none;display:inline-block;margin-top:12px';
+      closerLink.textContent = 'View full Sales Team →';
+      closerCard.appendChild(closerLink);
+    } else {
+      var noQual = document.createElement('p');
+      noQual.className = 'text-muted';
+      noQual.style.fontSize = '13px';
+      noQual.textContent = 'No closers with 3+ calls this period.';
+      closerCard.appendChild(noQual);
+    }
+  } else {
+    var noCloser = document.createElement('p');
+    noCloser.className = 'text-muted';
+    noCloser.style.fontSize = '13px';
+    noCloser.textContent = 'No closer data for this period.';
+    closerCard.appendChild(noCloser);
   }
+  container.appendChild(closerCard);
 
   // ================================================================
   // SECTION 2b: Daily Revenue Stack (Wave 1.3) -- last 14d, 3 segments
@@ -304,37 +481,11 @@ async function renderWarRoom(container) {
   container.appendChild(weekCard);
 
   // ================================================================
-  // SECTION 3: KPI Metric Grid (WAR-07) -- Mode 2 conversion from KPI strip
-  // to dense f27-style metric cards. Hero card above remains big; this grid
-  // packs the 6 supporting metrics into a denser visual rhythm matching the
-  // $27 Funnel Unit Economics pattern. PRD §2 Mode 2.
+  // SWR cache-refresh wiring (was tied to old KPI grid in v2).
+  // When api.js detects row-count delta from a background live fetch,
+  // re-fetch and re-render the snapshot strip only. AbortController
+  // guards against listener leaks across re-renders.
   // ================================================================
-  var kpiContainer = document.createElement('div');
-  kpiContainer.style.marginBottom = '16px';
-  container.appendChild(kpiContainer);
-
-  // Daily enrollment-revenue series doubles as a sparkline trend hint for
-  // the Enrollments card. Other metrics lack a daily series in the current
-  // war-room queries (no daily spend, no daily close rate); leave them blank.
-  var enrollSpark = (dailyRevenueData || []).map(function (r) { return Number(r.enrollment_revenue || 0); });
-
-  function _buildWarRoomMetrics(curRow, prevRow) {
-    return [
-      { label: 'Ad Spend',        value: curRow.total_spend,         prevValue: prevRow.total_spend,         format: 'money', invertDelta: true },
-      { label: 'CPB',             value: curRow.cpb,                 prevValue: prevRow.cpb,                 format: 'money', invertDelta: true },
-      { label: 'Cost/Enrollment', value: curRow.cost_per_enrollment, prevValue: prevRow.cost_per_enrollment, format: 'money', invertDelta: true },
-      { label: 'Enrollments',     value: curRow.enrollments,         prevValue: prevRow.enrollments,         format: 'num',   sparklineData: enrollSpark },
-      { label: 'ROAS',            value: curRow.roas,                prevValue: prevRow.roas,                format: 'roas'  },
-      { label: 'Close Rate',      value: curRow.close_rate,          prevValue: prevRow.close_rate,          format: 'pct'   },
-    ];
-  }
-
-  Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(cur, prev));
-
-  // SWR cache-refresh wiring (discharges Stage 2 deferred follow-up #3 for
-  // war-room). When api.js detects row-count delta from a background live
-  // fetch, re-fetch the in-memory-cached result and re-render the grid only.
-  // AbortController guards against listener leaks across re-renders.
   if (container._cacheRefreshController) {
     try { container._cacheRefreshController.abort(); } catch (e) {}
   }
@@ -343,187 +494,28 @@ async function renderWarRoom(container) {
     if (!e || !e.detail || e.detail.page !== 'war-room' || e.detail.queryName !== 'default') return;
     API.query('war-room', 'default', { days: days }).then(function (rows) {
       if (!rows || rows.length === 0) return;
-      Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(rows[0] || {}, rows[1] || {}));
-    }).catch(function () { /* swallow; live fetch already failed once */ });
+      var c2 = rows[0] || {};
+      var p2 = rows[1] || {};
+      var showed2 = Math.max(0, (c2.total_calls || 0) - (c2.no_shows || 0));
+      var prevShowed2 = Math.max(0, (p2.total_calls || 0) - (p2.no_shows || 0));
+      var sr2 = (c2.total_calls || 0) > 0 ? (showed2 / c2.total_calls * 100) : 0;
+      var psr2 = (p2.total_calls || 0) > 0 ? (prevShowed2 / p2.total_calls * 100) : 0;
+      var refreshed = snapshotKpis.map(function (k) { return Object.assign({}, k); });
+      refreshed[0].value = c2.net_revenue || 0; refreshed[0].prevValue = p2.net_revenue || 0; refreshed[0].delta = _delta(c2.net_revenue || 0, p2.net_revenue || 0);
+      refreshed[1].value = c2.total_spend || 0; refreshed[1].prevValue = p2.total_spend || 0; refreshed[1].delta = _delta(c2.total_spend || 0, p2.total_spend || 0);
+      refreshed[2].value = c2.total_calls || 0; refreshed[2].prevValue = p2.total_calls || 0; refreshed[2].delta = _delta(c2.total_calls || 0, p2.total_calls || 0);
+      refreshed[3].value = c2.cpb || 0; refreshed[3].prevValue = p2.cpb || 0; refreshed[3].delta = _delta(c2.cpb || 0, p2.cpb || 0);
+      refreshed[4].value = sr2; refreshed[4].prevValue = psr2; refreshed[4].delta = _delta(sr2, psr2);
+      refreshed[5].value = c2.close_rate || 0; refreshed[5].prevValue = p2.close_rate || 0; refreshed[5].delta = _delta(c2.close_rate || 0, p2.close_rate || 0);
+      Components.renderKPIStrip(snapshotContainer, refreshed);
+    }).catch(function () { /* live fetch already failed once */ });
   }, { signal: container._cacheRefreshController.signal });
 
-  // ================================================================
-  // SECTION 4: Leak Detection Panel (WAR-03)
-  // ================================================================
-  var leakCard = _card('Leak Detection', { borderLeft: '3px solid ' + Theme.COLORS.danger });
-  container.appendChild(leakCard);
-
-  if (leakData && leakData.length > 0) {
-    // Sort by dollar_value descending (biggest leak first)
-    leakData.sort(function (a, b) { return (b.dollar_value || 0) - (a.dollar_value || 0); });
-
-    var leakGrid = document.createElement('div');
-    leakGrid.style.cssText = 'display:flex;flex-direction:column;gap:12px';
-
-    leakData.forEach(function (leak) {
-      var leakRow = document.createElement('div');
-      leakRow.style.cssText = [
-        'display:flex',
-        'align-items:center',
-        'justify-content:space-between',
-        'padding:12px 16px',
-        'background:rgba(239,68,68,0.06)',
-        'border-radius:8px',
-        'border:1px solid rgba(239,68,68,0.15)',
-      ].join(';');
-
-      var dollarFormatted = Theme.formatValue(leak.dollar_value || 0, 'money');
-      var countText = (leak.count || 0).toLocaleString();
-
-      leakRow.innerHTML = [
-        '<div style="display:flex;flex-direction:column;gap:2px">',
-        '  <span style="font-size:16px;font-weight:700;color:' + Theme.COLORS.danger + '">' + dollarFormatted + '</span>',
-        '  <span style="font-size:12px;color:' + Theme.COLORS.textSecondary + '">leaked to ' + _escText(leak.leak_type || 'Unknown') + '</span>',
-        '</div>',
-        '<div style="font-size:13px;color:' + Theme.COLORS.textMuted + '">' + countText + ' ' + (leak.leak_type === 'Refunds' ? 'refunds' : 'contacts') + '</div>',
-      ].join('');
-
-      leakGrid.appendChild(leakRow);
-    });
-
-    leakCard.appendChild(leakGrid);
-  } else {
-    var noLeaks = document.createElement('p');
-    noLeaks.className = 'text-muted';
-    noLeaks.style.fontSize = '13px';
-    noLeaks.textContent = 'No leaks detected for this period';
-    leakCard.appendChild(noLeaks);
-  }
-
-  // ================================================================
-  // SECTION 5: Funnel Summary Cards (WAR-05)
-  // ================================================================
-  var funnelRow = document.createElement('div');
-  funnelRow.className = 'war-room-funnel-row';
-  funnelRow.style.cssText = 'display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap';
-  container.appendChild(funnelRow);
-
-  // $27 Funnel card
-  var funnelCard27 = document.createElement('a');
-  funnelCard27.href = '#funnels';
-  funnelCard27.className = 'card';
-  funnelCard27.style.cssText = 'padding:24px;flex:1;min-width:280px;text-decoration:none;color:inherit;cursor:pointer;transition:border-color 0.15s';
-  funnelCard27.setAttribute('role', 'link');
-
-  // Try to compute a conversion rate from default data
-  var ticketToEnrollRate = 0;
-  if (cur.enrollments && cur.total_calls && cur.total_calls > 0) {
-    ticketToEnrollRate = (cur.enrollments / cur.total_calls * 100);
-  }
-
-  funnelCard27.innerHTML = [
-    '<div style="font-size:13px;font-weight:700;color:' + Theme.COLORS.textPrimary + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">$27 Funnel</div>',
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">',
-    '  <span style="font-size:24px;font-weight:700;color:' + Theme.COLORS.accentCyan + '">' + ticketToEnrollRate.toFixed(1) + '%</span>',
-    '  <span style="font-size:12px;color:' + Theme.COLORS.textSecondary + '">call-to-enrollment rate</span>',
-    '</div>',
-    '<div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">',
-    '  <div style="height:100%;width:' + Math.min(ticketToEnrollRate * 2, 100) + '%;background:' + Theme.COLORS.accentCyan + ';border-radius:3px;transition:width 0.3s"></div>',
-    '</div>',
-    '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:8px">View full funnel &rarr;</div>',
-  ].join('');
-  funnelRow.appendChild(funnelCard27);
-
-  // MA/VSL Funnel card -- links to ma-funnel page
-  var funnelCardMA = document.createElement('a');
-  funnelCardMA.href = '#ma-funnel';
-  funnelCardMA.className = 'card';
-  funnelCardMA.style.cssText = 'padding:24px;flex:1;min-width:280px;text-decoration:none;color:inherit;cursor:pointer;transition:border-color 0.15s';
-  funnelCardMA.setAttribute('role', 'link');
-
-  funnelCardMA.innerHTML = [
-    '<div style="font-size:13px;font-weight:700;color:' + Theme.COLORS.textPrimary + ';text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">MA/VSL Funnel</div>',
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">',
-    '  <span style="font-size:14px;color:' + Theme.COLORS.textSecondary + '">Millionaires Alliance + VSL pipeline</span>',
-    '</div>',
-    '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:8px">View MA/VSL funnel &rarr;</div>',
-  ].join('');
-  funnelRow.appendChild(funnelCardMA);
-
-  // ================================================================
-  // SECTION 6: Sales Team Pulse (WAR-06)
-  // ================================================================
-  var salesCard = _card('Sales Pulse');
-  container.appendChild(salesCard);
-
-  if (closersData && closersData.length > 0) {
-    // Aggregate totals
-    var totalCallsToday = 0; // We use total_calls from closers as an approximation
-    var totalCalls = 0;
-    var totalClosed = 0;
-    var topCloser = closersData[0]; // Already sorted by total_calls DESC
-
-    closersData.forEach(function (c) {
-      totalCalls += (c.total_calls || 0);
-      totalClosed += (c.closed || 0);
-    });
-
-    var teamCloseRate = totalCalls > 0 ? ((totalClosed / totalCalls) * 100) : 0;
-
-    // Find the closer with highest close_rate (min 3 calls)
-    var bestCloser = null;
-    closersData.forEach(function (c) {
-      if ((c.total_calls || 0) >= 3) {
-        if (!bestCloser || (c.close_rate || 0) > (bestCloser.close_rate || 0)) {
-          bestCloser = c;
-        }
-      }
-    });
-
-    var salesGrid = document.createElement('div');
-    salesGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:12px';
-
-    // Calls metric
-    salesGrid.innerHTML = [
-      '<div>',
-      '  <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">Total Calls</div>',
-      '  <div style="font-size:22px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + totalCalls.toLocaleString() + '</div>',
-      '</div>',
-      '<div>',
-      '  <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">Team Close Rate</div>',
-      '  <div style="font-size:22px;font-weight:700;color:' + (teamCloseRate >= 20 ? Theme.COLORS.success : Theme.COLORS.warning) + '">' + teamCloseRate.toFixed(1) + '%</div>',
-      '</div>',
-      bestCloser ? [
-        '<div>',
-        '  <div style="font-size:10px;color:' + Theme.COLORS.textMuted + ';text-transform:uppercase;letter-spacing:0.06em">Top Closer</div>',
-        '  <div style="font-size:16px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">' + _escText(bestCloser.closer || 'Unknown') + '</div>',
-        '  <div style="font-size:12px;color:' + Theme.COLORS.success + '">' + (bestCloser.close_rate || 0).toFixed(1) + '% close rate</div>',
-        '</div>',
-      ].join('') : '',
-    ].join('');
-
-    salesCard.appendChild(salesGrid);
-
-    // Link to Sales Team page
-    var salesLink = document.createElement('a');
-    salesLink.href = '#sales-team';
-    salesLink.style.cssText = 'font-size:12px;color:' + Theme.COLORS.accentCyan + ';text-decoration:none;display:inline-block;margin-top:4px';
-    salesLink.textContent = 'View Sales Team \u2192';
-    salesCard.appendChild(salesLink);
-  } else {
-    var noSales = document.createElement('p');
-    noSales.className = 'text-muted';
-    noSales.style.fontSize = '13px';
-    noSales.textContent = 'No closer data for this period';
-    salesCard.appendChild(noSales);
-  }
-
-  // ---- Responsive: funnel cards side-by-side on desktop only ----
-  var mq = window.matchMedia('(max-width: 768px)');
-  function handleMobile(e) {
-    if (e.matches) {
-      funnelRow.style.flexDirection = 'column';
-    } else {
-      funnelRow.style.flexDirection = 'row';
-    }
-  }
-  handleMobile(mq);
-  mq.addEventListener('change', handleMobile);
+  // Sections 4-6 (Leak Detection, Funnel Summary, Sales Pulse) and the
+  // responsive funnelRow handler are removed in v3 -- replaced upstream
+  // by Section 3 (Anomaly Strip), Section 4 (Journey Cards), and
+  // Section 5 (Mini Closer Board). Snapshot strip + journey cards rely
+  // on auto-fit grid for responsive layout.
 }
 
 // ---- Text escape helper (outside registerPage for reuse) ----

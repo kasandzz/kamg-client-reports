@@ -202,9 +202,12 @@ const Lineage = (() => {
     'funnels': {
       title: '$27 Workshop Funnel',
       elements: [
-        { name: 'Show Rate / Booking Rate / Close Rate', type: 'KPI Strip', pipelines: ['funnel'], query: 'default', detail: 'Boolean stage flags from vw_workshop_funnel_pipeline: reached_attended / reached_ticket = show rate, etc.' },
-        { name: 'Daily Funnel Breakdown', type: 'Chart', pipelines: ['funnel'], query: 'daily', detail: 'Current vs previous period: daily tickets, attended, booked, enrolled counts.' },
-        { name: 'Weekly Funnel', type: 'Chart', pipelines: ['funnel'], query: 'weekly', detail: 'Weekly tickets, attended, booked, enrolled per ISO week.' },
+        { name: 'Ticket Show Rate / Booking Rate / Close Rate / Enrollment Rate / Revenue', type: 'KPI Strip', pipelines: ['funnel', 'stripe'], query: 'default', detail: 'Boolean stage flags from vw_workshop_funnel_pipeline: reached_attended/reached_ticket = show rate; reached_booked/reached_attended = booking rate; reached_enrolled/reached_booked = close rate. Revenue from v_stripe_clean for enrolled cohort.' },
+        { name: 'Daily Funnel Breakdown', type: 'Chart', pipelines: ['funnel'], query: 'daily', detail: 'Stacked bar: daily tickets / attended / booked / enrolled. Current vs previous period overlay when Compare toggle is active.' },
+        { name: 'Weekly Cohort Table', type: 'Table', pipelines: ['funnel', 'stripe'], query: 'weekly', detail: 'Sortable: cohort week, tickets, show rate, close rate, revenue. Each row = ISO week of ticket purchase.' },
+        { name: 'VIP Upsell Rate Daily', type: 'Chart', pipelines: ['funnel', 'stripe'], query: 'vip_rate_daily', detail: 'Line chart of VIP conversion: daily count of paired $27+$54 charges divided by ticket count. Migrated to LAG-based detection per VIP undercount bug fix.' },
+        { name: 'Show Rate Trend', type: 'Chart', pipelines: ['funnel'], query: 'show_rate_daily', detail: 'Line chart of daily show rate from vw_workshop_funnel_pipeline.' },
+        { name: 'Close Rate by Closer', type: 'Chart', pipelines: ['sheets', 'funnel'], query: 'funnel_breakdown', detail: 'Horizontal bar: per-closer close rate on $27-sourced calls. Joins v_sheets_bookings_clean.team_member to enrollment outcomes.' },
       ]
     },
     'revenue': {
@@ -243,8 +246,15 @@ const Lineage = (() => {
     'sales-team': {
       title: 'Sales Team',
       elements: [
-        { name: 'Per-Closer Performance', type: 'Table', pipelines: ['sheets'], query: 'default', detail: 'Per team_member: total calls, showed, closed, no-shows, close rate, show rate from v_sheets_bookings_clean.' },
-        { name: 'Monthly Trend', type: 'Table', pipelines: ['sheets'], query: 'monthly', detail: 'Monthly per-closer: calls, closed, close rate.' },
+        { name: 'Calls Booked / Calls Taken / Enrollments / DPL / Total Cash / Total Contracts / Ad Spend / CAC / ROAS', type: 'KPI Strip', pipelines: ['sheets', 'stripe', 'meta'], query: 'default', detail: 'Aggregate from vw_sales_team_metrics. Calls from v_sheets_bookings_clean; cash + contracts from v_stripe_clean (>= $500); spend from v_meta_ads_clean. DPL = cash / calls taken.' },
+        { name: 'Calls Booked by Funnel Source', type: 'Chart', pipelines: ['sheets'], query: 'funnelSource', detail: 'Stacked bar per closer: bookings split by source funnel ($27 Workshop / MA-VSL / Cold Email / Referral / Other). Source classified from sheets_bookings.source.' },
+        { name: 'Per-Rep Performance Table', type: 'Table', pipelines: ['sheets', 'stripe', 'meta'], query: 'perRep', detail: 'Sortable 9 columns: Booked / Taken / Show% / Close% / DPL / Cash / Contracts / CAC / ROAS. Per team_member from v_sheets_bookings_clean joined to enrollment + spend.' },
+        { name: 'Revenue by Closer', type: 'Chart', pipelines: ['sheets', 'stripe'], query: 'perRep', detail: 'Horizontal bar sorted by cash. Visual concentration risk indicator.' },
+        { name: 'Close Rate Trends 6-Month', type: 'Chart', pipelines: ['sheets'], query: 'monthly', detail: 'Multi-line by closer: monthly close rate over last 6 months.' },
+        { name: 'No-Show Cost Stat Card', type: 'Panel', pipelines: ['sheets', 'stripe'], query: 'noShowCost', detail: 'Calculated lost revenue: no-show count x close rate x avg deal size. Surfaces cost of low show rate.' },
+        { name: 'Top Objections (Donut)', type: 'Chart', pipelines: ['sheets'], query: 'objections', detail: 'Objection categorization from bridge_call_objections (manual closer tagging). Empty state shown when tagging not done.' },
+        { name: 'Day-of-Week Close Rate Heatmap', type: 'Chart', pipelines: ['sheets'], query: 'dowCloseRate', detail: 'Per closer x day-of-week close rate. Surfaces calendar patterns (Monday vs Friday performance).' },
+        { name: 'Monthly DPL Trend 6-Month', type: 'Chart', pipelines: ['sheets', 'stripe'], query: 'monthly', detail: 'Multi-line by closer: monthly DPL (dollars per lead) progression.' },
       ]
     },
     'geo-intel': {

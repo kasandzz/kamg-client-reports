@@ -1,0 +1,56 @@
+# ============================================================================
+# PROPOSED: 15-min BQ cache rebuild for COD dashboard
+#
+# Not enabled. Rename to build-cache.yml after Kas reviews and confirms:
+#   1. Cloud Function is allowed to be hit from GitHub Actions IPs (auth model
+#      currently appears public from client read of cod-dashboard/js/api.js;
+#      double-check before scheduling automated calls).
+#   2. The cod-dashboard/data/cache/*.json commits won't blow up branch noise
+#      (consider committing only when row-counts drift >2% vs prior manifest).
+#   3. The repo has a secret PAT or deploy key that can push to a cache branch
+#      (e.g. cache/refresh) without going through main.
+#
+# Rough cadence: every 15 min from 13:00 to 06:00 UTC (Russ-time daylight),
+# every 60 min outside that window.
+# ============================================================================
+name: Build BQ cache
+
+on:
+  schedule:
+    - cron: '*/15 13-23 * * *'
+    - cron: '*/15 0-6  * * *'
+    - cron: '0    7-12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cache/refresh
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Bake cache
+        working-directory: cod-dashboard
+        run: node scripts/build-cache.js --live
+
+      - name: Commit + push if changed
+        working-directory: cod-dashboard
+        run: |
+          if git -C .. diff --quiet -- data/cache/; then
+            echo "no cache drift"; exit 0
+          fi
+          git -C .. config user.name "cod-cache-bot"
+          git -C .. config user.email "cache@kamg.bot"
+          git -C .. add data/cache/
+          git -C .. commit -m "chore(cache): refresh BQ snapshots $(date -u +%Y-%m-%dT%H:%MZ)"
+          git -C .. push origin cache/refresh

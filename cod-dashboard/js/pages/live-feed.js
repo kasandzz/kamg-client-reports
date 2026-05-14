@@ -336,6 +336,22 @@
     countBadge.textContent = '0 events';
     header.appendChild(countBadge);
 
+    // Last-updated indicator — the page polls every 60s but never told the user
+    // when the displayed snapshot was taken. A stale-looking screen with no
+    // "last updated" cue felt broken even when polling was healthy.
+    let lastRefreshAt = null;
+    const updatedBadge = document.createElement('span');
+    updatedBadge.style.cssText = `font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;border-radius:12px;background:rgba(255,255,255,0.03)`;
+    updatedBadge.textContent = 'Polling every 60s';
+    header.appendChild(updatedBadge);
+    // Tick once a second so the relative timestamp stays current between polls.
+    const updatedTicker = setInterval(() => {
+      if (!document.body.contains(container)) { clearInterval(updatedTicker); return; }
+      if (!lastRefreshAt) { updatedBadge.textContent = 'Polling every 60s'; return; }
+      const secs = Math.floor((Date.now() - lastRefreshAt) / 1000);
+      updatedBadge.textContent = secs < 5 ? 'Just refreshed' : `Updated ${secs}s ago · next poll in ${Math.max(0, 60 - secs)}s`;
+    }, 1000);
+
     // Sound toggle
     const soundLabel = document.createElement('label');
     soundLabel.style.cssText = `font-size:12px;color:${Theme.COLORS.textSecondary};display:flex;align-items:center;gap:6px;margin-left:auto;cursor:pointer`;
@@ -365,16 +381,22 @@
 
       if (totalBuyers === 0) { vipStatsBar.style.display = 'none'; return; }
 
-      let checkboxCount = 0, upsellCount = 0;
+      // Truthfulness: previously every non-checkbox VIP row was bucketed as
+      // "upsell" — including rows with missing or unknown vip_source. The two
+      // bars summed to 100% but silently conflated "real upsell" with "unknown".
+      // Now we track a third bucket and render it only if nonzero.
+      let checkboxCount = 0, upsellCount = 0, unknownCount = 0;
       vipRows.forEach(r => {
         const p = _payload(r);
         if (p.vip_source === 'checkout_checkbox') checkboxCount++;
-        else upsellCount++;
+        else if (p.vip_source === 'upsell_page') upsellCount++;
+        else unknownCount++;
       });
 
       const vipRate = ((totalVip / totalBuyers) * 100).toFixed(1);
       const cbRate = totalBuyers > 0 ? ((checkboxCount / totalBuyers) * 100).toFixed(1) : '0.0';
       const upRate = totalBuyers > 0 ? ((upsellCount / totalBuyers) * 100).toFixed(1) : '0.0';
+      const unkRate = totalBuyers > 0 ? ((unknownCount / totalBuyers) * 100).toFixed(1) : '0.0';
 
       vipStatsBar.style.display = 'flex';
       vipStatsBar.innerHTML = `
@@ -405,9 +427,23 @@
             <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:#a78bfa;min-width:38px;text-align:right">${upRate}%</span>
             <span style="color:${Theme.COLORS.textMuted}">(${upsellCount})</span>
           </div>
+          ${unknownCount > 0 ? `
+          <div class="lf-vip-bar-row" title="VIP rows missing vip_source — payload has is_vip / vip / ticket_type='vip' but no explicit source tag">
+            <span style="min-width:70px;color:${Theme.COLORS.textMuted}">Unknown</span>
+            <div class="lf-vip-bar-track">
+              <div class="lf-vip-bar-fill" style="width:${unkRate}%;background:${Theme.COLORS.textMuted}"></div>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${Theme.COLORS.textMuted};min-width:38px;text-align:right">${unkRate}%</span>
+            <span style="color:${Theme.COLORS.textMuted}">(${unknownCount})</span>
+          </div>` : ''}
         </div>
       `;
     }
+
+    // ---- Refresh error banner (shown only after at least one successful load) ----
+    const errBanner = document.createElement('div');
+    errBanner.style.cssText = `display:none;padding:10px 14px;margin-bottom:12px;border-left:3px solid ${Theme.COLORS.danger};background:rgba(239,68,68,0.06);font-size:12px;color:${Theme.COLORS.textSecondary};border-radius:4px`;
+    container.appendChild(errBanner);
 
     // ---- Table container ----
     const tableWrap = document.createElement('div');
@@ -504,9 +540,18 @@
       } catch (err) {
         if (tableWrap.children.length === 0) {
           tableWrap.innerHTML = `<div style="padding:24px"><p class="text-muted">Failed to load Live Feed: ${err.message}</p></div>`;
+        } else {
+          // Post-initial-load failures were silent before — feed appeared frozen
+          // with no signal that polling had broken. Surface as a non-blocking
+          // banner; auto-clears on next successful refresh below.
+          const ts = new Date().toLocaleTimeString();
+          errBanner.style.display = 'block';
+          errBanner.textContent = `Live Feed refresh failed at ${ts}: ${err.message}. Polling continues — banner clears on next success.`;
         }
         return;
       }
+      // Successful response — clear any prior failure banner.
+      errBanner.style.display = 'none';
 
       // Filter to core funnel events
       rows = (rows || []).filter(r => ALLOWED_TYPES.has(r.event_type));
@@ -565,6 +610,7 @@
       tableWrap.appendChild(table);
 
       lastEventIds = newIds;
+      lastRefreshAt = Date.now();
     }
 
     // Initial load

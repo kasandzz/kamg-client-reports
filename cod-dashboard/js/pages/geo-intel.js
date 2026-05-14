@@ -21,6 +21,15 @@ App.registerPage('geo-intel', async (container) => {
 
   container.innerHTML = '';
 
+  // ---- Prior period delta (fetch 2x window, sum, subtract) ----
+  // WARN_DATA_UNRESOLVED — geo-intel.states / .deadZones join meta_ads_insights
+  // which is on the Stage 0.5 flag list. Hyros side (hyros_sales) is source-of-
+  // truth. See .planning/allnight-data-validity-7day.md
+  let priorStates = [];
+  try {
+    priorStates = await API.query('geo-intel', 'states', { days: days * 2 }) || [];
+  } catch (_) { /* ignore */ }
+
   // ---- Derived values ----
   const stateSet = new Set((stateData || []).map(r => r.state).filter(Boolean));
   const stateCount = stateSet.size;
@@ -42,18 +51,69 @@ App.registerPage('geo-intel', async (container) => {
     ? `${bestRoasRow.state} (${parseFloat(bestRoasRow.roas).toFixed(1)}x)`
     : '--';
 
-  // ---- KPI Strip ----
-  const kpiContainer = document.createElement('div');
-  container.appendChild(kpiContainer);
+  // ---- KPI Metric Grid (Mode 2 conversion) ----
+  // 6-card KPI strip → dense f27-style metric grid. Numeric cards (states /
+  // total revenue / dead zones / wasted spend) get prev-period deltas from
+  // 2x-window query. Text cards (Top State, Best ROAS) use valueHtml.
+  function _esc(str) { var el = document.createElement('span'); el.textContent = String(str || ''); return el.innerHTML; }
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'States with Revenue',  value: stateCount,    format: 'num',   source: 'BQ hyros_sales (state field)', calc: 'COUNT(DISTINCT state WHERE revenue > 0)' },
-    { label: 'Top State',            value: topState,      format: 'text',  source: 'BQ hyros_sales GROUP BY state', calc: 'state WHERE SUM(revenue) = MAX(SUM(revenue))' },
-    { label: 'Total Geo Revenue',    value: totalRevenue,  format: 'money', source: 'BQ hyros_sales', calc: 'SUM(revenue WHERE state IS NOT NULL)' },
-    { label: 'Dead Zones',           value: deadZoneCount, format: 'num',   invertCost: true, source: 'BQ meta_ads JOIN hyros_sales GROUP BY state', calc: 'COUNT(states WHERE spend > 500 AND enrollments = 0)' },
-    { label: 'Wasted in Dead Zones', value: wastedSpend,   format: 'money', invertCost: true, source: 'BQ meta_ads GROUP BY state', calc: 'SUM(spend WHERE state IN dead_zones)' },
-    { label: 'Best ROAS State',      value: bestRoasLabel, format: 'text',  source: 'BQ meta_ads JOIN hyros_sales GROUP BY state', calc: 'state WHERE SUM(revenue) / SUM(spend) = MAX(ROAS)' },
-  ]);
+  function _buildGeoIntelMetrics(curStates, deadZoneRows, prevStates) {
+    const cs = curStates || [];
+    const dz = deadZoneRows || [];
+    const ps = prevStates || [];
+    const totalRev   = cs.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+    const stateCt    = new Set(cs.map(r => r.state).filter(Boolean)).size;
+    const topRow     = cs.length > 0 ? cs[0] : {};
+    const dzCount    = dz.length;
+    const wasted     = dz.reduce((s, r) => s + (parseFloat(r.spend) || 0), 0);
+
+    const _priorRev   = ps.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0) - totalRev;
+    const _priorState = new Set(ps.map(r => r.state).filter(Boolean)).size - stateCt;
+
+    // Best ROAS State: filter states with at least $500 spend so a $50-spend
+    // state with one $5K conversion (ROAS = 100x) doesn't crown over a $50K-
+    // spend state with $200K revenue (ROAS = 4x). The crowd-the-podium effect
+    // was making the headline ROAS card meaningless for ad-allocation
+    // decisions — same shape of "actively-bad-data" truthfulness fix as
+    // ads-meta Source Attribution (a8a1c3f) and segments numeric-string sort
+    // (10c4a90). $500 floor matches the Dead Zones noise threshold for
+    // consistency.
+    const roasRanked = cs
+      .filter(r => r.roas != null && isFinite(r.roas) && r.roas > 0 && (parseFloat(r.spend) || 0) >= 500)
+      .sort((a, b) => (parseFloat(b.roas) || 0) - (parseFloat(a.roas) || 0));
+    const bestRoasRow = roasRanked.length > 0 ? roasRanked[0] : null;
+    const bestRoasHtml = bestRoasRow
+      ? _esc(bestRoasRow.state) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + parseFloat(bestRoasRow.roas).toFixed(1) + 'x &middot; ' + Math.round(parseFloat(bestRoasRow.spend) || 0).toLocaleString() + ' spend)</span>'
+      : '<span style="color:#666">--</span>';
+    const topStateHtml = topRow.state ? _esc(topRow.state) : '<span style="color:#666">--</span>';
+
+    return [
+      { label: 'States with Revenue',  value: stateCt,   prevValue: _priorState > 0 ? _priorState : undefined, format: 'num'   },
+      { label: 'Top State',            valueHtml: topStateHtml },
+      { label: 'Total Geo Revenue',    value: totalRev,  prevValue: _priorRev   > 0 ? _priorRev   : undefined, format: 'money' },
+      { label: 'Dead Zones',           value: dzCount,                                                          format: 'num',   invertDelta: true },
+      { label: 'Wasted in Dead Zones', value: wasted,                                                           format: 'money', invertDelta: true },
+      { label: 'Best ROAS State',      valueHtml: bestRoasHtml },
+    ];
+  }
+
+  const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
+  container.appendChild(kpiContainer);
+  Components.renderMetricGrid(kpiContainer, _buildGeoIntelMetrics(stateData, deadZones, priorStates));
+
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — Stage 4 mid 6 extension).
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'geo-intel' || e.detail.queryName !== 'states') return;
+    API.query('geo-intel', 'states', { days: days }).then(function (newStates) {
+      if (!newStates) return;
+      Components.renderMetricGrid(kpiContainer, _buildGeoIntelMetrics(newStates, deadZones, priorStates));
+    }).catch(function () { /* swallow */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- US Choropleth (full width) ----
   const mapCard = _geoCard('Revenue by State');
@@ -99,11 +159,10 @@ App.registerPage('geo-intel', async (container) => {
   dzCard.appendChild(dzTable);
   container.appendChild(dzCard);
 
-  // ---- Render Plotly charts ----
-  requestAnimationFrame(() => {
-    _renderChoropleth(mapDiv, stateData || []);
-    _renderStateBars(barDiv, stateData || []);
-  });
+  // ---- Render Plotly charts (lazy: choropleth above fold fires immediately
+  //      via IO; state bars are below fold and defer until scroll) ----
+  Components.lazyChart(mapDiv, () => _renderChoropleth(mapDiv, stateData || []));
+  Components.lazyChart(barDiv, () => _renderStateBars(barDiv, stateData || []));
 });
 
 // ---------------------------------------------------------------------------

@@ -1,12 +1,19 @@
 /* ============================================
    Revenue & LTV -- processor breakdown, LTV cohorts,
    closer concentration, churn absorption
+
+   WARN_DATA_UNRESOLVED: all queries on this page hit the 'enrollment'
+   namespace flagged in .planning/allnight-data-validity-7day.md
+   (Stage 0.5). Treat KPI deltas as directional, not authoritative,
+   until the bq-auth follow-up spawn clears the discrepancy.
    ============================================ */
 
 App.registerPage('revenue', async (container) => {
   const days = Filters.getDays();
 
   // ---- Fetch all data in parallel ----
+  // All eight queries below depend on enrollment-namespace BQ sources flagged
+  // by Stage 0.5 data validity audit; see top-of-file WARN_DATA_UNRESOLVED.
   let kpi, monthly, pipeline, processors, ltvCohorts, closers, churn, recent;
 
   try {
@@ -29,14 +36,6 @@ App.registerPage('revenue', async (container) => {
   const pip = (pipeline && pipeline.length > 0) ? pipeline[0] : {};
   container.innerHTML = '';
 
-  // ---- Derived values ----
-  const totalEnrolled = k.total_enrolled || 0;
-  const cashCollected = k.cash_collected || 0;
-  const roas = k.roas || 0;
-  const avgDealSize = k.avg_deal_size || 0;
-  const refundRate = k.refund_rate || 0;
-  const ticketToEnrollment = pip.ticket_to_enrollment_rate || 0;
-
   // ---- Prior period delta (fetch 2x window, compute delta) ----
   let priorKpi = {};
   try {
@@ -44,73 +43,58 @@ App.registerPage('revenue', async (container) => {
     if (priorData && priorData.length > 0) priorKpi = priorData[0];
   } catch (_) { /* ignore */ }
 
-  const priorCash = (priorKpi.cash_collected || 0) - cashCollected;
-  const priorEnrolled = (priorKpi.total_enrolled || 0) - totalEnrolled;
-  const priorRoas = priorCash > 0 && priorKpi.total_spend
-    ? priorCash / ((priorKpi.total_spend || 0) - (k.total_spend || 0) || 1)
-    : 0;
-
-  function calcDelta(current, prior) {
-    if (!prior || prior === 0) return null;
-    return ((current - prior) / Math.abs(prior)) * 100;
-  }
-
   // ======================================================
-  // SECTION 1: Revenue KPI Strip
+  // SECTION 1: Revenue KPI Metric Grid (Mode 2 conversion)
+  // renderMetricGrid pattern from war-room.js (canonical, Stage 2.5).
+  // Was a 6-card KPI strip; now a dense $27 Funnel-style grid with
+  // sparkline on the Enrollments card (monthly trend, oldest→newest).
+  // Source/calc tooltip context dropped per PRD §2 Mode 2 tradeoff.
   // ======================================================
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Enrollments',
-      value: totalEnrolled,
-      format: 'num',
-      delta: calcDelta(totalEnrolled, priorEnrolled),
-      prevValue: priorEnrolled > 0 ? priorEnrolled : undefined,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'COUNT(*) WHERE status=succeeded AND amount>100',
-    },
-    {
-      label: 'Cash Collected',
-      value: cashCollected,
-      format: 'money',
-      delta: calcDelta(cashCollected, priorCash),
-      prevValue: priorCash > 0 ? priorCash : undefined,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'SUM(amount) WHERE status=succeeded AND amount>100',
-    },
-    {
-      label: 'ROAS (Cash)',
-      value: roas,
-      format: 'num',
-      delta: calcDelta(roas, priorRoas),
-      source: 'BigQuery: v_stripe_clean + v_meta_ads_clean',
-      calc: 'cash_collected / total_ad_spend',
-    },
-    {
-      label: 'Avg Deal Size',
-      value: avgDealSize,
-      format: 'money',
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'AVG(amount) WHERE amount > 100',
-    },
-    {
-      label: 'Refund Rate',
-      value: refundRate,
-      format: 'pct',
-      invertCost: true,
-      source: 'BigQuery: v_stripe_clean',
-      calc: 'refund_count / total_count * 100',
-    },
-    {
-      label: 'Ticket-to-Enrollment',
-      value: ticketToEnrollment,
-      format: 'pct',
-      source: 'BigQuery: vw_workshop_funnel_pipeline',
-      calc: 'enrolled / total_tickets * 100',
-    },
-  ]);
+  // Monthly enrollments series doubles as sparkline trend for Enrollments card.
+  const enrollSpark = (monthly || []).map(r => Number(r.enrollments || 0));
+
+  function _buildRevenueMetrics(curK, prevK, curPip) {
+    const cur = curK || {};
+    const prev = prevK || {};
+    const pipNow = curPip || {};
+    // priorK comes from the 2x-window query; subtract current to get prior-period-only values.
+    const _priorCash = (prev.cash_collected || 0) - (cur.cash_collected || 0);
+    const _priorEnrolled = (prev.total_enrolled || 0) - (cur.total_enrolled || 0);
+    const _priorSpend = (prev.total_spend || 0) - (cur.total_spend || 0);
+    const _priorRoas = _priorSpend > 0 ? _priorCash / _priorSpend : 0;
+    return [
+      { label: 'Enrollments',         value: cur.total_enrolled,            prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num',    sparklineData: enrollSpark },
+      { label: 'Cash Collected',      value: cur.cash_collected,            prevValue: _priorCash     > 0 ? _priorCash     : undefined, format: 'money'  },
+      { label: 'ROAS (Cash)',         value: cur.roas,                      prevValue: _priorRoas     > 0 ? _priorRoas     : undefined, format: 'roas'   },
+      { label: 'Avg Deal Size',       value: cur.avg_deal_size,                                                                          format: 'money'  },
+      { label: 'Refund Rate',         value: cur.refund_rate,                                                                            format: 'pctRaw', invertDelta: true },
+      { label: 'Ticket-to-Enrollment',value: pipNow.ticket_to_enrollment_rate,                                                           format: 'pctRaw' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(k, priorKpi, pip));
+
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for revenue).
+  // When api.js detects a row-count delta from background live fetch on the
+  // enrollment.default query, re-fetch and re-render the KPI grid only.
+  // priorKpi (2x-window) and pip stay closure-stable; their own SWR refresh
+  // will be the next event. AbortController prevents listener accumulation
+  // across re-renders triggered by filter changes (App.onFilterChange).
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'enrollment' || e.detail.queryName !== 'default') return;
+    API.query('enrollment', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildRevenueMetrics(rows[0] || {}, priorKpi, pip));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ======================================================
   // SECTION 2: LTV Cohort Heatmap (Plotly)
@@ -187,7 +171,18 @@ App.registerPage('revenue', async (container) => {
       Theme.PLOTLY_CONFIG
     );
   } else {
-    heatmapDiv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:${Theme.COLORS.textMuted}">No LTV cohort data available</div>`;
+    // Empty-state polish: structured copy instead of a single dim line.
+    // Triggered when ltvCohorts query returns []; common when the window has
+    // fewer than 30 days of post-enrollment runway (no cohort can age to 30d).
+    heatmapDiv.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:24px;gap:6px">
+        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary}">No LTV cohorts in the selected range</div>
+        <div style="font-size:12px;color:${Theme.COLORS.textMuted};max-width:360px;line-height:1.5">
+          Cohorts need at least 30 days of post-enrollment runway to surface here.
+          Try expanding the date filter, or check back after the next cohort matures.
+        </div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px;font-family:JetBrains Mono,monospace">enrollment.ltvCohorts · months=12</div>
+      </div>`;
   }
 
   // ======================================================
@@ -244,32 +239,34 @@ App.registerPage('revenue', async (container) => {
       }
     };
 
-    Theme.createChart(doughnutId, {
-      type: 'doughnut',
-      data: {
-        labels: procLabels,
-        datasets: [{
-          data: procValues,
-          backgroundColor: Theme.FUNNEL_ARRAY.slice(0, procLabels.length),
-          borderWidth: 0,
-          hoverBorderWidth: 2,
-          hoverBorderColor: Theme.COLORS.textPrimary,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '65%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.label}: ${Theme.money(ctx.raw)} (${procPcts[ctx.dataIndex]?.toFixed(1)}%)`,
+    Components.lazyChart(doughnutId, () => {
+      Theme.createChart(doughnutId, {
+        type: 'doughnut',
+        data: {
+          labels: procLabels,
+          datasets: [{
+            data: procValues,
+            backgroundColor: Theme.FUNNEL_ARRAY.slice(0, procLabels.length),
+            borderWidth: 0,
+            hoverBorderWidth: 2,
+            hoverBorderColor: Theme.COLORS.textPrimary,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${Theme.money(ctx.raw)} (${procPcts[ctx.dataIndex]?.toFixed(1)}%)`,
+              },
             },
           },
         },
-      },
-      plugins: [centerTextPlugin],
+        plugins: [centerTextPlugin],
+      });
     });
 
     // Build legend
@@ -372,80 +369,82 @@ App.registerPage('revenue', async (container) => {
     const refundRates = churn.map(r => parseFloat(r.refund_rate) || 0);
     const totalFailed = churn.reduce((sum, r) => sum + (parseInt(r.failed_payments) || 0), 0);
 
-    Theme.createChart(churnCanvasId, {
-      type: 'bar',
-      data: {
-        labels: churnMonths,
-        datasets: [
-          {
-            label: 'New Revenue',
-            data: newRevenue,
-            backgroundColor: Theme.FUNNEL.green,
-            order: 2,
-            yAxisID: 'y',
-          },
-          {
-            label: 'Refund Amount',
-            data: refundAmounts,
-            backgroundColor: Theme.FUNNEL.red,
-            order: 2,
-            yAxisID: 'y',
-          },
-          {
-            label: 'Refund Rate',
-            data: refundRates,
-            type: 'line',
-            borderColor: Theme.COLORS.warning,
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: Theme.COLORS.warning,
-            tension: 0.3,
-            order: 1,
-            yAxisID: 'y1',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.dataset.yAxisID === 'y1') return `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`;
-                return `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`;
+    Components.lazyChart(churnCanvasId, () => {
+      Theme.createChart(churnCanvasId, {
+        type: 'bar',
+        data: {
+          labels: churnMonths,
+          datasets: [
+            {
+              label: 'New Revenue',
+              data: newRevenue,
+              backgroundColor: Theme.FUNNEL.green,
+              order: 2,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Refund Amount',
+              data: refundAmounts,
+              backgroundColor: Theme.FUNNEL.red,
+              order: 2,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Refund Rate',
+              data: refundRates,
+              type: 'line',
+              borderColor: Theme.COLORS.warning,
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: Theme.COLORS.warning,
+              tension: 0.3,
+              order: 1,
+              yAxisID: 'y1',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.dataset.yAxisID === 'y1') return `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`;
+                  return `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`;
+                },
               },
             },
           },
-        },
-        scales: {
-          x: {
-            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-          y: {
-            position: 'left',
-            ticks: {
-              color: Theme.COLORS.textMuted,
-              font: { size: 10 },
-              callback: (v) => Theme.money(v),
+          scales: {
+            x: {
+              ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+              grid: { color: 'rgba(255,255,255,0.04)' },
             },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-          },
-          y1: {
-            position: 'right',
-            ticks: {
-              color: Theme.COLORS.warning,
-              font: { size: 10 },
-              callback: (v) => v.toFixed(1) + '%',
+            y: {
+              position: 'left',
+              ticks: {
+                color: Theme.COLORS.textMuted,
+                font: { size: 10 },
+                callback: (v) => Theme.money(v),
+              },
+              grid: { color: 'rgba(255,255,255,0.04)' },
             },
-            grid: { display: false },
+            y1: {
+              position: 'right',
+              ticks: {
+                color: Theme.COLORS.warning,
+                font: { size: 10 },
+                callback: (v) => v.toFixed(1) + '%',
+              },
+              grid: { display: false },
+            },
           },
         },
-      },
+      });
     });
 
     failedRow.innerHTML = `
@@ -500,56 +499,58 @@ App.registerPage('revenue', async (container) => {
     trendData = enrollCounts.map((_, i) => parseFloat((intercept + slope * i).toFixed(2)));
   }
 
-  Theme.createChart(enrollCanvasId, {
-    type: 'bar',
-    data: {
-      labels: monthLabels,
-      datasets: [
-        {
-          label: 'Enrollments',
-          data: enrollCounts,
-          backgroundColor: Theme.FUNNEL.green,
-          order: 2,
-          yAxisID: 'y',
+  Components.lazyChart(enrollCanvasId, () => {
+    Theme.createChart(enrollCanvasId, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Enrollments',
+            data: enrollCounts,
+            backgroundColor: Theme.FUNNEL.green,
+            order: 2,
+            yAxisID: 'y',
+          },
+          ...(trendData.length ? [{
+            label: 'Trend',
+            data: trendData,
+            type: 'line',
+            borderColor: Theme.COLORS.warning,
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [4, 4],
+            pointRadius: 0,
+            tension: 0.3,
+            order: 1,
+            yAxisID: 'y',
+          }] : []),
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.num(ctx.parsed.y)}`,
+            },
+          },
         },
-        ...(trendData.length ? [{
-          label: 'Trend',
-          data: trendData,
-          type: 'line',
-          borderColor: Theme.COLORS.warning,
-          backgroundColor: 'transparent',
-          borderWidth: 2,
-          borderDash: [4, 4],
-          pointRadius: 0,
-          tension: 0.3,
-          order: 1,
-          yAxisID: 'y',
-        }] : []),
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.num(ctx.parsed.y)}`,
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-      },
-    },
+    });
   });
 
   // -- Monthly Cash Collected (bar) --
@@ -567,43 +568,45 @@ App.registerPage('revenue', async (container) => {
 
   const revenueSeries = (monthly || []).map(r => r.revenue || 0);
 
-  Theme.createChart(revenueCanvasId, {
-    type: 'bar',
-    data: {
-      labels: monthLabels,
-      datasets: [{
-        label: 'Cash Collected',
-        data: revenueSeries,
-        backgroundColor: Theme.FUNNEL.blue,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`,
+  Components.lazyChart(revenueCanvasId, () => {
+    Theme.createChart(revenueCanvasId, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [{
+          label: 'Cash Collected',
+          data: revenueSeries,
+          backgroundColor: Theme.FUNNEL.blue,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: {
+              color: Theme.COLORS.textMuted,
+              font: { size: 10 },
+              callback: (v) => Theme.money(v),
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          ticks: {
-            color: Theme.COLORS.textMuted,
-            font: { size: 10 },
-            callback: (v) => Theme.money(v),
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-      },
-    },
+    });
   });
 
   // ======================================================
@@ -613,12 +616,28 @@ App.registerPage('revenue', async (container) => {
   recentSection.style.cssText = 'margin-top:24px';
   container.appendChild(recentSection);
 
+  // Classify each row into tickets vs enrollments.
+  // Heuristic: description match for "Event Registration" / "Ticket" / "Workshop" -> ticket;
+  // otherwise enrollment. Pure amount-based fallback when description missing.
+  function _classifyRecent(r) {
+    var desc = String(r && r.description || '').toLowerCase();
+    if (/event registration|ticket|workshop|vip/.test(desc)) return 'ticket';
+    if (r && Number(r.amount) >= 1000) return 'enrollment';
+    return 'ticket';
+  }
+  var _recentAll = Array.isArray(recent) ? recent.slice() : [];
+  _recentAll.forEach(function (r) { r._classification = _classifyRecent(r); });
+  var _ticketCount = _recentAll.filter(function (r) { return r._classification === 'ticket'; }).length;
+  var _enrollCount = _recentAll.filter(function (r) { return r._classification === 'enrollment'; }).length;
+  var _recentFilter = 'all'; // 'all' | 'ticket' | 'enrollment'
+
   const recentHeader = document.createElement('div');
-  recentHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px';
+  recentHeader.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px';
   recentHeader.innerHTML = `
     <div>
       <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Recent Enrollments</div>
       <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Last 20 high-ticket transactions ($100+) across all processors. Live from Stripe.</div>
+      <div id="recent-filter-pills" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"></div>
     </div>
     <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
       <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px"></span>BQ: v_stripe_clean
@@ -631,10 +650,49 @@ App.registerPage('revenue', async (container) => {
   recentCard.style.cssText = 'padding:0;overflow-x:auto';
   recentSection.appendChild(recentCard);
 
-  if (!recent || recent.length === 0) {
-    recentCard.style.padding = '24px';
-    recentCard.innerHTML = '<div class="text-muted" style="text-align:center">No recent enrollments in the selected window.</div>';
-  } else {
+  function _renderRecentPills() {
+    var host = document.getElementById('recent-filter-pills');
+    if (!host) return;
+    var pills = [
+      { key: 'all',        label: 'All',         count: _recentAll.length },
+      { key: 'ticket',     label: 'Tickets',     count: _ticketCount },
+      { key: 'enrollment', label: 'Enrollments', count: _enrollCount }
+    ];
+    host.innerHTML = pills.map(function (p) {
+      var active = p.key === _recentFilter;
+      var bg = active ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.03)';
+      var border = active ? '1px solid rgba(124,58,237,0.5)' : '1px solid rgba(255,255,255,0.08)';
+      var color = active ? '#c4b5fd' : Theme.COLORS.textMuted;
+      return '<button data-key="' + p.key + '" class="recent-pill" style="cursor:pointer;padding:5px 12px;border-radius:20px;border:' + border + ';background:' + bg + ';color:' + color + ';font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-family:inherit">' +
+        p.label + ' <span style="opacity:0.7;margin-left:4px">' + p.count + '</span>' +
+      '</button>';
+    }).join('');
+    host.querySelectorAll('.recent-pill').forEach(function (b) {
+      b.addEventListener('click', function () {
+        _recentFilter = this.dataset.key;
+        _renderRecentPills();
+        _renderRecentTable();
+      });
+    });
+  }
+
+  function _renderRecentTable() {
+    var rows = _recentFilter === 'all'
+      ? _recentAll
+      : _recentAll.filter(function (r) { return r._classification === _recentFilter; });
+
+    if (!rows || rows.length === 0) {
+      recentCard.style.padding = '24px';
+      recentCard.innerHTML = '<div class="text-muted" style="text-align:center">No rows match the selected filter.</div>';
+      return;
+    }
+    recentCard.style.padding = '0';
+    _renderRecentTableHTML(rows);
+  }
+
+  function _renderRecentTableHTML(rows) {
+    var recent = rows;
+    {
     function _processorBadge(p) {
       const colors = {
         'Stripe':       { bg: 'rgba(99,102,241,0.15)', fg: '#818cf8' },
@@ -681,6 +739,10 @@ App.registerPage('revenue', async (container) => {
     html += '</tbody></table>';
     recentCard.innerHTML = html;
   }
+  } // close _renderRecentTableHTML
+
+  _renderRecentPills();
+  _renderRecentTable();
 });
 
 App.onFilterChange(() => App.navigate('revenue'));

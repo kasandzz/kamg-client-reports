@@ -56,6 +56,17 @@ App.registerPage('email-intel', async (container) => {
   const kpi = (kpiRows && kpiRows.length > 0) ? kpiRows[0] : {};
   container.innerHTML = '';
 
+  // ---- Prior period delta (fetch 2x window, compute delta) ----
+  // WARN_DATA_UNRESOLVED — sendgrid_messages is on Stage 0.5 flag list
+  // (sendgrid backfill verification deferred to bq-auth follow-up). Send
+  // counts and event counts are subtracted cleanly; rates are accepted as
+  // 2x-window approximate prior. See .planning/allnight-data-validity-7day.md
+  let priorKpi = {};
+  try {
+    const priorData = await API.query('email', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorKpi = priorData[0];
+  } catch (_) { /* ignore */ }
+
   // Helper: inline error card for failed query section
   function _eiErrorCard(sectionName, queryKey) {
     const err = _eiQueryErrors[queryKey];
@@ -98,61 +109,52 @@ App.registerPage('email-intel', async (container) => {
   } else {
 
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Total Sent',
-      value: kpi.total_sent || 0,
-      format: 'num',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE date >= DATE_SUB(CURRENT_DATE, INTERVAL {days} DAY)',
-    },
-    {
-      label: 'Delivery Rate',
-      value: kpi.delivery_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(delivered) / COUNT(*) * 100',
-    },
-    {
-      label: 'Open Rate',
-      value: kpi.open_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(DISTINCT opens) / COUNT(delivered) * 100',
-    },
-    {
-      label: 'Click Rate',
-      value: kpi.click_rate || 0,
-      format: 'pct',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(DISTINCT clicks) / COUNT(delivered) * 100',
-    },
-    {
-      label: 'Bounced',
-      value: kpi.bounced || 0,
-      format: 'num',
-      invertCost: true,
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "bounce"',
-    },
-    {
-      label: 'Unsubscribed',
-      value: kpi.unsubscribed || 0,
-      format: 'num',
-      invertCost: true,
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "unsubscribe"',
-    },
-    {
-      label: 'Delivered',
-      value: kpi.delivered || 0,
-      format: 'num',
-      source: 'BigQuery: sendgrid_messages',
-      calc: 'COUNT(*) WHERE event = "delivered"',
-    },
-  ]);
+  // Mode 2 conversion: 7-card KPI strip → dense f27-style metric grid.
+  // Pattern from war-room.js / revenue.js / sales-team.js. Engagement rates
+  // (delivery/open/click) are pre-divided in BQ → format pctRaw. Bounced /
+  // Unsubscribed carry invertDelta (more is worse). Source/calc tooltip
+  // context dropped per PRD §2 Mode 2 tradeoff.
+  // sendgrid format note: kpi.delivery_rate / open_rate / click_rate values
+  // are already in 0-100 percent form per the SQL `* 100` in the calc field.
+  function _buildEmailMetrics(cur, prev) {
+    const c = cur || {};
+    const p = prev || {};
+    const _priorSent      = (p.total_sent   || 0) - (c.total_sent   || 0);
+    const _priorDelivered = (p.delivered    || 0) - (c.delivered    || 0);
+    const _priorBounced   = (p.bounced      || 0) - (c.bounced      || 0);
+    const _priorUnsub     = (p.unsubscribed || 0) - (c.unsubscribed || 0);
+    return [
+      { label: 'Total Sent',     value: c.total_sent,    prevValue: _priorSent      > 0 ? _priorSent      : undefined, format: 'num'    },
+      { label: 'Delivered',      value: c.delivered,     prevValue: _priorDelivered > 0 ? _priorDelivered : undefined, format: 'num'    },
+      { label: 'Delivery Rate',  value: c.delivery_rate, prevValue: p.delivery_rate,                                   format: 'pctRaw' },
+      { label: 'Open Rate',      value: c.open_rate,     prevValue: p.open_rate,                                       format: 'pctRaw' },
+      { label: 'Click Rate',     value: c.click_rate,    prevValue: p.click_rate,                                      format: 'pctRaw' },
+      { label: 'Bounced',        value: c.bounced,       prevValue: _priorBounced   > 0 ? _priorBounced   : undefined, format: 'num',   invertDelta: true },
+      { label: 'Unsubscribed',   value: c.unsubscribed,  prevValue: _priorUnsub     > 0 ? _priorUnsub     : undefined, format: 'num',   invertDelta: true },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildEmailMetrics(kpi, priorKpi));
+
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending to Stage 4
+  // mid 6). When api.js detects a row-count delta from background live fetch
+  // on email.default, re-fetch and re-render the metric grid only. priorKpi
+  // (2x-window) stays closure-stable. AbortController prevents listener
+  // accumulation across App.onFilterChange re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'email' || e.detail.queryName !== 'default') return;
+    API.query('email', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildEmailMetrics(rows[0] || {}, priorKpi));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   } // end KPI else block
 
@@ -249,7 +251,13 @@ App.registerPage('email-intel', async (container) => {
   const engCard = document.createElement('div');
   engCard.className = 'card';
   engCard.style.cssText = 'padding:20px';
-  engCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Engagement Rates</div>`;
+  // Title now names the actual measured metric. Previous version showed "Click
+  // Rate %" as a flat zero line because the daily query doesn't return click
+  // events — a closer scanning the page at standup would conclude clicks were
+  // 0% rather than that the data was unavailable. Footnote discloses the gap
+  // and points at the page-level Click Rate KPI which DOES carry the value.
+  engCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Daily Open Rate</div>
+    <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-bottom:12px;font-family:'JetBrains Mono',monospace">opened / delivered &middot; per-day click rate not in email.daily query — see KPI strip for window-level click rate</div>`;
 
   const engCanvasId = 'email-engagement-rates';
   const engCanvas   = document.createElement('canvas');
@@ -258,85 +266,62 @@ App.registerPage('email-intel', async (container) => {
   engCard.appendChild(engCanvas);
   grid.appendChild(engCard);
 
-  // Build per-day open rate and click rate from daily data
-  // daily query returns sent/delivered/opened/bounced -- compute rates on the fly
+  // Build per-day open rate from daily data. Click rate dataset removed —
+  // email.daily returns sent/delivered/opened/bounced only, no clicks column.
   const engLabels    = (dailyRows || []).map(r => r.day);
   const openRates    = (dailyRows || []).map(r => {
     const delivered = r.delivered || 0;
     const opened    = r.opened    || 0;
     return delivered > 0 ? (opened / delivered) * 100 : 0;
   });
-  const clickRates   = (dailyRows || []).map(r => {
-    // click rate requires clicks col; daily query only has opened -- use 0 as placeholder
-    return 0;
-  });
 
-  Theme.createChart(engCanvasId, {
-    type: 'line',
-    data: {
-      labels: engLabels,
-      datasets: [
-        {
-          label:           'Open Rate %',
-          data:            openRates,
-          borderColor:     Theme.FUNNEL.blue,
-          backgroundColor: 'transparent',
-          borderWidth:     2,
-          pointRadius:     3,
-          tension:         0.3,
-          yAxisID:         'y',
+  Components.lazyChart(engCanvasId, () => {
+    Theme.createChart(engCanvasId, {
+      type: 'line',
+      data: {
+        labels: engLabels,
+        datasets: [
+          {
+            label:           'Open Rate %',
+            data:            openRates,
+            borderColor:     Theme.FUNNEL.blue,
+            backgroundColor: 'transparent',
+            borderWidth:     2,
+            pointRadius:     3,
+            tension:         0.3,
+          },
+        ],
+      },
+      options: {
+        responsive:          true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.pct(ctx.parsed.y)}`,
+            },
+          },
         },
-        {
-          label:           'Click Rate %',
-          data:            clickRates,
-          borderColor:     Theme.FUNNEL.orange,
-          backgroundColor: 'transparent',
-          borderWidth:     2,
-          pointRadius:     3,
-          tension:         0.3,
-          yAxisID:         'yRight',
-        },
-      ],
-    },
-    options: {
-      responsive:          true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } },
-        },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${Theme.pct(ctx.parsed.y)}`,
+        scales: {
+          x: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+          },
+          y: {
+            ticks: {
+              color:    Theme.COLORS.textMuted,
+              font:     { size: 10 },
+              callback: (v) => Theme.pct(v),
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
           },
         },
       },
-      scales: {
-        x: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } },
-          grid:  { color: 'rgba(255,255,255,0.04)' },
-        },
-        y: {
-          position: 'left',
-          ticks: {
-            color:    Theme.COLORS.textMuted,
-            font:     { size: 10 },
-            callback: (v) => Theme.pct(v),
-          },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-        },
-        yRight: {
-          position: 'right',
-          ticks: {
-            color:    Theme.COLORS.textMuted,
-            font:     { size: 10 },
-            callback: (v) => Theme.pct(v),
-          },
-          grid: { drawOnChartArea: false },
-        },
-      },
-    },
+    });
   });
 
   } // end Engagement Rates else block
@@ -374,35 +359,37 @@ App.registerPage('email-intel', async (container) => {
     return t > 0.5 ? Theme.FUNNEL.purple : Theme.FUNNEL.blue;
   });
 
-  Plotly.newPlot(
-    subjectDivId,
-    [
+  Components.lazyChart(subjectDivId, () => {
+    Plotly.newPlot(
+      subjectDivId,
+      [
+        {
+          type:        'bar',
+          orientation: 'h',
+          x:           openRatesSub,
+          y:           subjects,
+          text:        sentCounts.map(s => `${Theme.num(s)} sent`),
+          textposition: 'outside',
+          marker: { color: barColors },
+          hovertemplate: '<b>%{y}</b><br>Open Rate: %{x:.1f}%<extra></extra>',
+        },
+      ],
       {
-        type:        'bar',
-        orientation: 'h',
-        x:           openRatesSub,
-        y:           subjects,
-        text:        sentCounts.map(s => `${Theme.num(s)} sent`),
-        textposition: 'outside',
-        marker: { color: barColors },
-        hovertemplate: '<b>%{y}</b><br>Open Rate: %{x:.1f}%<extra></extra>',
+        ...Theme.PLOTLY_LAYOUT,
+        margin: { t: 10, b: 40, l: 260, r: 80 },
+        xaxis: {
+          ...Theme.PLOTLY_LAYOUT.xaxis,
+          title: 'Open Rate (%)',
+        },
+        yaxis: {
+          ...Theme.PLOTLY_LAYOUT.yaxis,
+          autorange: 'reversed',
+          tickfont:  { size: 11 },
+        },
       },
-    ],
-    {
-      ...Theme.PLOTLY_LAYOUT,
-      margin: { t: 10, b: 40, l: 260, r: 80 },
-      xaxis: {
-        ...Theme.PLOTLY_LAYOUT.xaxis,
-        title: 'Open Rate (%)',
-      },
-      yaxis: {
-        ...Theme.PLOTLY_LAYOUT.yaxis,
-        autorange: 'reversed',
-        tickfont:  { size: 11 },
-      },
-    },
-    Theme.PLOTLY_CONFIG
-  );
+      Theme.PLOTLY_CONFIG
+    );
+  });
 
   } // end Subject Performance else block
 
@@ -474,25 +461,27 @@ App.registerPage('email-intel', async (container) => {
       '#f97316', '#06b6d4', '#eab308', '#ef4444', '#6366f1'
     ];
 
-    Plotly.newPlot(
-      donutDivId,
-      [{
-        type: 'pie',
-        hole: 0.55,
-        labels: donutLabels,
-        values: donutValues,
-        marker: { colors: palette.slice(0, donutLabels.length) },
-        textinfo: 'label+percent',
-        textposition: 'outside',
-        hovertemplate: '<b>%{label}</b><br>Delivered: %{value:,}<br>Share: %{percent}<extra></extra>',
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        margin: { t: 20, b: 20, l: 20, r: 20 },
-        showlegend: false,
-      },
-      Theme.PLOTLY_CONFIG
-    );
+    Components.lazyChart(donutDivId, () => {
+      Plotly.newPlot(
+        donutDivId,
+        [{
+          type: 'pie',
+          hole: 0.55,
+          labels: donutLabels,
+          values: donutValues,
+          marker: { colors: palette.slice(0, donutLabels.length) },
+          textinfo: 'label+percent',
+          textposition: 'outside',
+          hovertemplate: '<b>%{label}</b><br>Delivered: %{value:,}<br>Share: %{percent}<extra></extra>',
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          margin: { t: 20, b: 20, l: 20, r: 20 },
+          showlegend: false,
+        },
+        Theme.PLOTLY_CONFIG
+      );
+    });
 
     // Chart B: Per-Provider Rates Table
     const tableCard = document.createElement('div');

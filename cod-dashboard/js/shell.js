@@ -8,7 +8,8 @@ const Shell = (() => {
   const AUTH_KEY = 'cod_auth';
   const AUTH_PASS = 'cod2026';
 
-  // Navigation structure (mirrors index.html sidebar)
+  // Navigation structure (mirrors index.html sidebar).
+  // Order within each section reflects usage frequency (most-used first).
   const NAV = [
     { section: 'COMMAND', items: [
       { page: 'war-room',   icon: '&#127919;', label: 'War Room' },
@@ -22,13 +23,15 @@ const Shell = (() => {
     ]},
     { section: 'CONVERSION', items: [
       { page: 'funnels',     icon: '&#127744;', label: '$27 Funnel' },
-      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
       { page: 'sales-team',  icon: '&#128101;', label: 'Sales Team' },
+      { page: 'ma-funnel',   icon: '&#127891;', label: 'MA/VSL Funnel' },
       { page: 'experiments', icon: '&#129514;', label: 'Experiments', dimmed: true },
     ]},
     { section: 'INTELLIGENCE', items: [
-      { page: 'segments',         icon: '&#128202;', label: 'Segments' },
       { page: 'journey-explorer', icon: '&#128279;', label: 'Journey Explorer' },
+      { page: 'email-intel',      icon: '&#128231;', label: 'Email Intel' },
+      { page: 'segments',         icon: '&#128202;', label: 'Segments' },
+      { page: 'geo-intel',        icon: '&#127758;', label: 'Geo Intel' },
     ]},
     { section: 'OPERATIONS', items: [
       { page: 'live-feed',   icon: '&#9889;',   label: 'Live Feed' },
@@ -68,18 +71,30 @@ const Shell = (() => {
 
     // Build nav HTML
     let navHTML = '';
+    let sectionIdx = 0;
     for (const section of NAV) {
       const sStyle = section.sectionStyle ? ` style="${section.sectionStyle}"` : '';
-      navHTML += `<div class="nav-section-label"${sStyle}>${section.section}</div>\n`;
+      const sectionId = `nav-section-${sectionIdx++}`;
+      navHTML += `<div class="nav-section-label" id="${sectionId}"${sStyle}>${section.section}</div>\n`;
+      navHTML += `<ul class="nav-section-list" role="list" aria-labelledby="${sectionId}">\n`;
       for (const item of section.items) {
         const active = item.page === pageName ? ' active' : '';
         const dimmed = item.dimmed ? ' dimmed' : '';
-        const disabled = item.disabled ? ' style="opacity:0.35;pointer-events:none;cursor:default"' : '';
-        navHTML += `<a class="nav-item${active}${dimmed}" href="${_pageHref(item.page)}" data-page="${item.page}"${disabled}><span class="nav-icon">${item.icon}</span><span class="nav-label">${item.label}</span><span class="nav-dot" hidden></span></a>\n`;
+        const isCurrent = item.page === pageName;
+        const ariaCurrent = isCurrent ? ' aria-current="page"' : '';
+        const ariaDisabled = item.disabled ? ' aria-disabled="true" tabindex="-1"' : '';
+        const disabledStyle = item.disabled ? ' style="opacity:0.35;pointer-events:none;cursor:default"' : '';
+        // Visually-hidden text label gives the link a discernible name independent
+        // of the emoji icon (icons are aria-hidden, so screen readers read .nav-label only).
+        navHTML += `<li role="listitem"><a class="nav-item${active}${dimmed}" href="${_pageHref(item.page)}" data-page="${item.page}"${ariaCurrent}${ariaDisabled}${disabledStyle}><span class="nav-icon" aria-hidden="true">${item.icon}</span><span class="nav-label">${item.label}</span><span class="nav-dot" hidden aria-hidden="true"></span></a></li>\n`;
       }
+      navHTML += `</ul>\n`;
     }
 
     return `
+    <!-- Skip to main content (WCAG 2.4.1 Bypass Blocks) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Auth Gate -->
     <div id="auth-gate" class="auth-gate">
       <div class="auth-card card">
@@ -96,32 +111,32 @@ const Shell = (() => {
     <!-- Main App Shell -->
     <div id="app-shell" class="app-shell" hidden>
       <!-- Sidebar -->
-      <aside id="sidebar" class="sidebar">
+      <aside id="sidebar" class="sidebar" aria-label="Site navigation">
         <div class="sidebar-header">
-          <a href="${_basePath()}pages/war-room.html" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px">
-            <span class="sidebar-logo">&#127919;</span>
+          <a href="${_basePath()}pages/war-room.html" aria-label="COD Command — go to War Room" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px">
+            <span class="sidebar-logo" aria-hidden="true">&#127919;</span>
             <span class="sidebar-title">COD Command</span>
           </a>
         </div>
 
-        <button id="sidebar-search-btn" class="sidebar-search-btn" aria-label="Search pages (Ctrl+K)">
-          <span class="sidebar-search-icon">&#128269;</span>
+        <button id="sidebar-search-btn" class="sidebar-search-btn" type="button" aria-label="Open page search (Ctrl or Command K)" aria-haspopup="dialog">
+          <span class="sidebar-search-icon" aria-hidden="true">&#128269;</span>
           <span class="sidebar-search-text">Search...</span>
-          <kbd class="sidebar-kbd">&#8984;K</kbd>
+          <kbd class="sidebar-kbd" aria-hidden="true">&#8984;K</kbd>
         </button>
 
-        <nav class="sidebar-nav" id="sidebar-nav">
+        <nav class="sidebar-nav" id="sidebar-nav" aria-label="Primary">
           ${navHTML}
         </nav>
       </aside>
 
       <!-- Main Content -->
-      <main class="main-content">
+      <main class="main-content" id="main-content" tabindex="-1">
         <!-- Top Bar -->
         <header class="top-bar">
-          <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+          <button id="sidebar-toggle" type="button" class="sidebar-toggle" aria-label="Toggle navigation menu" aria-controls="sidebar" aria-expanded="false"><span aria-hidden="true">&#9776;</span></button>
           <h1 id="page-title" class="page-title">${pageInfo.label}</h1>
-          <div id="global-controls" class="global-controls"></div>
+          <div id="global-controls" class="global-controls" role="toolbar" aria-label="Page filters and controls"></div>
         </header>
 
         <!-- Page Container -->
@@ -134,20 +149,22 @@ const Shell = (() => {
       </main>
 
       <!-- Drill-Down Panel -->
-      <div id="drill-down-panel" class="drill-down-panel" hidden>
+      <div id="drill-down-panel" class="drill-down-panel" hidden role="dialog" aria-modal="true" aria-labelledby="drill-down-title" tabindex="-1">
         <div class="drill-down-header">
-          <h3 id="drill-down-title" class="drill-down-title"></h3>
-          <button id="drill-down-close" class="drill-down-close" aria-label="Close panel">&times;</button>
+          <h2 id="drill-down-title" class="drill-down-title"></h2>
+          <button id="drill-down-close" type="button" class="drill-down-close" aria-label="Close panel">&times;</button>
         </div>
         <div id="drill-down-content" class="drill-down-content"></div>
       </div>
 
       <!-- Search Modal -->
-      <div id="search-modal" class="search-modal" hidden>
-        <div class="search-backdrop"></div>
+      <div id="search-modal" class="search-modal" hidden role="dialog" aria-modal="true" aria-labelledby="search-modal-label">
+        <div class="search-backdrop" aria-hidden="true"></div>
         <div class="search-dialog card">
-          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off">
-          <div id="search-results" class="search-results"></div>
+          <h2 id="search-modal-label" class="sr-only">Search pages</h2>
+          <label for="search-input" class="sr-only">Search pages</label>
+          <input type="text" id="search-input" class="search-input" placeholder="Search pages..." autocomplete="off" role="combobox" aria-controls="search-results" aria-autocomplete="list" aria-expanded="true" aria-activedescendant="">
+          <div id="search-results" class="search-results" role="listbox" aria-label="Page search results"></div>
         </div>
       </div>
     </div>`;
@@ -195,13 +212,15 @@ const Shell = (() => {
     const sidebar = document.getElementById('sidebar');
     if (sidebarToggle && sidebar) {
       sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
+        const opened = sidebar.classList.toggle('open');
+        sidebarToggle.setAttribute('aria-expanded', String(opened));
       });
 
       document.querySelectorAll('.nav-item[data-page]').forEach(item => {
         item.addEventListener('click', () => {
           if (window.innerWidth <= 768) {
             sidebar.classList.remove('open');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
           }
         });
       });
@@ -226,9 +245,12 @@ const Shell = (() => {
     const backdrop = modal?.querySelector('.search-backdrop');
     const searchBtn = document.getElementById('sidebar-search-btn');
     let focusedIdx = -1;
+    // Remember the trigger element so we can restore focus on close
+    let _searchTrigger = null;
 
     function open() {
       if (!modal) return;
+      _searchTrigger = document.activeElement;
       modal.hidden = false;
       input.value = '';
       _renderSearchResults('');
@@ -239,6 +261,11 @@ const Shell = (() => {
     function close() {
       if (!modal) return;
       modal.hidden = true;
+      input.setAttribute('aria-activedescendant', '');
+      if (_searchTrigger && typeof _searchTrigger.focus === 'function') {
+        try { _searchTrigger.focus(); } catch (_) { /* gone */ }
+      }
+      _searchTrigger = null;
     }
 
     function _renderSearchResults(query) {
@@ -248,8 +275,8 @@ const Shell = (() => {
         : ALL_PAGES;
 
       results.innerHTML = filtered.map((item, i) => `
-        <div class="search-result-item${i === focusedIdx ? ' focused' : ''}" data-page="${item.page}" data-idx="${i}">
-          <span class="search-result-icon">${item.icon}</span>
+        <div class="search-result-item${i === focusedIdx ? ' focused' : ''}" role="option" id="search-opt-${i}" aria-selected="${i === focusedIdx}" data-page="${item.page}" data-idx="${i}">
+          <span class="search-result-icon" aria-hidden="true">${item.icon}</span>
           <span>${_highlightMatch(item.label, q)}</span>
           <span class="search-result-section">${item.section}</span>
         </div>
@@ -294,9 +321,18 @@ const Shell = (() => {
     }
 
     function _updateFocus(items) {
-      items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+      items.forEach((el, i) => {
+        const sel = i === focusedIdx;
+        el.classList.toggle('focused', sel);
+        el.setAttribute('aria-selected', sel ? 'true' : 'false');
+      });
       if (items[focusedIdx]) {
         items[focusedIdx].scrollIntoView({ block: 'nearest' });
+        // aria-activedescendant lets screen readers track the
+        // "virtually focused" option while real focus stays on the input
+        input.setAttribute('aria-activedescendant', items[focusedIdx].id);
+      } else {
+        input.setAttribute('aria-activedescendant', '');
       }
     }
 

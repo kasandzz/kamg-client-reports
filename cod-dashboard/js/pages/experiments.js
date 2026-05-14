@@ -19,17 +19,55 @@ App.registerPage('experiments', async (container) => {
 
   const kpi = (defaultData && defaultData.length > 0) ? defaultData[0] : {};
 
-  // ---- KPI Strip ----
+  // ---- KPI metric grid (Mode 2 conversion 2026-05-13) ----
+  // Registry-empty state: completed=0 makes win_rate / avg_confidence undefined,
+  // not 0%. Showing "0%" implied "we ran tests, none won" — which was a lie.
+  // Now we display "—" with valueHtml when the denominator is missing.
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Active Experiments', value: kpi.active_experiments    || 0, format: 'num', source: 'BQ experiment_registry', calc: 'COUNT(experiments WHERE status = active)' },
-    { label: 'Completed',          value: kpi.completed_experiments || 0, format: 'num', source: 'BQ experiment_registry', calc: 'COUNT(experiments WHERE status = completed)' },
-    { label: 'Win Rate',           value: kpi.win_rate              || 0, format: 'pct', source: 'BQ experiment_registry', calc: 'COUNT(winner IS NOT NULL) / COUNT(completed)' },
-    { label: 'Avg Confidence',     value: kpi.avg_confidence        || 0, format: 'pct', source: 'BQ experiment_registry', calc: 'AVG(confidence WHERE status = completed)' },
-    { label: 'Planned Tests',      value: 24,                            format: 'num', source: 'Static (roadmap target)', calc: 'Hardcoded: 24 planned tests across COD funnel' },
-  ]);
+  function _buildExperimentMetrics(row) {
+    const active    = Number(row.active_experiments    || 0);
+    const completed = Number(row.completed_experiments || 0);
+    const winRate   = row.win_rate;
+    const avgConf   = row.avg_confidence;
+    const dashHtml  = '<span style="color:var(--text-muted,#64748b)">—</span>';
+    return [
+      { label: 'Active Experiments', value: active,    format: 'num' },
+      { label: 'Completed',          value: completed, format: 'num' },
+      {
+        label: 'Win Rate',
+        valueHtml: completed > 0 && winRate != null ? (Number(winRate) * 100).toFixed(1) + '%' : dashHtml,
+      },
+      {
+        label: 'Avg Confidence',
+        valueHtml: completed > 0 && avgConf != null ? (Number(avgConf) * 100).toFixed(1) + '%' : dashHtml,
+      },
+      {
+        label: 'Planned Tests',
+        valueHtml: '24 <span style="font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--text-muted,#64748b);background:rgba(255,255,255,0.04);padding:2px 6px;border-radius:8px;vertical-align:middle;margin-left:4px;text-transform:uppercase">Roadmap</span>',
+      },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildExperimentMetrics(kpi));
+
+  // SWR cache-refresh wiring. If api.js detects row-count delta from a
+  // background live fetch (i.e. registry got populated mid-session), re-render
+  // the metric grid without forcing the user to reload. AbortController guards
+  // against listener leaks across re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', (e) => {
+    if (!e || !e.detail || e.detail.page !== 'experiments' || e.detail.queryName !== 'default') return;
+    API.query('experiments', 'default', { days }).then((rows) => {
+      const next = (rows && rows.length > 0) ? rows[0] : {};
+      Components.renderMetricGrid(kpiContainer, _buildExperimentMetrics(next));
+    }).catch(() => { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Empty State Hero ----
   const heroCard = document.createElement('div');
@@ -49,7 +87,17 @@ App.registerPage('experiments', async (container) => {
   confidence FLOAT64,
   winner STRING,
   notes STRING
-);`;
+)
+PARTITION BY start_date
+CLUSTER BY status;
+
+-- Example: log a planned test
+INSERT INTO cod_warehouse.experiment_registry
+  (id, name, status, variant_a, variant_b, metric, start_date)
+VALUES
+  ('exp_001', 'Reg page hero copy', 'planned',
+   'Original hero', 'Outcome-led hero',
+   'reg_to_workshop_rate', DATE '2026-05-20');`;
 
   const copyBtnId = 'exp-copy-sql-btn';
 
@@ -134,9 +182,9 @@ App.registerPage('experiments', async (container) => {
   plannedCard.style.cssText = 'padding:24px;margin-top:16px';
 
   plannedCard.innerHTML = `
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Planned Tests</div>
-      <div style="font-size:12px;color:var(--text-muted)">Awaiting registry</div>
+      <div style="font-size:12px;color:var(--text-muted)">Roadmap target: 24 across COD funnel · Registry: 0 logged</div>
     </div>
     <div style="
       border:2px dashed var(--border-subtle);

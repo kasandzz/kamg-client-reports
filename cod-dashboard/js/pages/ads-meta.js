@@ -50,69 +50,81 @@ App.registerPage('ads-meta', async (container) => {
     dailyCompare = await API.query('ads-meta', 'daily', { days: days * 2 }).catch(() => null);
   }
 
+  // Doubled-window default fetch for prior-period delta math on the metric grid.
+  // Mirrors revenue.js:42-44 pattern. Non-blocking; deltas just hide if it fails.
+  // WARN_DATA_UNRESOLVED — ads-meta is on the Stage 0.5 flag list (meta_ads_insights).
+  let priorKpi = {};
+  try {
+    const priorData = await API.query('ads-meta', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorKpi = priorData[0];
+  } catch (_) { /* deltas hide */ }
+
   const kpi = (kpis && kpis.length > 0) ? kpis[0] : {};
   container.innerHTML = '';
 
   // ---- Derived KPI values ----
   const totalSpend     = kpi.total_spend        || 0;
-  const avgCtr         = kpi.avg_ctr            || 0;
-  const avgCpm         = kpi.avg_cpm            || 0;
-  const avgCpc         = kpi.avg_cpc            || 0;
-  const costPerTicket  = kpi.cost_per_ticket     || 0;
 
   // Account-level ROAS from campaigns rollup
   const totalRevenue = (campaigns || []).reduce((s, c) => s + (c.revenue || 0), 0);
   const accountRoas  = totalSpend > 0 ? totalRevenue / totalSpend : 0;
 
-  // ---- KPI Strip ----
+  // ======================================================
+  // SECTION 1: Meta Ads KPI Metric Grid (Mode 2 conversion)
+  // renderMetricGrid pattern from war-room/revenue (canonical Stage 2.5/3).
+  // Was a 6-card KPI strip; now dense f27-metric grid with prior-period
+  // deltas and a spend-trend sparkline. invertDelta flips arrow color for
+  // cost metrics (up = bad). Source/calc tooltip context dropped per PRD §2.
+  // ======================================================
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Total Spend',
-      value: totalSpend,
-      format: 'money',
-      source: 'Meta Marketing API via BQ: meta_ads_insights',
-      calc: 'SUM(spend) across all campaigns for selected date range',
-    },
-    {
-      label: 'ROAS',
-      value: Components.guardROAS(accountRoas),
-      format: 'num',
-      source: 'BQ: meta_ads_campaigns (revenue rollup) / meta_ads_insights (spend)',
-      calc: 'SUM(campaign.revenue) / SUM(spend); revenue from Hyros attribution joined to campaigns',
-    },
-    {
-      label: 'CPM',
-      value: avgCpm,
-      format: 'money',
-      source: 'Meta Marketing API via BQ: meta_ads_insights',
-      calc: 'AVG(cpm) across active ad sets; Meta-reported (spend / impressions * 1000)',
-    },
-    {
-      label: 'CPC',
-      value: avgCpc,
-      format: 'money',
-      source: 'Meta Marketing API via BQ: meta_ads_insights',
-      calc: 'AVG(cpc) across active ad sets; Meta-reported (spend / link_clicks)',
-    },
-    {
-      label: 'CTR',
-      value: avgCtr,
-      format: 'pct',
-      source: 'Meta Marketing API via BQ: meta_ads_insights',
-      calc: 'AVG(ctr) across active ad sets; Meta-reported link CTR (link_clicks / impressions)',
-    },
-    {
-      label: 'Cost Per Ticket',
-      value: costPerTicket,
-      format: 'money',
-      invertCost: true,
-      source: 'BQ: meta_ads_insights (spend) joined to Stripe ticket purchases',
-      calc: 'SUM(spend) / COUNT(DISTINCT stripe_ticket_purchases) for date range',
-    },
-  ]);
+  // Daily spend series doubles as sparkline trend for Total Spend card.
+  const spendSpark = (daily || []).map(r => Number(r.spend || 0));
+
+  function _buildAdsMetaMetrics(curK, prevK, curRoas, curTotalSpend) {
+    const cur = curK || {};
+    const prev = prevK || {};
+    // priorK comes from the 2x-window query; subtract current to get prior-period-only values.
+    const _priorSpend = (prev.total_spend  || 0) - (cur.total_spend  || 0);
+    const _priorCtr   = (prev.avg_ctr      || 0);  // avg fields are already window-aggregated; show 2x as rough prior
+    const _priorCpm   = (prev.avg_cpm      || 0);
+    const _priorCpc   = (prev.avg_cpc      || 0);
+    const _priorCpt   = (prev.cost_per_ticket || 0);
+    return [
+      { label: 'Total Spend',     value: curTotalSpend,                        prevValue: _priorSpend > 0 ? _priorSpend : undefined, format: 'money', sparklineData: spendSpark },
+      { label: 'ROAS',            value: Components.guardROAS(curRoas),        format: 'roas' },
+      { label: 'CPM',             value: cur.avg_cpm || 0,                     prevValue: _priorCpm > 0 ? _priorCpm : undefined, format: 'money', invertDelta: true },
+      { label: 'CPC',             value: cur.avg_cpc || 0,                     prevValue: _priorCpc > 0 ? _priorCpc : undefined, format: 'money', invertDelta: true },
+      { label: 'CTR',             value: cur.avg_ctr || 0,                     prevValue: _priorCtr > 0 ? _priorCtr : undefined, format: 'pct' },
+      { label: 'Cost Per Ticket', value: cur.cost_per_ticket || 0,             prevValue: _priorCpt > 0 ? _priorCpt : undefined, format: 'money', invertDelta: true },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildAdsMetaMetrics(kpi, priorKpi, accountRoas, totalSpend));
+
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for ads-meta).
+  // When api.js detects a row-count delta from background live fetch on the
+  // ads-meta.default query, re-fetch and re-render the metric grid only.
+  // priorKpi (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across the
+  // re-renders triggered by App.onFilterChange. Pattern from revenue.js:87-97.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'ads-meta' || e.detail.queryName !== 'default') return;
+    API.query('ads-meta', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      // Recompute accountRoas off the same campaigns rollup (campaigns query has
+      // its own SWR refresh event; we accept stale revenue here for the spend-side update).
+      const _rev = (campaigns || []).reduce((s, c) => s + (c.revenue || 0), 0);
+      const _spend = rows[0].total_spend || 0;
+      const _roas = _spend > 0 ? _rev / _spend : 0;
+      Components.renderMetricGrid(kpiContainer, _buildAdsMetaMetrics(rows[0] || {}, priorKpi, _roas, _spend));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- 2-column chart grid ----
   const grid = document.createElement('div');
@@ -832,7 +844,11 @@ function _esc(s) {
 
 function _renderSourceAttribution(container, data) {
   if (!data || data.length === 0) {
-    _renderDeferredPlaceholder(container, 'Source Attribution', 'No Hyros-attributed Meta sources in the current window.');
+    _renderDeferredPlaceholder(
+      container,
+      'Source Attribution',
+      'No Hyros-attributed Meta sources in the current window. Widen the date range or check that the Hyros<>Meta mapping is current in mv_attribution_comparison.'
+    );
     return;
   }
 
@@ -873,18 +889,28 @@ function _renderSourceAttribution(container, data) {
   data.forEach((r, i) => {
     const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
     const roas = Number(r.roas) || 0;
-    const roasColor = roas >= 3 ? Theme.COLORS.success : roas >= 1 ? Theme.COLORS.warning : roas > 0 ? Theme.COLORS.danger : Theme.COLORS.textMuted;
+    const revenue = Number(r.revenue) || 0;
     const spend = Number(r.spend) || 0;
     const cac = Number(r.cac) || 0;
+    // ROAS display: distinguish "spent without measurable return" (danger, 0.00x)
+    // from "no spend joined in window" (muted, –). Previously both showed '–'
+    // which masked active money-losing sources.
+    const roasMeasured = spend > 0;
+    const roasDisplay = roasMeasured ? roas.toFixed(2) + 'x' : '–';
+    const roasColor = !roasMeasured
+      ? Theme.COLORS.textMuted
+      : roas >= 3 ? Theme.COLORS.success
+      : roas >= 1 ? Theme.COLORS.warning
+      : Theme.COLORS.danger;
     html += `
       <tr style="background:${altBg};border-bottom:1px solid rgba(255,255,255,0.04)">
         <td style="padding:8px 10px;color:${Theme.COLORS.textPrimary};font-weight:500;font-size:11px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${_esc(r.source || '')}">${_esc(r.source || '')}</td>
         <td style="padding:8px 10px;text-align:right;color:${spend > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${spend > 0 ? Theme.money(spend) : '–'}</td>
         <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.leads) || 0)}</td>
         <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textSecondary};font-variant-numeric:tabular-nums">${Theme.num(Number(r.conversions) || 0)}</td>
-        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(Number(r.revenue) || 0)}</td>
+        <td style="padding:8px 10px;text-align:right;color:${Theme.COLORS.textPrimary};font-weight:600;font-variant-numeric:tabular-nums">${Theme.money(revenue)}</td>
         <td style="padding:8px 10px;text-align:right;color:${cac > 0 ? Theme.COLORS.textSecondary : Theme.COLORS.textMuted};font-variant-numeric:tabular-nums">${cac > 0 ? Theme.money(cac) : '–'}</td>
-        <td style="padding:8px 10px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roas > 0 ? roas.toFixed(2) + 'x' : '–'}</td>
+        <td style="padding:8px 10px;text-align:right;color:${roasColor};font-weight:600;font-variant-numeric:tabular-nums">${roasDisplay}</td>
       </tr>
     `;
   });

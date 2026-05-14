@@ -103,11 +103,24 @@ for (let s = 1; s <= 12; s++) {
       }
 
       // ---- Fetch data ----
+      // WARN_DATA_UNRESOLVED: journey-stage queries join master_journey / bridge_session_attribution
+      // (posthog-backed) per Stage 0.5 7-day validity audit. Backfill verification pending.
       let rows;
       try {
         rows = await API.query('journey-stage', 'default', { days, stage: stageNum });
       } catch (err) {
-        container.innerHTML += `<div class="card" style="padding:24px"><p class="text-muted">Failed to load stage ${stageNum}: ${err.message}</p></div>`;
+        const errCard = document.createElement('div');
+        errCard.className = 'card';
+        errCard.style.cssText = 'padding:24px; border-left:3px solid #ef4444;';
+        const errTitle = document.createElement('p');
+        errTitle.style.cssText = 'margin:0 0 6px; font-size:14px; font-weight:600; color:var(--text-primary, #e2e8f0);';
+        errTitle.textContent = `Stage ${stageNum} data failed to load`;
+        const errDetail = document.createElement('p');
+        errDetail.style.cssText = 'margin:0; font-size:12px; color:var(--text-secondary, #94a3b8); line-height:1.5;';
+        errDetail.textContent = `${err.message || String(err)} — posthog/BQ join may be unhealthy. Check Data Health for event ingestion status.`;
+        errCard.appendChild(errTitle);
+        errCard.appendChild(errDetail);
+        container.appendChild(errCard);
         _renderStageNav(container, stageNum);
         return;
       }
@@ -115,7 +128,11 @@ for (let s = 1; s <= 12; s++) {
       if (!rows || rows.length === 0 || (rows[0] && rows[0].status === 'no_data')) {
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.innerHTML = `<span class="empty-state-icon">&#9888;</span><p>No data for the selected period</p>`;
+        empty.innerHTML = `
+          <span class="empty-state-icon">&#9888;</span>
+          <p style="margin:6px 0 4px;">No <strong>${cfg.title}</strong> events in the selected period</p>
+          <p style="margin:0; font-size:12px; color:var(--text-muted, #64748b);">Sourced from posthog event stream → master_journey. If you expect activity, check Data Health for event ingestion gaps.</p>
+        `;
         container.appendChild(empty);
         _renderStageNav(container, stageNum);
         return;
@@ -135,6 +152,38 @@ for (let s = 1; s <= 12; s++) {
       }
 
       _renderStageNav(container, stageNum);
+
+      // ---- Cache-refresh listener: re-render in place when background SWR delivers fresher rows ----
+      // Pattern shared with war-room / revenue / ads-meta / journey-explorer / funnels / ma-funnel /
+      // sales-team / email / segments / attribution / geo-intel. AbortController cleans up on navigate.
+      const refreshCtl = new AbortController();
+      window.addEventListener('cache-refresh', async (e) => {
+        if (!e || !e.detail) return;
+        if (e.detail.page !== 'journey-stage' || e.detail.queryName !== 'default') return;
+        // Cache key includes stage filter — only refresh THIS stage's card.
+        const key = e.detail.cacheKey || '';
+        if (key.indexOf(`stage=${stageNum}`) === -1) return;
+        try {
+          const fresh = await API.query('journey-stage', 'default', { days: Filters.getDays(), stage: stageNum });
+          if (!fresh || fresh.length === 0) return;
+          // Find the existing chart card (header + chart) and re-render only the chart portion in place.
+          const chartCanvas = container.querySelector(`#stage-chart-${stageNum}`);
+          const chartCard = chartCanvas ? chartCanvas.closest('.card') : null;
+          const tableCard = container.querySelector('.card table');
+          if (chartCard) chartCard.remove();
+          else if (tableCard && tableCard.closest('.card')) tableCard.closest('.card').remove();
+          // Re-render by chartType against the fresh rows.
+          if (cfg.chartType === 'table')      _renderTable(container, cfg, fresh);
+          else if (cfg.chartType === 'bar')   _renderBarChart(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'line')  _renderLineChart(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'gauge') _renderGauge(container, cfg, fresh, stageNum);
+          else if (cfg.chartType === 'hbar')  _renderHBar(container, cfg, fresh, stageNum);
+          // The nav button row stays put — no need to re-render it.
+        } catch (_) { /* swallow — background refresh is best-effort */ }
+      }, { signal: refreshCtl.signal });
+      // Abort on next navigation: App fires a "page-leave" event in shell.js; if not, the listener
+      // gets garbage-collected when the container is replaced. AbortController makes cleanup explicit.
+      window.addEventListener('page-leave', () => refreshCtl.abort(), { once: true });
     });
   })(s);
 }
@@ -305,8 +354,13 @@ function _renderHBar(container, cfg, rows, stageNum) {
 
   requestAnimationFrame(() => {
     if (typeof Plotly === 'undefined') return;
-    const labels = rows.map(r => r[cfg.labelField] || 'Unknown');
-    const values = rows.map(r => parseFloat(r[cfg.valueField]) || 0);
+    // Sort by valueField descending so the hbar reads as a leaderboard top-to-bottom.
+    // Prior behavior: rows arrived in whatever order BQ returned (typically clustered by closer
+    // surname) — a reader scanning Stage 7 (Sales Call close rate) would misread the order as
+    // ranked. Stable sort: equal close_rate keeps original BQ order.
+    const sorted = rows.slice().sort((a, b) => (parseFloat(b[cfg.valueField]) || 0) - (parseFloat(a[cfg.valueField]) || 0));
+    const labels = sorted.map(r => r[cfg.labelField] || 'Unknown');
+    const values = sorted.map(r => parseFloat(r[cfg.valueField]) || 0);
 
     Plotly.newPlot('stage-chart-' + stageNum, [{
       type: 'bar',

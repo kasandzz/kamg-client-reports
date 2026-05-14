@@ -4,6 +4,10 @@
 
 const Components = (() => {
   let _drillDownOpen = false;
+  // Track the element that triggered drill-down so we can return focus on close
+  // (WCAG 2.4.3 Focus Order, 3.2.1 On Focus).
+  let _drillDownTrigger = null;
+  let _drillDownKeyHandler = null;
 
   /**
    * Compute the z-score of the last value of a numeric series vs the prior
@@ -37,6 +41,10 @@ const Components = (() => {
 
     el.innerHTML = '';
     el.classList.add('kpi-grid');
+    // The KPI strip is a logical group of stat readouts. role=group with a
+    // label keeps assistive tech from announcing every card as standalone.
+    if (!el.getAttribute('role')) el.setAttribute('role', 'group');
+    if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', 'Key performance indicators');
 
     kpis.forEach((kpi, i) => {
       const card = document.createElement('div');
@@ -63,10 +71,26 @@ const Components = (() => {
             openDrillDown(kpi.label, kpi.drillDown);
           }
         });
+      } else {
+        // Non-clickable KPIs are read-only status -- expose to AT as a stat group.
+        // Using role=group + label so screen readers announce
+        // "[label] [value] [delta]" as one unit instead of three loose strings.
+        card.setAttribute('role', 'group');
       }
 
       // Formatted value
       const formattedValue = Theme.formatValue(kpi.value, kpi.format);
+
+      // Build a single aria-label that summarises label + value + delta for AT.
+      let _ariaParts = [String(kpi.label || ''), String(formattedValue || '')];
+      if (kpi.delta != null) {
+        const _d = (deltaNum >= 0 ? '+' : '') + deltaNum.toFixed(1) + '%';
+        const _dir = deltaNum > 0 ? 'up' : deltaNum < 0 ? 'down' : 'flat';
+        const _good = isPositive ? ' (favorable)' : isNegative ? ' (unfavorable)' : '';
+        _ariaParts.push(`${_dir} ${_d}${_good}`);
+      }
+      if (kpi.drillDown) _ariaParts.push('(click to drill in)');
+      card.setAttribute('aria-label', _ariaParts.join(', '));
 
       // Delta + previous period comparison
       let deltaHTML = '';
@@ -86,7 +110,7 @@ const Components = (() => {
 
       // Traffic light dot
       const dotGlow = statusColor === Theme.COLORS.success ? '0 0 6px rgba(34,197,94,0.5)' : statusColor === Theme.COLORS.danger ? '0 0 6px rgba(239,68,68,0.5)' : 'none';
-      const dotHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
+      const dotHTML = `<span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;background:${statusColor};box-shadow:${dotGlow};flex-shrink:0"></span>`;
 
       // Z-score anomaly badge (only renders when |z| >= 1.5)
       let zBadgeHTML = '';
@@ -132,7 +156,7 @@ const Components = (() => {
           ${zBadgeHTML}
         </div>
         ${prevHTML}
-        ${kpi.sparkData ? `<div class="kpi-spark-container"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
+        ${kpi.sparkData ? `<div class="kpi-spark-container" aria-hidden="true"><canvas id="${sparkId}" width="80" height="24"></canvas></div>` : ''}
         ${calcHTML}
       `;
 
@@ -146,11 +170,45 @@ const Components = (() => {
   }
 
   /**
+   * Apply role=img + aria-label to a chart container so screen readers
+   * announce a summary instead of skipping over canvas/svg pixels.
+   *
+   * WCAG 1.1.1 Non-text Content: charts rendered to canvas/svg are
+   * non-text and need a text alternative.
+   *
+   * Usage from a page:
+   *   Components.describeChart(container, "Daily revenue trend, $200K to $260K over 14 days");
+   *
+   * @param {string|HTMLElement} target
+   * @param {string} label - short summary of the metric being visualised
+   * @param {string} [description] - optional longer description (set as aria-describedby target)
+   */
+  function describeChart(target, label, description) {
+    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!el || !label) return;
+    el.setAttribute('role', 'img');
+    el.setAttribute('aria-label', label);
+    if (description) {
+      const descId = 'chart-desc-' + Math.random().toString(36).slice(2, 9);
+      const descEl = document.createElement('div');
+      descEl.id = descId;
+      descEl.className = 'sr-only';
+      descEl.textContent = description;
+      el.appendChild(descEl);
+      el.setAttribute('aria-describedby', descId);
+    }
+  }
+
+  /**
    * Render a mini sparkline chart (no axes, no labels).
    */
   function renderSparkline(canvasId, data) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
+    // Sparklines are decorative trend cues -- the underlying number is read
+    // by the parent KPI card's aria-label, so hide the canvas from AT.
+    canvas.setAttribute('aria-hidden', 'true');
+    canvas.setAttribute('role', 'presentation');
 
     const ctx = canvas.getContext('2d');
     const w = 80;
@@ -170,7 +228,12 @@ const Components = (() => {
 
     // Determine color based on trend
     const trend = data[data.length - 1] - data[0];
-    const color = trend >= 0 ? '#22c55e' : '#ef4444';
+    const isUp = trend >= 0;
+    const color = isUp ? '#22c55e' : '#ef4444';
+    // Pre-computed rgba(..., 0.15) for the gradient top stop. The old
+    // string-replace assumed an rgb() input and silently produced a solid
+    // hex for hex inputs, killing the intended fade.
+    const fillTop = isUp ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)';
 
     ctx.beginPath();
     ctx.strokeStyle = color;
@@ -188,7 +251,7 @@ const Components = (() => {
 
     // Gradient fill
     const gradient = ctx.createLinearGradient(0, 0, 0, h);
-    gradient.addColorStop(0, color.replace(')', ',0.15)').replace('rgb', 'rgba'));
+    gradient.addColorStop(0, fillTop);
     gradient.addColorStop(1, 'transparent');
 
     ctx.lineTo(padding + w - padding * 2, h);
@@ -210,15 +273,47 @@ const Components = (() => {
 
     if (!panel) return;
 
+    // Remember who triggered this so focus can return on close
+    _drillDownTrigger = document.activeElement;
+
     titleEl.textContent = title;
-    content.innerHTML = '<div class="page-placeholder"><div class="spinner"></div></div>';
+    content.innerHTML = '<div class="page-placeholder"><div class="spinner" role="status" aria-label="Loading"></div></div>';
     panel.hidden = false;
 
     // Trigger open transition
     requestAnimationFrame(() => {
       panel.classList.add('open');
+      // Move focus into the dialog so screen readers announce it + Esc works
+      const closeBtn = document.getElementById('drill-down-close');
+      if (closeBtn) closeBtn.focus();
     });
     _drillDownOpen = true;
+
+    // Install Esc + focus-trap key handler (removed on close)
+    _drillDownKeyHandler = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDrillDown();
+        return;
+      }
+      if (e.key === 'Tab') {
+        // Simple focus trap: cycle through focusable elements inside the panel
+        const focusable = panel.querySelectorAll(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', _drillDownKeyHandler);
 
     try {
       const result = await fetchFn();
@@ -227,10 +322,10 @@ const Components = (() => {
       } else if (result && result.rows) {
         content.innerHTML = renderTable(result.rows, result);
       } else {
-        content.innerHTML = '<div class="empty-state"><span class="empty-state-icon">&#128203;</span><p>No data available</p></div>';
+        content.innerHTML = '<div class="empty-state"><span class="empty-state-icon" aria-hidden="true">&#128203;</span><p>No data available</p></div>';
       }
     } catch (err) {
-      content.innerHTML = `<div class="empty-state"><span class="empty-state-icon">&#9888;&#65039;</span><p>Error loading data</p></div>`;
+      content.innerHTML = `<div class="empty-state"><span class="empty-state-icon" aria-hidden="true">&#9888;&#65039;</span><p>Error loading data</p></div>`;
       console.warn('[Components] drill-down error:', err);
     }
   }
@@ -240,7 +335,18 @@ const Components = (() => {
     if (!panel) return;
     panel.classList.remove('open');
     _drillDownOpen = false;
-    setTimeout(() => { panel.hidden = true; }, 300);
+    if (_drillDownKeyHandler) {
+      document.removeEventListener('keydown', _drillDownKeyHandler);
+      _drillDownKeyHandler = null;
+    }
+    setTimeout(() => {
+      panel.hidden = true;
+      // Restore focus to the element that opened the drill-down
+      if (_drillDownTrigger && typeof _drillDownTrigger.focus === 'function') {
+        try { _drillDownTrigger.focus(); } catch (_) { /* element may be gone */ }
+      }
+      _drillDownTrigger = null;
+    }, 300);
   }
 
   function isDrillDownOpen() {
@@ -274,10 +380,10 @@ const Components = (() => {
     const limit = options.limit || 100;
     const displayRows = rows.slice(0, limit);
 
-    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr>';
+    let html = '<div class="data-table-wrap" role="region" aria-label="Data table" tabindex="0"><table class="data-table"><thead><tr>';
     columns.forEach(col => {
       const isNum = col.format === 'money' || col.format === 'pct' || col.format === 'num';
-      html += `<th${isNum ? ' class="num"' : ''}>${_esc(col.label)}</th>`;
+      html += `<th scope="col"${isNum ? ' class="num"' : ''}>${_esc(col.label)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
@@ -419,14 +525,22 @@ const Components = (() => {
   // ---- Staleness Banner ----
 
   /**
-   * Compute a relative time string from an ISO date/timestamp.
-   * @param {string|Date} isoString
+   * Compute a relative time string from an ISO date/timestamp, epoch ms,
+   * Date instance, or BQ-shaped { value: <iso> } wrapper.
+   * Returns 'unknown' when the input can't be parsed.
+   * @param {string|number|Date|{value:string}} input
    * @returns {string} e.g. "3 days ago", "2 hours ago"
    */
-  function _relativeTime(isoString) {
-    const then = new Date(isoString);
+  function _relativeTime(input) {
+    if (input == null) return 'unknown';
+    var raw = (typeof input === 'object' && !(input instanceof Date) && input.value != null)
+      ? input.value
+      : input;
+    const then = new Date(raw);
+    if (isNaN(then.getTime())) return 'unknown';
     const now = new Date();
     const diffMs = now - then;
+    if (diffMs < 0) return 'just now';
     const diffMin = Math.floor(diffMs / 60000);
     if (diffMin < 1) return 'just now';
     if (diffMin < 60) return diffMin + ' minute' + (diffMin === 1 ? '' : 's') + ' ago';
@@ -667,8 +781,21 @@ const Components = (() => {
 
     var H = currentY + padY;
 
-    // Build SVG
-    var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg"><defs>';
+    // Build SVG. role=img + accessible name so screen readers announce
+    // the funnel summary instead of skipping straight over the diagram.
+    // Auto-summary: "<first-node>: <value> -> <last-node>: <value> (N stages)"
+    var first = nodes[0] || {};
+    var last  = nodes[nodes.length - 1] || {};
+    var summary = (config.title || 'Funnel flow') + ': ' +
+      (first.label || '') + ' ' + (first.value != null ? first.value.toLocaleString() : '') +
+      (last && last !== first
+        ? ' to ' + (last.label || '') + ' ' + (last.value != null ? last.value.toLocaleString() : '')
+        : '') +
+      ', ' + nodes.length + ' stages';
+    var svgTitleId = 'sankey-title-' + Math.random().toString(36).slice(2, 8);
+    var svg = '<svg width="' + W + '" height="' + H + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="' + svgTitleId + '">' +
+      '<title id="' + svgTitleId + '">' + summary.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</title>' +
+      '<defs>';
 
     // Gradients for links
     links.forEach(function(link, i) {
@@ -758,6 +885,206 @@ const Components = (() => {
     el.innerHTML = svg;
   }
 
+  // ---- Metric Grid (dense f27-metric pattern, shared across pages) ----
+
+  function _injectMetricGridCSS() {
+    if (document.getElementById('metric-grid-component-css')) return;
+    var style = document.createElement('style');
+    style.id = 'metric-grid-component-css';
+    style.textContent = [
+      '.f27-metrics-grid {',
+      '  display: grid;',
+      '  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));',
+      '  gap: 10px;',
+      '}',
+      '.f27-metric {',
+      '  background: var(--bg-card);',
+      '  border: 1px solid var(--border);',
+      '  border-radius: var(--radius-md);',
+      '  padding: 10px 14px;',
+      '  position: relative;',
+      '}',
+      '.f27-metric__label {',
+      '  font-size: var(--text-xs);',
+      '  color: var(--text-muted);',
+      '  text-transform: uppercase;',
+      '  letter-spacing: 0.5px;',
+      '  font-weight: 600;',
+      '  margin-bottom: 4px;',
+      '}',
+      '.f27-metric__value {',
+      '  font-size: var(--text-lg);',
+      '  font-weight: 700;',
+      '  color: var(--text-primary);',
+      '  font-family: var(--font-mono);',
+      '}',
+      '.f27-metric__delta {',
+      '  font-size: var(--text-xs);',
+      '  margin-top: 2px;',
+      '}',
+      '.f27-metric__delta--up { color: var(--status-up); }',
+      '.f27-metric__delta--down { color: var(--status-down); }',
+      '.f27-metric__delta--neutral { color: var(--status-neutral); }',
+      '.f27-metric__spark { margin-top: 4px; height: 20px; line-height: 0; }',
+      '.f27-metric__spark canvas { display: block; }',
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  // Format helpers match funnels.js renderF27Metrics semantics exactly so the
+  // shim in funnels.js produces zero visual diff. pct expects a decimal
+  // (0.235 -> '23.5%'); pctRaw expects an already-percentage value.
+  function _fmtMetric(value, format) {
+    if (value == null || !Number.isFinite(Number(value))) {
+      if (format === 'roas') return '0.00x';
+      if (format === 'pct' || format === 'pctRaw') return '0.0%';
+      if (format === 'money') return '$0';
+      return '0';
+    }
+    var v = Number(value);
+    switch (format) {
+      case 'money':  return '$' + Math.round(v).toLocaleString();
+      case 'pct':    return (v * 100).toFixed(1) + '%';
+      case 'pctRaw': return v.toFixed(1) + '%';
+      case 'roas':   return v.toFixed(2) + 'x';
+      case 'num':    return Math.round(v).toLocaleString();
+      default:       return String(v);
+    }
+  }
+
+  /**
+   * Render a dense grid of metric cards. The gold-standard pattern from the
+   * $27 Funnel Unit Economics card on funnels.js. Reusable across any page
+   * with >3 inline KPIs.
+   *
+   * Two ways to pass a metric:
+   *   A. Raw + format -- { label, value: <number>, prevValue?: <number>, format: 'money'|'pct'|'pctRaw'|'roas'|'num', invertDelta?: bool, sparklineData?: number[] }
+   *   B. Pre-formatted -- { label, valueHtml: <string>, deltaHtml?: <string>, deltaCls?: 'up'|'down'|'neutral', sparklineData?: number[] }
+   *
+   * @param {HTMLElement|string} container
+   * @param {Array} metrics
+   * @param {Object} [opts]
+   * @param {number}  [opts.minColWidth=180] grid minmax floor
+   * @param {boolean} [opts.showSparklines=true] global toggle (no-op without sparklineData per metric)
+   */
+  function renderMetricGrid(container, metrics, opts) {
+    _injectMetricGridCSS();
+    var el = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!el) return;
+    opts = opts || {};
+    var showSparklines = opts.showSparklines !== false;
+
+    el.classList.add('f27-metrics-grid');
+    if (opts.minColWidth && opts.minColWidth !== 180) {
+      el.style.gridTemplateColumns = 'repeat(auto-fit, minmax(' + opts.minColWidth + 'px, 1fr))';
+    }
+
+    el.innerHTML = '';
+    var sparkRenders = [];
+    var nowStamp = Date.now();
+
+    metrics.forEach(function(m, i) {
+      var card = document.createElement('div');
+      card.className = 'f27-metric';
+
+      // Value: either pre-formatted html or raw number with format spec
+      var valueHtml;
+      if (typeof m.valueHtml === 'string') {
+        valueHtml = m.valueHtml;
+      } else {
+        valueHtml = _esc(_fmtMetric(m.value, m.format));
+      }
+
+      // Delta
+      var deltaHtml = '';
+      if (typeof m.deltaHtml === 'string' && m.deltaHtml.length > 0) {
+        var preCls = m.deltaCls || 'neutral';
+        deltaHtml = '<div class="f27-metric__delta f27-metric__delta--' + preCls + '">' + m.deltaHtml + '</div>';
+      } else if (m.value != null && m.prevValue != null) {
+        var cur = Number(m.value);
+        var prev = Number(m.prevValue);
+        if (Number.isFinite(cur) && Number.isFinite(prev) && prev !== 0) {
+          var pct = ((cur - prev) / Math.abs(prev)) * 100;
+          var cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral';
+          if (m.invertDelta) {
+            if (cls === 'up') cls = 'down';
+            else if (cls === 'down') cls = 'up';
+          }
+          var arrow = pct > 0 ? '▲' : pct < 0 ? '▼' : '—';
+          deltaHtml = '<div class="f27-metric__delta f27-metric__delta--' + cls + '">' + arrow + ' ' + Math.abs(pct).toFixed(1) + '% vs prior</div>';
+        }
+      }
+
+      // Sparkline
+      var sparkHtml = '';
+      if (showSparklines && Array.isArray(m.sparklineData) && m.sparklineData.length > 1) {
+        var sid = 'metric-spark-' + i + '-' + nowStamp;
+        sparkHtml = '<div class="f27-metric__spark"><canvas id="' + sid + '" width="80" height="20"></canvas></div>';
+        sparkRenders.push({ id: sid, data: m.sparklineData });
+      }
+
+      card.innerHTML =
+        '<div class="f27-metric__label">' + _esc(m.label || '') + '</div>' +
+        '<div class="f27-metric__value">' + valueHtml + '</div>' +
+        deltaHtml +
+        sparkHtml;
+
+      el.appendChild(card);
+    });
+
+    sparkRenders.forEach(function(s) {
+      requestAnimationFrame(function() { renderSparkline(s.id, s.data); });
+    });
+  }
+
+  /**
+   * Defer a chart/expensive-render until its container scrolls into view.
+   * Uses IntersectionObserver; falls back to immediate init when IO unavailable
+   * OR when the element is already in the initial viewport (rootMargin: 200px).
+   *
+   * Pattern:
+   *   Components.lazyChart('myCanvasId', () => {
+   *     new Chart(document.getElementById('myCanvasId'), { ... });
+   *   });
+   *
+   * - Idempotent: re-calling on the same id is a no-op until the element changes
+   * - Single-fire: disconnects observer after first intersection
+   * - Skeleton: optional 2nd arg `skeletonText` shows in place until init fires
+   *
+   * @param {string|HTMLElement} target  Container or canvas id/element
+   * @param {Function} initFn            Synchronous chart init callback
+   * @param {string} [skeletonText]      Optional placeholder text
+   */
+  function lazyChart(target, initFn, skeletonText) {
+    const el = typeof target === 'string' ? document.getElementById(target) : target;
+    if (!el || typeof initFn !== 'function') return;
+    if (el._lazyChartFired) return;
+
+    // Optional skeleton — only render if the element is empty
+    if (skeletonText && !el.innerHTML.trim()) {
+      el.setAttribute('aria-busy', 'true');
+      el.style.minHeight = el.style.minHeight || '120px';
+    }
+
+    const fire = () => {
+      if (el._lazyChartFired) return;
+      el._lazyChartFired = true;
+      el.removeAttribute('aria-busy');
+      try { initFn(); } catch (err) { console.warn('[lazyChart] init failed:', err); }
+    };
+
+    // Fallback: no IntersectionObserver support → init immediately
+    if (typeof IntersectionObserver === 'undefined') { fire(); return; }
+
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) { io.disconnect(); fire(); return; }
+      }
+    }, { rootMargin: '200px 0px', threshold: 0.01 });
+    io.observe(el);
+    el._lazyChartObserver = io;
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -772,5 +1099,8 @@ const Components = (() => {
     guardROAS,
     renderSankey,
     computeZScore,
+    renderMetricGrid,
+    lazyChart,
+    describeChart,
   };
 })();

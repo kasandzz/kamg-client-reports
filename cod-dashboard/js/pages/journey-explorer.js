@@ -27,6 +27,16 @@ App.registerPage('journey-explorer', async (container) => {
   const d = (raw && raw.length > 0) ? raw[0] : {};
   container.innerHTML = '';
 
+  // Doubled-window default fetch for prior-period delta math on the metric grid.
+  // Mirrors revenue.js:42-44 / ads-meta.js Stage 3 pattern. Non-blocking — deltas
+  // hide on failure. WARN_DATA_UNRESOLVED — journey-explorer queries posthog-backed
+  // master_journey + bridge_customer_journey views, on the Stage 0.5 flag list.
+  let priorJourney = {};
+  try {
+    const priorData = await API.query('journey-explorer', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorJourney = priorData[0];
+  } catch (_) { /* deltas hide */ }
+
   // ---- Stage definitions ----
   const STAGES = [
     { num: 1,  name: 'Ad Exposure',    color: '#4F9CF9', field: null,         tracking: 'partial'  },
@@ -56,18 +66,66 @@ App.registerPage('journey-explorer', async (container) => {
   const fullCount    = STAGES.filter(s => s.tracking === 'full').length;
   const partialCount = STAGES.filter(s => s.tracking === 'partial').length;
 
-  // ---- KPI Strip ----
+  // ======================================================
+  // SECTION 1: Journey KPI Metric Grid (Mode 2 conversion)
+  // renderMetricGrid pattern from war-room / revenue / ads-meta (Stage 2.5/3).
+  // Was a 6-card KPI strip; now a dense f27-metric grid with prior-period
+  // deltas and an enrolled-trend sparkline. cohortRows feeds the sparkline
+  // (weekly enrollment volume, reversed to oldest→newest for left-to-right read).
+  // Source/calc tooltip context dropped per PRD §2 Mode 2 tradeoff.
+  // ======================================================
   const kpiContainer = document.createElement('div');
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Tickets Sold',    value: d.tickets     || 0, format: 'num', source: 'BQ stripe_charges', calc: 'COUNT(charges WHERE amount IN (27, 54) AND status = succeeded)' },
-    { label: 'Attended',        value: d.attended    || 0, format: 'num', source: 'BQ zoom_attendance', calc: 'COUNT(DISTINCT email WHERE attended = true)' },
-    { label: 'Enrolled',        value: d.enrolled    || 0, format: 'num', source: 'BQ hyros_sales', calc: 'COUNT(sales WHERE tag = enrolled)' },
-    { label: 'Overall CVR',     value: d.overall_cvr || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / tickets_sold' },
-    { label: 'Close Rate',      value: d.close_rate  || 0, format: 'pct', source: 'BQ master_journey table', calc: 'enrolled / showed_on_call' },
-    { label: 'Show Rate',       value: d.show_rate   || 0, format: 'pct', source: 'BQ zoom_attendance JOIN ghl_appointments', calc: 'attended / booked' },
-  ]);
+  // cohortRows is weekly velocity (up to 12 weeks). BQ likely returns DESC
+  // by cohort_week; sparkline wants oldest→newest, so defensively reverse.
+  const enrolledSpark = (cohortRows || [])
+    .slice()
+    .reverse()
+    .map(r => Number(r.enrolled || 0));
+
+  function _buildJourneyMetrics(cur, prev) {
+    cur = cur || {};
+    prev = prev || {};
+    // prev is the 2x-window aggregate; subtract current for raw counts.
+    const _priorTickets  = (prev.tickets  || 0) - (cur.tickets  || 0);
+    const _priorAttended = (prev.attended || 0) - (cur.attended || 0);
+    const _priorEnrolled = (prev.enrolled || 0) - (cur.enrolled || 0);
+    // Rate fields can't be subtracted; use the 2x-window aggregate as approximate prior.
+    // Directionally correct, magnitude approximate. Acceptable per PRD §2 tradeoff.
+    const _priorCvr   = prev.overall_cvr || 0;
+    const _priorClose = prev.close_rate  || 0;
+    const _priorShow  = prev.show_rate   || 0;
+    return [
+      { label: 'Tickets Sold', value: cur.tickets     || 0, prevValue: _priorTickets  > 0 ? _priorTickets  : undefined, format: 'num' },
+      { label: 'Attended',     value: cur.attended    || 0, prevValue: _priorAttended > 0 ? _priorAttended : undefined, format: 'num' },
+      { label: 'Enrolled',     value: cur.enrolled    || 0, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num', sparklineData: enrolledSpark },
+      { label: 'Overall CVR',  value: cur.overall_cvr || 0, prevValue: _priorCvr   > 0 ? _priorCvr   : undefined, format: 'pct' },
+      { label: 'Close Rate',   value: cur.close_rate  || 0, prevValue: _priorClose > 0 ? _priorClose : undefined, format: 'pct' },
+      { label: 'Show Rate',    value: cur.show_rate   || 0, prevValue: _priorShow  > 0 ? _priorShow  : undefined, format: 'pct' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildJourneyMetrics(d, priorJourney));
+
+  // SWR cache-refresh wiring (Stage 2 deferred follow-up #3 for journey-explorer).
+  // When api.js detects a row-count delta from background live fetch on the
+  // journey-explorer.default query, re-fetch and re-render the metric grid only.
+  // priorJourney (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across the
+  // re-renders triggered by App.onFilterChange. Pattern from revenue.js:87-97
+  // and ads-meta.js Stage 3.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'journey-explorer' || e.detail.queryName !== 'default') return;
+    API.query('journey-explorer', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildJourneyMetrics(rows[0] || {}, priorJourney));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Section header ----
   const headerRow = document.createElement('div');
@@ -406,50 +464,52 @@ App.registerPage('journey-explorer', async (container) => {
     // Per-node customdata = [inflow_total, outflow_total]
     const nodeCustomData = nodes.map(n => [inflowByTarget[n] || 0, outflowBySource[n] || 0]);
 
-    Plotly.newPlot(
-      sankeyDivId,
-      [{
-        type: 'sankey',
-        orientation: 'h',
-        node: {
-          pad: 14,
-          thickness: 18,
-          line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
-          label: nodes,
-          color: nodeColors,
-          customdata: nodeCustomData,
-          hovertemplate:
-            '<b>%{label}</b><br>' +
-            'In: %{customdata[0]:,}<br>' +
-            'Out: %{customdata[1]:,}' +
-            '<extra></extra>',
+    Components.lazyChart(sankeyDivId, () => {
+      Plotly.newPlot(
+        sankeyDivId,
+        [{
+          type: 'sankey',
+          orientation: 'h',
+          node: {
+            pad: 14,
+            thickness: 18,
+            line: { color: 'rgba(255,255,255,0.08)', width: 0.5 },
+            label: nodes,
+            color: nodeColors,
+            customdata: nodeCustomData,
+            hovertemplate:
+              '<b>%{label}</b><br>' +
+              'In: %{customdata[0]:,}<br>' +
+              'Out: %{customdata[1]:,}' +
+              '<extra></extra>',
+          },
+          link: {
+            source: sankeyRows.map(r => nodeIdx[r.from_node]),
+            target: sankeyRows.map(r => nodeIdx[r.to_node]),
+            value:  sankeyRows.map(r => Number(r.value) || 0),
+            color: sankeyRows.map(r =>
+              r.to_node && r.to_node.startsWith('Lost') ? 'rgba(239,68,68,0.20)'
+              : r.to_node === 'No Show' || r.to_node === 'Call No Show' || r.to_node === 'No Booking' ? 'rgba(239,68,68,0.18)'
+              : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
+              : 'rgba(99,102,241,0.18)'
+            ),
+            customdata: linkCustomData,
+            hovertemplate:
+              '<b>%{customdata[1]} &rarr; %{customdata[2]}</b><br>' +
+              'Volume: %{value:,}<br>' +
+              'Conversion: %{customdata[0]:.1f}%<br>' +
+              '<span style="opacity:.7">of %{customdata[3]:,} from source</span>' +
+              '<extra></extra>',
+          },
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          font: { family: 'Manrope, sans-serif', size: 11, color: Theme.COLORS.textPrimary },
+          margin: { t: 10, b: 10, l: 10, r: 10 },
         },
-        link: {
-          source: sankeyRows.map(r => nodeIdx[r.from_node]),
-          target: sankeyRows.map(r => nodeIdx[r.to_node]),
-          value:  sankeyRows.map(r => Number(r.value) || 0),
-          color: sankeyRows.map(r =>
-            r.to_node && r.to_node.startsWith('Lost') ? 'rgba(239,68,68,0.20)'
-            : r.to_node === 'No Show' || r.to_node === 'Call No Show' || r.to_node === 'No Booking' ? 'rgba(239,68,68,0.18)'
-            : r.to_node === 'Enrolled' ? 'rgba(234,179,8,0.35)'
-            : 'rgba(99,102,241,0.18)'
-          ),
-          customdata: linkCustomData,
-          hovertemplate:
-            '<b>%{customdata[1]} &rarr; %{customdata[2]}</b><br>' +
-            'Volume: %{value:,}<br>' +
-            'Conversion: %{customdata[0]:.1f}%<br>' +
-            '<span style="opacity:.7">of %{customdata[3]:,} from source</span>' +
-            '<extra></extra>',
-        },
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        font: { family: 'Manrope, sans-serif', size: 11, color: Theme.COLORS.textPrimary },
-        margin: { t: 10, b: 10, l: 10, r: 10 },
-      },
-      Theme.PLOTLY_CONFIG
-    );
+        Theme.PLOTLY_CONFIG
+      );
+    });
   }
 
   // ===================================================================
@@ -482,37 +542,39 @@ App.registerPage('journey-explorer', async (container) => {
     speedDiv.style.cssText = 'height:340px;width:100%';
     speedCard.appendChild(speedDiv);
 
-    Plotly.newPlot(
-      speedDivId,
-      [{
-        type: 'bar',
-        x: speedRows.map(r => r.bucket),
-        y: speedRows.map(r => Number(r.enrollments) || 0),
-        text: speedRows.map(r => {
-          const cash = Number(r.cash) || 0;
-          return cash > 0 ? Theme.money(cash) : '';
-        }),
-        textposition: 'outside',
-        marker: {
-          color: speedRows.map(r => {
-            if (r.bucket === 'Unknown') return '#6b7280';
-            const ord = Number(r.ord);
-            if (ord <= 1) return '#22c55e';
-            if (ord <= 3) return '#06b6d4';
-            if (ord <= 5) return '#eab308';
-            return '#ef4444';
+    Components.lazyChart(speedDivId, () => {
+      Plotly.newPlot(
+        speedDivId,
+        [{
+          type: 'bar',
+          x: speedRows.map(r => r.bucket),
+          y: speedRows.map(r => Number(r.enrollments) || 0),
+          text: speedRows.map(r => {
+            const cash = Number(r.cash) || 0;
+            return cash > 0 ? Theme.money(cash) : '';
           }),
+          textposition: 'outside',
+          marker: {
+            color: speedRows.map(r => {
+              if (r.bucket === 'Unknown') return '#6b7280';
+              const ord = Number(r.ord);
+              if (ord <= 1) return '#22c55e';
+              if (ord <= 3) return '#06b6d4';
+              if (ord <= 5) return '#eab308';
+              return '#ef4444';
+            }),
+          },
+          hovertemplate: '<b>%{x}</b><br>%{y} enrollments<extra></extra>',
+        }],
+        {
+          ...Theme.PLOTLY_LAYOUT,
+          margin: { t: 20, b: 60, l: 50, r: 20 },
+          xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickangle: -30 },
+          yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Enrollments' },
         },
-        hovertemplate: '<b>%{x}</b><br>%{y} enrollments<extra></extra>',
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        margin: { t: 20, b: 60, l: 50, r: 20 },
-        xaxis: { ...Theme.PLOTLY_LAYOUT.xaxis, tickangle: -30 },
-        yaxis: { ...Theme.PLOTLY_LAYOUT.yaxis, title: 'Enrollments' },
-      },
-      Theme.PLOTLY_CONFIG
-    );
+        Theme.PLOTLY_CONFIG
+      );
+    });
   }
 
   // ---- Cohort Velocity Table ----
@@ -522,13 +584,17 @@ App.registerPage('journey-explorer', async (container) => {
   cohortCard.innerHTML = `
     <div style="margin-bottom:8px">
       <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Cohort Velocity (Weekly)</div>
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Week-of-first-touch cohorts. Compare CVR + close speed across cohorts.</div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:2px">Week-of-first-touch cohorts. Compare CVR + close speed across cohorts. <span style="color:${Theme.COLORS.textSecondary}">Click any row to drill into individual journeys.</span></div>
     </div>
   `;
   splitGrid.appendChild(cohortCard);
 
-  if (_jeErrors.cohort || !cohortRows || cohortRows.length === 0) {
-    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">${_jeErrors.cohort || 'No cohort data.'}</div>`;
+  if (_jeErrors.cohort) {
+    // Don't dump raw BQ error text at users; log to console and show structured copy.
+    console.warn('cohortVelocity query error:', _jeErrors.cohort);
+    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">Cohort velocity data unavailable — query failed. Retry the page, or check Data Health.</div>`;
+  } else if (!cohortRows || cohortRows.length === 0) {
+    cohortCard.innerHTML += `<div class="text-muted" style="text-align:center;padding:32px 16px">No cohort velocity data in the last 12 weeks. Widen the lookback or verify that bridge_customer_journey has rows for recent cohort_weeks.</div>`;
   } else {
     let html = `
       <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
@@ -549,7 +615,16 @@ App.registerPage('journey-explorer', async (container) => {
     cohortRows.forEach((r, i) => {
       const altBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)';
       const cvr = Number(r.overall_cvr_pct) || 0;
-      const cvrColor = cvr >= 5 ? Theme.COLORS.success : cvr >= 2 ? Theme.COLORS.warning : Theme.COLORS.textSecondary;
+      const cohortSize = Number(r.cohort_size) || 0;
+      // CVR color tiering. Previously sub-2% cohorts collapsed into a muted
+      // textSecondary that read as "neutral" — actively underperforming cohorts
+      // now surface in danger red. The "no cohort_size" case stays muted (no
+      // signal to grade).
+      const cvrColor = cohortSize === 0
+        ? Theme.COLORS.textMuted
+        : cvr >= 5 ? Theme.COLORS.success
+        : cvr >= 2 ? Theme.COLORS.warning
+        : Theme.COLORS.danger;
       const week = (r.cohort_week && (r.cohort_week.value || r.cohort_week)) || '';
       const weekIso = String(week).slice(0, 10);
       html += `

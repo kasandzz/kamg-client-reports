@@ -2740,17 +2740,19 @@ function renderFunnelChart(days, currentRows, previousRows) {
     });
   });
 
-  // Legend
-  var curStart = cur[0].dt.substring(5);
-  var curEnd = cur[cur.length - 1].dt.substring(5);
-  var prevStart = prev[0].dt.substring(5);
-  var prevEnd = prev[prev.length - 1].dt.substring(5);
+  // Legend (guard against empty arrays — prev may be [] when compare is off or BQ returns no prev rows)
+  var curStart = cur.length ? cur[0].dt.substring(5) : '';
+  var curEnd = cur.length ? cur[cur.length - 1].dt.substring(5) : '';
+  var prevStart = prev.length ? prev[0].dt.substring(5) : '';
+  var prevEnd = prev.length ? prev[prev.length - 1].dt.substring(5) : '';
   document.getElementById('funnelLegend').innerHTML =
     '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;background:currentColor;display:inline-block"></span><strong style="color:#f1f5f9">This period</strong> <span style="opacity:0.6">' + curStart + ' to ' + curEnd + '</span></span>' +
-    '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span><strong style="color:#f1f5f9">Previous period</strong> <span style="opacity:0.6">' + prevStart + ' to ' + prevEnd + '</span></span>';
+    (prev.length ? '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span><strong style="color:#f1f5f9">Previous period</strong> <span style="opacity:0.6">' + prevStart + ' to ' + prevEnd + '</span></span>' : '');
 
   // Draw chart
-  drawFunnelLine(cur, prev, FUNNEL_METRICS[activeFunnelMetric].key, FUNNEL_METRICS[activeFunnelMetric].color);
+  if (cur.length > 0) {
+    drawFunnelLine(cur, prev, FUNNEL_METRICS[activeFunnelMetric].key, FUNNEL_METRICS[activeFunnelMetric].color);
+  }
 
   // Store rows on canvas for KPI card click reuse
   var canvas = document.getElementById('funnelChart');
@@ -2850,9 +2852,35 @@ function drawFunnelLine(curRows, prevRows, metricKey, color) {
 }
 
 // ---- Render: $27 Funnel Unit Economics (16 metrics from funnel-27) ----
+// Thin shim over Components.renderMetricGrid -- the shared dense-metric helper
+// that other pages (War Room, etc.) reuse. Visual output is identical: same
+// f27-metric class names, same fmt helpers semantics inside the component.
+//
+// WARN_DATA_UNRESOLVED (Stage 0.5): funnel-27 namespace is on the all-night
+// data validity flag list (cash-collected reconciliation vs Hyros / Stripe and
+// posthog backfill verification still deferred to the bq-auth follow-up
+// spawn). Numbers below should be cross-checked against the Russ war-room
+// tracker Sheet before being quoted externally.
 async function renderF27Metrics() {
   var grid = document.getElementById('f27MetricsGrid');
   if (!grid) return;
+
+  // Cache-refresh wiring (Stage 2 follow-up #3): re-render the Unit Economics
+  // grid in place when api.js detects a row-count delta on the funnel-27.metrics
+  // background SWR fetch. AbortController cleanup before re-listen prevents
+  // handler accumulation across filter-change re-renders (Filters.onChange ->
+  // renderAll -> renderF27Metrics). Mirrors the war-room / revenue / ads-meta /
+  // journey-explorer pattern.
+  if (grid._cacheRefreshController) {
+    try { grid._cacheRefreshController.abort(); } catch(_) {}
+  }
+  var controller = new AbortController();
+  grid._cacheRefreshController = controller;
+  window.addEventListener('cache-refresh', function(e) {
+    var detail = e && e.detail;
+    if (!detail || detail.page !== 'funnel-27' || detail.queryName !== 'metrics') return;
+    renderF27Metrics();
+  }, { signal: controller.signal });
 
   var data = null;
   try {
@@ -2861,62 +2889,35 @@ async function renderF27Metrics() {
   } catch(e) {}
 
   if (!data) {
-    grid.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:12px;">No funnel-27 data available. Check BQ connection.</div>';
+    grid.innerHTML =
+      '<div style="padding:14px 16px;border:1px dashed rgba(239,68,68,0.35);border-radius:8px;background:rgba(239,68,68,0.04)">' +
+        '<div style="color:var(--text-primary);font-size:13px;font-weight:600;margin-bottom:4px">No Unit Economics data available</div>' +
+        '<div style="color:var(--text-muted);font-size:12px;line-height:1.5">' +
+          'The <code style="font-size:11px">funnel-27.metrics</code> query returned no rows for the selected window. ' +
+          'Widen the date range, or check <a href="data-health.html" style="color:#22d3ee;text-decoration:none">Data Health</a> for the underlying view freshness.' +
+        '</div>' +
+      '</div>';
     return;
   }
 
-  function fmtMoney(v) { return v == null ? '$0' : '$' + Math.round(v).toLocaleString(); }
-  function fmtPct(v) { return v == null ? '0.0%' : (v * 100).toFixed(1) + '%'; }
-  function fmtRoas(v) { return v == null ? '0.0x' : v.toFixed(2) + 'x'; }
-  function fmtNum(v) { return v == null ? '0' : Math.round(v).toLocaleString(); }
-
-  function delta(cur, prev) {
-    if (prev == null || prev === 0 || cur == null) return { html: '', cls: 'neutral' };
-    var pct = ((cur - prev) / Math.abs(prev)) * 100;
-    var dir = pct > 0 ? 'up' : pct < 0 ? 'down' : 'neutral';
-    var arrow = pct > 0 ? '\u25B2' : pct < 0 ? '\u25BC' : '\u2014';
-    return {
-      html: arrow + ' ' + Math.abs(pct).toFixed(1) + '% vs prior',
-      cls: dir
-    };
-  }
-
-  // Define the 16 metrics with their formatting
-  var metrics = [
-    { label: 'Ad Spend',            value: fmtMoney(data.ad_spend),            d: delta(data.ad_spend, data.prev_ad_spend), invertDelta: true },
-    { label: 'Page Visits',         value: fmtNum(data.page_visits),           d: delta(data.page_visits, data.prev_page_visits) },
-    { label: 'Tickets Sold',        value: fmtNum(data.total_tickets),         d: delta(data.total_tickets, data.prev_total_tickets) },
-    { label: 'VIP Upgrades',        value: fmtNum(data.vip_upgrades),          d: delta(data.vip_upgrades, data.prev_vip_upgrades) },
-    { label: 'Attended',            value: fmtNum(data.attendees),             d: delta(data.attendees, data.prev_attendees) },
-    { label: 'Calls Booked',        value: fmtNum(data.calls_booked),          d: delta(data.calls_booked, data.prev_calls_booked) },
-    { label: 'Cost / Ticket',       value: fmtMoney(data.cost_per_ticket),     d: delta(data.cost_per_ticket, data.prev_cost_per_ticket), invertDelta: true },
-    { label: 'Ticket + VIP Rev',    value: fmtMoney(data.ticket_vip_revenue),  d: delta(data.ticket_vip_revenue, data.prev_ticket_vip_revenue) },
-    { label: 'Net Cost / Ticket',   value: fmtMoney(data.net_cost_per_ticket), d: delta(data.net_cost_per_ticket, data.prev_net_cost_per_ticket), invertDelta: true },
-    { label: 'Cost / Booked Call',  value: fmtMoney(data.cost_per_booked_call),d: delta(data.cost_per_booked_call, data.prev_cost_per_booked_call), invertDelta: true },
-    { label: 'Enrollments',         value: fmtNum(data.enrollments),           d: delta(data.enrollments, data.prev_enrollments) },
-    { label: 'Cash Collected',      value: fmtMoney(data.total_cash),          d: delta(data.total_cash, data.prev_total_cash) },
-    { label: 'Contract Value',      value: fmtMoney(data.total_contract),      d: delta(data.total_contract, data.prev_total_contract) },
-    { label: 'Cash ROAS',           value: fmtRoas(data.cash_roas),            d: delta(data.cash_roas, data.prev_cash_roas) },
-    { label: 'Contract ROAS',       value: fmtRoas(data.contract_roas),        d: delta(data.contract_roas, data.prev_contract_roas) },
-    { label: 'CAC',                 value: fmtMoney(data.cac),                 d: delta(data.cac, data.prev_cac), invertDelta: true }
-  ];
-
-  var html = '';
-  metrics.forEach(function(m) {
-    // For inverted metrics (costs), up is bad, down is good
-    var deltaClass = m.d.cls;
-    if (m.invertDelta) {
-      if (deltaClass === 'up') deltaClass = 'down';
-      else if (deltaClass === 'down') deltaClass = 'up';
-    }
-    html += '<div class="f27-metric">' +
-      '<div class="f27-metric__label">' + m.label + '</div>' +
-      '<div class="f27-metric__value">' + m.value + '</div>' +
-      (m.d.html ? '<div class="f27-metric__delta f27-metric__delta--' + deltaClass + '">' + m.d.html + '</div>' : '') +
-    '</div>';
-  });
-
-  grid.innerHTML = html;
+  Components.renderMetricGrid(grid, [
+    { label: 'Ad Spend',            value: data.ad_spend,             prevValue: data.prev_ad_spend,             format: 'money', invertDelta: true },
+    { label: 'Page Visits',         value: data.page_visits,          prevValue: data.prev_page_visits,          format: 'num'   },
+    { label: 'Tickets Sold',        value: data.total_tickets,        prevValue: data.prev_total_tickets,        format: 'num'   },
+    { label: 'VIP Upgrades',        value: data.vip_upgrades,         prevValue: data.prev_vip_upgrades,         format: 'num'   },
+    { label: 'Attended',            value: data.attendees,            prevValue: data.prev_attendees,            format: 'num'   },
+    { label: 'Calls Booked',        value: data.calls_booked,         prevValue: data.prev_calls_booked,         format: 'num'   },
+    { label: 'Cost / Ticket',       value: data.cost_per_ticket,      prevValue: data.prev_cost_per_ticket,      format: 'money', invertDelta: true },
+    { label: 'Ticket + VIP Rev',    value: data.ticket_vip_revenue,   prevValue: data.prev_ticket_vip_revenue,   format: 'money' },
+    { label: 'Net Cost / Ticket',   value: data.net_cost_per_ticket,  prevValue: data.prev_net_cost_per_ticket,  format: 'money', invertDelta: true },
+    { label: 'Cost / Booked Call',  value: data.cost_per_booked_call, prevValue: data.prev_cost_per_booked_call, format: 'money', invertDelta: true },
+    { label: 'Enrollments',         value: data.enrollments,          prevValue: data.prev_enrollments,          format: 'num'   },
+    { label: 'Cash Collected',      value: data.total_cash,           prevValue: data.prev_total_cash,           format: 'money' },
+    { label: 'Contract Value',      value: data.total_contract,       prevValue: data.prev_total_contract,       format: 'money' },
+    { label: 'Cash ROAS',           value: data.cash_roas,            prevValue: data.prev_cash_roas,            format: 'roas'  },
+    { label: 'Contract ROAS',       value: data.contract_roas,        prevValue: data.prev_contract_roas,        format: 'roas'  },
+    { label: 'CAC',                 value: data.cac,                  prevValue: data.prev_cac,                  format: 'money', invertDelta: true }
+  ]);
 }
 
 // ---- Render: Customer Journey Stages (data-driven from funnel-27) ----
@@ -2999,16 +3000,31 @@ function _journeyFallback() {
 
 async function renderJourneyStages() {
   var d;
+  var usingFallback = false;
   try {
     var sk = await API.query('funnel-27', 'sankey', { days: currentDays });
     if (sk && sk.length > 0) d = sk[0];
   } catch(e) { /* fall through */ }
-  if (!d) d = _journeyFallback();
+  if (!d) { d = _journeyFallback(); usingFallback = true; }
 
   var container = document.getElementById('journeyStagesContainer');
   if (!container) return;
 
-  var rowHtml = '<div class="stage-row">';
+  // Truthfulness: when the BQ sankey query returns nothing, the hardcoded
+  // _journeyFallback numbers would otherwise render with no indication they
+  // are reference-only. Disclose this inline so a closer scanning the page
+  // at standup can tell live volumes from reference shape.
+  var rowHtml = '';
+  if (usingFallback) {
+    rowHtml +=
+      '<div style="margin-bottom:10px;padding:8px 12px;border:1px dashed rgba(245,158,11,0.45);border-radius:6px;' +
+        'background:rgba(245,158,11,0.06);display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-secondary)">' +
+        '<span style="font-size:11px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.05em">Reference data</span>' +
+        '<span>The <code style="font-size:10px">funnel-27.sankey</code> query returned no rows for the selected window. ' +
+        'Stage volumes below are illustrative only -- widen the date range or check Data Health to surface live numbers.</span>' +
+      '</div>';
+  }
+  rowHtml += '<div class="stage-row">';
 
   JOURNEY_STAGES.forEach(function(stage, idx) {
     var vol = stage.field ? (d[stage.field] || 0) : null;
@@ -3317,6 +3333,12 @@ async function renderSalesDynamic() {
 }
 
 var currentDays = 30;
+// First-call gates for lazy-init. renderAll runs again on filter / compare /
+// avg-mode changes WITHOUT DOM teardown, so canvas elements persist and
+// Components.lazyChart's _lazyChartFired flag would block subsequent renders.
+// Solution: only lazy-defer on the FIRST renderAll. Later calls run direct.
+var _funnelsLazyFiredShowRate = false;
+var _funnelsLazyFiredSalesDynamic = false;
 
 async function renderAll(days) {
   currentDays = days;
@@ -3341,12 +3363,31 @@ async function renderAll(days) {
   // Slice daily data to match days
   var daily = MOCK_DATA.daily_show_rates.slice(-days);
   var prevDaily = MOCK_DATA.prev_daily_show_rates.slice(-days);
-  await renderShowRateTrend(daily, prevDaily);
+  // Lazy-defer the first show-rate trend render (section 4, below the funnel
+  // chart); subsequent renderAll calls draw immediately.
+  if (!_funnelsLazyFiredShowRate) {
+    _funnelsLazyFiredShowRate = true;
+    Components.lazyChart('showRateTrendChart', function () {
+      renderShowRateTrend(daily, prevDaily);
+    });
+  } else {
+    await renderShowRateTrend(daily, prevDaily);
+  }
 
   await renderCompletionBreakdown(cur, prev);
   await renderHeatmap();
   await renderTicketHeatmap();
-  await renderSalesDynamic();
+  // Sales Dynamic is far below the fold (after KPI grid, F27 metrics, two big
+  // chart cards, journey stages, cohort table, worklists, watch-time, heatmaps).
+  // Two Chart.js inits — defer the first render only.
+  if (!_funnelsLazyFiredSalesDynamic) {
+    _funnelsLazyFiredSalesDynamic = true;
+    Components.lazyChart('salesDynamicRevenueChart', function () {
+      renderSalesDynamic();
+    });
+  } else {
+    await renderSalesDynamic();
+  }
   await renderJourneyStages();
   // Russ Daily Operations -- runs in parallel, doesn't block downstream renders
   renderWeeklyCohort();

@@ -18,23 +18,74 @@ App.registerPage('segments', async (container) => {
   container.innerHTML = '';
   const rows = nicheData || [];
 
-  // ---- Section 1: KPI Strip ----
-  const totalContacts = rows.reduce((s, r) => s + (r.contacts || 0), 0);
-  const totalEnrolled = rows.reduce((s, r) => s + (r.enrolled || 0), 0);
-  const totalRevenue = rows.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
-  const topSeg = rows.length > 0 ? [...rows].sort((a, b) => (b.enrolled || 0) - (a.enrolled || 0))[0] : null;
-  const bestConv = rows.length > 0 ? [...rows].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
+  // ---- Prior period delta (fetch 2x window, sum, subtract) ----
+  // WARN_DATA_UNRESOLVED — segments queries posthog-backed
+  // master_journey + bridge_session_attribution; posthog backfill verification
+  // deferred to bq-auth follow-up. See .planning/allnight-data-validity-7day.md
+  let priorRows = [];
+  try {
+    priorRows = await API.query('segments', 'nicheFunnel', { days: days * 2 }) || [];
+  } catch (_) { /* ignore */ }
+
+  // ---- Section 1: Team KPI Metric Grid (Mode 2 conversion) ----
+  // 6-card KPI strip → dense f27-style metric grid. Numeric cards (contacts /
+  // enrollments / revenue / segments tracked) get prev-period deltas from the
+  // 2x-window query. Text-only cards (top segment, best conversion) use
+  // valueHtml since they're categorical, not numeric — pattern documented in
+  // components.js renderMetricGrid JSDoc shape B.
+  function _esc(str) { var el = document.createElement('span'); el.textContent = String(str || ''); return el.innerHTML; }
+
+  function _buildSegmentsMetrics(curRows, prevRows) {
+    const cur = curRows || [];
+    const prev = prevRows || [];
+    const totalContacts = cur.reduce((s, r) => s + (r.contacts || 0), 0);
+    const totalEnrolled = cur.reduce((s, r) => s + (r.enrolled || 0), 0);
+    const totalRevenue  = cur.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0);
+    const topSeg  = cur.length > 0 ? [...cur].sort((a, b) => (b.enrolled || 0)    - (a.enrolled || 0))[0]    : null;
+    const bestConv = cur.length > 0 ? [...cur].sort((a, b) => (b.enroll_rate || 0) - (a.enroll_rate || 0))[0] : null;
+
+    const _priorContacts = prev.reduce((s, r) => s + (r.contacts || 0), 0) - totalContacts;
+    const _priorEnrolled = prev.reduce((s, r) => s + (r.enrolled || 0), 0) - totalEnrolled;
+    const _priorRevenue  = prev.reduce((s, r) => s + (parseFloat(r.revenue) || 0), 0) - totalRevenue;
+    const _priorSegments = prev.length;
+
+    const topSegHtml = topSeg ? _esc(topSeg.profession) : '<span style="color:#666">--</span>';
+    const bestConvHtml = bestConv
+      ? _esc(bestConv.profession) + ' <span style="color:#888;font-size:0.7em;font-family:\'JetBrains Mono\',monospace">(' + (bestConv.enroll_rate || 0).toFixed(1) + '%)</span>'
+      : '<span style="color:#666">--</span>';
+
+    return [
+      { label: 'Total Contacts',    value: totalContacts, prevValue: _priorContacts > 0 ? _priorContacts : undefined, format: 'num'   },
+      { label: 'Total Enrollments', value: totalEnrolled, prevValue: _priorEnrolled > 0 ? _priorEnrolled : undefined, format: 'num'   },
+      { label: 'Total Revenue',     value: totalRevenue,  prevValue: _priorRevenue  > 0 ? _priorRevenue  : undefined, format: 'money' },
+      { label: 'Top Segment',       valueHtml: topSegHtml },
+      { label: 'Best Conversion',   valueHtml: bestConvHtml },
+      { label: 'Segments Tracked',  value: cur.length,    prevValue: _priorSegments > 0 ? _priorSegments : undefined, format: 'num'   },
+    ];
+  }
 
   const kpiEl = document.createElement('div');
+  kpiEl.style.marginBottom = '16px';
   container.appendChild(kpiEl);
-  Components.renderKPIStrip(kpiEl, [
-    { label: 'Total Contacts',    value: totalContacts,  format: 'num' },
-    { label: 'Total Enrollments',  value: totalEnrolled, format: 'num' },
-    { label: 'Total Revenue',     value: totalRevenue,   format: 'money' },
-    { label: 'Top Segment',       value: topSeg ? topSeg.profession : '--', format: 'text' },
-    { label: 'Best Conversion',   value: bestConv ? `${bestConv.profession} (${(bestConv.enroll_rate || 0).toFixed(1)}%)` : '--', format: 'text' },
-    { label: 'Segments Tracked',  value: rows.length,    format: 'num' },
-  ]);
+  Components.renderMetricGrid(kpiEl, _buildSegmentsMetrics(rows, priorRows));
+
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending to Stage 4
+  // mid 6). When api.js detects row-count delta from background live fetch
+  // on segments.nicheFunnel, re-fetch and re-render the metric grid only.
+  // priorRows (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across
+  // App.onFilterChange re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'segments' || e.detail.queryName !== 'nicheFunnel') return;
+    API.query('segments', 'nicheFunnel', { days: days }).then(function (newRows) {
+      if (!newRows) return;
+      Components.renderMetricGrid(kpiEl, _buildSegmentsMetrics(newRows, priorRows));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Section 2: Niche Comparison Table (sortable) ----
   const tableSection = document.createElement('div');
@@ -66,10 +117,24 @@ App.registerPage('segments', async (container) => {
   let sortAsc = false;
 
   function renderNicheTable() {
+    // Only the `profession` column is genuinely categorical — everything else
+    // is numeric. BigQuery NUMERIC fields (revenue, avg_deal) often arrive as
+    // strings, which made `typeof av === 'string'` fire the localeCompare
+    // branch and sort the Revenue column alphabetically — "10000" before
+    // "9000" because '1' < '9'. The Top 5 by revenue was wrong any time the
+    // values crossed an order-of-magnitude boundary. Now we route on the
+    // column key, not on JS type, and force numeric coercion for all non-text
+    // columns (parseFloat handles both string and number inputs).
+    const isTextCol = sortKey === 'profession';
     const sorted = [...rows].sort((a, b) => {
-      const av = a[sortKey], bv = b[sortKey];
-      if (typeof av === 'string') return sortAsc ? (av || '').localeCompare(bv || '') : (bv || '').localeCompare(av || '');
-      return sortAsc ? ((av || 0) - (bv || 0)) : ((bv || 0) - (av || 0));
+      if (isTextCol) {
+        const av = a[sortKey] || '';
+        const bv = b[sortKey] || '';
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      }
+      const an = parseFloat(a[sortKey]) || 0;
+      const bn = parseFloat(b[sortKey]) || 0;
+      return sortAsc ? (an - bn) : (bn - an);
     });
 
     let html = '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>';
@@ -235,11 +300,9 @@ async function _renderGeoSection(container, days) {
   dzCard.appendChild(_geoDeadZoneTable(dzRows));
   geoGrid.appendChild(dzCard);
 
-  // Render Plotly charts
-  requestAnimationFrame(() => {
-    _geoChoropleth(mapDiv, states);
-    _geoStateBars(barDiv, states);
-  });
+  // Render Plotly charts (lazy-init: both are below-fold, IO fires on scroll)
+  Components.lazyChart(mapDiv, () => _geoChoropleth(mapDiv, states));
+  Components.lazyChart(barDiv, () => _geoStateBars(barDiv, states));
 }
 
 function _geoChoropleth(el, stateData) {

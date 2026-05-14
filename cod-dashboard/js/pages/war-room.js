@@ -190,80 +190,45 @@ async function renderWarRoom(container) {
 
   // ================================================================
   // SECTION 2b: Daily Revenue Stack (Wave 1.3) -- last 14d, 3 segments
+  // Shopify-style: clickable mini-KPI strip + single-metric line chart
+  // Pattern mirrors funnels.js renderFunnelChart for consistency.
   // ================================================================
   var stackCard = _card('Daily Revenue Stack', { padding: '20px 24px 24px' });
   var stackSub = document.createElement('div');
   stackSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
-  stackSub.textContent = 'Tickets, VIP, and high-ticket enrollments per day, last 14 days.';
+  stackSub.textContent = 'Click any metric to drill the line. Tickets, VIP, and high-ticket revenue per day, last 14 days.';
   stackCard.appendChild(stackSub);
 
+  // Mini-KPI strip (Shopify-style)
+  var stackStripId = 'war-stack-strip-' + Date.now();
+  var stackStrip = document.createElement('div');
+  stackStrip.id = stackStripId;
+  stackStrip.style.cssText = 'display:flex;gap:20px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08)';
+  stackCard.appendChild(stackStrip);
+
+  // Canvas wrap
   var stackCanvasId = 'war-stack-' + Date.now();
   var stackCanvasWrap = document.createElement('div');
-  stackCanvasWrap.style.cssText = 'position:relative;height:240px';
+  stackCanvasWrap.style.cssText = 'position:relative;width:100%;height:240px';
   stackCanvasWrap.innerHTML = '<canvas id="' + stackCanvasId + '"></canvas>';
   stackCard.appendChild(stackCanvasWrap);
+
+  // Legend
+  var stackLegendId = 'war-stack-legend-' + Date.now();
+  var stackLegend = document.createElement('div');
+  stackLegend.id = stackLegendId;
+  stackLegend.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:16px;margin-top:10px;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textMuted;
+  stackCard.appendChild(stackLegend);
+
   container.appendChild(stackCard);
 
   if (dailyRevStackData && dailyRevStackData.length > 0) {
-    requestAnimationFrame(function () {
-      var ctx = document.getElementById(stackCanvasId);
-      if (!ctx || typeof Chart === 'undefined') return;
-      if (ctx._chartInstance) ctx._chartInstance.destroy();
-
-      var labels = dailyRevStackData.map(function (r) {
-        var d = r.date && r.date.value ? r.date.value : r.date;
-        if (!d) return '';
-        var parts = String(d).split('-');
-        return parts.length >= 3 ? (parts[1] + '/' + parts[2]) : String(d);
-      });
-      var ticketArr = dailyRevStackData.map(function (r) { return Number(r.ticket_revenue || 0); });
-      var vipArr = dailyRevStackData.map(function (r) { return Number(r.vip_revenue || 0); });
-      var htArr = dailyRevStackData.map(function (r) { return Number(r.high_ticket_revenue || 0); });
-
-      var COLORS = Theme.COLORS;
-      ctx._chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            { label: 'Tickets', data: ticketArr, backgroundColor: COLORS.accentCyan || '#06b6d4', borderRadius: 2, stack: 'rev' },
-            { label: 'VIP', data: vipArr, backgroundColor: '#a855f7', borderRadius: 2, stack: 'rev' },
-            { label: 'High-Ticket', data: htArr, backgroundColor: COLORS.success || '#22c55e', borderRadius: 2, stack: 'rev' },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: { position: 'bottom', labels: { color: COLORS.textMuted, font: { size: 10 }, boxWidth: 12, padding: 12 } },
-            tooltip: {
-              callbacks: {
-                label: function (c) {
-                  return c.dataset.label + ': $' + Number(c.raw).toLocaleString();
-                },
-                footer: function (items) {
-                  var total = items.reduce(function (s, i) { return s + Number(i.raw || 0); }, 0);
-                  return 'Total: $' + total.toLocaleString();
-                },
-              },
-            },
-          },
-          scales: {
-            x: { stacked: true, grid: { color: COLORS.gridLine || 'rgba(255,255,255,0.05)' }, ticks: { color: COLORS.textMuted, font: { size: 10 } } },
-            y: {
-              stacked: true,
-              beginAtZero: true,
-              grid: { color: COLORS.gridLine || 'rgba(255,255,255,0.05)' },
-              ticks: {
-                color: COLORS.textMuted,
-                font: { size: 10 },
-                callback: function (v) { return '$' + (v >= 1000 ? Math.round(v / 1000) + 'k' : v); },
-              },
-            },
-          },
-        },
-      });
+    // Lazy-init: defer Chart.js construction until the canvas scrolls into
+    // view. Metric-switching click handler (inside _renderStackShopifyStyle)
+    // re-invokes the function directly, bypassing lazyChart's once-flag —
+    // so subsequent metric switches still re-render normally.
+    Components.lazyChart(stackCanvasId, function () {
+      _renderStackShopifyStyle(dailyRevStackData, stackStripId, stackCanvasId, stackLegendId);
     });
   } else {
     var noStack = document.createElement('p');
@@ -339,86 +304,48 @@ async function renderWarRoom(container) {
   container.appendChild(weekCard);
 
   // ================================================================
-  // SECTION 3: KPI Strip (WAR-07)
+  // SECTION 3: KPI Metric Grid (WAR-07) -- Mode 2 conversion from KPI strip
+  // to dense f27-style metric cards. Hero card above remains big; this grid
+  // packs the 6 supporting metrics into a denser visual rhythm matching the
+  // $27 Funnel Unit Economics pattern. PRD §2 Mode 2.
   // ================================================================
   var kpiContainer = document.createElement('div');
   kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  // Build spark arrays from dailyRevenue where applicable
-  var spendSpark = []; // no daily spend in dailyRevenue query, leave empty
-  var enrollSpark = dailyRevenueData.map(function (r) { return r.enrollment_revenue || 0; });
+  // Daily enrollment-revenue series doubles as a sparkline trend hint for
+  // the Enrollments card. Other metrics lack a daily series in the current
+  // war-room queries (no daily spend, no daily close rate); leave them blank.
+  var enrollSpark = (dailyRevenueData || []).map(function (r) { return Number(r.enrollment_revenue || 0); });
 
-  // Z-score arrays for anomaly badges. We can compute z for any metric where
-  // we have a daily series; without one we leave it null and the badge skips.
-  // Use the last 30 days of dailyRevenueData where available.
-  var revSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.total_revenue || 0); });
-  var enrollSeries30 = dailyRevenueData.slice(-30).map(function (r) { return Number(r.enrollment_revenue || 0); });
-  var revZ = Components.computeZScore ? Components.computeZScore(revSeries30) : null;
-  var enrollZ = Components.computeZScore ? Components.computeZScore(enrollSeries30) : null;
+  function _buildWarRoomMetrics(curRow, prevRow) {
+    return [
+      { label: 'Ad Spend',        value: curRow.total_spend,         prevValue: prevRow.total_spend,         format: 'money', invertDelta: true },
+      { label: 'CPB',             value: curRow.cpb,                 prevValue: prevRow.cpb,                 format: 'money', invertDelta: true },
+      { label: 'Cost/Enrollment', value: curRow.cost_per_enrollment, prevValue: prevRow.cost_per_enrollment, format: 'money', invertDelta: true },
+      { label: 'Enrollments',     value: curRow.enrollments,         prevValue: prevRow.enrollments,         format: 'num',   sparklineData: enrollSpark },
+      { label: 'ROAS',            value: curRow.roas,                prevValue: prevRow.roas,                format: 'roas'  },
+      { label: 'Close Rate',      value: curRow.close_rate,          prevValue: prevRow.close_rate,          format: 'pct'   },
+    ];
+  }
 
-  Components.renderKPIStrip(kpiContainer, [
-    {
-      label: 'Ad Spend',
-      value: cur.total_spend || 0,
-      prevValue: prev.total_spend || 0,
-      format: 'money',
-      delta: _delta(cur.total_spend, prev.total_spend),
-      invertCost: true,
-      source: 'v_meta_ads_clean',
-      calc: 'SUM(spend)',
-    },
-    {
-      label: 'CPB',
-      value: cur.cpb || 0,
-      prevValue: prev.cpb || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cpb, prev.cpb),
-      source: 'v_meta_ads_clean + v_sheets_bookings',
-      calc: 'total_spend / total_calls',
-    },
-    {
-      label: 'Cost/Enrollment',
-      value: cur.cost_per_enrollment || 0,
-      prevValue: prev.cost_per_enrollment || 0,
-      format: 'money',
-      invertCost: true,
-      delta: _delta(cur.cost_per_enrollment, prev.cost_per_enrollment),
-      source: 'v_meta_ads_clean + v_stripe_clean',
-      calc: 'total_spend / enrollments',
-    },
-    {
-      label: 'Enrollments',
-      value: cur.enrollments || 0,
-      prevValue: prev.enrollments || 0,
-      format: 'num',
-      delta: _delta(cur.enrollments, prev.enrollments),
-      sparkData: enrollSpark,
-      zScore: enrollZ,
-      zWindow: 30,
-      source: 'v_stripe_clean',
-      calc: 'COUNT(DISTINCT email) WHERE amount > 500',
-    },
-    {
-      label: 'ROAS',
-      value: cur.roas || 0,
-      prevValue: prev.roas || 0,
-      format: 'num',
-      delta: _delta(cur.roas, prev.roas),
-      source: 'v_stripe_clean + v_meta_ads_clean',
-      calc: '(gross_revenue - refunds) / total_spend',
-    },
-    {
-      label: 'Close Rate',
-      value: cur.close_rate || 0,
-      prevValue: prev.close_rate || 0,
-      format: 'pct',
-      delta: _delta(cur.close_rate, prev.close_rate),
-      source: 'v_sheets_bookings_enriched',
-      calc: 'closed / total_calls * 100',
-    },
-  ]);
+  Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(cur, prev));
+
+  // SWR cache-refresh wiring (discharges Stage 2 deferred follow-up #3 for
+  // war-room). When api.js detects row-count delta from a background live
+  // fetch, re-fetch the in-memory-cached result and re-render the grid only.
+  // AbortController guards against listener leaks across re-renders.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'war-room' || e.detail.queryName !== 'default') return;
+    API.query('war-room', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiContainer, _buildWarRoomMetrics(rows[0] || {}, rows[1] || {}));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ================================================================
   // SECTION 4: Leak Detection Panel (WAR-03)
@@ -604,4 +531,161 @@ function _escText(str) {
   var div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+// ================================================================
+// Shopify-style Daily Revenue Strip + Single-Metric Line Chart
+// Mirrors funnels.js renderFunnelChart pattern. Self-contained.
+// ================================================================
+var _warStackChartInstance = null;
+var _warStackActiveMetric = 3; // 0=Tickets, 1=VIP, 2=High-Ticket, 3=Total
+
+var _WAR_STACK_METRICS = [
+  { key: 'ticket_revenue',      label: 'Tickets',     color: '#06b6d4', tip: 'Daily $27 workshop ticket revenue from Stripe charges.' },
+  { key: 'vip_revenue',         label: 'VIP',         color: '#a855f7', tip: 'Daily VIP upgrade revenue ($27 -> $54) from Stripe charges.' },
+  { key: 'high_ticket_revenue', label: 'High-Ticket', color: '#22c55e', tip: 'Daily core program enrollment revenue ($13.5k+ contracts).' },
+  { key: '_total',              label: 'Total',       color: '#f59e0b', tip: 'Sum of Tickets + VIP + High-Ticket per day.' }
+];
+
+function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
+  if (!rows || rows.length === 0) return;
+
+  // Normalize rows: ensure every metric is a number; compute synthetic _total
+  var normRows = rows.map(function (r) {
+    var t = Number(r.ticket_revenue || 0);
+    var v = Number(r.vip_revenue || 0);
+    var h = Number(r.high_ticket_revenue || 0);
+    var d = r.date && r.date.value ? r.date.value : r.date;
+    return {
+      dt: String(d || ''),
+      ticket_revenue: t,
+      vip_revenue: v,
+      high_ticket_revenue: h,
+      _total: t + v + h
+    };
+  });
+
+  // Totals + deltas: split into first-half / second-half to compute period-over-period
+  var half = Math.floor(normRows.length / 2);
+  function sumKey(arr, key) { return arr.reduce(function (s, r) { return s + (r[key] || 0); }, 0); }
+  var first = normRows.slice(0, half);
+  var second = normRows.slice(half);
+
+  function fmtMoney(v) {
+    if (v >= 1000) return '$' + (Math.round(v / 100) / 10) + 'k';
+    return '$' + Math.round(v).toLocaleString();
+  }
+  function deltaPct(c, p) {
+    if (!p || p === 0) return null;
+    return ((c - p) / Math.abs(p)) * 100;
+  }
+
+  var miniKpis = _WAR_STACK_METRICS.map(function (m) {
+    var cur = sumKey(second, m.key);
+    var prev = sumKey(first, m.key);
+    return { label: m.label, value: fmtMoney(cur), delta: deltaPct(cur, prev) };
+  });
+
+  // Render strip with clickable metric cards
+  var strip = document.getElementById(stripId);
+  if (!strip) return;
+  strip.innerHTML = miniKpis.map(function (mk, idx) {
+    var d = mk.delta;
+    var dStr = d === null ? '' : ((d >= 0 ? '+' : '') + d.toFixed(0) + '%');
+    var dColor = d === null ? 'transparent' : (d > 0 ? '#22c55e' : d < 0 ? '#ef4444' : '#64748b');
+    var active = idx === _warStackActiveMetric;
+    var bg = active ? 'rgba(255,255,255,0.06)' : 'transparent';
+    var border = active ? '1px solid rgba(124,58,237,0.4)' : '1px solid rgba(255,255,255,0.06)';
+    var shadow = active ? 'box-shadow:0 0 8px rgba(124,58,237,0.15);' : '';
+    var tip = _WAR_STACK_METRICS[idx].tip;
+    return '<div class="war-stack-metric" data-idx="' + idx + '" title="' + tip + '" style="cursor:pointer;padding:6px 12px;border-radius:8px;border:' + border + ';background:' + bg + ';' + shadow + 'transition:all 150ms">' +
+      '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-bottom:2px">' + mk.label + '</div>' +
+      '<div style="display:flex;align-items:baseline;gap:6px">' +
+        '<span style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:' + Theme.COLORS.textPrimary + ';font-variant-numeric:tabular-nums">' + mk.value + '</span>' +
+        (dStr ? '<span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:' + dColor + '">' + dStr + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Click handlers
+  strip.querySelectorAll('.war-stack-metric').forEach(function (el) {
+    el.addEventListener('click', function () {
+      _warStackActiveMetric = parseInt(this.dataset.idx, 10);
+      _renderStackShopifyStyle(rows, stripId, canvasId, legendId);
+    });
+  });
+
+  // Legend (date range)
+  var startLbl = normRows.length ? normRows[0].dt.slice(5) : '';
+  var endLbl = normRows.length ? normRows[normRows.length - 1].dt.slice(5) : '';
+  var legend = document.getElementById(legendId);
+  if (legend) {
+    var color = _WAR_STACK_METRICS[_warStackActiveMetric].color;
+    legend.innerHTML =
+      '<span style="display:inline-flex;align-items:center;gap:6px">' +
+        '<span style="width:16px;height:2px;background:' + color + ';display:inline-block"></span>' +
+        '<strong style="color:#f1f5f9">' + _WAR_STACK_METRICS[_warStackActiveMetric].label + '</strong> ' +
+        '<span style="opacity:0.6">' + startLbl + ' to ' + endLbl + '</span>' +
+      '</span>';
+  }
+
+  // Draw chart
+  var ctx = document.getElementById(canvasId);
+  if (!ctx || typeof Chart === 'undefined') return;
+  if (_warStackChartInstance) { try { _warStackChartInstance.destroy(); } catch (e) {} }
+
+  var metric = _WAR_STACK_METRICS[_warStackActiveMetric];
+  var labels = normRows.map(function (r) {
+    if (!r.dt) return '';
+    var parts = r.dt.split('-');
+    return parts.length >= 3 ? (parts[1] + '/' + parts[2]) : r.dt;
+  });
+  var data = normRows.map(function (r) { return r[metric.key]; });
+
+  _warStackChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: metric.label,
+        data: data,
+        borderColor: metric.color,
+        backgroundColor: metric.color + '22',
+        fill: true,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          callbacks: {
+            label: function (c) { return metric.label + ': $' + Number(c.raw).toLocaleString(); }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, maxRotation: 0, autoSkipPadding: 20 }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: {
+            color: Theme.COLORS.textMuted,
+            font: { size: 10 },
+            callback: function (v) { return '$' + (v >= 1000 ? Math.round(v / 1000) + 'k' : v); }
+          }
+        }
+      }
+    }
+  });
 }

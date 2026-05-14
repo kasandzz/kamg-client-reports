@@ -26,11 +26,16 @@ App.registerPage('ads-google', async (container) => {
   } catch (_) {}
 
   // ---- Parallel data fetch ----
-  let kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages;
+  // The doubled-window prev fetch follows the ads-meta.js f7eca46 pattern: the
+  // page's `default` query returns headline KPIs for the selected window; we
+  // also request the 2x-window flavor so we can derive prior-period deltas
+  // (curRow - prevDoubleRow + curRow ≈ prev window) without a server-side change.
+  let kpis, kpisPrev, campaigns, keywords, youtube, crossPlatform, daily, landingPages;
 
   try {
-    [kpis, campaigns, keywords, youtube, crossPlatform, daily, landingPages] = await Promise.all([
+    [kpis, kpisPrev, campaigns, keywords, youtube, crossPlatform, daily, landingPages] = await Promise.all([
       API.query('google-ads', 'default',       { days }),
+      API.query('google-ads', 'default',       { days: days * 2 }).catch(() => null),
       API.query('google-ads', 'campaigns',     { days }),
       API.query('google-ads', 'keywords',      { days }),
       API.query('google-ads', 'youtube',       { days }).catch(() => null),
@@ -44,21 +49,60 @@ App.registerPage('ads-google', async (container) => {
   }
 
   const kpi = (kpis && kpis.length > 0) ? kpis[0] : {};
+  const kpiDouble = (kpisPrev && kpisPrev.length > 0) ? kpisPrev[0] : {};
 
-  // ---- KPI Strip ----
+  // ---- KPI metric grid (Mode 2 conversion 2026-05-13) ----
   const kpiContainer = document.createElement('div');
+  kpiContainer.style.marginBottom = '16px';
   container.appendChild(kpiContainer);
 
-  Components.renderKPIStrip(kpiContainer, [
-    { label: 'Total Spend',   value: kpi.total_spend || 0,             format: 'money' },
-    { label: 'Impressions',   value: kpi.total_impressions || 0,       format: 'num' },
-    { label: 'Clicks',        value: kpi.total_clicks || 0,            format: 'num' },
-    { label: 'CTR',           value: kpi.avg_ctr || 0,                 format: 'pct' },
-    { label: 'CPC',           value: kpi.avg_cpc || 0,                 format: 'money' },
-    { label: 'Conversions',   value: kpi.total_conversions || 0,       format: 'num' },
-    { label: 'CPA',           value: kpi.avg_cpa || 0,                 format: 'money', invertCost: true },
-    { label: 'ROAS',          value: Components.guardROAS(kpi.account_roas || 0), format: 'num' },
-  ]);
+  function _prev(field) {
+    const cur = Number(kpi[field] || 0);
+    const dbl = Number(kpiDouble[field] || 0);
+    if (!dbl || dbl <= cur) return null;
+    return dbl - cur;
+  }
+
+  // Daily spend series doubles as a sparkline trend hint for Total Spend.
+  const spendSpark = (daily || []).map(d => Number(d.spend || 0));
+
+  function _buildGoogleAdsMetrics() {
+    return [
+      { label: 'Total Spend', value: kpi.total_spend       || 0, prevValue: _prev('total_spend'),       format: 'money', invertDelta: true, sparklineData: spendSpark },
+      { label: 'Impressions', value: kpi.total_impressions || 0, prevValue: _prev('total_impressions'), format: 'num'   },
+      { label: 'Clicks',      value: kpi.total_clicks      || 0, prevValue: _prev('total_clicks'),      format: 'num'   },
+      { label: 'CTR',         value: kpi.avg_ctr           || 0, prevValue: _prev('avg_ctr'),           format: 'pct'   },
+      { label: 'CPC',         value: kpi.avg_cpc           || 0, prevValue: _prev('avg_cpc'),           format: 'money', invertDelta: true },
+      { label: 'Conversions', value: kpi.total_conversions || 0, prevValue: _prev('total_conversions'), format: 'num'   },
+      { label: 'CPA',         value: kpi.avg_cpa           || 0, prevValue: _prev('avg_cpa'),           format: 'money', invertDelta: true },
+      { label: 'ROAS',        valueHtml: Components.guardROAS(kpi.account_roas || 0) === 'N/A' ? '<span style="color:var(--text-muted,#64748b)">N/A</span>' : Number(Components.guardROAS(kpi.account_roas)).toFixed(2) + 'x' },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiContainer, _buildGoogleAdsMetrics());
+
+  // SWR cache-refresh wiring. When api.js detects a row-count delta from a
+  // background live fetch, re-fetch the keyed result and re-render the grid
+  // only. Listens for 'default' (the headline KPI query); the 2x prev fetch
+  // shares the same page namespace and refreshes naturally on the next mount.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) {}
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', (e) => {
+    if (!e || !e.detail || e.detail.page !== 'google-ads' || e.detail.queryName !== 'default') return;
+    Promise.all([
+      API.query('google-ads', 'default', { days }),
+      API.query('google-ads', 'default', { days: days * 2 }).catch(() => null),
+    ]).then(([nextKpis, nextDouble]) => {
+      const nextKpi    = (nextKpis && nextKpis.length > 0) ? nextKpis[0] : {};
+      const nextDbl    = (nextDouble && nextDouble.length > 0) ? nextDouble[0] : {};
+      // Replace closure-captured refs so _buildGoogleAdsMetrics reads updated values.
+      Object.assign(kpi, nextKpi);
+      Object.assign(kpiDouble, nextDbl);
+      Components.renderMetricGrid(kpiContainer, _buildGoogleAdsMetrics());
+    }).catch(() => { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Campaign Performance Table ----
   try { _renderGoogleCampaignTable(container, campaigns || []); } catch (e) { console.warn('Campaign table error:', e); }
@@ -468,14 +512,24 @@ function _renderCrossPlatform(container, data) {
     return;
   }
 
-  const google = data.find(r => r.platform === 'Google Ads') || {};
-  const meta   = data.find(r => r.platform === 'Meta Ads')   || {};
+  const googleRow = data.find(r => r.platform === 'Google Ads');
+  const metaRow   = data.find(r => r.platform === 'Meta Ads');
+  const google = googleRow || {};
+  const meta   = metaRow   || {};
 
   const gSpend = +(google.total_spend || 0);
   const mSpend = +(meta.total_spend || 0);
   const totalSpend = gSpend + mSpend;
-  const gPct = totalSpend > 0 ? (gSpend / totalSpend * 100).toFixed(0) : 50;
-  const mPct = totalSpend > 0 ? (mSpend / totalSpend * 100).toFixed(0) : 50;
+  // Truthfulness: previously fell back to "50 / 50" when both platforms had $0
+  // spend — visually identical to a genuine even split. Now we surface the
+  // no-spend state explicitly so the comparison bar can't lie by symmetry.
+  const noSpend = totalSpend <= 0;
+  const gPct = noSpend ? 0 : Math.round(gSpend / totalSpend * 100);
+  const mPct = noSpend ? 0 : 100 - gPct;
+  const missingPlatforms = [
+    !googleRow ? 'Google Ads' : null,
+    !metaRow   ? 'Meta Ads'   : null,
+  ].filter(Boolean);
 
   const GOOGLE_COLOR = '#FBBC04';
   const META_COLOR   = '#1877F2';
@@ -506,22 +560,34 @@ function _renderCrossPlatform(container, data) {
     </div>`;
   }
 
+  const missingNote = missingPlatforms.length > 0
+    ? `<div style="margin-bottom:12px;font-size:11px;color:${Theme.COLORS.warning};padding:8px 10px;border-left:2px solid ${Theme.COLORS.warning};background:rgba(245,158,11,0.06)">Missing row for: ${missingPlatforms.join(', ')}. Crosss-platform bridge query may be filtering them out — values below show as $0.</div>`
+    : '';
+
+  const spendShare = noSpend
+    ? `<div style="margin-top:8px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
+        <div style="font-size:12px;color:${Theme.COLORS.textMuted};padding:10px;text-align:center;border:1px dashed ${Theme.COLORS.border};border-radius:6px">No spend in either platform for the selected window — share cannot be computed.</div>
+      </div>`
+    : `<div style="margin-top:8px">
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
+        <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
+          <div style="width:${gPct}%;background:${GOOGLE_COLOR};transition:width .3s"></div>
+          <div style="width:${mPct}%;background:${META_COLOR};transition:width .3s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-family:'JetBrains Mono',monospace">
+          <span style="color:${GOOGLE_COLOR}">Google ${gPct}%</span>
+          <span style="color:${META_COLOR}">Meta ${mPct}%</span>
+        </div>
+      </div>`;
+
   card.innerHTML += `
+    ${missingNote}
     <div style="display:flex;gap:16px;margin-bottom:16px">
       ${platformCard('Google Ads', GOOGLE_COLOR, google)}
       ${platformCard('Meta Ads', META_COLOR, meta)}
     </div>
-    <div style="margin-top:8px">
-      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-bottom:6px">Spend Share</div>
-      <div style="display:flex;height:8px;border-radius:4px;overflow:hidden">
-        <div style="width:${gPct}%;background:${GOOGLE_COLOR};transition:width .3s"></div>
-        <div style="width:${mPct}%;background:${META_COLOR};transition:width .3s"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-family:'JetBrains Mono',monospace">
-        <span style="color:${GOOGLE_COLOR}">Google ${gPct}%</span>
-        <span style="color:${META_COLOR}">Meta ${mPct}%</span>
-      </div>
-    </div>
+    ${spendShare}
   `;
 
   container.appendChild(card);

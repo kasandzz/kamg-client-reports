@@ -26,20 +26,67 @@ App.registerPage('sales-team', async (container) => {
   container.innerHTML = '';
   const t = (teamTotals && teamTotals.length > 0) ? teamTotals[0] : {};
 
-  // ---- Section 1: Team KPI Strip ----
+  // ---- Prior period delta (fetch 2x window, compute delta) ----
+  // Counts (booked/taken/enrollments/cash/contracts/ad_spend) subtract cleanly;
+  // rate fields (dpl/cac/roas) accept the 2x-window aggregate as approximate
+  // prior — same tradeoff as ads-meta.js / journey-explorer.js Stage 3.
+  let priorTeam = {};
+  try {
+    const priorData = await API.query('sales-team', 'default', { days: days * 2 });
+    if (priorData && priorData.length > 0) priorTeam = priorData[0];
+  } catch (_) { /* ignore */ }
+
+  // ---- Section 1: Team KPI Metric Grid (Mode 2 conversion) ----
+  // renderMetricGrid pattern from war-room.js (canonical, Stage 2.5). Was a
+  // 9-card KPI strip; now a dense $27 Funnel-style grid. ROAS now formats as
+  // "Nx" via `roas` instead of pre-formatted text. Cost metrics (Ad Spend, CAC)
+  // carry invertDelta so increases render in danger red.
   const kpiEl = document.createElement('div');
+  kpiEl.style.marginBottom = '16px';
   container.appendChild(kpiEl);
-  Components.renderKPIStrip(kpiEl, [
-    { label: 'Calls Booked',   value: t.calls_booked || 0,   format: 'num' },
-    { label: 'Calls Taken',    value: t.calls_taken || 0,    format: 'num' },
-    { label: 'Enrollments',    value: t.enrollments || 0,    format: 'num' },
-    { label: 'DPL',            value: t.dpl || 0,            format: 'money' },
-    { label: 'Total Cash',     value: t.total_cash || 0,     format: 'money' },
-    { label: 'Total Contracts', value: t.total_contracts || 0, format: 'money' },
-    { label: 'Ad Spend',       value: t.ad_spend || 0,       format: 'money' },
-    { label: 'CAC',            value: t.cac || 0,            format: 'money' },
-    { label: 'ROAS',           value: (t.roas || 0).toFixed(2) + 'x', format: 'text' },
-  ]);
+
+  function _buildSalesTeamMetrics(cur, prev) {
+    const c = cur || {};
+    const p = prev || {};
+    // priorTeam comes from 2x-window query — subtract current to get prior-only counts.
+    const _priorBooked   = (p.calls_booked   || 0) - (c.calls_booked   || 0);
+    const _priorTaken    = (p.calls_taken    || 0) - (c.calls_taken    || 0);
+    const _priorEnroll   = (p.enrollments    || 0) - (c.enrollments    || 0);
+    const _priorCash     = (p.total_cash     || 0) - (c.total_cash     || 0);
+    const _priorContract = (p.total_contracts|| 0) - (c.total_contracts|| 0);
+    const _priorSpend    = (p.ad_spend       || 0) - (c.ad_spend       || 0);
+    return [
+      { label: 'Calls Booked',    value: c.calls_booked,    prevValue: _priorBooked   > 0 ? _priorBooked   : undefined, format: 'num'   },
+      { label: 'Calls Taken',     value: c.calls_taken,     prevValue: _priorTaken    > 0 ? _priorTaken    : undefined, format: 'num'   },
+      { label: 'Enrollments',     value: c.enrollments,     prevValue: _priorEnroll   > 0 ? _priorEnroll   : undefined, format: 'num'   },
+      { label: 'DPL',             value: c.dpl,             prevValue: p.dpl,                                            format: 'money' },
+      { label: 'Total Cash',      value: c.total_cash,      prevValue: _priorCash     > 0 ? _priorCash     : undefined, format: 'money' },
+      { label: 'Total Contracts', value: c.total_contracts, prevValue: _priorContract > 0 ? _priorContract : undefined, format: 'money' },
+      { label: 'Ad Spend',        value: c.ad_spend,        prevValue: _priorSpend    > 0 ? _priorSpend    : undefined, format: 'money', invertDelta: true },
+      { label: 'CAC',             value: c.cac,             prevValue: p.cac,                                            format: 'money', invertDelta: true },
+      { label: 'ROAS',            value: c.roas,            prevValue: p.roas,                                           format: 'roas'  },
+    ];
+  }
+
+  Components.renderMetricGrid(kpiEl, _buildSalesTeamMetrics(t, priorTeam));
+
+  // SWR cache-refresh wiring (Stage 2 follow-up #3 — extending pattern from
+  // top 6 pages to mid 6). When api.js detects row-count delta from background
+  // live fetch on sales-team.default, re-fetch and re-render the KPI grid only.
+  // priorTeam (2x-window) stays closure-stable; its own SWR refresh is the
+  // next event. AbortController prevents listener accumulation across re-
+  // renders triggered by App.onFilterChange.
+  if (container._cacheRefreshController) {
+    try { container._cacheRefreshController.abort(); } catch (e) { /* noop */ }
+  }
+  container._cacheRefreshController = new AbortController();
+  window.addEventListener('cache-refresh', function (e) {
+    if (!e || !e.detail || e.detail.page !== 'sales-team' || e.detail.queryName !== 'default') return;
+    API.query('sales-team', 'default', { days: days }).then(function (rows) {
+      if (!rows || rows.length === 0) return;
+      Components.renderMetricGrid(kpiEl, _buildSalesTeamMetrics(rows[0] || {}, priorTeam));
+    }).catch(function () { /* swallow; live fetch already failed once */ });
+  }, { signal: container._cacheRefreshController.signal });
 
   // ---- Section 2: Calls by Funnel Source -- Stacked Bar ----
   const funnelSection = document.createElement('div');
@@ -115,12 +162,21 @@ App.registerPage('sales-team', async (container) => {
   let sortKey = 'total_cash';
   let sortAsc = false;
 
+  // Highlight the best closer per metric. CAC is lowest-is-best (efficiency);
+  // every other numeric column is highest-is-best. The previous version early-
+  // returned for col.key === 'cac', so the most-efficient closer was never
+  // green-highlighted on the CAC column even though the comparison logic was
+  // already in place — a real visibility bug for the "who's getting cheap
+  // enrollments" question at standup. Zero/missing values are filtered out so
+  // a closer with no spend isn't crowned as the most-efficient.
   function findBest(col) {
-    if (col.key === 'closer' || col.key === 'cac') return null;
-    let best = null, bestVal = col.key === 'cac' ? Infinity : -Infinity;
+    if (col.key === 'closer') return null;
+    const lowerIsBetter = col.key === 'cac';
+    let best = null, bestVal = lowerIsBetter ? Infinity : -Infinity;
     reps.forEach(r => {
-      const v = parseFloat(r[col.key]) || 0;
-      if (col.key === 'cac' ? v < bestVal : v > bestVal) { bestVal = v; best = r.closer; }
+      const raw = parseFloat(r[col.key]);
+      if (!Number.isFinite(raw) || raw === 0) return; // skip missing/zero so they don't win
+      if (lowerIsBetter ? raw < bestVal : raw > bestVal) { bestVal = raw; best = r.closer; }
     });
     return best;
   }
@@ -180,30 +236,32 @@ App.registerPage('sales-team', async (container) => {
   revSection.appendChild(revCard);
 
   const sortedByRev = [...reps].sort((a, b) => (b.total_cash || 0) - (a.total_cash || 0));
-  Theme.createChart('sales-rev-by-closer', {
-    type: 'bar',
-    data: {
-      labels: sortedByRev.map(r => r.closer || 'Unknown'),
-      datasets: [{
-        label: 'Revenue',
-        data: sortedByRev.map(r => r.total_cash || 0),
-        backgroundColor: '#6c5ce7',
-        borderRadius: 4,
-      }],
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => Theme.money(ctx.parsed.x) } },
+  Components.lazyChart('sales-rev-by-closer', () => {
+    Theme.createChart('sales-rev-by-closer', {
+      type: 'bar',
+      data: {
+        labels: sortedByRev.map(r => r.closer || 'Unknown'),
+        datasets: [{
+          label: 'Revenue',
+          data: sortedByRev.map(r => r.total_cash || 0),
+          backgroundColor: '#6c5ce7',
+          borderRadius: 4,
+        }],
       },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: { ticks: { color: Theme.COLORS.textPrimary, font: { size: 11 } }, grid: { display: false } },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => Theme.money(ctx.parsed.x) } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: { ticks: { color: Theme.COLORS.textPrimary, font: { size: 11 } }, grid: { display: false } },
+        },
       },
-    },
+    });
   });
 
   // ---- Section 5: Monthly Close Rate Trends ----
@@ -240,25 +298,27 @@ App.registerPage('sales-team', async (container) => {
     spanGaps: true,
   }));
 
-  Theme.createChart('sales-monthly-trends', {
-    type: 'line',
-    data: { labels: months, datasets: trendDatasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${(ctx.parsed.y || 0).toFixed(1)}%` } },
-      },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => v + '%' },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          title: { display: true, text: 'Close Rate %', color: Theme.COLORS.textMuted, font: { size: 10 } },
+  Components.lazyChart('sales-monthly-trends', () => {
+    Theme.createChart('sales-monthly-trends', {
+      type: 'line',
+      data: { labels: months, datasets: trendDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${(ctx.parsed.y || 0).toFixed(1)}%` } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => v + '%' },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'Close Rate %', color: Theme.COLORS.textMuted, font: { size: 10 } },
+          },
         },
       },
-    },
+    });
   });
   // ---- Section 6: No-Show Cost + Objection Donut (split row) ----
   const splitRow = document.createElement('div');
@@ -323,33 +383,35 @@ App.registerPage('sales-team', async (container) => {
     objCard.appendChild(objCanvas);
 
     const objColors = ['#ef4444', '#f59e0b', '#a855f7', '#06b6d4', '#22c55e', '#ec4899', '#6b7280'];
-    Theme.createChart('sales-objection-donut', {
-      type: 'doughnut',
-      data: {
-        labels: objs.map(r => r.objection_type),
-        datasets: [{
-          data: objs.map(r => parseInt(r.cnt) || 0),
-          backgroundColor: objs.map((_, i) => objColors[i % objColors.length]),
-          borderColor: '#0f1117',
-          borderWidth: 2,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '62%',
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: { color: Theme.COLORS.textSecondary, font: { size: 11 }, boxWidth: 10 },
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed / objs.reduce((s, r) => s + (parseInt(r.cnt) || 0), 0)) * 100).toFixed(1)}%)`,
+    Components.lazyChart('sales-objection-donut', () => {
+      Theme.createChart('sales-objection-donut', {
+        type: 'doughnut',
+        data: {
+          labels: objs.map(r => r.objection_type),
+          datasets: [{
+            data: objs.map(r => parseInt(r.cnt) || 0),
+            backgroundColor: objs.map((_, i) => objColors[i % objColors.length]),
+            borderColor: '#0f1117',
+            borderWidth: 2,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: Theme.COLORS.textSecondary, font: { size: 11 }, boxWidth: 10 },
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.label}: ${ctx.parsed} (${((ctx.parsed / objs.reduce((s, r) => s + (parseInt(r.cnt) || 0), 0)) * 100).toFixed(1)}%)`,
+              },
             },
           },
         },
-      },
+      });
     });
   }
 
@@ -461,25 +523,27 @@ App.registerPage('sales-team', async (container) => {
     spanGaps: true,
   }));
 
-  Theme.createChart('sales-monthly-dpl', {
-    type: 'line',
-    data: { labels: months, datasets: dplDatasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y || 0)}` } },
-      },
-      scales: {
-        x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-        y: {
-          ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          title: { display: true, text: 'DPL ($/call booked)', color: Theme.COLORS.textMuted, font: { size: 10 } },
+  Components.lazyChart('sales-monthly-dpl', () => {
+    Theme.createChart('sales-monthly-dpl', {
+      type: 'line',
+      data: { labels: months, datasets: dplDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: Theme.COLORS.textSecondary, font: { size: 11 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y || 0)}` } },
+        },
+        scales: {
+          x: { ticks: { color: Theme.COLORS.textMuted, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+          y: {
+            ticks: { color: Theme.COLORS.textMuted, font: { size: 10 }, callback: v => Theme.money(v) },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'DPL ($/call booked)', color: Theme.COLORS.textMuted, font: { size: 10 } },
+          },
         },
       },
-    },
+    });
   });
 });
 

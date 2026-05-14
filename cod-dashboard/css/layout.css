@@ -86,6 +86,17 @@
   padding: var(--space-sm) 0;
 }
 
+/* Reset list styles inside nav -- semantic <ul> for screen readers,
+   visually identical to the old flat <a> stack. */
+.nav-section-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.nav-section-list > li {
+  display: block;
+}
+
 .nav-section-label {
   font-size: 10px;
   font-weight: 700;
@@ -115,6 +126,13 @@
 
 .nav-item:hover {
   border-color: var(--sidebar-hover-border);
+  background: var(--sidebar-hover-bg);
+  color: var(--text-primary);
+}
+
+.nav-item:focus-visible {
+  /* Inset focus ring -- the global 2px outline + offset would clip on
+     the sidebar edge. Keep it visually clear via background + border. */
   background: var(--sidebar-hover-bg);
   color: var(--text-primary);
 }

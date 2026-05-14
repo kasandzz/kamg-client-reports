@@ -68,6 +68,29 @@ App.registerPage('data-health', async (container) => {
 
   container.removeChild(loadingNote);
 
+  // Empty-Map disclosure: api.js silently catches errors in getDataFreshness
+  // and returns an empty Map — without this banner the page would render five
+  // zero-count KPIs and an empty coverage table with no explanation. Surfacing
+  // the failure mode keeps the data-health page honest about its own data health.
+  if (!freshnessMap || freshnessMap.size === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'card';
+    empty.style.cssText = `padding:20px;margin-bottom:20px;border-left:3px solid ${Theme.COLORS.danger}`;
+    empty.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:${Theme.COLORS.danger};text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Freshness query returned no data</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textSecondary};line-height:1.6">
+        The <code style="font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.04);padding:1px 6px;border-radius:3px">meta/dataFreshness</code> endpoint succeeded but no tables were returned. This usually means one of:
+      </div>
+      <ul style="font-size:12px;color:${Theme.COLORS.textSecondary};line-height:1.7;margin:6px 0 0 0;padding-left:20px">
+        <li>The Cloud Function lost permission to read <code style="font-family:'JetBrains Mono',monospace">INFORMATION_SCHEMA</code> on <code style="font-family:'JetBrains Mono',monospace">cod_warehouse</code></li>
+        <li>The CF threw and api.js swallowed it (check CF logs)</li>
+        <li>The dataset was renamed or moved</li>
+      </ul>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:10px">All counts below render as 0 / empty until the upstream query recovers.</div>
+    `;
+    container.appendChild(empty);
+  }
+
   // ---- Build table rows with classification ----
   const rows = [];
   for (const [tableName, ms] of freshnessMap.entries()) {
@@ -85,26 +108,23 @@ App.registerPage('data-health', async (container) => {
   const unknown = rows.filter(r => r.status.state === 'unknown').length;
   const fresh = rows.filter(r => r.status.state === 'fresh').length;
 
+  // KPI grid via shared component (Mode 2 conversion 2026-05-13). Status colors
+  // are preserved per-card by wrapping the value in a span with inline color —
+  // the default f27-metric__value color is var(--text-primary).
   const kpiStrip = document.createElement('div');
-  kpiStrip.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px';
-  const kpis = [
-    { label: 'Tables Tracked',   value: totalTables, color: Theme.COLORS.textPrimary },
-    { label: 'Fresh',             value: fresh,       color: Theme.COLORS.success },
-    { label: 'Stale (warn)',      value: stale,       color: Theme.COLORS.warning },
-    { label: 'Critical',          value: critical,    color: Theme.COLORS.danger },
-    { label: 'No Data',           value: unknown,     color: Theme.COLORS.textMuted },
-  ];
-  kpis.forEach(k => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.cssText = 'padding:16px';
-    card.innerHTML = `
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:${Theme.COLORS.textMuted};margin-bottom:8px">${k.label}</div>
-      <div style="font-size:28px;font-weight:700;color:${k.color};font-family:'JetBrains Mono',monospace">${k.value}</div>
-    `;
-    kpiStrip.appendChild(card);
-  });
+  kpiStrip.style.marginBottom = '20px';
   container.appendChild(kpiStrip);
+  const kpis = [
+    { label: 'Tables Tracked', value: totalTables, color: Theme.COLORS.textPrimary },
+    { label: 'Fresh',           value: fresh,       color: Theme.COLORS.success },
+    { label: 'Stale (warn)',    value: stale,       color: Theme.COLORS.warning },
+    { label: 'Critical',        value: critical,    color: Theme.COLORS.danger },
+    { label: 'No Data',         value: unknown,     color: Theme.COLORS.textMuted },
+  ];
+  Components.renderMetricGrid(kpiStrip, kpis.map(k => ({
+    label: k.label,
+    valueHtml: `<span style="color:${k.color}">${k.value}</span>`,
+  })), { showSparklines: false });
 
   // ---- Header ----
   const headerCard = document.createElement('div');
@@ -196,7 +216,17 @@ App.registerPage('data-health', async (container) => {
   }
   pageRows.sort((a, b) => {
     const rank = { critical: 3, warning: 2, unknown: 1, fresh: 0 };
-    return rank[b.worstRow.status.state] - rank[a.worstRow.status.state];
+    const stateDiff = rank[b.worstRow.status.state] - rank[a.worstRow.status.state];
+    if (stateDiff !== 0) return stateDiff;
+    // Tiebreak 1: oldest data first within the same status — surfaces the page
+    // that's closest to slipping into the next-worse bucket. null/Infinity ages
+    // (unknown rows) are treated as "older than all known ages" so they bubble up.
+    const ageA = a.worstRow.age == null ? Infinity : a.worstRow.age;
+    const ageB = b.worstRow.age == null ? Infinity : b.worstRow.age;
+    if (ageA !== ageB) return ageB - ageA;
+    // Tiebreak 2: page name alphabetically — full determinism so Antigravity
+    // visual regression diffs don't flap on equal-age pages.
+    return a.pageName.localeCompare(b.pageName);
   });
 
   const tableEl = document.createElement('table');

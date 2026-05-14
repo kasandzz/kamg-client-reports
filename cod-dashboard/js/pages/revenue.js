@@ -36,6 +36,15 @@ App.registerPage('revenue', async (container) => {
   const pip = (pipeline && pipeline.length > 0) ? pipeline[0] : {};
   container.innerHTML = '';
 
+  // ---- Page Header (consistent with attribution.js + ads-meta) ----
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-bottom:20px';
+  header.innerHTML = `
+    <h2 style="font-size:20px;font-weight:700;color:${Theme.COLORS.textPrimary};margin:0 0 4px 0">Revenue & LTV</h2>
+    <div style="font-size:12px;color:${Theme.COLORS.textMuted}">Enrollment economics &middot; cash collected, refunds (Stripe + Akari sheet), processor mix, closer concentration, cohort LTV curves</div>
+  `;
+  container.appendChild(header);
+
   // ---- Prior period delta (fetch 2x window, compute delta) ----
   let priorKpi = {};
   try {

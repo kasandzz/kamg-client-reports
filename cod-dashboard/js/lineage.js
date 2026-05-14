@@ -178,21 +178,30 @@ const Lineage = (() => {
     'ads-meta': {
       title: 'Meta Ads',
       elements: [
-        { name: 'Spend / Impressions / Clicks / CTR / CPM / CPC', type: 'KPI Strip', pipelines: ['meta'], query: 'default', detail: 'Account-level aggregation from meta_ad_performance for act_206306693361622.' },
-        { name: 'Campaign Breakdown', type: 'Table', pipelines: ['meta'], query: 'campaigns', detail: 'Campaign-level: spend, impressions, clicks, CTR, CPC, CPM, conversions, revenue, ROAS.' },
-        { name: 'Ad Set ROAS Ranking', type: 'Table', pipelines: ['meta'], query: 'adsets', detail: 'Ad set level: spend, clicks, conversions, revenue, ROAS. Sorted by ROAS desc.' },
-        { name: 'Daily Trend', type: 'Chart', pipelines: ['meta'], query: 'daily', detail: 'Daily spend, clicks, CTR, CPM line chart.' },
-        { name: 'Unit Economics', type: 'Panel', pipelines: ['stripe', 'meta'], query: 'unitEcon', detail: 'Stripe ticket count + AOV merged with Meta spend for CPA calculation.' },
-        { name: 'Campaign Status', type: 'Table', pipelines: ['meta'], query: 'campaignStatus', detail: 'Active vs paused at campaign/adset/ad level with last active date and 30-day spend.' },
+        { name: 'Total Spend / ROAS / CPM / CPC / CTR / Cost Per Ticket', type: 'KPI Strip', pipelines: ['meta', 'stripe'], query: 'default', detail: 'Account-level aggregation from v_meta_ads_clean for act_206306693361622. Cost Per Ticket = spend / Stripe ticket count. Spend card shows daily sparkline. Prior-period deltas from 2x-window query.' },
+        { name: 'ROAS by Ad Set (Top 5 + Bottom 5)', type: 'Chart', pipelines: ['meta'], query: 'adsets', detail: 'Plotly horizontal bar. Color-coded by ROAS tier (green >= 3x, amber 1-3x, red < 1x). Surfaces highest and lowest performers in same view.' },
+        { name: 'Daily Spend & CTR (Dual-Axis)', type: 'Chart', pipelines: ['meta'], query: 'daily', detail: 'Chart.js mixed: bars for daily spend (y-axis), line for CTR (y1-axis). Compare toggle overlays prior period.' },
+        { name: 'Campaign Performance Table', type: 'Table', pipelines: ['meta'], query: 'campaigns', detail: 'Campaign-level: spend, impressions, clicks, CTR, CPC, CPM, conversions, revenue, ROAS. Grouped by niche tag (therapists / attorneys / coaches / educators / broad) + status filter. Row drill-down to ad sets.' },
+        { name: 'Unit Economics Panel', type: 'Panel', pipelines: ['stripe', 'meta'], query: 'unitEcon', detail: 'Editable inputs: ticket price / cogs / margin / 12-month LTV. Computes breakeven and 12-month gravy. Meta spend + Stripe ticket count are read-only sources.' },
+        { name: 'Retargeting Performance', type: 'Table', pipelines: ['meta'], query: 'retargeting', detail: 'Spend, conversions, CPA, ROAS, frequency per retargeting campaign. Frequency >2.5 flagged as fatigue risk.' },
+        { name: 'Wasted Spend Alerts', type: 'Signals', pipelines: ['meta'], query: 'wastedSpend', detail: 'Campaigns with >$200 spend and zero conversions in window. Surfaces immediate kill-or-fix candidates.' },
+        { name: 'Creative Fatigue Watch', type: 'Table', pipelines: ['meta'], query: 'creativeFatigue', detail: 'Ad sets with declining CTR: current avg CTR, % change vs prior, spend during decline. Identifies creative refresh priority.' },
+        { name: 'Source Attribution Table', type: 'Table', pipelines: ['meta', 'hyros'], query: 'sourceAttribution', detail: 'Hyros-attributed sources cross-referenced with Meta spend. Per-source CAC and ROAS using Hyros revenue divided by Meta spend share.' },
+        { name: 'Age x Gender Heatmap', type: 'Chart', pipelines: ['meta'], query: 'demographicsAgeGender', detail: 'Plotly heatmap. ROAS color, spend + revenue on hover. Sourced from meta_demographics_age_gender breakdown.' },
+        { name: 'Device Split (Donut + Table)', type: 'Chart', pipelines: ['meta'], query: 'demographicsDevice', detail: 'Spend share donut + per-device conversion/ROAS table. Sourced from meta_demographics_device breakdown (mobile / desktop / tablet).' },
+        { name: 'Spend x ROAS Scatter', type: 'Chart', pipelines: ['meta'], query: 'scatterAdSets', detail: 'Log-scale scatter: x = spend, y = ROAS, bubble size = conversions. Quadrant labels (scale, optimize, kill, test) for tactical decisions.' },
+        { name: 'Campaign Staleness', type: 'Table', pipelines: ['meta'], query: 'staleness', detail: 'Active vs paused at campaign/adset/ad level. Last active date, 30d spend, days since last edit. Flags zombie campaigns burning budget.' },
       ]
     },
     'cold-email': {
       title: 'Cold Email',
       elements: [
-        { name: 'Emails Sent / Reply Rate / Interested / Bounce Rate', type: 'KPI Strip', pipelines: ['cold_outbound'], query: 'kpis', detail: 'Aggregate from cold_outbound_campaigns: SUM(sent), SUM(replied)/SUM(contacted), SUM(interested), SUM(bounced)/SUM(sent).' },
-        { name: 'Campaign Table', type: 'Table', pipelines: ['cold_outbound'], query: 'campaigns', detail: 'All EmailBison campaigns with reply rate, bounce rate, completion %.' },
+        { name: 'Emails Sent / Reply Rate / Interested / Bounce Rate', type: 'KPI Strip', pipelines: ['cold_outbound'], query: 'kpis', detail: 'Aggregate from cold_outbound_campaigns: SUM(sent), SUM(replied)/SUM(contacted), SUM(interested), SUM(bounced)/SUM(sent). Prior-period deltas from 2x-window query.' },
+        { name: 'Daily Send + Reply Trend', type: 'Chart', pipelines: ['cold_outbound'], query: 'daily', detail: 'Daily line/bar: sends, replies, interested replies. Surfaces deliverability dips and reply-rate decay.' },
+        { name: 'Campaign Table', type: 'Table', pipelines: ['cold_outbound'], query: 'campaigns', detail: 'All EmailBison campaigns with reply rate, bounce rate, completion %. Sortable; status filter (active / paused / completed).' },
         { name: 'Reply Feed', type: 'Feed', pipelines: ['cold_outbound'], query: 'replies', detail: 'Last 100 replies joined with lead company/industry and campaign name. Includes sentiment and interest flag.' },
         { name: 'Cold Email Funnel', type: 'Chart', pipelines: ['cold_outbound', 'master'], query: 'bridge', detail: 'v_cold_outbound_to_cod_bridge: joins cold_outbound_leads to master_customers by email. Stages: replied > interested > registered > call_booked > enrolled.' },
+        { name: 'Reply-to-Booking Conversion', type: 'Table', pipelines: ['cold_outbound', 'sheets'], query: 'reply_conversions', detail: 'Replied leads that subsequently booked a call (via v_sheets_bookings_clean email match). Surfaces actual pipeline outcome per campaign, not just reply count.' },
         { name: 'Sender Health', type: 'Table', pipelines: ['cold_outbound'], query: 'sender_health', detail: 'Per-sender account: daily limit, emails sent, reply/bounce rate, health score from v_cold_outbound_sender_health.' },
         { name: 'Industry Breakdown', type: 'Chart', pipelines: ['cold_outbound'], query: 'lead_breakdown', detail: 'Leads grouped by industry with reply rate and engagement score from v_cold_outbound_leads_clean.' },
         { name: 'Reply Hour Distribution', type: 'Chart', pipelines: ['cold_outbound'], query: 'reply_hours', detail: '90-day reply distribution by hour: total, human, interested replies.' },
@@ -224,23 +233,42 @@ const Lineage = (() => {
       ]
     },
     'email-intel': {
-      title: 'Email',
+      title: 'Email Intel',
       elements: [
-        { name: 'Sent / Delivered / Opened / Clicked / Bounced / Rates', type: 'KPI Strip', pipelines: ['sendgrid'], query: 'default', detail: 'Aggregated from sendgrid_messages: delivery, open, click, bounce events.' },
-        { name: 'Daily Performance', type: 'Chart', pipelines: ['sendgrid'], query: 'daily', detail: 'Daily sent, delivered, opened, bounced.' },
-        { name: 'Subject Line Performance', type: 'Table', pipelines: ['sendgrid'], query: 'subjects', detail: 'Top 20 subjects ranked by open rate with sent, opened, clicked counts.' },
+        { name: 'Total Sent / Delivered / Delivery Rate / Open Rate / Click Rate / Bounced / Unsubscribed', type: 'KPI Strip', pipelines: ['sendgrid'], query: 'default', detail: 'Aggregated from sendgrid_messages: delivered, opened, clicked, bounced, unsubscribed events. Prior-period deltas from 2x-window query.' },
+        { name: 'Daily Send Volume (Stacked Bar)', type: 'Chart', pipelines: ['sendgrid'], query: 'daily', detail: 'Per day: delivered + bounced counts stacked. Surfaces send-rate consistency and bounce spikes.' },
+        { name: 'Daily Open Rate (Line)', type: 'Chart', pipelines: ['sendgrid'], query: 'daily', detail: 'Per-day open rate = opened / delivered. Trend line for engagement decay.' },
+        { name: 'Subject Performance Top 20', type: 'Chart', pipelines: ['sendgrid'], query: 'subjects', detail: 'Plotly horizontal bar: open rate by subject, click-rate as color intensity. Last 20 subjects by send volume.' },
+        { name: 'Click-to-Booking Conversion Data Gap', type: 'Placeholder', pipelines: ['sendgrid', 'sheets'], query: 'not built', detail: 'Planned integration: SendGrid click events joined to sheets_bookings by email + click timestamp. Not implemented; surfaced as honest empty-state.' },
+        { name: 'Delivered Share by Provider (Donut)', type: 'Chart', pipelines: ['sendgrid'], query: 'mailboxProvider', detail: 'Donut: share of delivered messages by mailbox provider (Gmail / Yahoo / Outlook / Hotmail / corporate / other).' },
+        { name: 'Provider Rates Table', type: 'Table', pipelines: ['sendgrid'], query: 'mailboxProvider', detail: 'Per-provider: delivered count, delivery %, open %, click %, bounce %, spam %. Color-coded by tier (green / amber / red). Surfaces deliverability problems per inbox provider.' },
       ]
     },
     'journey-explorer': {
       title: 'Journey Explorer',
       elements: [
-        { name: 'Funnel Stage Counts', type: 'Funnel', pipelines: ['funnel'], query: 'default', detail: 'Full pipeline: tickets > attended > VIP > booked > calls > enrolled. Boolean stage flags from vw_workshop_funnel_pipeline.' },
+        { name: 'Tickets Sold / Attended / Enrolled / Overall CVR / Close Rate / Show Rate', type: 'KPI Strip', pipelines: ['funnel', 'master'], query: 'default', detail: 'Aggregated from master_journey + bridge_customer_journey. Enrolled card includes weekly sparkline. Prior-period deltas via 2x-window query.' },
+        { name: '12-Stage Journey Bow-Tie', type: 'Funnel', pipelines: ['funnel', 'master'], query: 'default', detail: 'Carousel cards: exposure > landing > ticket > workshop > vip > booking > call > enrollment > onboarding > Lions Pride > Millionaires Alliance > advocacy. Each stage has traffic-light CVR indicator + volume.' },
+        { name: 'Overall CVR Summary Card', type: 'Panel', pipelines: ['funnel'], query: 'default', detail: 'Ticket-to-enrolled CVR vs benchmark band (2-5% typical for COD). Shows current rate, prior period, and where it sits in the band.' },
+        { name: 'Pipeline Velocity Placeholder', type: 'Panel', pipelines: ['funnel'], query: 'speedToClose', detail: 'Days from first-touch to enrollment. Requires per-stage timestamp linkage; currently shows histogram only, ETA-prediction is planned.' },
+        { name: 'Tracking Coverage Stat', type: 'Signals', pipelines: ['master'], query: 'default', detail: 'Stage tracking quality: count of stages flagged Full / Partial / Missing. Shown as a horizontal bar so data gaps are visible at a glance.' },
+        { name: 'Sankey Journey Flow', type: 'Chart', pipelines: ['master', 'funnel'], query: 'sankey', detail: 'Plotly end-to-end sankey from acquisition platform through each stage. Branch widths show drop-off. Sourced from bridge_customer_journey.' },
+        { name: 'Speed-to-Close Histogram', type: 'Chart', pipelines: ['funnel'], query: 'speedToClose', detail: 'Days from first-touch to enrollment, bucketed. Color-coded by velocity (fast / medium / slow).' },
+        { name: 'Cohort Velocity Table', type: 'Table', pipelines: ['funnel', 'stripe'], query: 'cohortVelocity', detail: 'Weekly cohorts: tickets / booked / enrolled / CVR / avg days to enroll / cash. Clickable rows for drill-in.' },
+        { name: 'Individual Lookup Form', type: 'Drill-down', pipelines: ['master'], query: 'individualLookup', detail: 'Email search returns full journey table per person (up to 25 matches). Pulls bridge_customer_journey filtered by LOWER(email).' },
+        { name: 'Post-Enrollment Tracking Gap Alert', type: 'Signals', pipelines: ['master'], query: 'default', detail: 'Callout: stages 9-12 (onboarding / Lions Pride / MA / advocacy) not yet flowing into bridge_customer_journey. Surfaces the known data gap.' },
       ]
     },
     'live-feed': {
       title: 'Live Feed',
       elements: [
-        { name: 'Event Stream', type: 'Feed', pipelines: ['customer_events'], query: 'default', detail: 'Last 100 events from customer_events VIEW. 12 event types unified from all source systems.' },
+        { name: 'Event Filter Dropdown', type: 'Control', pipelines: ['customer_events'], query: 'default', detail: 'Client-side filter: all / ticket_purchased / lead_created / call_booked / lp_enrollment / vip_purchased. Filters the event table without re-fetching.' },
+        { name: 'Event Count Badge', type: 'Signals', pipelines: ['customer_events'], query: 'default', detail: 'Live count of currently-displayed events given the active filter.' },
+        { name: 'Last Updated Relative Time', type: 'Signals', pipelines: ['customer_events'], query: 'default', detail: 'Just refreshed / Updated Xs ago / next poll in Xs. Surfaces polling cadence so user knows the data is live.' },
+        { name: 'Enrollment Sound Toggle', type: 'Control', pipelines: [], query: 'N/A (client-side)', detail: 'Checkbox to play a chime on new enrollment events. Persisted to localStorage so preference survives reloads.' },
+        { name: 'VIP Uptake Stats Bar', type: 'Signals', pipelines: ['funnel'], query: 'default', detail: 'Mini bars showing VIP% with checkbox / upsell / unknown breakdown of how the VIP was identified.' },
+        { name: 'Refresh Error Banner', type: 'Signals', pipelines: ['customer_events'], query: 'default', detail: 'Shown post-initial load if the polling fetch fails. Hidden when the next successful poll lands. Prevents silent staleness.' },
+        { name: 'Real-Time Event Table', type: 'Feed', pipelines: ['customer_events', 'master', 'sheets'], query: 'default', detail: 'Last 100 events from customer_events VIEW. 9 columns: when (CDMX), event type, contact (with closer + source), segment, amount, conversion page, first ad click, last ad click, PostHog session replay link. New rows pulse-animate on arrival.' },
       ]
     },
     'sales-team': {
@@ -260,15 +288,21 @@ const Lineage = (() => {
     'geo-intel': {
       title: 'Geo Intel',
       elements: [
-        { name: 'City Revenue Map', type: 'Map', pipelines: ['geo'], query: 'default', detail: 'Top 100 cities by revenue from mat_geo_revenue (materialized from master_customers + Stripe + Meta).' },
-        { name: 'State Rollup', type: 'Table', pipelines: ['geo'], query: 'states', detail: 'Top 15 states: revenue, spend, enrollments, tickets, ROAS.' },
-        { name: 'Dead Zones', type: 'Table', pipelines: ['geo'], query: 'deadZones', detail: 'Cities with >$500 ad spend but zero enrollments -- wasted geo targeting.' },
+        { name: 'States with Revenue / Top State / Total Geo Revenue / Dead Zones / Wasted in Dead Zones / Best ROAS State', type: 'KPI Strip', pipelines: ['geo', 'hyros', 'meta'], query: 'default', detail: 'Aggregated from mat_geo_revenue + hyros_sales + v_meta_ads_clean. Top State by revenue; Best ROAS State by revenue/spend ratio. Wasted = SUM(spend) where enrollments = 0.' },
+        { name: 'US Choropleth Map', type: 'Map', pipelines: ['geo'], query: 'states', detail: 'Plotly choropleth: revenue by state, color gradient. Hover shows revenue / enrollments / ROAS.' },
+        { name: 'Top 15 States by Revenue', type: 'Chart', pipelines: ['geo'], query: 'states', detail: 'Horizontal bar chart, reverse-sorted by revenue. Quick leaderboard view.' },
+        { name: 'Top 20 Cities Table', type: 'Table', pipelines: ['geo'], query: 'default', detail: 'City, state, revenue, spend, enrollments, ROAS. Sourced from mat_geo_revenue precomputed rollup.' },
+        { name: 'Dead Zones Table', type: 'Table', pipelines: ['geo', 'meta'], query: 'deadZones', detail: 'Cities with >$500 ad spend AND zero enrollments. Columns: state / city / wasted spend / enroll count. Direct targeting kill candidates.' },
       ]
     },
     'segments': {
       title: 'Segments',
       elements: [
-        { name: 'Segment Breakdown', type: 'Chart', pipelines: ['master'], query: 'N/A (client-side)', detail: 'Auto-derived segments from master_customers: customer, enrolled, vip_attendee, workshop_attendee, applicant, registrant, lead.' },
+        { name: 'Total Contacts / Enrollments / Revenue / Top Segment / Best Conversion / Segments Tracked', type: 'KPI Strip', pipelines: ['master', 'posthog'], query: 'nicheFunnel', detail: 'Aggregated from master_journey + bridge_session_attribution. Top Segment = highest-enrollment niche; Best Conversion = highest enrollment-rate niche.' },
+        { name: 'Niche Funnel Comparison Table', type: 'Table', pipelines: ['master', 'stripe', 'sheets'], query: 'nicheFunnel', detail: 'Sortable: profession / contacts / tickets / ticket% / attended / show% / booked / book% / enrolled / enroll% / revenue / avg deal. One row per profession tag from PostHog identify() + GHL profession field.' },
+        { name: 'Segment Funnel Progression Bars', type: 'Chart', pipelines: ['master'], query: 'nicheFunnel', detail: 'Per-profession horizontal bars showing contacts > tickets > attended > booked > enrolled progression. Bar width = stage count / max per stage across profession.' },
+        { name: 'Geographic Intelligence Section', type: 'Chart', pipelines: ['geo'], query: 'location', detail: 'States table + US choropleth + state bars + dead zones table. Sourced from mat_geo_revenue. Duplicates Geo Intel page content; absorbed into segments for one-shot segment + geo view.' },
+        { name: 'Demographic Intelligence Cards', type: 'Chart', pipelines: ['meta'], query: 'ageGender + device + placement', detail: 'Bar charts per dimension (gender / age band / device / placement) with stat toggles (Spend / Conversions / ROAS). Sourced from Meta demographics breakdowns.' },
       ]
     },
     'experiments': {

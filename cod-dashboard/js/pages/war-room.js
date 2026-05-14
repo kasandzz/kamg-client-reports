@@ -333,12 +333,22 @@ async function renderWarRoom(container) {
   midCard.setAttribute('aria-label', 'Mid funnel: per-funnel breakdown');
 
   // Provisional per-funnel dummy rows.
+  // cpbc: explicit when fixed (Cold Email = $200 per pre-agreement), else computed
+  // from spend / bookings when rendered. cpa: always computed from spend / enrolls.
   var funnelRows = [
-    { name: '$27 Workshop',  spend: 7800, regs: 188, bookings: 142, enrolls: 9, regLabel: 'tickets' },
-    { name: 'MA/VSL Funnel', spend: 1400, regs: 36,  bookings: 28,  enrolls: 3, regLabel: 'apps'    },
-    { name: 'JIT Webinar',   spend: 600,  regs: 22,  bookings: 8,   enrolls: 1, regLabel: 'regs'    },
-    { name: 'Cold Email',    spend: 8400, regs: 0,   bookings: 42,  enrolls: 2, regLabel: '--'      },
+    { name: '$27 Workshop',  spend: 7800, regs: 188, bookings: 142, enrolls: 9, regLabel: 'tickets', cpbcFixed: null              },
+    { name: 'MA/VSL Funnel', spend: 1400, regs: 36,  bookings: 28,  enrolls: 3, regLabel: 'apps',    cpbcFixed: null              },
+    { name: 'JIT Webinar',   spend: 600,  regs: 22,  bookings: 8,   enrolls: 1, regLabel: 'regs',    cpbcFixed: null              },
+    { name: 'Cold Email',    spend: 8400, regs: 0,   bookings: 42,  enrolls: 2, regLabel: '--',      cpbcFixed: COLD_EMAIL_CPBC   },
   ];
+
+  function _cpbc(row) {
+    if (row.cpbcFixed != null) return Theme.formatValue(row.cpbcFixed, 'money');
+    if (row.spend == null || row.bookings == null || row.bookings === 0) {
+      return '<span style="color:' + Theme.COLORS.textMuted + '">--</span>';
+    }
+    return Theme.formatValue(row.spend / row.bookings, 'money');
+  }
 
   var midHeader =
     '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">' +
@@ -354,7 +364,9 @@ async function renderWarRoom(container) {
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _money(r.spend) + '</td>',
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + (r.regLabel === '--' ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : _num(r.regs)) + '</td>',
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + _num(r.bookings) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _cpbc(r) + '</td>',
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.success + ';font-weight:600">' + _num(r.enrolls) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _cpa(r.spend, r.enrolls) + '</td>',
       '</tr>',
     ].join('');
   }).join('');
@@ -362,7 +374,7 @@ async function renderWarRoom(container) {
   var midTable =
     '<table style="width:100%;border-collapse:collapse">' +
       '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08)">' +
-        th('Funnel', 'left') + th('Spend') + th('Regs/Tickets') + th('Bookings') + th('Enrollments') +
+        th('Funnel', 'left') + th('Spend') + th('Regs/Tickets') + th('Bookings') + th('CPBC') + th('Enrollments') + th('CPA Enroll') +
       '</tr></thead>' +
       '<tbody>' + midBodyRows + '</tbody>' +
     '</table>';

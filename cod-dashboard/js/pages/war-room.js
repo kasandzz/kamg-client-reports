@@ -254,21 +254,66 @@ async function renderWarRoom(container) {
     return card;
   }
 
-  // TOP -- traffic + acquisition
-  journeyRow.appendChild(_stageCard({
-    stage: 'Top',
-    title: 'Traffic + Acquisition',
-    subtitle: 'Meta + Google + Cold Email',
-    color: '#06b6d4',
-    href: '#ads-meta',
-    rows: [
-      { label: 'Meta spend',  value: Theme.formatValue(cur.total_spend || 0, 'money') },
-      { label: 'Impressions', value: (cur.total_impressions || 0).toLocaleString() },
-      { label: 'Clicks',      value: (cur.total_clicks || 0).toLocaleString() },
-      { label: 'Google Ads',  value: null },
-      { label: 'Cold Email',  value: null },
-    ],
-  }));
+  // TOP -- per-platform table (DUMMY DATA, wired in Tail B from Hyros + Meta + EmailBison).
+  // Cold Email CPBC is the pre-agreed $200 flat constant per memory rule.
+  var topCard = document.createElement('a');
+  topCard.href = '#attribution';
+  topCard.className = 'card';
+  topCard.style.cssText = 'padding:20px;text-decoration:none;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:10px;border-top:2px solid #06b6d4';
+  topCard.setAttribute('role', 'link');
+  topCard.setAttribute('aria-label', 'Top of funnel: traffic + acquisition by platform');
+
+  var COLD_EMAIL_CPBC = 200;
+  // Provisional dummy rows -- real data lands in Tail B (Attribution page work).
+  // Order: Organic / Meta / Google / Cold Email / Other (per Kas spec).
+  var platformRows = [
+    { name: 'Organic',    spend: 0,      cpbc: 0,                bookings: 12, enrolls: 1, note: 'dummy' },
+    { name: 'Meta',       spend: 8200,   cpbc: 1180,             bookings: 7,  enrolls: 1, note: 'dummy' },
+    { name: 'Google',     spend: null,   cpbc: null,             bookings: null, enrolls: null, note: 'blocked' },
+    { name: 'Cold Email', spend: 8400,   cpbc: COLD_EMAIL_CPBC,  bookings: 42, enrolls: 2, note: 'dummy' },
+    { name: 'Other',      spend: 1200,   cpbc: 300,              bookings: 4,  enrolls: 0, note: 'dummy' },
+  ];
+
+  function _money(v) { return v == null ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : Theme.formatValue(v, 'money'); }
+  function _num(v)   { return v == null ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : Number(v).toLocaleString(); }
+
+  var topHeader =
+    '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">' +
+      '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#06b6d4">Top</span>' +
+      '<span style="font-size:10px;color:' + Theme.COLORS.textMuted + ';font-style:italic">Dummy data -- wired in Tail B</span>' +
+    '</div>' +
+    '<div style="font-size:15px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">Traffic + Acquisition by Platform</div>';
+
+  var th = function (label, align) {
+    return '<th style="padding:6px 8px;text-align:' + (align || 'right') + ';color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:9px;white-space:nowrap">' + label + '</th>';
+  };
+  var bodyRows = platformRows.map(function (r) {
+    var isBlocked = r.note === 'blocked';
+    var rowOpacity = isBlocked ? 'opacity:0.5;' : '';
+    var nameSuffix = isBlocked ? ' <span style="font-size:9px;color:' + Theme.COLORS.textMuted + '">(coming soon)</span>' : '';
+    return [
+      '<tr style="' + rowOpacity + '">',
+      '  <td style="padding:6px 8px;color:' + Theme.COLORS.textPrimary + ';font-size:12px;white-space:nowrap">' + _escText(r.name) + nameSuffix + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _money(r.spend) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _money(r.cpbc) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + _num(r.bookings) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.success + ';font-weight:600">' + _num(r.enrolls) + '</td>',
+      '</tr>',
+    ].join('');
+  }).join('');
+
+  var topTable =
+    '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08)">' +
+        th('Platform', 'left') + th('Spend') + th('CPBC') + th('Bookings') + th('Enrolls') +
+      '</tr></thead>' +
+      '<tbody>' + bodyRows + '</tbody>' +
+    '</table>';
+
+  var topFooter = '<div style="font-size:11px;color:#06b6d4;margin-top:4px">View Attribution detail &rarr;</div>';
+
+  topCard.innerHTML = topHeader + topTable + topFooter;
+  journeyRow.appendChild(topCard);
 
   // MID -- workshop / webinar pipeline
   var vipApprox = Math.max(0, (cur.gross_revenue || 0) - (cur.ticket_revenue || 0) - (cur.enrollment_revenue || 0));
@@ -416,54 +461,141 @@ async function renderWarRoom(container) {
   }
 
   // ================================================================
-  // SECTION 2c: This Week's Daily Table (Wave 1.3) -- Mon-Sun
+  // SECTION 2c: This Week's Daily Table (Phase 1c upgrade)
+  // Renders Mon-Sun current week. For each occurred day (date <= today),
+  // pairs with same-DOW row from the prior week and shows WoW delta
+  // arrows on Tickets / VIP / Calls Booked / Calls Showed.
+  // Adds VIP % / Booking % / Show % rate columns per Akari's reference
+  // sheet. SQL extended to return 14 rows (this + last week).
   // ================================================================
   var weekCard = _card("This Week's Daily", { padding: '20px 24px 24px' });
   var weekSub = document.createElement('div');
   weekSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
-  weekSub.textContent = 'Mon to Sun current week. Tickets and VIP from Stripe; calls + enrollments from workshop pipeline.';
+  weekSub.textContent = 'Mon to Sun current week, with Week-over-Week delta vs same DOW last week. VIP % = vip/tickets. Booking % = calls/tickets. Show % = showed/booked.';
   weekCard.appendChild(weekSub);
 
   if (weeklyDailyData && weeklyDailyData.length > 0) {
     var tableWrap = document.createElement('div');
     tableWrap.style.cssText = 'overflow-x:auto';
 
-    var dowNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    var rowsHtml = weeklyDailyData.map(function (r) {
+    // Build a date -> row map so we can look up "same DOW last week"
+    function _normDate(r) {
       var d = r.date && r.date.value ? r.date.value : r.date;
-      var dateStr = String(d || '');
+      return String(d || '');
+    }
+    var byDate = {};
+    weeklyDailyData.forEach(function (r) { byDate[_normDate(r)] = r; });
+
+    // Today (local ISO date) for "occurred?" check
+    var todayISO = new Date().toISOString().slice(0, 10);
+    var dowNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Filter to current-week rows only (week_offset=current, or fallback to
+    // date >= this Monday for old cache lacking week_offset)
+    function _isCurrentWeek(r) {
+      if (r.week_offset) return r.week_offset === 'current';
+      var d = _normDate(r);
+      var now = new Date();
+      var monday = new Date(now);
+      monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      var mondayISO = monday.toISOString().slice(0, 10);
+      return d >= mondayISO;
+    }
+    var currentRows = weeklyDailyData.filter(_isCurrentWeek);
+
+    function _prevWeekRow(curDateStr) {
+      if (!curDateStr) return null;
+      var dt = new Date(curDateStr + 'T00:00:00');
+      if (isNaN(dt.getTime())) return null;
+      dt.setDate(dt.getDate() - 7);
+      var prevISO = dt.toISOString().slice(0, 10);
+      return byDate[prevISO] || null;
+    }
+
+    // Delta arrow renderer: only renders if prev exists and date has occurred.
+    // Up = green when metric is good (tickets/vip/calls/showed all favor higher).
+    function _arrow(cur, prev, hasOccurred) {
+      if (!hasOccurred) return '';
+      if (prev == null || prev === undefined) return '';
+      var c = Number(cur || 0), p = Number(prev || 0);
+      if (p === 0 && c === 0) return '';
+      if (p === 0) return '<span style="color:' + Theme.COLORS.success + ';font-size:10px;margin-left:6px" title="No prior-week baseline">&#9650;</span>';
+      var diff = c - p;
+      if (diff === 0) return '<span style="color:' + Theme.COLORS.textMuted + ';font-size:10px;margin-left:6px">—</span>';
+      var pct = (diff / Math.abs(p)) * 100;
+      var color = diff > 0 ? Theme.COLORS.success : Theme.COLORS.danger;
+      var arrow = diff > 0 ? '&#9650;' : '&#9660;';
+      var pctStr = (diff > 0 ? '+' : '') + pct.toFixed(0) + '%';
+      var tip = 'vs ' + Math.round(p).toLocaleString() + ' same DOW last week';
+      return '<span style="color:' + color + ';font-size:10px;margin-left:6px;font-family:var(--font-mono)" title="' + tip + '">' + arrow + ' ' + pctStr + '</span>';
+    }
+
+    function _pct(num, den) {
+      var n = Number(num || 0), d = Number(den || 0);
+      if (d <= 0) return '<span style="color:' + Theme.COLORS.textMuted + '">--</span>';
+      return (n / d * 100).toFixed(1) + '%';
+    }
+
+    var rowsHtml = currentRows.map(function (r) {
+      var dateStr = _normDate(r);
       var dow = '';
       if (dateStr) {
         var dt = new Date(dateStr + 'T00:00:00');
         if (!isNaN(dt.getTime())) dow = dowNames[dt.getDay()];
       }
-      var isToday = dateStr === new Date().toISOString().slice(0, 10);
+      var hasOccurred = dateStr && dateStr <= todayISO;
+      var isToday = dateStr === todayISO;
       var rowStyle = isToday ? 'background:rgba(6,182,212,0.06)' : '';
       var dateLabel = dow ? (dow + ' ' + dateStr.slice(5)) : dateStr;
+      var dimStyle = hasOccurred ? '' : 'opacity:0.4;';
+
+      var prev = _prevWeekRow(dateStr);
+      var prevTickets = prev ? prev.tickets : null;
+      var prevVip = prev ? prev.vip : null;
+      var prevBooked = prev ? prev.calls_booked : null;
+      var prevShowed = prev ? prev.calls_showed : null;
+
+      var ticketsN = Number(r.tickets || 0);
+      var vipN = Number(r.vip || 0);
+      var bookedN = Number(r.calls_booked || 0);
+      var showedN = Number(r.calls_showed || 0);
+      var enrollsN = Number(r.enrollments || 0);
+      var grossN = Number(r.gross_revenue || 0);
+
+      var nbsp = '&nbsp;';
       return [
-        '<tr style="' + rowStyle + '">',
-        '  <td style="padding:8px 10px;color:' + Theme.COLORS.textPrimary + ';font-weight:' + (isToday ? '700' : '500') + '">' + _escText(dateLabel) + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.tickets || 0).toLocaleString() + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:#a855f7">' + Number(r.vip || 0).toLocaleString() + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.calls_booked || 0).toLocaleString() + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + '">' + Number(r.calls_showed || 0).toLocaleString() + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.success + ';font-weight:600">' + Number(r.enrollments || 0).toLocaleString() + '</td>',
-        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';font-weight:600">' + Theme.formatValue(Number(r.gross_revenue || 0), 'money') + '</td>',
+        '<tr style="' + rowStyle + dimStyle + '">',
+        '  <td style="padding:8px 10px;color:' + Theme.COLORS.textPrimary + ';font-weight:' + (isToday ? '700' : '500') + ';white-space:nowrap">' + _escText(dateLabel) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';white-space:nowrap">' + ticketsN.toLocaleString() + _arrow(ticketsN, prevTickets, hasOccurred) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:#a855f7;white-space:nowrap">' + vipN.toLocaleString() + _arrow(vipN, prevVip, hasOccurred) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';white-space:nowrap">' + bookedN.toLocaleString() + _arrow(bookedN, prevBooked, hasOccurred) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';white-space:nowrap">' + showedN.toLocaleString() + _arrow(showedN, prevShowed, hasOccurred) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-family:var(--font-mono);font-size:12px">' + _pct(vipN, ticketsN) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-family:var(--font-mono);font-size:12px">' + _pct(bookedN, ticketsN) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-family:var(--font-mono);font-size:12px">' + _pct(showedN, bookedN) + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.success + ';font-weight:600">' + enrollsN.toLocaleString() + '</td>',
+        '  <td style="padding:8px 10px;text-align:right;color:' + Theme.COLORS.textPrimary + ';font-weight:600">' + Theme.formatValue(grossN, 'money') + '</td>',
         '</tr>',
       ].join('');
     }).join('');
 
+    function _th(label) {
+      return '<th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;white-space:nowrap">' + label + '</th>';
+    }
     tableWrap.innerHTML = [
       '<table style="width:100%;border-collapse:collapse;font-size:13px;font-family:Manrope,sans-serif">',
       '  <thead>',
       '    <tr style="border-bottom:1px solid ' + (Theme.COLORS.gridLine || 'rgba(255,255,255,0.08)') + '">',
       '      <th style="padding:10px;text-align:left;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Date</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Tickets</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">VIP</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Calls Booked</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Calls Showed</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Enrollments</th>',
-      '      <th style="padding:10px;text-align:right;color:' + Theme.COLORS.textMuted + ';font-weight:600;text-transform:uppercase;letter-spacing:0.06em;font-size:10px">Gross Rev</th>',
+      _th('Tickets'),
+      _th('VIP'),
+      _th('Calls Booked'),
+      _th('Calls Showed'),
+      _th('VIP %'),
+      _th('Booking %'),
+      _th('Show %'),
+      _th('Enrollments'),
+      _th('Gross Rev'),
       '    </tr>',
       '  </thead>',
       '  <tbody>' + rowsHtml + '</tbody>',

@@ -266,6 +266,7 @@ async function renderWarRoom(container) {
   var COLD_EMAIL_CPBC = 200;
   // Provisional dummy rows -- real data lands in Tail B (Attribution page work).
   // Order: Organic / Meta / Google / Cold Email / Other (per Kas spec).
+  // CPA Enroll = spend / enrolls (Inf when enrolls=0; rendered as "--").
   var platformRows = [
     { name: 'Organic',    spend: 0,      cpbc: 0,                bookings: 12, enrolls: 1, note: 'dummy' },
     { name: 'Meta',       spend: 8200,   cpbc: 1180,             bookings: 7,  enrolls: 1, note: 'dummy' },
@@ -276,6 +277,11 @@ async function renderWarRoom(container) {
 
   function _money(v) { return v == null ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : Theme.formatValue(v, 'money'); }
   function _num(v)   { return v == null ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : Number(v).toLocaleString(); }
+  function _cpa(spend, enrolls) {
+    if (spend == null || enrolls == null) return '<span style="color:' + Theme.COLORS.textMuted + '">--</span>';
+    if (enrolls === 0) return '<span style="color:' + Theme.COLORS.textMuted + '">--</span>';
+    return Theme.formatValue(spend / enrolls, 'money');
+  }
 
   var topHeader =
     '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">' +
@@ -298,6 +304,7 @@ async function renderWarRoom(container) {
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _money(r.cpbc) + '</td>',
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + _num(r.bookings) + '</td>',
       '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.success + ';font-weight:600">' + _num(r.enrolls) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _cpa(r.spend, r.enrolls) + '</td>',
       '</tr>',
     ].join('');
   }).join('');
@@ -305,7 +312,7 @@ async function renderWarRoom(container) {
   var topTable =
     '<table style="width:100%;border-collapse:collapse">' +
       '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08)">' +
-        th('Platform', 'left') + th('Spend') + th('CPBC') + th('Bookings') + th('Enrolls') +
+        th('Platform', 'left') + th('Spend') + th('CPBC') + th('Bookings') + th('Enrolls') + th('CPA Enroll') +
       '</tr></thead>' +
       '<tbody>' + bodyRows + '</tbody>' +
     '</table>';
@@ -315,21 +322,55 @@ async function renderWarRoom(container) {
   topCard.innerHTML = topHeader + topTable + topFooter;
   journeyRow.appendChild(topCard);
 
-  // MID -- workshop / webinar pipeline
-  var vipApprox = Math.max(0, (cur.gross_revenue || 0) - (cur.ticket_revenue || 0) - (cur.enrollment_revenue || 0));
-  journeyRow.appendChild(_stageCard({
-    stage: 'Mid',
-    title: 'Workshop + Webinar',
-    subtitle: '$27 + JIT pipeline',
-    color: '#a855f7',
-    href: '#funnels',
-    rows: [
-      { label: '$27 ticket rev', value: Theme.formatValue(cur.ticket_revenue || 0, 'money') },
-      { label: 'VIP / upsell rev', value: Theme.formatValue(vipApprox, 'money') },
-      { label: 'Bookings',       value: (cur.total_calls || 0).toLocaleString() },
-      { label: 'JIT Webinar',    value: null },
-    ],
-  }));
+  // MID -- per-funnel table (DUMMY DATA, real wire-up in Tail B).
+  // Rows: $27 Workshop / MA/VSL Funnel / JIT Webinar / Cold Email
+  // Cols: Spend / Regs (or Tickets) / Bookings / Enrollments
+  var midCard = document.createElement('a');
+  midCard.href = '#funnels';
+  midCard.className = 'card';
+  midCard.style.cssText = 'padding:20px;text-decoration:none;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:10px;border-top:2px solid #a855f7';
+  midCard.setAttribute('role', 'link');
+  midCard.setAttribute('aria-label', 'Mid funnel: per-funnel breakdown');
+
+  // Provisional per-funnel dummy rows.
+  var funnelRows = [
+    { name: '$27 Workshop',  spend: 7800, regs: 188, bookings: 142, enrolls: 9, regLabel: 'tickets' },
+    { name: 'MA/VSL Funnel', spend: 1400, regs: 36,  bookings: 28,  enrolls: 3, regLabel: 'apps'    },
+    { name: 'JIT Webinar',   spend: 600,  regs: 22,  bookings: 8,   enrolls: 1, regLabel: 'regs'    },
+    { name: 'Cold Email',    spend: 8400, regs: 0,   bookings: 42,  enrolls: 2, regLabel: '--'      },
+  ];
+
+  var midHeader =
+    '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">' +
+      '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a855f7">Mid</span>' +
+      '<span style="font-size:10px;color:' + Theme.COLORS.textMuted + ';font-style:italic">Dummy data -- wired in Tail B</span>' +
+    '</div>' +
+    '<div style="font-size:15px;font-weight:700;color:' + Theme.COLORS.textPrimary + '">Bookings by Funnel</div>';
+
+  var midBodyRows = funnelRows.map(function (r) {
+    return [
+      '<tr>',
+      '  <td style="padding:6px 8px;color:' + Theme.COLORS.textPrimary + ';font-size:12px;white-space:nowrap">' + _escText(r.name) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textSecondary + '">' + _money(r.spend) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + (r.regLabel === '--' ? '<span style="color:' + Theme.COLORS.textMuted + '">--</span>' : _num(r.regs)) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.textPrimary + '">' + _num(r.bookings) + '</td>',
+      '  <td style="padding:6px 8px;text-align:right;font-family:var(--font-mono);font-size:11px;color:' + Theme.COLORS.success + ';font-weight:600">' + _num(r.enrolls) + '</td>',
+      '</tr>',
+    ].join('');
+  }).join('');
+
+  var midTable =
+    '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid rgba(255,255,255,0.08)">' +
+        th('Funnel', 'left') + th('Spend') + th('Regs/Tickets') + th('Bookings') + th('Enrollments') +
+      '</tr></thead>' +
+      '<tbody>' + midBodyRows + '</tbody>' +
+    '</table>';
+
+  var midFooter = '<div style="font-size:11px;color:#a855f7;margin-top:4px">View funnel detail &rarr;</div>';
+
+  midCard.innerHTML = midHeader + midTable + midFooter;
+  journeyRow.appendChild(midCard);
 
   // BOTTOM -- MA / sales / enrollments
   journeyRow.appendChild(_stageCard({

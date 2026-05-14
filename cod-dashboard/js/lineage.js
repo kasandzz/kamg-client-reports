@@ -133,6 +133,28 @@ const Lineage = (() => {
       schedule: 'Real-time VIEW',
       validate: 'SELECT event_type, COUNT(*) FROM customer_events GROUP BY 1'
     },
+    aevent: {
+      name: 'MA/VSL Sheets (Aevent)',
+      steps: [
+        'Google Sheets tracked by Franzi/COD team: Aevent registrants, attendees, applications + sheets_ad_daily_stats',
+        'BigQuery Connected Sheet (auto-sync)',
+        'Tables: fact_aevent_registrants (~188 rows), fact_aevent_attendees (~96 rows), v_sheets_applications_clean (~1,282 rows), sheets_ad_daily_stats',
+        'Joins to: fact_bookings (call outcomes), v_stripe_clean (enrollment dollars)',
+      ],
+      schedule: 'Near-real-time via BigQuery Connected Sheets',
+      validate: 'Row count in source Sheet vs BQ; spot-check most recent registration_date against Aevent platform export'
+    },
+    bq_meta: {
+      name: 'BigQuery INFORMATION_SCHEMA',
+      steps: [
+        'Source: BigQuery INFORMATION_SCHEMA.TABLES on green-segment-491604-j8.cod_warehouse',
+        'CF endpoint: meta/dataFreshness returns last_modified_ms per table',
+        'Classified client-side by SOURCES regex map (hyros_*, meta_*, stripe_*, etc.)',
+        'Per-source SLA thresholds drive Fresh/Stale/Critical states',
+      ],
+      schedule: 'On-demand (CF queries INFORMATION_SCHEMA live; 5m client cache)',
+      validate: 'Compare last_modified_ms vs Cloud Scheduler run logs for each source CF'
+    },
   };
 
   // ---- Per-page element lineage ----
@@ -188,9 +210,14 @@ const Lineage = (() => {
     'revenue': {
       title: 'Revenue & LTV',
       elements: [
-        { name: 'Enrollments / Cash Collected / Avg Deal Size / Refund Rate / ROAS', type: 'KPI Strip', pipelines: ['stripe', 'meta'], query: 'default', detail: 'Enrollment = Stripe charges > $500. Cash = SUM(amount_captured). ROAS = cash / Meta spend.' },
-        { name: 'Monthly Trend', type: 'Chart', pipelines: ['stripe'], query: 'monthly', detail: 'Monthly enrollment count and revenue from v_stripe_clean.' },
-        { name: 'Pipeline Conversion', type: 'Panel', pipelines: ['funnel'], query: 'pipeline', detail: 'Total tickets to enrolled conversion rate from vw_workshop_funnel_pipeline.' },
+        { name: 'Enrollments / Cash Collected / ROAS (Cash) / Avg Deal Size / Refund Rate / Ticket-to-Enrollment', type: 'KPI Strip', pipelines: ['stripe', 'meta', 'funnel'], query: 'enrollment.default + enrollment.pipeline', detail: 'Enrollment = Stripe charges > $500 / "succeeded". Cash = SUM(amount_captured). ROAS = cash / Meta spend (v_meta_ads_clean). Avg Deal Size = cash / enrollments. Refund Rate from enrollment.default. Ticket-to-Enrollment % from vw_workshop_funnel_pipeline. Enrollments card includes sparkline of monthly enrollments series.' },
+        { name: 'LTV by Enrollment Cohort (Heatmap)', type: 'Chart', pipelines: ['stripe'], query: 'enrollment.ltvCohorts', detail: 'Plotly heatmap. Y = cohort_month (last 12), X = LTV window (30d / 60d / 90d / 180d). z = cumulative revenue per enrolled customer cohort. Cohort sizes shown in hover. Empty if no cohort has 30d post-enrollment runway.' },
+        { name: 'Revenue by Processor (Doughnut)', type: 'Chart', pipelines: ['stripe'], query: 'enrollment.processorBreakdown', detail: 'Doughnut chart of total_revenue grouped by processor (Stripe / Authorize.net / PayPal / Fanbasis). Center label = grand total. Legend shows $ + % of total per processor.' },
+        { name: 'Revenue Concentration by Closer', type: 'Cards', pipelines: ['sheets', 'stripe'], query: 'enrollment.jodiConcentration', detail: 'Per-closer cards: closer name, total revenue, enrollment count, % of total. >40% concentration triggers single-point-of-failure danger styling (red border + glow + warning chip). Closer attribution from v_sheets_bookings_clean.team_member.' },
+        { name: 'Revenue Protection (Churn Absorption)', type: 'Chart', pipelines: ['stripe'], query: 'enrollment.churnAbsorption', detail: 'Mixed bar/line: monthly New Revenue (green bar) + Refund Amount (red bar) on y-axis, Refund Rate % (line) on y1. Footer shows total failed payments across last 12 months.' },
+        { name: 'Monthly Enrollments (Bar + Trend)', type: 'Chart', pipelines: ['stripe'], query: 'enrollment.monthly', detail: '12-month bar chart of enrollment count with overlaid linear trend line (least-squares fit over the series).' },
+        { name: 'Monthly Cash Collected (Bar)', type: 'Chart', pipelines: ['stripe'], query: 'enrollment.monthly', detail: '12-month bar chart of revenue (cash) from v_stripe_clean grouped by month.' },
+        { name: 'Recent Enrollments (Table)', type: 'Table', pipelines: ['stripe'], query: 'enrollment.recentEnrollments', detail: 'Last 20 Stripe transactions $100+ across all processors. Columns: when (CDMX), customer, email, amount, processor badge, card brand + country, description. Client-side filter pills: All / Tickets / Enrollments classified by description regex.' },
       ]
     },
     'email-intel': {
@@ -238,6 +265,49 @@ const Lineage = (() => {
       title: 'Experiments',
       elements: [
         { name: 'Experiment Registry', type: 'Table', pipelines: [], query: 'default', detail: 'Placeholder -- experiment_registry table not yet created. Returns zeroes.' },
+      ]
+    },
+    'ma-funnel': {
+      title: 'MA/VSL Funnel',
+      elements: [
+        { name: 'Ad Spend', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'SUM(ad_spend) from sheets_ad_daily_stats for the selected window. MA campaigns ad spend is tracked manually in the daily sheet; not pulled from Meta API (Meta page covers paid social separately).' },
+        { name: 'Page Visits', type: 'KPI', pipelines: ['posthog'], query: 'default', detail: 'Placeholder. CAST(NULL AS INT64) in the SQL. Blocked on Rehan PostHog identify() integration (see docs/cod/ma-funnel-posthog-identify-spec.md).' },
+        { name: 'Registrations', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'COUNT(*) FROM fact_aevent_registrants WHERE registration_date in window.' },
+        { name: 'Applications', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'COUNT(*) FROM v_sheets_applications_clean WHERE application_date in window. Migrated 2026-05-13 from legacy fact_applications.' },
+        { name: 'Booked Calls', type: 'KPI', pipelines: ['aevent', 'sheets'], query: 'default', detail: 'COUNT(DISTINCT email) where contact is in BOTH fact_bookings AND fact_aevent_registrants. Excludes $27-sourced bookings.' },
+        { name: 'CPBC', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'Calculated: ad_spend / booked_calls. MA-funnel-only cost per booked call.' },
+        { name: 'Enrollments', type: 'KPI', pipelines: ['aevent', 'stripe'], query: 'default', detail: 'COUNT(DISTINCT email) where contact in MA registrants AND has a successful Stripe charge >$500 AND booking status not in (no show, cancelled, pending).' },
+        { name: 'Cash Collected', type: 'KPI', pipelines: ['stripe', 'aevent'], query: 'default', detail: 'SUM(amount) from v_stripe_clean for the same MA-attributable enrollment set.' },
+        { name: 'Contracts', type: 'KPI', pipelines: ['stripe', 'aevent'], query: 'default', detail: 'Same as Cash Collected today; placeholder for future contract-value field (signed vs collected).' },
+        { name: 'Cash ROAS', type: 'KPI', pipelines: ['stripe', 'aevent'], query: 'default', detail: 'Calculated: cash_collected / ad_spend.' },
+        { name: 'Contract ROAS', type: 'KPI', pipelines: ['stripe', 'aevent'], query: 'default', detail: 'Calculated: contracts / ad_spend (= Cash ROAS until contract field is wired).' },
+        { name: 'CAC', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'Calculated: ad_spend / enrollments. MA-funnel customer acquisition cost.' },
+        { name: 'Play Rate (Proxy)', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'Proxy until PostHog identify() lands: COUNT(fact_aevent_attendees) / COUNT(fact_aevent_registrants). Labelled "Proxy" in UI.' },
+        { name: 'Avg Engagement (Proxy)', type: 'KPI', pipelines: ['aevent'], query: 'default', detail: 'Proxy until PostHog identify() lands: AVG(attendance_seconds) from fact_aevent_attendees. Real gauge will use PostHog watch-time events.' },
+        { name: 'Customer Journey Stages', type: 'Funnel', pipelines: ['aevent', 'sheets', 'stripe'], query: 'sankey', detail: '7-stage flow with CVR bars: Page Visits (placeholder) > Registrations > Watched > Applications > Booked Calls > Showed > Enrolled. Each stage card shows volume + CVR to next stage + tracking badge (Full/Partial/Missing).' },
+        { name: 'Daily Registrations', type: 'Chart', pipelines: ['aevent'], query: 'registrations', detail: 'Daily bar chart of fact_aevent_registrants grouped by registration_date.' },
+        { name: 'Daily Applications', type: 'Chart', pipelines: ['aevent'], query: 'applications', detail: 'Daily bar chart of v_sheets_applications_clean grouped by application_date.' },
+      ]
+    },
+    'attribution': {
+      title: 'Attribution',
+      elements: [
+        { name: 'Total Revenue (Hyros) / Total Sales / Ticket Revenue / Ad Spend (Meta) / Total ROAS / Ticket ROAS', type: 'KPI Strip', pipelines: ['hyros', 'meta'], query: 'default', detail: 'Hyros sales (gross_price) aggregated across all attribution models. Ticket = gross_price <= $100. Spend from v_meta_ads_clean. ROAS = revenue / spend.' },
+        { name: 'Model Comparison (Top 8 Sources)', type: 'Chart', pipelines: ['hyros'], query: 'multiModel', detail: 'Grouped bar chart: First-Touch, Last-Touch, and Scientific (50/50 blend) revenue per source. Source = Hyros first_source_name / last_source_name. Top 8 by first-touch revenue.' },
+        { name: 'Revenue by Platform (Treemap)', type: 'Chart', pipelines: ['hyros'], query: 'multiModel', detail: 'First-touch revenue grouped into Facebook/Meta, Google, YouTube, Cold Email, Referral, Organic/Direct, Other via classifyPlatform() string match on source name.' },
+        { name: 'Reconciliation Gaps', type: 'Table', pipelines: ['hyros'], query: 'multiModel', detail: 'Sources where first-touch and last-touch disagree by >20%. Sources with both revenues <$100 excluded as noise. Kas debugging tool.' },
+        { name: 'Source Performance', type: 'Table', pipelines: ['hyros'], query: 'multiModel', detail: 'Top 25 first-touch sources. Splits Sales / Ticket sales (<= $100) / Enrollment sales (> $500) and corresponding revenue columns. Capped at 25 rows.' },
+        { name: 'Source Reconciliation Summary', type: 'Panel', pipelines: ['meta', 'hyros'], query: 'multiSource', detail: 'Meta-reported spend vs Hyros first-touch revenue vs Hyros last-touch revenue. Google Ads pending INFRA-04 (blocked on Leo team@ manager account).' },
+      ]
+    },
+    'data-health': {
+      title: 'Data Health',
+      elements: [
+        { name: 'Tables Tracked / Fresh / Stale / Critical / No Data', type: 'KPI Strip', pipelines: ['bq_meta'], query: 'meta/dataFreshness', detail: 'Counts of cod_warehouse tables by status. Status = ageHours vs per-source SLA (warn / crit thresholds defined in data-health.js SOURCES map).' },
+        { name: 'ETL Freshness by Source', type: 'Cards', pipelines: ['bq_meta'], query: 'meta/dataFreshness', detail: 'One card per source (Hyros / Meta / Google / Stripe / GHL / PostHog / SendGrid / Sheets / Bison / Mat Views / Other). Each lists matching tables + age + worst-status badge. SLA: Stripe/GHL/PostHog warn 6h crit 24h; Hyros warn 12h crit 24h; Meta/Google/SendGrid warn 36h crit 72h; Sheets warn 168h crit 336h; Bison warn 24h crit 72h; Mat views warn 24h crit 48h.' },
+        { name: 'Dashboard Page Coverage', type: 'Table', pipelines: ['bq_meta'], query: 'meta/dataFreshness', detail: 'Cross-reference of Api.PAGE_TABLES map vs INFORMATION_SCHEMA freshness. Sorted by worst-status > oldest age > page name. Surfaces which dashboard pages will show stale data.' },
+        { name: 'ETL Run Log', type: 'Placeholder', pipelines: [], query: 'not built', detail: 'Backend pending. Requires etl_run_log BQ table tracking per-sync success/fail/duration history.' },
+        { name: 'Cross-Source Reconciliation', type: 'Placeholder', pipelines: [], query: 'not built', detail: 'Backend pending. Requires bridge_data_reconciliation table tracking variance between Stripe / Hyros / Meta / GHL on the same orders.' },
       ]
     },
     'journey-stage': {

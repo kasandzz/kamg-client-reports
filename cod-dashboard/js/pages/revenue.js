@@ -108,90 +108,154 @@ App.registerPage('revenue', async (container) => {
   // ======================================================
   // SECTION 2: LTV Cohort Heatmap (Plotly)
   // ======================================================
-  const heatmapCard = document.createElement('div');
-  heatmapCard.className = 'card';
-  heatmapCard.style.cssText = 'padding:20px;margin-top:16px';
-  heatmapCard.innerHTML = `<div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">LTV by Enrollment Cohort</div>`;
+  // Cumulative LTV curve replaces the heatmap (Tail B 01-04b). A line per
+  // enrollment cohort showing per-customer LTV at 30/60/90/180 days reads the
+  // retention shape far better than a sparse colored grid. Younger cohorts
+  // legitimately have null tails -- the line stops naturally so maturity gaps
+  // are visible at a glance.
+  const ltvCard = document.createElement('div');
+  ltvCard.className = 'card';
+  ltvCard.style.cssText = 'padding:20px;margin-top:16px';
+  container.appendChild(ltvCard);
 
-  const heatmapId = 'revenue-ltv-heatmap';
-  const heatmapDiv = document.createElement('div');
-  heatmapDiv.id = heatmapId;
-  heatmapDiv.style.height = '400px';
-  heatmapCard.appendChild(heatmapDiv);
-  container.appendChild(heatmapCard);
+  // ASCII-safe single quotes -- pages use plain quotes site-wide.
+  ltvCard.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:${Theme.COLORS.textSecondary};text-transform:uppercase;letter-spacing:.05em">Cumulative LTV Curve by Cohort</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:4px;max-width:520px">Per-customer LTV at 30 / 60 / 90 / 180 days post-enrollment. Each line = one monthly cohort of enrollees ($500+ first purchase). Newer cohorts stop earlier -- that is the data maturity boundary, not a drop in performance.</div>
+      </div>
+      <div id="revenue-ltv-summary" style="display:flex;gap:18px;font-size:11px"></div>
+    </div>
+  `;
+
+  const ltvCanvas = document.createElement('canvas');
+  ltvCanvas.id = 'revenue-ltv-curve';
+  ltvCanvas.style.height = '360px';
+  ltvCard.appendChild(ltvCanvas);
 
   if (ltvCohorts && ltvCohorts.length > 0) {
-    const cohortMonths = ltvCohorts.map(r => r.cohort_month);
-    const windows = ['30d', '60d', '90d', '180d'];
-    const zValues = ltvCohorts.map(r => [
-      parseFloat(r.ltv_30d) || 0,
-      parseFloat(r.ltv_60d) || 0,
-      parseFloat(r.ltv_90d) || 0,
-      parseFloat(r.ltv_180d) || 0,
-    ]);
-    const cohortSizes = ltvCohorts.map(r => r.cohort_size || 0);
+    // Sort cohorts oldest -> newest so the color gradient maps cohort age to hue.
+    const cohorts = [...ltvCohorts].sort((a, b) => String(a.cohort_month).localeCompare(String(b.cohort_month)));
 
-    // Build hover text
-    const hoverText = ltvCohorts.map((r, rowIdx) =>
-      windows.map((w, colIdx) =>
-        `$${Theme.money(zValues[rowIdx][colIdx]).replace('$', '')} at ${w}<br>${r.cohort_month} cohort (n=${cohortSizes[rowIdx]})`
-      )
-    );
+    // HSL gradient: 200deg (cyan, oldest) -> 300deg (magenta, newest).
+    const total = cohorts.length;
+    const datasets = cohorts.map((r, i) => {
+      const hue = 200 + (i / Math.max(total - 1, 1)) * 100;
+      const color = `hsl(${hue}, 75%, 60%)`;
+      const dim = `hsl(${hue}, 60%, 60%)`;
+      const points = [
+        { x: 30,  y: parseFloat(r.ltv_30d) || null },
+        { x: 60,  y: parseFloat(r.ltv_60d) || null },
+        { x: 90,  y: parseFloat(r.ltv_90d) || null },
+        { x: 180, y: parseFloat(r.ltv_180d) || null },
+      ].filter(p => p.y !== null && p.y > 0);
 
-    Plotly.newPlot(
-      heatmapId,
-      [{
-        type: 'heatmap',
-        x: windows,
-        y: cohortMonths,
-        z: zValues,
-        text: hoverText,
-        hoverinfo: 'text',
-        colorscale: [
-          [0, '#1a1a26'],
-          [0.25, '#312e81'],
-          [0.5, '#6366f1'],
-          [0.75, '#4ade80'],
-          [1, '#22c55e'],
-        ],
-        colorbar: {
-          title: { text: 'LTV ($)', font: { color: Theme.COLORS.textSecondary, size: 11 } },
-          tickfont: { color: Theme.COLORS.textMuted, size: 10 },
-          tickprefix: '$',
-          borderwidth: 0,
+      return {
+        label: `${r.cohort_month} (n=${r.cohort_size || 0})`,
+        data: points,
+        borderColor: color,
+        backgroundColor: dim + '22',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: color,
+        tension: 0.25,
+        spanGaps: false,
+      };
+    });
+
+    // Summary chips: best 180d cohort + median 180d among mature cohorts.
+    const mature = cohorts.filter(r => parseFloat(r.ltv_180d) > 0);
+    const matureLTVs = mature.map(r => parseFloat(r.ltv_180d)).sort((a, b) => a - b);
+    const median180 = matureLTVs.length ? matureLTVs[Math.floor(matureLTVs.length / 2)] : 0;
+    const best180 = mature.reduce((best, r) => {
+      const v = parseFloat(r.ltv_180d);
+      return v > (parseFloat(best && best.ltv_180d) || 0) ? r : best;
+    }, null);
+
+    const summaryHost = document.getElementById('revenue-ltv-summary');
+    if (summaryHost) {
+      const chipBg = 'rgba(255,255,255,0.04)';
+      const chipBorder = '1px solid rgba(255,255,255,0.08)';
+      const chip = (label, value, sub) => `
+        <div style="padding:8px 12px;background:${chipBg};border:${chipBorder};border-radius:6px;min-width:140px">
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${label}</div>
+          <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary};font-variant-numeric:tabular-nums">${value}</div>
+          <div style="font-size:10px;color:${Theme.COLORS.textMuted};margin-top:2px">${sub}</div>
+        </div>`;
+      summaryHost.innerHTML =
+        chip('Mature cohorts', mature.length, '180d data exists') +
+        chip('Median 180d LTV', Theme.money(median180), 'per customer') +
+        chip('Best cohort', best180 ? Theme.money(parseFloat(best180.ltv_180d)) : '--', best180 ? best180.cohort_month : 'not yet matured');
+    }
+
+    Theme.createChart('revenue-ltv-curve', {
+      type: 'line',
+      data: { datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+        plugins: {
+          legend: {
+            position: 'right',
+            align: 'start',
+            labels: {
+              color: Theme.COLORS.textSecondary,
+              font: { size: 10 },
+              boxWidth: 10,
+              boxHeight: 10,
+              padding: 6,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              title: (ctx) => `Day ${ctx[0].parsed.x} post-enrollment`,
+              label: (ctx) => `${ctx.dataset.label}: ${Theme.money(ctx.parsed.y)}`,
+            },
+          },
         },
-        xgap: 2,
-        ygap: 2,
-      }],
-      {
-        ...Theme.PLOTLY_LAYOUT,
-        title: '',
-        xaxis: {
-          ...Theme.PLOTLY_LAYOUT.xaxis,
-          title: { text: 'LTV Window', font: { color: Theme.COLORS.textSecondary, size: 12 } },
+        scales: {
+          x: {
+            type: 'linear',
+            min: 0,
+            max: 200,
+            ticks: {
+              color: Theme.COLORS.textMuted,
+              font: { size: 10 },
+              stepSize: 30,
+              callback: (v) => `${v}d`,
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'Days since first $500+ purchase', color: Theme.COLORS.textMuted, font: { size: 11 } },
+          },
+          y: {
+            ticks: {
+              color: Theme.COLORS.textMuted,
+              font: { size: 10 },
+              callback: (v) => Theme.money(v),
+            },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            title: { display: true, text: 'Cumulative LTV per customer', color: Theme.COLORS.textMuted, font: { size: 11 } },
+          },
         },
-        yaxis: {
-          ...Theme.PLOTLY_LAYOUT.yaxis,
-          title: { text: 'Cohort Month', font: { color: Theme.COLORS.textSecondary, size: 12 } },
-          autorange: 'reversed',
-        },
-        margin: { t: 10, b: 50, l: 80, r: 20 },
       },
-      Theme.PLOTLY_CONFIG
-    );
+    });
   } else {
-    // Empty-state polish: structured copy instead of a single dim line.
-    // Triggered when ltvCohorts query returns []; common when the window has
-    // fewer than 30 days of post-enrollment runway (no cohort can age to 30d).
-    heatmapDiv.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;padding:24px;gap:6px">
-        <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary}">No LTV cohorts in the selected range</div>
-        <div style="font-size:12px;color:${Theme.COLORS.textMuted};max-width:360px;line-height:1.5">
-          Cohorts need at least 30 days of post-enrollment runway to surface here.
-          Try expanding the date filter, or check back after the next cohort matures.
-        </div>
-        <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px;font-family:JetBrains Mono,monospace">enrollment.ltvCohorts · months=12</div>
-      </div>`;
+    // Empty-state polish preserved. Triggered when ltvCohorts query returns [];
+    // common when the window has fewer than 30 days of post-enrollment runway.
+    ltvCanvas.style.display = 'none';
+    const empty = document.createElement('div');
+    empty.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;text-align:center;padding:24px;gap:6px';
+    empty.innerHTML = `
+      <div style="font-size:14px;font-weight:600;color:${Theme.COLORS.textSecondary}">No LTV cohorts in the selected range</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};max-width:360px;line-height:1.5">
+        Cohorts need at least 30 days of post-enrollment runway to surface here.
+        Try expanding the date filter, or check back after the next cohort matures.
+      </div>
+      <div style="font-size:11px;color:${Theme.COLORS.textMuted};margin-top:6px;font-family:JetBrains Mono,monospace">enrollment.ltvCohorts &middot; months=12</div>`;
+    ltvCard.appendChild(empty);
   }
 
   // ======================================================

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GHL HTML Build Guide — COD Funnels</title>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --bg-elev: #11161f;
+    --bg-card: #151b26;
+    --line: #1f2733;
+    --line-soft: #1a2230;
+    --ink: #e8edf5;
+    --ink-soft: #a3acba;
+    --ink-mute: #6b7585;
+    --gold: #d4a843;
+    --gold-soft: #f5d77a;
+    --green: #4ec9b0;
+    --red: #e06c75;
+    --blue: #61afef;
+    --warn: #e5c07b;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--ink); font-family: var(--sans); margin: 0; padding: 0; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 28px 96px; }
+
+  /* HEADER */
+  .hdr { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 40px; }
+  .hdr .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 14px; }
+  .hdr h1 { font-size: 38px; line-height: 1.15; margin: 0 0 14px; letter-spacing: -0.02em; font-weight: 700; }
+  .hdr .sub { color: var(--ink-soft); font-size: 16px; max-width: 720px; }
+  .hdr .meta { display: flex; gap: 24px; margin-top: 18px; font-family: var(--mono); font-size: 11px; color: var(--ink-mute); }
+  .hdr .meta span b { color: var(--ink-soft); font-weight: 500; }
+
+  /* TOC */
+  .toc { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; margin-bottom: 40px; }
+  .toc h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute); margin: 0 0 14px; }
+  .toc ol { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 32px; }
+  .toc li { padding: 4px 0; font-size: 14px; }
+  .toc a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px dotted transparent; }
+  .toc a:hover { color: var(--gold-soft); border-bottom-color: var(--gold); }
+  .toc .num { font-family: var(--mono); font-size: 11px; color: var(--gold); margin-right: 10px; }
+
+  /* SECTIONS */
+  section { margin-bottom: 56px; }
+  section > h2 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  section > .lede { color: var(--ink-soft); font-size: 14px; margin: 0 0 22px; max-width: 720px; }
+  section > h2 .anchor { font-family: var(--mono); font-size: 12px; color: var(--gold); margin-right: 12px; font-weight: 500; }
+
+  /* QUIRK CARD */
+  .q { background: var(--bg-card); border: 1px solid var(--line); border-left: 3px solid var(--gold); border-radius: 6px; padding: 18px 22px; margin-bottom: 14px; }
+  .q.crit { border-left-color: var(--red); }
+  .q.warn { border-left-color: var(--warn); }
+  .q.tip  { border-left-color: var(--green); }
+  .q .head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+  .q .qnum { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.08em; }
+  .q .qtitle { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .q .qtag { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(212,168,67,0.12); color: var(--gold-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+  .q.crit .qtag { background: rgba(224,108,117,0.14); color: var(--red); }
+  .q.warn .qtag { background: rgba(229,192,123,0.14); color: var(--warn); }
+  .q.tip  .qtag { background: rgba(78,201,176,0.14); color: var(--green); }
+  .q p { margin: 4px 0; color: var(--ink-soft); font-size: 14px; }
+  .q .fix { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line-soft); }
+  .q .fix b { color: var(--green); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
+
+  /* CODE */
+  code, pre { font-family: var(--mono); font-size: 12.5px; }
+  pre { background: #0d1117; border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; overflow-x: auto; color: var(--ink); margin: 10px 0 4px; line-height: 1.6; }
+  pre .c { color: #5c6370; font-style: italic; }
+  pre .k { color: var(--blue); }
+  pre .s { color: #98c379; }
+  pre .v { color: var(--gold-soft); }
+  p code, li code { background: #0d1117; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--line); color: var(--gold-soft); font-size: 12px; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); font-weight: 500; background: var(--bg-elev); }
+  td { color: var(--ink-soft); }
+  td code { font-size: 11.5px; }
+
+  /* CALLOUT */
+  .callout { background: linear-gradient(180deg, rgba(212,168,67,0.06), rgba(212,168,67,0)); border: 1px solid rgba(212,168,67,0.25); border-radius: 8px; padding: 18px 22px; margin: 0 0 30px; }
+  .callout .label { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
+  .callout p { margin: 0; color: var(--ink); font-size: 14px; }
+
+  /* CHECKLIST */
+  .check { background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 22px 26px; }
+  .check h4 { margin: 0 0 14px; font-size: 14px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
+  .check ul { list-style: none; padding: 0; margin: 0; }
+  .check li { padding: 6px 0 6px 30px; position: relative; color: var(--ink-soft); font-size: 14px; }
+  .check li::before { content: ''; position: absolute; left: 0; top: 11px; width: 14px; height: 14px; border: 1.5px solid var(--gold); border-radius: 3px; }
+
+  /* FOOTER */
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--ink-mute); font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hdr">
+    <div class="eyebrow">COD Funnel Ops · Build Reference</div>
+    <h1>GHL HTML Build Guide</h1>
+    <p class="sub">Every quirk, collision, and workaround we've hit while pasting custom HTML/CSS into GoHighLevel page builder for the COD funnel rollout. Designed as a reference you can scan before each build, not a tutorial.</p>
+    <div class="meta">
+      <span><b>Audience:</b> Nathan</span>
+      <span><b>Version:</b> 1.0</span>
+      <span><b>Updated:</b> 2026-05-13</span>
+      <span><b>Source:</b> niche LP rollout + VIP rebuild + application B-test</span>
+    </div>
+  </header>
+
+  <div class="callout">
+    <div class="label">Context for Michelle's build</div>
+    <p>Michelle's funnel is the first COD MA build going in as raw HTML blocks instead of page builder. Sections 4, 7, and 10 are the highest-priority read for that specific deploy — image hosting, mobile testing, and rebuild parity are where the standard template approach diverges most from the HTML approach.</p>
+  </div>
+
+  <nav class="toc">
+    <h3>Sections</h3>
+    <ol>
+      <li><span class="num">01</span><a href="#editor">HTML Block Placement &amp; Editor Quirks</a></li>
+      <li><span class="num">02</span><a href="#css">CSS Collisions with GHL Wrapper Styles</a></li>
+      <li><span class="num">03</span><a href="#custom">Custom Fields &amp; Merge Field Gotchas</a></li>
+      <li><span class="num">04</span><a href="#assets">Images &amp; Asset Hosting</a></li>
+      <li><span class="num">05</span><a href="#forms">Forms, Overlays &amp; Hidden GHL Form Pattern</a></li>
+      <li><span class="num">06</span><a href="#tracking">Tracking, Pixels &amp; Head/Body Code</a></li>
+      <li><span class="num">07</span><a href="#mobile">Mobile &amp; Responsive Issues</a></li>
+      <li><span class="num">08</span><a href="#video">Video Embeds (Wistia, YouTube)</a></li>
+      <li><span class="num">09</span><a href="#perf">Performance &amp; Page Speed</a></li>
+      <li><span class="num">10</span><a href="#parity">Builder ↔ HTML Parity</a></li>
+      <li><span class="num">11</span><a href="#checklist">Pre-Publish Checklist</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. EDITOR -->
+  <section id="editor">
+    <h2><span class="anchor">01 ·</span>HTML Block Placement &amp; Editor Quirks</h2>
+    <p class="lede">Where the editor itself fights you. Order, dropdowns, and built-in elements that look harmless but break in production.</p>
+
+    <div class="q crit">
+      <div class="head"><span class="qnum">01.01</span><span class="qtitle">"Add to Calendar" buttons don't work in GHL</span><span class="qtag">Don't include</span></div>
+      <p>The native GHL "Add to Calendar" widget is unreliable across timezones and mobile clients. We've burned hours debugging it. It silently fails for ~30% of mobile users.</p>
+      <div class="fix"><b>Fix:</b> Strip the button from the design entirely. Calendar invites go out through the workflow email automation post-booking, not from the page.</div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">01.02</span><span class="qtitle">Custom fields disappear from workflow action dropdowns</span><span class="qtag">3x recurring</span></div>
+      <p>We hit this three separate times: a custom field exists in Settings → Custom Fields, but doesn't surface in the workflow builder's action dropdown when trying to update it. Field looks invisible to automations.</p>
+      <div class="fix"><b>Fix:</b> Confirm field type matches what the action expects (text vs dropdown vs date). If still missing, recreate the field with a clean snake_case name, or hit it via API instead of UI action.</div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">01.03</span><span class="qtitle">First name / last name forced as separate fields in GHL</span><span class="qtag">Form UX</span></div>
+      <p>GHL splits name into two fields by default in checkout and contact forms. UX research keeps showing a single "Full name" field converts better, especially on mobile.</p>
+      <div class="fix"><b>Fix:</b> Collect "Full name" on a custom overlay form. Before submit, split on the first space, write to <code>first_name</code> and <code>last_name</code> hidden inputs on the underlying GHL form, then trigger submit. Pattern in Section 5.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">01.04</span><span class="qtitle">Checkout order summary bloats page height</span><span class="qtag">Mobile fold</span></div>
+      <p>The default order summary block shows every line item (Workshop, Ticket, Offer, Subtotal, Tax). On mobile, this pushes the CTA below the fold and adds 20–30% page height.</p>
+      <div class="fix"><b>Fix:</b> Hide line items via CSS, show only the total. When the VIP checkbox toggles, just update the total figure — don't reveal more rows.
+<pre><span class="c">/* hide bloated line items, keep total */</span>
+<span class="v">.order-summary .line-item</span> { <span class="k">display</span>: <span class="s">none</span> !important; }
+<span class="v">.order-summary .total-row</span> { <span class="k">display</span>: <span class="s">flex</span> !important; }</pre></div>
+    </div>
+  </section>
+
+  <!-- 2. CSS -->
+  <section id="css">
+    <h2><span class="anchor">02 ·</span>CSS Collisions with GHL Wrapper Styles</h2>
+    <p class="lede">GHL ships a default stylesheet that wraps everything in <code>.c-section</code> and <code>.hl_page-creator</code>. Custom CSS loses specificity fights unless you scope it.</p>
+
+    <div class="q">
+      <div class="head"><span class="qnum">02.01</span><span class="qtitle">Looping button animations look gimmicky on premium audiences</span><span class="qtag">Trust signal</span></div>
+      <p>The first round of niche LPs shipped with infinite <code>nudge-glow</code> and <code>nudge-shimmer</code> keyframes on the gold CTA. Professional audiences (attorneys, therapists) read these as "ad-y" and stall on the page. Static buttons + a hover state convert better.</p>
+      <div class="fix"><b>Fix:</b> Delete every <code>@keyframes nudge-*</code> block and the <code>animation:</code> property on <code>.gold-btn</code>. Keep only the hover transition (color shift + box-shadow).</div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">02.02</span><span class="qtitle">GHL's global button styles override your custom buttons</span><span class="qtag">Specificity</span></div>
+      <p>If your HTML block uses bare <code>button { }</code> or <code>.btn { }</code> selectors, GHL's global page styles will outweigh them and your button looks half-styled.</p>
+      <div class="fix"><b>Fix:</b> Scope every custom button selector to a parent class unique to your block. Example: <code>.cod-hero .gold-btn</code> beats <code>.btn</code> every time without needing <code>!important</code>.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">02.03</span><span class="qtitle">100% width inside HTML blocks isn't actually full viewport</span><span class="qtag">Layout</span></div>
+      <p>GHL wraps each HTML block in a container with horizontal padding. <code>width: 100%</code> respects that container, so full-bleed sections appear inset.</p>
+      <div class="fix"><b>Fix:</b> For full-bleed sections, use the negative-margin trick:
+<pre><span class="v">.cod-hero</span> {
+  <span class="k">width</span>: <span class="s">100vw</span>;
+  <span class="k">position</span>: <span class="s">relative</span>;
+  <span class="k">left</span>: <span class="s">50%</span>;
+  <span class="k">right</span>: <span class="s">50%</span>;
+  <span class="k">margin-left</span>: <span class="s">-50vw</span>;
+  <span class="k">margin-right</span>: <span class="s">-50vw</span>;
+}</pre></div>
+    </div>
+
+    <div class="q tip">
+      <div class="head"><span class="qnum">02.04</span><span class="qtitle">Inline critical CSS, defer the rest</span><span class="qtag">Pattern</span></div>
+      <p>GHL's own stylesheet loads first, then your HTML block styles. Above-the-fold styles can render late, causing a flash of unstyled content.</p>
+      <div class="fix"><b>Fix:</b> Put critical hero CSS inline inside <code>&lt;style&gt;</code> at the top of the HTML block. Move below-fold rules into a deferred stylesheet or section-specific blocks.</div>
+    </div>
+  </section>
+
+  <!-- 3. CUSTOM FIELDS -->
+  <section id="custom">
+    <h2><span class="anchor">03 ·</span>Custom Fields &amp; Merge Field Gotchas</h2>
+    <p class="lede">Naming conventions and trigger filters that look optional but break automations silently.</p>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">03.01</span><span class="qtitle">"Pipeline Stage Changed" triggers fire on every pipeline</span><span class="qtag">Silent over-fire</span></div>
+      <p>The trigger has no pipeline scope by default. If a contact moves through any pipeline (not just Sales), the workflow fires. We had emails going out on AEvent stage shifts because of this.</p>
+      <div class="fix"><b>Fix:</b> Add the "Pipeline" filter inside the trigger config and lock it to Sales Pipeline only. Test by moving a dummy contact through a non-Sales pipeline and confirming nothing fires.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">03.02</span><span class="qtitle">Merge fields are strict on field ID, not display name</span><span class="qtag">Naming</span></div>
+      <p>If you rename a custom field's display label but it was referenced in workflow templates or emails by the old machine name, the merge silently outputs empty string.</p>
+      <div class="fix"><b>Fix:</b> Use snake_case field names from day one (<code>appointment_status</code>, not "Appointment Status"). Don't rename fields mid-flight — clone and migrate.</div>
+    </div>
+  </section>
+
+  <!-- 4. ASSETS -->
+  <section id="assets">
+    <h2><span class="anchor">04 ·</span>Images &amp; Asset Hosting</h2>
+    <p class="lede">This is the section that directly applies to Michelle's build. We're moving off GitHub-hosted images for COD funnels.</p>
+
+    <div class="q crit">
+      <div class="head"><span class="qnum">04.01</span><span class="qtitle">GitHub-hosted images are a fragile dependency</span><span class="qtag">Today's decision</span></div>
+      <p>The HTML for Michelle currently references images from a GitHub repo. Each page load pulls them over the public internet. If the repo goes private, the account closes, or GitHub rate-limits anonymous traffic, every funnel page breaks images simultaneously. Original source for those images is Google Drive — COD already has the assets.</p>
+      <div class="fix"><b>Fix:</b> Upload each image into GHL Media before publish. Replace every <code>raw.githubusercontent.com/...</code> URL in the HTML with the GHL Media URL. Same applies for any logo, headshot, or testimonial photo.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">04.02</span><span class="qtitle">GHL Media works fine for small assets, struggles with galleries</span><span class="qtag">When to bail</span></div>
+      <p>For under ~20 images, GHL Media is the right call. For full photo galleries or assets that change weekly, GHL Media gets noisy fast.</p>
+      <div class="fix"><b>Fix:</b> Single-purpose funnels (Michelle): GHL Media. Volume builds or anything CMS-shaped: external CDN (Cloudflare R2, Vercel Blob) with a stable URL pattern.</div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">04.03</span><span class="qtitle"><code>loading="lazy"</code> sometimes gets stripped on save</span><span class="qtag">After publish</span></div>
+      <p>GHL's HTML sanitiser has been spotted stripping <code>loading="lazy"</code> off <code>&lt;img&gt;</code> tags during save in some templates. Above-the-fold images end up loading eagerly anyway, but hero images you wanted lazy can disappear from the attribute set.</p>
+      <div class="fix"><b>Fix:</b> Inspect the published page (not the editor preview) and confirm the attribute survived. If stripped, swap to native intersection-observer loading in JS or accept eager load.</div>
+    </div>
+  </section>
+
+  <!-- 5. FORMS -->
+  <section id="forms">
+    <h2><span class="anchor">05 ·</span>Forms, Overlays &amp; the Hidden GHL Form Pattern</h2>
+    <p class="lede">The cleanest way to ship custom multi-step forms without losing GHL's CRM tagging, workflow triggers, or pipeline automations.</p>
+
+    <div class="q tip">
+      <div class="head"><span class="qnum">05.01</span><span class="qtitle">The hidden-GHL-form pattern</span><span class="qtag">Canonical approach</span></div>
+      <p>Build the custom form as the visible UI. Keep the native GHL form on the page but hidden. On submit of the custom form, populate the hidden GHL form's inputs by <code>name</code> attribute, then call <code>.submit()</code> on it. Everything downstream (workflows, pipeline, contact creation) fires normally because GHL sees a real form submit.</p>
+      <div class="fix"><b>Fix:</b>
+<pre><span class="v">&lt;style&gt;</span>
+  <span class="v">.ghl-hidden-form</span> { <span class="k">position</span>: <span class="s">absolute</span>; <span class="k">left</span>: <span class="s">-9999px</span>; <span class="k">opacity</span>: <span class="s">0</span>; }
+<span class="v">&lt;/style&gt;</span>
+
+<span class="v">&lt;form id="custom-form"&gt;</span> ... <span class="v">&lt;/form&gt;</span>
+<span class="v">&lt;div class="ghl-hidden-form"&gt;</span>
+  <span class="c">&lt;!-- paste the native GHL form embed here --&gt;</span>
+<span class="v">&lt;/div&gt;</span>
+
+<span class="v">&lt;script&gt;</span>
+  document.querySelector(<span class="s">'#custom-form'</span>).addEventListener(<span class="s">'submit'</span>, <span class="k">function</span>(e) {
+    e.preventDefault();
+    <span class="k">const</span> ghl = document.querySelector(<span class="s">'.ghl-hidden-form form'</span>);
+    ghl.querySelector(<span class="s">'[name="first_name"]'</span>).value = first;
+    ghl.querySelector(<span class="s">'[name="last_name"]'</span>).value  = last;
+    ghl.querySelector(<span class="s">'[name="email"]'</span>).value      = email;
+    ghl.submit();
+  });
+<span class="v">&lt;/script&gt;</span></pre></div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">05.02</span><span class="qtitle">URL query params get stripped on GHL form submit</span><span class="qtag">Attribution loss</span></div>
+      <p>When the custom form submits and GHL redirects to its thank-you URL, query string params (utm_*, fbclid, gclid, custom values like <code>?email=...&amp;phone=...</code>) are dropped unless you forward them explicitly.</p>
+      <div class="fix"><b>Fix:</b> Before calling <code>ghl.submit()</code>, append the current <code>window.location.search</code> string to <code>ghl.action</code>:
+<pre>ghl.action = ghl.action + window.location.search;
+ghl.submit();</pre></div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">05.03</span><span class="qtitle">Form shrinks below fold on mobile after option select</span><span class="qtag">Mobile UX</span></div>
+      <p>Multi-step forms transition height when the user picks an option on Step 1. On phones, the form moves up and the new question lands below the viewport. People think the form broke and bounce.</p>
+      <div class="fix"><b>Fix:</b> After each step transition, scroll the form back into view:
+<pre>setTimeout(() => {
+  form.scrollIntoView({ behavior: <span class="s">'smooth'</span>, block: <span class="s">'center'</span> });
+}, 100);</pre> Test on a real iPhone and a real Android, not DevTools.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">05.04</span><span class="qtitle">Field <code>name</code> attributes must match GHL's exact expectations</span><span class="qtag">Map carefully</span></div>
+      <p>If the GHL form expects <code>email</code> and you write <code>user_email</code> in the hidden form, the contact gets created without an email. CRM looks half-broken and the workflow's "send email" step silently no-ops.</p>
+      <div class="fix"><b>Fix:</b> Open the live native GHL form, inspect element on every input, copy the <code>name</code> attribute verbatim into the hidden form. Test field-by-field with a dummy submit and verify the contact lands with every field populated.</div>
+    </div>
+  </section>
+
+  <!-- 6. TRACKING -->
+  <section id="tracking">
+    <h2><span class="anchor">06 ·</span>Tracking, Pixels &amp; Head/Body Code</h2>
+    <p class="lede">Where the pixels go and why placement order matters for PostHog, Hyros, and Meta CAPI.</p>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">06.01</span><span class="qtitle">PostHog needs <code>identify()</code> after form submit for attribution</span><span class="qtag">A/B parity</span></div>
+      <p>Without an <code>identify(email)</code> call, PostHog tracks the user as anonymous before the form and as a different anonymous after. Splits get noisy because the same human counts as two people.</p>
+      <div class="fix"><b>Fix:</b> Call <code>posthog.identify(email)</code> as soon as you capture an email in the form (Step 1 or earlier). Confirm in PostHog Persons that the anonymous → identified merge happened.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">06.02</span><span class="qtitle">Tracking code goes in Settings → Tracking, not inline HTML blocks</span><span class="qtag">Placement</span></div>
+      <p>If you paste GTM, PostHog, or Meta pixel snippets inside a custom HTML block, they fire whenever that block renders — which can be after other blocks or after JS execution. Order breaks attribution.</p>
+      <div class="fix"><b>Fix:</b> Put pixel/tag snippets in GHL Settings → Tracking (head + body slots). Reserve HTML blocks for content + form logic only.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">06.03</span><span class="qtitle">PostHog + Hyros must both be live on every funnel page</span><span class="qtag">Cross-check</span></div>
+      <p>If a funnel is partly built in the builder and partly in HTML blocks, it's easy to ship a page that has the Meta pixel but not Hyros, or PostHog but not the Hyros server-side ping. Attribution silently goes one-sided.</p>
+      <div class="fix"><b>Fix:</b> Pre-publish check on every page: PostHog Inspector shows pageview + identify, Hyros debug shows server hit, Meta Pixel Helper shows PageView. Three confirmations or don't ship.</div>
+    </div>
+  </section>
+
+  <!-- 7. MOBILE -->
+  <section id="mobile">
+    <h2><span class="anchor">07 ·</span>Mobile &amp; Responsive Issues</h2>
+    <p class="lede">~90% of COD traffic is mobile. DevTools emulation lies. Real devices catch what emulation misses.</p>
+
+    <div class="q crit">
+      <div class="head"><span class="qnum">07.01</span><span class="qtitle">DevTools mobile emulation is not enough</span><span class="qtag">Always test real</span></div>
+      <p>iOS Safari, Android Chrome, and in-app browsers (Instagram, Facebook, TikTok) all behave differently on viewport units, autoplay policy, and form keyboard interactions. We've shipped pages that looked perfect in DevTools and broke for half of paid traffic.</p>
+      <div class="fix"><b>Fix:</b> Real iPhone + real Android end-to-end test before publish. Walk the entire flow including a $1 test charge (refund after). Screenshot every step.</div>
+    </div>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">07.02</span><span class="qtitle">Hero images often ignore <code>max-width: 100%</code> in HTML blocks</span><span class="qtag">Overflow</span></div>
+      <p>Inside GHL's container, raw <code>&lt;img&gt;</code> tags can still overflow on small screens, especially if the image's intrinsic width is huge.</p>
+      <div class="fix"><b>Fix:</b> Wrap hero images in a class with explicit responsive rules:
+<pre><span class="v">.hero img</span> { <span class="k">max-width</span>: <span class="s">100%</span>; <span class="k">height</span>: <span class="s">auto</span>; <span class="k">display</span>: <span class="s">block</span>; }</pre> Use a separate mobile-optimized image source via <code>&lt;picture&gt;</code> when the asset is heavy.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">07.03</span><span class="qtitle">Checkout breaks differently on iOS Safari vs Chrome Android</span><span class="qtag">Per-OS</span></div>
+      <p>iOS Safari has quirks with autofill on credit-card fields. Android Chrome can mis-render the Stripe iframe inside GHL checkout if there's a parent <code>transform</code> property anywhere above it.</p>
+      <div class="fix"><b>Fix:</b> Audit parent containers for <code>transform</code>, <code>filter</code>, or <code>perspective</code> — strip them off the checkout's ancestors. iOS test the autofill flow explicitly with a real saved card.</div>
+    </div>
+  </section>
+
+  <!-- 8. VIDEO -->
+  <section id="video">
+    <h2><span class="anchor">08 ·</span>Video Embeds (Wistia, YouTube)</h2>
+    <p class="lede">Wistia is the COD standard. Two config patterns — one for background hero, one for inline clickable. Don't mix them.</p>
+
+    <table>
+      <thead>
+        <tr><th>Param</th><th>Background hero</th><th>Inline / Modal</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>muted</code></td><td><code>true</code></td><td><code>false</code></td><td>Mobile browsers block unmute on autoplay; inline videos need sound on click</td></tr>
+        <tr><td><code>autoPlay</code></td><td><code>true</code></td><td><code>false</code></td><td>Hero plays silently; inline waits for click</td></tr>
+        <tr><td><code>silentAutoPlay</code></td><td><code>true</code></td><td>—</code></td><td>Forces silent autoplay where browser allows</td></tr>
+        <tr><td><code>controlsVisibleOnLoad</code></td><td><code>false</code></td><td><code>true</code></td><td>Hero is decorative; inline needs scrubber visible</td></tr>
+        <tr><td><code>playbar</code></td><td><code>false</code></td><td><code>true</code></td><td>Same reason</td></tr>
+        <tr><td><code>endVideoBehavior</code></td><td><code>loop</code></td><td><code>default</code></td><td>Hero loops; inline shows end card</td></tr>
+      </tbody>
+    </table>
+
+    <div class="q warn">
+      <div class="head"><span class="qnum">08.01</span><span class="qtitle">GHL preview shows the video wrong; live URL is the truth</span><span class="qtag">Always publish-test</span></div>
+      <p>Wistia embed params (especially autoplay variants) frequently render incorrectly inside GHL's editor preview. The same embed works perfectly on the published page.</p>
+      <div class="fix"><b>Fix:</b> Never sign off a video from the preview. Publish to a staging slug, open the live URL on desktop and mobile, then confirm behavior.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">08.02</span><span class="qtitle">Click-to-timestamp navigation isn't supported in GHL</span><span class="qtag">Scope cut</span></div>
+      <p>Designs that want "click chapter 3 to jump to 4:32 in the video" don't work cleanly inside GHL. The custom JS to scrub a Wistia or YouTube player is fragile and breaks on mobile.</p>
+      <div class="fix"><b>Fix:</b> Drop the feature from any GHL-hosted design at brief stage. If timestamps matter for a build, that build belongs on a hard-coded site, not GHL.</div>
+    </div>
+  </section>
+
+  <!-- 9. PERF -->
+  <section id="perf">
+    <h2><span class="anchor">09 ·</span>Performance &amp; Page Speed</h2>
+    <p class="lede">GHL is heavy by default. Custom HTML blocks add to that. Discipline matters more than tricks.</p>
+
+    <div class="q">
+      <div class="head"><span class="qnum">09.01</span><span class="qtitle">Custom JS bloat compounds the GHL baseline</span><span class="qtag">Discipline</span></div>
+      <p>GHL already injects ~400KB of base JS for the page builder runtime. Every HTML block you add layers more. Three blocks with their own jQuery copies = a slow LCP.</p>
+      <div class="fix"><b>Fix:</b> One <code>&lt;script&gt;</code> per page if possible. No jQuery unless absolutely needed. Defer non-critical scripts with <code>async</code> or <code>defer</code>.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">09.02</span><span class="qtitle">Font loading order causes FOUT</span><span class="qtag">Hero pop-in</span></div>
+      <p>Custom Google Fonts loaded inside an HTML block render after GHL's defaults, so the hero text "pops" mid-fold.</p>
+      <div class="fix"><b>Fix:</b> Preload critical fonts:
+<pre><span class="v">&lt;link rel="preload"</span>
+      <span class="v">href="https://fonts.gstatic.com/.../font.woff2"</span>
+      <span class="v">as="font" type="font/woff2" crossorigin&gt;</span></pre> Use <code>font-display: swap</code> in the @font-face rule so text is always readable.</div>
+    </div>
+
+    <div class="q tip">
+      <div class="head"><span class="qnum">09.03</span><span class="qtitle">Test Core Web Vitals on every meaningful change</span><span class="qtag">Discipline</span></div>
+      <p>Mobile LCP target: under 2.5s. CLS under 0.1. We've shipped niche LPs at 4s+ LCP because of unsized hero images and webfont swap.</p>
+      <div class="fix"><b>Fix:</b> Run PageSpeed Insights on the live published URL after each build. Treat anything above 3.0s LCP as a defect, not a feature request.</div>
+    </div>
+  </section>
+
+  <!-- 10. PARITY -->
+  <section id="parity">
+    <h2><span class="anchor">10 ·</span>Builder ↔ HTML Parity</h2>
+    <p class="lede">When you have to round-trip between the page builder and raw HTML, things drift. This is the section to read before deciding which approach to use for a given build.</p>
+
+    <div class="q">
+      <div class="head"><span class="qnum">10.01</span><span class="qtitle">HTML approach loses template propagation</span><span class="qtag">Tradeoff</span></div>
+      <p>Pages built in the standard template benefit from "edit master, propagate to all clients." Pages built as raw HTML blocks don't. A change to the master template doesn't reach Michelle's HTML pages automatically.</p>
+      <div class="fix"><b>Fix:</b> Keep one or the other per client. Don't mix. For Michelle (MA, low edit volume), HTML is the call. For everyone else, standard template remains. If a master-template change should reach Michelle, port it manually.</div>
+    </div>
+
+    <div class="q">
+      <div class="head"><span class="qnum">10.02</span><span class="qtitle">Builder rebuilds drift across niche pages</span><span class="qtag">Consistency</span></div>
+      <p>When the same page gets rebuilt for therapist, attorney, coaches, and educators in the page builder, small things diverge — button animation present on one but not another, footer link target attribute set on one but not another, FAQ accordion behaving differently.</p>
+      <div class="fix"><b>Fix:</b> Build one canonical page (therapist was the canonical for niche LPs). Lock it. Apply changes to canonical first, get sign-off, then clone to every other niche. Run the consistency checklist in Section 11 after each rebuild round.</div>
+    </div>
+
+    <div class="q crit">
+      <div class="head"><span class="qnum">10.03</span><span class="qtitle">Nothing goes live without a screenshot or Loom walkthrough</span><span class="qtag">Hard rule</span></div>
+      <p>Every COD page that ships gets a screenshot or short Loom before publish, sent to Kas in Slack for sign-off. No exceptions. This catches 80% of the issues this guide covers.</p>
+      <div class="fix"><b>Fix:</b> Build → screenshot or Loom every section → message Kas → wait for approval → publish. If it's urgent, say it's urgent in the message; don't skip the step.</div>
+    </div>
+  </section>
+
+  <!-- 11. CHECKLIST -->
+  <section id="checklist">
+    <h2><span class="anchor">11 ·</span>Pre-Publish Checklist</h2>
+    <p class="lede">Run this every time before a COD funnel page goes live. Takes about ten minutes if everything is right.</p>
+
+    <div class="check">
+      <h4>Before Publish</h4>
+      <ul>
+        <li>All images uploaded to GHL Media (no <code>raw.githubusercontent.com</code> URLs in HTML)</li>
+        <li>Logos and headshots cross-checked against the Drive folder COD already maintains</li>
+        <li>Hidden GHL form field names match the live native form exactly (test submit lands a full contact)</li>
+        <li>URL query params forwarded on form submit (<code>action += window.location.search</code>)</li>
+        <li>PostHog <code>identify(email)</code> called after first email capture</li>
+        <li>Pixels live in Settings → Tracking, not inline HTML blocks</li>
+        <li>PostHog Inspector + Hyros debug + Meta Pixel Helper all green on the live URL</li>
+        <li>No <code>@keyframes nudge-*</code> animations on CTA buttons</li>
+        <li>Custom button selectors scoped to a parent class, no bare <code>button { }</code></li>
+        <li>Order summary collapsed to total only (line items hidden)</li>
+        <li>No "Add to Calendar" buttons anywhere on the page</li>
+        <li>Footer legal links open in new tab (<code>target="_blank" rel="noopener"</code>)</li>
+        <li>Wistia params: hero = silent autoplay + loop; inline = muted false + controls visible</li>
+        <li>Real iPhone test: hero loads, form scrolls into view after option select, checkout works</li>
+        <li>Real Android test: same flow</li>
+        <li>PageSpeed Insights mobile LCP under 3.0s on the live URL</li>
+        <li>Screenshot or Loom sent to Kas for sign-off before publish</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div>COD Funnel Ops · GHL HTML Build Guide v1.0 · 2026-05-13</div>
+    <div style="margin-top: 6px;">Version this doc with every new quirk discovered. Source compiled from niche LP, VIP rebuild, and application B-test build logs.</div>
+  </footer>
+
+</div>
+</body>
+</html>

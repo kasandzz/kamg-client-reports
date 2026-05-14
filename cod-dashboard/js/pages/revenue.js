@@ -713,7 +713,7 @@ App.registerPage('revenue', async (container) => {
   recentHeader.innerHTML = `
     <div>
       <div style="font-size:15px;font-weight:600;color:${Theme.COLORS.textPrimary}">Recent Enrollments</div>
-      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Last 20 high-ticket transactions ($100+) across all processors. Live from Stripe.</div>
+      <div style="font-size:12px;color:${Theme.COLORS.textMuted};margin-top:2px">Last 20 transactions over $100 across all payment methods. Live from Stripe (v_stripe_clean).</div>
       <div id="recent-filter-pills" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"></div>
     </div>
     <div style="font-size:11px;color:${Theme.COLORS.textMuted};padding:4px 10px;background:rgba(255,255,255,0.04);border-radius:6px;border:1px solid rgba(255,255,255,0.06)">
@@ -820,6 +820,49 @@ App.registerPage('revenue', async (container) => {
 
   _renderRecentPills();
   _renderRecentTable();
+
+  // ======================================================
+  // KNOWN LIMITATIONS (Phase 01-04g) -- honest gaps panel
+  // ======================================================
+  // Per Tail B Part 3 completion checklist item #4: every page ends with a
+  // page-specific Known Limitations footer surfacing incomplete attribution,
+  // missing integrations, and coverage gaps. Lineage covers the global ETL
+  // limitations; this card lists what's still NOT real on THIS page.
+  const limitations = document.createElement('div');
+  limitations.style.cssText = 'margin-top:32px';
+  limitations.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:${Theme.COLORS.textMuted}">Known Limitations</span>
+      <span style="flex:1;height:1px;background:rgba(255,255,255,0.06)"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px">
+      <div class="card" style="padding:14px;border-left:3px solid #f59e0b">
+        <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">Akari refund sheet not syncing</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.6">
+          Refunds shown reflect Stripe-side activity only (refund_amount + refund_date on the original succeeded charge). Manually-tracked refunds in Akari's Google Sheet are not yet ingested to BigQuery -- net cash here may understate refunds the team has logged outside Stripe.
+        </div>
+      </div>
+      <div class="card" style="padding:14px;border-left:3px solid #f59e0b">
+        <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">LTV includes all post-enrollment purchases</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.6">
+          The cumulative LTV curve sums every Stripe charge >$0 within the 30/60/90/180-day window per cohort. That includes follow-on $27 tickets, VIP upgrades, and renewals -- not just enrollment-tier dollars. Useful for trajectory but not a like-for-like enrollment LTV.
+        </div>
+      </div>
+      <div class="card" style="padding:14px;border-left:3px solid #f59e0b">
+        <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">~47% of HT revenue is unattributed to a closer</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.6">
+          The Unattributed bucket on the concentration card holds recurring / PIF / invoiced charges where neither v_sheets_bookings_enriched nor sheets_enrollments has a closer record. Process fix: tag closer in GHL custom field or Stripe charge metadata at point of sale.
+        </div>
+      </div>
+      <div class="card" style="padding:14px;border-left:3px solid #f59e0b">
+        <div style="font-size:12px;font-weight:600;color:${Theme.COLORS.textPrimary};margin-bottom:6px">Active closer roster is hardcoded</div>
+        <div style="font-size:11px;color:${Theme.COLORS.textMuted};line-height:1.6">
+          Closer concentration filters to Dorian Matney + Matt Dakan only (plus the Unattributed bucket). Inactive closers drop off the panel. If the roster changes, the CF query at cloud-function/queries/enrollment.js > jodiConcentration needs a redeploy with the updated IN-list.
+        </div>
+      </div>
+    </div>
+  `;
+  container.appendChild(limitations);
 });
 
 // Filter-change handled centrally by shell.js Filters.onChange.

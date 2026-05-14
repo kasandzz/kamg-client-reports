@@ -2741,10 +2741,12 @@ function renderFunnelChart(days, currentRows, previousRows) {
   });
 
   // Legend (guard against empty arrays — prev may be [] when compare is off or BQ returns no prev rows)
-  var curStart = cur.length ? cur[0].dt.substring(5) : '';
-  var curEnd = cur.length ? cur[cur.length - 1].dt.substring(5) : '';
-  var prevStart = prev.length ? prev[0].dt.substring(5) : '';
-  var prevEnd = prev.length ? prev[prev.length - 1].dt.substring(5) : '';
+  // BigQuery DATE columns sometimes arrive as {value:'YYYY-MM-DD'} not strings, so coerce.
+  function _dtStr(row) { var d = row && row.dt; return (d && d.value) ? d.value : (d == null ? '' : String(d)); }
+  var curStart = cur.length ? _dtStr(cur[0]).substring(5) : '';
+  var curEnd = cur.length ? _dtStr(cur[cur.length - 1]).substring(5) : '';
+  var prevStart = prev.length ? _dtStr(prev[0]).substring(5) : '';
+  var prevEnd = prev.length ? _dtStr(prev[prev.length - 1]).substring(5) : '';
   document.getElementById('funnelLegend').innerHTML =
     '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;background:currentColor;display:inline-block"></span><strong style="color:#f1f5f9">This period</strong> <span style="opacity:0.6">' + curStart + ' to ' + curEnd + '</span></span>' +
     (prev.length ? '<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:16px;height:2px;border-bottom:2px dashed currentColor;display:inline-block"></span><strong style="color:#f1f5f9">Previous period</strong> <span style="opacity:0.6">' + prevStart + ' to ' + prevEnd + '</span></span>' : '');

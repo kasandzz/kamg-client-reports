@@ -31,6 +31,11 @@ const LIVE = args.has('--live');
 const onlyArg = [...args].find(a => a.startsWith('--only='));
 const ONLY_PAGE = onlyArg ? onlyArg.split('=')[1] : null;
 
+// Phase 0 (2026-05-13): bake 3 presets for any query whose canonical days==14.
+// Queries with other day values (60/84/90/180/365) are intentional fixed windows
+// (trend charts, heatmaps, yearly summaries) and bake once at their canonical value.
+const DAYS_PRESETS = [7, 14, 30];
+
 // ---- Query inventory --------------------------------------------------------
 // Derived from grep of API.query(...) calls in js/pages/*.js on 2026-05-13.
 // Each entry baked with default filter state (days=14, no closer/channel/vip).
@@ -225,11 +230,22 @@ async function bake(entry) {
   }
 }
 
+function expandPresets(query) {
+  // Only multi-bake queries whose canonical days is exactly 14 (the dashboard
+  // default). Other fixed windows are intentional and bake once.
+  if (!query.params || query.params.days !== 14) return [query];
+  return DAYS_PRESETS.map(d => ({
+    ...query,
+    params: { ...query.params, days: d },
+  }));
+}
+
 async function main() {
   await ensureDir(CACHE_DIR);
 
-  const entries = ONLY_PAGE ? QUERIES.filter(q => q.page === ONLY_PAGE) : QUERIES;
-  console.log(`[build-cache] mode=${LIVE ? 'LIVE' : 'DRY'} entries=${entries.length}${ONLY_PAGE ? ` only=${ONLY_PAGE}` : ''}`);
+  const filteredQueries = ONLY_PAGE ? QUERIES.filter(q => q.page === ONLY_PAGE) : QUERIES;
+  const entries = filteredQueries.flatMap(expandPresets);
+  console.log(`[build-cache] mode=${LIVE ? 'LIVE' : 'DRY'} entries=${entries.length} (presets=${DAYS_PRESETS.join(',')})${ONLY_PAGE ? ` only=${ONLY_PAGE}` : ''}`);
 
   const results = [];
   for (const entry of entries) {

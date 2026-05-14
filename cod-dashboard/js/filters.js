@@ -10,6 +10,8 @@ const Filters = (() => {
   let _channel = '';
   let _vip = '';
   let _compare = false;
+  let _customStart = null; // ISO YYYY-MM-DD when custom range applied; null otherwise
+  let _customEnd = null;   // ISO YYYY-MM-DD when custom range applied; null otherwise
   const _listeners = [];
 
   const DATE_PRESETS = [
@@ -72,18 +74,11 @@ const Filters = (() => {
     compareLabel.appendChild(document.createTextNode('Compare'));
     container.appendChild(compareLabel);
 
-    // Show Calculations toggle
-    container.appendChild(_el('div', 'filter-divider'));
-    const calcLabel = _el('label', 'filter-checkbox');
-    const calcCb = document.createElement('input');
-    calcCb.type = 'checkbox';
-    calcCb.checked = false;
-    calcCb.addEventListener('change', () => {
-      document.body.classList.toggle('show-calcs', calcCb.checked);
-    });
-    calcLabel.appendChild(calcCb);
-    calcLabel.appendChild(document.createTextNode('Show calculations'));
-    container.appendChild(calcLabel);
+    // Show Calculations toggle REMOVED 2026-05-13: replaced by per-page
+    // Data Lineage & Sources section (see lineage.js + brief Tail B plan).
+    // The data-calc attribute system and Components.initCalcTooltip remain in
+    // place as dead infrastructure -- can be re-enabled by setting
+    // body.classList.add('show-calcs') if needed.
 
     // Custom Date Picker
     const dpWrap = _el('div', 'dp-wrap');
@@ -298,9 +293,13 @@ const Filters = (() => {
       presetGroup.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       trigger.classList.add('dp-trigger--active');
       trigger.textContent = fmtDisplay(_dpRangeStart) + ' \u2013 ' + fmtDisplay(_dpRangeEnd);
-      // Calculate days and set
+      // Preserve range start/end + compute days for legacy CF queries that only
+      // accept `days`. getState() will emit both -- CF queries updated to honor
+      // start/end will use the range; others fall back to days-from-today.
       const diffDays = Math.round((_dpRangeEnd - _dpRangeStart) / 86400000) + 1;
       _days = Math.max(diffDays, 1);
+      _customStart = fmtDate(_dpRangeStart);
+      _customEnd = fmtDate(_dpRangeEnd);
       _syncToURL();
       _notify();
       closeDP();
@@ -317,6 +316,7 @@ const Filters = (() => {
       trigger.textContent = 'Custom';
       trigger.classList.remove('dp-trigger--active');
       _dpRangeStart = null; _dpRangeEnd = null;
+      _customStart = null; _customEnd = null;
       updateLabel();
     });
   }
@@ -362,6 +362,8 @@ const Filters = (() => {
     if (params.has('channel')) _channel = params.get('channel');
     if (params.has('vip')) _vip = params.get('vip');
     if (params.has('compare')) _compare = params.get('compare') === '1';
+    if (params.has('start')) _customStart = params.get('start');
+    if (params.has('end')) _customEnd = params.get('end');
   }
 
   function _syncToURL() {
@@ -371,6 +373,8 @@ const Filters = (() => {
     if (_channel) params.set('channel', _channel); else params.delete('channel');
     if (_vip) params.set('vip', _vip); else params.delete('vip');
     if (_compare) params.set('compare', '1'); else params.delete('compare');
+    if (_customStart) params.set('start', _customStart); else params.delete('start');
+    if (_customEnd) params.set('end', _customEnd); else params.delete('end');
     const newURL = window.location.pathname + '?' + params.toString();
     window.history.replaceState(null, '', newURL);
   }
@@ -389,6 +393,8 @@ const Filters = (() => {
       channel: _channel || undefined,
       vip: _vip || undefined,
       compare: _compare ? '1' : undefined,
+      start: _customStart || undefined,
+      end: _customEnd || undefined,
     };
   }
 

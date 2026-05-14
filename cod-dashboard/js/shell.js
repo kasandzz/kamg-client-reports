@@ -17,7 +17,6 @@ const Shell = (() => {
     ]},
     { section: 'ACQUISITION', items: [
       { page: 'ads-meta',    icon: '&#128227;', label: 'Meta Ads' },
-      { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads' },
       { page: 'cold-email',  icon: '&#9993;&#65039;', label: 'Cold Email' },
       { page: 'attribution', icon: '&#128200;', label: 'Attribution' },
     ]},
@@ -38,6 +37,7 @@ const Shell = (() => {
       { page: 'data-health', icon: '&#129681;', label: 'Data Health' },
     ]},
     { section: 'COMING SOON', sectionStyle: 'opacity:0.4', items: [
+      { page: 'ads-google',  icon: '&#128270;', label: 'Google Ads', disabled: true },
       { page: 'competitors', icon: '&#9876;&#65039;', label: 'Competitors', disabled: true },
     ]},
   ];
@@ -357,6 +357,7 @@ const Shell = (() => {
     _initSidebar();
     _initSearch();
     Filters.init();
+    if (Components.initCalcTooltip) Components.initCalcTooltip();
     Notifications.startChecking();
 
     // Mark this page as viewed

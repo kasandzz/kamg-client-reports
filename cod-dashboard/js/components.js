@@ -136,6 +136,9 @@ const Components = (() => {
       const sparkId = `spark-${i}-${Date.now()}`;
 
       // Source + calc metadata (visible when "Show calculations" is toggled)
+      // Two surfaces:
+      //   1. Inline .kpi-calc-meta block (legacy, keyboard/touch-safe reveal)
+      //   2. data-calc attribute on .kpi-value -> universal hover tooltip
       let calcHTML = '';
       if (kpi.source || kpi.calc) {
         calcHTML = `<div class="kpi-calc-meta">`;
@@ -144,6 +147,9 @@ const Components = (() => {
         calcHTML += `</div>`;
       }
 
+      const calcAttrRaw = buildCalcAttr(kpi);
+      const calcAttrHTML = calcAttrRaw ? ` data-calc="${_esc(calcAttrRaw)}" tabindex="0"` : '';
+
       card.innerHTML = `
         <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,${statusColor}80,transparent)"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -151,7 +157,7 @@ const Components = (() => {
           ${dotHTML}
         </div>
         <div class="kpi-value-row">
-          <span class="kpi-value">${formattedValue}</span>
+          <span class="kpi-value"${calcAttrHTML}>${formattedValue}</span>
           ${deltaHTML}
           ${zBadgeHTML}
         </div>
@@ -1085,6 +1091,103 @@ const Components = (() => {
     el._lazyChartObserver = io;
   }
 
+  // ---- Show Calculations hover tooltip ----
+  // Universal mechanism: any element with data-calc="formula | source | period | refresh"
+  // shows a tooltip on hover/focus when body has .show-calcs. The Show Calculations
+  // header toggle (filters.js) flips that body class.
+  let _calcTooltipEl = null;
+  let _calcTooltipInitialized = false;
+
+  function initCalcTooltip() {
+    if (_calcTooltipInitialized) return;
+    _calcTooltipInitialized = true;
+
+    const tip = document.createElement('div');
+    tip.id = 'calc-tooltip';
+    tip.className = 'calc-tooltip';
+    tip.setAttribute('role', 'tooltip');
+    tip.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(tip);
+    _calcTooltipEl = tip;
+
+    const LABELS = ['Calc', 'Source', 'Period', 'Refresh'];
+
+    function render(target) {
+      const raw = target.getAttribute('data-calc');
+      if (!raw) return false;
+      const parts = raw.split('|').map(s => s.trim());
+      const rows = [];
+      parts.forEach((part, i) => {
+        if (!part) return;
+        const label = LABELS[i] || ('F' + i);
+        rows.push(
+          '<div class="calc-tooltip__row">' +
+            '<span class="calc-tooltip__label">' + _esc(label) + '</span>' +
+            '<span class="calc-tooltip__value">' + _esc(part) + '</span>' +
+          '</div>'
+        );
+      });
+      if (!rows.length) return false;
+      tip.innerHTML = rows.join('');
+      return true;
+    }
+
+    function position(target) {
+      tip.style.visibility = 'hidden';
+      tip.style.display = 'block';
+      const rect = target.getBoundingClientRect();
+      const tipRect = tip.getBoundingClientRect();
+      const margin = 8;
+      let left = rect.left + (rect.width - tipRect.width) / 2;
+      let top = rect.bottom + 8;
+      if (left < margin) left = margin;
+      if (left + tipRect.width > window.innerWidth - margin) {
+        left = window.innerWidth - tipRect.width - margin;
+      }
+      if (top + tipRect.height > window.innerHeight - margin) {
+        top = rect.top - tipRect.height - 8;
+      }
+      tip.style.left = (left + window.scrollX) + 'px';
+      tip.style.top = (top + window.scrollY) + 'px';
+      tip.style.visibility = 'visible';
+    }
+
+    function show(e) {
+      if (!document.body.classList.contains('show-calcs')) return;
+      const target = e.target.closest && e.target.closest('[data-calc]');
+      if (!target) return;
+      if (!render(target)) return;
+      position(target);
+      tip.setAttribute('aria-hidden', 'false');
+    }
+
+    function hide(e) {
+      const related = e.relatedTarget;
+      if (related && related.closest && related.closest('[data-calc]')) return;
+      tip.style.display = 'none';
+      tip.setAttribute('aria-hidden', 'true');
+    }
+
+    document.body.addEventListener('mouseover', show);
+    document.body.addEventListener('mouseout', hide);
+    document.body.addEventListener('focusin', show);
+    document.body.addEventListener('focusout', hide);
+    window.addEventListener('scroll', () => {
+      if (tip.getAttribute('aria-hidden') === 'false') {
+        tip.style.display = 'none';
+        tip.setAttribute('aria-hidden', 'true');
+      }
+    }, { passive: true });
+  }
+
+  function buildCalcAttr(kpi) {
+    const period = kpi.period || (kpi.range ? String(kpi.range) : '');
+    const refresh = kpi.refresh || '';
+    const parts = [kpi.calc || '', kpi.source || '', period, refresh];
+    if (parts.every(p => !p)) return '';
+    return parts.join(' | ');
+  }
+
   return {
     renderKPIStrip,
     renderSparkline,
@@ -1102,5 +1205,7 @@ const Components = (() => {
     renderMetricGrid,
     lazyChart,
     describeChart,
+    initCalcTooltip,
+    buildCalcAttr,
   };
 })();

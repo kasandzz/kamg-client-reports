@@ -469,10 +469,19 @@ async function renderWarRoom(container) {
   // Pattern mirrors funnels.js renderFunnelChart for consistency.
   // ================================================================
   var stackCard = _card('Daily Revenue Stack', { padding: '20px 24px 24px' });
-  var stackSub = document.createElement('div');
-  stackSub.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';margin-top:-6px;margin-bottom:12px';
-  stackSub.textContent = 'Click any metric to drill the line. Tickets, VIP, and high-ticket revenue per day, last 14 days.';
-  stackCard.appendChild(stackSub);
+
+  // $ vs # People toggle (segmented control)
+  var stackToggleId = 'war-stack-mode-toggle-' + Date.now();
+  var toggleBar = document.createElement('div');
+  toggleBar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:-6px;margin-bottom:10px;flex-wrap:wrap';
+  toggleBar.innerHTML = [
+    '<div style="font-size:11px;color:' + Theme.COLORS.textMuted + '">Click any metric to drill the line. Last 14 days.</div>',
+    '<div id="' + stackToggleId + '" role="tablist" style="display:inline-flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:2px;font-size:11px;font-family:var(--font-mono)">',
+    '  <button data-mode="money"  role="tab" aria-selected="true"  style="padding:4px 10px;border:none;background:transparent;color:' + Theme.COLORS.textPrimary + ';cursor:pointer;border-radius:4px">$ Revenue</button>',
+    '  <button data-mode="people" role="tab" aria-selected="false" style="padding:4px 10px;border:none;background:transparent;color:' + Theme.COLORS.textMuted + ';cursor:pointer;border-radius:4px"># People</button>',
+    '</div>'
+  ].join('');
+  stackCard.appendChild(toggleBar);
 
   // Mini-KPI strip (Shopify-style)
   var stackStripId = 'war-stack-strip-' + Date.now();
@@ -498,10 +507,22 @@ async function renderWarRoom(container) {
   container.appendChild(stackCard);
 
   if (dailyRevStackData && dailyRevStackData.length > 0) {
-    // Lazy-init: defer Chart.js construction until the canvas scrolls into
-    // view. Metric-switching click handler (inside _renderStackShopifyStyle)
-    // re-invokes the function directly, bypassing lazyChart's once-flag —
-    // so subsequent metric switches still re-render normally.
+    // Wire the $/# toggle: re-renders strip + chart in the chosen mode.
+    var toggleEl = document.getElementById(stackToggleId);
+    if (toggleEl) {
+      toggleEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-mode]');
+        if (!btn) return;
+        _warStackMode = btn.dataset.mode === 'people' ? 'people' : 'money';
+        Array.prototype.forEach.call(toggleEl.querySelectorAll('button'), function (b) {
+          var on = b.dataset.mode === _warStackMode;
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          b.style.background = on ? 'rgba(124,58,237,0.18)' : 'transparent';
+          b.style.color = on ? Theme.COLORS.textPrimary : Theme.COLORS.textMuted;
+        });
+        _renderStackShopifyStyle(dailyRevStackData, stackStripId, stackCanvasId, stackLegendId);
+      });
+    }
     Components.lazyChart(stackCanvasId, function () {
       _renderStackShopifyStyle(dailyRevStackData, stackStripId, stackCanvasId, stackLegendId);
     });
@@ -716,34 +737,45 @@ function _escText(str) {
 // ================================================================
 var _warStackChartInstance = null;
 var _warStackActiveMetric = 3; // 0=Tickets, 1=VIP, 2=High-Ticket, 3=Total
+var _warStackMode = 'money';   // 'money' or 'people' (toggle in card header)
 
 // High-Ticket = ANY Stripe purchase >$1000 (initial COD program payment, includes
 // split-pay; full price ~$13k but split-pay means any payment over $1k qualifies).
 // Renewals (prior >$1k payment from same email) will split out once
 // v_stripe_classified view ships (end-of-project data phase). VIP includes single
 // $54 AND the second $27 within 7 days from the same email (paired upgrade).
+// Each metric has BOTH a money key and a people key (COUNT DISTINCT email).
 var _WAR_STACK_METRICS = [
-  { key: 'ticket_revenue',      label: 'Tickets',     color: '#06b6d4', tip: 'Initial $27 workshop ticket purchase, first per customer in 7-day window.' },
-  { key: 'vip_revenue',         label: 'VIP',         color: '#a855f7', tip: 'VIP upgrade revenue: single $54 charge, or second $27 from same customer within 7 days.' },
-  { key: 'high_ticket_revenue', label: 'High-Ticket', color: '#22c55e', tip: 'Initial COD program payment ($1,000+ per transaction, includes split-pay). Excludes renewals once classification view ships.' },
-  { key: '_total',              label: 'Total',       color: '#f59e0b', tip: 'Sum of Tickets + VIP + High-Ticket per day.' }
+  { keyMoney: 'ticket_revenue',      keyPeople: 'ticket_people',      label: 'Tickets',     color: '#06b6d4', tip: 'Initial $27 workshop ticket purchase, first per customer in 7-day window.' },
+  { keyMoney: 'vip_revenue',         keyPeople: 'vip_people',         label: 'VIP',         color: '#a855f7', tip: 'VIP upgrade revenue: single $54 charge, or second $27 from same customer within 7 days.' },
+  { keyMoney: 'high_ticket_revenue', keyPeople: 'high_ticket_people', label: 'High-Ticket', color: '#22c55e', tip: 'Initial COD program payment ($1,000+ per transaction, includes split-pay). Excludes renewals once classification view ships.' },
+  { keyMoney: '_total_money',        keyPeople: '_total_people',      label: 'Total',       color: '#f59e0b', tip: 'Sum of Tickets + VIP + High-Ticket per day.' }
 ];
 
 function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
   if (!rows || rows.length === 0) return;
 
-  // Normalize rows: ensure every metric is a number; compute synthetic _total
+  var isPeople = _warStackMode === 'people';
+
+  // Normalize rows: pull both money + people fields; compute synthetic totals
   var normRows = rows.map(function (r) {
-    var t = Number(r.ticket_revenue || 0);
-    var v = Number(r.vip_revenue || 0);
-    var h = Number(r.high_ticket_revenue || 0);
+    var tM = Number(r.ticket_revenue || 0);
+    var vM = Number(r.vip_revenue || 0);
+    var hM = Number(r.high_ticket_revenue || 0);
+    var tP = Number(r.ticket_people || 0);
+    var vP = Number(r.vip_people || 0);
+    var hP = Number(r.high_ticket_people || 0);
     var d = r.date && r.date.value ? r.date.value : r.date;
     return {
       dt: String(d || ''),
-      ticket_revenue: t,
-      vip_revenue: v,
-      high_ticket_revenue: h,
-      _total: t + v + h
+      ticket_revenue: tM,
+      vip_revenue: vM,
+      high_ticket_revenue: hM,
+      ticket_people: tP,
+      vip_people: vP,
+      high_ticket_people: hP,
+      _total_money: tM + vM + hM,
+      _total_people: tP + vP + hP
     };
   });
 
@@ -757,15 +789,20 @@ function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
     if (v >= 1000) return '$' + (Math.round(v / 100) / 10) + 'k';
     return '$' + Math.round(v).toLocaleString();
   }
+  function fmtPeople(v) {
+    return Math.round(v).toLocaleString();
+  }
   function deltaPct(c, p) {
     if (!p || p === 0) return null;
     return ((c - p) / Math.abs(p)) * 100;
   }
 
   var miniKpis = _WAR_STACK_METRICS.map(function (m) {
-    var cur = sumKey(second, m.key);
-    var prev = sumKey(first, m.key);
-    return { label: m.label, value: fmtMoney(cur), delta: deltaPct(cur, prev) };
+    var key = isPeople ? m.keyPeople : m.keyMoney;
+    var cur = sumKey(second, key);
+    var prev = sumKey(first, key);
+    var fmt = isPeople ? fmtPeople : fmtMoney;
+    return { label: m.label, value: fmt(cur), delta: deltaPct(cur, prev) };
   });
 
   // Render strip with clickable metric cards
@@ -817,12 +854,13 @@ function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
   if (_warStackChartInstance) { try { _warStackChartInstance.destroy(); } catch (e) {} }
 
   var metric = _WAR_STACK_METRICS[_warStackActiveMetric];
+  var seriesKey = isPeople ? metric.keyPeople : metric.keyMoney;
   var labels = normRows.map(function (r) {
     if (!r.dt) return '';
     var parts = r.dt.split('-');
     return parts.length >= 3 ? (parts[1] + '/' + parts[2]) : r.dt;
   });
-  var data = normRows.map(function (r) { return r[metric.key]; });
+  var data = normRows.map(function (r) { return r[seriesKey]; });
 
   _warStackChartInstance = new Chart(ctx, {
     type: 'line',
@@ -849,7 +887,10 @@ function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
         tooltip: {
           mode: 'index',
           callbacks: {
-            label: function (c) { return metric.label + ': $' + Number(c.raw).toLocaleString(); }
+            label: function (c) {
+              var raw = Number(c.raw);
+              return metric.label + ': ' + (isPeople ? raw.toLocaleString() + ' people' : '$' + raw.toLocaleString());
+            }
           }
         }
       },
@@ -864,7 +905,10 @@ function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
           ticks: {
             color: Theme.COLORS.textMuted,
             font: { size: 10 },
-            callback: function (v) { return '$' + (v >= 1000 ? Math.round(v / 1000) + 'k' : v); }
+            callback: function (v) {
+              if (isPeople) return Math.round(v).toLocaleString();
+              return '$' + (v >= 1000 ? Math.round(v / 1000) + 'k' : v);
+            }
           }
         }
       }

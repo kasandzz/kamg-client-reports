@@ -315,8 +315,11 @@ App.registerPage('cold-email', async (container) => {
     }).catch(() => { /* swallow; live fetch already failed once */ });
   }, { signal: container._cacheRefreshController.signal });
 
-  // Wire filter re-render
-  App.onFilterChange(() => App.navigate('cold-email'));
+  // Wire filter re-render (guarded -- App.onFilterChange isn't a function;
+  // shell.js Filters.onChange handles re-renders centrally).
+  if (typeof App !== 'undefined' && App.onFilterChange) {
+    App.onFilterChange(() => App.navigate('cold-email'));
+  }
 });
 
 // ---------------------------------------------------------------------------

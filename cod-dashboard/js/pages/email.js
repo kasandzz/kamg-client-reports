@@ -562,4 +562,6 @@ function _esc(str) {
   return el.innerHTML;
 }
 
-App.onFilterChange(() => App.navigate('email-intel'));
+// Filter-change handled centrally by shell.js Filters.onChange.
+// App.onFilterChange does not exist as a function; guard prevents TypeError.
+if (typeof App !== 'undefined' && App.onFilterChange) { App.onFilterChange(() => App.navigate('email-intel')); }

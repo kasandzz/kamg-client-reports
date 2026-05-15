@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre-Audit Teaser · Smith Bros Mobile Detailing</title>
+<style>
+:root{
+  --bg:#0a0a0a;
+  --card:#141414;
+  --card-2:#181818;
+  --border:#2a2a2a;
+  --border-bright:#3a3a3a;
+  --text:#ececec;
+  --muted:#8a8a8a;
+  --gold:#d4a574;
+  --gold-dim:#a8814a;
+  --ok:#7ab87a;
+  --warn:#d4c574;
+  --danger:#e07b5c;
+  --info:#7aa4e0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"SF Pro Text",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
+  font-size:15px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 28px 80px}
+
+/* HEADER */
+.header{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.eyebrow{
+  font-size:11px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:600;
+  margin-bottom:14px;
+}
+h1{
+  font-family:"SF Pro Display",-apple-system,sans-serif;
+  font-size:34px;
+  line-height:1.15;
+  letter-spacing:-0.6px;
+  font-weight:600;
+  margin-bottom:14px;
+  max-width:720px;
+}
+.lede{
+  font-size:16.5px;
+  color:#cccccc;
+  max-width:680px;
+  line-height:1.6;
+}
+.partners{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  margin-top:22px;
+  font-size:13px;
+  color:var(--muted);
+}
+.partners strong{color:var(--text);font-weight:500}
+
+/* DATASET STRIP */
+.strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:8px;
+  margin-bottom:40px;
+  overflow:hidden;
+}
+.stat{background:var(--card);padding:18px 20px}
+.stat-num{
+  font-family:"SF Pro Display",sans-serif;
+  font-size:26px;
+  font-weight:600;
+  color:var(--gold);
+  letter-spacing:-0.4px;
+}
+.stat-lab{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  color:var(--muted);
+  font-weight:600;
+  margin-top:4px;
+}
+.stat-sub{font-size:12px;color:#aaa;margin-top:2px}
+
+/* SECTION HEADER */
+.section-header{margin-bottom:20px}
+.section-eyebrow{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold-dim);
+  font-weight:600;
+  margin-bottom:6px;
+}
+h2{
+  font-family:"SF Pro Display",sans-serif;
+  font-size:24px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  margin-bottom:10px;
+}
+.section-lede{font-size:14.5px;color:#bababa;max-width:680px;line-height:1.6}
+
+/* FINDING GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+  margin-bottom:48px;
+}
+.find{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:24px;
+  position:relative;
+}
+.find-num{
+  position:absolute;
+  top:18px;
+  right:22px;
+  font-family:"SF Pro Display",sans-serif;
+  font-size:32px;
+  font-weight:600;
+  color:#1f1f1f;
+  letter-spacing:-1px;
+}
+.find-tag{
+  display:inline-block;
+  font-size:10px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  font-weight:600;
+  padding:3px 9px;
+  border-radius:10px;
+  margin-bottom:11px;
+}
+.tag-win{background:rgba(122,184,122,0.13);color:var(--ok)}
+.tag-gap{background:rgba(224,123,92,0.13);color:var(--danger)}
+.tag-flag{background:rgba(212,197,116,0.13);color:var(--warn)}
+.tag-opp{background:rgba(122,164,224,0.13);color:var(--info)}
+.find-title{
+  font-family:"SF Pro Display",sans-serif;
+  font-size:17.5px;
+  font-weight:600;
+  letter-spacing:-0.2px;
+  margin-bottom:10px;
+  line-height:1.3;
+  max-width:88%;
+}
+.find-data{
+  background:#0d0d0d;
+  border-left:2px solid var(--gold);
+  padding:11px 14px;
+  margin:10px 0 12px;
+  font-family:"SF Mono",Menlo,monospace;
+  font-size:12.5px;
+  color:#d8d8d8;
+  border-radius:0 4px 4px 0;
+}
+.find-body{font-size:14px;line-height:1.6;color:#cfcfcf}
+.find-action{
+  font-size:13px;
+  line-height:1.55;
+  color:var(--gold-dim);
+  margin-top:11px;
+  padding-top:11px;
+  border-top:1px solid #222;
+  font-style:italic;
+}
+.find-action strong{color:var(--gold);font-style:normal;font-weight:600}
+
+/* MINI TABLE INSIDE CARD */
+table.mini{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0 4px}
+table.mini td{padding:4px 0;border-bottom:1px solid #1f1f1f;color:#c8c8c8}
+table.mini td:last-child{text-align:right;color:var(--gold);font-family:"SF Mono",monospace}
+table.mini tr:last-child td{border-bottom:none}
+
+/* CLOSING */
+.closing{
+  background:linear-gradient(135deg, #131313 0%, #1a1612 100%);
+  border:1px solid var(--gold-dim);
+  border-radius:8px;
+  padding:32px 30px;
+  margin-top:32px;
+}
+.closing h3{
+  font-family:"SF Pro Display",sans-serif;
+  font-size:20px;
+  font-weight:600;
+  margin-bottom:14px;
+  color:var(--gold);
+  letter-spacing:-0.2px;
+}
+.closing p{font-size:14.5px;line-height:1.65;color:#d4d4d4;margin-bottom:10px}
+.closing p:last-child{margin-bottom:0}
+.closing strong{color:var(--text);font-weight:500}
+
+/* FOOTER */
+.foot{
+  margin-top:32px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+@media (max-width:760px){
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:1fr}
+  h1{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="eyebrow">Pre-Audit Teaser · Confidential</div>
+    <h1>What 30 minutes with your data told us, before we even opened the live accounts</h1>
+    <p class="lede">A first read on Smith Bros Mobile Detailing from your Fieldd CRM, Jobs and Discounts exports. The full audit will combine this with GA4, Google Ads, Search Console and Klaviyo. What's below is the surface layer, the patterns that jump off the page on first contact.</p>
+    <div class="partners">
+      <span><strong>Outrider Digital</strong> &nbsp;×&nbsp; <strong>KAMG</strong></span>
+      <span>·</span>
+      <span>For Luke, Jeremy and Wesley</span>
+      <span>·</span>
+      <span>2026-05-15</span>
+    </div>
+  </header>
+
+  <!-- DATASET STRIP -->
+  <div class="strip">
+    <div class="stat">
+      <div class="stat-num">24,548</div>
+      <div class="stat-lab">Jobs</div>
+      <div class="stat-sub">in the export</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">14,193</div>
+      <div class="stat-lab">Customers</div>
+      <div class="stat-sub">in your CRM</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$8.69M</div>
+      <div class="stat-lab">Revenue</div>
+      <div class="stat-sub">total in dataset</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">145</div>
+      <div class="stat-lab">Discount codes</div>
+      <div class="stat-sub">used historically</div>
+    </div>
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">
+    <div class="section-eyebrow">First read · eight findings</div>
+    <h2>What the data already tells us</h2>
+    <p class="section-lede">Each card is a pattern visible in the CSVs alone. None of these required logging into a single ad account. We name them now so you can see how the audit thinks before the audit lands.</p>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+
+    <!-- 1 IN-SHOP vs MOBILE -->
+    <div class="find">
+      <div class="find-num">01</div>
+      <span class="find-tag tag-win">Quick win</span>
+      <div class="find-title">In-shop vs mobile is already in your data</div>
+      <div class="find-data">
+        Shop column = "Smith Bros Detail Shop"<br>
+        → 1,659 in-shop · 22,889 mobile<br>
+        Roughly 93 / 7 split, every job, every month
+      </div>
+      <div class="find-body">You mentioned the monthly totals don't separate the two channels. They do, in Fieldd, in two columns at once (Shop and Miles Traveled). We can backfill the revenue split for every month historically without any new tagging work.</div>
+      <div class="find-action"><strong>Audit action:</strong> Rebuild monthly P&L by channel. Surface drive time as a margin lever. Decide which channel deserves marginal dollars.</div>
+    </div>
+
+    <!-- 2 RETENTION -->
+    <div class="find">
+      <div class="find-num">02</div>
+      <span class="find-tag tag-gap">Biggest gap</span>
+      <div class="find-title">79% of your customers never come back</div>
+      <div class="find-data">
+        <table class="mini">
+          <tr><td>One and done</td><td>7,478 (53%)</td></tr>
+          <tr><td>Repeat (2+ jobs)</td><td>2,992 (21%)</td></tr>
+          <tr><td>Loyal (10+ jobs)</td><td>257 (1.8%)</td></tr>
+          <tr><td>Top customer</td><td>90 jobs</td></tr>
+        </table>
+      </div>
+      <div class="find-body">A 21% repeat rate on a service with natural recurrence (a car gets dirty again) is the single biggest LTV unlock on the board. You already have 100% email coverage on these 14,193 customers, so the audience exists; what's missing is a structured re-engagement system.</div>
+      <div class="find-action"><strong>Audit action:</strong> Klaviyo lifecycle flows by service line. SMS layer behind it. Win-back for the 3,770 dormant accounts.</div>
+    </div>
+
+    <!-- 3 KLAVIYO -->
+    <div class="find">
+      <div class="find-num">03</div>
+      <span class="find-tag tag-opp">Opportunity</span>
+      <div class="find-title">Klaviyo's audience is essentially fully loaded</div>
+      <div class="find-data">
+        14,193 customers in CRM<br>
+        14,193 with email addresses on file<br>
+        = 100.0% addressable
+      </div>
+      <div class="find-body">Most home-services businesses we audit have 40-60% email capture. You have 100%. Combined with the 79% one-and-done problem, this means the segmentation, not the list, is what's leaving money on the table. Right now Klaviyo can't tell a first-time mobile detail customer from a long-term ceramic coating client.</div>
+      <div class="find-action"><strong>Audit action:</strong> Build segment architecture by service line, ticket band, and last-job-date. Layer flows per segment.</div>
+    </div>
+
+    <!-- 4 HISTORICAL ADS -->
+    <div class="find">
+      <div class="find-num">04</div>
+      <span class="find-tag tag-flag">Need access</span>
+      <div class="find-title">You've run Facebook, Instagram, Yelp and Google channels before</div>
+      <div class="find-data">
+        <table class="mini">
+          <tr><td>Facebook First Time</td><td>247 redeems · $78,425</td></tr>
+          <tr><td>Instagram First Time</td><td>38 redeems · $12,587</td></tr>
+          <tr><td>Yelp 5</td><td>30 redeems · $11,431</td></tr>
+          <tr><td>google10</td><td>3 redeems · $1,218</td></tr>
+        </table>
+      </div>
+      <div class="find-body">Your discount codes carry channel-attribution names. The volume on Facebook First Time alone (247 redemptions, nearly $80k of attached revenue) tells us Meta has been a meaningful channel at some point. That history sits inside the ad accounts and we should look at it.</div>
+      <div class="find-action"><strong>Audit action:</strong> Pull historical performance from Meta Business Manager, Yelp for Business and any Google Ads account. Compare period-over-period.</div>
+    </div>
+
+    <!-- 5 MARGIN TRACKING -->
+    <div class="find">
+      <div class="find-num">05</div>
+      <span class="find-tag tag-gap">Tracking gap</span>
+      <div class="find-title">You can't measure margin yet, even though Fieldd supports it</div>
+      <div class="find-data">
+        24,548 jobs total<br>
+        215 with Margin field filled (0.9%)<br>
+        Cost data missing on virtually every job
+      </div>
+      <div class="find-body">Fieldd has a Cost field and a Margin field at the job level. They are almost never being filled in. That means every "profit" number in the system right now is just the gross sale, which makes real unit-economics impossible. A $400 in-shop detail with one tech and zero drive time is not the same as a $400 mobile job with 45 minutes of drive each way and product cost.</div>
+      <div class="find-action"><strong>Audit action:</strong> Define a minimal job-costing standard. Most of this is one-time setup, not ongoing data entry.</div>
+    </div>
+
+    <!-- 6 RATING CAPTURE -->
+    <div class="find">
+      <div class="find-num">06</div>
+      <span class="find-tag tag-gap">Tracking gap</span>
+      <div class="find-title">You are losing 81% of your review opportunities</div>
+      <div class="find-data">
+        Jobs with a rating captured: 4,750 of 24,548 (19%)<br>
+        Of those captured, 97% are five-star<br>
+        4,608 five-star ratings already in your data
+      </div>
+      <div class="find-body">You sit at 950+ five-star public reviews across Google and Yelp. Your internal rate of five-stars is 97%. The 81% of jobs that never get a rating asked are the gap between where you are and where you could be on visible social proof.</div>
+      <div class="find-action"><strong>Audit action:</strong> Tighten post-job review-ask. There are tools that handle this automatically per platform.</div>
+    </div>
+
+    <!-- 7 VIP -->
+    <div class="find">
+      <div class="find-num">07</div>
+      <span class="find-tag tag-opp">Hidden segment</span>
+      <div class="find-title">Your top 10 customers have spent $213k between them</div>
+      <div class="find-data">
+        Top 10 customer LTV total: $213,532<br>
+        Median customer LTV: $289<br>
+        90th percentile: $1,085<br>
+        Top customer single LTV: 90 jobs
+      </div>
+      <div class="find-body">There is a VIP segment hiding inside your CRM. Right now they get the same touch as a one-and-done lead. A simple ranking by Total Billed gives you a list of named people who should be on a different communication track entirely.</div>
+      <div class="find-action"><strong>Audit action:</strong> VIP segment in Klaviyo. Concierge-style post-job follow-up. Recurring service offers. Possible referral program seeded from this group.</div>
+    </div>
+
+    <!-- 8 DISCOUNT STRATEGY -->
+    <div class="find">
+      <div class="find-num">08</div>
+      <span class="find-tag tag-flag">Worth a look</span>
+      <div class="find-title">You run a lot of discount codes. Is the cadence pulling forward or training waiting?</div>
+      <div class="find-data">
+        145 unique discount codes in the dataset<br>
+        40+ flash-sale codes by date<br>
+        Pattern: weekly to twice-weekly flash promotions
+      </div>
+      <div class="find-body">Heavy promotional cadence can work for category-leading businesses with strong margin headroom, and it can also quietly teach customers to wait for the next discount. We don't know which side you're on yet. The data will tell us once we cross-reference promo-period revenue against non-promo periods.</div>
+      <div class="find-action"><strong>Audit action:</strong> Pull average ticket size on promo days vs non-promo days. Test holdout periods if needed.</div>
+    </div>
+
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <h3>What this isn't</h3>
+    <p>This is what showed up in the surface layer of three CSV exports. The actual audit will pull in Google Analytics, Search Console, your Google Ads account, Klaviyo flow performance, Meta historical data, your booking subdomain instrumentation, and a competitive analysis against the lists Luke and Jeremy shared. The recommendations get sharper, the priorities get stack-ranked, and we get into specific dollars and hours.</p>
+    <p>What we wanted to do today was show you how the audit thinks, before the audit itself lands. The patterns above aren't guesses. They're the data we already have, summarized in a way that should make the conversation on the kickoff call faster.</p>
+    <p style="margin-top:18px"><strong>Looking forward to Monday or Wednesday.</strong></p>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="foot">
+    <div>Smith Bros Mobile Detailing · Pre-Audit Teaser · v1</div>
+    <div>Prepared by Outrider Digital × KAMG · 2026-05-15</div>
+  </div>
+
+</div>
+</body>
+</html>

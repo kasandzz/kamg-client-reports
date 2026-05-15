@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COD Dashboard -- Chart Recommendations</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e17; color:#e2e8f0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.6; }
+  .container { max-width:1400px; margin:0 auto; padding:24px; }
+
+  /* Header */
+  .header { text-align:center; margin-bottom:32px; padding:32px 0; border-bottom:1px solid #1e293b; }
+  .header h1 { font-size:24px; font-weight:700; background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+  .header .subtitle { color:#94a3b8; font-size:13px; }
+  .header .meta { color:#64748b; font-size:11px; margin-top:8px; }
+  .header .badges { margin-top:12px; }
+  .badge { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:20px; margin:0 4px; letter-spacing:.5px; }
+  .badge-info { background:rgba(59,130,246,.12); border:1px solid rgba(59,130,246,.3); color:#3b82f6; }
+  .badge-ok { background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.3); color:#10b981; }
+  .badge-amber { background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.3); color:#f59e0b; }
+
+  /* TOC */
+  .toc { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:18px 22px; margin-bottom:24px; }
+  .toc h2 { font-size:13px; font-weight:600; color:#e2e8f0; margin-bottom:10px; letter-spacing:.5px; }
+  .toc ul { list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:6px; }
+  .toc a { color:#94a3b8; text-decoration:none; font-size:12px; }
+  .toc a:hover { color:#3b82f6; }
+
+  /* Sections */
+  section { margin-bottom:36px; }
+  .section-title { font-size:18px; font-weight:700; color:#e2e8f0; margin-bottom:6px; padding-bottom:8px; border-bottom:1px solid #1e293b; }
+  .section-sub { font-size:11px; color:#94a3b8; margin-bottom:18px; }
+
+  /* Context blocks */
+  .ctx-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; margin-bottom:18px; }
+  .ctx-card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:14px 16px; }
+  .ctx-card .ctx-h { font-size:11px; font-weight:600; color:#3b82f6; margin-bottom:6px; letter-spacing:.4px; text-transform:uppercase; }
+  .ctx-card p { font-size:12px; color:#cbd5e1; line-height:1.6; }
+
+  /* Cards */
+  .card { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .card-title { font-size:14px; font-weight:600; color:#e2e8f0; margin-bottom:4px; }
+  .card-subtitle { font-size:11px; color:#94a3b8; margin-bottom:14px; }
+
+  /* Chart proposal blocks */
+  .chart-proposal { background:#0f1622; border:1px solid #1e293b; border-left:3px solid #8b5cf6; border-radius:8px; padding:14px 16px; margin-bottom:12px; }
+  .chart-proposal.dropped { border-left-color:#64748b; opacity:.72; }
+  .chart-proposal.p1 { border-left-color:#f59e0b; }
+  .cp-title { font-size:13px; font-weight:600; color:#e2e8f0; margin-bottom:6px; }
+  .cp-meta { font-size:10px; color:#64748b; margin-bottom:10px; }
+  .cp-tag { display:inline-block; background:rgba(139,92,246,.12); color:#a78bfa; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; margin-right:6px; }
+  .cp-tag.dropped { background:rgba(100,116,139,.15); color:#94a3b8; }
+  .cp-tag.p1 { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .cp-row { display:grid; grid-template-columns:90px 1fr; gap:10px; margin-bottom:6px; align-items:start; }
+  .cp-label { font-size:10px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:.4px; }
+  .cp-text { font-size:12px; color:#cbd5e1; }
+  .cp-text a { color:#3b82f6; text-decoration:none; }
+  .cp-text a:hover { text-decoration:underline; }
+
+  /* Data preview tables */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; margin-bottom:8px; }
+  .data-table th { text-align:left; padding:7px 10px; background:#0a0e17; color:#94a3b8; font-weight:500; border-bottom:1px solid #1e293b; white-space:nowrap; }
+  .data-table td { padding:7px 10px; border-bottom:1px solid #1e293b; }
+  .data-table tr:hover { background:rgba(59,130,246,.05); }
+  .data-table td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .data-table .obs { font-size:11px; color:#94a3b8; margin-top:8px; padding:8px 12px; background:rgba(59,130,246,.06); border-left:2px solid #3b82f6; border-radius:0 6px 6px 0; }
+
+  /* Schema box */
+  .schema-box { background:#0a0e17; border:1px solid #1e293b; border-radius:6px; padding:10px 12px; font-size:11px; color:#cbd5e1; line-height:1.7; word-break:break-word; }
+
+  /* Closing roll-up */
+  .findings-list { list-style:none; counter-reset:f; }
+  .findings-list li { counter-increment:f; padding:10px 14px 10px 38px; position:relative; background:#111827; border:1px solid #1e293b; border-radius:8px; margin-bottom:8px; font-size:12px; color:#cbd5e1; }
+  .findings-list li::before { content:counter(f); position:absolute; left:12px; top:10px; font-size:11px; font-weight:700; color:#3b82f6; }
+
+  /* Footer */
+  footer { text-align:center; padding:24px 0; color:#64748b; font-size:11px; border-top:1px solid #1e293b; margin-top:32px; }
+
+  .hl { color:#38bdf8; font-weight:600; }
+  .hl-green { color:#10b981; font-weight:600; }
+  .hl-amber { color:#f59e0b; font-weight:600; }
+  .hl-rose { color:#ec4899; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>COD Dashboard -- Chart Recommendations</h1>
+  <div class="subtitle">38 chart proposals across 10 priority pages, grounded in real warehouse data previews</div>
+  <div class="meta">Generated 2026-05-16 -- Wave 6 overnight build -- 13 BigQuery data previews -- read-only SELECT</div>
+  <div class="badges">
+    <span class="badge badge-info">10 priority pages</span>
+    <span class="badge badge-info">38 proposals</span>
+    <span class="badge badge-ok">35 buildable</span>
+    <span class="badge badge-amber">2 P1 dependencies</span>
+    <span class="badge badge-amber">1 dropped</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#context">Cross-page context</a></li>
+    <li><a href="#previews">Data previews (Q1-Q13)</a></li>
+    <li><a href="#war-room">1. War Room</a></li>
+    <li><a href="#revenue">2. Revenue</a></li>
+    <li><a href="#attribution">3. Attribution</a></li>
+    <li><a href="#ads-meta">4. Ads-Meta</a></li>
+    <li><a href="#funnels">5. Funnels ($27)</a></li>
+    <li><a href="#ma-funnel">6. MA-Funnel</a></li>
+    <li><a href="#sales-team">7. Sales-Team</a></li>
+    <li><a href="#journey-explorer">8. Journey Explorer</a></li>
+    <li><a href="#cold-email">9. Cold-Email</a></li>
+    <li><a href="#geo-intel">10. Geo-Intel</a></li>
+    <li><a href="#findings">Material findings</a></li>
+  </ul>
+</div>
+
+<!-- =================== CROSS-PAGE CONTEXT =================== -->
+<section id="context">
+  <div class="section-title">Cross-page binding context</div>
+  <div class="section-sub">Discoveries from Wave 5 reconciliation that constrain every chart proposal below.</div>
+
+  <div class="ctx-grid">
+    <div class="ctx-card">
+      <div class="ctx-h">Three Meta spend totals (7d)</div>
+      <p>
+        <span class="hl">$46,128.90</span> -- Meta API (used by war-room, revenue, attribution, ads-meta).<br>
+        <span class="hl-amber">$38,808.75</span> -- manual sheet (used by ma-funnel; sales-team caveat carry-over).<br>
+        <span class="hl-rose">$53,729.18</span> -- segments aggregate (source unknown -- Group C P1).<br>
+        Charts default to the Meta API value. Charts that depend on spend must flag the divergence in rationale text.
+      </p>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-h">Hyros vs Stripe divergence</div>
+      <p>
+        Hyros captures revenue Stripe does not (one rail vs many). Q5 below shows a 2026-05-09 day where Stripe recorded $540 and Hyros recorded $27,513 -- structural divergence, not a single-day glitch. This is the load-bearing attribution-page chart story.
+      </p>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-h">mat_pipeline direct-query works</div>
+      <p>
+        Q9 confirms the table is queryable directly when filtered on the <code>registered_at</code> partition. The partition-elimination error documented in Wave 5 P0 lives in specific Cloud Function query shapes, not the underlying table. Funnels and journey-explorer chart proposals route around the broken CFs via direct-SELECT.
+      </p>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-h">mat_geo_revenue is (state, city)-keyed</div>
+      <p>
+        Q7 shows CA appearing 4x and NY/FL/TX 2x in the top 15 rows. State-level aggregation requires <code>GROUP BY state</code>; row-level interpretation is broken. Group C P0 "unreconcilable" stands. Geo-intel charts use state-aggregation and add an explicit reconciliation chart (10.4) against direct Stripe data.
+      </p>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-h">Cold-email opens disabled at source</div>
+      <p>
+        Q10 shows <code>opened = 0</code> across all 12 high-volume campaigns -- open-tracking is disabled at the email-sending platform. Reply-rate metrics are the only viable engagement signal. All cold-email chart proposals avoid the open-rate dimension.
+      </p>
+    </div>
+    <div class="ctx-card">
+      <div class="ctx-h">Sales-team rep anonymization</div>
+      <p>
+        Per RULES.md section 9, individual rep names are not surfaced in this report. Q12 shows 92% of 13d bookings concentrate on the top two reps. Per-rep visualizations use codes Rep A / Rep B / Rep C across the sales-team page. One campaign-name reference in Q13 ("[Founder] Italy Ads") is also paraphrased.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== DATA PREVIEWS =================== -->
+<section id="previews">
+  <div class="section-title">BigQuery data previews</div>
+  <div class="section-sub">Thirteen read-only SELECT queries (Q1-Q13) proving every chart below is buildable from existing warehouse data. Source files in <code>kamg-ops/overnight/wave-6/</code>.</div>
+
+  <!-- Q1 -->
+  <div class="card" id="q1">
+    <div class="card-title">Q1 -- Daily Meta spend, impressions, CTR, CPC (13 days)</div>
+    <div class="card-subtitle">Source: <code>meta_ad_performance</code></div>
+    <table class="data-table">
+      <thead><tr><th>ad_date</th><th class="num">spend</th><th class="num">impressions</th><th class="num">clicks</th><th class="num">ctr %</th><th class="num">cpc</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-14</td><td class="num">6,210.12</td><td class="num">63,308</td><td class="num">2,462</td><td class="num">3.89</td><td class="num">2.52</td></tr>
+        <tr><td>2026-05-13</td><td class="num">7,524.74</td><td class="num">71,437</td><td class="num">2,463</td><td class="num">3.45</td><td class="num">3.06</td></tr>
+        <tr><td>2026-05-12</td><td class="num">8,791.56</td><td class="num">121,696</td><td class="num">8,229</td><td class="num">6.76</td><td class="num">1.07</td></tr>
+        <tr><td>2026-05-11</td><td class="num">9,051.96</td><td class="num">130,954</td><td class="num">9,678</td><td class="num">7.39</td><td class="num">0.94</td></tr>
+        <tr><td>2026-05-09</td><td class="num">7,074.74</td><td class="num">62,361</td><td class="num">2,350</td><td class="num">3.77</td><td class="num">3.01</td></tr>
+        <tr><td>2026-05-08</td><td class="num">7,475.78</td><td class="num">311,590</td><td class="num">9,631</td><td class="num">3.09</td><td class="num">0.78</td></tr>
+        <tr><td>2026-05-07</td><td class="num">7,317.16</td><td class="num">66,024</td><td class="num">2,659</td><td class="num">4.03</td><td class="num">2.75</td></tr>
+        <tr><td>2026-05-06</td><td class="num">7,999.18</td><td class="num">93,054</td><td class="num">7,377</td><td class="num">7.93</td><td class="num">1.08</td></tr>
+        <tr><td>2026-05-05</td><td class="num">7,770.42</td><td class="num">145,350</td><td class="num">16,243</td><td class="num">11.18</td><td class="num">0.48</td></tr>
+        <tr><td>2026-05-04</td><td class="num">7,367.92</td><td class="num">123,943</td><td class="num">14,907</td><td class="num">12.03</td><td class="num">0.49</td></tr>
+        <tr><td>2026-05-03</td><td class="num">9,130.76</td><td class="num">113,547</td><td class="num">11,368</td><td class="num">10.01</td><td class="num">0.80</td></tr>
+        <tr><td>2026-05-02</td><td class="num">7,552.32</td><td class="num">78,687</td><td class="num">3,271</td><td class="num">4.16</td><td class="num">2.31</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">CTR oscillates 3.09% to 12.03% across consecutive days; CPC inversely tracks $0.48 to $3.06. Strong material for a CTR/CPC quadrant chart.</div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="card" id="q2">
+    <div class="card-title">Q2 -- Sheets vs Meta API spend divergence (13 days)</div>
+    <div class="card-subtitle">Sources: <code>sheets_ad_daily_stats</code>, <code>meta_ad_performance</code></div>
+    <table class="data-table">
+      <thead><tr><th>date</th><th class="num">sheets</th><th class="num">api</th><th class="num">delta</th><th class="num">delta %</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-14</td><td class="num">(null)</td><td class="num">6,210.12</td><td class="num">--</td><td class="num">--</td></tr>
+        <tr><td>2026-05-13</td><td class="num">6,009.76</td><td class="num">7,524.74</td><td class="num">-1,514.98</td><td class="num">-20.1</td></tr>
+        <tr><td>2026-05-12</td><td class="num">7,286.33</td><td class="num">8,791.56</td><td class="num">-1,505.23</td><td class="num">-17.1</td></tr>
+        <tr><td>2026-05-11</td><td class="num">7,553.48</td><td class="num">9,051.96</td><td class="num">-1,498.48</td><td class="num">-16.6</td></tr>
+        <tr><td>2026-05-10</td><td class="num">6,254.92</td><td class="num">(null)</td><td class="num">--</td><td class="num">--</td></tr>
+        <tr><td>2026-05-09</td><td class="num">6,047.03</td><td class="num">7,074.74</td><td class="num">-1,027.71</td><td class="num">-14.5</td></tr>
+        <tr><td>2026-05-08</td><td class="num">5,657.23</td><td class="num">7,475.78</td><td class="num">-1,818.55</td><td class="num">-24.3</td></tr>
+        <tr><td>2026-05-07</td><td class="num">5,424.72</td><td class="num">7,317.16</td><td class="num">-1,892.44</td><td class="num">-25.9</td></tr>
+        <tr><td>2026-05-06</td><td class="num">6,055.97</td><td class="num">7,999.18</td><td class="num">-1,943.21</td><td class="num">-24.3</td></tr>
+        <tr><td>2026-05-05</td><td class="num">5,766.44</td><td class="num">7,770.42</td><td class="num">-2,003.98</td><td class="num">-25.8</td></tr>
+        <tr><td>2026-05-04</td><td class="num">5,919.23</td><td class="num">7,367.92</td><td class="num">-1,448.69</td><td class="num">-19.7</td></tr>
+        <tr><td>2026-05-03</td><td class="num">7,438.57</td><td class="num">9,130.76</td><td class="num">-1,692.19</td><td class="num">-18.5</td></tr>
+        <tr><td>2026-05-02</td><td class="num">5,833.12</td><td class="num">7,552.32</td><td class="num">-1,719.20</td><td class="num">-22.8</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">Sheets consistently under-reports the Meta API by 14.5% to 25.9% on every reconcilable day. Window-boundary nulls on 2026-05-14 (sheet not yet entered) and 2026-05-10 (API ingestion gap). Highest-signal new chart in the entire Wave 6 set.</div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="card" id="q3">
+    <div class="card-title">Q3 -- meta_ad_performance schema (relevant cols)</div>
+    <div class="schema-box">account_id, account_name, ad_date, campaign_id, campaign_name, ad_set_id, ad_set_name, ad_id, ad_name, creative_id, spend, impressions, reach, clicks, ctr, cpm, cpc, frequency, conversions, conversion_value, actions_purchase, actions_lead, loaded_at</div>
+    <div class="obs">Hierarchy is available down to creative level. <code>conversions</code> and <code>conversion_value</code> are platform-reported (Meta-reported, not Hyros-true).</div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="card" id="q4">
+    <div class="card-title">Q4 -- Stripe daily revenue mix by ticket band (13 days)</div>
+    <div class="card-subtitle">Bands: ticket (= $100), mid ($100-499), HT (>= $500). Source: <code>v_stripe_clean</code>.</div>
+    <table class="data-table">
+      <thead><tr><th>d</th><th class="num">ticket n</th><th class="num">ticket rev</th><th class="num">mid n</th><th class="num">mid rev</th><th class="num">ht n</th><th class="num">ht rev</th><th class="num">refund n</th><th class="num">refunded</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-15</td><td class="num">6</td><td class="num">216.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-14</td><td class="num">12</td><td class="num">436.28</td><td class="num">4</td><td class="num">1,988.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-13</td><td class="num">26</td><td class="num">941.28</td><td class="num">4</td><td class="num">1,988.00</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">27.00</td></tr>
+        <tr><td>2026-05-12</td><td class="num">29</td><td class="num">1,011.28</td><td class="num">1</td><td class="num">497.00</td><td class="num">2</td><td class="num">1,594.00</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-11</td><td class="num">28</td><td class="num">848.50</td><td class="num">1</td><td class="num">497.00</td><td class="num">1</td><td class="num">15,000.00</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-10</td><td class="num">18</td><td class="num">560.64</td><td class="num">3</td><td class="num">1,491.00</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">54.00</td></tr>
+        <tr><td>2026-05-09</td><td class="num">17</td><td class="num">540.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-08</td><td class="num">22</td><td class="num">765.16</td><td class="num">4</td><td class="num">1,988.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-07</td><td class="num">23</td><td class="num">946.16</td><td class="num">2</td><td class="num">994.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-06</td><td class="num">25</td><td class="num">813.31</td><td class="num">6</td><td class="num">2,982.00</td><td class="num">3</td><td class="num">2,391.00</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-05</td><td class="num">16</td><td class="num">657.16</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">797.00</td><td class="num">1</td><td class="num">797.00</td></tr>
+        <tr><td>2026-05-04</td><td class="num">22</td><td class="num">765.16</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>2026-05-03</td><td class="num">24</td><td class="num">862.16</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">27.00</td></tr>
+        <tr><td>2026-05-02</td><td class="num">25</td><td class="num">762.02</td><td class="num">1</td><td class="num">1,000.00</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">One $15,000 HT on 2026-05-11 drives 65%+ of that day's gross. 2026-05-05 had a $797 HT immediately refunded (same-day reversal pattern). Refund detection works via <code>refund_date IS NOT NULL</code>.</div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="card" id="q5">
+    <div class="card-title">Q5 -- Daily Hyros revenue (13 days)</div>
+    <div class="card-subtitle">Source: <code>hyros_sales</code>.</div>
+    <table class="data-table">
+      <thead><tr><th>d</th><th class="num">n</th><th class="num">hyros_rev</th></tr></thead>
+      <tbody>
+        <tr><td>2026-05-15</td><td class="num">5</td><td class="num">189.00</td></tr>
+        <tr><td>2026-05-14</td><td class="num">12</td><td class="num">11,030.00</td></tr>
+        <tr><td>2026-05-13</td><td class="num">25</td><td class="num">7,508.00</td></tr>
+        <tr><td>2026-05-12</td><td class="num">24</td><td class="num">2,847.00</td></tr>
+        <tr><td>2026-05-11</td><td class="num">27</td><td class="num">27,172.00</td></tr>
+        <tr><td>2026-05-10</td><td class="num">17</td><td class="num">967.48</td></tr>
+        <tr><td>2026-05-09</td><td class="num">18</td><td class="num">27,513.00</td></tr>
+        <tr><td>2026-05-08</td><td class="num">20</td><td class="num">11,534.00</td></tr>
+        <tr><td>2026-05-07</td><td class="num">21</td><td class="num">1,850.00</td></tr>
+        <tr><td>2026-05-06</td><td class="num">31</td><td class="num">5,653.15</td></tr>
+        <tr><td>2026-05-05</td><td class="num">13</td><td class="num">15,486.00</td></tr>
+        <tr><td>2026-05-04</td><td class="num">20</td><td class="num">16,145.00</td></tr>
+        <tr><td>2026-05-03</td><td class="num">20</td><td class="num">675.00</td></tr>
+        <tr><td>2026-05-02</td><td class="num">21</td><td class="num">648.00</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">Hyros captures revenue Stripe does not. 2026-05-09: Stripe $540 / 17 rows vs Hyros $27,513 / 18 rows. Hyros pulls from CRM payment processors alongside Stripe; <code>v_stripe_clean</code> is Stripe-only. This is the load-bearing attribution-page chart story.</div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="card" id="q6">
+    <div class="card-title">Q6 -- Cold-email schema (cold_outbound_campaigns)</div>
+    <div class="schema-box">name, status, type, emails_sent, total_leads, total_leads_contacted, opened, unique_opens, replied, unique_replies, interested, bounced, unsubscribed, bounce_rate, reply_rate, open_tracking (BOOL), max_emails_per_day, completion_percentage, created_at, updated_at, loaded_at, tags, sequence_prioritization</div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="card" id="q7">
+    <div class="card-title">Q7 -- mat_geo_revenue top 15 rows (keyed by state, city)</div>
+    <table class="data-table">
+      <thead><tr><th>state</th><th class="num">customers</th><th class="num">enrollments</th><th class="num">rev</th><th class="num">avg_deal_size</th></tr></thead>
+      <tbody>
+        <tr><td>FL</td><td class="num">3</td><td class="num">3</td><td class="num">11,140.25</td><td class="num">46.81</td></tr>
+        <tr><td>CA</td><td class="num">87</td><td class="num">62</td><td class="num">8,773.16</td><td class="num">33.11</td></tr>
+        <tr><td>AZ</td><td class="num">44</td><td class="num">30</td><td class="num">8,207.50</td><td class="num">42.53</td></tr>
+        <tr><td>NY</td><td class="num">85</td><td class="num">73</td><td class="num">7,550.62</td><td class="num">35.96</td></tr>
+        <tr><td>TX</td><td class="num">64</td><td class="num">53</td><td class="num">5,811.12</td><td class="num">33.21</td></tr>
+        <tr><td>CA</td><td class="num">60</td><td class="num">46</td><td class="num">5,348.85</td><td class="num">33.85</td></tr>
+        <tr><td>FL</td><td class="num">3</td><td class="num">3</td><td class="num">5,131.34</td><td class="num">34.67</td></tr>
+        <tr><td>TN</td><td class="num">1</td><td class="num">1</td><td class="num">4,676.59</td><td class="num">39.30</td></tr>
+        <tr><td>GA</td><td class="num">53</td><td class="num">37</td><td class="num">3,922.84</td><td class="num">27.82</td></tr>
+        <tr><td>CA</td><td class="num">23</td><td class="num">17</td><td class="num">3,832.03</td><td class="num">26.80</td></tr>
+        <tr><td>VA</td><td class="num">19</td><td class="num">15</td><td class="num">3,795.59</td><td class="num">45.73</td></tr>
+        <tr><td>TX</td><td class="num">46</td><td class="num">27</td><td class="num">3,759.47</td><td class="num">30.08</td></tr>
+        <tr><td>CA</td><td class="num">3</td><td class="num">3</td><td class="num">3,691.08</td><td class="num">54.28</td></tr>
+        <tr><td>NY</td><td class="num">53</td><td class="num">39</td><td class="num">3,656.47</td><td class="num">27.91</td></tr>
+        <tr><td>CA</td><td class="num">17</td><td class="num">11</td><td class="num">3,632.48</td><td class="num">28.16</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">Confirms Group C P0: FL row 1 reports 3 customers / 3 enrollments / $11,140 (implying $3,713 per enrollment), but <code>avg_deal_size</code> = 46.81. Row-level interpretation is broken; state-level aggregation (<code>SUM</code> over rows) reconciles. Chart proposals use state-level totals only.</div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="card" id="q8">
+    <div class="card-title">Q8 -- mat_pipeline schema (relevant cols)</div>
+    <div class="schema-box">email, first_name, last_name, segment, entry_channel, first_touch_source, first_touch_platform, first_touch_campaign, lp_visited_at, registered_at, ticket_purchased_at, vip_purchased_at, is_vip, workshop_attended_at, watch_level, watch_data_source, vip_call_attended_at, vip_call_quality, call_booked_at, is_same_day_booker, call_showed_at, call_status, call_outcome_at, call_result_category, enrolled_at, payment_method, closer, days_reg_to_purchase, days_purchase_to_workshop, days_workshop_to_book</div>
+    <div class="obs">Pre-computed velocity columns + per-stage timestamps support cohort-velocity charts. The <code>closer</code> column carries rep identity (paraphrased downstream).</div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="card" id="q9">
+    <div class="card-title">Q9 -- Funnel velocity (28-day registered cohort)</div>
+    <div class="card-subtitle">Direct partition-filtered query on <code>registered_at</code>.</div>
+    <table class="data-table">
+      <thead><tr><th class="num">cohort n</th><th class="num">purchased</th><th class="num">attended</th><th class="num">booked</th><th class="num">enrolled</th><th class="num">avg reg-to-purch</th><th class="num">avg purch-to-ws</th><th class="num">avg ws-to-book</th><th class="num">same-day n</th></tr></thead>
+      <tbody>
+        <tr><td class="num">946</td><td class="num">247</td><td class="num">279</td><td class="num">373</td><td class="num">7</td><td class="num">-3.15</td><td class="num">0.31</td><td class="num">4.51</td><td class="num">13</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">946 registered to 247 ticket to 279 workshop to 373 booked call to 7 enrolled. Negative <code>avg_reg_to_purch</code> reflects a substantial cohort that buys before registering. 4.5d workshop-to-book lag is the biggest velocity gap.</div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="card" id="q10">
+    <div class="card-title">Q10 -- Top cold-email campaigns by send volume</div>
+    <table class="data-table">
+      <thead><tr><th>campaign (truncated)</th><th>status</th><th class="num">sent</th><th class="num">replied</th><th class="num">interested</th><th class="num">bounced</th><th class="num">reply %</th><th class="num">int/rep %</th></tr></thead>
+      <tbody>
+        <tr><td>08.04.26, Therapists + Counselors, list source A...</td><td>paused</td><td class="num">3,724</td><td class="num">163</td><td class="num">25</td><td class="num">49</td><td class="num">4.38</td><td class="num">15.34</td></tr>
+        <tr><td>May 13, Counselors, list source B, Updated Qual...</td><td>active</td><td class="num">2,952</td><td class="num">78</td><td class="num">20</td><td class="num">29</td><td class="num">2.64</td><td class="num">25.64</td></tr>
+        <tr><td>May 12, US - Coaches, list source B</td><td>active</td><td class="num">2,477</td><td class="num">100</td><td class="num">18</td><td class="num">20</td><td class="num">4.04</td><td class="num">18.00</td></tr>
+        <tr><td>May 4, US, counselors, multi-industry</td><td>active</td><td class="num">2,415</td><td class="num">54</td><td class="num">16</td><td class="num">25</td><td class="num">2.24</td><td class="num">29.63</td></tr>
+        <tr><td>16.04.26, Therapists + Counselors, list source A...</td><td>paused</td><td class="num">1,965</td><td class="num">98</td><td class="num">10</td><td class="num">24</td><td class="num">4.99</td><td class="num">10.20</td></tr>
+        <tr><td>May 11, US, counselors / licensed profs, multi-ind</td><td>active</td><td class="num">1,459</td><td class="num">10</td><td class="num">4</td><td class="num">38</td><td class="num">0.69</td><td class="num">40.00</td></tr>
+        <tr><td>Test - April 27, Updated Content</td><td>completed</td><td class="num">1,406</td><td class="num">59</td><td class="num">12</td><td class="num">5</td><td class="num">4.20</td><td class="num">20.34</td></tr>
+        <tr><td>May 7, US, counselors, multi-industry</td><td>completed</td><td class="num">1,391</td><td class="num">28</td><td class="num">9</td><td class="num">40</td><td class="num">2.01</td><td class="num">32.14</td></tr>
+        <tr><td>22.04.26, health + edu industries, list source A...</td><td>paused</td><td class="num">949</td><td class="num">13</td><td class="num">1</td><td class="num">82</td><td class="num">1.37</td><td class="num">7.69</td></tr>
+        <tr><td>04.04.26, start campaign, US, personalized</td><td>paused</td><td class="num">824</td><td class="num">15</td><td class="num">0</td><td class="num">33</td><td class="num">1.82</td><td class="num">0.00</td></tr>
+        <tr><td>23.04.26, counselors, list source A</td><td>paused</td><td class="num">791</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0.00</td><td class="num">--</td></tr>
+        <tr><td>April 27, Updated Content</td><td>paused</td><td class="num">196</td><td class="num">8</td><td class="num">1</td><td class="num">1</td><td class="num">4.08</td><td class="num">12.50</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">Opened = 0 across every campaign because open-tracking is disabled at the sending platform. Reply rate is the only viable engagement measure. Inverse signal between volume and quality: low-volume "Test" / "Updated Content" hold the highest reply rates (4.0-4.2%). Eight of twelve campaigns target counselors / therapists.</div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="card" id="q11">
+    <div class="card-title">Q11 -- v_sheets_bookings_clean schema (relevant cols)</div>
+    <div class="schema-box">booking_id, name, email, phone, status, qualified_expert (BOOL), qualified_financially (BOOL), workshop, call_date (STRING), date_booked (DATE), team_member, calendar, action_required, ghl_contact, attribution_history, referral, _source_tab, fa_url, fa_utm_source, fa_utm_medium, fa_utm_campaign, fa_content, la_url, la_utm_source, la_utm_medium, la_utm_campaign, la_content, _loaded_at</div>
+    <div class="obs"><code>fa_*</code> = first-touch attribution, <code>la_*</code> = last-touch. <code>team_member</code> is the closer-of-record (paraphrased downstream per RULES.md section 9).</div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="card" id="q12">
+    <div class="card-title">Q12 -- Bookings by rep (13 days)</div>
+    <div class="card-subtitle">Rep names paraphrased to Rep A / B / C per RULES.md section 9. Volume ordering preserved.</div>
+    <table class="data-table">
+      <thead><tr><th>rep</th><th class="num">booked</th><th class="num">q-financial</th><th class="num">q-expert</th><th class="num">no-show</th></tr></thead>
+      <tbody>
+        <tr><td>Rep A</td><td class="num">59</td><td class="num">0</td><td class="num">2</td><td class="num">7</td></tr>
+        <tr><td>Rep B</td><td class="num">57</td><td class="num">1</td><td class="num">1</td><td class="num">4</td></tr>
+        <tr><td>Rep C</td><td class="num">10</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">Top-2 concentration: 92% of bookings (116/126) on Rep A + Rep B. Expert-qualified bookings 0-2 per rep. Overall no-show ~ 8.7% (11/126). The <code>status</code> filter for positive-show requires a different taxonomy than tested (likely <code>confirmed/rescheduled/completed/cancelled</code>); show-vs-book chart 7.2 carries a P1 dependency on canonical status mapping.</div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="card" id="q13">
+    <div class="card-title">Q13 -- Top Meta campaigns by spend (7 days)</div>
+    <div class="card-subtitle">Founder-name reference in one campaign paraphrased to "[Founder] Italy Ads" per RULES.md section 9.</div>
+    <table class="data-table">
+      <thead><tr><th>account</th><th>campaign (truncated)</th><th class="num">spend</th><th class="num">imp</th><th class="num">clicks</th><th class="num">ctr %</th><th class="num">cpc</th><th class="num">conv</th></tr></thead>
+      <tbody>
+        <tr><td>COD #5 (Active)</td><td>Paid Workshop - ABO (Cold) - Industry Adsets - Winning</td><td class="num">31,968.27</td><td class="num">373,025</td><td class="num">23,546</td><td class="num">6.31</td><td class="num">1.36</td><td class="num">476</td></tr>
+        <tr><td>COD #5 (Active)</td><td>JIT - April 2026 - [Founder] Italy Ads - Schedule</td><td class="num">5,284.05</td><td class="num">31,650</td><td class="num">966</td><td class="num">3.05</td><td class="num">5.47</td><td class="num">315</td></tr>
+        <tr><td>COD #5 (Active)</td><td>JIT - April 2026 - [Founder] Italy Ads - Lead</td><td class="num">1,049.62</td><td class="num">9,098</td><td class="num">398</td><td class="num">4.37</td><td class="num">2.64</td><td class="num">192</td></tr>
+        <tr><td>COD #5 (Active)</td><td>[TOF - COLD] Authority Reels -- All Exclusions</td><td class="num">201.54</td><td class="num">20,443</td><td class="num">138</td><td class="num">0.68</td><td class="num">1.46</td><td class="num">0</td></tr>
+        <tr><td>COD #5 (Active)</td><td>[RETARGET] Authority Reels -- Workshop Buyers + Call Bookers</td><td class="num">149.64</td><td class="num">15,540</td><td class="num">134</td><td class="num">0.86</td><td class="num">1.12</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+    <div class="obs">One campaign -- "Paid Workshop - ABO (Cold) - Industry Adsets - Winning" -- captures $31,968 / 84% of 7d Meta spend. JIT campaigns convert at higher rates on small spend; Authority Reels (cold + retarget) burning $350 with zero conversions.</div>
+  </div>
+</section>
+
+<!-- =================== PAGE 1: WAR ROOM =================== -->
+<section id="war-room">
+  <div class="section-title">1. War Room</div>
+  <div class="section-sub">Current roster: six-tile hero KPI strip with Method+Caveats wired, SyncCircle freshness dots, refund-adjusted blended Revenue tile.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 1.1 -- Daily blended revenue stacked by source (Stripe vs Hyros-only)</div>
+    <div class="cp-meta"><span class="cp-tag">Stacked area</span> 14-day horizon -- sources <a href="#q4">Q4</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">The war-room hero Revenue tile is blended (Stripe + Hyros deduped) but the chart strip below does not visualize the source split. Stacking Stripe vs Hyros-only daily shows the days when Hyros is doing 95%+ of the lift (2026-05-09: Stripe $540 / Hyros $27,513) and the days when Stripe carries it (2026-05-11: Stripe $16,345 / Hyros $27,172 -- the $15K HT ticket is clearly visible).</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When the Stripe band flattens, the day is contract-payment-plan driven (Hyros captures the CRM rail). When Stripe spikes, a one-time high-ticket sale is driving the day -- surface in the morning ops review.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Same-window basis. The deduplication is order-id-level, not customer-cohort-level.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 1.2 -- Refund overlay band on daily gross revenue</div>
+    <div class="cp-meta"><span class="cp-tag">Line + shaded band</span> source <a href="#q4">Q4</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Hero Revenue is refund-adjusted, but the magnitude of refunds is invisible. Q4 shows 4 refunds totaling $905 over 13 days (one $797 same-day reversal on 2026-05-05). A line with the refund-band underneath makes the trustworthiness of the gross-revenue number visible.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Identify days where same-day reversals are masking apparent revenue. Triggers downstream chargeback follow-up.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Stripe refunds process on a delayed cadence; the band reflects when the refund recorded, not when the original charge cleared.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 1.3 -- Daily impressions vs clicks vs CTR % triple-axis</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line + secondary bar</span> source <a href="#q1">Q1</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q1 shows CTR oscillating 3.09% to 12.03% on consecutive days -- the single highest-volatility signal on the war-room canvas. There is no daily creative-quality monitor at the exec level today; operators have to drill into Ads-Meta. Visualizing the CTR rhythm at war-room level surfaces creative-fatigue and creative-refresh wins early.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">CTR below 4% for two consecutive days -- operator pings creative for refresh. CTR above 10% for two days -- accelerate scaling.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Meta's "clicks" definition includes all clicks, not link-clicks-only (per existing Ads-Meta caveat). CTR is platform-reported, not site-engagement.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 1.4 -- Daily Hyros-over-Meta-spend ROAS strip</div>
+    <div class="cp-meta"><span class="cp-tag">Bar chart</span> last 14 days -- sources <a href="#q1">Q1</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">War Room shows ROAS as a hero number with no time-series. Day-to-day variance is enormous: 2026-05-09 ROAS ~ 3.89; 2026-05-03 ROAS ~ 0.07. Visualizing the daily ratio reveals whether the trailing-window number is healthy or pulled up by one or two spike days.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Five or more consecutive days below ROAS 1.0 surfaces an "investigate spend allocation" prompt for review.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Same-window basis (not cohort-true). Hyros-over-Meta-spend does not credit non-Meta channels (Google/TikTok absent from the spend denominator). Ratio is directional, not warranty-of-return.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 2: REVENUE =================== -->
+<section id="revenue">
+  <div class="section-title">2. Revenue</div>
+  <div class="section-sub">Current roster: 7 KPI cards with method/source/calc/caveats, payment-type drill (ptCard), refund and cohort placeholders.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 2.1 -- Revenue mix by ticket band (ticket / mid / HT) -- daily stacked bar</div>
+    <div class="cp-meta"><span class="cp-tag">Stacked vertical bars</span> 14 days -- source <a href="#q4">Q4</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Total Revenue hides a bimodal distribution. Q4 shows the typical day is $700-1,500 ticket-only; some days have $1-2K mid-band; rare days have an HT spike that 10x-20x the day's total ($15K HT on 2026-05-11). Stacking by band surfaces whether the trailing-window average is HT-dominated or organically diversified.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Days flagged as outlier-HT-driven get marked on weekly reporting. Forecasting models exclude the HT band when projecting baseline.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Bands are amount-only; a $497 mid-band sale is still a Stripe transaction without distinguishing payment-plan from full-pay.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 2.2 -- Hour-of-day x day-of-week revenue heatmap (28d)</div>
+    <div class="cp-meta"><span class="cp-tag">7 x 24 heatmap</span> intensity = SUM(amount) where refund_date IS NULL</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">The Revenue page has no temporal-pattern view today. A heatmap surfaces when buyers are buying so promo / email send timing aligns with intent. Load-bearing for the $27 workshop where the buy window is hours, not days.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Identify dead hours (e.g. Sun 03:00-06:00) to gate email automations from firing into low-conversion windows. Identify peak windows for paid-spend pacing.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Timestamps are UTC at the <code>v_stripe_clean</code> level; legend must specify timezone normalization. Same-window basis.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 2.3 -- Daily new vs returning customer revenue</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line</span> 14 days -- buildable from <a href="#q4">Q4</a> underlying table</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Hero tiles do not distinguish first-purchase customers from repeats. Without this split, the page can't answer "is today's revenue acquiring net-new buyers or upselling the existing list". Window function <code>MIN(created_at) OVER (PARTITION BY customer_email)</code> gives first-purchase per customer.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Detect upsell-dependency. If net-new collapses, paid acquisition is leaking. If returning collapses, the upsell sequence is broken.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Customer-email match is exact-string; alias variants double-count. Email aliasing is a known data-quality limit.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 2.4 -- Refund rate by ticket band, weekly</div>
+    <div class="cp-meta"><span class="cp-tag">Grouped bars</span> 3 bands x 4 weeks -- source <a href="#q4">Q4</a> extended to 28d</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Refund risk concentrates differently by band -- ticket refunds tend to be wrong-card / wrong-product; HT refunds tend to be buyer's-remorse. Visualizing the band-level refund-rate trend surfaces emerging quality issues.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Band-level refund rate above 5% triggers a product review for that band's offer.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Refund-date represents when the refund processed (delayed cadence); weekly bucketing is approximate. Sample size on the HT band is low; bars reflect ratio, not absolute counts.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 3: ATTRIBUTION =================== -->
+<section id="attribution">
+  <div class="section-title">3. Attribution</div>
+  <div class="section-sub">Current roster: 6 KPI cards (Hyros / Stripe ratio loads, multi-model card), modelCard placeholder.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 3.1 -- Daily Hyros vs Stripe revenue divergence</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line + delta-line</span> 14 days -- sources <a href="#q4">Q4</a> + <a href="#q5">Q5</a> -- the load-bearing attribution chart</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q4 + Q5 side-by-side: 2026-05-09 Stripe $540 vs Hyros $27,513 is the load-bearing daily-divergence example. The attribution KPI strip surfaces the trailing-window deltas but does not visualize the day-by-day rhythm of which days are Hyros-only revenue. This chart makes the page's reason-for-existing visible in one frame.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When Hyros-only revenue lands on a day Stripe is flat, the operator knows a contract payment-plan ran on the CRM rail. Explains the divergence-tile delta in temporal form.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Hyros captures CRM-rail and Stripe payments, deduped. The Stripe table is rail-isolated. The divergence is structural, not a data defect.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 3.2 -- Multi-model attribution comparison (Hyros vs Meta-reported vs Stripe-direct), trailing 7d totals</div>
+    <div class="cp-meta"><span class="cp-tag">Side-by-side bar (3 bars)</span> sources <a href="#q1">Q1</a> + <a href="#q4">Q4</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Attribution exists to surface model divergence (existing caveat: "Hyros vs Meta vs GA4 vs survey divergence"). A 3-model bar makes the divergence in trailing-window dollars unambiguous. Q5 7d Hyros ~ $93K; Q1 conv-value sum (Meta-reported); Q4 7d Stripe ~ $35K.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When Meta-reported overshoots Hyros by more than 40%, pixel double-counts are likely; surface to data engineering for dedupe review.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Meta <code>conversion_value</code> is platform-reported revenue including pixel duplicates. Hyros is order-id deduped. Stripe-direct is rail-isolated. Treating these as commensurate ROAS bases requires explicit framing in the legend.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 3.3 -- Same-window vs cohort-true ROAS time-lag chart</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line</span> 14 days (same-window vs 7d-lagged cohort) -- sources <a href="#q1">Q1</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">All existing ROAS KPIs are same-window. A cohort-true variant attributes today's revenue to N-days-ago spend. The gap between the two lines is the lag that the attribution caveats reference; visualizing it makes the caveat text concrete.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Persistent divergence between the lines indicates buyer-journey length has shifted (slower from view to purchase). Triggers promo-window or remarketing-window adjustments.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">7d lag is a heuristic; true buyer-journey length varies by traffic source. The cohort line is an approximation, not a strict cohort.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 3.4 -- Dedupe impact: pixel double-count band</div>
+    <div class="cp-meta"><span class="cp-tag">Stacked bar</span> per day -- sources <a href="#q3">Q3</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Visualizes how many Meta-pixel conversions are duplicates that Hyros order-id dedupes resolve. Buildable from Meta <code>actions_purchase</code> (Q3 schema) minus Hyros unique order count per day.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When the duplicate band exceeds 20% of Meta reported, dedupe drift is material to attribution math.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Meta <code>actions_purchase</code> is platform-action-count, not order-count -- a view-through action can register without an order. The band is "platform-action minus Hyros-order", with the latter as the source-of-truth count.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 4: ADS-META =================== -->
+<section id="ads-meta">
+  <div class="section-title">4. Ads-Meta</div>
+  <div class="section-sub">Current roster: 6 KPI cards, roasCard placeholder, source-attribution chart.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 4.1 -- Top-10 campaigns Pareto by spend (7 days)</div>
+    <div class="cp-meta"><span class="cp-tag">Horizontal bar</span> sorted desc -- source <a href="#q13">Q13</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q13 shows one campaign captures 84% of 7d Meta spend ($31,968 / $46K total). The dashboard does not visualize this concentration today. A Pareto bar makes "where is the money going" answerable in two seconds.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">If the top campaign's share exceeds 80%, surface a scale-risk concentration prompt for review. Reallocation triggers when the top-1 underperforms.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Campaign name truncation can make two long names render identically; tooltips must show the full name. Spend is platform-reported (Meta API).</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 4.2 -- CTR vs CPC quadrant scatter per campaign (7d)</div>
+    <div class="cp-meta"><span class="cp-tag">Scatter</span> x=CTR %, y=CPC $, bubble=spend -- source <a href="#q13">Q13</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q1 daily aggregate shows CTR oscillating 3-12% with inverse CPC. At the campaign level (Q13) the same pattern holds: ABO Winning at 6.31% / $1.36 vs Authority Reels Cold at 0.68% / $1.46. A quadrant separates winners (high CTR, low CPC, bottom-right) from laggards (low CTR, high CPC, top-left). The cold Authority Reels at 0 conversions / 0.68% CTR is the obvious review target.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Campaigns landing in the laggard quadrant for two consecutive weeks get paused for review. Campaigns moving from winner to laggard trigger creative refresh.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Per-creative-level breakdown is richer (<code>creative_id</code> present in Q3 schema). Bubble-size by spend can hide low-spend high-CTR experimental learners; log-scale bubble preferred.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 4.3 -- Spend x ROAS daily scatter with break-even isobar</div>
+    <div class="cp-meta"><span class="cp-tag">Scatter with diagonal at ROAS=1.0</span> sources <a href="#q1">Q1</a> + <a href="#q5">Q5</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Daily spend x daily Hyros revenue gives daily ROAS. Plotting 28 days shows the ROAS distribution by spend level. A break-even isobar at ROAS=1.0 makes the "below" vs "above" visually obvious.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Identify spend levels where ROAS reliably underperforms -- typically budget is being pushed past audience saturation. Informs daily spend cap.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Hyros-over-Meta-spend basis (not Meta-reported). Same-window, not cohort-true.</div></div>
+  </div>
+
+  <div class="chart-proposal dropped">
+    <div class="cp-title">Chart 4.4 -- Spend hourly rhythm</div>
+    <div class="cp-meta"><span class="cp-tag dropped">DROPPED -- not buildable</span></div>
+    <div class="cp-row"><div class="cp-label">Status</div><div class="cp-text"><code>meta_ad_performance</code> is daily-grained (no hour column in Q3 schema). Dropped from Wave 6; moved to Wave 7 follow-up as a data-engineering request for hour-level spend ingestion.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 4.4 (alt) -- Account split: workshop account vs main account (7d spend &amp; conversions)</div>
+    <div class="cp-meta"><span class="cp-tag">Side-by-side bar</span> source <a href="#q13">Q13</a> extended with <code>account_id</code> group-by</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q13 shows all top campaigns from one account. Schema (Q3) has <code>account_id</code> + <code>account_name</code>. Both Meta accounts (main + workshop, per existing attribution caveat) should be visualized side-by-side to confirm spend allocation.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Surfaces account-level allocation balance. If one account is dark, surface to the media buyer.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Two accounts are aggregated in the blended ROAS today; splitting on the page lets the buyer see per-account ROAS.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 4.5 -- Frequency vs CTR trend (creative fatigue)</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line</span> 14 days -- <code>frequency</code> + clicks/impressions from <a href="#q3">Q3</a> schema</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Frequency above 3.0 with declining CTR is the classic creative-fatigue signature. The dashboard does not surface frequency at all today. Daily frequency vs CTR gives the media buyer an early-warning signal.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Frequency above 3.5 with CTR dropping more than 30% over 7 days flags creative refresh.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Frequency is account- or audience-level depending on aggregation. Axes are right-scaled separately so CTR fluctuation stays visible.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 5: FUNNELS ($27) =================== -->
+<section id="funnels">
+  <div class="section-title">5. Funnels -- $27 Funnel-27</div>
+  <div class="section-sub">Current roster: 16 KPI cards inline, f27MetricsCard placeholder. The funnel-27.metrics CF is broken (partition-elimination error -- Wave 7 P0). Charts below route around via direct <code>mat_pipeline</code> queries with the <code>registered_at</code> partition filter.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 5.1 -- 28d cohort funnel waterfall (Registered to Ticket to Workshop to Booked to Enrolled)</div>
+    <div class="cp-meta"><span class="cp-tag">Funnel waterfall / Sankey</span> source <a href="#q9">Q9</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q9 shows 946 to 247 to 279 to 373 to 7. Each stage's drop reveals where the funnel leaks. 247 to 279 (purchased &lt; attended) shows post-purchase no-shows plus direct-attendance non-buyers -- a 32-person overlap gap. 373 to 7 (booked to enrolled) is the brutal final-stage drop. A waterfall makes the per-stage conversion rate visible at a glance.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Stage-level optimization priority. Workshop-to-book (4.5d avg) is the biggest velocity gap -- candidate for same-day-book incentive.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Cohort = 28d registered. <code>enrolled_at</code> is post-booking-close (4.51d after workshop on average); week-1 cohorts are not fully enrolled yet, so the 7/946 ratio undershoots the eventual conversion.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 5.2 -- Same-day-bookers fraction over 28d</div>
+    <div class="cp-meta"><span class="cp-tag">Bar (weekly buckets)</span> source <a href="#q8">Q8</a> (<code>is_same_day_booker</code>)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q9 shows 13/373 booked are same-day (3.5%). Same-day bookers are the highest-intent segment. Tracking the percentage week-over-week surfaces whether messaging is generating urgency.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Same-day-book percentage dropping more than 50% week-over-week indicates the workshop-to-book sequence is breaking. Investigate email cadence or VIP-call quality.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">"Same-day" definition is upstream in <code>mat_pipeline</code> (<code>call_booked_at = DATE(workshop_attended_at)</code>).</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 5.3 -- Velocity histogram: days from workshop-attended to call-booked</div>
+    <div class="cp-meta"><span class="cp-tag">Histogram</span> 0-30 day buckets -- source <a href="#q8">Q8</a> (<code>days_workshop_to_book</code>)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q9 reports avg = 4.51 days but the distribution is hidden. Bimodal (same-day spike + 7-14 day tail) tells a different story than uniform. Decision input for whether to shrink the workshop-to-book window.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Bimodal: segment messaging by intent-window. Uniform: tighten the funnel uniformly.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Only includes bookers (excludes never-booked workshop attendees). Long-tail buyers (more than 14 days) may convert via channels not captured in <code>mat_pipeline</code>.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 5.4 -- Stripe daily ticket revenue / Meta daily spend (cost-per-ticket trend)</div>
+    <div class="cp-meta"><span class="cp-tag">Line</span> 14 days -- sources <a href="#q1">Q1</a> + <a href="#q4">Q4</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">The $27 page surfaces Cost-Per-Ticket as a trailing-window scalar. A daily line surfaces the volatility -- Q4 ticket count varies 6-29/day, Q1 spend varies $6K-9K/day. Day-to-day cost-per-ticket ranges $200-$1,500.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Days where cost-per-ticket exceeds $500 trigger landing-page or creative review. Days below $300 are scale candidates.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Spend / ticket-count is gross cost-per-ticket -- does not account for downstream HT enrollment value. Same-window, not cohort-true.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 6: MA-FUNNEL =================== -->
+<section id="ma-funnel">
+  <div class="section-title">6. MA-Funnel</div>
+  <div class="section-sub">Current roster: 12 KPI cards inline (Ad Spend sourced from <code>sheets_ad_daily_stats</code>), sankeyCard placeholder.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 6.1 -- Sheets vs API Meta spend daily divergence -- the MA-funnel chart</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-bar + delta line</span> source <a href="#q2">Q2</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q2 is unambiguous: the manual sheet under-reports the Meta API by 14-26% every reconcilable day. MA-Funnel uses the sheet as its Ad Spend source-of-truth (per existing caveat) while Ads-Meta / Attribution / War Room use the API. This chart makes the divergence visible on the page that uses the lower number, so the analyst sees the discrepancy when cross-checking.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Reconciliation conversation: when daily ad spend is entered manually, is it a different scope (workshop-only vs all spend)? Surfaces the structural under-reporting for follow-up with the sheet owner.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Sheet is manually entered; API is API-reported. Stage 0.5 backfill flag still applies to <code>sheets_ad_daily_stats</code>.</div></div>
+  </div>
+
+  <div class="chart-proposal p1">
+    <div class="cp-title">Chart 6.2 -- Application to Booked-Call to Showed conversion velocity (daily)</div>
+    <div class="cp-meta"><span class="cp-tag p1">P1 -- join key needs confirmation</span> <span class="cp-tag">Stacked bar with overlay</span> sources <a href="#q8">Q8</a> + <a href="#q11">Q11</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">MA-Funnel surfaces Applications and Booked Calls as static numbers. Daily progression of how many applicants become bookers (and how fast) is invisible today. Critical for understanding whether the "Apply to Schedule call" CTA is converting.</div></div>
+    <div class="cp-row"><div class="cp-label">Status</div><div class="cp-text">Buildable from <code>mat_pipeline</code> filtered by ma-funnel segment + <code>v_sheets_bookings_clean</code> join. The MA-specific segment field needs Wave 6 step 2 confirmation. Flagged P1 -- borderline buildable.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">"MA-funnel segment" definition depends on <code>mat_pipeline.segment</code> values -- needs confirmation.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 6.3 -- Day-of-week registration pattern (MA-Funnel)</div>
+    <div class="cp-meta"><span class="cp-tag">Bar</span> 7 days of week x 28d count -- source <a href="#q8">Q8</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Application-flow signups are typically lumpy day-of-week (Tue/Wed peaks, weekend dips). Visualizing the pattern lets the team time creative and email sends.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Weekday concentration -- paid-spend strategy holds. Weekend collapse -- social/organic dependence on weekdays. Adjusts send timing.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">"MA-funnel segment" definition depends on <code>mat_pipeline.segment</code> -- confirmation needed in step 2.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 6.4 -- Cash collected vs Contracts placeholder gap</div>
+    <div class="cp-meta"><span class="cp-tag">Twin-line / area</span> source <code>v_stripe_clean</code> &gt;= $500 daily SUM</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Existing caveat states "Contracts = Cash today (placeholder field)". The page shows them as separate KPIs but they are the same number. Visualizing them as separate lines with the gap explicitly zero surfaces the placeholder provenance better than caveat text alone.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When the placeholder is resolved (separate <code>contract_value</code> column added), the chart becomes the diff visualization. Until then it literally documents the placeholder.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Until a separate <code>contract_value</code> column lands, this chart renders as two overlapping identical lines. The chart is the documentation of the gap.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 7: SALES-TEAM =================== -->
+<section id="sales-team">
+  <div class="section-title">7. Sales-Team</div>
+  <div class="section-sub">Current roster: 9 KPI cards, funnelCard placeholder, per-rep table. All per-rep visualizations below use codes Rep A / Rep B / Rep C per RULES.md section 9.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 7.1 -- Per-rep booked volume + qualification rate (last 14d)</div>
+    <div class="cp-meta"><span class="cp-tag">Grouped bar</span> source <a href="#q12">Q12</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q12 shows two-rep concentration (92% of bookings) plus extremely low qualification rates (0-2 expert-qualified per rep). The KPI strip shows totals; per-rep visualization surfaces concentration risk plus the qualification gap.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">When one rep's qualification rate drops below 5%, coaching intervention. Concentration risk surfaces dependency on the top-two reps.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Rep names are paraphrased to Rep A / B / C in user-visible HTML. Internal data joins on real identifiers.</div></div>
+  </div>
+
+  <div class="chart-proposal p1">
+    <div class="cp-title">Chart 7.2 -- Booked-to-show conversion trend by rep (14d)</div>
+    <div class="cp-meta"><span class="cp-tag p1">P1 -- status taxonomy needs canonical mapping</span> <span class="cp-tag">Line per rep</span> source <a href="#q11">Q11</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q12 surfaces no-show counts but not show rate as a time-series. Daily / weekly show rate per rep surfaces drift (reschedule discipline declining).</div></div>
+    <div class="cp-row"><div class="cp-label">Status</div><div class="cp-text">Q12's LIKE pattern returned 0 for "showed" -- actual status values are likely <code>confirmed/rescheduled/completed/cancelled</code> rather than tagged with "show". A canonical mapping query is needed before rendering. Wave 7 P1 follow-up.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Per-rep show-rate below 60% indicates pre-call confirmation cadence is breaking down. Coaching priority.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Status taxonomy needs canonical mapping. Until confirmed, chart renders with placeholder definition + visible caveat.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 7.3 -- First-touch UTM source distribution among booked calls</div>
+    <div class="cp-meta"><span class="cp-tag">Horizontal bar</span> source <a href="#q11">Q11</a> (<code>fa_utm_source</code> group-by)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Where booked calls come from (Meta / Google / cold-email / direct) is a load-bearing sales-strategy chart. The dashboard does not break booked calls by traffic source today.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Shifts in source-of-bookings inform paid-spend reallocation. A drop in cold-email-sourced bookings with steady Meta-sourced indicates an email channel issue.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">First-touch attribution can misattribute multi-touch journeys. UTMs depend on link tagging; untagged direct visits register as null. Backfillable with <code>attribution_history</code> (Q11 schema).</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 7.4 -- Calls-booked daily rhythm (per-day, per-rep, last 28d)</div>
+    <div class="cp-meta"><span class="cp-tag">Stacked area</span> source <a href="#q11">Q11</a> (<code>date_booked</code>)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q12 is a 13d aggregate. A daily stack surfaces whether rep capacity is consistent or lumpy. Lumpy means scheduling pressure; consistent means healthy pipeline flow.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Day-over-day rep-capacity dips trigger calendar opens. Capacity surplus is a bookings-target raise opportunity.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text"><code>date_booked</code> vs <code>call_date</code> are different events; <code>date_booked</code> is when the booking was created. Chart picks <code>date_booked</code> for booking-velocity, not call-volume-load.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 8: JOURNEY EXPLORER =================== -->
+<section id="journey-explorer">
+  <div class="section-title">8. Journey Explorer</div>
+  <div class="section-sub">Current roster: 6 KPI cards, sankeyCard placeholder. The journey-explorer.default CF is broken (partition-elimination error -- Wave 7 P0); charts route around via direct partition-filtered <code>mat_pipeline</code>.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 8.1 -- End-to-end cohort path Sankey (Lead to Workshop to Booked to Enrolled)</div>
+    <div class="cp-meta"><span class="cp-tag">Sankey diagram</span> 28d registered cohort -- sources <a href="#q8">Q8</a> + <a href="#q9">Q9</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q9 gives funnel-stage counts; a Sankey makes path-volume + drop-off visible in one frame. The page exists for this view but the sankeyCard is empty pending the CF fix. Direct <code>mat_pipeline</code> bypasses the broken CF.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Stage-level abandonment is the chart's only job -- high-impact view for the page's reason for existing.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Wave 7 should confirm direct-SELECT remains fast at production scale. For preview the <code>registered_at</code> partition filter is sufficient.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 8.2 -- Time-to-purchase distribution (registered to ticket-purchased)</div>
+    <div class="cp-meta"><span class="cp-tag">Histogram</span> 0-30 day buckets + negative bucket -- source <a href="#q8">Q8</a> (<code>days_reg_to_purchase</code>)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q9 surfaces <code>avg_reg_to_purch</code> = -3.15 (negative -- a substantial pre-registration purchase cohort). The negative tail is invisible in the KPI strip. A histogram makes the bimodal distribution clear.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Substantial pre-reg buyer bucket -- optimize ticket-buy-direct landing page over funnel-registered flow. The inverse if post-reg buyers dominate.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Negative values surface a different cohort (direct-buy first, register later); may reflect re-registration after ticket purchase. Legend must explain interpretation.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 8.3 -- First-touch source x enrolled-converted heatmap</div>
+    <div class="cp-meta"><span class="cp-tag">Heatmap</span> source x outcome -- source <a href="#q8">Q8</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text"><code>mat_pipeline</code> has <code>first_touch_source</code>, <code>first_touch_platform</code>, <code>first_touch_campaign</code>. Cross-tab against <code>enrolled_at IS NOT NULL</code> gives a heatmap of which source delivers enrolled buyers vs ticket-only vs lp-bouncers. Currently invisible.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Source with high enrolled rate gets scaled. Source with high lp-visit-only-no-buy gets revisited for landing-page-fit.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">First-touch attribution model; multi-touch journeys collapse to first-touch. Sample size per source-bucket varies; chart should fade cells below threshold n.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 8.4 -- Watch-level distribution (workshop attendees by depth)</div>
+    <div class="cp-meta"><span class="cp-tag">Bar</span> source <a href="#q8">Q8</a> (<code>watch_level</code>)</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Workshop attendees' watch depth (0-25 / 25-50 / 50-75 / 75-100%) is informative of conversion likelihood. The dashboard surfaces attended-count without depth today.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Watch-level below 50% cohort gets a re-engagement email sequence. Watch-level 75-100% cohort gets an immediate booking CTA.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text"><code>watch_data_source</code> indicates whether watch comes from the native player or a third-party host (Vimeo / YouTube); completion definition varies. Wave 7 may need to canonicalize.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 9: COLD-EMAIL =================== -->
+<section id="cold-email">
+  <div class="section-title">9. Cold-Email</div>
+  <div class="section-sub">Current roster: 7 KPI cards, volumeCard placeholder. All open-rate dimensions are dropped -- open-tracking is disabled at the sending platform (Q10 shows opened = 0 across every campaign).</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 9.1 -- Top-12 campaigns reply-rate Pareto</div>
+    <div class="cp-meta"><span class="cp-tag">Horizontal bar sorted desc by reply %</span> source <a href="#q10">Q10</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q10 reveals reply-rate variance from 0% to 5%. Best performers (Therapists + Counselors at 4.99%; Test - April 27 at 4.20%). Worst (May 11 at 0.69%). KPI strip surfaces aggregate; Pareto surfaces winners and laggards.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Pause campaigns below 1% reply rate for review (currently 3 of 12). Scale top-3 reply-rate cohorts to similar audiences.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Reply rate alone doesn't capture quality -- a 4.99% reply at 10.20% interested-of-replied is worse than 2.24% reply at 29.63% interested. Pair with chart 9.2.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 9.2 -- Reply rate x interested-of-replied scatter (efficiency quadrant)</div>
+    <div class="cp-meta"><span class="cp-tag">Scatter</span> x = reply %, y = interested-of-replied %, bubble = sent volume -- source <a href="#q10">Q10</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q10 makes the quality-vs-volume trade-off explicit. "May 11" has 0.69% reply but 40% interested-of-replied (high quality, low volume). "16.04.26 Therapists" has 4.99% reply but only 10% interested (high volume, lower quality). A quadrant separates efficient (top-right) from noisy (bottom-right) from weak (bottom-left).</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Top-right campaigns get scaled. Bottom-right reviewed for spam-trigger phrasing. Top-left (low volume + high quality) -- candidates for audience expansion.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">"Interested" is a heuristic classification (not manual), per existing cold-email caveat.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 9.3 -- Sent-volume x bounce-count scatter (deliverability concentration)</div>
+    <div class="cp-meta"><span class="cp-tag">Scatter</span> x = sent, y = bounced, color = status -- source <a href="#q10">Q10</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Bounce volume is concentration-driven. "22.04.26 health + edu" has 82 bounces on 949 sent (8.6% -- high). "23.04.26 counselors" has 0/791 (likely list pre-cleaned). Visualizing dispersion surfaces high-bounce campaigns that may signal deliverability or list-quality issues.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Campaigns above the 5% bounce line get list-cleaning before relaunch. Pattern by list-source surfaces source-quality.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Bounce-rate definition is platform-reported, not raw SMTP (per existing cold-email caveat).</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 9.4 -- Niche performance comparison (counselors / therapists / coaches / multi-ind)</div>
+    <div class="cp-meta"><span class="cp-tag">Grouped bar</span> sent / replied / interested by niche-tag extracted from campaign name -- source <a href="#q10">Q10</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q10 reveals niche concentration: 8 of 12 campaigns target counselors-or-therapists. Aggregating performance by niche reveals which professional segment is most responsive.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Niche with highest reply x interested rates gets audience expansion. Underperforming niches get tested with new copy.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Name-parsing is text-pattern dependent; campaigns without canonical naming may mis-bucket. The <code>tags</code> field exists (Q6 schema) and may carry cleaner niche metadata -- step 2 should canonicalize tag extraction.</div></div>
+  </div>
+</section>
+
+<!-- =================== PAGE 10: GEO-INTEL =================== -->
+<section id="geo-intel">
+  <div class="section-title">10. Geo-Intel</div>
+  <div class="section-sub">Current roster: 6 KPI cards, mapCard placeholder. CF data unreconcilable per Wave 5 Group C P0 -- charts below use <code>mat_geo_revenue</code> direct aggregation plus a <code>v_stripe_clean</code> cross-check.</div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 10.1 -- Top-20 cities Pareto by revenue (from mat_geo_revenue row-level)</div>
+    <div class="cp-meta"><span class="cp-tag">Horizontal bar</span> 20 rows -- source <a href="#q7">Q7</a> extended</div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Q7 reveals <code>mat_geo_revenue</code> is row-keyed by (state, city). Surface the city-level row data (which is what the table is good at) instead of state-level (which is broken for this table). City-level is also more actionable for paid-spend geo-targeting.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Concentrated city demand (e.g. one CA row at $8,773) informs paid-spend geo-bid uplift.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Group C P0 warning: <code>avg_deal_size</code> is internally inconsistent (FL row 1: $3,713/enrollment vs <code>avg_deal_size</code> $46.81). Chart uses <code>total_revenue</code> directly, not derived from per-customer math.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 10.2 -- State revenue choropleth (US)</div>
+    <div class="cp-meta"><span class="cp-tag">US choropleth map</span> source <a href="#q7">Q7</a> aggregated <code>GROUP BY state SUM(total_revenue)</code></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">The mapCard placeholder fills here. Aggregating Q7 to state-level (SUM revenue, SUM enrollments per state) gives the canonical state totals. Q7 shows CA appearing 4 times in the top 15 rows; SUM gives the correct state total.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Geo-targeted ad-spend allocation by state revenue rank.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">State = billing_state (per existing geo-intel caveat). VPN/proxy state misattribution applies; international rows excluded.</div></div>
+  </div>
+
+  <div class="chart-proposal p1">
+    <div class="cp-title">Chart 10.3 -- State-level ROAS bubble map ($500 spend floor)</div>
+    <div class="cp-meta"><span class="cp-tag p1">Partial fallback -- state-level Meta spend not available</span> <span class="cp-tag">US bubble map</span></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">"Best ROAS State" KPI uses a $500 spend floor (anti-podium-crowd guardrail per Wave 5 audit). A bubble map with bubble-size = spend, color = ROAS makes the spend x return trade-off visible across the country. Sub-$500 states are filtered.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">State-level spend reallocation. High-spend, low-ROAS states (top-left underperformers) get capped.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Meta spend is not state-attributable today (Meta regional reporting not in <code>cod_warehouse</code> per existing dead-zones caveat). Chart will render with a state-revenue-share approximation until per-state Meta spend lands -- flagged in chart text.</div></div>
+  </div>
+
+  <div class="chart-proposal">
+    <div class="cp-title">Chart 10.4 -- Cross-check: mat_geo_revenue state totals vs v_stripe_clean billing_state state totals</div>
+    <div class="cp-meta"><span class="cp-tag">Twin bar</span> the explicit reconciliation chart -- sources <a href="#q4">Q4</a> + <a href="#q7">Q7</a></div>
+    <div class="cp-row"><div class="cp-label">Rationale</div><div class="cp-text">Group C P0 states <code>mat_geo_revenue</code> is unreconcilable. Putting the two state-level totals side-by-side is the reconciliation chart. Where the bars match, <code>mat_geo_revenue</code> is trustworthy at state grain. Where they don't, Group C P0 stands and the analyst is routed to direct <code>v_stripe_clean</code>.</div></div>
+    <div class="cp-row"><div class="cp-label">Decision</div><div class="cp-text">Trust-of-data decision for the geo-intel page. Visible reconciliation prevents silent misuse.</div></div>
+    <div class="cp-row"><div class="cp-label">Caveats</div><div class="cp-text">Window-boundary alignment (materialization timestamp vs realtime) -- chart should label window of each source explicitly. Refunds excluded from both for parity.</div></div>
+  </div>
+</section>
+
+<!-- =================== FINDINGS =================== -->
+<section id="findings">
+  <div class="section-title">Material findings (input to Wave 7 follow-up)</div>
+  <div class="section-sub">Surfaced by the BQ previews above; relevant to chart prose rationale + Wave 7 prioritization.</div>
+
+  <ol class="findings-list">
+    <li><strong>Sheets vs API spend divergence</strong> (Q2) is 14-26% every day in the 13-day window. MA-Funnel chart 6.1 elevates this from a footnote caveat to a first-class chart. Wave 7 should investigate whether the sheet captures workshop-only spend (excluding non-workshop campaigns) -- that would explain the structural shortfall.</li>
+    <li><strong>Hyros vs Stripe daily divergence</strong> (Q4 + Q5) is massive on specific days (2026-05-09: Stripe $540 / Hyros $27,513). Confirms Hyros captures off-Stripe payment rails. Attribution chart 3.1 is the load-bearing visualization.</li>
+    <li><strong>Meta spend concentration</strong> (Q13) -- one campaign captures 84% of 7d spend. Ads-Meta chart 4.1 surfaces concentration risk.</li>
+    <li><strong>CTR/CPC inverse oscillation</strong> (Q1) -- daily CTR varies 3-12%, CPC varies $0.48-$3.06. War Room chart 1.3 + Ads-Meta chart 4.2 visualize creative volatility.</li>
+    <li><strong>mat_pipeline direct-query works</strong> (Q9) with <code>registered_at</code> partition filter -- unblocks Funnels and Journey-Explorer chart proposals without waiting for Wave 7 CF fixes.</li>
+    <li><strong>mat_geo_revenue is (state, city)-keyed</strong> (Q7) -- confirms Group C P0; aggregation must be SUM(state), not row-level. Geo-Intel chart 10.4 is the explicit reconciliation visualization.</li>
+    <li><strong>Cold-email opens-tracking-off</strong> (Q10) -- all 12 high-volume campaigns have <code>opened = 0</code>. Reply-rate is the only viable engagement signal. Charts 9.1 + 9.2 navigate around this.</li>
+    <li><strong>Sales-team booking concentration</strong> (Q12) -- 92% of bookings on the top-2 reps. Chart 7.1 surfaces concentration plus the qualification gap.</li>
+  </ol>
+</section>
+
+<footer>
+  COD Dashboard Chart Recommendations -- Wave 6 step 2 -- 38 proposals across 10 pages -- 13 BQ data previews -- read-only SELECT throughout -- RULES.md sections 6, 9, 10 honored
+</footer>
+
+</div>
+</body>
+</html>

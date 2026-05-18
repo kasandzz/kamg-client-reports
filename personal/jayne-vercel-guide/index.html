@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hosting Your Dashboard Privately · Guide for Jayne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0e; --bg-2: #11131a; --bg-3: #161922; --bg-4: #1c2030;
+  --line: #1f2330; --line-2: #2a2f3f;
+  --ink: #e8eaf0; --ink-2: #b4b9c8; --ink-3: #6e7384;
+  --gold: #d4a64a; --gold-2: #f0c460;
+  --green: #6dd29a; --red: #ef6464; --amber: #f0b454; --blue: #6fa8ff; --purple: #b48aff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.65; }
+body { font-size: 16.5px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 32px; }
+
+.topbar { border-bottom: 1px solid var(--line); padding: 18px 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); display: flex; justify-content: space-between; align-items: center; }
+.topbar .dot { color: var(--gold); }
+
+.hero { padding: 76px 0 48px; border-bottom: 1px solid var(--line); }
+.hero .eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 22px; }
+.hero h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: clamp(36px, 4.8vw, 56px); line-height: 1.1; letter-spacing: -0.015em; }
+.hero h1 .accent { color: var(--gold); font-style: italic; }
+.hero .deck { margin-top: 22px; font-size: 19px; color: var(--ink-2); line-height: 1.55; }
+.hero .deck strong { color: var(--ink); font-weight: 500; }
+
+.meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 36px; padding-top: 32px; border-top: 1px solid var(--line); }
+.meta-grid .item .lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; font-weight: 600; }
+.meta-grid .item .val { font-family: 'Fraunces', Georgia, serif; font-size: 22px; color: var(--gold-2); font-weight: 600; line-height: 1.1; }
+.meta-grid .item .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
+
+section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+section h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 30px; letter-spacing: -0.01em; margin-bottom: 16px; line-height: 1.2; }
+section h2 .num { color: var(--gold); margin-right: 10px; font-style: italic; }
+section h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 22px; margin: 28px 0 12px; line-height: 1.3; }
+section h4 { font-family: 'Fraunces', Georgia, serif; font-size: 18px; font-weight: 600; margin: 22px 0 10px; color: var(--ink); }
+section p { color: var(--ink-2); font-size: 16.5px; line-height: 1.7; margin-bottom: 14px; }
+section p strong { color: var(--ink); font-weight: 500; }
+section p em { color: var(--gold-2); font-style: italic; }
+section ul, section ol { margin: 8px 0 18px; padding-left: 22px; color: var(--ink-2); }
+section ul li, section ol li { margin: 8px 0; line-height: 1.6; }
+section ul li strong, section ol li strong { color: var(--ink); font-weight: 500; }
+.kicker { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
+
+code { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: var(--gold-2); background: var(--bg-3); padding: 2px 7px; border-radius: 3px; }
+
+.callout { margin: 28px 0; padding: 26px 32px; background: var(--bg-2); border-left: 3px solid var(--gold); }
+.callout.warn { border-left-color: var(--amber); }
+.callout.info { border-left-color: var(--blue); }
+.callout.success { border-left-color: var(--green); }
+.callout.danger { border-left-color: var(--red); }
+.callout .label { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 10px; }
+.callout.warn .label { color: var(--amber); }
+.callout.info .label { color: var(--blue); }
+.callout.success .label { color: var(--green); }
+.callout.danger .label { color: var(--red); }
+.callout h4 { font-family: 'Fraunces', Georgia, serif; font-size: 19px; margin-bottom: 10px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+.callout p { font-size: 15.5px; line-height: 1.65; margin-bottom: 8px; color: var(--ink-2); }
+.callout p:last-child { margin-bottom: 0; }
+.callout ul { margin: 6px 0 0 0; }
+.callout ul li { font-size: 15.5px; }
+
+/* Paste-to-Claude prompt block */
+.prompt-block { margin: 24px 0; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 4px; overflow: hidden; }
+.prompt-block .head { background: var(--bg-3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.prompt-block .head .left { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.prompt-block .head .left .icon { color: var(--gold-2); font-size: 14px; }
+.prompt-block .head .copy-hint { font-size: 11px; color: var(--ink-3); letter-spacing: .08em; }
+.prompt-block .body { padding: 22px 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.75; color: var(--ink-2); white-space: pre-wrap; overflow-x: auto; }
+.prompt-block .body .hl { color: var(--gold-2); }
+.prompt-block .body .cmt { color: var(--ink-3); font-style: italic; }
+
+/* Human step / browser screenshot mockup */
+.browser-mock { margin: 22px 0; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 6px; overflow: hidden; }
+.browser-mock .chrome { background: var(--bg-3); padding: 10px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
+.browser-mock .dots { display: flex; gap: 6px; }
+.browser-mock .dots span { width: 11px; height: 11px; border-radius: 50%; background: var(--line-2); display: block; }
+.browser-mock .url-bar { flex: 1; background: var(--bg); border: 1px solid var(--line-2); border-radius: 14px; padding: 5px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-2); margin-left: 8px; }
+.browser-mock .url-bar .lock { color: var(--green); margin-right: 6px; }
+.browser-mock .content { padding: 28px 28px 24px; background: var(--bg-2); }
+.browser-mock .content .title { font-family: 'Fraunces', Georgia, serif; font-size: 18px; color: var(--ink); margin-bottom: 10px; font-weight: 600; }
+.browser-mock .content .body-text { color: var(--ink-2); font-size: 14px; margin-bottom: 14px; line-height: 1.55; }
+.browser-mock .content .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.browser-mock .content .btn { background: var(--ink); color: #000; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; display: inline-block; position: relative; }
+.browser-mock .content .btn.outline { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+.browser-mock .content .btn.target { box-shadow: 0 0 0 3px rgba(212,166,74,0.3), 0 0 28px rgba(212,166,74,0.18); }
+.browser-mock .content .btn.target::after { content: "← click this"; position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); color: var(--gold-2); font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.browser-mock .form-field { background: var(--bg); border: 1px solid var(--line-2); padding: 8px 12px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-3); display: flex; align-items: center; margin: 8px 0; }
+.browser-mock .form-field .placeholder { color: var(--ink-3); }
+.browser-mock .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-3); border: 1px solid var(--line); margin: 6px 0; border-radius: 4px; }
+.browser-mock .item-row .name { font-size: 13px; color: var(--ink); font-weight: 500; }
+.browser-mock .item-row .sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.browser-mock .item-row.target { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+
+/* Terminal mock */
+.terminal { margin: 22px 0; background: #050608; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+.terminal .top { background: var(--bg-3); padding: 8px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
+.terminal .top .title { font-size: 11px; color: var(--ink-3); letter-spacing: .12em; }
+.terminal .body { padding: 18px 22px; line-height: 1.8; }
+.terminal .body .prompt { color: var(--green); }
+.terminal .body .cmd { color: var(--ink); }
+.terminal .body .out { color: var(--ink-3); }
+.terminal .body .ok { color: var(--green); }
+.terminal .body .warn { color: var(--amber); }
+
+/* Step block */
+.steps { margin: 28px 0; }
+.step { display: grid; grid-template-columns: 60px 1fr; gap: 24px; padding: 26px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.step:last-child { border-bottom: 0; }
+.step .num { font-family: 'Fraunces', Georgia, serif; font-size: 36px; font-weight: 600; color: var(--gold); line-height: 1; padding-top: 4px; }
+.step .body h4 { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 600; margin-bottom: 8px; color: var(--ink); line-height: 1.35; }
+.step .body p { color: var(--ink-2); font-size: 15.5px; line-height: 1.65; margin-bottom: 8px; }
+.step .body p:last-child { margin-bottom: 0; }
+.step .body code { font-size: 12.5px; }
+
+/* Comparison table */
+.tradeoff-table { width: 100%; border-collapse: collapse; margin: 22px 0; font-size: 14.5px; }
+.tradeoff-table th, .tradeoff-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tradeoff-table th { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--bg-2); }
+.tradeoff-table td { color: var(--ink-2); line-height: 1.55; }
+.tradeoff-table td strong { color: var(--ink); font-weight: 500; }
+.tradeoff-table td code { font-size: 12.5px; }
+.tradeoff-table .opt-name { color: var(--gold-2); font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 16px; }
+.tradeoff-table .pro { color: var(--green); }
+.tradeoff-table .con { color: var(--amber); }
+.tradeoff-table .rec { background: rgba(212,166,74,0.06); }
+.tradeoff-table .rec td:first-child::before { content: "★ "; color: var(--gold); }
+
+/* TOC card */
+.toc { margin: 24px 0 0; background: var(--bg-2); border: 1px solid var(--line); padding: 22px 28px; border-radius: 4px; }
+.toc .lbl { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 14px; }
+.toc ol { margin: 0; padding-left: 22px; }
+.toc ol li { margin: 9px 0; color: var(--ink-2); font-size: 15px; }
+.toc ol li a { color: var(--ink); text-decoration: none; border-bottom: 1px dashed transparent; transition: border-color .2s; }
+.toc ol li a:hover { border-bottom-color: var(--gold); }
+.toc ol li .time { color: var(--ink-3); font-size: 12.5px; margin-left: 8px; font-style: italic; }
+
+.glossary { display: grid; grid-template-columns: 180px 1fr; gap: 12px 28px; margin: 24px 0; }
+.glossary .term { font-family: 'Fraunces', Georgia, serif; color: var(--gold-2); font-size: 16px; font-weight: 600; padding: 12px 0; border-top: 1px solid var(--line); }
+.glossary .term:first-child { border-top: 0; padding-top: 0; }
+.glossary .def { color: var(--ink-2); font-size: 15px; line-height: 1.6; padding: 12px 0; border-top: 1px solid var(--line); }
+.glossary .def:nth-child(2) { border-top: 0; padding-top: 0; }
+.glossary .def strong { color: var(--ink); font-weight: 500; }
+
+.dns-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.dns-table th, .dns-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--line); font-family: 'JetBrains Mono', monospace; }
+.dns-table th { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; background: var(--bg-2); font-family: 'Inter', sans-serif; }
+.dns-table td { color: var(--gold-2); }
+
+.sources { padding: 48px 0; border-top: 1px solid var(--line); }
+.sources a { color: var(--ink-2); text-decoration: none; padding: 7px 0; border-bottom: 1px dashed var(--line); display: block; font-size: 13.5px; }
+.sources a:hover { color: var(--gold-2); }
+.sources a:before { content: "→ "; color: var(--gold); }
+
+footer { padding: 40px 0 80px; font-size: 12px; color: var(--ink-3); letter-spacing: .1em; text-transform: uppercase; }
+footer .sig { color: var(--gold-2); font-family: 'Fraunces', Georgia, serif; font-style: italic; text-transform: none; letter-spacing: 0; font-size: 14px; margin-top: 6px; }
+footer .sig a { color: var(--gold-2); text-decoration: none; border-bottom: 1px dashed rgba(240,196,96,0.4); }
+
+@media (max-width: 720px) {
+  .wrap { padding: 0 20px; }
+  .meta-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .glossary { grid-template-columns: 1fr; gap: 6px; }
+  .glossary .term, .glossary .def { border-top: 0; padding: 4px 0; }
+  .step { grid-template-columns: 40px 1fr; gap: 14px; padding: 20px 0; }
+  .step .num { font-size: 28px; }
+  .hero { padding: 52px 0 32px; }
+  .callout { padding: 22px 20px; }
+  .prompt-block .body { padding: 18px 16px; font-size: 12px; }
+  .browser-mock .content { padding: 22px 18px; }
+  .browser-mock .content .btn.target::after { display: block; position: static; transform: none; margin-top: 6px; }
+  .terminal .body { padding: 14px 16px; font-size: 12px; }
+  .tradeoff-table { font-size: 13px; }
+  .tradeoff-table th, .tradeoff-table td { padding: 10px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<div class="topbar">
+  <div>KAS&nbsp;ANDZ &nbsp;<span class="dot">●</span>&nbsp; PRACTICAL GUIDE</div>
+  <div>For Jayne · 2026-05-18</div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">Hosting your dashboard privately · For Jayne</div>
+  <h1>From local folder to <span class="accent">live, password-protected URL</span> on your own domain.</h1>
+  <p class="deck">You built a dashboard with Claude. Now it needs to live on a real domain, behind a password, deploying itself every time you push a change. This guide is built the way you already work. <strong>Two big paste-to-Claude prompts do 99% of the technical work</strong>, and the four steps Claude can't do (because they live inside someone else's browser) are drawn out below with the screens you'll see.</p>
+  <div class="meta-grid">
+    <div class="item">
+      <div class="lbl">Time</div>
+      <div class="val">~25 min</div>
+      <div class="sub">Mostly DNS wait</div>
+    </div>
+    <div class="item">
+      <div class="lbl">Cost</div>
+      <div class="val">$0</div>
+      <div class="sub">Plus the domain (~$12/yr)</div>
+    </div>
+    <div class="item">
+      <div class="lbl">Your job</div>
+      <div class="val">Paste &amp; Click</div>
+      <div class="sub">2 prompts · 4 browser steps</div>
+    </div>
+    <div class="item">
+      <div class="lbl">Result</div>
+      <div class="val">Live + Private</div>
+      <div class="sub">Auto-deploys on push</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">The Plan</div>
+  <h2>What the flow looks like</h2>
+  <p>The shape of this guide is straightforward, two big paste-to-Claude prompts handle GitHub, the Vercel deploy, the framework detection, and the password code. In between them and after them, you have four short browser stops: signing into Vercel, copying DNS records, pasting them at your registrar, and adding two environment variables. The drawings below show exactly what each screen looks like.</p>
+
+  <div class="toc">
+    <div class="lbl">Your Map</div>
+    <ol>
+      <li><a href="#prep">Before you start, three accounts</a><span class="time">(5 min, one-time)</span></li>
+      <li><a href="#step1">Step 1. Open Claude Code in the dashboard folder</a><span class="time">(30 sec)</span></li>
+      <li><a href="#step2">Step 2. Push to GitHub + deploy to Vercel <em>(paste #1)</em></a><span class="time">(5 min)</span></li>
+      <li><a href="#step3">Step 3. Add your custom domain in Vercel</a><span class="time">(2 min)</span></li>
+      <li><a href="#step4">Step 4. Add DNS records at your registrar</a><span class="time">(3 min + DNS wait)</span></li>
+      <li><a href="#step5">Step 5. Add password protection <em>(paste #2)</em></a><span class="time">(5 min)</span></li>
+      <li><a href="#workflow">Your new workflow</a></li>
+      <li><a href="#troubleshoot">When something breaks</a></li>
+    </ol>
+  </div>
+
+  <div class="callout info">
+    <div class="label">The one thing only you can do</div>
+    <h4>Set up the Vercel account and own the domain</h4>
+    <p>Everything else, Claude handles. Get a Vercel account (with GitHub sign-in) and have a domain ready before you start, that's the prep. The rest is paste-and-click.</p>
+  </div>
+</section>
+
+<section id="prep">
+  <div class="kicker">Before You Start</div>
+  <h2>Three accounts, fifteen minutes once</h2>
+  <p>Open these in three tabs and get the signups out of the way. Everything in this guide assumes they exist.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">A.</div>
+      <div class="body">
+        <h4>GitHub</h4>
+        <p>If you don't already have one, sign up at <code>github.com</code>. Free plan. Private repos are unlimited, the dashboard never goes public.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">B.</div>
+      <div class="body">
+        <h4>Vercel</h4>
+        <p>Sign up at <code>vercel.com</code>. On the signup screen, choose <strong>Continue with GitHub</strong>, not email, not Google. This is what lets Claude (via the Vercel CLI) link your account without an extra OAuth dance. Pick the free <strong>Hobby</strong> plan when prompted.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">C.</div>
+      <div class="body">
+        <h4>A domain</h4>
+        <p>Either one you already own (you'll use a subdomain like <code>dashboard.yoursite.com</code>) or a fresh one from Namecheap, Cloudflare Registrar, or Porkbun. About $12/year. Avoid GoDaddy, its DNS panel is unnecessarily painful.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <div class="label">If anything errors mid-guide</div>
+    <h4>Paste the error back to Claude verbatim</h4>
+    <p>Don't try to interpret build logs or DNS errors yourself. <em>"this is what I'm seeing, what now"</em> is a complete prompt. Claude has the full project context and can usually fix it in one round.</p>
+  </div>
+</section>
+
+<section id="step1">
+  <h2><span class="num">1.</span>Open Claude Code in the dashboard folder</h2>
+  <p>Same way you've been opening it for everything else, terminal in the project root, run <code>claude</code>. The two prompts below assume the working directory is your dashboard folder. If it isn't, <code>cd</code> there first.</p>
+</section>
+
+<section id="step2">
+  <h2><span class="num">2.</span>Push to GitHub + deploy to Vercel</h2>
+  <p>This is the big one. One paste, and Claude takes care of: detecting the framework, initializing git, creating a private GitHub repo, pushing the code, installing the Vercel CLI, logging into Vercel, linking the project, and deploying. End state: a working <code>*.vercel.app</code> URL. Two browser pop-ups in the middle (one for GitHub auth, one for Vercel auth). Claude pauses while you handle them.</p>
+
+  <div class="prompt-block">
+    <div class="head">
+      <div class="left"><span class="icon">▶</span> Paste #1. GitHub + Vercel deploy</div>
+      <div class="copy-hint">Select all · Cmd/Ctrl+C</div>
+    </div>
+<div class="body">I want to deploy this dashboard to Vercel from the CLI, with a private GitHub repo as the source. Do all of the below in order. After each numbered block, print a one-line status before moving on. If anything errors, stop and tell me what happened, don't retry.
+
+<span class="hl">1. Recon</span>
+Read package.json (or whatever config files exist) and tell me in one sentence what framework this is. Confirm we're in the right folder by running "pwd" and "ls".
+
+<span class="hl">2. Tools</span>
+Check that "gh --version", "git --version", and "vercel --version" all work.
+- gh missing → install: macOS "brew install gh", Windows "winget install --id GitHub.cli"
+- vercel missing → install: "npm i -g vercel"
+Don't proceed until all three return version numbers.
+
+<span class="hl">3. GitHub auth</span>
+Run "gh auth status". If not logged in: "gh auth login" → GitHub.com → HTTPS → Authenticate Git with credentials → Login with a web browser. Show me the 8-char code, wait for me to confirm.
+
+<span class="hl">4. Git init + .gitignore</span>
+If not already a git repo, run "git init -b main".
+Write a .gitignore covering: node_modules/, .env, .env.*.local, .DS_Store, *.log, dist/, build/, .next/, .vercel/, .cache/, .turbo/, coverage/
+Stage and commit: "initial commit, ready to deploy"
+
+<span class="hl">5. Create the private GitHub repo</span>
+Suggest a repo name based on the folder. Ask me to confirm. Then:
+   gh repo create <NAME> --private --source=. --remote=origin --push
+
+<span class="hl">6. Vercel CLI auth</span>
+Run "vercel login" → "Continue with GitHub" → it'll open a browser. Wait for me to confirm I authorized it.
+
+<span class="hl">7. Link the project</span>
+Run "vercel link". Answers:
+- "Set up and deploy?" → yes
+- "Which scope?" → my personal account (pick the default)
+- "Link to existing project?" → no
+- "What's your project's name?" → same as the GitHub repo name
+- "In which directory is your code located?" → "./"
+- "Want to override the settings?" → no (let Vercel auto-detect)
+
+<span class="hl">8. Deploy to production</span>
+Run "vercel --prod". Watch the build. If the build fails, paste the failing log to me and stop.
+
+<span class="hl">9. Connect GitHub auto-deploys</span>
+By default the CLI link doesn't always wire up GitHub push-to-deploy. Verify it: run "vercel project ls" and check that the project shows a connected git repo. If not connected, run "vercel git connect" to wire it.
+
+<span class="hl">10. Report</span>
+Print:
+   ━━━ DEPLOYED ━━━
+   Framework: <detected framework>
+   GitHub repo: https://github.com/USER/REPO  (private)
+   Vercel project: <project name>
+   Live URL: https://<project>.vercel.app
+   Auto-deploy on push to main: <yes/no>
+
+<span class="cmt">// If step 9 says "no" for auto-deploy, also print: "Go to Vercel → project → Settings → Git and connect the GitHub repo manually."</span></div>
+  </div>
+
+  <div class="callout">
+    <div class="label">Two browser pop-ups</div>
+    <h4>One for GitHub, one for Vercel</h4>
+    <p>Claude will pause twice. First when <code>gh auth login</code> opens GitHub (you paste an 8-char code and click Authorize). Second when <code>vercel login</code> opens Vercel (you click "Continue with GitHub" and confirm). Both take ~10 seconds. Claude waits.</p>
+  </div>
+
+  <div class="callout success">
+    <div class="label">End of Step 2</div>
+    <h4>You have a live <code>*.vercel.app</code> URL</h4>
+    <p>It works, but it's at a random Vercel subdomain (something like <code>jayne-dashboard-x7k9.vercel.app</code>) and anyone with the link can see it. Next two steps fix the URL. Step 5 adds the password.</p>
+  </div>
+</section>
+
+<section id="step3">
+  <h2><span class="num">3.</span>Add your custom domain in Vercel</h2>
+  <p>Two minutes of clicking, then Vercel will give you DNS records to copy. Keep this tab open, you'll paste those records into your registrar in Step 4.</p>
+
+  <ol>
+    <li>Open <code>vercel.com</code>, click into the project you just deployed.</li>
+    <li>Top nav: <strong>Settings</strong> → left sidebar: <strong>Domains</strong>.</li>
+    <li>Type the domain you want (e.g. <code>dashboard.yoursite.com</code> for a subdomain, or <code>yoursite.com</code> for the root). Click <strong>Add</strong>.</li>
+  </ol>
+
+  <div class="browser-mock">
+    <div class="chrome">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url-bar"><span class="lock">🔒</span>vercel.com/jayne/your-dashboard/settings/domains</div>
+    </div>
+    <div class="content">
+      <div class="title">Domains</div>
+      <div class="body-text">Add a custom domain to this project.</div>
+      <div class="form-field"><span class="placeholder">dashboard.yoursite.com</span></div>
+      <div class="btn-row">
+        <span class="btn target">Add</span>
+      </div>
+    </div>
+  </div>
+
+  <p>Vercel responds with one or two DNS records to add at your registrar. <strong>Screenshot this page</strong>, those exact values are what you need in Step 4.</p>
+
+  <div class="callout info">
+    <div class="label">What Vercel will typically ask for</div>
+    <h4>One CNAME for a subdomain, one A record for a root domain</h4>
+    <table class="dns-table">
+      <thead><tr><th>Use case</th><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Subdomain (dashboard.yoursite.com)</td><td>CNAME</td><td>dashboard</td><td>cname.vercel-dns.com</td></tr>
+        <tr><td>Root domain (yoursite.com)</td><td>A</td><td>@</td><td>76.76.21.21</td></tr>
+      </tbody>
+    </table>
+    <p>Trust whatever Vercel shows you over this guide, these values do change occasionally.</p>
+  </div>
+</section>
+
+<section id="step4">
+  <h2><span class="num">4.</span>Add DNS records at your registrar</h2>
+  <p>The part that varies by where you bought your domain. Three of the most common, plus a fallback Claude prompt for everything else.</p>
+
+  <h3>If your domain is on <strong>Cloudflare</strong></h3>
+  <ol>
+    <li>Log in at <code>cloudflare.com</code>, click the domain.</li>
+    <li>Left sidebar: <strong>DNS</strong> → <strong>Records</strong> → <strong>Add record</strong>.</li>
+    <li>Match what Vercel showed you (Type, Name, Target).</li>
+    <li><strong>Toggle the orange cloud to grey ("DNS only")</strong>. This is the single most common Cloudflare trip, orange cloud breaks Vercel's SSL issuance.</li>
+    <li>Save.</li>
+  </ol>
+
+  <h3>If your domain is on <strong>Namecheap</strong></h3>
+  <ol>
+    <li>Domain List → <strong>Manage</strong> → <strong>Advanced DNS</strong> tab.</li>
+    <li><strong>Add New Record</strong>. Type: <strong>CNAME Record</strong>. Host: your subdomain (e.g. <code>dashboard</code>). Value: <code>cname.vercel-dns.com</code>. TTL: Automatic.</li>
+    <li>Green checkmark to save.</li>
+  </ol>
+
+  <h3>If your domain is on <strong>Porkbun</strong></h3>
+  <ol>
+    <li>Domain Management → click the domain → <strong>DNS Records</strong>.</li>
+    <li><strong>Add</strong>. Type: <strong>CNAME</strong>. Host: subdomain. Answer: <code>cname.vercel-dns.com</code>.</li>
+    <li>Save.</li>
+  </ol>
+
+  <h3>If your domain is somewhere else</h3>
+  <p>Hand this off to Claude, it's a five-second lookup, not a guide-worthy section:</p>
+
+  <div class="prompt-block">
+    <div class="head">
+      <div class="left"><span class="icon">▶</span> Paste #1.5, registrar-specific DNS</div>
+      <div class="copy-hint">Fallback only</div>
+    </div>
+<div class="body">My domain is registered at <span class="hl">[NAME OF REGISTRAR]</span>. Vercel needs me to add this DNS record:
+
+  Type: <span class="hl">[TYPE FROM VERCEL]</span>
+  Name: <span class="hl">[NAME FROM VERCEL]</span>
+  Value: <span class="hl">[VALUE FROM VERCEL]</span>
+
+Tell me exactly where to click in <span class="hl">[NAME OF REGISTRAR]</span>'s admin panel. Include any registrar-specific gotchas (like Cloudflare's proxy cloud needing to be grey, or some panels not letting you set the TTL).</div>
+  </div>
+
+  <h3>Then wait for DNS</h3>
+  <p>Five to thirty minutes is typical. Use <code>dnschecker.org</code> to watch the propagation. Back in Vercel's Domains page, the status will go <em>Invalid Configuration</em> → <em>Pending</em> → <strong>Valid Configuration ✓</strong>. SSL is automatic. Vercel issues a cert as soon as DNS resolves.</p>
+
+  <div class="callout warn">
+    <div class="label">The Cloudflare trip</div>
+    <h4>Grey cloud, not orange</h4>
+    <p>If your domain's DNS is on Cloudflare and you leave the proxy cloud orange, your domain appears to work but Vercel can't issue an SSL cert and visitors get "Not Secure" warnings. Grey cloud = DNS only = works.</p>
+  </div>
+</section>
+
+<section id="step5">
+  <h2><span class="num">5.</span>Add password protection</h2>
+  <p>The default on the Hobby plan is public, anyone with the URL gets in. Three ways to fix that:</p>
+
+  <table class="tradeoff-table">
+    <thead><tr><th>Option</th><th>Cost</th><th>How it feels to users</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr class="rec">
+        <td><span class="opt-name">Basic Auth Middleware</span><br>Code added by Claude</td>
+        <td><strong class="pro">Free</strong></td>
+        <td>Browser asks for username + password the first time. Saved after.</td>
+        <td>One Claude prompt + 2 env vars</td>
+      </tr>
+      <tr>
+        <td><span class="opt-name">Vercel Password Protection</span><br>Pro plan feature</td>
+        <td><strong class="con">$20/mo</strong></td>
+        <td>Beautiful Vercel password page. One shared password.</td>
+        <td>Two clicks in Vercel</td>
+      </tr>
+      <tr>
+        <td><span class="opt-name">Vercel SSO</span><br>Pro plan feature</td>
+        <td><strong class="con">$20/mo</strong></td>
+        <td>Only your Vercel team members can view. No password.</td>
+        <td>Invite people to your Vercel team</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>For the Hobby plan, basic auth middleware is the answer, small piece of code Claude writes once, runs at the edge on every request, reads username/password from env vars, browsers remember the credentials after the first prompt. Paste this:</p>
+
+  <div class="prompt-block">
+    <div class="head">
+      <div class="left"><span class="icon">▶</span> Paste #2, password protection</div>
+      <div class="copy-hint">Select all · Cmd/Ctrl+C</div>
+    </div>
+<div class="body">I want to add HTTP basic authentication to this project before re-deploying. The free Vercel Hobby plan, no paid features. The goal: anyone visiting the site gets a browser password prompt asking for username and password before they can see the dashboard.
+
+<span class="hl">STEP 1. Detect framework</span>
+Look at package.json, vercel.json, astro.config, vite.config, next.config, whatever exists. Tell me in one sentence what framework this project uses. Then pick the simplest password-protection approach for that framework:
+- Next.js (app router or pages router): add middleware.ts in the project root
+- Astro: add src/middleware.ts
+- SvelteKit: add src/hooks.server.ts
+- Vite/React/plain SPA: add a vercel.json with a rewrites + serverless function in api/auth.js
+- Plain static HTML: add vercel.json + api/auth.js (Edge function approach)
+
+<span class="hl">STEP 2. Write the middleware</span>
+Whatever the framework, the auth logic should:
+- Read username from env var DASHBOARD_USER
+- Read password from env var DASHBOARD_PASS
+- Use the Authorization header (Basic ...) for credentials
+- Return 401 with WWW-Authenticate: Basic realm="Dashboard" if missing or wrong
+- Allow the request through if credentials match
+- Compare credentials using a constant-time comparison (so it's not vulnerable to timing attacks). Node's "crypto.timingSafeEqual" or equivalent
+
+<span class="hl">STEP 3. Pick credentials</span>
+Suggest a username (something like "jayne" or "viewer") and a strong random password (16+ chars, mix of letters/numbers/symbols, no ambiguous chars like O/0/I/l/1).
+ASK ME to confirm or change them. Don't move on until I say yes.
+
+<span class="hl">STEP 4. Tell me clearly</span>
+Once code is written, print in this exact format:
+
+   ━━━ FILES CHANGED ━━━
+   - <file paths>
+
+   ━━━ ADD THESE IN VERCEL ━━━
+   Variable: DASHBOARD_USER    Value: <username>
+   Variable: DASHBOARD_PASS    Value: <password>
+
+   Where to add them:
+   Vercel → your project → Settings → Environment Variables
+   For each one: paste the name and value, check ALL environments (Production, Preview, Development), click Save.
+
+   ━━━ SAVE THESE CREDENTIALS ━━━
+   Username: <username>
+   Password: <password>
+   (Write these down somewhere safe RIGHT NOW. Vercel will hide them after you save.)
+
+<span class="hl">STEP 5. Stop and wait</span>
+Stop. Ask me to confirm I've added both environment variables in Vercel before pushing the code. Don't push to git yet.
+
+<span class="hl">STEP 6. Commit and push (only after I say yes)</span>
+After I confirm the env vars are added in Vercel, run:
+   git add .
+   git commit -m "feat: basic auth protection"
+   git push
+
+Then tell me to wait ~60 seconds and visit my domain. The browser should pop up a username/password dialog.</div>
+  </div>
+
+  <div class="callout warn">
+    <div class="label">The order matters</div>
+    <h4>Add env vars BEFORE pushing the code</h4>
+    <p>If you push the code before adding <code>DASHBOARD_USER</code> and <code>DASHBOARD_PASS</code> in Vercel, your site will lock everyone out (including you) for the 30 seconds it takes to add them. Not a disaster, but annoying. The prompt above forces Claude to wait, humor it.</p>
+  </div>
+
+  <h3>How to add the env vars in Vercel</h3>
+  <ol>
+    <li>Vercel project → <strong>Settings</strong> → <strong>Environment Variables</strong>.</li>
+    <li>Click in the <strong>Key</strong> field, type <code>DASHBOARD_USER</code>.</li>
+    <li>Click in the <strong>Value</strong> field, paste the username Claude gave you.</li>
+    <li>Make sure <strong>Production, Preview, Development</strong> are all checked.</li>
+    <li>Click <strong>Save</strong>.</li>
+    <li>Do it again for <code>DASHBOARD_PASS</code>.</li>
+  </ol>
+
+  <div class="browser-mock">
+    <div class="chrome">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url-bar"><span class="lock">🔒</span>vercel.com/jayne/your-dashboard/settings/environment-variables</div>
+    </div>
+    <div class="content">
+      <div class="title">Environment Variables</div>
+      <div class="body-text"><strong>Key</strong></div>
+      <div class="form-field"><span class="placeholder">DASHBOARD_USER</span></div>
+      <div class="body-text" style="margin-top:10px"><strong>Value</strong></div>
+      <div class="form-field"><span class="placeholder">jayne</span></div>
+      <div class="body-text" style="margin-top:10px">Environments: ☑ Production &nbsp; ☑ Preview &nbsp; ☑ Development</div>
+      <div class="btn-row">
+        <span class="btn target">Save</span>
+      </div>
+    </div>
+  </div>
+
+  <p>Once both are saved, go back to Claude and tell it <em>"both env vars are added, push the code"</em>. About 60 seconds later, visit your domain. You'll see your browser's native password dialog, type your credentials, click Sign in, and your dashboard appears.</p>
+
+  <div class="callout success">
+    <div class="label">End state</div>
+    <h4>Live, custom domain, HTTPS, password-protected</h4>
+    <p>About 25 minutes of clicking. From here on it's the workflow loop below, three words and a wait.</p>
+  </div>
+</section>
+
+<section id="workflow">
+  <h2>Your new workflow, forever</h2>
+  <p>Setup was a one-time thing. From now on, the loop is short:</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">1.</div>
+      <div class="body">
+        <h4>You edit the dashboard with Claude Code as normal</h4>
+        <p>Make changes, ask Claude to fix things, add features. Same as you've been doing.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2.</div>
+      <div class="body">
+        <h4>When you're happy, tell Claude: <em>"commit and push"</em></h4>
+        <p>Claude runs the three git commands (add, commit, push) and your code goes to GitHub.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3.</div>
+      <div class="body">
+        <h4>Vercel auto-detects and rebuilds</h4>
+        <p>Within seconds of the push, Vercel sees it and starts building. 30–90 seconds later, your live site is updated. You don't have to do anything, no upload, no FTP, no "deploy" button.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">4.</div>
+      <div class="body">
+        <h4>Refresh your domain to see the changes</h4>
+        <p>That's it. Three words, sixty seconds.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="label">Bonus</div>
+    <h4>Every push is also a backup and a safety net</h4>
+    <p>Because all your changes are in git, you can always go back to any previous version. If you break something, paste this to Claude: <em>"the dashboard broke, roll back to the last working version"</em>. Vercel keeps every deployment forever; you can instantly switch the live site to any prior version from Vercel's Deployments tab with one click.</p>
+  </div>
+</section>
+
+<section id="troubleshoot">
+  <h2>When something breaks</h2>
+  <p>The four things that go wrong most often, and what to do.</p>
+
+  <h3>"My deployment failed in Vercel"</h3>
+  <p>Click into the failed deployment in Vercel's <strong>Deployments</strong> tab. Scroll through the build log until you see red text. Copy the red text. Paste it to Claude with <em>"Vercel build failed with this, fix it"</em>. Claude reads the error and patches the code. Then push again.</p>
+
+  <h3>"My domain isn't loading / says 'not secure'"</h3>
+  <p>Wait. DNS is slow. Check <code>dnschecker.org</code> with your domain. If it's not green everywhere yet, give it another hour. If after a few hours it's still broken: in Vercel, your domain page will show what's wrong (usually a wrong DNS record). Copy the exact error message into Claude and paste your DNS records (with secrets removed). Claude will tell you what to fix.</p>
+
+  <h3>"The password prompt isn't appearing"</h3>
+  <p>Two usual reasons: (1) you forgot to add the env vars in Vercel, or (2) you added them but Vercel hasn't redeployed since. Fix: in Vercel → Deployments tab → click the three-dot menu on the latest deployment → <strong>Redeploy</strong>. Or push any small change.</p>
+
+  <h3>"I can't get past my own password prompt"</h3>
+  <p>You typed the wrong username/password. Vercel → Settings → Environment Variables shows you what <code>DASHBOARD_USER</code> is set to (click the eyeball to reveal). For the password, you'll need to either remember it or replace it. To replace: edit the <code>DASHBOARD_PASS</code> value, save, then in Deployments tab → redeploy. New password active in 60 seconds.</p>
+
+  <div class="callout info">
+    <div class="label">When in doubt</div>
+    <h4>Paste the symptom to Claude</h4>
+    <p>You don't have to diagnose anything yourself. <em>"The site shows X, what do I do"</em> is enough. Claude can read the build logs, the config, and the error, it's a much better debugger than I am at 3am.</p>
+  </div>
+</section>
+
+<section>
+  <div class="kicker">Quick Reference</div>
+  <h2>Glossary, what the words mean</h2>
+  <div class="glossary">
+    <div class="term">GitHub</div>
+    <div class="def"><strong>Where your code lives.</strong> Like Google Drive but for software folders. Free. Private repos mean only you (and Vercel, once you authorize it) can see them.</div>
+    <div class="term">Vercel</div>
+    <div class="def"><strong>The host.</strong> The company whose computers actually serve your site to anyone who visits the URL. Free tier covers everything in this guide.</div>
+    <div class="term">Deploy</div>
+    <div class="def"><strong>"Make the changes live."</strong> Vercel takes your latest code from GitHub, builds it, and puts the result on the internet at your URL.</div>
+    <div class="term">DNS</div>
+    <div class="def"><strong>The internet's address book.</strong> Tells browsers where to send requests for your domain. Lives at your domain registrar (Cloudflare, Namecheap, etc).</div>
+    <div class="term">Registrar</div>
+    <div class="def"><strong>The company you bought your domain from.</strong> Manages DNS for that domain.</div>
+    <div class="term">CNAME / A record</div>
+    <div class="def"><strong>Types of DNS records.</strong> A CNAME points one domain at another domain. An A record points at a specific IP address. Vercel tells you which one to add.</div>
+    <div class="term">SSL / HTTPS</div>
+    <div class="def"><strong>The padlock in the address bar.</strong> Vercel sets this up automatically and for free. You don't have to think about it.</div>
+    <div class="term">Env var</div>
+    <div class="def"><strong>Environment variable.</strong> A secret value (like a password) that your code reads at runtime. Stored in Vercel, never in your code, never on GitHub.</div>
+    <div class="term">Push</div>
+    <div class="def"><strong>Upload your latest code to GitHub.</strong> The git command. Triggers Vercel to redeploy.</div>
+    <div class="term">Commit</div>
+    <div class="def"><strong>A snapshot of your code.</strong> One unit of change with a message. You commit before you push.</div>
+  </div>
+</section>
+
+<div class="sources">
+  <div class="kicker">If you want to read more</div>
+  <a href="https://vercel.com/docs/deployments/overview" target="_blank">Vercel. How deployments work (official docs)</a>
+  <a href="https://vercel.com/docs/projects/domains/add-a-domain" target="_blank">Vercel. Add a custom domain (with screenshots)</a>
+  <a href="https://vercel.com/docs/projects/environment-variables" target="_blank">Vercel. Environment variables (official docs)</a>
+  <a href="https://docs.github.com/en/get-started/quickstart/hello-world" target="_blank">GitHub. Hello World (gentle intro)</a>
+  <a href="https://cli.github.com/manual/" target="_blank">GitHub CLI manual (gh commands reference)</a>
+  <a href="https://dnschecker.org/" target="_blank">DNS Checker, see if your DNS has propagated worldwide</a>
+</div>
+
+<footer>
+  <div>End of guide · For Jayne · 2026-05-18</div>
+  <div class="sig">Anything weird, send the screenshot. K.</div>
+</footer>
+
+</div>
+
+</body>
+</html>

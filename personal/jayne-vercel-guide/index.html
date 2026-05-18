@@ -220,17 +220,20 @@ footer .sig a { color: var(--gold-2); text-decoration: none; border-bottom: 1px 
 <section>
   <div class="kicker">The Plan</div>
   <h2>What the flow looks like</h2>
-  <p>The shape of this guide is straightforward, two big paste-to-Claude prompts handle GitHub, the Vercel deploy, the framework detection, and the password code. In between them and after them, you have four short browser stops: signing into Vercel, copying DNS records, pasting them at your registrar, and adding two environment variables. The drawings below show exactly what each screen looks like.</p>
+  <p>Three paste-to-Claude prompts and four short browser stops. The first prompt is short and conversational, it asks you six questions so Claude can tell you which steps to skip or pay attention to for your specific situation. The other two prompts are bigger (GitHub push, password code). The four browser stops: importing the repo into Vercel, adding your domain, pasting DNS records at your registrar, and adding two environment variables. The drawings below show what each screen looks like.</p>
 
   <div class="toc">
     <div class="lbl">Your Map</div>
     <ol>
       <li><a href="#prep">Before you start, three accounts</a><span class="time">(5 min, one-time)</span></li>
+      <li><a href="#step0">Step 0. Calibrate this guide to your situation <em>(paste #0)</em></a><span class="time">(2 min)</span></li>
       <li><a href="#step1">Step 1. Open Claude Code in the dashboard folder</a><span class="time">(30 sec)</span></li>
-      <li><a href="#step2">Step 2. Push to GitHub + deploy to Vercel <em>(paste #1)</em></a><span class="time">(5 min)</span></li>
-      <li><a href="#step3">Step 3. Add your custom domain in Vercel</a><span class="time">(2 min)</span></li>
-      <li><a href="#step4">Step 4. Add DNS records at your registrar</a><span class="time">(3 min + DNS wait)</span></li>
-      <li><a href="#step5">Step 5. Add password protection <em>(paste #2)</em></a><span class="time">(5 min)</span></li>
+      <li><a href="#step2">Step 2. Push to a private GitHub repo <em>(paste #1)</em></a><span class="time">(5 min)</span></li>
+      <li><a href="#step3">Step 3. Import the repo into Vercel and deploy</a><span class="time">(3 min)</span></li>
+      <li><a href="#step4">Step 4. Add your custom domain in Vercel</a><span class="time">(2 min)</span></li>
+      <li><a href="#step5">Step 5. Add DNS records at your registrar</a><span class="time">(3 min + DNS wait)</span></li>
+      <li><a href="#step6">Step 6. Add password protection <em>(paste #2)</em></a><span class="time">(5 min)</span></li>
+      <li><a href="#polish">Production polish (when it's working)</a><span class="time">(optional)</span></li>
       <li><a href="#workflow">Your new workflow</a></li>
       <li><a href="#troubleshoot">When something breaks</a></li>
     </ol>
@@ -260,14 +263,17 @@ footer .sig a { color: var(--gold-2); text-decoration: none; border-bottom: 1px 
       <div class="num">B.</div>
       <div class="body">
         <h4>Vercel</h4>
-        <p>Sign up at <code>vercel.com</code>. On the signup screen, choose <strong>Continue with GitHub</strong>, not email, not Google. This is what lets Claude (via the Vercel CLI) link your account without an extra OAuth dance. Pick the free <strong>Hobby</strong> plan when prompted.</p>
+        <p>Sign up at <code>vercel.com</code>. On the signup screen, choose <strong>Continue with GitHub</strong>, not email, not Google. This links the two accounts so Vercel can see your GitHub repos. Pick the free <strong>Hobby</strong> plan when prompted.</p>
       </div>
     </div>
     <div class="step">
       <div class="num">C.</div>
       <div class="body">
-        <h4>A domain</h4>
-        <p>Either one you already own (you'll use a subdomain like <code>dashboard.yoursite.com</code>) or a fresh one from Namecheap, Cloudflare Registrar, or Porkbun. About $12/year. Avoid GoDaddy, its DNS panel is unnecessarily painful.</p>
+        <h4>A domain (or buy a fresh one just for this dashboard)</h4>
+        <p>Two paths:</p>
+        <p><strong>Use an existing domain:</strong> point a subdomain (like <code>dashboard.yoursite.com</code>) at this. One CNAME record at your registrar in Step 5.</p>
+        <p><strong>Buy a fresh domain just for the dashboard</strong> (often cleaner, recommended if it's a brand-name dashboard you'll share around): <code>jaynedashboard.com</code> or similar, ~$12/year. The simplest source is <strong>Cloudflare Registrar</strong> (at-cost pricing, free WHOIS privacy, DNS built-in), then <strong>Porkbun</strong>. Namecheap is fine. GoDaddy works but its DNS panel is busier than the others.</p>
+        <p>If you buy fresh, you'll use the root domain (no subdomain) in Step 4. That's slightly simpler DNS-wise. Step 5 shows both paths.</p>
       </div>
     </div>
   </div>
@@ -279,94 +285,218 @@ footer .sig a { color: var(--gold-2); text-decoration: none; border-bottom: 1px 
   </div>
 </section>
 
-<section id="step1">
-  <h2><span class="num">1.</span>Open Claude Code in the dashboard folder</h2>
-  <p>Same way you've been opening it for everything else, terminal in the project root, run <code>claude</code>. The two prompts below assume the working directory is your dashboard folder. If it isn't, <code>cd</code> there first.</p>
-</section>
-
-<section id="step2">
-  <h2><span class="num">2.</span>Push to GitHub + deploy to Vercel</h2>
-  <p>This is the big one. One paste, and Claude takes care of: detecting the framework, initializing git, creating a private GitHub repo, pushing the code, installing the Vercel CLI, logging into Vercel, linking the project, and deploying. End state: a working <code>*.vercel.app</code> URL. Two browser pop-ups in the middle (one for GitHub auth, one for Vercel auth). Claude pauses while you handle them.</p>
+<section id="step0">
+  <h2><span class="num">0.</span>Calibrate this guide to your situation</h2>
+  <p>Before running the technical prompts, give Claude this short briefing. It asks you six questions and then tells you which steps to skip, what to add, and what to pay extra attention to. Two minutes of conversation that saves you backtracking later.</p>
 
   <div class="prompt-block">
     <div class="head">
-      <div class="left"><span class="icon">▶</span> Paste #1. GitHub + Vercel deploy</div>
+      <div class="left"><span class="icon">▶</span> Paste #0. Calibrate the deployment plan</div>
       <div class="copy-hint">Select all · Cmd/Ctrl+C</div>
     </div>
-<div class="body">I want to deploy this dashboard to Vercel from the CLI, with a private GitHub repo as the source. Do all of the below in order. After each numbered block, print a one-line status before moving on. If anything errors, stop and tell me what happened, don't retry.
+<div class="body">Before we deploy this dashboard to Vercel, I want to calibrate the plan to my specific situation. Ask me these six questions ONE AT A TIME (don't dump them all at once, wait for my answer before moving on):
+
+<span class="hl">Q1. Who's allowed to see this dashboard?</span>
+  a) Public, anyone with the URL
+  b) Just me
+  c) A small team I'll share a password with
+  d) Specific people via email-based access (Vercel SSO)
+
+<span class="hl">Q2. Domain plan?</span>
+  a) Use a subdomain of a domain I already own (e.g. dashboard.mycompany.com)
+  b) Buy a fresh domain just for this dashboard (e.g. jaynedashboard.com)
+  c) Already bought a fresh domain, will use the root
+
+<span class="hl">Q3. Where am I going to buy or where is my domain currently registered?</span>
+(Cloudflare Registrar, Cloudflare DNS only, Namecheap, Porkbun, GoDaddy, Google Domains/Squarespace, other)
+
+<span class="hl">Q4. Does this dashboard pull live data from external APIs (BigQuery, Hyros, Google Sheets, etc) on every page load?</span>
+  a) Yes, fully live each load
+  b) Partially live (some cached, some live)
+  c) No, it's pre-built / static / one-time-rendered
+
+<span class="hl">Q5. Do I need to know who's looking at this dashboard (analytics)?</span>
+  a) No
+  b) Just rough traffic numbers
+  c) Per-user behavior tracking
+
+<span class="hl">Q6. Update frequency?</span>
+  a) Once and forget (set-and-leave)
+  b) Weekly or monthly tweaks
+  c) Constantly iterating, multiple times a day
+
+<span class="hl">After I answer all six, summarize back to me in this format and stop:</span>
+
+   ━━━ YOUR DEPLOYMENT PLAN ━━━
+   Skip these steps from the guide: <list>
+   Pay extra attention to: <list>
+   Add these things I'll handle in code: <list>
+
+For the "Add these" list, use this logic:
+- Q1=a → SKIP Step 6 (password protection)
+- Q1=c or d → Step 6 yes, recommend basic auth with shared password for (c) or Vercel Pro SSO for (d)
+- Q2=b or c → recommend Cloudflare Registrar specifically (cheapest, easiest DNS), and tell me to use the root domain in Step 4, not a subdomain
+- Q3=Cloudflare DNS → flag the "orange cloud must be grey" trip extra hard
+- Q3=GoDaddy → warn DNS panel is busier, point to dnschecker.org for verification
+- Q4=a or b → "I'll add a vercel.json with cache headers AFTER your dashboard is deployed and working. ISR or Edge caching for the live data sources, short cache for API responses, long cache for static assets. Don't worry about this until Step 6 is done."
+- Q5=b → recommend Plausible (privacy-friendly, free for low traffic, one-script-tag setup). I'll add to head of pages after deploy
+- Q5=c → recommend PostHog (free tier, full session replay). I'll add the snippet after deploy
+- Q6=c → emphasize that the auto-deploy-on-push workflow is critical, validate it explicitly in Step 3
+
+Then wait. I'll come back to you after the browser steps with what to do next.</div>
+  </div>
+
+  <div class="callout info">
+    <div class="label">Why this step exists</div>
+    <h4>The guide assumes "private dashboard on my own domain"</h4>
+    <p>If your situation differs even slightly, Claude can tell you to skip 30 minutes of friction. Public dashboards skip Step 6. Fresh-domain buyers skip the subdomain DNS dance. Live-data dashboards need cache headers in the production polish section. Calibrating first is faster than discovering you went the wrong way at Step 5.</p>
+  </div>
+</section>
+
+<section id="step1">
+  <h2><span class="num">1.</span>Open Claude Code in the dashboard folder</h2>
+  <p>Same way you've been opening it for everything else, terminal in the project root, run <code>claude</code>. The prompts below assume the working directory is your dashboard folder. If it isn't, <code>cd</code> there first.</p>
+</section>
+
+<section id="step2">
+  <h2><span class="num">2.</span>Push to a private GitHub repo</h2>
+  <p>Paste this. Claude detects the framework, sets up git with a clean .gitignore, creates a private GitHub repo, and pushes. One browser pop-up in the middle for GitHub auth. End state: a private repo URL you'll import into Vercel in Step 3.</p>
+
+  <div class="prompt-block">
+    <div class="head">
+      <div class="left"><span class="icon">▶</span> Paste #1. GitHub push</div>
+      <div class="copy-hint">Select all · Cmd/Ctrl+C</div>
+    </div>
+<div class="body">I want to push this dashboard to a NEW PRIVATE GitHub repo so I can import it into Vercel via the web dashboard (the import-via-browser flow is the only path that automatically wires push-to-deploy on the free Hobby plan). Do all of the below in order. After each numbered block, print a one-line status. If anything errors, stop and tell me, don't retry.
 
 <span class="hl">1. Recon</span>
-Read package.json (or whatever config files exist) and tell me in one sentence what framework this is. Confirm we're in the right folder by running "pwd" and "ls".
+Read package.json or other config files and tell me in one sentence what framework this is (Next.js / Astro / Vite / SvelteKit / plain static HTML / something else). Confirm folder by running "pwd" and "ls".
 
-<span class="hl">2. Tools</span>
-Check that "gh --version", "git --version", and "vercel --version" all work.
-- gh missing → install: macOS "brew install gh", Windows "winget install --id GitHub.cli"
-- vercel missing → install: "npm i -g vercel"
-Don't proceed until all three return version numbers.
+<span class="hl">2. Tools check</span>
+Check "gh --version" and "git --version".
+- gh missing? Install: macOS "brew install gh", Windows "winget install --id GitHub.cli"
+Don't proceed until both return version numbers.
 
 <span class="hl">3. GitHub auth</span>
-Run "gh auth status". If not logged in: "gh auth login" → GitHub.com → HTTPS → Authenticate Git with credentials → Login with a web browser. Show me the 8-char code, wait for me to confirm.
+Run "gh auth status". If not logged in: "gh auth login". When it asks, pick GitHub.com, then HTTPS, then authenticate Git with credentials, then the browser-login option. Show me the one-time code, wait for me to confirm I authorized it.
 
 <span class="hl">4. Git init + .gitignore</span>
 If not already a git repo, run "git init -b main".
-Write a .gitignore covering: node_modules/, .env, .env.*.local, .DS_Store, *.log, dist/, build/, .next/, .vercel/, .cache/, .turbo/, coverage/
-Stage and commit: "initial commit, ready to deploy"
+Write a .gitignore covering: node_modules/, .env, .env.*.local, .env.production, .DS_Store, *.log, dist/, build/, .next/, .vercel/, .cache/, .turbo/, coverage/
 
-<span class="hl">5. Create the private GitHub repo</span>
-Suggest a repo name based on the folder. Ask me to confirm. Then:
-   gh repo create <NAME> --private --source=. --remote=origin --push
+<span class="hl">5. First commit</span>
+Stage and commit with message: "initial commit, ready to deploy"
 
-<span class="hl">6. Vercel CLI auth</span>
-Run "vercel login" → "Continue with GitHub" → it'll open a browser. Wait for me to confirm I authorized it.
+<span class="hl">6. Suggest a repo name</span>
+Look at the folder name and suggest a kebab-case GitHub repo name. Ask me to confirm or change.
 
-<span class="hl">7. Link the project</span>
-Run "vercel link". Answers:
-- "Set up and deploy?" → yes
-- "Which scope?" → my personal account (pick the default)
-- "Link to existing project?" → no
-- "What's your project's name?" → same as the GitHub repo name
-- "In which directory is your code located?" → "./"
-- "Want to override the settings?" → no (let Vercel auto-detect)
+<span class="hl">7. Create the private repo and push</span>
+Run: gh repo create <NAME> --private --source=. --remote=origin --push
 
-<span class="hl">8. Deploy to production</span>
-Run "vercel --prod". Watch the build. If the build fails, paste the failing log to me and stop.
-
-<span class="hl">9. Connect GitHub auto-deploys</span>
-By default the CLI link doesn't always wire up GitHub push-to-deploy. Verify it: run "vercel project ls" and check that the project shows a connected git repo. If not connected, run "vercel git connect" to wire it.
-
-<span class="hl">10. Report</span>
+<span class="hl">8. Report cleanly</span>
 Print:
-   ━━━ DEPLOYED ━━━
+   ━━━ PUSHED TO GITHUB ━━━
    Framework: <detected framework>
-   GitHub repo: https://github.com/USER/REPO  (private)
-   Vercel project: <project name>
-   Live URL: https://<project>.vercel.app
-   Auto-deploy on push to main: <yes/no>
+   Repo: https://github.com/USER/REPO  (private)
+   Branch: main
+   Next: open vercel.com/new and Import this repo.
 
-<span class="cmt">// If step 9 says "no" for auto-deploy, also print: "Go to Vercel → project → Settings → Git and connect the GitHub repo manually."</span></div>
+<span class="cmt">// Do NOT install or run the Vercel CLI. The browser-based Import Repository flow is the only one that wires push-to-deploy automatically. Step 3 of the guide is the browser side.</span></div>
   </div>
 
   <div class="callout">
-    <div class="label">Two browser pop-ups</div>
-    <h4>One for GitHub, one for Vercel</h4>
-    <p>Claude will pause twice. First when <code>gh auth login</code> opens GitHub (you paste an 8-char code and click Authorize). Second when <code>vercel login</code> opens Vercel (you click "Continue with GitHub" and confirm). Both take ~10 seconds. Claude waits.</p>
-  </div>
-
-  <div class="callout success">
-    <div class="label">End of Step 2</div>
-    <h4>You have a live <code>*.vercel.app</code> URL</h4>
-    <p>It works, but it's at a random Vercel subdomain (something like <code>jayne-dashboard-x7k9.vercel.app</code>) and anyone with the link can see it. Next two steps fix the URL. Step 5 adds the password.</p>
+    <div class="label">Why the browser flow, not the CLI</div>
+    <h4>The CLI deploys, but it doesn't auto-wire push-to-deploy</h4>
+    <p>Counterintuitive but true: <code>vercel link</code> + <code>vercel --prod</code> creates a project that ships from your laptop, not one that auto-rebuilds on every GitHub push. Getting the "edit code, say <em>commit and push</em>, site updates 60 seconds later" workflow requires the project be created via the Import Repository button in Vercel's web dashboard. That's the next step.</p>
   </div>
 </section>
 
 <section id="step3">
-  <h2><span class="num">3.</span>Add your custom domain in Vercel</h2>
-  <p>Two minutes of clicking, then Vercel will give you DNS records to copy. Keep this tab open, you'll paste those records into your registrar in Step 4.</p>
+  <h2><span class="num">3.</span>Import the repo into Vercel and deploy</h2>
+  <p>Three minutes of clicking. The single click that matters is <strong>Import</strong>, which creates the Vercel project and wires push-to-deploy in one action.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">3a.</div>
+      <div class="body">
+        <h4>Open the New Project flow</h4>
+        <p>Go to <code>vercel.com/new</code> while logged in. Vercel lists every GitHub repo it can access. Find the one you just pushed and click <strong>Import</strong>. (If it doesn't appear, scroll to <strong>"Adjust GitHub App Permissions"</strong>, give Vercel access to that repo, come back.)</p>
+
+        <div class="browser-mock">
+          <div class="chrome">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="url-bar"><span class="lock">🔒</span>vercel.com/new</div>
+          </div>
+          <div class="content">
+            <div class="title">Import Git Repository</div>
+            <div class="body-text">Select a repository to deploy.</div>
+            <div class="item-row target">
+              <div>
+                <div class="name">your-dashboard-repo</div>
+                <div class="sub">Private · main · just now</div>
+              </div>
+              <span class="btn">Import</span>
+            </div>
+            <div class="item-row">
+              <div>
+                <div class="name">some-other-old-repo</div>
+                <div class="sub">Private · main · 4 months ago</div>
+              </div>
+              <span class="btn outline">Import</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3b.</div>
+      <div class="body">
+        <h4>Pick the right Vercel scope</h4>
+        <p>At the top of the Configure screen, "Vercel Scope" defaults to wherever you last worked. If you've been invited to a team scope (a COD team, for instance), the default may not be your personal account. <strong>Set it explicitly to your personal account</strong> unless you specifically want the project on a team's billing.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3c.</div>
+      <div class="body">
+        <h4>Click Deploy. Leave the auto-detected build settings alone.</h4>
+        <p>Vercel reads your <code>package.json</code> (or falls back to "Other" for plain static HTML) and fills the build command, output dir, install command. Don't touch them. Scroll, click <strong>Deploy</strong>.</p>
+
+        <div class="browser-mock">
+          <div class="chrome">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="url-bar"><span class="lock">🔒</span>vercel.com/new/configure</div>
+          </div>
+          <div class="content">
+            <div class="title">Configure Project</div>
+            <div class="body-text">Project Name: <code>your-dashboard-repo</code><br>Framework Preset: <em>auto-detected, leave it</em><br>Root Directory: <code>./</code> <em>leave it</em><br>Build Command: <em>auto, leave it</em></div>
+            <div class="btn-row">
+              <span class="btn target">Deploy</span>
+            </div>
+          </div>
+        </div>
+
+        <p>30 to 90 seconds of build logs, then confetti and a screenshot of your live site. Click <strong>Continue to Dashboard</strong>. From this moment on, every <code>git push</code> to <code>main</code> auto-rebuilds the site. No extra wiring needed.</p>
+
+        <div class="callout success">
+          <div class="label">End of Step 3</div>
+          <h4>Live, auto-deploying, but on a random URL and wide open</h4>
+          <p>Something like <code>jayne-dashboard-x7k9.vercel.app</code>. Steps 4 and 5 give it your domain. Step 6 adds the password.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="step4">
+  <h2><span class="num">4.</span>Add your custom domain in Vercel</h2>
+  <p>Two minutes of clicking. Vercel will respond with the DNS records to copy. Keep this tab open, you'll paste those records into your registrar in Step 5.</p>
 
   <ol>
     <li>Open <code>vercel.com</code>, click into the project you just deployed.</li>
     <li>Top nav: <strong>Settings</strong> → left sidebar: <strong>Domains</strong>.</li>
-    <li>Type the domain you want (e.g. <code>dashboard.yoursite.com</code> for a subdomain, or <code>yoursite.com</code> for the root). Click <strong>Add</strong>.</li>
+    <li>Type the domain you want (e.g. <code>dashboard.yoursite.com</code> for a subdomain, or <code>jaynedashboard.com</code> for a root domain you bought just for this). Click <strong>Add</strong>.</li>
   </ol>
 
   <div class="browser-mock">
@@ -384,55 +514,58 @@ Print:
     </div>
   </div>
 
-  <p>Vercel responds with one or two DNS records to add at your registrar. <strong>Screenshot this page</strong>, those exact values are what you need in Step 4.</p>
+  <p>Vercel responds with one or two DNS records. <strong>Screenshot the values Vercel shows you</strong>. Use the exact CNAME target and IP it gives you, not whatever's printed in this guide. Vercel now issues a <em>project-specific CNAME target</em> like <code>d1d4fc829fe7bc7c.vercel-dns-017.com</code> rather than the old generic one, so the value will differ per project.</p>
 
   <div class="callout info">
-    <div class="label">What Vercel will typically ask for</div>
-    <h4>One CNAME for a subdomain, one A record for a root domain</h4>
+    <div class="label">Shape of what Vercel will ask for</div>
+    <h4>Subdomain → CNAME · Root domain → A or ALIAS</h4>
     <table class="dns-table">
-      <thead><tr><th>Use case</th><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+      <thead><tr><th>Use case</th><th>Type</th><th>Name</th><th>Value (illustrative, use what Vercel shows)</th></tr></thead>
       <tbody>
-        <tr><td>Subdomain (dashboard.yoursite.com)</td><td>CNAME</td><td>dashboard</td><td>cname.vercel-dns.com</td></tr>
-        <tr><td>Root domain (yoursite.com)</td><td>A</td><td>@</td><td>76.76.21.21</td></tr>
+        <tr><td><strong style="color:var(--blue)">CNAME</strong> · subdomain (dashboard.yoursite.com)</td><td>CNAME</td><td>dashboard</td><td><em>project-specific target Vercel gives you</em></td></tr>
+        <tr><td><strong style="color:var(--gold)">A</strong> · root domain, simplest path</td><td>A</td><td>@</td><td>76.76.21.21</td></tr>
+        <tr><td><strong style="color:var(--green)">ALIAS / ANAME</strong> · root domain, if your DNS supports it</td><td>ALIAS / ANAME</td><td>@</td><td><em>project-specific target Vercel gives you</em></td></tr>
       </tbody>
     </table>
-    <p>Trust whatever Vercel shows you over this guide, these values do change occasionally.</p>
+    <p>If your registrar supports ALIAS / ANAME records (Cloudflare's "CNAME flattening", Cloudflare Registrar, DNSimple, Namecheap, Porkbun all do), prefer that over the bare A record for root domains. ALIAS records follow Vercel's internal IP rotations automatically; the A record locks you to whatever IP is current today.</p>
   </div>
 </section>
 
-<section id="step4">
-  <h2><span class="num">4.</span>Add DNS records at your registrar</h2>
-  <p>The part that varies by where you bought your domain. Three of the most common, plus a fallback Claude prompt for everything else.</p>
+<section id="step5">
+  <h2><span class="num">5.</span>Add DNS records at your registrar</h2>
+  <p>The part that varies by where you bought your domain. Use the <strong>exact values</strong> from Vercel's Domains page, not the placeholders below. Three common registrars, plus a fallback Claude prompt for everything else.</p>
 
   <h3>If your domain is on <strong>Cloudflare</strong></h3>
   <ol>
     <li>Log in at <code>cloudflare.com</code>, click the domain.</li>
     <li>Left sidebar: <strong>DNS</strong> → <strong>Records</strong> → <strong>Add record</strong>.</li>
-    <li>Match what Vercel showed you (Type, Name, Target).</li>
-    <li><strong>Toggle the orange cloud to grey ("DNS only")</strong>. This is the single most common Cloudflare trip, orange cloud breaks Vercel's SSL issuance.</li>
+    <li>Match what Vercel showed you exactly: Type (CNAME or A), Name, and Target/Content.</li>
+    <li><strong>Toggle the orange cloud to grey ("DNS only")</strong>. Single most common Cloudflare trip. Orange cloud terminates TLS at Cloudflare's edge and blocks Vercel from issuing its own SSL cert. Full/Full-strict modes do not fix this; the cloud has to be grey.</li>
     <li>Save.</li>
   </ol>
+  <p style="color:var(--ink-3);font-size:14.5px;margin-top:8px"><em>For root domains on Cloudflare: use CNAME with Cloudflare's automatic CNAME flattening (just add a CNAME at <code>@</code>, Cloudflare handles the apex rewrite).</em></p>
 
   <h3>If your domain is on <strong>Namecheap</strong></h3>
   <ol>
     <li>Domain List → <strong>Manage</strong> → <strong>Advanced DNS</strong> tab.</li>
-    <li><strong>Add New Record</strong>. Type: <strong>CNAME Record</strong>. Host: your subdomain (e.g. <code>dashboard</code>). Value: <code>cname.vercel-dns.com</code>. TTL: Automatic.</li>
+    <li><strong>Add New Record</strong>. Type: <strong>CNAME Record</strong> (or A, per Vercel). Host: your subdomain (e.g. <code>dashboard</code>) or <code>@</code> for root. Value: <em>whatever Vercel showed you</em>. TTL: Automatic.</li>
+    <li>For root domains, Namecheap supports <strong>ALIAS Record</strong>. Prefer ALIAS over A if Vercel offers a CNAME-style target for the root.</li>
     <li>Green checkmark to save.</li>
   </ol>
 
   <h3>If your domain is on <strong>Porkbun</strong></h3>
   <ol>
     <li>Domain Management → click the domain → <strong>DNS Records</strong>.</li>
-    <li><strong>Add</strong>. Type: <strong>CNAME</strong>. Host: subdomain. Answer: <code>cname.vercel-dns.com</code>.</li>
+    <li><strong>Add</strong>. Type: <strong>CNAME</strong> or <strong>ALIAS</strong> (Porkbun supports both). Host: subdomain or blank for root. Answer: <em>whatever Vercel showed you</em>.</li>
     <li>Save.</li>
   </ol>
 
   <h3>If your domain is somewhere else</h3>
-  <p>Hand this off to Claude, it's a five-second lookup, not a guide-worthy section:</p>
+  <p>Hand it to Claude, this is a five-second lookup:</p>
 
   <div class="prompt-block">
     <div class="head">
-      <div class="left"><span class="icon">▶</span> Paste #1.5, registrar-specific DNS</div>
+      <div class="left"><span class="icon">▶</span> Paste, registrar-specific DNS</div>
       <div class="copy-hint">Fallback only</div>
     </div>
 <div class="body">My domain is registered at <span class="hl">[NAME OF REGISTRAR]</span>. Vercel needs me to add this DNS record:
@@ -441,36 +574,36 @@ Print:
   Name: <span class="hl">[NAME FROM VERCEL]</span>
   Value: <span class="hl">[VALUE FROM VERCEL]</span>
 
-Tell me exactly where to click in <span class="hl">[NAME OF REGISTRAR]</span>'s admin panel. Include any registrar-specific gotchas (like Cloudflare's proxy cloud needing to be grey, or some panels not letting you set the TTL).</div>
+Tell me exactly where to click in <span class="hl">[NAME OF REGISTRAR]</span>'s admin panel. Include any registrar-specific gotchas (Cloudflare proxy cloud needing to be grey, TTL caveats, ALIAS-vs-A choice for root domains).</div>
   </div>
 
   <h3>Then wait for DNS</h3>
-  <p>Five to thirty minutes is typical. Use <code>dnschecker.org</code> to watch the propagation. Back in Vercel's Domains page, the status will go <em>Invalid Configuration</em> → <em>Pending</em> → <strong>Valid Configuration ✓</strong>. SSL is automatic. Vercel issues a cert as soon as DNS resolves.</p>
+  <p>Five to thirty minutes is common. Worst case 24-48 hours if your TTL is high or your registrar's caches are slow. Use <code>dnschecker.org</code> to watch propagation. Back in Vercel's Domains page, the status moves <em>Invalid Configuration</em> → <em>Pending</em> → <strong>Valid Configuration ✓</strong>. SSL is automatic. Vercel issues a Let's Encrypt cert the moment DNS resolves.</p>
 
   <div class="callout warn">
     <div class="label">The Cloudflare trip</div>
     <h4>Grey cloud, not orange</h4>
-    <p>If your domain's DNS is on Cloudflare and you leave the proxy cloud orange, your domain appears to work but Vercel can't issue an SSL cert and visitors get "Not Secure" warnings. Grey cloud = DNS only = works.</p>
+    <p>If your domain's DNS is on Cloudflare and you leave the proxy cloud orange, your domain appears to work but Vercel can't issue its SSL cert and visitors get "Not Secure" warnings. Grey cloud = DNS only = works with Vercel SSL. Cloudflare's "Full / Full-strict" SSL modes do not fix this; the proxy itself has to be off.</p>
   </div>
 </section>
 
-<section id="step5">
-  <h2><span class="num">5.</span>Add password protection</h2>
-  <p>The default on the Hobby plan is public, anyone with the URL gets in. Three ways to fix that:</p>
+<section id="step6">
+  <h2><span class="num">6.</span>Add password protection</h2>
+  <p>The default on Hobby is public, anyone with the URL gets in. Three options:</p>
 
   <table class="tradeoff-table">
     <thead><tr><th>Option</th><th>Cost</th><th>How it feels to users</th><th>Effort</th></tr></thead>
     <tbody>
       <tr class="rec">
-        <td><span class="opt-name">Basic Auth Middleware</span><br>Code added by Claude</td>
+        <td><span class="opt-name">Basic Auth Middleware</span><br>Code Claude adds</td>
         <td><strong class="pro">Free</strong></td>
         <td>Browser asks for username + password the first time. Saved after.</td>
-        <td>One Claude prompt + 2 env vars</td>
+        <td>One paste + 2 env vars + Redeploy</td>
       </tr>
       <tr>
         <td><span class="opt-name">Vercel Password Protection</span><br>Pro plan feature</td>
         <td><strong class="con">$20/mo</strong></td>
-        <td>Beautiful Vercel password page. One shared password.</td>
+        <td>Branded Vercel password page. One shared password.</td>
         <td>Two clicks in Vercel</td>
       </tr>
       <tr>
@@ -482,71 +615,74 @@ Tell me exactly where to click in <span class="hl">[NAME OF REGISTRAR]</span>'s 
     </tbody>
   </table>
 
-  <p>For the Hobby plan, basic auth middleware is the answer, small piece of code Claude writes once, runs at the edge on every request, reads username/password from env vars, browsers remember the credentials after the first prompt. Paste this:</p>
+  <p>For the Hobby plan, basic auth middleware at the edge is the answer. Paste this:</p>
 
   <div class="prompt-block">
     <div class="head">
       <div class="left"><span class="icon">▶</span> Paste #2, password protection</div>
       <div class="copy-hint">Select all · Cmd/Ctrl+C</div>
     </div>
-<div class="body">I want to add HTTP basic authentication to this project before re-deploying. The free Vercel Hobby plan, no paid features. The goal: anyone visiting the site gets a browser password prompt asking for username and password before they can see the dashboard.
+<div class="body">I want to add HTTP basic authentication to this Vercel project on the free Hobby plan. Goal: every visitor sees a native browser username/password prompt before reaching any page or asset of the dashboard.
 
-<span class="hl">STEP 1. Detect framework</span>
-Look at package.json, vercel.json, astro.config, vite.config, next.config, whatever exists. Tell me in one sentence what framework this project uses. Then pick the simplest password-protection approach for that framework:
-- Next.js (app router or pages router): add middleware.ts in the project root
-- Astro: add src/middleware.ts
-- SvelteKit: add src/hooks.server.ts
-- Vite/React/plain SPA: add a vercel.json with a rewrites + serverless function in api/auth.js
-- Plain static HTML: add vercel.json + api/auth.js (Edge function approach)
+<span class="hl">STEP 1. Detect framework AND pick the correct primitive</span>
+Look at package.json, next.config, astro.config, vite.config, svelte.config, vercel.json, plus the file tree. Tell me in one sentence what this project is.
 
-<span class="hl">STEP 2. Write the middleware</span>
-Whatever the framework, the auth logic should:
-- Read username from env var DASHBOARD_USER
-- Read password from env var DASHBOARD_PASS
-- Use the Authorization header (Basic ...) for credentials
-- Return 401 with WWW-Authenticate: Basic realm="Dashboard" if missing or wrong
-- Allow the request through if credentials match
-- Compare credentials using a constant-time comparison (so it's not vulnerable to timing attacks). Node's "crypto.timingSafeEqual" or equivalent
+Then pick the right primitive. <strong>For ALL of these, the file is at the project ROOT (not under /api).</strong> Vercel auto-detects a root-level middleware/Edge function and runs it before serving static or dynamic content:
+
+- <strong>Next.js</strong> (App or Pages router): create middleware.ts at project root. Set config.matcher to '/((?!_next/static|_next/image|favicon.ico).*)' so it runs on every request EXCEPT static chunks and the favicon. Default Next matchers exclude static chunks, which leaks the dashboard JS bundles publicly. Explicit matcher fixes that.
+- <strong>Astro</strong>: src/middleware.ts using defineMiddleware. Astro middleware runs for every request on Vercel adapter.
+- <strong>SvelteKit</strong>: src/hooks.server.ts using handle hook.
+- <strong>Vite / React / plain static HTML / any "Other" Vercel preset</strong>: create middleware.js (or .ts) at project root. Vercel runs this Edge middleware on ALL routes including static files when present at the root. <strong>Do NOT use api/auth.js + vercel.json rewrites</strong> for static sites, that pattern fights Vercel's static-file precedence and either silently bypasses or routes every asset through a Node lambda (broken or expensive).
+- <strong>Python (Flask, Django, FastAPI, Streamlit, Gradio)</strong>: STOP. Vercel Hobby doesn't run Python web apps in a way that supports HTTP basic auth via middleware. Tell me, and recommend either a different host (Railway, Fly.io) or Vercel Pro's Password Protection.
+
+<span class="hl">STEP 2. Write the auth logic</span>
+Read DASHBOARD_USER and DASHBOARD_PASS from env vars. Parse the incoming Authorization: Basic header. If missing or wrong, return 401 with header WWW-Authenticate: Basic realm="Dashboard", charset="UTF-8".
+
+For the constant-time comparison:
+- Hash both the supplied credentials AND the expected credentials with the same algorithm (e.g. SHA-256) before comparing
+- Then compare the resulting fixed-length Buffers with crypto.timingSafeEqual
+- Reason: timingSafeEqual THROWS on unequal-length Buffers, leaking the credential length via the throw. Hashing first guarantees equal-length Buffers regardless of input.
+
+In Edge runtime (most middleware), Node's crypto isn't always available, use globalThis.crypto.subtle.digest('SHA-256', ...) instead.
 
 <span class="hl">STEP 3. Pick credentials</span>
-Suggest a username (something like "jayne" or "viewer") and a strong random password (16+ chars, mix of letters/numbers/symbols, no ambiguous chars like O/0/I/l/1).
-ASK ME to confirm or change them. Don't move on until I say yes.
+Suggest a username (e.g. "jayne" or "viewer") and a strong random password (16+ chars, no ambiguous O/0/I/l/1). ASK me to confirm or change. Wait for yes.
 
-<span class="hl">STEP 4. Tell me clearly</span>
-Once code is written, print in this exact format:
+<span class="hl">STEP 4. Print the handoff</span>
+Once code is written, print exactly:
 
    ━━━ FILES CHANGED ━━━
-   - <file paths>
+   - <full paths>
 
-   ━━━ ADD THESE IN VERCEL ━━━
-   Variable: DASHBOARD_USER    Value: <username>
-   Variable: DASHBOARD_PASS    Value: <password>
+   ━━━ ADD IN VERCEL FIRST (BEFORE PUSHING) ━━━
+   1. Open vercel.com → your project → Settings → Environment Variables
+   2. Add DASHBOARD_USER = <username>   (check Production + Preview + Development)
+   3. Add DASHBOARD_PASS = <password>   (check all three)
+   4. Click Save on each.
 
-   Where to add them:
-   Vercel → your project → Settings → Environment Variables
-   For each one: paste the name and value, check ALL environments (Production, Preview, Development), click Save.
-
-   ━━━ SAVE THESE CREDENTIALS ━━━
+   ━━━ THEN COME BACK ━━━
+   ━━━ SAVE THESE NOW ━━━
    Username: <username>
    Password: <password>
-   (Write these down somewhere safe RIGHT NOW. Vercel will hide them after you save.)
 
-<span class="hl">STEP 5. Stop and wait</span>
-Stop. Ask me to confirm I've added both environment variables in Vercel before pushing the code. Don't push to git yet.
+<span class="hl">STEP 5. STOP. Wait for confirmation.</span>
+Do not push to git. Ask me to confirm both env vars are added in Vercel.
 
-<span class="hl">STEP 6. Commit and push (only after I say yes)</span>
-After I confirm the env vars are added in Vercel, run:
+<span class="hl">STEP 6. After I confirm, commit, push, and force a redeploy</span>
+Run:
    git add .
    git commit -m "feat: basic auth protection"
    git push
 
-Then tell me to wait ~60 seconds and visit my domain. The browser should pop up a username/password dialog.</div>
+Then explicitly tell me: "Open Vercel → Deployments tab → click the three-dot menu on the new deployment → Redeploy with existing build cache disabled (or just Redeploy). Env var changes only apply to deployments started AFTER the variables were added, the auto-deploy from your push may or may not pick them up depending on timing."
+
+After ~60 seconds, I visit my domain and should see the browser password dialog.</div>
   </div>
 
   <div class="callout warn">
-    <div class="label">The order matters</div>
-    <h4>Add env vars BEFORE pushing the code</h4>
-    <p>If you push the code before adding <code>DASHBOARD_USER</code> and <code>DASHBOARD_PASS</code> in Vercel, your site will lock everyone out (including you) for the 30 seconds it takes to add them. Not a disaster, but annoying. The prompt above forces Claude to wait, humor it.</p>
+    <div class="label">The env-var race</div>
+    <h4>Add the vars in Vercel BEFORE the code reaches it. Then redeploy.</h4>
+    <p>Vercel env vars only apply to <strong>new</strong> deployments. If the auth code pushes and starts deploying at moment T, but you add the env vars at T+10s, that deployment may have already snapshotted env and won't have your credentials, locking everyone out including you. Two protections: add the env vars first, then push. After push, manually <strong>Redeploy</strong> from Vercel's Deployments tab to be 100% sure the new env values are picked up.</p>
   </div>
 
   <h3>How to add the env vars in Vercel</h3>
@@ -556,7 +692,7 @@ Then tell me to wait ~60 seconds and visit my domain. The browser should pop up 
     <li>Click in the <strong>Value</strong> field, paste the username Claude gave you.</li>
     <li>Make sure <strong>Production, Preview, Development</strong> are all checked.</li>
     <li>Click <strong>Save</strong>.</li>
-    <li>Do it again for <code>DASHBOARD_PASS</code>.</li>
+    <li>Repeat for <code>DASHBOARD_PASS</code>.</li>
   </ol>
 
   <div class="browser-mock">
@@ -577,7 +713,7 @@ Then tell me to wait ~60 seconds and visit my domain. The browser should pop up 
     </div>
   </div>
 
-  <p>Once both are saved, go back to Claude and tell it <em>"both env vars are added, push the code"</em>. About 60 seconds later, visit your domain. You'll see your browser's native password dialog, type your credentials, click Sign in, and your dashboard appears.</p>
+  <p>Once both are saved, tell Claude <em>"both env vars are added, push the code"</em>. After push, open Vercel → Deployments → click <strong>Redeploy</strong> on the new deployment. About 60 seconds later, visit your domain. You'll see your browser's native password dialog. Type credentials, Sign in, dashboard appears.</p>
 
   <div class="callout success">
     <div class="label">End state</div>
@@ -625,6 +761,62 @@ Then tell me to wait ~60 seconds and visit my domain. The browser should pop up 
     <div class="label">Bonus</div>
     <h4>Every push is also a backup and a safety net</h4>
     <p>Because all your changes are in git, you can always go back to any previous version. If you break something, paste this to Claude: <em>"the dashboard broke, roll back to the last working version"</em>. Vercel keeps every deployment forever; you can instantly switch the live site to any prior version from Vercel's Deployments tab with one click.</p>
+  </div>
+</section>
+
+<section id="polish">
+  <div class="kicker">Optional · After it's working</div>
+  <h2>Production polish</h2>
+  <p>Stuff worth doing once the dashboard is live, password-protected, and on your domain. Each item below is independent. Skip anything you don't need. The big paste-prompt at the end batches the common ones.</p>
+
+  <h3>Cache headers (fast loads, low Vercel function usage)</h3>
+  <p>Vercel's defaults are fine for most sites, but if your dashboard pulls live data on every load (Q4=a in the calibrate step), you'll burn through Hobby's 100,000-function-invocation limit quickly without caching. Add a <code>vercel.json</code> with cache rules: long-cache for static assets (fonts, images, JS bundles, anything fingerprinted), short-cache for HTML, and explicit <code>s-maxage</code> + <code>stale-while-revalidate</code> for API responses that don't need to be live-live.</p>
+
+  <h3>Lazy-load heavy media</h3>
+  <p>Two near-free wins for dashboards with charts, screenshots, or hero imagery: add <code>loading="lazy"</code> to every <code>&lt;img&gt;</code> below the fold, and code-split heavy components (chart libs, PDF viewers, anything &gt;100KB) so the initial page paints fast. For Next.js: <code>next/dynamic</code>. For Astro: <code>client:visible</code>. For Vite/React: <code>React.lazy</code> + <code>Suspense</code>.</p>
+
+  <h3>Mobile test (90% of dashboard traffic on phones)</h3>
+  <p>If this dashboard is going to anyone other than you, assume the majority will open it on a phone first. Pull it up on your actual phone. Then open Chrome DevTools, toggle device mode, click through every interaction. Fix the obvious tap-target and text-size issues before sharing.</p>
+
+  <h3>Lighthouse score</h3>
+  <p>In Chrome DevTools → Lighthouse tab → Generate report. Aim for Performance &gt; 90 on mobile. Anything red, paste the audit to Claude with <em>"fix these"</em>. Lighthouse will catch unused JS, oversized images, missing alt text, render-blocking resources, the common stuff Claude can fix without you having to know what they mean.</p>
+
+  <h3>Analytics (optional, depending on Q5)</h3>
+  <p>If you said yes to analytics in the calibrate step: <strong>Plausible</strong> for traffic-only (privacy-friendly, GDPR-clean, free up to 10K events/mo), <strong>PostHog</strong> for behavior tracking with session replays (free up to 1M events/mo). Both are one script tag in the page head, Claude wires either in five minutes.</p>
+
+  <div class="prompt-block">
+    <div class="head">
+      <div class="left"><span class="icon">▶</span> Paste #3 (optional), batch production polish</div>
+      <div class="copy-hint">Run after the dashboard is live and password-protected</div>
+    </div>
+<div class="body">The dashboard is live at my domain, password-protected, and working. Now I want to ship production polish. Pick the items below that apply to my project (detect from package.json / existing code), explain each in one sentence before doing it, then implement. Ask me to confirm BEFORE each section.
+
+<span class="hl">1. Cache headers via vercel.json</span>
+If this project doesn't have a vercel.json with explicit cache headers, add one with:
+- Static assets (/_next/static/, /_astro/, /assets/, *.woff2, *.css, *.js fingerprinted): Cache-Control: public, max-age=31536000, immutable
+- HTML pages: Cache-Control: public, max-age=0, must-revalidate
+- /api/* responses: Cache-Control: public, s-maxage=300, stale-while-revalidate=600 (adjust if specific endpoints need different policy, ask me)
+Don't break the basic-auth middleware, the middleware runs first and short-circuits to 401 before cache headers matter.
+
+<span class="hl">2. Lazy-load images and heavy components</span>
+Scan every <img> tag. Add loading="lazy" and decoding="async" to anything that's not above-the-fold or critical. For framework-specific components, identify the 3 heaviest chunks (use webpack-bundle-analyzer or build output if available) and wrap them in framework-appropriate lazy-load primitives. List what you'd change and ASK ME before changing.
+
+<span class="hl">3. Lighthouse pre-check</span>
+Run "npx unlighthouse-cli" or similar against my Vercel preview URL (mobile + desktop). If unavailable, just list what would likely flag (oversized images, unused CSS, render-blocking scripts) based on reading the source.
+
+<span class="hl">4. Analytics (only if I confirm)</span>
+Ask me whether I want Plausible (traffic only, privacy-friendly) or PostHog (behavior + session replay) or neither. Add the one I pick to the document head.
+
+<span class="hl">5. Mobile smoke test checklist</span>
+Print a 10-item checklist I should manually verify on my phone before sharing the dashboard link. Be specific to my project: list actual interactions, tap targets, breakpoints worth checking based on the code.
+
+After each section, commit with a clean message ("perf: cache headers", "perf: lazy load images", etc) so I can see and revert independently. Stop after each section to wait for my go-ahead on the next one.</div>
+  </div>
+
+  <div class="callout">
+    <div class="label">The other Kas-ism worth knowing</div>
+    <h4>Vercel keeps every deployment, use it</h4>
+    <p>If anything in the polish pass makes the site feel slower or breaks something subtle, Vercel's Deployments tab is your time machine. Click the three-dot menu on any prior deployment and "Promote to Production". Instant rollback, no code change required. This is also your safety net for any future risky push.</p>
   </div>
 </section>
 

@@ -795,8 +795,8 @@ After ~60 seconds, I visit my domain and should see the browser password dialog.
 If this project doesn't have a vercel.json with explicit cache headers, add one with:
 - Static assets (/_next/static/, /_astro/, /assets/, *.woff2, *.css, *.js fingerprinted): Cache-Control: public, max-age=31536000, immutable
 - HTML pages: Cache-Control: public, max-age=0, must-revalidate
-- /api/* responses: Cache-Control: public, s-maxage=300, stale-while-revalidate=600 (adjust if specific endpoints need different policy, ask me)
-Don't break the basic-auth middleware, the middleware runs first and short-circuits to 401 before cache headers matter.
+- /api/* responses: Cache-Control: private, max-age=60, stale-while-revalidate=300 + Vary: Authorization (use "private" not "public" because behind basic-auth the shared edge cache could otherwise leak one viewer's data to another). If the dashboard is single-shared-password and all endpoints return the same data to everyone, you can switch to public+s-maxage, but ask me first and explain the trade-off.
+Don't break the basic-auth middleware, the middleware runs first and short-circuits to 401 before cache headers matter. Also: every cache entry should include "Vary: Authorization" so different auth tokens don't share cache entries.
 
 <span class="hl">2. Lazy-load images and heavy components</span>
 Scan every <img> tag. Add loading="lazy" and decoding="async" to anything that's not above-the-fold or critical. For framework-specific components, identify the 3 heaviest chunks (use webpack-bundle-analyzer or build output if available) and wrap them in framework-appropriate lazy-load primitives. List what you'd change and ASK ME before changing.

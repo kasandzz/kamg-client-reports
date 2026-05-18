@@ -119,11 +119,24 @@ async function renderWarRoom(container) {
   // Each card: traffic-light dot, value, delta, optional sparkline,
   // optional z-score badge, data-calc tooltip (Show Calculations).
   // ================================================================
+  // Methodology banner (2026-05-18): war-room snapshot is now blended Hyros + Stripe + GHL,
+  // but the daily breakdown table + Daily Revenue Stack below still source Stripe-only buckets.
+  // Until Plan 1B unifies sources, this banner explains the mismatch users will see.
+  var methodBanner = document.createElement('div');
+  methodBanner.style.cssText = 'font-size:11px;color:' + Theme.COLORS.textMuted + ';background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;margin-bottom:12px;line-height:1.5';
+  methodBanner.textContent = 'Revenue figures blended across Stripe + Hyros + GHL (deduped) as of 2026-05-18. Daily breakdown + bucket totals below show Stripe-only and will not reconcile to snapshot until Phase 1B.';
+  container.appendChild(methodBanner);
+
   var snapshotContainer = document.createElement('div');
   snapshotContainer.style.marginBottom = '20px';
   snapshotContainer.classList.add('kpi-grid--snapshot');
   container.appendChild(snapshotContainer);
 
+  // BUG-2 (2026-05-18): heroSpark reads dailyRevenue.total_revenue which is Stripe-only daily,
+  // but the Revenue KPI header above is blended (Stripe + Hyros-non-Stripe + GHL-non-Stripe).
+  // No sparkline caption slot exists in Components.renderKPIStrip without DOM restructuring.
+  // TODO (Plan 1B): wire a blended-daily series + sparkline caption "Daily trace: Stripe only"
+  // OR rebuild dailyRevenue CF query to return blended daily totals.
   var heroSpark = (dailyRevenueData || []).map(function (r) { return Number(r.total_revenue || 0); });
   var heroZ = Components.computeZScore ? Components.computeZScore(heroSpark.slice(-30)) : null;
 
@@ -144,8 +157,8 @@ async function renderWarRoom(container) {
       format: 'money',
       sparkData: heroSpark,
       zScore: heroZ,
-      source: 'v_stripe_clean (Stripe)',
-      calc: 'SUM(amount WHERE status=succeeded) - refunds',
+      source: 'Hyros + Stripe + GHL (deduped)',
+      calc: 'stripe_gross_revenue + hyros_nonstripe_revenue + ghl_nonstripe_revenue − refunds',
       period: periodLabel,
       refresh: 'hourly',
     },
@@ -669,7 +682,7 @@ async function renderWarRoom(container) {
       _th('Booking %'),
       _th('Show %'),
       _th('Enrollments'),
-      _th('Gross Rev'),
+      _th('Stripe Rev'),
       '    </tr>',
       '  </thead>',
       '  <tbody>' + rowsHtml + '</tbody>',
@@ -736,20 +749,19 @@ function _escText(str) {
 // Mirrors funnels.js renderFunnelChart pattern. Self-contained.
 // ================================================================
 var _warStackChartInstance = null;
-var _warStackActiveMetric = 3; // 0=Tickets, 1=VIP, 2=High-Ticket, 3=Total
+var _warStackActiveMetric = 3; // 0=Tickets, 1=VIP, 2=Lions Pride, 3=Total (Stripe)
 var _warStackMode = 'money';   // 'money' or 'people' (toggle in card header)
 
-// High-Ticket = ANY Stripe purchase >$1000 (initial COD program payment, includes
-// split-pay; full price ~$13k but split-pay means any payment over $1k qualifies).
-// Renewals (prior >$1k payment from same email) will split out once
-// v_stripe_classified view ships (end-of-project data phase). VIP includes single
-// $54 AND the second $27 within 7 days from the same email (paired upgrade).
+// Lions Pride = COD program payment bucket per product taxonomy v2 ($60-$1000, canonical
+// $497 event ticket); cache field renamed from high_ticket_* to lions_pride_* (2026-05-15).
+// VIP includes single $54 AND the second $27 within 7 days from the same email (paired upgrade).
+// "Total" here is Stripe-bucket sum only -- NOT the blended war-room snapshot total.
 // Each metric has BOTH a money key and a people key (COUNT DISTINCT email).
 var _WAR_STACK_METRICS = [
-  { keyMoney: 'ticket_revenue',      keyPeople: 'ticket_people',      label: 'Tickets',     color: '#06b6d4', tip: 'Initial $27 workshop ticket purchase, first per customer in 7-day window.' },
-  { keyMoney: 'vip_revenue',         keyPeople: 'vip_people',         label: 'VIP',         color: '#a855f7', tip: 'VIP upgrade revenue: single $54 charge, or second $27 from same customer within 7 days.' },
-  { keyMoney: 'high_ticket_revenue', keyPeople: 'high_ticket_people', label: 'High-Ticket', color: '#22c55e', tip: 'Initial COD program payment ($1,000+ per transaction, includes split-pay). Excludes renewals once classification view ships.' },
-  { keyMoney: '_total_money',        keyPeople: '_total_people',      label: 'Total',       color: '#f59e0b', tip: 'Sum of Tickets + VIP + High-Ticket per day.' }
+  { keyMoney: 'ticket_revenue',       keyPeople: 'ticket_people',       label: 'Tickets',        color: '#06b6d4', tip: 'Initial $27 workshop ticket purchase, first per customer in 7-day window.' },
+  { keyMoney: 'vip_revenue',          keyPeople: 'vip_people',          label: 'VIP',            color: '#a855f7', tip: 'VIP upgrade revenue: single $54 charge, or second $27 from same customer within 7 days.' },
+  { keyMoney: 'lions_pride_revenue',  keyPeople: 'lions_pride_people',  label: 'Lions Pride',    color: '#22c55e', tip: 'Lions Pride event bucket ($60-$1000, canonical $497) per COD product taxonomy v2.' },
+  { keyMoney: '_total_money',         keyPeople: '_total_people',       label: 'Total (Stripe)', color: '#f59e0b', tip: 'Sum of Tickets + VIP + Lions Pride per day (Stripe-only; not blended war-room total).' }
 ];
 
 function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
@@ -757,23 +769,25 @@ function _renderStackShopifyStyle(rows, stripId, canvasId, legendId) {
 
   var isPeople = _warStackMode === 'people';
 
-  // Normalize rows: pull both money + people fields; compute synthetic totals
+  // Normalize rows: pull both money + people fields; compute synthetic totals.
+  // Cache fields renamed high_ticket_* -> lions_pride_* (2026-05-15 product taxonomy v2);
+  // fall back to legacy keys so stale caches still render non-zero during rollover.
   var normRows = rows.map(function (r) {
     var tM = Number(r.ticket_revenue || 0);
     var vM = Number(r.vip_revenue || 0);
-    var hM = Number(r.high_ticket_revenue || 0);
+    var hM = Number(r.lions_pride_revenue != null ? r.lions_pride_revenue : (r.high_ticket_revenue || 0));
     var tP = Number(r.ticket_people || 0);
     var vP = Number(r.vip_people || 0);
-    var hP = Number(r.high_ticket_people || 0);
+    var hP = Number(r.lions_pride_people != null ? r.lions_pride_people : (r.high_ticket_people || 0));
     var d = r.date && r.date.value ? r.date.value : r.date;
     return {
       dt: String(d || ''),
       ticket_revenue: tM,
       vip_revenue: vM,
-      high_ticket_revenue: hM,
+      lions_pride_revenue: hM,
       ticket_people: tP,
       vip_people: vP,
-      high_ticket_people: hP,
+      lions_pride_people: hP,
       _total_money: tM + vM + hM,
       _total_people: tP + vP + hP
     };

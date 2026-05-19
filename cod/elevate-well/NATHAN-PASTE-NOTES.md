@@ -86,7 +86,7 @@ Affected lines: `elevate-well-booking-rebuilt.html` lines ~903-915.
 
 ---
 
-### 5a. Registration-page form redirect (NEW)
+### 5. Registration-page form redirect
 
 | Find | Replace with |
 |------|--------------|
@@ -98,7 +98,7 @@ Same reason as swap #1: relative paths don't resolve inside GHL HTML blocks. Mus
 
 ---
 
-### 5b. Booking-page Privacy / Terms links (NEW)
+### 6. Booking-page Privacy / Terms links
 
 | Find | Replace with |
 |------|--------------|
@@ -109,7 +109,7 @@ Affected line: `elevate-well-booking-rebuilt.html` line ~1131. FTC scrutiny on a
 
 ---
 
-### 6. Thank-you page video + calendar dates
+### 7. Thank-you page video + calendar dates
 
 **Video (line ~990 + JS at line ~1274):**
 
@@ -160,7 +160,7 @@ No layout, brand-token, or major copy changes; same flow.
 For each page:
 - [ ] Open GHL page builder, add a Custom HTML block (full-width, no padding)
 - [ ] Open the matching `.html` file in a text editor
-- [ ] Run the find-and-replace swaps above that apply to that page (swaps 1-6)
+- [ ] Run the find-and-replace swaps above that apply to that page (swaps 1-7)
 - [ ] Copy the entire file contents (Cmd/Ctrl + A, Cmd/Ctrl + C)
 - [ ] Paste into the GHL HTML block
 - [ ] Save and preview
@@ -171,7 +171,7 @@ For each page:
 ## If something breaks
 
 - Forms not submitting: GHL HTML blocks DO execute inline `<script>`, but if a form doesn't fire, double-check there's no GHL form widget overriding it on the same page.
-- Calendar buttons broken on thank-you page: dates default to `now + 24h`; for real booking times, see swap #6.
+- Calendar buttons broken on thank-you page: dates default to `now + 24h`; for real booking times, see swap #7.
 - Video player blank: confirm the embed URL is correct AND that the host allows iframe embedding on the GHL domain.
 
 ---

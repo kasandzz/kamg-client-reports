@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Michelle Diniakos MA Funnel - Nathan Paste Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-dark: #2d2d2d;
+    --coral: #e07a6a;
+    --coral-hover: #c9685a;
+    --coral-light: rgba(224, 122, 106, 0.08);
+    --coral-border: rgba(224, 122, 106, 0.28);
+    --teal: #5a9e8f;
+    --teal-light: rgba(90, 158, 143, 0.08);
+    --warm-bg: #faf8f5;
+    --warm-bg-alt: #f3efe9;
+    --text-body: #3d3d3d;
+    --text-muted: #7a7a7a;
+    --white: #ffffff;
+    --code-bg: #f0eae2;
+    --shadow: 0 4px 24px rgba(0,0,0,0.06);
+    --shadow-strong: 0 6px 32px rgba(0,0,0,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    background: var(--warm-bg);
+    color: var(--text-body);
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 16px;
+    background: var(--teal-light); color: var(--teal);
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .badge--ready { background: rgba(90,158,143,0.15); }
+  .home-link {
+    font-size: 13px; color: var(--text-muted); text-decoration: none;
+    font-weight: 600;
+  }
+  .home-link:hover { color: var(--coral); }
+
+  h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 44px; font-weight: 700; line-height: 1.1;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .lede {
+    font-size: 17px; color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .lede strong { color: var(--primary-dark); font-weight: 700; }
+
+  .funnel-order {
+    display: inline-flex; gap: 8px; align-items: center;
+    margin-bottom: 32px; padding: 10px 16px;
+    background: var(--white); border-radius: 24px;
+    box-shadow: var(--shadow);
+    font-size: 13px; font-weight: 600; color: var(--text-body);
+  }
+  .funnel-order span { font-weight: 700; color: var(--coral); }
+  .funnel-order .arrow { color: var(--text-muted); font-weight: 400; }
+
+  h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 30px; font-weight: 700; color: var(--primary-dark);
+    margin: 48px 0 18px;
+    letter-spacing: -0.3px;
+  }
+  h3 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 22px; font-weight: 700; color: var(--primary-dark);
+    margin: 0 0 12px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 26px 28px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s ease;
+  }
+  .card:hover { box-shadow: var(--shadow-strong); }
+
+  .swap-card { position: relative; padding-left: 70px; }
+  .swap-num {
+    position: absolute; left: 22px; top: 26px;
+    width: 36px; height: 36px;
+    background: var(--coral); color: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+    box-shadow: 0 2px 8px rgba(224,122,106,0.3);
+  }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+    background: var(--warm-bg-alt);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left; padding: 12px 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    vertical-align: top;
+  }
+  th {
+    background: var(--code-bg);
+    font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--primary-dark);
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--coral); word-break: break-word; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    color: var(--primary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+  td code { background: transparent; padding: 0; color: inherit; }
+
+  ul, ol { padding-left: 22px; margin: 10px 0; }
+  li { margin-bottom: 6px; font-size: 14.5px; }
+  li code { font-size: 12.5px; }
+
+  p { font-size: 15px; margin-bottom: 12px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  .callout {
+    background: rgba(224,122,106,0.07);
+    border-left: 3px solid var(--coral);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin: 14px 0;
+    font-size: 14.5px;
+  }
+  .callout strong { color: var(--primary-dark); }
+  .callout--warning { background: rgba(255,180,84,0.12); border-left-color: #d99340; }
+  .callout--info { background: var(--teal-light); border-left-color: var(--teal); }
+
+  .file-list-table th, .file-list-table td { padding: 10px 14px; }
+  .file-list-table td:first-child { color: var(--text-body); font-family: inherit; font-weight: 700; width: 60px; }
+
+  .checklist {
+    list-style: none; padding-left: 0;
+  }
+  .checklist li {
+    position: relative; padding-left: 30px;
+    margin-bottom: 10px; font-size: 15px;
+  }
+  .checklist li::before {
+    content: ''; position: absolute; left: 0; top: 4px;
+    width: 18px; height: 18px;
+    border: 2px solid var(--coral); border-radius: 4px;
+    background: var(--white);
+  }
+
+  .fixes-list { padding-left: 24px; }
+  .fixes-list li { margin-bottom: 14px; font-size: 15px; }
+  .fixes-list strong { color: var(--primary-dark); }
+
+  footer.page-footer {
+    margin-top: 56px; padding-top: 24px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  hr { display: none; }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 16px 60px; }
+    h1 { font-size: 32px; }
+    h2 { font-size: 24px; }
+    .swap-card { padding-left: 24px; }
+    .swap-num { position: static; margin-bottom: 14px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="badge badge--ready">Paste-Ready - 2026-05-18</span>
+    <a class="home-link" href="index.html">&larr; Back to bundle index</a>
+  </div>
+
+  <h1>Michelle Diniakos MA Funnel</h1>
+  <p class="lede"><strong>Nathan paste notes.</strong> Click-to-timestamp video navigation removed per ADR-022 (Russ approved May 13).</p>
+
+  <div class="funnel-order">
+    <span>1. Registration</span><span class="arrow">&rarr;</span>
+    <span>2. Training</span><span class="arrow">&rarr;</span>
+    <span>3. Booking</span><span class="arrow">&rarr;</span>
+    <span>4. Thank-you</span>
+  </div>
+
+  <div class="card">
+    <h3>Files in this bundle</h3>
+    <table class="file-list-table">
+      <thead><tr><th>Step</th><th>File</th><th>Paste into</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>elevate-well-registration-merged.html</code></td><td>GHL "Registration" page, Custom HTML block</td></tr>
+        <tr><td>2</td><td><code>elevate-well-training-rebuilt.html</code></td><td>GHL "Training" page, Custom HTML block</td></tr>
+        <tr><td>3</td><td><code>elevate-well-booking-rebuilt.html</code></td><td>GHL "Booking" page, Custom HTML block</td></tr>
+        <tr><td>4</td><td><code>elevate-well-thankyou-rebuilt.html</code></td><td>GHL "Thank-You" page, Custom HTML block</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Preference: GHL native features over custom HTML</h2>
+  <div class="card">
+    <p>Per Kas: use GHL's native widgets (calendar, forms, etc.) wherever they fit. The HTML in this bundle handles the page chrome (hero, copy, layout, social proof, footer); for any interactive feature GHL ships natively, <strong>drop the GHL widget in place of the corresponding placeholder block</strong> instead of trying to wire JS into the custom HTML.</p>
+    <p>If the native widget visually breaks the page framing, fall back to a passthrough (e.g. GHL Liquid tokens for booking dates on the thank-you page). Nathan knows GHL's native widget catalog better than the HTML markers; trust his judgment on which native widget to drop where.</p>
+    <p style="color: var(--text-muted); font-size: 14px;">The swaps below are ordered so the GHL-native path is always option A.</p>
+  </div>
+
+  <h2>Find-and-replace swaps before paste</h2>
+
+  <div class="card swap-card">
+    <span class="swap-num">1</span>
+    <h3>Michelle's headshot (reg + training + thank-you)</h3>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td><code>src="michelle-headshot.png"</code></td><td>Full GHL Media URL of Michelle's headshot (must be absolute <code>https://</code> URL)</td></tr></tbody>
+    </table>
+    <p><strong>Affected lines:</strong></p>
+    <ul>
+      <li><code>elevate-well-registration-merged.html</code> line ~1326</li>
+      <li><code>elevate-well-training-rebuilt.html</code> line ~1080</li>
+      <li><code>elevate-well-thankyou-rebuilt.html</code> line ~995</li>
+    </ul>
+    <div class="callout">
+      <strong>Why this matters:</strong> Relative paths like <code>michelle-headshot.png</code> will 404 when pasted into a GHL Custom HTML block; the page URL resolves the relative reference against the GHL domain (not this folder). You MUST use an absolute <code>https://</code> URL. Per ADR-022, upload <code>michelle-headshot.png</code> to GHL Media first, then drop the resulting URL in.
+    </div>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">2</span>
+    <h3>Webinar video (training page)</h3>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td><code>https://player.vimeo.com/video/YOUR_VIDEO_ID?autoplay=1</code></td><td>Michelle's actual Vimeo / Wistia / YouTube embed URL</td></tr></tbody>
+    </table>
+    <p><strong>Affected:</strong> <code>elevate-well-training-rebuilt.html</code> line ~1075 (the <code>data-src</code> attribute on the videoIframe).</p>
+    <p>The iframe loads on play-button click. Click-to-seek timestamps removed; the section now reads as a static chapter preview.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">3</span>
+    <h3>Training-page application form submit</h3>
+    <div class="callout callout--info">
+      <strong>Preferred path (GHL native):</strong> Replace the entire custom <code>&lt;form&gt;</code> block (lines ~1382-1432 inside <code>#applicationSection</code>) with the GHL native form / survey widget that already feeds Michelle's CRM. The custom HTML provides the section framing; the GHL widget owns the inputs, validation, and submit. No JS wiring needed and the data lands in GHL automatically.
+    </div>
+    <p><strong>Fallback (keep the custom form):</strong> If the native widget visually breaks the section, keep the custom form and:</p>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td><code>window.location.href = '#thank-you'; // Placeholder</code></td><td>Full GHL booking-page URL (absolute <code>https://</code>)</td></tr></tbody>
+    </table>
+    <p><strong>Affected:</strong> <code>elevate-well-training-rebuilt.html</code> line ~1592 (inside <code>submitApplication()</code>).</p>
+    <div class="callout callout--warning">
+      <strong>Warning:</strong> The line directly below (~1593) is an example comment showing a Calendly URL like <code>https://calendly.com/michelle-elevatewell/strategy-call</code>. <strong>This is illustrative only; that URL does NOT exist.</strong> Use Michelle's real GHL booking page URL.
+    </div>
+    <p>For data-passthrough on the fallback path: wire a <code>fetch()</code> POST to a GHL inbound webhook inside <code>submitApplication()</code> before the redirect.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">4</span>
+    <h3>Booking-page calendar embed (GHL native preferred)</h3>
+    <div class="callout callout--info">
+      <strong>Preferred path (GHL native):</strong> Replace the <code>.calendar-embed-placeholder</code> div with the GHL native calendar widget embed (e.g. <code>&lt;iframe src="https://link.gohighlevel.com/widget/booking/your-slug" ...&gt;&lt;/iframe&gt;</code> OR whatever drag-drop calendar block COD uses on Michelle's other pages). The surrounding <code>.calendar-card</code> container holds the trust-elements and section framing; only swap the inner placeholder.
+    </div>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td><code>&lt;div class="calendar-embed-placeholder"&gt;...&lt;/div&gt;</code></td><td>GHL native calendar widget snippet (iframe or drop-in block)</td></tr></tbody>
+    </table>
+    <p><strong>Affected:</strong> <code>elevate-well-booking-rebuilt.html</code> lines ~903-915.</p>
+    <p><strong>Fallback (only if GHL native breaks the layout):</strong> Calendly inline widget <code>&lt;div class="calendly-inline-widget" data-url="https://calendly.com/..." style="min-width:320px;height:630px;"&gt;&lt;/div&gt;</code>. This is a fallback only; Calendly events don't write back into GHL CRM without a separate Zap.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">5</span>
+    <h3>Registration-page form redirect</h3>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td><code>'NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL'</code></td><td>Full GHL training-page URL (absolute <code>https://</code>)</td></tr></tbody>
+    </table>
+    <p><strong>Affected:</strong> <code>elevate-well-registration-merged.html</code> line ~1680 (inside the form-submit handler).</p>
+    <p>Same reason as swap 1: relative paths don't resolve inside GHL HTML blocks. Must be absolute.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">6</span>
+    <h3>Booking-page Privacy / Terms links</h3>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody>
+        <tr><td><code>&lt;a href="#"&gt;Privacy Policy&lt;/a&gt;</code></td><td><code>&lt;a href="&lt;GHL-PRIVACY-URL&gt;"&gt;Privacy Policy&lt;/a&gt;</code></td></tr>
+        <tr><td><code>&lt;a href="#"&gt;Terms of Service&lt;/a&gt;</code></td><td><code>&lt;a href="&lt;GHL-TERMS-URL&gt;"&gt;Terms of Service&lt;/a&gt;</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Affected:</strong> <code>elevate-well-booking-rebuilt.html</code> line ~1131. FTC scrutiny on a $4.5k weight-loss page makes dead Privacy/Terms a compliance risk; fix before launch.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num">7</span>
+    <h3>Thank-you page video + calendar dates</h3>
+
+    <p><strong>Video</strong> (line ~990 + JS at line ~1274):</p>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody><tr><td>Inside <code>playVideo()</code> function</td><td>Real Wistia / Vimeo embed URL setter</td></tr></tbody>
+    </table>
+    <p>Currently shows "Video coming soon"; swap with Michelle's intro/welcome video when ready.</p>
+
+    <p style="margin-top: 18px;"><strong>Calendar add-to-calendar dates</strong> (line ~1292-1295):</p>
+    <p>The <code>startISO</code> and <code>endISO</code> defaults now compute as <code>now + 24h</code> so the buttons don't generate past-dated events if you paste-test before swapping. For production:</p>
+    <table>
+      <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
+      <tbody>
+        <tr><td>The <code>startISO: (function(){...})()</code> IIFE</td><td><code>startISO: '{{appointment.start_time | date: "%Y%m%dT%H%M%SZ"}}',</code> (GHL Liquid token)</td></tr>
+        <tr><td>The <code>endISO: (function(){...})()</code> IIFE</td><td><code>endISO: '{{appointment.end_time | date: "%Y%m%dT%H%M%SZ"}}',</code></td></tr>
+      </tbody>
+    </table>
+    <p>If GHL Liquid syntax is different on your build, ask in COD Slack; default 24h-from-now behavior is safe for paste-testing.</p>
+  </div>
+
+  <h2>What was changed from the originals</h2>
+  <div class="card">
+    <ol class="fixes-list">
+      <li><strong>Removed click-to-timestamp video navigation</strong> from the training page (per ADR-022; GHL doesn't support).
+        <ul>
+          <li>6 timestamp items are now static chapter-preview cards (titles + descriptions + times still visible).</li>
+          <li><code>seekVideo()</code> JS function deleted.</li>
+          <li>Subheadline copy updated from "Click any timestamp to jump..." to "Here is what you will cover...".</li>
+        </ul>
+      </li>
+      <li><strong>Registration-page countdown JS null-safe guard.</strong> The original <code>updateCountdown</code> referenced <code>cd-days</code> / <code>cd-hours</code> / <code>cd-mins</code> / <code>cd-secs</code> IDs that don't exist in the DOM; the IIFE was throwing on first call and silently breaking the rest of the script. Added an early-return guard so the countdown is a no-op until those IDs exist.</li>
+      <li><strong>Registration-page social proof number</strong> changed from "1,247+ other women" to "hundreds of other women" (unverifiable specific count is FTC-exposed).</li>
+      <li><strong>Thank-you-page calendar ISO defaults</strong> now compute as <code>now + 24h</code> instead of hardcoded <code>20241201T100000Z</code>. So the add-to-calendar buttons don't generate past-dated events if you paste-test before swapping in GHL booking tokens.</li>
+      <li><strong>FTC disclaimer block added to booking + thank-you footers</strong> (matching the reg + training footers). Specific weight claims like "Down 28 lbs" / "42 lbs down" need the disclaimer on every page they appear.</li>
+      <li><strong>Kept</strong> the "Only 6 spots per month" / "Only 47 spots remaining" scarcity copy per Kas's direction on this funnel. Note: overrides the general COD no-fake-scarcity rule for Michelle's MA tier; flag with Russ if it becomes an issue.</li>
+      <li><strong>Copyright year</strong> bumped to 2026 on booking + thank-you footers (was 2024).</li>
+    </ol>
+    <p style="margin-top: 14px; color: var(--text-muted); font-size: 14px;">No layout, brand-token, or major copy changes; same flow.</p>
+  </div>
+
+  <h2>Paste checklist (5 minutes per page)</h2>
+  <div class="card">
+    <p style="margin-bottom: 14px;">For each page:</p>
+    <ul class="checklist">
+      <li>Open GHL page builder, add a Custom HTML block (full-width, no padding)</li>
+      <li>Open the matching <code>.html</code> file in a text editor</li>
+      <li>Run the find-and-replace swaps above that apply to that page (swaps 1-7)</li>
+      <li>Copy the entire file contents (Cmd/Ctrl + A, Cmd/Ctrl + C)</li>
+      <li>Paste into the GHL HTML block</li>
+      <li>Save and preview</li>
+      <li>Mobile-check (form + CTA buttons + video player)</li>
+    </ul>
+  </div>
+
+  <h2>If something breaks</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Forms not submitting:</strong> GHL HTML blocks DO execute inline <code>&lt;script&gt;</code>, but if a form doesn't fire, double-check there's no GHL form widget overriding it on the same page.</li>
+      <li><strong>Calendar buttons broken on thank-you page:</strong> dates default to <code>now + 24h</code>; for real booking times, see swap 7.</li>
+      <li><strong>Video player blank:</strong> confirm the embed URL is correct AND that the host allows iframe embedding on the GHL domain.</li>
+    </ul>
+  </div>
+
+  <footer class="page-footer">
+    Built by Kas. Last updated 2026-05-18. Questions: ping in COD Slack.
+  </footer>
+
+</div>
+</body>
+</html>

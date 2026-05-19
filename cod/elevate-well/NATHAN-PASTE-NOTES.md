@@ -15,6 +15,14 @@
 
 ---
 
+## Preference: GHL native features over custom HTML
+
+Per Kas: use GHL's native widgets (calendar, forms, etc.) wherever they fit. The HTML in this bundle handles the page chrome (hero, copy, layout, social proof, footer), but for any interactive feature GHL ships natively, **drop the GHL widget in place of the corresponding placeholder block** instead of trying to wire JS into the custom HTML. If the native widget visually breaks the page framing, fall back to a passthrough (e.g. GHL Liquid tokens for booking dates on the thank-you page). Nathan knows GHL's native widget catalog better than the HTML markers; trust his judgment on which native widget to drop where.
+
+The swaps below are ordered so the GHL-native path is always option A.
+
+---
+
 ## Find-and-replace swaps before paste
 
 ### 1. Michelle's headshot (appears on reg + training + thank-you)
@@ -48,31 +56,33 @@ The iframe loads on play-button click. Click-to-seek timestamps removed - the se
 
 ### 3. Training-page application form submit
 
+**Preferred path (GHL native):** Replace the entire custom `<form>` block (lines ~1382-1432 inside the `#applicationSection`) with the GHL native form / survey widget that already feeds Michelle's CRM. The custom HTML provides the section framing; the GHL widget owns the inputs, validation, and submit. This way no JS wiring is needed and the data lands in GHL automatically.
+
+**Fallback (keep the custom form):** If the native widget visually breaks the section, keep the custom form and:
+
 | Find | Replace with |
 |------|--------------|
-| `window.location.href = '#thank-you'; // Placeholder` | Real redirect URL to the GHL booking page or Calendly link |
+| `window.location.href = '#thank-you'; // Placeholder` | Full GHL booking-page URL (absolute `https://`) |
 
 Affected line: `elevate-well-training-rebuilt.html` line ~1592 (inside `submitApplication()`).
 
-> **Warning:** The line directly below (~1593) is an example comment showing a Calendly URL like `https://calendly.com/michelle-elevatewell/strategy-call`. **This is illustrative only; that URL does NOT exist.** Use Michelle's real Calendly slug or the actual GHL booking page URL.
+> **Warning:** The line directly below (~1593) is an example comment showing a Calendly URL like `https://calendly.com/michelle-elevatewell/strategy-call`. **This is illustrative only; that URL does NOT exist.** Use Michelle's real GHL booking page URL.
 
-Recommendation: redirect straight to the GHL booking page (step 3 of funnel) so the email/phone capture flow is unified. If you want the form data into GHL CRM, either:
-- (a) Replace the entire `<form>` block (lines ~1382-1432) with a GHL form embed, or
-- (b) Wire a `fetch()` POST to a GHL webhook before the redirect.
+For data-passthrough on the fallback path: wire a `fetch()` POST to a GHL inbound webhook inside `submitApplication()` before the redirect.
 
 ---
 
-### 4. Booking-page calendar embed
+### 4. Booking-page calendar embed (use GHL native)
+
+**Preferred path (GHL native):** Replace the `.calendar-embed-placeholder` div with the GHL native calendar widget embed snippet (e.g. `<iframe src="https://link.gohighlevel.com/widget/booking/your-slug" ...></iframe>` OR whatever drag-drop calendar block COD uses on Michelle's other pages). The surrounding `.calendar-card` container holds the trust-elements and section framing; only swap the inner placeholder.
 
 | Find | Replace with |
 |------|--------------|
-| `<div class="calendar-embed-placeholder">...</div>` | Calendly iframe OR GHL booking widget snippet |
+| `<div class="calendar-embed-placeholder">...</div>` | GHL native calendar widget snippet (iframe or drop-in block) |
 
 Affected lines: `elevate-well-booking-rebuilt.html` lines ~903-915.
 
-Example replacements left as comments inline:
-- `<div class="calendly-inline-widget" data-url="https://calendly.com/..." style="min-width:320px;height:630px;"></div>`
-- `<iframe src="https://link.gohighlevel.com/widget/booking/your-slug" ...></iframe>`
+**Fallback (only if GHL native breaks the layout):** Calendly inline widget `<div class="calendly-inline-widget" data-url="https://calendly.com/..." style="min-width:320px;height:630px;"></div>`. This is a fallback only; Calendly events don't write back into GHL CRM without a separate Zap.
 
 ---
 

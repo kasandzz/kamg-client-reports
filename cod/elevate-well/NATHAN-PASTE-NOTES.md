@@ -1,4 +1,4 @@
-# Michelle Diniakos MA Funnel — Nathan Paste Notes
+# Michelle Diniakos MA Funnel - Nathan Paste Notes
 
 **Status:** Paste-ready. Click-to-timestamp video navigation has been removed per ADR-022 (Russ approved May 13).
 
@@ -17,15 +17,18 @@
 
 ## Find-and-replace swaps before paste
 
-### 1. Michelle's headshot (appears in reg + training)
+### 1. Michelle's headshot (appears on reg + training + thank-you)
 
 | Find | Replace with |
 |------|--------------|
-| `src="michelle-headshot.png"` | Full GHL Media URL of Michelle's headshot |
+| `src="michelle-headshot.png"` | Full GHL Media URL of Michelle's headshot (must be absolute `https://` URL) |
 
 Affected lines:
 - `elevate-well-registration-merged.html` line ~1326
 - `elevate-well-training-rebuilt.html` line ~1080
+- `elevate-well-thankyou-rebuilt.html` line ~995
+
+**Why this matters:** Relative paths like `michelle-headshot.png` will 404 when pasted into a GHL Custom HTML block; the page URL resolves the relative reference against the GHL domain (not this folder). You MUST use an absolute `https://` URL.
 
 Per ADR-022, upload `michelle-headshot.png` to GHL Media first, then drop the resulting URL in. Don't reference the GitHub-raw URL.
 
@@ -51,6 +54,8 @@ The iframe loads on play-button click. Click-to-seek timestamps removed - the se
 
 Affected line: `elevate-well-training-rebuilt.html` line ~1592 (inside `submitApplication()`).
 
+> **Warning:** The line directly below (~1593) is an example comment showing a Calendly URL like `https://calendly.com/michelle-elevatewell/strategy-call`. **This is illustrative only; that URL does NOT exist.** Use Michelle's real Calendly slug or the actual GHL booking page URL.
+
 Recommendation: redirect straight to the GHL booking page (step 3 of funnel) so the email/phone capture flow is unified. If you want the form data into GHL CRM, either:
 - (a) Replace the entire `<form>` block (lines ~1382-1432) with a GHL form embed, or
 - (b) Wire a `fetch()` POST to a GHL webhook before the redirect.
@@ -71,7 +76,30 @@ Example replacements left as comments inline:
 
 ---
 
-### 5. Thank-you page video + calendar dates
+### 5a. Registration-page form redirect (NEW)
+
+| Find | Replace with |
+|------|--------------|
+| `'NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL'` | Full GHL training-page URL (absolute `https://`) |
+
+Affected line: `elevate-well-registration-merged.html` line ~1680 (inside the form-submit handler).
+
+Same reason as swap #1: relative paths don't resolve inside GHL HTML blocks. Must be absolute.
+
+---
+
+### 5b. Booking-page Privacy / Terms links (NEW)
+
+| Find | Replace with |
+|------|--------------|
+| `<a href="#">Privacy Policy</a>` | `<a href="<GHL-PRIVACY-URL>">Privacy Policy</a>` |
+| `<a href="#">Terms of Service</a>` | `<a href="<GHL-TERMS-URL>">Terms of Service</a>` |
+
+Affected line: `elevate-well-booking-rebuilt.html` line ~1131. FTC scrutiny on a $4.5k weight-loss page makes dead Privacy/Terms a compliance risk; fix before launch.
+
+---
+
+### 6. Thank-you page video + calendar dates
 
 **Video (line ~990 + JS at line ~1274):**
 
@@ -79,29 +107,41 @@ Example replacements left as comments inline:
 |------|--------------|
 | Inside `playVideo()` function | Real Wistia/Vimeo embed URL setter |
 
-Currently shows "Video coming soon" — swap with Michelle's intro/welcome video when ready.
+Currently shows "Video coming soon"; swap with Michelle's intro/welcome video when ready.
 
-**Calendar add-to-calendar dates (line ~1292-1293):**
+**Calendar add-to-calendar dates (line ~1292-1295):**
+
+The `startISO` and `endISO` defaults now compute as `now + 24h` so the buttons don't generate past-dated events if you paste-test before swapping. For production:
 
 | Find | Replace with |
 |------|--------------|
-| `startISO: '20241201T100000Z',` | Dynamic injection of the user's actual booking time |
-| `endISO:   '20241201T104000Z',` | Booking time + 40 minutes |
+| The `startISO: (function(){...})()` IIFE | `startISO: '{{appointment.start_time | date: "%Y%m%dT%H%M%SZ"}}',` (GHL Liquid token) |
+| The `endISO: (function(){...})()` IIFE | `endISO: '{{appointment.end_time | date: "%Y%m%dT%H%M%SZ"}}',` |
 
-Easiest path: GHL exposes booking date/time tokens (e.g., `{{appointment.start_time}}`) — drop those into the `startISO`/`endISO` strings during paste.
+Easiest path: GHL exposes booking date/time tokens. Drop them into the `startISO`/`endISO` strings during paste. If GHL Liquid syntax is different, ask in the COD Slack; default behavior (24h-from-now) is safe for paste-testing.
 
 ---
 
-## What was changed from the originals (audit fixes)
+## What was changed from the originals (audit fixes, 2026-05-18)
 
-1. **Removed click-to-timestamp video navigation** from the training page (per ADR-022 — GHL doesn't support).
+1. **Removed click-to-timestamp video navigation** from the training page (per ADR-022; GHL doesn't support).
    - 6 timestamp items are now static chapter-preview cards (titles + descriptions + times still visible).
    - `seekVideo()` JS function deleted.
    - Subheadline copy updated from "Click any timestamp to jump..." to "Here is what you will cover...".
 
-2. **Kept** the "Only 6 spots per month" / "Only 47 spots remaining" scarcity copy per Kas's direction on this funnel (note: this overrides the general COD no-fake-scarcity rule for Michelle's MA tier — flag with Russ if it becomes an issue).
+2. **Registration-page countdown JS null-safe guard.** The original `updateCountdown` referenced `cd-days`/`cd-hours`/`cd-mins`/`cd-secs` IDs that don't exist in the DOM; the IIFE was throwing on first call and silently breaking the rest of the script. Added an early-return guard so the countdown is a no-op until those IDs exist.
 
-3. No other copy or design changes — same layout, same brand tokens, same flow.
+3. **Registration-page social proof number** changed from "1,247+ other women" to "hundreds of other women" (unverifiable specific count is FTC-exposed).
+
+4. **Thank-you-page calendar ISO defaults** now compute as `now + 24h` instead of hardcoded `20241201T100000Z`. So the add-to-calendar buttons don't generate past-dated events if Nathan paste-tests before swapping in GHL booking tokens.
+
+5. **FTC disclaimer block added to booking + thank-you footers** (matching the reg + training footers). Specific weight claims like "Down 28 lbs" / "42 lbs down" need the disclaimer on every page they appear.
+
+6. **Kept** the "Only 6 spots per month" / "Only 47 spots remaining" scarcity copy per Kas's direction on this funnel (note: overrides the general COD no-fake-scarcity rule for Michelle's MA tier; flag with Russ if it becomes an issue).
+
+7. **Copyright year** bumped to 2026 on booking + thank-you footers (was 2024).
+
+No layout, brand-token, or major copy changes; same flow.
 
 ---
 
@@ -110,7 +150,7 @@ Easiest path: GHL exposes booking date/time tokens (e.g., `{{appointment.start_t
 For each page:
 - [ ] Open GHL page builder, add a Custom HTML block (full-width, no padding)
 - [ ] Open the matching `.html` file in a text editor
-- [ ] Run the 5 find-and-replace swaps above (only the ones that apply to that page)
+- [ ] Run the find-and-replace swaps above that apply to that page (swaps 1-6)
 - [ ] Copy the entire file contents (Cmd/Ctrl + A, Cmd/Ctrl + C)
 - [ ] Paste into the GHL HTML block
 - [ ] Save and preview
@@ -121,7 +161,7 @@ For each page:
 ## If something breaks
 
 - Forms not submitting: GHL HTML blocks DO execute inline `<script>`, but if a form doesn't fire, double-check there's no GHL form widget overriding it on the same page.
-- Calendar buttons broken on thank-you page: dates are hardcoded placeholders — see swap #5.
+- Calendar buttons broken on thank-you page: dates default to `now + 24h`; for real booking times, see swap #6.
 - Video player blank: confirm the embed URL is correct AND that the host allows iframe embedding on the GHL domain.
 
 ---

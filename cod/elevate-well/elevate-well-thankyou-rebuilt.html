@@ -1253,8 +1253,11 @@
     <p class="footer__contact">
         Questions before your call? Email <a href="mailto:support@elevatewell.net">support@elevatewell.net</a>
     </p>
-    <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px;">
-        &copy; 2024 Elevate Well with Michelle Diniakos. All rights reserved.
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 20px; max-width: 640px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+        Results shown are from real Elevate Well clients. Individual results vary based on starting point, consistency, and personal factors. The Hormonal Reset Method is not a substitute for medical advice. Please consult your physician before beginning any new nutrition or fitness program. This page is not intended to diagnose, treat, cure, or prevent any disease or medical condition.
+    </p>
+    <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">
+        &copy; 2026 Elevate Well with Michelle Diniakos. All rights reserved.
     </p>
 </footer>
 
@@ -1290,9 +1293,11 @@
             title: encodeURIComponent('Transformation Assessment with Michelle Diniakos'),
             details: encodeURIComponent('Your free 40-minute Transformation Assessment. Zoom link will be in your confirmation email from Elevate Well.'),
             location: encodeURIComponent('Zoom (link in your confirmation email)'),
-            // Placeholder dates: update with real booking system integration
-            startISO: '20241201T100000Z',
-            endISO:   '20241201T104000Z',
+            // NATHAN: replace these with the user's real booking time from GHL.
+            // Best path: inject GHL booking tokens, e.g. {{appointment.start_time}} formatted as YYYYMMDDTHHMMSSZ.
+            // Defaulting to 24 hours from now so the buttons don't generate past-dated events if Nathan paste-tests before the swap.
+            startISO: (function(){ var d = new Date(Date.now() + 24*60*60*1000); var p = function(n){return n<10?'0'+n:n;}; return d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+'T'+p(d.getUTCHours())+p(d.getUTCMinutes())+'00Z'; })(),
+            endISO:   (function(){ var d = new Date(Date.now() + 24*60*60*1000 + 40*60*1000); var p = function(n){return n<10?'0'+n:n;}; return d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+'T'+p(d.getUTCHours())+p(d.getUTCMinutes())+'00Z'; })(),
         };
     }
 

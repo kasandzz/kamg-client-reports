@@ -12,7 +12,7 @@
     <meta property="og:image" content="https://pages.elevatewell.net/og-image.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <title>Free Training: Your Body Isn't Broken | Elevate Well with Michelle</title>
-    <!-- NATHAN: Before pasting into GHL, run the find-and-replace swaps in NATHAN-PASTE-NOTES.md (same folder). This page needs: (1) michelle-headshot.png -> GHL Media URL. Verified: no GHL-incompatible features. -->
+    <!-- NATHAN: Before pasting into GHL, run the find-and-replace swaps in NATHAN-PASTE-NOTES.md (same folder). This page needs: (1) michelle-headshot.png -> GHL Media URL, (2) NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL -> absolute GHL training-page URL. -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1549,7 +1549,7 @@
             <h2>Every Week You Wait Is Another Week of Not Knowing Why.</h2>
             <p>This free training could be the turning point you've been looking for.</p>
             <button class="cta-button scroll-to-form" type="button">Watch the Free Training Now</button>
-            <p class="second-cta__trust">Join Sarah, Jennifer, Laurie, and 1,247+ other women who decided to stop starting over.</p>
+            <p class="second-cta__trust">Join Sarah, Jennifer, Laurie, and hundreds of other women who decided to stop starting over.</p>
         </div>
     </section>
 
@@ -1675,8 +1675,9 @@
                 if (!name || !email) return;
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
 
-                // Redirect to training page
-                window.location.href = 'elevate-well-training-rebuilt.html';
+                // NATHAN: replace the URL below with the full GHL training-page URL before paste.
+                // Relative paths break inside GHL Custom HTML blocks (the host page URL is not in this folder).
+                window.location.href = 'NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL';
             });
 
             // ========== COUNTDOWN TIMER ==========
@@ -1685,9 +1686,11 @@
             target.setHours(19, 0, 0, 0);
 
             function updateCountdown() {
+                var elDays = document.getElementById('cd-days');
+                if (!elDays) return; // countdown widget not rendered on this page; bail silently to avoid breaking the rest of the IIFE
                 var diff = target - new Date();
                 if (diff <= 0) {
-                    document.getElementById('cd-days').textContent = '00';
+                    elDays.textContent = '00';
                     document.getElementById('cd-hours').textContent = '00';
                     document.getElementById('cd-mins').textContent = '00';
                     document.getElementById('cd-secs').textContent = '00';
@@ -1697,7 +1700,7 @@
                 var h = Math.floor((diff % 86400000) / 3600000);
                 var m = Math.floor((diff % 3600000) / 60000);
                 var s = Math.floor((diff % 60000) / 1000);
-                document.getElementById('cd-days').textContent = d < 10 ? '0' + d : d;
+                elDays.textContent = d < 10 ? '0' + d : d;
                 document.getElementById('cd-hours').textContent = h < 10 ? '0' + h : h;
                 document.getElementById('cd-mins').textContent = m < 10 ? '0' + m : m;
                 document.getElementById('cd-secs').textContent = s < 10 ? '0' + s : s;

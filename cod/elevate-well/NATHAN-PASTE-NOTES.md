@@ -149,11 +149,11 @@ The bundle has **3 forms** that need to land in GHL's CRM. Pick a tier per form 
 
 **How:** In the GHL page builder, drop a Form/Survey element WHERE the current `<form>` block lives in the HTML. Build the GHL form with the same field labels (or as close as possible). The custom HTML provides hero/copy/section framing; the GHL widget owns inputs, validation, submit, and CRM landing. No JS wiring needed.
 
-**Gotcha (per Rehan, Yodel Mobile, 2024):** Multi-checkbox or multi-radio fields can show as separate contact properties in GHL CRM rather than one combined field. Workaround: create 4 separate contact properties (one per radio option) OR create a single property with predefined dropdown options matching the radio values. Map via a GHL workflow on form submit.
+**Gotcha (per internal research):** Multi-checkbox or multi-radio fields can show as separate contact properties in GHL CRM rather than one combined field. Workaround: create 4 separate contact properties (one per radio option) OR create a single property with predefined dropdown options matching the radio values. Map via a GHL workflow on form submit.
 
 ### Tier B: fetch() POST to GHL inbound webhook (interim, no admin perm needed)
 
-**Source attribution:** This is Kas's recommendation, NOT Rehan's. Rehan's Slack history doesn't include this pattern for GHL specifically; he's building toward Tier C (private integration). Tier B is a "ship today, no admin perm needed" interim path; verify it actually works in Michelle's GHL location before relying on it.
+**Source attribution:** This is Kas's recommendation. Internal research toward Tier C (private integration) is in progress; Tier B is a "ship today, no admin perm needed" interim path. Verify it actually works in Michelle's GHL location before relying on it.
 
 **When to use:** If Tier A breaks layout, or you need to keep the multi-step UX exactly as designed.
 
@@ -196,21 +196,21 @@ With `no-cors`, the request fires but you can't read the response (always opaque
 **Pros:** No GHL admin permission required. Nathan can ship today.
 **Cons:** Fire-and-forget (especially in no-cors mode); calendar booking still needs separate handling.
 
-### Tier C: GHL Private Integration (Rehan's chosen path, currently BLOCKED)
+### Tier C: GHL Private Integration (preferred internal path, currently BLOCKED)
 
-**Per Rehan, 2026-05-18 Slack:** This is what he's using for COD's application page Step 5 (calendar booking from custom HTML). It requires Private Integration access in GHL Location Settings:
+This is the path our team uses for COD's application page Step 5 (calendar booking from custom HTML). It requires Private Integration access in GHL Location Settings:
 
 > `app.clientsondemand.app/v2/location/h83O4TKy09yLLdfnIw3K/settings/private-integrations`
 
-**STATUS:** Permission to create a private integration on the COD GHL location is currently blocked. Rehan reported the issue to GHL support on 2026-05-18; awaiting response at `kas@russruffino.com`. Until resolved, this tier is unavailable.
+**STATUS:** Permission to create a private integration on the COD GHL location is currently blocked. A ticket was filed with GHL support on 2026-05-18; awaiting response at `kas@russruffino.com`. Until resolved, this tier is unavailable.
 
 **When resolved:** Generate a Private Integration token, call GHL API endpoints (`/contacts/upsert`, `/calendars/events`) from a server-side proxy (Cloudflare Worker, Vercel function) to keep the token out of the browser. Map fields via the API payload directly.
 
 ### Calendar booking on the training page
 
-The training page application form is conceptually the same as Rehan's COD Step 5 work: capture applicant data AND book a calendar slot. Two paths:
+The training page application form is conceptually the same as the COD application page Step 5 work in progress: capture applicant data AND book a calendar slot. Two paths:
 
-**If Tier C unblocks first:** Use Rehan's private-integration pattern.
+**If Tier C unblocks first:** Use the private-integration pattern.
 
 **Interim path (Tier B + GHL native calendar):**
 1. Capture data via fetch -> GHL webhook (Tier B above)
@@ -220,20 +220,17 @@ The training page application form is conceptually the same as Rehan's COD Step 
 ### Open questions before Nathan starts
 
 1. **Is Michelle's funnel on the same GHL sub-account (`h83O4TKy09yLLdfnIw3K`) or a different location?** Private integrations are per-location. If different, the COD permission block may not apply (could mean Tier C is available immediately).
-2. **GHL support ticket status** (Rehan opened it 2026-05-18 about private-integration permission on the COD location). Open as of doc creation date. Monitor `kas@russruffino.com` for the reply; until then Tier C is unavailable on the COD location.
+2. **GHL support ticket status** (opened 2026-05-18 about private-integration permission on the COD location). Open as of doc creation date. Monitor `kas@russruffino.com` for the reply; until then Tier C is unavailable on the COD location.
 3. **What GHL contact field IDs are pre-existing on Michelle's location?** Especially: a "biggest struggle" qualifier property and a "goal" long-text property. May need Nathan to create these before wiring.
 4. **Does the application form need to trigger a specific GHL pipeline stage / tag / follow-up sequence on submit?** Affects workflow design.
 5. **Are we okay with the reg form being fire-and-forget (Tier B) or do we need confirmation back to the user that the contact landed in GHL?** If the latter, server-side proxy required.
 
-### Rehan's playbook (verbatim, from his Slack 2026-05-18 and 2026-05-07)
+### Internal research notes (anonymized)
 
-> "Private integration access is blocking me to finish the Step 5 of the application page, as i need to book meeting in calendar from that step." (2026-05-18)
-
-> "i contacted GHL support they reported the issue to higher support and will respond once sorted on your kas@russ email address." (2026-05-18)
-
-> "If we add GHL's merge tag on the link `https://clientsondemand.live/maf?email={{GHL'S EMAIL FIELD}}` then it will instantly identify the user if it exists in GHL." (2026-05-07, applies to email-from-GHL-into-custom-HTML identification pattern)
-
-> "Native integration was showing form checkbox field separately instead of one combine field, i have created those 4 fields on contact property and updated the main one using new fields property with the help of workflow." (Yodel Mobile, 2024; applies to multi-radio mapping)
+- Tier C blocker: "Private integration access is blocking finishing Step 5 of the application page; needs to book meeting in calendar from that step." (2026-05-18)
+- Ticket status: "GHL support reported the issue to higher support and will respond at `kas@russruffino.com`." (2026-05-18)
+- Email passthrough pattern: append `?email={{GHL email field}}` to URL when sending from a GHL workflow/email; on-page JS reads the param to identify the user. (2026-05-07, used on COD /maf funnel)
+- Multi-radio mapping (Yodel Mobile 2024): native integration showed form checkbox field separately instead of one combined field; workaround = create 4 fields on contact property and update the main one using new fields via a workflow.
 
 ---
 

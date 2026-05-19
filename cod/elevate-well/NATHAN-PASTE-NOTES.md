@@ -132,6 +132,97 @@ Easiest path: GHL exposes booking date/time tokens. Drop them into the `startISO
 
 ---
 
+## Form connections to GHL (deep dive)
+
+The bundle has **3 forms** that need to land in GHL's CRM. Pick a tier per form based on what Michelle's GHL account supports and how much routing the data needs to do.
+
+### Forms in the bundle
+
+| Page | Form ID | Fields | Captures |
+|------|---------|--------|----------|
+| Registration | `#reg-form` (Step 1) | radio: `stubborn-weight` / `zero-energy` / `hormonal-chaos` / `all-above` | Lead-intent qualifier |
+| Registration | `#reg-form` (Step 2) | `name`, `email`, hidden `struggle` (from step 1) | Lead contact + qualifier |
+| Training | inline application (`#firstName`/`#email`/`#phone`/`#goal`) | first name, email, phone, goal text, frustration radio | Application data |
+
+### Tier A: GHL native form embed (preferred)
+
+**When to use:** Default for both forms unless visual framing breaks.
+
+**How:** In the GHL page builder, drop a Form/Survey element WHERE the current `<form>` block lives in the HTML. Build the GHL form with the same field labels (or as close as possible). The custom HTML provides hero/copy/section framing; the GHL widget owns inputs, validation, submit, and CRM landing. No JS wiring needed.
+
+**Gotcha (per Rehan, Yodel Mobile, 2024):** Multi-checkbox or multi-radio fields can show as separate contact properties in GHL CRM rather than one combined field. Workaround: create 4 separate contact properties (one per radio option) OR create a single property with predefined dropdown options matching the radio values. Map via a GHL workflow on form submit.
+
+### Tier B: fetch() POST to GHL inbound webhook (interim, no admin perm needed)
+
+**When to use:** If Tier A breaks layout, or if you need to keep the multi-step UX exactly as designed.
+
+**How:**
+1. In GHL: Automation > Create Workflow > Trigger: "Inbound Webhook" > copy the generated webhook URL.
+2. In each form's submit JS, add a `fetch()` POST before the redirect:
+
+```js
+async function pushToGHL(payload) {
+  try {
+    await fetch('NATHAN_REPLACE_WITH_GHL_INBOUND_WEBHOOK_URL', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('GHL webhook push failed', e);
+  }
+}
+```
+
+3. Call `pushToGHL({...formData})` inside `submitApplication()` (training) and the reg-form submit handler, BEFORE the redirect.
+4. Configure the GHL workflow to map webhook JSON fields to contact properties + apply tags + trigger follow-up automations.
+
+**Reg page is already structured for this**: form-submit handler at `elevate-well-registration-merged.html` ~line 1665 already calls `preventDefault()` and runs validation; just add `await pushToGHL({...})` before the `window.location.href` line.
+
+**Pros:** No GHL admin permission required. Nathan can ship today.
+**Cons:** No CRM writeback guarantees (fire-and-forget); calendar booking still needs separate handling.
+
+### Tier C: GHL Private Integration (Rehan's chosen path, currently BLOCKED)
+
+**Per Rehan, 2026-05-18 Slack:** This is what he's using for COD's application page Step 5 (calendar booking from custom HTML). It requires Private Integration access in GHL Location Settings:
+
+> `app.clientsondemand.app/v2/location/h83O4TKy09yLLdfnIw3K/settings/private-integrations`
+
+**STATUS:** Permission to create a private integration on the COD GHL location is currently blocked. Rehan reported the issue to GHL support on 2026-05-18; awaiting response at `kas@russruffino.com`. Until resolved, this tier is unavailable.
+
+**When resolved:** Generate a Private Integration token, call GHL API endpoints (`/contacts/upsert`, `/calendars/events`) from a server-side proxy (Cloudflare Worker, Vercel function) to keep the token out of the browser. Map fields via the API payload directly.
+
+### Calendar booking on the training page
+
+The training page application form is conceptually the same as Rehan's COD Step 5 work: capture applicant data AND book a calendar slot. Two paths:
+
+**If Tier C unblocks first:** Use Rehan's private-integration pattern.
+
+**Interim path (Tier B + GHL native calendar):**
+1. Capture data via fetch -> GHL webhook (Tier B above)
+2. Redirect to the booking page (step 3 of funnel) which already has the calendar embed placeholder
+3. GHL workflow on contact creation can pre-populate the booking calendar URL with the user's email so they don't re-enter it
+
+### Open questions before Nathan starts
+
+1. **Is Michelle's funnel on the same GHL sub-account (`h83O4TKy09yLLdfnIw3K`) or a different location?** Private integrations are per-location. If different, the COD permission block may not apply (could mean Tier C is available immediately).
+2. **Has GHL support resolved Rehan's private integration ticket?** Check `kas@russruffino.com` inbox.
+3. **What GHL contact field IDs are pre-existing on Michelle's location?** Especially: a "biggest struggle" qualifier property and a "goal" long-text property. May need Nathan to create these before wiring.
+4. **Does the application form need to trigger a specific GHL pipeline stage / tag / follow-up sequence on submit?** Affects workflow design.
+5. **Are we okay with the reg form being fire-and-forget (Tier B) or do we need confirmation back to the user that the contact landed in GHL?** If the latter, server-side proxy required.
+
+### Rehan's playbook (verbatim, from his Slack 2026-05-18 and 2026-05-07)
+
+> "Private integration access is blocking me to finish the Step 5 of the application page, as i need to book meeting in calendar from that step." (2026-05-18)
+
+> "i contacted GHL support they reported the issue to higher support and will respond once sorted on your kas@russ email address." (2026-05-18)
+
+> "If we add GHL's merge tag on the link `https://clientsondemand.live/maf?email={{GHL'S EMAIL FIELD}}` then it will instantly identify the user if it exists in GHL." (2026-05-07, applies to email-from-GHL-into-custom-HTML identification pattern)
+
+> "Native integration was showing form checkbox field separately instead of one combine field, i have created those 4 fields on contact property and updated the main one using new fields property with the help of workflow." (Yodel Mobile, 2024; applies to multi-radio mapping)
+
+---
+
 ## What was changed from the originals (audit fixes, 2026-05-18)
 
 1. **Removed click-to-timestamp video navigation** from the training page (per ADR-022; GHL doesn't support).

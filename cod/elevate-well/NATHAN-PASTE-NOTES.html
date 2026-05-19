@@ -359,6 +359,113 @@
     <p>If GHL Liquid syntax is different on your build, ask in COD Slack; default 24h-from-now behavior is safe for paste-testing.</p>
   </div>
 
+  <h2>Form connections to GHL (deep dive)</h2>
+  <div class="card">
+    <p>The bundle has <strong>3 forms</strong> that need to land in GHL's CRM. Pick a tier per form based on what Michelle's GHL account supports and how much routing the data needs to do.</p>
+
+    <h3 style="margin-top: 24px;">Forms in the bundle</h3>
+    <table>
+      <thead><tr><th>Page</th><th>Form ID</th><th>Fields</th><th>Captures</th></tr></thead>
+      <tbody>
+        <tr><td>Registration</td><td><code>#reg-form</code> Step 1</td><td>radio: <code>stubborn-weight</code> / <code>zero-energy</code> / <code>hormonal-chaos</code> / <code>all-above</code></td><td>Lead-intent qualifier</td></tr>
+        <tr><td>Registration</td><td><code>#reg-form</code> Step 2</td><td><code>name</code>, <code>email</code>, hidden <code>struggle</code></td><td>Lead contact + qualifier</td></tr>
+        <tr><td>Training</td><td>inline application</td><td><code>firstName</code>, <code>email</code>, <code>phone</code>, <code>goal</code>, <code>frustration</code></td><td>Application data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num" style="background: var(--teal);">A</span>
+    <h3>Tier A: GHL native form embed (preferred)</h3>
+    <p><strong>When to use:</strong> Default for both forms unless visual framing breaks.</p>
+    <p><strong>How:</strong> In the GHL page builder, drop a Form / Survey element WHERE the current <code>&lt;form&gt;</code> block lives in the HTML. Build the GHL form with the same field labels. The custom HTML provides hero/copy/section framing; the GHL widget owns inputs, validation, submit, and CRM landing. No JS wiring needed.</p>
+    <div class="callout callout--warning">
+      <strong>Gotcha (per Rehan, Yodel Mobile 2024):</strong> Multi-checkbox or multi-radio fields can show as separate contact properties in GHL CRM rather than one combined field. Workaround: create 4 separate contact properties (one per radio option) OR create a single property with predefined dropdown options matching the radio values. Map via a GHL workflow on form submit.
+    </div>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num" style="background: var(--teal);">B</span>
+    <h3>Tier B: fetch() POST to GHL inbound webhook (interim, no admin perm needed)</h3>
+    <p><strong>When to use:</strong> If Tier A breaks layout, or you need to keep the multi-step UX exactly as designed.</p>
+    <p><strong>How:</strong></p>
+    <ol>
+      <li>In GHL: <code>Automation &gt; Create Workflow &gt; Trigger: Inbound Webhook</code>, copy the generated webhook URL.</li>
+      <li>In each form's submit JS, add a <code>fetch()</code> POST before the redirect:</li>
+    </ol>
+    <pre style="background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.5; margin: 12px 0;"><code style="background: transparent; padding: 0;">async function pushToGHL(payload) {
+  try {
+    await fetch('NATHAN_REPLACE_WITH_GHL_INBOUND_WEBHOOK_URL', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('GHL webhook push failed', e);
+  }
+}</code></pre>
+    <ol start="3">
+      <li>Call <code>pushToGHL({...formData})</code> inside <code>submitApplication()</code> (training) and the reg-form submit handler, BEFORE the redirect.</li>
+      <li>Configure the GHL workflow to map webhook JSON fields to contact properties, apply tags, trigger follow-up automations.</li>
+    </ol>
+    <p><strong>Reg page is already structured for this:</strong> the form-submit handler at <code>elevate-well-registration-merged.html</code> line ~1665 already calls <code>preventDefault()</code> and runs validation; just add <code>await pushToGHL({...})</code> before the <code>window.location.href</code> line.</p>
+    <p style="margin-top: 14px;"><strong>Pros:</strong> No GHL admin permission required. Nathan can ship today.<br>
+    <strong>Cons:</strong> Fire-and-forget; calendar booking still needs separate handling.</p>
+  </div>
+
+  <div class="card swap-card">
+    <span class="swap-num" style="background: var(--text-muted);">C</span>
+    <h3>Tier C: GHL Private Integration (Rehan's chosen path, currently BLOCKED)</h3>
+    <p>Per Rehan's Slack 2026-05-18: this is what he's using for COD's application page Step 5 (calendar booking from custom HTML). It requires Private Integration access in GHL Location Settings.</p>
+    <div class="callout callout--warning">
+      <strong>STATUS:</strong> Permission to create a private integration on the COD GHL location is currently blocked. Rehan reported the issue to GHL support on 2026-05-18; awaiting response at <code>kas@russruffino.com</code>. Until resolved, this tier is unavailable.
+    </div>
+    <p><strong>Settings URL:</strong> <code>app.clientsondemand.app/v2/location/h83O4TKy09yLLdfnIw3K/settings/private-integrations</code></p>
+    <p><strong>When resolved:</strong> Generate a Private Integration token; call GHL API endpoints (<code>/contacts/upsert</code>, <code>/calendars/events</code>) from a server-side proxy (Cloudflare Worker, Vercel function) to keep the token out of the browser. Map fields via the API payload directly.</p>
+  </div>
+
+  <div class="card">
+    <h3>Calendar booking on the training page</h3>
+    <p>The training page application form is conceptually the same as Rehan's COD Step 5 work: capture applicant data AND book a calendar slot. Two paths:</p>
+    <ul>
+      <li><strong>If Tier C unblocks first:</strong> Use Rehan's private-integration pattern (single transaction).</li>
+      <li><strong>Interim path (Tier B + GHL native calendar):</strong>
+        <ol>
+          <li>Capture data via fetch to GHL webhook (Tier B above)</li>
+          <li>Redirect to the booking page (step 3 of funnel) which has the calendar embed placeholder</li>
+          <li>GHL workflow on contact creation can pre-populate the booking calendar URL with the user's email so they don't re-enter it</li>
+        </ol>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Open questions before Nathan starts</h3>
+    <ol>
+      <li><strong>Is Michelle's funnel on the same GHL sub-account</strong> (<code>h83O4TKy09yLLdfnIw3K</code>) or a different location? Private integrations are per-location. If different, the COD permission block may not apply, which could mean Tier C is available immediately.</li>
+      <li><strong>Has GHL support resolved Rehan's private integration ticket?</strong> Check <code>kas@russruffino.com</code> inbox.</li>
+      <li><strong>What GHL contact field IDs are pre-existing on Michelle's location?</strong> Especially a "biggest struggle" qualifier property and a "goal" long-text property. May need Nathan to create these before wiring.</li>
+      <li><strong>Does the application form need to trigger a specific GHL pipeline stage / tag / follow-up sequence on submit?</strong> Affects workflow design.</li>
+      <li><strong>Fire-and-forget OK?</strong> Or do we need confirmation back to the user that the contact landed in GHL? If the latter, server-side proxy required.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Rehan's playbook (verbatim from his Slack)</h3>
+    <blockquote style="border-left: 3px solid var(--coral); padding: 8px 16px; margin: 10px 0; color: var(--text-body); font-style: italic; background: var(--coral-light); border-radius: 0 6px 6px 0;">
+      "Private integration access is blocking me to finish the Step 5 of the application page, as i need to book meeting in calendar from that step." <span style="color: var(--text-muted); font-style: normal; font-size: 12px;">(Rehan, 2026-05-18)</span>
+    </blockquote>
+    <blockquote style="border-left: 3px solid var(--coral); padding: 8px 16px; margin: 10px 0; color: var(--text-body); font-style: italic; background: var(--coral-light); border-radius: 0 6px 6px 0;">
+      "I contacted GHL support they reported the issue to higher support and will respond once sorted on your kas@russ email address." <span style="color: var(--text-muted); font-style: normal; font-size: 12px;">(Rehan, 2026-05-18)</span>
+    </blockquote>
+    <blockquote style="border-left: 3px solid var(--coral); padding: 8px 16px; margin: 10px 0; color: var(--text-body); font-style: italic; background: var(--coral-light); border-radius: 0 6px 6px 0;">
+      "If we add GHL's merge tag on the link <code style="font-style: normal;">https://clientsondemand.live/maf?email={{GHL'S EMAIL FIELD}}</code> then it will instantly identify the user if it exists in GHL." <span style="color: var(--text-muted); font-style: normal; font-size: 12px;">(Rehan, 2026-05-07, email-passthrough pattern)</span>
+    </blockquote>
+    <blockquote style="border-left: 3px solid var(--coral); padding: 8px 16px; margin: 10px 0; color: var(--text-body); font-style: italic; background: var(--coral-light); border-radius: 0 6px 6px 0;">
+      "Native integration was showing form checkbox field separately instead of one combine field; i have created those 4 fields on contact property and updated the main one using new fields property with the help of workflow." <span style="color: var(--text-muted); font-style: normal; font-size: 12px;">(Rehan, Yodel Mobile 2024, multi-radio gotcha)</span>
+    </blockquote>
+  </div>
+
   <h2>What was changed from the originals</h2>
   <div class="card">
     <ol class="fixes-list">

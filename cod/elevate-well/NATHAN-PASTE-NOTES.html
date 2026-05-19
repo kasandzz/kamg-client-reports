@@ -284,7 +284,7 @@
     <span class="swap-num">3</span>
     <h3>Training-page application form submit</h3>
     <div class="callout callout--info">
-      <strong>Preferred path (GHL native):</strong> Replace the entire custom <code>&lt;form&gt;</code> block (lines ~1382-1432 inside <code>#applicationSection</code>) with the GHL native form / survey widget that already feeds Michelle's CRM. The custom HTML provides the section framing; the GHL widget owns the inputs, validation, and submit. No JS wiring needed and the data lands in GHL automatically.
+      <strong>Preferred path (GHL native):</strong> Replace the entire <code>#applicationSection</code> form block (lines ~1370-1410) with the GHL native form / survey widget. <strong>Note:</strong> the training page doesn't use a <code>&lt;form&gt;</code> tag; the application widget is a series of bare <code>&lt;input&gt;</code> elements + a <code>&lt;button onclick="submitApplication()"&gt;</code> that JS-handles the submit. So "replace the form" means: replace the whole question + name/email/phone/goal block + the submit button with a single GHL form widget. The custom HTML provides section framing; the GHL widget owns inputs, validation, and CRM submit. No JS wiring needed.
     </div>
     <p><strong>Fallback (keep the custom form):</strong> If the native widget visually breaks the section, keep the custom form and:</p>
     <table>
@@ -319,7 +319,7 @@
       <thead><tr><th>Find</th><th>Replace with</th></tr></thead>
       <tbody><tr><td><code>'NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL'</code></td><td>Full GHL training-page URL (absolute <code>https://</code>)</td></tr></tbody>
     </table>
-    <p><strong>Affected:</strong> <code>elevate-well-registration-merged.html</code> line ~1680 (inside the form-submit handler).</p>
+    <p><strong>Affected:</strong> <code>elevate-well-registration-merged.html</code> line ~1707 (the <code>window.location.href</code> line inside the form-submit handler at ~line 1697).</p>
     <p>Same reason as swap 1: relative paths don't resolve inside GHL HTML blocks. Must be absolute.</p>
   </div>
 
@@ -362,14 +362,14 @@
   <h2>Form connections to GHL (deep dive)</h2>
   <div class="card">
     <p>The bundle has <strong>3 forms</strong> that need to land in GHL's CRM. Pick a tier per form based on what Michelle's GHL account supports and how much routing the data needs to do.</p>
+    <p style="color: var(--text-muted); font-size: 14px;">This section is wiring strategy reference, NOT an 8th find-and-replace swap; it informs swaps 3 and 5.</p>
 
     <h3 style="margin-top: 24px;">Forms in the bundle</h3>
     <table>
       <thead><tr><th>Page</th><th>Form ID</th><th>Fields</th><th>Captures</th></tr></thead>
       <tbody>
-        <tr><td>Registration</td><td><code>#reg-form</code> Step 1</td><td>radio: <code>stubborn-weight</code> / <code>zero-energy</code> / <code>hormonal-chaos</code> / <code>all-above</code></td><td>Lead-intent qualifier</td></tr>
-        <tr><td>Registration</td><td><code>#reg-form</code> Step 2</td><td><code>name</code>, <code>email</code>, hidden <code>struggle</code></td><td>Lead contact + qualifier</td></tr>
-        <tr><td>Training</td><td>inline application</td><td><code>firstName</code>, <code>email</code>, <code>phone</code>, <code>goal</code>, <code>frustration</code></td><td>Application data</td></tr>
+        <tr><td>Registration</td><td><code>#reg-form</code> (single form, 2 visual steps)</td><td>Step 1 radio <code>name="struggle"</code> (4 options: stubborn-weight / zero-energy / hormonal-chaos / all-above). Step 2 inputs <code>id="reg-name"</code> + <code>id="reg-email"</code> + hidden <code>id="struggle-value"</code> (carries radio value).</td><td>Lead contact + intent qualifier</td></tr>
+        <tr><td>Training</td><td>inline application (no <code>&lt;form&gt;</code> tag; bare inputs + <code>&lt;button onclick="submitApplication()"&gt;</code>)</td><td><code>id="firstName"</code>, <code>id="email"</code>, <code>id="phone"</code>, <code>id="goal"</code>, <code>name="frustration"</code> radio (4 options)</td><td>Application data + qualifier</td></tr>
       </tbody>
     </table>
   </div>
@@ -387,11 +387,14 @@
   <div class="card swap-card">
     <span class="swap-num" style="background: var(--teal);">B</span>
     <h3>Tier B: fetch() POST to GHL inbound webhook (interim, no admin perm needed)</h3>
+    <div class="callout callout--warning">
+      <strong>Source attribution:</strong> This is Kas's recommendation, NOT Rehan's. Rehan's Slack doesn't include this pattern for GHL specifically; he's building toward Tier C (private integration). Tier B is a "ship today, no admin perm needed" interim path; verify it actually works in Michelle's GHL location before relying on it.
+    </div>
     <p><strong>When to use:</strong> If Tier A breaks layout, or you need to keep the multi-step UX exactly as designed.</p>
     <p><strong>How:</strong></p>
     <ol>
-      <li>In GHL: <code>Automation &gt; Create Workflow &gt; Trigger: Inbound Webhook</code>, copy the generated webhook URL.</li>
-      <li>In each form's submit JS, add a <code>fetch()</code> POST before the redirect:</li>
+      <li>In GHL: <code>Automation &gt; Create Workflow &gt; Add Trigger</code> and pick the webhook-style trigger (label varies by GHL version: "Inbound Webhook", "Webhook", or "Custom Webhook"). Copy the generated webhook URL.</li>
+      <li>Add a <code>pushToGHL</code> helper to the page's existing <code>&lt;script&gt;</code> block:</li>
     </ol>
     <pre style="background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.5; margin: 12px 0;"><code style="background: transparent; padding: 0;">async function pushToGHL(payload) {
   try {
@@ -408,9 +411,22 @@
       <li>Call <code>pushToGHL({...formData})</code> inside <code>submitApplication()</code> (training) and the reg-form submit handler, BEFORE the redirect.</li>
       <li>Configure the GHL workflow to map webhook JSON fields to contact properties, apply tags, trigger follow-up automations.</li>
     </ol>
-    <p><strong>Reg page is already structured for this:</strong> the form-submit handler at <code>elevate-well-registration-merged.html</code> line ~1665 already calls <code>preventDefault()</code> and runs validation; just add <code>await pushToGHL({...})</code> before the <code>window.location.href</code> line.</p>
+
+    <div class="callout callout--warning">
+      <strong>CORS caveat (IMPORTANT):</strong> GHL inbound webhooks may not return CORS headers on the response. With <code>Content-Type: application/json</code>, the browser issues a preflight <code>OPTIONS</code> request first; if GHL doesn't respond with the right <code>Access-Control-Allow-*</code> headers, the browser blocks the POST and the <code>catch</code> block runs silently (Nathan thinks it works; no contact lands in GHL). <strong>Test in browser console first.</strong> If you see a CORS error, swap to the no-cors fire-and-forget pattern:
+    </div>
+    <pre style="background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.5; margin: 12px 0;"><code style="background: transparent; padding: 0;">fetch('NATHAN_REPLACE_WITH_GHL_INBOUND_WEBHOOK_URL', {
+  method: 'POST',
+  mode: 'no-cors',
+  keepalive: true,
+  headers: { 'Content-Type': 'text/plain' },  // text/plain avoids preflight
+  body: JSON.stringify(payload)
+});</code></pre>
+    <p>With <code>no-cors</code>, the request fires but you can't read the response (always opaque). The POST still lands in GHL. Trade-off: zero confirmation of delivery in the browser. For confirmation, route through a server-side proxy (Cloudflare Worker, Vercel function) where you control CORS on your domain.</p>
+
+    <p style="margin-top: 14px;"><strong>Reg page is already structured for this:</strong> form-submit handler at <code>elevate-well-registration-merged.html</code> line ~1697 already calls <code>preventDefault()</code> and runs validation; the redirect is line ~1707. Add <code>await pushToGHL({...})</code> before the <code>window.location.href</code> line.</p>
     <p style="margin-top: 14px;"><strong>Pros:</strong> No GHL admin permission required. Nathan can ship today.<br>
-    <strong>Cons:</strong> Fire-and-forget; calendar booking still needs separate handling.</p>
+    <strong>Cons:</strong> Fire-and-forget (especially in no-cors mode); calendar booking still needs separate handling.</p>
   </div>
 
   <div class="card swap-card">
@@ -443,7 +459,7 @@
     <h3>Open questions before Nathan starts</h3>
     <ol>
       <li><strong>Is Michelle's funnel on the same GHL sub-account</strong> (<code>h83O4TKy09yLLdfnIw3K</code>) or a different location? Private integrations are per-location. If different, the COD permission block may not apply, which could mean Tier C is available immediately.</li>
-      <li><strong>Has GHL support resolved Rehan's private integration ticket?</strong> Check <code>kas@russruffino.com</code> inbox.</li>
+      <li><strong>GHL support ticket status</strong> (Rehan opened it 2026-05-18 about private-integration permission on the COD location). Open as of doc creation date. Monitor <code>kas@russruffino.com</code> for the reply; until then Tier C is unavailable on the COD location.</li>
       <li><strong>What GHL contact field IDs are pre-existing on Michelle's location?</strong> Especially a "biggest struggle" qualifier property and a "goal" long-text property. May need Nathan to create these before wiring.</li>
       <li><strong>Does the application form need to trigger a specific GHL pipeline stage / tag / follow-up sequence on submit?</strong> Affects workflow design.</li>
       <li><strong>Fire-and-forget OK?</strong> Or do we need confirmation back to the user that the contact landed in GHL? If the latter, server-side proxy required.</li>

@@ -56,7 +56,7 @@ The iframe loads on play-button click. Click-to-seek timestamps removed - the se
 
 ### 3. Training-page application form submit
 
-**Preferred path (GHL native):** Replace the entire custom `<form>` block (lines ~1382-1432 inside the `#applicationSection`) with the GHL native form / survey widget that already feeds Michelle's CRM. The custom HTML provides the section framing; the GHL widget owns the inputs, validation, and submit. This way no JS wiring is needed and the data lands in GHL automatically.
+**Preferred path (GHL native):** Replace the entire `#applicationSection` form block (lines ~1370-1410) with the GHL native form / survey widget that feeds Michelle's CRM. Note: the training page doesn't use a `<form>` tag; the application widget is a series of bare `<input>` elements plus a `<button onclick="submitApplication()">` that JS-handles the submit. So "replace the form" means: replace the whole question + name/email/phone/goal block + the submit button with a single GHL form widget. The custom HTML provides the section framing; the GHL widget owns inputs, validation, and CRM submit. No JS wiring needed.
 
 **Fallback (keep the custom form):** If the native widget visually breaks the section, keep the custom form and:
 
@@ -92,7 +92,7 @@ Affected lines: `elevate-well-booking-rebuilt.html` lines ~903-915.
 |------|--------------|
 | `'NATHAN_REPLACE_WITH_TRAINING_URL_FROM_GHL'` | Full GHL training-page URL (absolute `https://`) |
 
-Affected line: `elevate-well-registration-merged.html` line ~1680 (inside the form-submit handler).
+Affected line: `elevate-well-registration-merged.html` line ~1707 (the `window.location.href` line inside the form-submit handler at ~line 1697).
 
 Same reason as swap #1: relative paths don't resolve inside GHL HTML blocks. Must be absolute.
 
@@ -134,15 +134,14 @@ Easiest path: GHL exposes booking date/time tokens. Drop them into the `startISO
 
 ## Form connections to GHL (deep dive)
 
-The bundle has **3 forms** that need to land in GHL's CRM. Pick a tier per form based on what Michelle's GHL account supports and how much routing the data needs to do.
+The bundle has **3 forms** that need to land in GHL's CRM. Pick a tier per form based on what Michelle's GHL account supports and how much routing the data needs to do. (This section is wiring strategy reference, NOT an 8th find-and-replace swap; it informs swaps 3 and 5.)
 
 ### Forms in the bundle
 
 | Page | Form ID | Fields | Captures |
 |------|---------|--------|----------|
-| Registration | `#reg-form` (Step 1) | radio: `stubborn-weight` / `zero-energy` / `hormonal-chaos` / `all-above` | Lead-intent qualifier |
-| Registration | `#reg-form` (Step 2) | `name`, `email`, hidden `struggle` (from step 1) | Lead contact + qualifier |
-| Training | inline application (`#firstName`/`#email`/`#phone`/`#goal`) | first name, email, phone, goal text, frustration radio | Application data |
+| Registration | `#reg-form` (single form, 2 visual steps) | Step 1 radio `name="struggle"` (4 options: `stubborn-weight` / `zero-energy` / `hormonal-chaos` / `all-above`). Step 2 inputs `id="reg-name"` (`name="name"`) + `id="reg-email"` (`name="email"`) + hidden `id="struggle-value"` (`name="struggle"`) that carries the Step 1 value. | Lead contact + intent qualifier |
+| Training | inline application (no `<form>` tag; bare inputs + `<button onclick="submitApplication()">`) | `id="firstName"` + `id="email"` + `id="phone"` + `id="goal"` + `name="frustration"` radio (4 options) | Application data + qualifier |
 
 ### Tier A: GHL native form embed (preferred)
 
@@ -154,11 +153,13 @@ The bundle has **3 forms** that need to land in GHL's CRM. Pick a tier per form 
 
 ### Tier B: fetch() POST to GHL inbound webhook (interim, no admin perm needed)
 
-**When to use:** If Tier A breaks layout, or if you need to keep the multi-step UX exactly as designed.
+**Source attribution:** This is Kas's recommendation, NOT Rehan's. Rehan's Slack history doesn't include this pattern for GHL specifically; he's building toward Tier C (private integration). Tier B is a "ship today, no admin perm needed" interim path; verify it actually works in Michelle's GHL location before relying on it.
+
+**When to use:** If Tier A breaks layout, or you need to keep the multi-step UX exactly as designed.
 
 **How:**
-1. In GHL: Automation > Create Workflow > Trigger: "Inbound Webhook" > copy the generated webhook URL.
-2. In each form's submit JS, add a `fetch()` POST before the redirect:
+1. In GHL: `Automation > Create Workflow > Add Trigger` and pick the webhook-style trigger (label varies by GHL version: "Inbound Webhook", "Webhook", or "Custom Webhook"). Copy the generated webhook URL.
+2. Add a `pushToGHL` helper to the page's existing `<script>` block:
 
 ```js
 async function pushToGHL(payload) {
@@ -175,12 +176,25 @@ async function pushToGHL(payload) {
 ```
 
 3. Call `pushToGHL({...formData})` inside `submitApplication()` (training) and the reg-form submit handler, BEFORE the redirect.
-4. Configure the GHL workflow to map webhook JSON fields to contact properties + apply tags + trigger follow-up automations.
+4. Configure the GHL workflow to map webhook JSON fields to contact properties, apply tags, trigger follow-up automations.
 
-**Reg page is already structured for this**: form-submit handler at `elevate-well-registration-merged.html` ~line 1665 already calls `preventDefault()` and runs validation; just add `await pushToGHL({...})` before the `window.location.href` line.
+**CORS caveat (IMPORTANT):** GHL inbound webhooks may not return CORS headers on the response. With `Content-Type: application/json`, the browser issues a preflight `OPTIONS` request first; if GHL doesn't respond with the right `Access-Control-Allow-*` headers, the browser blocks the POST and the `catch` block runs silently (Nathan thinks it works; no contact lands in GHL). **Test in browser console first.** If you see a CORS error, swap to the no-cors fire-and-forget pattern:
+
+```js
+fetch('NATHAN_REPLACE_WITH_GHL_INBOUND_WEBHOOK_URL', {
+  method: 'POST',
+  mode: 'no-cors',
+  keepalive: true,
+  headers: { 'Content-Type': 'text/plain' },  // text/plain avoids preflight
+  body: JSON.stringify(payload)
+});
+```
+With `no-cors`, the request fires but you can't read the response (always opaque). The POST still lands in GHL. Trade-off: zero confirmation of delivery in the browser. For confirmation, route through a server-side proxy (Cloudflare Worker, Vercel function) where you control CORS on your domain.
+
+**Reg page is already structured for this:** form-submit handler at `elevate-well-registration-merged.html` ~line 1697 already calls `preventDefault()` and runs validation; the redirect is line ~1707. Just add `await pushToGHL({...})` before the `window.location.href` line.
 
 **Pros:** No GHL admin permission required. Nathan can ship today.
-**Cons:** No CRM writeback guarantees (fire-and-forget); calendar booking still needs separate handling.
+**Cons:** Fire-and-forget (especially in no-cors mode); calendar booking still needs separate handling.
 
 ### Tier C: GHL Private Integration (Rehan's chosen path, currently BLOCKED)
 
@@ -206,7 +220,7 @@ The training page application form is conceptually the same as Rehan's COD Step 
 ### Open questions before Nathan starts
 
 1. **Is Michelle's funnel on the same GHL sub-account (`h83O4TKy09yLLdfnIw3K`) or a different location?** Private integrations are per-location. If different, the COD permission block may not apply (could mean Tier C is available immediately).
-2. **Has GHL support resolved Rehan's private integration ticket?** Check `kas@russruffino.com` inbox.
+2. **GHL support ticket status** (Rehan opened it 2026-05-18 about private-integration permission on the COD location). Open as of doc creation date. Monitor `kas@russruffino.com` for the reply; until then Tier C is unavailable on the COD location.
 3. **What GHL contact field IDs are pre-existing on Michelle's location?** Especially: a "biggest struggle" qualifier property and a "goal" long-text property. May need Nathan to create these before wiring.
 4. **Does the application form need to trigger a specific GHL pipeline stage / tag / follow-up sequence on submit?** Affects workflow design.
 5. **Are we okay with the reg form being fire-and-forget (Tier B) or do we need confirmation back to the user that the contact landed in GHL?** If the latter, server-side proxy required.

@@ -139,7 +139,7 @@ Easiest path: GHL exposes booking date/time tokens. Drop them into the `startISO
    - `seekVideo()` JS function deleted.
    - Subheadline copy updated from "Click any timestamp to jump..." to "Here is what you will cover...".
 
-2. **Registration-page countdown JS null-safe guard.** The original `updateCountdown` referenced `cd-days`/`cd-hours`/`cd-mins`/`cd-secs` IDs that don't exist in the DOM; the IIFE was throwing on first call and silently breaking the rest of the script. Added an early-return guard so the countdown is a no-op until those IDs exist.
+2. **Registration-page countdown widget now renders and counts down.** The original build shipped the countdown CSS + JS but never added the HTML widget; the JS was failing every tick on missing IDs (`cd-days` / `cd-hours` / `cd-mins` / `cd-secs`) and silently breaking the rest of the script. Added the missing `<div class="countdown-card">` widget directly under the registration form with the right IDs, plus kept the null-safe guard as a defense-in-depth fallback. Behavior: each pageload sets the target to `now + 3 days at 7pm`, counts down live until then. (Evergreen-style scarcity, matches the "Only 47 spots remaining" copy choice; flag with Russ if needed.)
 
 3. **Registration-page social proof number** changed from "1,247+ other women" to "hundreds of other women" (unverifiable specific count is FTC-exposed).
 
